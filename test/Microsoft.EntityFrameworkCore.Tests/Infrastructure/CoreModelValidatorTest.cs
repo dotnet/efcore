@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
             CreateForeignKey(keyA, keyB);
             CreateForeignKey(keyB, keyA);
 
-            keyA.Properties[0].RequiresValueGenerator = true;
+            keyA.Properties[0].ValueGenerated = ValueGenerated.OnAdd;
 
             Validate(model);
         }

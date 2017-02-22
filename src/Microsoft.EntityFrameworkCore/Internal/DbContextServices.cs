@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private IServiceProvider _scopedProvider;
         private IDbContextOptions _contextOptions;
         private ICurrentDbContext _currentContext;
-        private LazyRef<IModel> _modelFromSource;
-        private LazyRef<IDatabaseProviderServices> _providerServices;
+        private IModel _modelFromSource;
         private bool _inOnModelCreating;
         private ILoggerFactory _loggerFactory;
         private IMemoryCache _memoryCache;
@@ -40,13 +41,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _contextOptions = contextOptions;
             _currentContext = new CurrentDbContext(context);
 
-            _providerServices = new LazyRef<IDatabaseProviderServices>(() =>
-                _scopedProvider.GetRequiredService<IDatabaseProviderSelector>().SelectServices());
+            var providers = _scopedProvider.GetService<IEnumerable<IDatabaseProvider>>()?.ToList();
+            var providerCount = providers?.Count ?? 0;
 
-            _modelFromSource = new LazyRef<IModel>(CreateModel);
+            if (providerCount > 1)
+            {
+                throw new InvalidOperationException(CoreStrings.MultipleProvidersConfigured(BuildDatabaseNamesString(providers)));
+            }
+
+            if (providerCount == 0
+                || !providers[0].IsConfigured(contextOptions))
+            {
+                throw new InvalidOperationException(CoreStrings.NoProviderConfigured);
+            }
 
             return this;
         }
+
+        private string BuildDatabaseNamesString(IEnumerable<IDatabaseProvider> available)
+            => string.Join(", ", available.Select(e => "'" + e.InvariantName +"'"));
 
         private IModel CreateModel()
         {
@@ -59,10 +72,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 _inOnModelCreating = true;
 
-                return _providerServices.Value.ModelSource.GetModel(
+                return _scopedProvider.GetService<IModelSource>().GetModel(
                     _currentContext.Context,
-                    _providerServices.Value.ConventionSetBuilder,
-                    _providerServices.Value.ModelValidator);
+                    _scopedProvider.GetService<IConventionSetBuilder>(),
+                    _scopedProvider.GetService<IModelValidator>());
             }
             finally
             {
@@ -80,7 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IModel Model => CoreOptions?.Model ?? _modelFromSource.Value;
+        public virtual IModel Model
+            => CoreOptions?.Model
+               ?? (_modelFromSource
+                   ?? (_modelFromSource = CreateModel()));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -109,34 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IDatabaseProviderServices DatabaseProviderServices
-        {
-            get
-            {
-                Debug.Assert(
-                    _providerServices != null,
-                    "DbContextServices not initialized. This may mean a service is registered as Singleton when it needs to be Scoped because it depends on other Scoped services.");
-
-                return _providerServices.Value;
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public virtual IServiceProvider InternalServiceProvider => _scopedProvider;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void Reset()
-        {
-            if (_providerServices.HasValue)
-            {
-                _providerServices.Value.Reset();
-            }
-        }
     }
 }

@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -37,22 +38,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private int _openedCount;
         private bool _openedInternally;
         private int? _commandTimeout;
-        private readonly ILogger _logger;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="IRelationalConnection" /> class.
+        ///     Initializes a new instance of the <see cref="RelationalConnection" /> class.
         /// </summary>
-        /// <param name="options"> The options for the context that this connection will be used with. </param>
-        /// <param name="logger"> The logger to write to. </param>
-        protected RelationalConnection([NotNull] IDbContextOptions options, [NotNull] ILogger logger)
+        /// <param name="dependencies">Parameter object containing dependencies for this service. </param>
+        protected RelationalConnection([NotNull] RelationalConnectionDependencies dependencies)
         {
-            Check.NotNull(options, nameof(options));
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _logger = logger;
+            Dependencies = dependencies;
 
-            var relationalOptions = RelationalOptionsExtension.Extract(options);
-
+            var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
+            
             _commandTimeout = relationalOptions.CommandTimeout;
 
             if (relationalOptions.Connection != null)
@@ -78,6 +76,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     The unique identifier for this connection.
+        /// </summary>
+        public virtual Guid ConnectionId { get; } = Guid.NewGuid();
+
+        /// <summary>
+        ///     Parameter object containing service dependencies.
+        /// </summary>
+        protected virtual RelationalConnectionDependencies Dependencies { get; }
+
+        /// <summary>
         ///     Creates a <see cref="DbConnection" /> to the database.
         /// </summary>
         /// <returns> The connection. </returns>
@@ -86,7 +94,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the logger to write to.
         /// </summary>
-        protected virtual ILogger Logger => _logger;
+        protected virtual ILogger Logger => Dependencies.Logger;
+
+        /// <summary>
+        ///     Gets the diagnostic source.
+        /// </summary>
+        protected virtual DiagnosticSource DiagnosticSource => Dependencies.DiagnosticSource;
 
         /// <summary>
         ///     Gets the connection string for the database.
@@ -112,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             set
             {
                 if (value.HasValue
-                    && (value < 0))
+                    && value < 0)
                 {
                     throw new ArgumentException(RelationalStrings.InvalidCommandTimeout);
                 }
@@ -182,9 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private IDbContextTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
         {
-            Check.NotNull(_logger, nameof(_logger));
-
-            _logger.LogDebug(
+            Logger.LogDebug(
                 RelationalEventId.BeginningTransaction,
                 isolationLevel,
                 il => RelationalStrings.RelationalLoggerBeginningTransaction(il.ToString("G")));
@@ -193,7 +204,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 = new RelationalTransaction(
                     this,
                     DbConnection.BeginTransaction(isolationLevel),
-                    _logger,
+                    Logger,
+                    DiagnosticSource,
                     transactionOwned: true);
 
             return CurrentTransaction;
@@ -221,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 Open();
 
-                CurrentTransaction = new RelationalTransaction(this, transaction, _logger, transactionOwned: false);
+                CurrentTransaction = new RelationalTransaction(this, transaction, Logger, DiagnosticSource, transactionOwned: false);
             }
 
             return CurrentTransaction;
@@ -256,7 +268,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Opens the connection to the database.
         /// </summary>
-        public virtual void Open()
+        /// <returns> True if the underlying connection was actually opened; false otherwise. </returns>
+        public virtual bool Open()
         {
             CheckForAmbientTransactions();
 
@@ -265,9 +278,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _connection.Value.Close();
             }
 
+            var wasOpened = false;
+
             if (_connection.Value.State != ConnectionState.Open)
             {
-                _logger.LogDebug(
+                Logger.LogDebug(
                     RelationalEventId.OpeningConnection,
                     new
                     {
@@ -279,7 +294,39 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.Database,
                             state.DataSource));
 
-                _connection.Value.Open();
+                var startTimestamp = Stopwatch.GetTimestamp();
+                var instanceId = Guid.NewGuid();
+                DiagnosticSource.WriteConnectionOpening(_connection.Value,
+                    ConnectionId,
+                    instanceId,
+                    startTimestamp,
+                    async: false);
+
+                try
+                {
+                    _connection.Value.Open();
+                    wasOpened = true;
+
+                    var currentTimestamp = Stopwatch.GetTimestamp();
+                    DiagnosticSource.WriteConnectionOpened(_connection.Value, 
+                        ConnectionId,
+                        instanceId,
+                        startTimestamp, 
+                        currentTimestamp,
+                        async: false);
+                }
+                catch (Exception e)
+                {
+                    var currentTimestamp = Stopwatch.GetTimestamp();
+                    DiagnosticSource.WriteConnectionError(_connection.Value, 
+                        ConnectionId, 
+                        e,
+                        instanceId,
+                        startTimestamp,
+                        currentTimestamp,
+                        async: false);
+                    throw;
+                }
 
                 if (_openedCount == 0)
                 {
@@ -291,6 +338,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 _openedCount++;
             }
+
+            return wasOpened;
         }
 
         /// <summary>
@@ -299,8 +348,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        public virtual async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns>
+        ///     A task that represents the asynchronous operation, with a value of true if the connection
+        ///     was actually opened.
+        /// </returns>
+        public virtual async Task<bool> OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             CheckForAmbientTransactions();
 
@@ -309,9 +361,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _connection.Value.Close();
             }
 
+            var wasOpened = false;
+
             if (_connection.Value.State != ConnectionState.Open)
             {
-                _logger.LogDebug(
+                Logger.LogDebug(
                     RelationalEventId.OpeningConnection,
                     new
                     {
@@ -323,7 +377,39 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.Database,
                             state.DataSource));
 
-                await _connection.Value.OpenAsync(cancellationToken);
+                var startTimestamp = Stopwatch.GetTimestamp();
+                var instanceId = Guid.NewGuid();
+                DiagnosticSource.WriteConnectionOpening(_connection.Value,
+                    ConnectionId,
+                    instanceId,
+                    startTimestamp,
+                    async: true);
+
+                try
+                {
+                    await _connection.Value.OpenAsync(cancellationToken);
+                    wasOpened = true;
+
+                    var currentTimestamp = Stopwatch.GetTimestamp();
+                    DiagnosticSource.WriteConnectionOpened(_connection.Value,
+                        ConnectionId,
+                        instanceId,
+                        startTimestamp,
+                        currentTimestamp,
+                        async: true);
+                }
+                catch (Exception e)
+                {
+                    var currentTimestamp = Stopwatch.GetTimestamp();
+                    DiagnosticSource.WriteConnectionError(_connection.Value,
+                        ConnectionId,
+                        e,
+                        instanceId,
+                        startTimestamp,
+                        currentTimestamp,
+                        async: true);
+                    throw;
+                }
 
                 if (_openedCount == 0)
                 {
@@ -335,6 +421,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 _openedCount++;
             }
+
+            return wasOpened;
         }
 
         private void CheckForAmbientTransactions()
@@ -352,15 +440,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Closes the connection to the database.
         /// </summary>
-        public virtual void Close()
+        /// <returns> True if the underlying connection was actually closed; false otherwise. </returns>
+        public virtual bool Close()
         {
+            var wasClosed = false;
+
             if (_openedCount > 0
                 && --_openedCount == 0
                 && _openedInternally)
             {
                 if (_connection.Value.State != ConnectionState.Closed)
                 {
-                    _logger.LogDebug(
+                    Logger.LogDebug(
                         RelationalEventId.ClosingConnection,
                         new
                         {
@@ -371,10 +462,45 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             RelationalStrings.RelationalLoggerClosingConnection(
                                 state.Database,
                                 state.DataSource));
-                    _connection.Value.Close();
+
+                    var startTimestamp = Stopwatch.GetTimestamp();
+                    var instanceId = Guid.NewGuid();
+                    DiagnosticSource.WriteConnectionClosing(_connection.Value,
+                        ConnectionId,
+                        instanceId,
+                        startTimestamp,
+                        async: false);
+
+                    try
+                    {
+                        _connection.Value.Close();
+                        wasClosed = true;
+
+                        var currentTimestamp = Stopwatch.GetTimestamp();
+                        DiagnosticSource.WriteConnectionClosed(_connection.Value,
+                            ConnectionId,
+                            instanceId,
+                            startTimestamp,
+                            currentTimestamp,
+                            async: false);
+                    }
+                    catch (Exception e)
+                    {
+                        var currentTimestamp = Stopwatch.GetTimestamp();
+                        DiagnosticSource.WriteConnectionError(_connection.Value,
+                            ConnectionId,
+                            e,
+                            instanceId,
+                            startTimestamp,
+                            currentTimestamp,
+                            async: false);
+                        throw;
+                    }
                 }
                 _openedInternally = false;
             }
+
+            return wasClosed;
         }
 
         /// <summary>
@@ -386,6 +512,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets or sets the active cursor.
         /// </summary>
         public virtual IValueBufferCursor ActiveCursor { get; set; }
+
+        void IResettableService.Reset() => Dispose();
 
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     The validator that enforces rules common for all relational providers.
     /// </summary>
-    public class RelationalModelValidator : ModelValidator
+    public class RelationalModelValidator : CoreModelValidator
     {
         /// <summary>
         ///     Gets the relational annotation provider.
@@ -57,6 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to validate. </param>
         public override void Validate(IModel model)
         {
+            base.Validate(model);
+
             EnsureDistinctTableNames(model);
             EnsureSharedColumnsCompatibility(model);
             EnsureSharedForeignKeysCompatibility(model);

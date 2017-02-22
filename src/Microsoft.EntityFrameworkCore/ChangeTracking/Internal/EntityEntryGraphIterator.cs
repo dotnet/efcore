@@ -3,6 +3,9 @@
 
 using System;
 using System.Collections;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -36,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (navigation.IsCollection())
                     {
-                        foreach (var relatedEntity in (IEnumerable)navigationValue)
+                        foreach (var relatedEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
                         {
                             TraverseGraph(
                                 node.CreateNode(node, stateManager.GetOrCreateEntry(relatedEntity), navigation),
@@ -48,6 +51,51 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         TraverseGraph(
                             node.CreateNode(node, stateManager.GetOrCreateEntry(navigationValue), navigation),
                             handleNode);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual async Task TraverseGraphAsync(
+            EntityEntryGraphNode node,
+            Func<EntityEntryGraphNode, CancellationToken, Task<bool>> handleNode,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (!await handleNode(node, cancellationToken))
+            {
+                return;
+            }
+
+            var internalEntityEntry = node.GetInfrastructure();
+            var navigations = internalEntityEntry.EntityType.GetNavigations();
+            var stateManager = internalEntityEntry.StateManager;
+
+            foreach (var navigation in navigations)
+            {
+                var navigationValue = internalEntityEntry[navigation];
+
+                if (navigationValue != null)
+                {
+                    if (navigation.IsCollection())
+                    {
+                        foreach (var relatedEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
+                        {
+                            await TraverseGraphAsync(
+                                node.CreateNode(node, stateManager.GetOrCreateEntry(relatedEntity), navigation),
+                                handleNode,
+                                cancellationToken);
+                        }
+                    }
+                    else
+                    {
+                        await TraverseGraphAsync(
+                            node.CreateNode(node, stateManager.GetOrCreateEntry(navigationValue), navigation),
+                            handleNode,
+                            cancellationToken);
                     }
                 }
             }

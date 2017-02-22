@@ -1,0 +1,9 @@
+[
+  {
+    "OldTypeId": "public class Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder",
+    "NewTypeId": "public class Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder",
+    "OldMemberId": "public .ctor(Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext currentContext, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Migrations.IMigrationsAssembly migrationsAssembly, Microsoft.EntityFrameworkCore.Migrations.IMigrationsModelDiffer modelDiffer, Microsoft.EntityFrameworkCore.Migrations.IMigrationsIdGenerator idGenerator, Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator migrationCodeGenerator, Microsoft.EntityFrameworkCore.Migrations.IHistoryRepository historyRepository, Microsoft.Extensions.Logging.ILogger<Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder> logger, Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices providerServices)",
+    "NewMemberId": "public .ctor(Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext currentContext, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Migrations.IMigrationsAssembly migrationsAssembly, Microsoft.EntityFrameworkCore.Migrations.IMigrationsModelDiffer modelDiffer, Microsoft.EntityFrameworkCore.Migrations.IMigrationsIdGenerator idGenerator, Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator migrationCodeGenerator, Microsoft.EntityFrameworkCore.Migrations.IHistoryRepository historyRepository, Microsoft.Extensions.Logging.ILogger<Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder> logger, Microsoft.EntityFrameworkCore.Storage.IDatabaseProvider databaseProvider)",
+    "Kind": "Modification"
+  }
+]

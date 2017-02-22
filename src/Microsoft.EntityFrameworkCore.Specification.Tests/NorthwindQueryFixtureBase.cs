@@ -37,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     e.Ignore(p => p.CategoryID);
                     e.Ignore(p => p.QuantityPerUnit);
                     e.Ignore(p => p.ReorderLevel);
-                    e.Ignore(p => p.UnitPrice);
                     e.Ignore(p => p.UnitsOnOrder);
                 });
 

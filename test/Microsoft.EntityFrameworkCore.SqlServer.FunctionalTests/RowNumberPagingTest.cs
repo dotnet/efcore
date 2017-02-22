@@ -298,11 +298,10 @@ ORDER BY [t].[ContactTitle], [t].[ContactName]",
             base.OrderBy_skip_take_distinct();
 
             Assert.Equal(
-                @"@__p_2: 8
-@__p_0: 5
+                @"@__p_0: 5
 @__p_1: 15
 
-SELECT DISTINCT TOP(@__p_2) [t].*
+SELECT DISTINCT [t].*
 FROM (
     SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
     FROM (
@@ -386,6 +385,82 @@ SELECT CASE
         WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1)))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
+                Sql);
+        }
+
+        public override void Skip_Count()
+        {
+            base.Skip_Count();
+
+            Assert.Equal(
+                @"@__p_0: 7
+
+SELECT COUNT(*)
+FROM (
+    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
+        FROM [Customers] AS [c]
+    ) AS [t0]
+    WHERE [t0].[__RowNumber__] > @__p_0
+) AS [t]",
+                Sql);
+        }
+
+        public override void Skip_LongCount()
+        {
+            base.Skip_LongCount();
+
+            Assert.Equal(
+                @"@__p_0: 7
+
+SELECT COUNT_BIG(*)
+FROM (
+    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
+        FROM [Customers] AS [c]
+    ) AS [t0]
+    WHERE [t0].[__RowNumber__] > @__p_0
+) AS [t]",
+                Sql);
+        }
+
+        public override void OrderBy_Skip_Count()
+        {
+            base.OrderBy_Skip_Count();
+
+            Assert.Equal(
+                @"@__p_0: 7
+
+SELECT COUNT(*)
+FROM (
+    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[Country]) AS [__RowNumber__]
+        FROM [Customers] AS [c]
+    ) AS [t0]
+    WHERE [t0].[__RowNumber__] > @__p_0
+) AS [t]",
+                Sql);
+        }
+
+        public override void OrderBy_Skip_LongCount()
+        {
+            base.OrderBy_Skip_LongCount();
+
+            Assert.Equal(
+                @"@__p_0: 7
+
+SELECT COUNT_BIG(*)
+FROM (
+    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[Country]) AS [__RowNumber__]
+        FROM [Customers] AS [c]
+    ) AS [t0]
+    WHERE [t0].[__RowNumber__] > @__p_0
+) AS [t]",
                 Sql);
         }
 

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (ReferenceEquals(methodCallExpression.Method, _methodInfo))
+            if (Equals(methodCallExpression.Method, _methodInfo))
             {
                 var argument = methodCallExpression.Arguments[0];
                 argument = argument.RemoveConvert();

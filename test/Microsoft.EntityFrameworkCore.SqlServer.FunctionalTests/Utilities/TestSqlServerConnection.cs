@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -10,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
@@ -18,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
     {
         private readonly ISqlServerConnection _realConnection;
 
-        public TestSqlServerConnection(IDbContextOptions options, ILogger<SqlServerConnection> logger)
-            : this(new SqlServerConnection(options, logger))
+        public TestSqlServerConnection(RelationalConnectionDependencies dependencies)
+            : this(new SqlServerConnection(dependencies))
         {
         }
 
@@ -54,14 +54,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
         public virtual bool IsMultipleActiveResultSetsEnabled => _realConnection.IsMultipleActiveResultSetsEnabled;
 
-        public virtual void Open()
+        public virtual bool Open()
         {
             PreOpen();
 
-            _realConnection.Open();
+            return _realConnection.Open();
         }
 
-        public virtual Task OpenAsync(CancellationToken cancellationToken = new CancellationToken())
+        public virtual Task<bool> OpenAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             PreOpen();
 
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             }
         }
 
-        public virtual void Close() => _realConnection.Close();
+        public virtual bool Close() => _realConnection.Close();
 
         public virtual IDbContextTransaction BeginTransaction()
             => BeginTransaction(IsolationLevel.Unspecified);
@@ -128,6 +128,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
         public void RollbackTransaction() => CurrentTransaction.Rollback();
 
+        void IResettableService.Reset() => Dispose();
+
         public void Dispose()
         {
             CurrentTransaction?.Dispose();
@@ -136,5 +138,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         }
 
         public ISqlServerConnection CreateMasterConnection() => new TestSqlServerConnection(_realConnection.CreateMasterConnection());
+
+        public Guid ConnectionId { get; } = Guid.NewGuid();
     }
 }

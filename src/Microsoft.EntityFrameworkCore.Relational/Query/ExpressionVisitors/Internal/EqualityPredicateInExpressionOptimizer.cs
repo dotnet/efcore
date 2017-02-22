@@ -28,20 +28,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             switch (node.NodeType)
             {
                 case ExpressionType.OrElse:
-                {
-                    return Optimize(
-                        node,
-                        equalityType: ExpressionType.Equal,
-                        inExpressionFactory: (c, vs) => new InExpression(c, vs));
-                }
+                    {
+                        return Optimize(
+                            node,
+                            equalityType: ExpressionType.Equal,
+                            inExpressionFactory: (c, vs) => new InExpression(c, vs));
+                    }
 
                 case ExpressionType.AndAlso:
-                {
-                    return Optimize(
-                        node,
-                        equalityType: ExpressionType.NotEqual,
-                        inExpressionFactory: (c, vs) => Expression.Not(new InExpression(c, vs)));
-                }
+                    {
+                        return Optimize(
+                            node,
+                            equalityType: ExpressionType.NotEqual,
+                            inExpressionFactory: (c, vs) => Expression.Not(new InExpression(c, vs)));
+                    }
             }
 
             return base.VisitBinary(node);
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private Expression Optimize(
             BinaryExpression binaryExpression,
             ExpressionType equalityType,
-            Func<AliasExpression, List<Expression>, Expression> inExpressionFactory)
+            Func<ColumnExpression, List<Expression>, Expression> inExpressionFactory)
         {
             var leftExpression = Visit(binaryExpression.Left);
             var rightExpression = Visit(binaryExpression.Right);
@@ -59,35 +59,35 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             IReadOnlyList<Expression> leftInValues = null;
             IReadOnlyList<Expression> rightInValues = null;
 
-            var leftAliasExpression
+            var leftColumnExpression
                 = MatchEqualityExpression(
                     leftExpression,
                     equalityType,
                     out leftNonColumnExpression);
 
-            var rightAliasExpression
+            var rightColumnExpression
                 = MatchEqualityExpression(
                     rightExpression,
                     equalityType,
                     out rightNonColumnExpression);
 
-            if (leftAliasExpression == null)
+            if (leftColumnExpression == null)
             {
-                leftAliasExpression = (equalityType == ExpressionType.Equal
+                leftColumnExpression = ((equalityType == ExpressionType.Equal
                     ? MatchInExpression(leftExpression, ref leftInValues)
-                    : MatchNotInExpression(leftExpression, ref leftInValues)) as AliasExpression;
+                    : MatchNotInExpression(leftExpression, ref leftInValues))).TryGetColumnExpression();
             }
 
-            if (rightAliasExpression == null)
+            if (rightColumnExpression == null)
             {
-                rightAliasExpression = (equalityType == ExpressionType.Equal
+                rightColumnExpression = ((equalityType == ExpressionType.Equal
                     ? MatchInExpression(rightExpression, ref rightInValues)
-                    : MatchNotInExpression(rightExpression, ref rightInValues)) as AliasExpression;
+                    : MatchNotInExpression(rightExpression, ref rightInValues))).TryGetColumnExpression();
             }
 
-            if (leftAliasExpression.HasColumnExpression()
-                && rightAliasExpression.HasColumnExpression()
-                && leftAliasExpression.TryGetColumnExpression().Equals(rightAliasExpression.TryGetColumnExpression()))
+            if (leftColumnExpression != null
+                && rightColumnExpression != null
+                && leftColumnExpression.Equals(rightColumnExpression))
             {
                 var inArguments = new List<Expression>();
                 if (leftNonColumnExpression != null)
@@ -111,14 +111,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
 
                 return inExpressionFactory(
-                    leftAliasExpression,
+                    leftColumnExpression,
                     inArguments);
             }
 
             return binaryExpression.Update(leftExpression, binaryExpression.Conversion, rightExpression);
         }
 
-        private static AliasExpression MatchEqualityExpression(
+        private static ColumnExpression MatchEqualityExpression(
             Expression expression,
             ExpressionType equalityType,
             out Expression nonColumnExpression)
@@ -137,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (nonColumnExpression != null)
                 {
-                    return binaryExpression.Right as AliasExpression
-                           ?? binaryExpression.Left as AliasExpression;
+                    return binaryExpression.Right.TryGetColumnExpression()
+                           ?? binaryExpression.Left.TryGetColumnExpression();
                 }
             }
 

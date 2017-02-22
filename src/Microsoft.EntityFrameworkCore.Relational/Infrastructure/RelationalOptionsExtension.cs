@@ -153,6 +153,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return relationalOptionsExtensions[0];
         }
 
-        public abstract void ApplyServices(IServiceCollection services);
+        public abstract bool ApplyServices(IServiceCollection services);
     }
 }

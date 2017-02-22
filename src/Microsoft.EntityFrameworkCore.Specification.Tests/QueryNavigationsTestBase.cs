@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
+// ReSharper disable ConvertToExpressionBodyWhenPossible
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable PossibleMultipleEnumeration
@@ -23,6 +24,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     public abstract class QueryNavigationsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
+        [ConditionalFact(Skip="#7220")]
+        public virtual void Join_with_nav_projected_in_subquery_when_client_eval()
+        {
+            AssertQuery<Customer, Order, OrderDetail, Customer>(
+                (cs, os, ods) => (from c in cs
+                                  join o in os.Select(o => ClientMethod2(o, o.Customer)) on c.CustomerID equals o.CustomerID
+                                  join od in ods.Select(od => ClientMethod2(od, od.Product)) on o.OrderID equals od.OrderID
+                                  select c),
+                entryCount: 91);
+        }
+
+        private static T ClientMethod2<T>(T t, object _) => t;
+
         [ConditionalFact]
         public virtual void Select_Where_Navigation()
         {
@@ -730,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Product, OrderDetail, Product>(
                 (ps, ods) => from p in ps
-                             where p.OrderDetails.Contains(ods.FirstOrDefault(orderDetail => orderDetail.Quantity == 1))
+                             where p.OrderDetails.Contains(ods.OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID).FirstOrDefault(orderDetail => orderDetail.Quantity == 1))
                              select p,
                 entryCount: 1);
         }
@@ -771,11 +785,31 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             where (from od in context.OrderDetails
                                    where o.Customer.Country == od.Order.Customer.Country
                                    select od).Count() > 0
+                            where o.OrderID == 10643 || o.OrderID == 10692
                             select o;
 
                 var result = query.ToList();
 
-                Assert.Equal(830, result.Count);
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Navigation_in_subquery_referencing_outer_query_with_client_side_result_operator_and_count()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from o in context.Orders
+                            where o.OrderID == 10643 || o.OrderID == 10692
+                            // ReSharper disable once UseMethodAny.0
+                            where (from od in context.OrderDetails
+                                   where o.Customer.Country == od.Order.Customer.Country
+                                   select od).Distinct().Count() > 0
+                            select o;
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
             }
         }
 
@@ -845,8 +879,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     });
         }
 
-        // issue #6061
-        ////[ConditionalFact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue #6061
         public virtual void Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default()
         {
             AssertQuery<Customer>(
@@ -891,7 +924,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                        }).Take(3));
         }
 
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened()
         {
             AssertQuery<Customer, Order, OrderDetail, Customer>(

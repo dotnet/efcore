@@ -32,27 +32,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
 
         public override void Before(MethodInfo methodUnderTest)
         {
-#if NETSTANDARD1_3
-            _originalCulture = CultureInfo.CurrentCulture;
-            _originalUICulture = CultureInfo.CurrentUICulture;
-            CultureInfo.CurrentCulture = Culture;
-            CultureInfo.CurrentUICulture = UICulture;
-#else
+#if NET452
             _originalCulture = Thread.CurrentThread.CurrentCulture;
             _originalUICulture = Thread.CurrentThread.CurrentUICulture;
             Thread.CurrentThread.CurrentCulture = Culture;
             Thread.CurrentThread.CurrentUICulture = UICulture;
+#else
+            _originalCulture = CultureInfo.CurrentCulture;
+            _originalUICulture = CultureInfo.CurrentUICulture;
+            CultureInfo.CurrentCulture = Culture;
+            CultureInfo.CurrentUICulture = UICulture;
 #endif
         }
 
         public override void After(MethodInfo methodUnderTest)
         {
-#if NETSTANDARD1_3
-            CultureInfo.CurrentCulture = _originalCulture;
-            CultureInfo.CurrentUICulture = _originalUICulture;
-#else
+#if NET452
             Thread.CurrentThread.CurrentCulture = _originalCulture;
             Thread.CurrentThread.CurrentUICulture = _originalUICulture;
+#else
+            CultureInfo.CurrentCulture = _originalCulture;
+            CultureInfo.CurrentUICulture = _originalUICulture;
 #endif
         }
     }

@@ -116,15 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool HasValueGenerator(
             [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> factory,
             ConfigurationSource configurationSource)
-        {
-            if (HasAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation, factory, configurationSource))
-            {
-                RequiresValueGenerator(factory != null, ConfigurationSource.Convention);
-                return true;
-            }
-
-            return false;
-        }
+            => HasAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation, factory, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -166,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                      || PropertyBase.IsCompatible(
                          fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
                          shouldThrow: configurationSource == ConfigurationSource.Explicit)))
-                || Metadata.FieldInfo == fieldInfo)
+                || Equals(Metadata.FieldInfo, fieldInfo))
             {
                 Metadata.SetFieldInfo(fieldInfo, configurationSource);
                 return true;
@@ -234,26 +226,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool RequiresValueGenerator(bool generateValue, ConfigurationSource configurationSource)
-        {
-            if (configurationSource.Overrides(Metadata.GetRequiresValueGeneratorConfigurationSource())
-                || (Metadata.RequiresValueGenerator == generateValue))
-            {
-                Metadata.SetRequiresValueGenerator(generateValue, configurationSource);
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual bool ValueGenerated(ValueGenerated valueGenerated, ConfigurationSource configurationSource)
+        public virtual bool ValueGenerated(ValueGenerated? valueGenerated, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetValueGeneratedConfigurationSource())
-                || (Metadata.ValueGenerated == valueGenerated))
+                || Metadata.ValueGenerated == valueGenerated)
             {
                 Metadata.SetValueGenerated(valueGenerated, configurationSource);
 
@@ -339,12 +315,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 newPropertyBuilder.IsConcurrencyToken(Metadata.IsConcurrencyToken,
                     oldIsConcurrencyTokenConfigurationSource.Value);
-            }
-            var oldRequiresValueGeneratorConfigurationSource = Metadata.GetRequiresValueGeneratorConfigurationSource();
-            if (oldRequiresValueGeneratorConfigurationSource.HasValue)
-            {
-                newPropertyBuilder.RequiresValueGenerator(Metadata.RequiresValueGenerator,
-                    oldRequiresValueGeneratorConfigurationSource.Value);
             }
             var oldValueGeneratedConfigurationSource = Metadata.GetValueGeneratedConfigurationSource();
             if (oldValueGeneratedConfigurationSource.HasValue)

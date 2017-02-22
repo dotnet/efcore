@@ -133,7 +133,10 @@
     <value>The expression '{expression}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.</value>
   </data>
   <data name="IdentityConflict" xml:space="preserve">
-    <value>The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. When adding new entities, for most key types a unique temporary key value will be created if no key is set (i.e. if the key property is assigned the default value for its type). If you are explicitly setting key values for new entities, ensure they do not collide with existing entities or temporary values generated for other new entities. When attaching existing entities, ensure that only one entity instance with a given key value is attached to the context.</value>
+    <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for '{keyProperties}' is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.</value>
+  </data>
+  <data name="IdentityConflictSensitive" xml:space="preserve">
+    <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the key value '{keyValue}' is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached.</value>
   </data>
   <data name="WrongStateManager" xml:space="preserve">
     <value>Cannot start tracking InternalEntityEntry for entity type '{entityType}' because it was created by a different StateManager instance.</value>
@@ -235,7 +238,10 @@
     <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
-    <value>The database providers {storeNames}are configured. A context can only be configured to use a single database provider.</value>
+    <value>Services for database providers {storeNames} have been registered in the service provider. Only a single database provider can be registered in a service provider. If possible, ensure that Entity Framework is managing its service provider by removing the call to UseInternalServiceProvider. Otherwise, consider conditionally registering the database provider, or maintaining one service provider per database provider.</value>
+  </data>
+  <data name="DbContextMissingConstructor" xml:space="preserve">
+    <value>AddDbContext was called with configuration, but the context type '{contextType}' only declares a parameterless constructor. This means that the configuration passed to AddDbContext will never be used. If configuration is passed to AddDbContext, then ‘{contextType}’ should declare a constructor that accepts a DbContextOptions&lt;{contextType}&gt; and must pass it to the base constructor for DbContext.</value>
   </data>
   <data name="NoProviderConfigured" xml:space="preserve">
     <value>No database provider has been configured for this DbContext. A provider can be configured by overriding the DbContext.OnConfiguring method or by using AddDbContext on the application service provider. If AddDbContext is used, then also ensure that your DbContext type accepts a DbContextOptions&lt;TContext&gt; object in its constructor and passes it to the base constructor for DbContext.</value>
@@ -245,9 +251,6 @@
   </data>
   <data name="InvalidReplaceService" xml:space="preserve">
     <value>A call was made to {replaceService}, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to {useInternalServiceProvider}, or build replacement services into the service provider before passing it to {useInternalServiceProvider}.</value>
-  </data>
-  <data name="MultipleProvidersAvailable" xml:space="preserve">
-    <value>The database providers {storeNames}are available. A context can only be configured to use a single database provider. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
   </data>
   <data name="NoValueGenerator" xml:space="preserve">
     <value>The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.</value>
@@ -544,7 +547,10 @@
     <value>Unhandled operation: MemberInitExpression binding is not a MemberAssignment</value>
   </data>
   <data name="InvalidKeyValue" xml:space="preserve">
-    <value>Unable to create or track an entity of type '{entityType}' because it has a null primary or alternate key value.</value>
+    <value>Unable to track an entity of type '{entityType}' because primary key property '{keyProperty}' is null.</value>
+  </data>
+  <data name="InvalidAlternateKeyValue" xml:space="preserve">
+    <value>Unable to track an entity of type '{entityType}' because alternate key property '{keyProperty}' is null. If the alternate key is not used in a relationship, then consider using a unique index instead. Unique indexes may contain nulls, while alternate keys must not.</value>
   </data>
   <data name="SensitiveDataLoggingEnabled" xml:space="preserve">
     <value>Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data, this mode should only be enabled during development.</value>
@@ -610,7 +616,7 @@
     <value>A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.</value>
   </data>
   <data name="LogIgnoredInclude" xml:space="preserve">
-    <value>The Include operation for navigation: '{navigation}' was ignored because the target navigation is not reachable in the final query results.</value>
+    <value>The Include operation '{include}' was ignored because the target navigation is not reachable in the final query results.</value>
   </data>
   <data name="ConflictingRelationshipNavigation" xml:space="preserve">
     <value>Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.</value>

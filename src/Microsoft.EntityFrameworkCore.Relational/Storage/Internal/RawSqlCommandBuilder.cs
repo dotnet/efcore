@@ -49,34 +49,31 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual RawSqlCommand Build(string sql, IReadOnlyList<object> parameters)
+        public virtual RawSqlCommand Build(string sql, IEnumerable<object> parameters)
         {
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
             var relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
-            var substitutions = new string[parameters.Count];
+            var substitutions = new List<string>();
 
             var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
 
             var parameterValues = new Dictionary<string, object>();
 
-            for (var i = 0; i < substitutions.Length; i++)
+            foreach (var parameter in parameters)
             {
                 var parameterName = parameterNameGenerator.GenerateNext();
+                var substitutedName = _sqlGenerationHelper.GenerateParameterName(parameterName);
 
-                substitutions[i] = _sqlGenerationHelper.GenerateParameterName(parameterName);
-
-                relationalCommandBuilder.AddParameter(
-                    parameterName,
-                    substitutions[i]);
-
-                parameterValues.Add(parameterName, parameters[i]);
+                substitutions.Add(substitutedName);
+                relationalCommandBuilder.AddParameter(parameterName, substitutedName);
+                parameterValues.Add(parameterName, parameter);
             }
 
             // ReSharper disable once CoVariantArrayConversion
-            sql = string.Format(sql, substitutions);
+            sql = string.Format(sql, substitutions.ToArray());
 
             return new RawSqlCommand(
                 relationalCommandBuilder.Append(sql).Build(),

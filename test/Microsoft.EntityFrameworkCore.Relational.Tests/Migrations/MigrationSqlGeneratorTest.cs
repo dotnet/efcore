@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Relational.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -16,23 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
 {
     public class MigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        protected override IMigrationsSqlGenerator SqlGenerator
-        {
-            get
-            {
-                var typeMapper = new ConcreteRelationalTypeMapper();
-
-                return new ConcreteMigrationSqlGenerator(
-                    new RelationalCommandBuilderFactory(
-                        new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
-                        new DiagnosticListener("Fake"),
-                        typeMapper),
-                    new RelationalSqlGenerationHelper(),
-                    typeMapper,
-                    new TestAnnotationProvider());
-            }
-        }
-
         public override void AddColumnOperation_with_defaultValue()
         {
             base.AddColumnOperation_with_defaultValue();
@@ -66,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             base.AddColumnOperation_without_column_type();
 
             Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Alias\" nvarchar(max) NOT NULL;" + EOL,
+                "ALTER TABLE \"People\" ADD \"Alias\" just_string(2000) NOT NULL;" + EOL,
                 Sql);
         }
 
@@ -75,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             base.AddColumnOperation_with_maxLength();
 
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" nvarchar(30);" + EOL,
+                "ALTER TABLE \"Person\" ADD \"Name\" just_string(30);" + EOL,
                 Sql);
         }
 
@@ -84,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             base.AddColumnOperation_with_maxLength_on_derived();
 
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" nvarchar(30);" + EOL,
+                "ALTER TABLE \"Person\" ADD \"Name\" just_string(30);" + EOL,
                 Sql);
         }
 
@@ -93,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             base.AddColumnOperation_with_shared_column();
 
             Assert.Equal(
-                "ALTER TABLE \"Base\" ADD \"Foo\" nvarchar(max);" + EOL,
+                "ALTER TABLE \"Base\" ADD \"Foo\" just_string(2000);" + EOL,
                 Sql);
         }
 
@@ -219,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             base.CreateSequenceOperation_with_minValue_and_maxValue_not_long();
 
             Assert.Equal(
-                "CREATE SEQUENCE \"dbo\".\"EntityFrameworkHiLoSequence\" AS int START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
+                "CREATE SEQUENCE \"dbo\".\"EntityFrameworkHiLoSequence\" AS default_int_mapping START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
                 Sql);
         }
 
@@ -238,8 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
 
             Assert.Equal(
                 "CREATE TABLE \"dbo\".\"People\" (" + EOL +
-                "    \"Id\" int NOT NULL," + EOL +
-                "    \"EmployerId\" int," + EOL +
+                "    \"Id\" default_int_mapping NOT NULL," + EOL +
+                "    \"EmployerId\" default_int_mapping," + EOL +
                 "    \"SSN\" char(11)," + EOL +
                 "    PRIMARY KEY (\"Id\")," + EOL +
                 "    UNIQUE (\"SSN\")," + EOL +
@@ -326,77 +310,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 Sql);
         }
 
-        private class ConcreteRelationalTypeMapper : RelationalTypeMapper
+        public MigrationSqlGeneratorTest()
+            : base(RelationalTestHelpers.Instance)
         {
-            private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
-                = new Dictionary<Type, RelationalTypeMapping>
-                {
-                    { typeof(int), new RelationalTypeMapping("int", typeof(int)) }
-                };
-
-            private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
-                = new Dictionary<string, RelationalTypeMapping>
-                {
-                    { "nvarchar", new RelationalTypeMapping("nvarchar", typeof(string), dbType: null, unicode: true, size: null) }
-                };
-
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
-                => _simpleMappings;
-
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
-                => _simpleNameMappings;
-
-            protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
-
-            public override RelationalTypeMapping FindMapping(Type clrType)
-                => clrType == typeof(string)
-                    ? new RelationalTypeMapping("nvarchar(max)", typeof(string), dbType: null, unicode: true, size: null)
-                    : base.FindMapping(clrType);
-
-            protected override RelationalTypeMapping FindCustomMapping(IProperty property)
-                => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
-                    ? new RelationalTypeMapping("nvarchar(" + property.GetMaxLength() + ")", typeof(string), dbType: null, unicode: true, size: property.GetMaxLength())
-                    : base.FindCustomMapping(property);
-        }
-
-        private class ConcreteMigrationSqlGenerator : MigrationsSqlGenerator
-        {
-            public ConcreteMigrationSqlGenerator(
-                IRelationalCommandBuilderFactory commandBuilderFactory,
-                ISqlGenerationHelper sqlGenerationHelper,
-                IRelationalTypeMapper typeMapper,
-                IRelationalAnnotationProvider annotations)
-                : base(commandBuilderFactory, sqlGenerationHelper, typeMapper, annotations)
-            {
-            }
-
-            protected override void Generate(RenameTableOperation operation, IModel model, MigrationCommandListBuilder builder)
-            {
-            }
-
-            protected override void Generate(DropIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
-            {
-            }
-
-            protected override void Generate(RenameSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
-            {
-            }
-
-            protected override void Generate(RenameColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
-            {
-            }
-
-            protected override void Generate(EnsureSchemaOperation operation, IModel model, MigrationCommandListBuilder builder)
-            {
-            }
-
-            protected override void Generate(RenameIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
-            {
-            }
-
-            protected override void Generate(AlterColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
-            {
-            }
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Concurren
 {
     public class Team
     {
-#if NET451
+#if NET452
         private readonly ObservableCollection<Driver> _drivers = new ObservableCollectionListSource<Driver>();
 #else
         private readonly ObservableCollection<Driver> _drivers = new ObservableCollection<Driver>();

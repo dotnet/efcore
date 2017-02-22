@@ -47,6 +47,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             SubQuery = subQuery;
         }
 
+        private InExpression(
+            Expression operand,
+            IReadOnlyList<Expression> values,
+            SelectExpression subQuery)
+        {
+            Operand = operand;
+            Values = values;
+            SubQuery = subQuery;
+        }
+
         /// <summary>
         ///     Gets the operand.
         /// </summary>
@@ -110,7 +120,35 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     children, and if any of them change, should return a new copy of
         ///     itself with the modified children.
         /// </remarks>
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        ///         
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            var newOperand = visitor.Visit(Operand);
+            var newSubQuery = (SelectExpression)visitor.Visit(SubQuery);
+
+            var valuesChanged = false;
+            var newValues = new List<Expression>();
+            if (Values != null)
+            {
+                foreach (var value in Values)
+                {
+                    var newValue = visitor.Visit(value);
+                    if (newValue is BlockExpression && value is ListInitExpression)
+                    {
+                        newValues.Add(value);
+                    }
+                    else
+                    {
+                        newValues.Add(newValue);
+                        valuesChanged |= newValue != value;
+                    }
+                }
+            }
+
+            return valuesChanged || newOperand != Operand || newSubQuery != SubQuery
+                ? new InExpression(newOperand, newValues.AsReadOnly(), newSubQuery)
+                : this;
+        }
 
         /// <summary>
         ///     Creates a <see cref="String" /> representation of the Expression.

@@ -11,26 +11,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     /// <summary>
     ///     Represents a SQL CROSS JOIN expression.
     /// </summary>
-    public class CrossJoinExpression : TableExpressionBase
+    public class CrossJoinExpression : JoinExpressionBase
     {
-        private readonly TableExpressionBase _tableExpression;
-
         /// <summary>
         ///     Creates a new instance of a CrossJoinExpression.
         /// </summary>
         /// <param name="tableExpression"> The table expression. </param>
         public CrossJoinExpression([NotNull] TableExpressionBase tableExpression)
-            : base(
-                Check.NotNull(tableExpression, nameof(tableExpression)).QuerySource,
-                tableExpression.Alias)
+            : base(Check.NotNull(tableExpression, nameof(tableExpression)))
         {
-            _tableExpression = tableExpression;
         }
-
-        /// <summary>
-        ///     The table expression.
-        /// </summary>
-        public virtual TableExpressionBase TableExpression => _tableExpression;
 
         /// <summary>
         ///     Dispatches to the specific visit method for this node type.
@@ -50,25 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Creates a <see cref="string" /> representation of the Expression.
         /// </summary>
         /// <returns>A <see cref="string" /> representation of the Expression.</returns>
-        public override string ToString() => "CROSS JOIN " + _tableExpression;
-
-        /// <summary>
-        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(Expression)" /> method passing the reduced expression.
-        ///     Throws an exception if the node isn't reducible.
-        /// </summary>
-        /// <param name="visitor"> An instance of <see cref="ExpressionVisitor" />. </param>
-        /// <returns> The expression being visited, or an expression which should replace it in the tree. </returns>
-        /// <remarks>
-        ///     Override this method to provide logic to walk the node's children.
-        ///     A typical implementation will call visitor.Visit on each of its
-        ///     children, and if any of them change, should return a new copy of
-        ///     itself with the modified children.
-        /// </remarks>
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            visitor.Visit(_tableExpression);
-
-            return this;
-        }
+        public override string ToString() => "CROSS JOIN " + TableExpression;
     }
 }

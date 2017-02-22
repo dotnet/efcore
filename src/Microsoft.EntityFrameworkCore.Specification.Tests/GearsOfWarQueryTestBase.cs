@@ -1541,7 +1541,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        //[ConditionalFact]
+        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#4978
         public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat()
         {
             using (var context = CreateContext())
@@ -2125,6 +2125,130 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(5, result.Count);
             }
         }
+
+        [ConditionalFact]
+        public virtual void Distinct_with_optional_navigation_is_evaluated_on_client()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from g in context.Gears
+                             where g.Tag.Note != "Foo"
+                             select g.HasSoulPatch).Distinct();
+
+                var result = query.ToList();
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Sum_with_optional_navigation_is_evaluated_on_client()
+        {
+            using (var context = CreateContext())
+            {
+                var expected = (from g in context.Gears.ToList()
+                                select g.SquadId).Sum();
+
+                ClearLog();
+
+                var actual = (from g in context.Gears
+                             where g.Tag.Note != "Foo"
+                             select g.SquadId).Sum();
+
+                Assert.Equal(expected, actual);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Count_with_optional_navigation_is_translated_to_sql()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from g in context.Gears
+                             where g.Tag.Note != "Foo"
+                             select g.HasSoulPatch).Count();
+
+                Assert.Equal(5, query);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void FirstOrDefault_with_manually_created_groupjoin_is_translated_to_sql()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from s in context.Squads
+                             join g in context.Gears on s.Id equals g.SquadId into grouping
+                             from g in grouping.DefaultIfEmpty()
+                             where s.Name == "Kilo"
+                             select  s).FirstOrDefault();
+
+                Assert.Equal("Kilo", query.Name);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Any_with_optional_navigation_as_subquery_predicate_is_translated_to_sql()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from s in context.Squads
+                            where !s.Members.Any(m => m.Tag.Note == "Dom's Tag")
+                            select s.Name;
+
+                var result = query.ToList();
+
+                Assert.Equal("Kilo", result.Single());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void All_with_optional_navigation_is_translated_to_sql()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from g in context.Gears
+                             select g).All(g => g.Tag.Note != "Foo");
+
+                Assert.True(query);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Non_flattened_GroupJoin_with_result_operator_evaluates_on_the_client()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.GroupJoin(
+                    context.Gears,
+                    t => new { k1 = t.GearNickName, k2 = t.GearSquadId },
+                    g => new { k1 = g.Nickname, k2 = (int?)g.SquadId },
+                    (k, r) => r.Count());
+
+                var result = query.ToList();
+
+                Assert.Equal(6, result.Count);
+                Assert.Equal(5, result.Count(r => r == 1));
+                Assert.Equal(1, result.Count(r => r == 0));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Client_side_equality_with_parameter_works_with_optional_navigations()
+        {
+            using (var context = CreateContext())
+            {
+                var prm = "Marcus's Tag";
+                var query = context.Gears.Where(g => ClientEquals(g.Tag.Note, prm));
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+                Assert.Equal("Marcus", result[0].Nickname);
+            }
+        }
+
+        private static bool ClientEquals(string first, string second)
+            => first == second;
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 

@@ -72,16 +72,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class FakeDbContextOptionsExtension1 : IDbContextOptionsExtension
         {
-            public virtual void ApplyServices(IServiceCollection services)
-            {
-            }
+            public virtual bool ApplyServices(IServiceCollection services)
+                => false;
         }
 
         private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
         {
-            public virtual void ApplyServices(IServiceCollection services)
-            {
-            }
+            public virtual bool ApplyServices(IServiceCollection services)
+                => false;
         }
     }
 }

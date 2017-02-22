@@ -161,15 +161,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Adds a table to this SelectExpression.
         /// </summary>
         /// <param name="tableExpression"> The table expression. </param>
-        /// <param name="createUniqueAlias"> true to create unique alias. </param>
-        public virtual void AddTable([NotNull] TableExpressionBase tableExpression, bool createUniqueAlias = true)
+        public virtual void AddTable([NotNull] TableExpressionBase tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
-            if (createUniqueAlias)
-            {
-                tableExpression.Alias = _queryCompilationContext.CreateUniqueTableAlias(tableExpression.Alias);
-            }
             _tables.Add(tableExpression);
         }
 
@@ -177,14 +172,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Adds tables to this SelectExprssion.
         /// </summary>
         /// <param name="tableExpressions"> The table expressions. </param>
-        public virtual void AddTables([NotNull] IEnumerable<TableExpressionBase> tableExpressions)
+        private void AddTables([NotNull] IEnumerable<TableExpressionBase> tableExpressions)
         {
             Check.NotNull(tableExpressions, nameof(tableExpressions));
 
-            // Multiple tables are added while moving current select expression inside subquery hence it does not need to generate unique alias
             foreach (var tableExpression in tableExpressions.ToList())
             {
-                AddTable(tableExpression, createUniqueAlias: false);
+                AddTable(tableExpression);
             }
         }
 
@@ -372,9 +366,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 {
                     var columnExpression = aliasExpression.TryGetColumnExpression();
 
-                    if (columnExpression != null
+                    if ((columnExpression != null
                         && subquery._projection.OfType<AliasExpression>()
                             .Any(ae => (ae.Alias ?? ae.TryGetColumnExpression()?.Name) == (aliasExpression.Alias ?? columnExpression.Name)))
+                        || columnExpression == null)
                     {
                         aliasExpression.Alias = "c" + columnAliasCounter++;
                     }
@@ -410,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             ClearProjection();
             ClearOrderBy();
 
-            AddTable(subquery, createUniqueAlias: false);
+            _tables.Add(subquery);
             ProjectStarAlias = subquery.Alias;
 
             foreach (var ordering in subquery.OrderBy)
@@ -487,9 +482,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             if (projectionIndex == -1)
             {
-                projectionIndex = AddAliasToProjection(
-                    alias: null,
-                    expression: new ColumnExpression(column, property, GetTableForQuerySource(querySource)));
+                projectionIndex = AddToProjection(
+                    new ColumnExpression(
+                        column,
+                        property,
+                        GetTableForQuerySource(querySource)));
             }
 
             return projectionIndex;
@@ -551,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             return _projection.Count - 1;
         }
-
+        
         /// <summary>
         ///     Adds an <see cref="AliasExpression" /> to the projection.
         /// </summary>
@@ -560,41 +557,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The corresponding index of the added expression in <see cref="Projection" />.
         /// </returns>
         public virtual int AddToProjection([NotNull] AliasExpression aliasExpression)
-            => AddAliasToProjection(aliasExpression.Alias, aliasExpression.Expression);
-
-        /// <summary>
-        ///     Adds an expression with an alias to the projection.
-        /// </summary>
-        /// <param name="alias"> The alias. </param>
-        /// <param name="expression"> The expression. </param>
-        /// <returns>
-        ///     The corresponding index of the added expression in <see cref="Projection" />.
-        /// </returns>
-        public virtual int AddAliasToProjection([CanBeNull] string alias, [NotNull] Expression expression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(aliasExpression, nameof(aliasExpression));
 
+            var alias = aliasExpression.Alias;
+            var expression = aliasExpression.Expression;
             var columnExpression = expression as ColumnExpression;
 
             var projectionIndex
                 = _projection
                     .FindIndex(e =>
-                        {
-                            var ae = e as AliasExpression;
-                            var ce = e.TryGetColumnExpression();
+                    {
+                        var ae = e as AliasExpression;
+                        var ce = e.TryGetColumnExpression();
 
-                            return (ce != null
-                                    && columnExpression != null
-                                    && ce.Name == columnExpression.Name
-                                    && ce.TableAlias == columnExpression.TableAlias)
-                                   || ae?.Expression == expression;
-                        });
+                        return (ce != null
+                                && columnExpression != null
+                                && ce.Name == columnExpression.Name
+                                && ce.TableAlias == columnExpression.TableAlias)
+                               || ae?.Expression == expression;
+                    });
 
             if (projectionIndex == -1)
             {
                 // Alias != null means SelectExpression in subquery which needs projections to have unique aliases
-                if (Alias != null
-                    || columnExpression == null)
+                if (Alias != null)
                 {
                     var currentAlias = alias ?? columnExpression?.Name ?? expression.NodeType.ToString();
                     var uniqueAlias = CreateUniqueProjectionAlias(currentAlias);
@@ -647,13 +634,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var projectionIndex
                 = _projection
                     .FindIndex(e =>
-                        {
-                            var ce = e.TryGetColumnExpression();
+                    {
+                        var ce = e.TryGetColumnExpression();
 
-                            return ce != null
-                                   && ce.Name == columnExpression.Name
-                                   && ce.TableAlias == columnExpression.TableAlias;
-                        });
+                        return ce != null
+                               && ce.Name == columnExpression.Name
+                               && ce.TableAlias == columnExpression.TableAlias;
+                    });
 
             if (projectionIndex == -1)
             {
@@ -977,18 +964,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Adds a SQL LATERAL JOIN to this SelectExpression.
+        ///     Adds a SQL CROSS JOIN LATERAL to this SelectExpression.
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>
         /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
-        public virtual void AddLateralJoin(
+        public virtual void AddCrossJoinLateral(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
 
-            _tables.Add(new LateralJoinExpression(tableExpression));
+            _tables.Add(new CrossJoinLateralExpression(tableExpression));
             _projection.AddRange(projection);
         }
 
@@ -996,11 +983,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Adds a SQL INNER JOIN to this SelectExpression.
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>
-        public virtual JoinExpressionBase AddInnerJoin([NotNull] TableExpressionBase tableExpression)
+        public virtual PredicateJoinExpressionBase AddInnerJoin([NotNull] TableExpressionBase tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
-            return AddInnerJoin(tableExpression, Enumerable.Empty<AliasExpression>());
+            return AddInnerJoin(tableExpression, Enumerable.Empty<AliasExpression>(), innerPredicate: null);
         }
 
         /// <summary>
@@ -1008,9 +995,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>
         /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
-        public virtual JoinExpressionBase AddInnerJoin(
+        /// <param name="innerPredicate">A predicate which should be appended to current predicate. </param>
+        public virtual PredicateJoinExpressionBase AddInnerJoin(
             [NotNull] TableExpressionBase tableExpression,
-            [NotNull] IEnumerable<Expression> projection)
+            [NotNull] IEnumerable<Expression> projection,
+            [CanBeNull] Expression innerPredicate)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
@@ -1020,6 +1009,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _tables.Add(innerJoinExpression);
             _projection.AddRange(projection);
 
+            if (innerPredicate != null)
+            {
+                Predicate = Predicate == null ? innerPredicate : AndAlso(Predicate, innerPredicate);
+            }
+
             return innerJoinExpression;
         }
 
@@ -1027,7 +1021,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Adds a SQL LEFT OUTER JOIN to this SelectExpression.
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>
-        public virtual JoinExpressionBase AddLeftOuterJoin([NotNull] TableExpressionBase tableExpression)
+        public virtual PredicateJoinExpressionBase AddLeftOuterJoin([NotNull] TableExpressionBase tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
@@ -1039,7 +1033,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>
         /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
-        public virtual JoinExpressionBase AddLeftOuterJoin(
+        public virtual PredicateJoinExpressionBase AddLeftOuterJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
         {

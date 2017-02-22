@@ -6,7 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -49,6 +52,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
+        private readonly IModel _model;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public QueryOptimizer([NotNull] IModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            _model = model;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -138,17 +153,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     queryModel.BodyClauses.RemoveAt(index);
                     queryModel.BodyClauses.Insert(index, groupJoinClause.JoinClause);
 
-                    var querySourceMapping = new QuerySourceMapping();
-
-                    querySourceMapping.AddMapping(
+                    UpdateQuerySourceMapping(
+                        queryModel,
                         additionalFromClause,
                         new QuerySourceReferenceExpression(groupJoinClause.JoinClause));
-
-                    queryModel.TransformExpressions(e =>
-                        ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(
-                            e,
-                            querySourceMapping,
-                            throwOnUnmappedReferences: false));
                 }
             }
         }
@@ -167,11 +175,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             VisitQueryModel(subQueryModel);
 
-            if ((subQueryModel.ResultOperators
-                     .All(ro => ro is CastResultOperator)
-                 && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause))
-                || (queryModel.IsIdentityQuery()
-                    && !queryModel.ResultOperators.Any()))
+            if (subQueryModel.ResultOperators
+                    .All(ro => ro is CastResultOperator)
+                && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause)
+                || queryModel.IsIdentityQuery()
+                && !queryModel.ResultOperators.Any())
             {
                 string itemName;
 
@@ -194,13 +202,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 fromClause.CopyFromSource(fromClauseData);
 
-                var innerSelectorMapping = new QuerySourceMapping();
-
-                innerSelectorMapping.AddMapping(fromClause, subQueryExpression.QueryModel.SelectClause.Selector);
-
-                queryModel.TransformExpressions(
-                    ex => ReferenceReplacingExpressionVisitor
-                        .ReplaceClauseReferences(ex, innerSelectorMapping, false));
+                UpdateQuerySourceMapping(
+                    queryModel,
+                    fromClause,
+                    subQueryExpression.QueryModel.SelectClause.Selector);
 
                 InsertBodyClauses(subQueryExpression.QueryModel.BodyClauses, queryModel, destinationIndex);
 
@@ -209,22 +214,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     queryModel.ResultOperators.Insert(0, resultOperator);
                 }
 
-                var innerBodyClauseMapping = new QuerySourceMapping();
-
-                innerBodyClauseMapping
-                    .AddMapping(innerMainFromClause, new QuerySourceReferenceExpression(fromClause));
-
-                queryModel.TransformExpressions(
-                    ex => ReferenceReplacingExpressionVisitor
-                        .ReplaceClauseReferences(ex, innerBodyClauseMapping, false));
-
-                foreach (var queryAnnotation
-                    in _queryAnnotations
-                        .Where(qa => qa.QuerySource == subQueryExpression.QueryModel.MainFromClause))
-                {
-                    queryAnnotation.QuerySource = fromClause;
-                    queryAnnotation.QueryModel = queryModel;
-                }
+                UpdateQuerySourceMapping(
+                    queryModel,
+                    innerMainFromClause,
+                    new QuerySourceReferenceExpression(fromClause));
             }
         }
 
@@ -248,7 +241,66 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
+            var ofTypeOperator = resultOperator as OfTypeResultOperator;
+            if (ofTypeOperator != null)
+            {
+                var searchedItemType = ofTypeOperator.SearchedItemType;
+                if (searchedItemType == queryModel.MainFromClause.ItemType)
+                {
+                    queryModel.ResultOperators.RemoveAt(index);
+                }
+                else
+                {
+                    var entityType = _model.FindEntityType(searchedItemType);
+
+                    if (entityType != null)
+                    {
+                        var oldQuerySource = queryModel.MainFromClause;
+
+                        var entityQueryProvider = ((oldQuerySource.FromExpression as ConstantExpression)?.Value as IQueryable)?.Provider as IAsyncQueryProvider;
+                        if (entityQueryProvider != null)
+                        {
+                            queryModel.ResultOperators.RemoveAt(index);
+
+                            var newMainFromClause = new MainFromClause(
+                                oldQuerySource.ItemName,
+                                entityType.ClrType,
+                                entityQueryProvider.CreateEntityQueryable(entityType));
+                            queryModel.MainFromClause = newMainFromClause;
+
+                            UpdateQuerySourceMapping(queryModel,
+                                oldQuerySource,
+                                new QuerySourceReferenceExpression(newMainFromClause));
+                        }
+                    }
+                }
+            }
+
             base.VisitResultOperator(resultOperator, queryModel, index);
+        }
+
+        private void UpdateQuerySourceMapping(
+            QueryModel queryModel,
+            IQuerySource oldQuerySource,
+            Expression newExpression)
+        {
+            var querySourceMapping = new QuerySourceMapping();
+            querySourceMapping.AddMapping(oldQuerySource, newExpression);
+
+            queryModel.TransformExpressions(e =>
+                ReferenceReplacingExpressionVisitor
+                    .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
+
+            var qsre = newExpression as QuerySourceReferenceExpression;
+            if (qsre != null)
+            {
+                var newQuerySource = qsre.ReferencedQuerySource;
+                foreach (var queryAnnotation in _queryAnnotations.Where(qa => qa.QuerySource == oldQuerySource))
+                {
+                    queryAnnotation.QuerySource = newQuerySource;
+                    queryAnnotation.QueryModel = queryModel;
+                }
+            }
         }
     }
 }

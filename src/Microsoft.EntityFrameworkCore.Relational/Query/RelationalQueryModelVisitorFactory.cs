@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory,
             [NotNull] IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory,
             [NotNull] IQueryAnnotationExtractor queryAnnotationExtractor,
-            [NotNull] IResultOperatorHandler resultOperatorHandler,
+            [NotNull] IRelationalResultOperatorHandler resultOperatorHandler,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IExpressionPrinter expressionPrinter,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
@@ -131,6 +131,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Options that control the context.
         /// </value>
         protected virtual IDbContextOptions ContextOptions { get; }
+
+        /// <summary>
+        ///     Gets the <see cref="IResultOperatorHandler" /> to be used when processing a query.
+        /// </summary>
+        protected new virtual IRelationalResultOperatorHandler ResultOperatorHandler
+            => (IRelationalResultOperatorHandler)base.ResultOperatorHandler;
 
         /// <summary>
         ///     Creates a new EntityQueryModelVisitor.

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
@@ -15,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         private bool _connectionClosed;
 
         public TestRelationalTransaction(
-            TestSqlServerConnection connection, DbTransaction transaction, ILogger logger, bool transactionOwned)
-            : this(connection, new RelationalTransaction(connection, transaction, logger, transactionOwned))
+            TestSqlServerConnection connection, DbTransaction transaction, ILogger logger, DiagnosticSource diagnosticSource, bool transactionOwned)
+            : this(connection, new RelationalTransaction(connection, transaction, logger, diagnosticSource, transactionOwned))
         {
         }
 

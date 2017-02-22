@@ -168,10 +168,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         private void EnsureServices(IServiceProvider services)
         {
-            var providerServices = services.GetRequiredService<IDatabaseProviderServices>();
-            if (!(providerServices is IRelationalDatabaseProviderServices))
+            var migrator = services.GetService<IMigrator>();
+            if (migrator == null)
             {
-                throw new OperationException(DesignStrings.NonRelationalProvider(providerServices.InvariantName));
+                var databaseProvider = services.GetService<IDatabaseProvider>();
+                throw new OperationException(DesignStrings.NonRelationalProvider(databaseProvider?.InvariantName ?? "Unknown"));
             }
 
             var assemblyName = _assembly.GetName();

@@ -1,0 +1,9 @@
+[
+  {
+    "OldTypeId": "public static class Microsoft.Extensions.DependencyInjection.InMemoryServiceCollectionExtensions",
+    "NewTypeId": "public static class Microsoft.Extensions.DependencyInjection.InMemoryServiceCollectionExtensions",
+    "OldMemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkInMemoryDatabase(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
+    "NewMemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkInMemoryDatabase(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection)",
+    "Kind": "Modification"
+  }
+]

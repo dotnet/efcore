@@ -13,6 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     No explicit type for a decimal column
         /// </summary>
-        DefaultDecimalTypeWarning = 1
+        DefaultDecimalTypeWarning = 1,
+
+        /// <summary>
+        ///     A byte property is set up to use a SQL Server identity column
+        /// </summary>
+        ByteIdentityColumn = 2
     }
 }

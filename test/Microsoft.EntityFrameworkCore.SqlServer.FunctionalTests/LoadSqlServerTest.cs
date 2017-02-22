@@ -1559,7 +1559,7 @@ WHERE 0 = 1",
             {
                 var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlServer()
-                    .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
+                    .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                     .AddSingleton<ILoggerFactory, TestSqlLoggerFactory>()
                     .BuildServiceProvider();
 

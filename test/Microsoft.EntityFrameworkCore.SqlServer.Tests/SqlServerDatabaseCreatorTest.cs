@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Reflection;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -156,8 +156,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             private readonly IDbContextOptions _options;
             private readonly ILoggerFactory _loggerFactory;
 
-            public FakeSqlServerConnection(IDbContextOptions options, ILoggerFactory loggerFactory)
-                : base(options, new Logger<SqlServerConnection>(loggerFactory))
+            public FakeSqlServerConnection(IDbContextOptions options, ILoggerFactory loggerFactory, DiagnosticSource diagnosticSource)
+                : base(new RelationalConnectionDependencies(options, new Logger<SqlServerConnection>(loggerFactory), diagnosticSource))
             {
                 _options = options;
                 _loggerFactory = loggerFactory;
@@ -167,25 +167,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             public int FailAfter { get; set; }
             public int OpenCount { get; set; }
 
-            public override void Open()
-            {
-                if (++OpenCount < FailAfter)
-                {
-                    throw SqlExceptionFactory.CreateSqlException(ErrorNumber);
-                }
-            }
-
-            public override Task OpenAsync(CancellationToken cancellationToken = new CancellationToken())
+            public override bool Open()
             {
                 if (++OpenCount < FailAfter)
                 {
                     throw SqlExceptionFactory.CreateSqlException(ErrorNumber);
                 }
 
-                return Task.FromResult(0);
+                return true;
             }
 
-            public override ISqlServerConnection CreateMasterConnection() => new FakeSqlServerConnection(_options, _loggerFactory);
+            public override Task<bool> OpenAsync(CancellationToken cancellationToken = new CancellationToken())
+            {
+                if (++OpenCount < FailAfter)
+                {
+                    throw SqlExceptionFactory.CreateSqlException(ErrorNumber);
+                }
+
+                return Task.FromResult(true);
+            }
+
+            public override ISqlServerConnection CreateMasterConnection() => new FakeSqlServerConnection(_options, _loggerFactory, Dependencies.DiagnosticSource);
         }
 
         private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory

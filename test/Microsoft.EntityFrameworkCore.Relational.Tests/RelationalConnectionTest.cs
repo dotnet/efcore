@@ -50,14 +50,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public void Throws_with_new_when_no_provider_use_Database()
         {
+            var serviceCollection = new ServiceCollection();
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
-                .UseInternalServiceProvider(new ServiceCollection().AddEntityFramework().BuildServiceProvider())
+                .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
             using (var context = new ConstructorTestContext1A(options))
             {
                 Assert.Equal(
-                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(IRelationalConnection).FullName),
+                    CoreStrings.NoProviderConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
             }
         }
@@ -65,8 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public void Throws_with_add_when_no_provider_use_Database()
         {
-            var appServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
+            var serviceCollection = new ServiceCollection();
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
+
+            var appServiceProivder = serviceCollection
                 .AddDbContext<ConstructorTestContext1A>(
                     (p, b) => b.UseInternalServiceProvider(p))
                 .BuildServiceProvider();
@@ -78,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
                 Assert.Equal(
-                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(IRelationalConnection).FullName),
+                    CoreStrings.NoProviderConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
             }
         }
@@ -89,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             using (var context = new ConstructorTestContextNoConfiguration())
             {
                 Assert.Equal(
-                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(IRelationalConnection).FullName),
+                    CoreStrings.NoProviderConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
             }
         }
@@ -108,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>();
 
                 Assert.Equal(
-                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(IRelationalConnection).FullName),
+                    CoreStrings.NoProviderConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
             }
         }
@@ -148,34 +154,34 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
-                connection.Open();
+                Assert.True(connection.Open());
 
                 Assert.Equal(1, connection.DbConnections.Count);
 
                 var dbConnection = connection.DbConnections[0];
                 Assert.Equal(1, dbConnection.OpenCount);
 
-                connection.Open();
-                connection.Open();
+                Assert.False(connection.Open());
+                Assert.False(connection.Open());
 
                 Assert.Equal(1, dbConnection.OpenCount);
 
-                connection.Close();
-                connection.Close();
+                Assert.False(connection.Close());
+                Assert.False(connection.Close());
 
                 Assert.Equal(1, dbConnection.OpenCount);
                 Assert.Equal(0, dbConnection.CloseCount);
 
-                connection.Close();
+                Assert.True(connection.Close());
 
                 Assert.Equal(1, dbConnection.OpenCount);
                 Assert.Equal(1, dbConnection.CloseCount);
 
-                connection.Open();
+                Assert.True(connection.Open());
 
                 Assert.Equal(2, dbConnection.OpenCount);
 
-                connection.Close();
+                Assert.True(connection.Close());
 
                 Assert.Equal(2, dbConnection.OpenCount);
                 Assert.Equal(2, dbConnection.CloseCount);
@@ -191,34 +197,34 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 Assert.Equal(0, connection.DbConnections.Count);
 
                 var cancellationToken = new CancellationTokenSource().Token;
-                await connection.OpenAsync(cancellationToken);
+                Assert.True(await connection.OpenAsync(cancellationToken));
 
                 Assert.Equal(1, connection.DbConnections.Count);
 
                 var dbConnection = connection.DbConnections[0];
                 Assert.Equal(1, dbConnection.OpenAsyncCount);
 
-                await connection.OpenAsync(cancellationToken);
-                await connection.OpenAsync(cancellationToken);
+                Assert.False(await connection.OpenAsync(cancellationToken));
+                Assert.False(await connection.OpenAsync(cancellationToken));
 
                 Assert.Equal(1, dbConnection.OpenAsyncCount);
 
-                connection.Close();
-                connection.Close();
+                Assert.False(connection.Close());
+                Assert.False(connection.Close());
 
                 Assert.Equal(1, dbConnection.OpenAsyncCount);
                 Assert.Equal(0, dbConnection.CloseCount);
 
-                connection.Close();
+                Assert.True(connection.Close());
 
                 Assert.Equal(1, dbConnection.OpenAsyncCount);
                 Assert.Equal(1, dbConnection.CloseCount);
 
-                await connection.OpenAsync(cancellationToken);
+                Assert.True(await connection.OpenAsync(cancellationToken));
 
                 Assert.Equal(2, dbConnection.OpenAsyncCount);
 
-                connection.Close();
+                Assert.True(connection.Close());
 
                 Assert.Equal(2, dbConnection.OpenAsyncCount);
                 Assert.Equal(2, dbConnection.CloseCount);
@@ -236,16 +242,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             Assert.Equal(1, connection.DbConnections.Count);
 
             connection.Open();
+            Assert.Equal(1, dbConnection.OpenCount);
 
-#if NET451
-            // On CoreCLR, DbConnection.Dispose() calls DbConnection.Close()
             connection.Close();
-#endif
+            Assert.Equal(1, dbConnection.CloseCount);
 
             connection.Dispose();
-
-            Assert.Equal(1, dbConnection.OpenCount);
-            Assert.Equal(1, dbConnection.CloseCount);
             Assert.Equal(1, dbConnection.DisposeCount);
 
             Assert.Equal(1, connection.DbConnections.Count);
@@ -253,15 +255,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             Assert.Equal(2, connection.DbConnections.Count);
 
             connection.Open();
+            Assert.Equal(1, dbConnection.OpenCount);
 
-#if NET451
             connection.Close();
-#endif
+            Assert.Equal(1, dbConnection.CloseCount);
 
             connection.Dispose();
-
-            Assert.Equal(1, dbConnection.OpenCount);
-            Assert.Equal(1, dbConnection.CloseCount);
             Assert.Equal(1, dbConnection.DisposeCount);
         }
 

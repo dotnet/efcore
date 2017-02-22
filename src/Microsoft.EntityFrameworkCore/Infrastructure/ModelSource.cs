@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Concurrent;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -10,21 +9,21 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         A base implementation of <see cref="IModelSource" /> that produces a model based on the <see cref="DbSet{TEntity}" /> properties
-    ///         exposed on the context. The model is cached to avoid recreating it every time it is requested.
+    ///         An implementation of <see cref="IModelSource" /> that produces a model based on 
+    ///         the <see cref="DbSet{TEntity}" /> properties exposed on the context. The model is cached to avoid 
+    ///         recreating it every time it is requested.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public abstract class ModelSource : IModelSource, IServiceInjectionSite
+    public class ModelSource : IModelSource
     {
         private readonly ConcurrentDictionary<object, IModel> _models = new ConcurrentDictionary<object, IModel>();
 
@@ -39,11 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     to build the model.
         /// </summary>
         protected virtual ICoreConventionSetBuilder CoreConventionSetBuilder { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="CoreModelValidator" /> that will validate the built model.
-        /// </summary>
-        protected virtual CoreModelValidator CoreModelValidator { get; private set; }
 
         /// <summary>
         ///     Gets the <see cref="IModelCustomizer" /> that will perform additional configuration of the model
@@ -61,8 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Obsolete("Derived classes must be updated to call the new constructor with additional parameters.")]
-        protected ModelSource(
+        public ModelSource(
             [NotNull] IDbSetFinder setFinder,
             [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
             [NotNull] IModelCustomizer modelCustomizer,
@@ -77,30 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             CoreConventionSetBuilder = coreConventionSetBuilder;
             ModelCustomizer = modelCustomizer;
             ModelCacheKeyFactory = modelCacheKeyFactory;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected ModelSource(
-            [NotNull] IDbSetFinder setFinder,
-            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
-            [NotNull] IModelCustomizer modelCustomizer,
-            [NotNull] IModelCacheKeyFactory modelCacheKeyFactory,
-            [NotNull] CoreModelValidator coreModelValidator)
-        {
-            Check.NotNull(setFinder, nameof(setFinder));
-            Check.NotNull(coreConventionSetBuilder, nameof(coreConventionSetBuilder));
-            Check.NotNull(modelCustomizer, nameof(modelCustomizer));
-            Check.NotNull(modelCacheKeyFactory, nameof(modelCacheKeyFactory));
-            Check.NotNull(coreModelValidator, nameof(coreModelValidator));
-
-            SetFinder = setFinder;
-            CoreConventionSetBuilder = coreConventionSetBuilder;
-            ModelCustomizer = modelCustomizer;
-            ModelCacheKeyFactory = modelCacheKeyFactory;
-            CoreModelValidator = coreModelValidator;
         }
 
         /// <summary>
@@ -122,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The model to be used. </returns>
         protected virtual IModel CreateModel(
             [NotNull] DbContext context,
-            [CanBeNull] IConventionSetBuilder conventionSetBuilder,
+            [NotNull] IConventionSetBuilder conventionSetBuilder,
             [NotNull] IModelValidator validator)
         {
             Check.NotNull(context, nameof(context));
@@ -140,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ModelCustomizer.Customize(modelBuilder, context);
 
             internalModelBuilder.Validate();
-            CoreModelValidator.Validate(modelBuilder.Model);
+
             validator.Validate(modelBuilder.Model);
 
             return modelBuilder.Model;
@@ -152,13 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="conventionSetBuilder"> The provider convention set builder to be used. </param>
         /// <returns> The convention set to be used. </returns>
-        protected virtual ConventionSet CreateConventionSet([CanBeNull] IConventionSetBuilder conventionSetBuilder)
-        {
-            var conventionSet = CoreConventionSetBuilder.CreateConventionSet();
-            return conventionSetBuilder == null
-                ? conventionSet
-                : conventionSetBuilder.AddConventions(conventionSet);
-        }
+        protected virtual ConventionSet CreateConventionSet([NotNull] IConventionSetBuilder conventionSetBuilder)
+            => conventionSetBuilder.AddConventions(CoreConventionSetBuilder.CreateConventionSet());
 
         /// <summary>
         ///     Adds the entity types found in <see cref="DbSet{TEntity}" /> properties on the context to the model.
@@ -172,12 +136,5 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Entity(setInfo.ClrType);
             }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        void IServiceInjectionSite.InjectServices(IServiceProvider serviceProvider)
-            => CoreModelValidator = CoreModelValidator ?? serviceProvider.GetService<CoreModelValidator>();
     }
 }

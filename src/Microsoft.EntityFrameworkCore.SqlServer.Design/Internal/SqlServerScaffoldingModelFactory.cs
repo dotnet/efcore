@@ -40,8 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
-            [NotNull] CandidateNamingService candidateNamingService)
-            : base(loggerFactory, typeMapper, databaseModelFactory, candidateNamingService)
+            [NotNull] CandidateNamingService candidateNamingService,
+            [NotNull] IPluralizer pluralizer)
+            : base(loggerFactory, typeMapper, databaseModelFactory, candidateNamingService, pluralizer)
         {
         }
 
@@ -247,7 +248,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (column.DefaultValue != null)
             {
-                ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
                 propertyBuilder.Metadata.Relational().DefaultValueSql = null;
 
                 var defaultExpression = ConvertSqlServerDefaultValue(column.DefaultValue);
@@ -257,6 +257,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                           && propertyBuilder.Metadata.ClrType.IsNullableType()))
                     {
                         propertyBuilder.HasDefaultValueSql(defaultExpression);
+                    }
+                    else
+                    {
+                        ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
                     }
                 }
                 else
@@ -276,7 +280,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (column.ComputedValue != null)
             {
-                ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
                 propertyBuilder.Metadata.Relational().ComputedColumnSql = null;
 
                 var computedExpression = ConvertSqlServerDefaultValue(column.ComputedValue);
@@ -286,6 +289,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                           && propertyBuilder.Metadata.ClrType.IsNullableType()))
                     {
                         propertyBuilder.HasComputedColumnSql(computedExpression);
+                    }
+                    else
+                    {
+                        ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
                     }
                 }
                 else

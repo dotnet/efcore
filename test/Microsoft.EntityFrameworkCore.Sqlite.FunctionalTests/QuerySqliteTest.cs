@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 using Xunit.Abstractions;
 
-#if NETCOREAPP1_1
+#if !NET452
 using System.Threading;
 #endif
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
@@ -110,6 +110,17 @@ WHERE trim(""c"".""ContactTitle"") = 'Owner'",
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
 WHERE trim(""c"".""ContactTitle"", 'Or') = 'wne'",
+                Sql);
+        }
+
+        public override void Sum_with_coalesce()
+        {
+            base.Sum_with_coalesce();
+
+            Assert.Contains(
+                @"SELECT SUM(COALESCE(""p"".""UnitPrice"", 0.0))
+FROM ""Products"" AS ""p""
+WHERE ""p"".""ProductID"" < 40",
                 Sql);
         }
 

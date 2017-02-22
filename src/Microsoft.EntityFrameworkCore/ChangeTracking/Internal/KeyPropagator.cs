@@ -46,6 +46,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (valueGenerator != null)
                 {
                     entry[property] = valueGenerator.Next(new EntityEntry(entry));
+
+                    if (valueGenerator.GeneratesTemporaryValues)
+                    {
+                        entry.MarkAsTemporary(property);
+                    }
                 }
             }
         }
@@ -69,6 +74,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (valueGenerator != null)
                 {
                     entry[property] = await valueGenerator.NextAsync(new EntityEntry(entry), cancellationToken);
+
+                    if (valueGenerator.GeneratesTemporaryValues)
+                    {
+                        entry.MarkAsTemporary(property);
+                    }
                 }
             }
         }
@@ -109,6 +119,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             if (!principalProperty.ClrType.IsDefaultValue(principalValue))
                             {
                                 entry[property] = principalValue;
+
+                                if (principalEntry.HasTemporaryValue(principalProperty))
+                                {
+                                    entry.MarkAsTemporary(property);
+                                }
+                                else
+                                {
+                                    entry.MarkAsTemporary(property, isTemporary: false);
+                                }
+
                                 return true;
                             }
                         }

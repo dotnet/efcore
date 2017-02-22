@@ -32,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The newly created command. </returns>
         RawSqlCommand Build(
             [NotNull] string sql,
-            [NotNull] IReadOnlyList<object> parameters);
+            [NotNull] IEnumerable<object> parameters);
     }
 }

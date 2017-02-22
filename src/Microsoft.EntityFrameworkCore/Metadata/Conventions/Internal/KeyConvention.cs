@@ -14,8 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class KeyConvention
-        : IPrimaryKeyConvention, IForeignKeyConvention, IForeignKeyRemovedConvention
+    public class KeyConvention :
+        IPrimaryKeyConvention,
+        IForeignKeyConvention,
+        IForeignKeyRemovedConvention,
+        IBaseTypeConvention
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -62,6 +65,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
+        {
+            var pk = entityTypeBuilder.Metadata.FindPrimaryKey();
+            if (pk != null)
+            {
+                SetKeyValueGeneration(pk.Properties, pk.DeclaringEntityType);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Property FindValueGeneratedOnAddProperty(
             [NotNull] IReadOnlyList<Property> properties, [NotNull] EntityType entityType)
         {
@@ -75,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (!property.IsForeignKey())
                 {
                     var propertyType = property.ClrType.UnwrapNullableType();
-                    if (propertyType.IsInteger()
+                    if ((propertyType.IsInteger()
+                         && propertyType != typeof(byte))
                         || propertyType == typeof(Guid)
                         || propertyType == typeof(string)
                         || propertyType == typeof(byte[]))

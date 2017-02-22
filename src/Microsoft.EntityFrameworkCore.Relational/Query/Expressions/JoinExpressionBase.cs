@@ -13,7 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     public abstract class JoinExpressionBase : TableExpressionBase
     {
         private readonly TableExpressionBase _tableExpression;
-        private Expression _predicate;
 
         /// <summary>
         ///     Specialised constructor for use only by derived class.
@@ -33,24 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual TableExpressionBase TableExpression => _tableExpression;
 
         /// <summary>
-        ///     Gets or sets the predicate.
-        /// </summary>
-        /// <value>
-        ///     The predicate.
-        /// </value>
-        public virtual Expression Predicate
-        {
-            get { return _predicate; }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, nameof(value));
-
-                _predicate = value;
-            }
-        }
-
-        /// <summary>
         ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(System.Linq.Expressions.Expression)" /> method passing the
         ///     reduced expression.
         ///     Throws an exception if the node isn't reducible.
@@ -66,7 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             visitor.Visit(_tableExpression);
-            visitor.Visit(_predicate);
 
             return this;
         }

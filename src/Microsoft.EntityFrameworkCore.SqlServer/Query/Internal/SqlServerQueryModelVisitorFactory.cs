@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory,
             [NotNull] IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory,
             [NotNull] IQueryAnnotationExtractor queryAnnotationExtractor,
-            [NotNull] IResultOperatorHandler resultOperatorHandler,
+            [NotNull] IRelationalResultOperatorHandler resultOperatorHandler,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IExpressionPrinter expressionPrinter,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,

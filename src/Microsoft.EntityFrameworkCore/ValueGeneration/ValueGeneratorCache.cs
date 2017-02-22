@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public abstract class ValueGeneratorCache : IValueGeneratorCache
+    public class ValueGeneratorCache : IValueGeneratorCache
     {
         private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache
             = new ConcurrentDictionary<CacheKey, ValueGenerator>();

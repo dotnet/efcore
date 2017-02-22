@@ -5,9 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Moq.Protected;
@@ -632,10 +633,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         protected DbContext CreateContext()
-            => TestHelpers.Instance.CreateContext(
-                TestHelpers.Instance.CreateServiceProvider(
+            => InMemoryTestHelpers.Instance.CreateContext(
+                InMemoryTestHelpers.Instance.CreateServiceProvider(
                     new ServiceCollection()
-                        .AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>()),
-                TestHelpers.Instance.CreateOptions());
+                        .AddScoped<IDbContextTransactionManager, TestInMemoryTransactionManager>()),
+                InMemoryTestHelpers.Instance.CreateOptions());
     }
 }

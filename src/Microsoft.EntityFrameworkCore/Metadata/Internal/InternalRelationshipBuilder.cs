@@ -923,9 +923,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            builder = builder.Metadata.SetIsUnique(unique, configurationSource, runConventions)?.Builder;
-            builder?.Metadata.DeclaringEntityType.FindIndex(builder.Metadata.Properties)?.SetIsUnique(unique, configurationSource);
-            return builder;
+            return builder.Metadata.SetIsUnique(unique, configurationSource, runConventions)?.Builder;
         }
 
         private bool CanSetUnique(bool unique, ConfigurationSource? configurationSource, out bool resetToDependent)
@@ -1792,6 +1790,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var oldNavigationToDependentName = oldRelationshipInverted
                 ? Metadata.DependentToPrincipal?.Name
                 : Metadata.PrincipalToDependent?.Name;
+            var oldIsUnique = newRelationshipBuilder.Metadata.IsUnique;
 
             var newRelationshipConfigurationSource = Metadata.GetConfigurationSource();
             if ((dependentProperties != null && dependentProperties.Any())
@@ -2000,11 +1999,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         principalProperties);
                 }
 
-                if (newRelationshipBuilder != null
-                    && (newRelationshipBuilder.Metadata != initialRelationship
-                        || existingRelationshipInverted == null))
+                if (newRelationshipBuilder != null)
                 {
-                    newRelationshipBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(newRelationshipBuilder);
+                    if (newRelationshipBuilder.Metadata != initialRelationship || existingRelationshipInverted == null)
+                    {
+                        newRelationshipBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(newRelationshipBuilder);
+                    }
+                    else if (oldIsUnique != newRelationshipBuilder.Metadata.IsUnique)
+                    {
+                        newRelationshipBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyUniquenessChanged(newRelationshipBuilder);
+                    }
                 }
 
                 foreach (var addedForeignKey in addedForeignKeys)
@@ -2755,6 +2759,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     dependentProperties = new List<Property>();
                 }
+
+                Metadata.DeclaringEntityType.Model.ConventionDispatcher.OnKeyRemoved(
+                    Metadata.PrincipalEntityType.Builder, Metadata.PrincipalKey);
             }
             else if (Metadata.GetPrincipalKeyConfigurationSource()?.Overrides(configurationSource) == true)
             {

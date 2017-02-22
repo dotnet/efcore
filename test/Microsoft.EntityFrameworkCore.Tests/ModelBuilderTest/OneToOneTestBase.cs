@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -268,6 +269,40 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
                 Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+                Assert.Empty(principalType.GetIndexes());
+            }
+
+            [Fact]
+            public virtual void Creates_both_navigations_and_new_FK_over_PK_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Ignore<Customer>();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Entity<OrderDetails>().Ignore(d => d.Id);
+                modelBuilder.Entity<Order>().Ignore(o => o.Details);
+
+                var dependentType = model.FindEntityType(typeof(OrderDetails));
+                var principalType = model.FindEntityType(typeof(Order));
+
+                var fkProperty = dependentType.FindProperty(nameof(OrderDetails.OrderId));
+
+                modelBuilder.Entity<OrderDetails>().HasKey(d => d.OrderId);
+                modelBuilder.Entity<OrderDetails>().HasOne(d => d.Order).WithOne();
+
+                var fk = dependentType.GetForeignKeys().Single();
+                var principalKey = principalType.GetKeys().Single();
+                var dependentKey = dependentType.GetKeys().Single();
+                Assert.Equal(nameof(OrderDetails.Order), dependentType.GetNavigations().Single().Name);
+                Assert.Empty(principalType.GetNavigations());
+                Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
+                Assert.Same(fkProperty, fk.Properties.Single());
+                Assert.Empty(principalType.GetForeignKeys());
+                Assert.Same(principalKey, principalType.GetKeys().Single());
+                Assert.Same(dependentKey, dependentType.GetKeys().Single());
+                Assert.Same(principalKey, principalType.FindPrimaryKey());
+                Assert.Same(dependentKey, dependentType.FindPrimaryKey());
+                Assert.Empty(dependentType.GetIndexes());
                 Assert.Empty(principalType.GetIndexes());
             }
 
@@ -3313,7 +3348,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<Alpha>().HasOne(b => b.NavDelta).WithOne();
 
                 var property = modelBuilder.Model.FindEntityType(typeof(Delta)).FindProperty("Id");
-                Assert.False(property.RequiresValueGenerator);
                 Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
             }
 
@@ -3608,7 +3642,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(OneToOnePrincipalEntity.EntityMatchingProperty.Name, fk.Properties.Single().Name);
             }
 
-            [Fact] // Issue #3376
+            [Fact]
             public virtual void Can_use_self_referencing_overlapping_FK_PK()
             {
                 var modelBuilder = CreateModelBuilder();

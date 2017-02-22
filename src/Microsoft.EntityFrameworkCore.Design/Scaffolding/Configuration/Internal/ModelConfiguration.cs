@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                         nameof(TableAttribute.Schema) + " = " + delimitedSchemaName));
             }
             else if (AnnotationProvider.For(entityType).TableName != null
-                     && AnnotationProvider.For(entityType).TableName != entityType.DisplayName())
+                     && AnnotationProvider.For(entityType).TableName != entityType.Scaffolding().DbSetName)
             {
                 var delimitedTableName =
                     CSharpUtilities.DelimitString(AnnotationProvider.For(entityType).TableName);

@@ -4,7 +4,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -20,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _isUniqueConfigurationSource;
+
+        // Warning: Never access these fields directly as access needs to be thread-safe
+        private object _nullableValueFactory;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -119,12 +124,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected override Annotation OnAnnotationSet(string name, Annotation annotation, Annotation oldAnnotation)
             => Builder.ModelBuilder.Metadata.ConventionDispatcher.OnIndexAnnotationSet(Builder, name, annotation, oldAnnotation);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual INullableValueFactory<TKey> GetNullableValueFactory<TKey>()
+            => (INullableValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
+                ref _nullableValueFactory, this, i => new CompositeNullableValueFactory(i.Properties));
+
         IReadOnlyList<IProperty> IIndex.Properties => Properties;
         IReadOnlyList<IMutableProperty> IMutableIndex.Properties => Properties;
         IEntityType IIndex.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableIndex.DeclaringEntityType => DeclaringEntityType;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override string ToString() => this.ToDebugString();
+
         [UsedImplicitly]
         private string DebuggerDisplay => Property.Format(Properties);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual DebugView<Index> DebugView
+            => new DebugView<Index>(this, m => m.ToDebugString(false));
     }
 }

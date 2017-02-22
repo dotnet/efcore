@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata
@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata
 
         protected virtual ModelBuilder CreateModelBuilder()
         {
-            return TestHelpers.Instance.CreateConventionBuilder();
+            return InMemoryTestHelpers.Instance.CreateConventionBuilder();
         }
 
         private class Gunter

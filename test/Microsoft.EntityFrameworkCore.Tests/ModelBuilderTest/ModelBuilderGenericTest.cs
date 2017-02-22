@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_discover_large_models_through_navigations()
         {
-            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder.Entity<GiantModel.RelatedEntity1>();
 

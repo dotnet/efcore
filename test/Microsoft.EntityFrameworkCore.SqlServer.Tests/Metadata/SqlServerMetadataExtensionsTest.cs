@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -51,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_table_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -85,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_schema_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -117,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_type()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -150,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_default_expression()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -183,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_computed_expression()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -216,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_default_value()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -261,15 +262,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [InlineData(nameof(SqlServerPropertyAnnotations.ValueGenerationStrategy), nameof(RelationalPropertyAnnotations.ComputedColumnSql))]
         public void Metadata_throws_when_setting_conflicting_serverGenerated_values(string firstConfiguration, string secondConfiguration)
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var propertyBuilder = modelBuilder
                 .Entity<Customer>()
-                .Property(e => e.Id);
+                .Property(e => e.NullableInt);
 
             ConfigureProperty(propertyBuilder.Metadata, firstConfiguration, "1");
 
-            Assert.Equal(RelationalStrings.ConflictingColumnServerGeneration(secondConfiguration, nameof(Customer.Id), firstConfiguration),
+            Assert.Equal(RelationalStrings.ConflictingColumnServerGeneration(secondConfiguration, nameof(Customer.NullableInt), firstConfiguration),
                 Assert.Throws<InvalidOperationException>(() =>
                     ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "2")).Message);
         }
@@ -280,19 +281,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             switch (configuration)
             {
                 case nameof(RelationalPropertyAnnotations.DefaultValue):
-                    property.ValueGenerated = ValueGenerated.OnAdd;
                     propertyAnnotations.DefaultValue = int.Parse(value);
                     break;
                 case nameof(RelationalPropertyAnnotations.DefaultValueSql):
-                    property.ValueGenerated = ValueGenerated.OnAdd;
                     propertyAnnotations.DefaultValueSql = value;
                     break;
                 case nameof(RelationalPropertyAnnotations.ComputedColumnSql):
-                    property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
                     propertyAnnotations.ComputedColumnSql = value;
                     break;
                 case nameof(SqlServerPropertyAnnotations.ValueGenerationStrategy):
-                    property.ValueGenerated = ValueGenerated.OnAdd;
                     propertyAnnotations.ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn;
                     break;
                 default:
@@ -303,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_key_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var key = modelBuilder
                 .Entity<Customer>()
@@ -336,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_foreign_key_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -375,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_index_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var index = modelBuilder
                 .Entity<Customer>()
@@ -406,9 +403,42 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_get_and_set_index_clustering()
+        public void Can_get_and_set_index_filter()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var index = modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Id)
+                .Metadata;
+
+            Assert.Null(index.Relational().Filter);
+            Assert.Null(index.SqlServer().Filter);
+            Assert.Null(((IIndex)index).SqlServer().Filter);
+
+            index.Relational().Name = "Generic expression";
+
+            Assert.Equal("Generic expression", index.Relational().Name);
+            Assert.Equal("Generic expression", index.SqlServer().Name);
+            Assert.Equal("Generic expression", ((IIndex)index).SqlServer().Name);
+
+            index.SqlServer().Name = "SqlServer-specific expression";
+
+            Assert.Equal("Generic expression", index.Relational().Name);
+            Assert.Equal("SqlServer-specific expression", index.SqlServer().Name);
+            Assert.Equal("SqlServer-specific expression", ((IIndex)index).SqlServer().Name);
+
+            index.SqlServer().Name = null;
+
+            Assert.Null(index.Relational().Filter);
+            Assert.Null(index.SqlServer().Filter);
+            Assert.Null(((IIndex)index).SqlServer().Filter);
+        }
+
+        [Fact]
+        public void Can_get_and_set_index_clustering()
+        {
+            var modelBuilder = GetModelBuilder();
 
             var index = modelBuilder
                 .Entity<Customer>()
@@ -432,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_key_clustering()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var key = modelBuilder
                 .Entity<Customer>()
@@ -456,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_sequence()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
             var model = modelBuilder.Model;
 
             Assert.Null(model.Relational().FindSequence("Foo"));
@@ -507,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_sequence_with_schema_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
             var model = modelBuilder.Model;
 
             Assert.Null(model.Relational().FindSequence("Foo", "Smoo"));
@@ -558,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_multiple_sequences()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
             var model = modelBuilder.Model;
 
             model.Relational().GetOrAddSequence("Fibonacci");
@@ -574,7 +604,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_multiple_sequences_when_overridden()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
             var model = modelBuilder.Model;
 
             model.Relational().GetOrAddSequence("Fibonacci").StartValue = 1;
@@ -594,27 +624,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_value_generation_on_model()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
             var model = modelBuilder.Model;
 
-            Assert.Null(model.SqlServer().ValueGenerationStrategy);
-            Assert.Null(((IModel)model).SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, model.SqlServer().ValueGenerationStrategy);
 
             model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, model.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, ((IModel)model).SqlServer().ValueGenerationStrategy);
 
             model.SqlServer().ValueGenerationStrategy = null;
 
             Assert.Null(model.SqlServer().ValueGenerationStrategy);
-            Assert.Null(((IModel)model).SqlServer().ValueGenerationStrategy);
         }
 
         [Fact]
         public void Can_get_and_set_default_sequence_name_on_model()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
             var model = modelBuilder.Model;
 
             Assert.Null(model.SqlServer().HiLoSequenceName);
@@ -634,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_default_sequence_schema_on_model()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
             var model = modelBuilder.Model;
 
             Assert.Null(model.SqlServer().HiLoSequenceSchema);
@@ -654,59 +681,55 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_value_generation_on_property()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
+            modelBuilder.Model.SqlServer().ValueGenerationStrategy = null;
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ValueGeneratedOnAdd()
                 .Metadata;
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
-            Assert.False(property.RequiresValueGenerator);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, ((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.False(property.RequiresValueGenerator);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
 
             property.SqlServer().ValueGenerationStrategy = null;
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
-            Assert.False(property.RequiresValueGenerator);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
         [Fact]
         public void Can_get_and_set_value_generation_on_nullable_property()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.NullableInt)
-                .ValueGeneratedOnAdd()
                 .Metadata;
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
-            Assert.False(property.RequiresValueGenerator);
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, ((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.False(property.RequiresValueGenerator);
 
             property.SqlServer().ValueGenerationStrategy = null;
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
-            Assert.False(property.RequiresValueGenerator);
         }
 
         [Fact]
         public void Throws_setting_sequence_generation_for_invalid_type()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -722,7 +745,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Throws_setting_identity_generation_for_invalid_type()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -736,41 +759,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Throws_setting_identity_generation_for_byte_property()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Byte)
-                .Metadata;
-
-            Assert.Equal(
-                SqlServerStrings.IdentityBadType("Byte", nameof(Customer), "byte"),
-                Assert.Throws<ArgumentException>(
-                    () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn).Message);
-        }
-
-        [Fact]
-        public void Throws_setting_identity_generation_for_nullable_byte_property()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.NullableByte)
-                .Metadata;
-
-            Assert.Equal(
-                SqlServerStrings.IdentityBadType("NullableByte", nameof(Customer), "Nullable<byte>"),
-                Assert.Throws<ArgumentException>(
-                    () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn).Message);
-        }
-
-        [Fact]
         public void Can_get_and_set_sequence_name_on_property()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -794,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_sequence_schema_on_property()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -818,7 +809,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_returns_null_if_property_is_not_configured_for_sequence_value_generation()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -850,7 +841,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_returns_sequence_property_is_marked_for_sequence_generation()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -869,7 +860,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_returns_sequence_property_is_marked_for_default_generation_and_model_is_marked_for_sequence_generation()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -888,7 +879,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_returns_sequence_property_is_marked_for_sequence_generation_and_model_has_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -907,7 +898,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_returns_sequence_property_is_marked_for_default_generation_and_model_is_marked_for_sequence_generation_and_model_has_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -926,7 +917,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_with_schema_returns_sequence_property_is_marked_for_sequence_generation()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -948,7 +939,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_with_schema_returns_sequence_model_is_marked_for_sequence_generation()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -970,7 +961,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_with_schema_returns_sequence_property_is_marked_for_sequence_generation_and_model_has_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -992,7 +983,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_with_schema_returns_sequence_model_is_marked_for_sequence_generation_and_model_has_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = GetModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -1010,6 +1001,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Equal("R", property.SqlServer().FindHiLoSequence().Schema);
             Assert.Equal("R", ((IProperty)property).SqlServer().FindHiLoSequence().Schema);
         }
+
+        private static ModelBuilder GetModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
         private class Customer
         {

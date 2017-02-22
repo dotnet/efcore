@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
@@ -419,15 +420,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     node,
                     (ps, qs) =>
                         {
-                            return RewriteNavigationProperties(
-                                ps.ToList(),
-                                qs,
-                                node,
-                                node.Expression,
-                                node.Member.Name,
-                                node.Type,
-                                e => Expression.MakeMemberAccess(e, node.Member),
-                                e => new NullConditionalExpression(e, e, Expression.MakeMemberAccess(e, node.Member)));
+                            if (qs != null)
+                            {
+                                return RewriteNavigationProperties(
+                                    ps.ToList(),
+                                    qs,
+                                    node,
+                                    node.Expression,
+                                    node.Member.Name,
+                                    node.Type,
+                                    e => Expression.MakeMemberAccess(e, node.Member),
+                                    e => new NullConditionalExpression(e, e, Expression.MakeMemberAccess(e, node.Member)));
+                            }
+
+                            return null;
                         });
 
             if (result != null)
@@ -503,15 +509,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     node,
                     (ps, qs) =>
                         {
-                            return RewriteNavigationProperties(
-                                ps.ToList(),
-                                qs,
-                                node,
-                                node.Arguments[0],
-                                (string)((ConstantExpression)node.Arguments[1]).Value,
-                                node.Type,
-                                e => Expression.Call(node.Method, e, node.Arguments[1]),
-                                e => new NullConditionalExpression(e, e, Expression.Call(node.Method, e, node.Arguments[1])));
+                            if (qs != null)
+                            {
+                                return RewriteNavigationProperties(
+                                    ps.ToList(),
+                                    qs,
+                                    node,
+                                    node.Arguments[0],
+                                    (string)((ConstantExpression)node.Arguments[1]).Value,
+                                    node.Type,
+                                    e => Expression.Call(node.Method, e, node.Arguments[1]),
+                                    e => new NullConditionalExpression(e, e, Expression.Call(node.Method, e, node.Arguments[1])));
+                            }
+
+                            return null;
                         });
 
                 if (result != null)
@@ -764,7 +775,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var mainFromClause
                 = new MainFromClause(
                     "subQuery",
-                    targetEntityType.ClrType, CreateEntityQueryable(targetEntityType));
+                    targetEntityType.ClrType, _entityQueryProvider.CreateEntityQueryable(targetEntityType));
 
             var querySourceReference = new QuerySourceReferenceExpression(mainFromClause);
             var subQueryModel = new QueryModel(mainFromClause, new SelectClause(querySourceReference));
@@ -868,7 +879,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (navigation.IsCollection())
                 {
-                    _queryModel.MainFromClause.FromExpression = CreateEntityQueryable(targetEntityType);
+                    _queryModel.MainFromClause.FromExpression = _entityQueryProvider.CreateEntityQueryable(targetEntityType);
 
                     var innerQuerySourceReferenceExpression
                         = new QuerySourceReferenceExpression(_queryModel.MainFromClause);
@@ -955,7 +966,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 : propertyCreator(querySourceReferenceExpression);
         }
 
-        private void RewriteNavigationIntoGroupJoin(
+        private static void RewriteNavigationIntoGroupJoin(
             JoinClause joinClause,
             INavigation navigation,
             IEntityType targetEntityType,
@@ -1157,7 +1168,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 = new JoinClause(
                     $"{querySourceReferenceExpression.ReferencedQuerySource.ItemName}.{navigation.Name}", // Interpolation okay; strings
                     targetEntityType.ClrType,
-                    CreateEntityQueryable(targetEntityType),
+                    _entityQueryProvider.CreateEntityQueryable(targetEntityType),
                     outerKeySelector,
                     Expression.Constant(null));
 
@@ -1245,24 +1256,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             return type == typeof(CompositeKey);
         }
-
-        private ConstantExpression CreateEntityQueryable(IEntityType targetEntityType)
-            => Expression.Constant(
-                _createEntityQueryableMethod
-                    .MakeGenericMethod(targetEntityType.ClrType)
-                    .Invoke(null, new object[]
-                    {
-                        _entityQueryProvider
-                    }));
-
-        private static readonly MethodInfo _createEntityQueryableMethod
-            = typeof(NavigationRewritingExpressionVisitor)
-                .GetTypeInfo().GetDeclaredMethod(nameof(_CreateEntityQueryable));
-
-        [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
-        private static EntityQueryable<TResult> _CreateEntityQueryable<TResult>(IAsyncQueryProvider entityQueryProvider)
-            => new EntityQueryable<TResult>(entityQueryProvider);
 
         private static Expression CompensateForNullabilityDifference(Expression expression, Type originalType)
         {

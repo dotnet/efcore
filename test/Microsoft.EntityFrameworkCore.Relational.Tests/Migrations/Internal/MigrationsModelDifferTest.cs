@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
@@ -3727,7 +3728,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         Assert.Equal(1, operations.Count);
 
                         var createTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
-                        Assert.Equal(2, createTableOperation.Columns.Count);
+                        Assert.Equal(3, createTableOperation.Columns.Count);
                     });
         }
 
@@ -4936,5 +4937,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         Assert.IsType<AddForeignKeyOperation>(operations[1]);
                     });
         }
+
+        protected override ModelBuilder CreateModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();
     }
 }

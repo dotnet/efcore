@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -114,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_columns_in_derived_types_with_different_types()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().Property(c => c.Type);
             modelBuilder.Entity<Dog>().Property(c => c.Type);
@@ -126,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().Property(c => c.Breed).HasMaxLength(30);
             modelBuilder.Entity<Dog>().Property(d => d.Breed).HasMaxLength(15);
@@ -138,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_ComputedColumnSql()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().Property(c => c.Breed).HasComputedColumnSql("1");
             modelBuilder.Entity<Dog>();
@@ -150,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_DefaultValue()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().Property(c => c.Breed).HasDefaultValueSql("1");
             modelBuilder.Entity<Dog>().Property(c => c.Breed).HasDefaultValue("1");
@@ -162,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_DefaultValueSql()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().Property(c => c.Breed).HasDefaultValueSql("1");
             modelBuilder.Entity<Dog>();
@@ -174,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_nullability()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>();
             modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Id");
@@ -186,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Passes_for_compatible_duplicate_column_names_within_hierarchy()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>(eb =>
                 {
@@ -211,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_principal_tables()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
             modelBuilder.Entity<Dog>().HasOne<Animal>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
@@ -228,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_column_count()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>().Property<int>("FriendId");
             modelBuilder.Entity<Animal>().Property<string>("Shadow");
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey("FriendId", "Shadow").HasPrincipalKey(p => new { p.Id, p.Name }).HasConstraintName("FK");
@@ -246,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_column_order()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => new { c.Name, c.Breed }).HasPrincipalKey(p => new { p.Name, p.FavoriteBreed }).HasConstraintName("FK");
             modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => new { d.Breed, d.Name }).HasPrincipalKey(p => new { p.FavoriteBreed, p.Name }).HasConstraintName("FK");
@@ -263,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_mapped_to_different_columns()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => new { c.Name, c.Breed }).HasPrincipalKey(p => new { p.Name, p.FavoriteBreed }).HasConstraintName("FK");
             modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => new { d.Name, d.Breed }).HasPrincipalKey(p => new { p.Name, p.FavoriteBreed }).HasConstraintName("FK");
@@ -281,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_referencing_different_columns()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>()
                 .HasOne<Person>().WithMany()
@@ -303,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_uniqueness()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name);
             modelBuilder.Entity<Dog>().HasOne<Person>().WithOne().HasForeignKey<Dog>(d => d.Name).HasPrincipalKey<Person>(p => p.Name);
@@ -318,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_delete_behavior()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -334,9 +335,25 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
+        public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy_when_one_name_configured_explicitly()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            var fk1 = modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+                .OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_Animal_Person_Name").Metadata;
+            var fk2 = modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
+                .OnDelete(DeleteBehavior.SetNull).Metadata;
+
+            Validate(modelBuilder.Model);
+
+            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().Name);
+            Assert.Equal("FK_Animal_Person_Name0", fk2.Relational().Name);
+        }
+
+        [Fact]
         public virtual void Passes_for_compatible_duplicate_foreignKey_names_within_hierarchy()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             var fk1 = modelBuilder.Entity<Cat>()
                 .HasOne<Person>()
@@ -360,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_column_count()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>().Property<int>("Shadow");
             modelBuilder.Entity<Cat>().HasIndex(nameof(Cat.Name), "Shadow").HasName("IX");
             modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasName("IX");
@@ -377,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_column_order()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasIndex(c => new { c.Name, c.Breed }).HasName("IX");
             modelBuilder.Entity<Dog>().HasIndex(d => new { d.Breed, d.Name }).HasName("IX");
@@ -394,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_mapped_to_different_columns()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasIndex(c => new { c.Name, c.Breed }).HasName("IX");
             modelBuilder.Entity<Dog>().HasIndex(d => new { d.Name, d.Breed }).HasName("IX");
@@ -412,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_uniqueness()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique();
             modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsUnique(false);
@@ -425,9 +442,23 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
+        public virtual void Passes_for_incompatible_indexes_within_hierarchy_when_one_name_configured_explicitly()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            var index1 = modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique().HasName("IX_Animal_Name").Metadata;
+            var index2 = modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsUnique(false).Metadata;
+
+            Validate(modelBuilder.Model);
+
+            Assert.Equal("IX_Animal_Name", index1.Relational().Name);
+            Assert.Equal("IX_Animal_Name0", index2.Relational().Name);
+        }
+
+        [Fact]
         public virtual void Passes_for_compatible_duplicate_index_names_within_hierarchy()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             var index1 = modelBuilder.Entity<Cat>().HasIndex(c => c.Breed).Metadata;
             var index2 = modelBuilder.Entity<Dog>().HasIndex(c => c.Breed).Metadata;
@@ -495,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_missing_non_string_discriminator_values()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<C>();
             modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
                 .HasValue<A>(0)
@@ -508,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Detects_duplicate_discriminator_values()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
                 .HasValue<A>(1)
                 .HasValue<C>(1)
@@ -521,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public virtual void Does_not_detect_missing_discriminator_value_for_abstract_class()
         {
-            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Abstract>();
             modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
                 .HasValue<A>(0)

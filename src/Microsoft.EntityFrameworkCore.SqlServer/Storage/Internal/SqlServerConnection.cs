@@ -4,8 +4,6 @@
 using System.Data.Common;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -24,17 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqlServerConnection(
-            [NotNull] IDbContextOptions options,
-            // ReSharper disable once SuggestBaseTypeForParameter
-            [NotNull] ILogger<SqlServerConnection> logger)
-            : base(options, logger)
-        {
-        }
-
-        private SqlServerConnection(
-            [NotNull] IDbContextOptions options, [NotNull] ILogger logger)
-            : base(options, logger)
+        public SqlServerConnection([NotNull] RelationalConnectionDependencies dependencies)
+            : base(dependencies)
         {
         }
 
@@ -51,11 +40,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public virtual ISqlServerConnection CreateMasterConnection()
         {
-            var builder = new SqlConnectionStringBuilder(ConnectionString) { InitialCatalog = "master" };
-            builder.Remove("AttachDBFilename");
+            var connectionStringBuilder = new SqlConnectionStringBuilder(ConnectionString) { InitialCatalog = "master" };
+            connectionStringBuilder.Remove("AttachDBFilename");
 
-            return new SqlServerConnection(new DbContextOptionsBuilder()
-                .UseSqlServer(builder.ConnectionString, b => b.CommandTimeout(CommandTimeout ?? DefaultMasterConnectionCommandTimeout)).Options, Logger);
+            var contextOptions = new DbContextOptionsBuilder()
+                .UseSqlServer(
+                    connectionStringBuilder.ConnectionString,
+                    b => b.CommandTimeout(CommandTimeout ?? DefaultMasterConnectionCommandTimeout))
+                .Options;
+
+            return new SqlServerConnection(Dependencies.With(contextOptions));
         }
 
         /// <summary>

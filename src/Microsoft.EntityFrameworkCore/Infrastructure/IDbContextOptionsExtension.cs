@@ -19,11 +19,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public interface IDbContextOptionsExtension
     {
         /// <summary>
-        ///     Adds the services required to make the selected options work. This is used when there is no external <see cref="IServiceProvider" />
-        ///     and EF is maintaining its own service provider internally. This allows database providers (and other extensions) to register their
+        ///     Adds the services required to make the selected options work. This is used when there
+        ///     is no external <see cref="IServiceProvider" /> and EF is maintaining its own service
+        ///     provider internally. This allows database providers (and other extensions) to register their
         ///     required services when EF is creating an service provider.
         /// </summary>
         /// <param name="services"> The collection to add services to. </param>
-        void ApplyServices([NotNull] IServiceCollection services);
+        /// <returns>
+        ///     True if core EF services were registered.
+        ///     False if no services or only non-core services were registered.
+        /// </returns>
+        bool ApplyServices([NotNull] IServiceCollection services);
     }
 }

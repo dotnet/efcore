@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,6 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected virtual IRelationalEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType)
             => new RelationalEntityTypeAnnotations(entityType, ProviderFullAnnotationNames);
 
+        protected virtual RelationalForeignKeyAnnotations GetAnnotations([NotNull] IForeignKey foreignKey)
+            => new RelationalForeignKeyAnnotations(foreignKey, ProviderFullAnnotationNames);
+
         protected virtual IRelationalPropertyAnnotations GetAnnotations([NotNull] IProperty property)
             => new RelationalPropertyAnnotations(property, ProviderFullAnnotationNames);
 
@@ -58,10 +62,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         protected virtual string GetDefaultName()
         {
-            return GetDefaultForeignKeyName(
+            var otherForeignKeyNames = new HashSet<string>(
+                ForeignKey.DeclaringEntityType.RootType().GetDerivedTypesInclusive()
+                    .SelectMany(et => et.GetDeclaredForeignKeys())
+                    .Where(fk => fk != ForeignKey)
+                    .Select(GetAnnotations)
+                    .Where(a => !ConfigurationSource.Convention.Overrides(a.GetNameConfigurationSource()))
+                    .Select(a => a.Name),
+                StringComparer.OrdinalIgnoreCase);
+
+            var baseName = GetDefaultForeignKeyName(
                 GetAnnotations(ForeignKey.DeclaringEntityType).TableName,
                 GetAnnotations(ForeignKey.PrincipalEntityType).TableName,
                 ForeignKey.Properties.Select(p => GetAnnotations(p).ColumnName));
+            var name = baseName;
+            var index = 0;
+            while (otherForeignKeyNames.Contains(name))
+            {
+                name = baseName + index++;
+            }
+
+            return name;
+        }
+
+        protected virtual ConfigurationSource? GetNameConfigurationSource()
+        {
+            var foreignKey = ForeignKey as ForeignKey;
+            var annotation = (ProviderFullAnnotationNames == null ? null : foreignKey?.FindAnnotation(ProviderFullAnnotationNames?.Name))
+                             ?? foreignKey?.FindAnnotation(RelationalFullAnnotationNames.Instance.Name);
+            return annotation?.GetConfigurationSource();
         }
 
         public static string GetDefaultForeignKeyName(

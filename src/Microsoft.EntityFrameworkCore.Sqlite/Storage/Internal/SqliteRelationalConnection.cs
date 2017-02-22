@@ -7,10 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -18,28 +16,25 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqliteRelationalConnection : RelationalConnection
+    public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationalConnection
     {
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
         private readonly bool _enforceForeignKeys = true;
-        private int _openedCount;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqliteRelationalConnection(
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
-            [NotNull] IDbContextOptions options,
-            // ReSharper disable once SuggestBaseTypeForParameter
-            [NotNull] ILogger<SqliteRelationalConnection> logger)
-            : base(options, logger)
+            [NotNull] RelationalConnectionDependencies dependencies,
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
+            : base(dependencies)
         {
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
 
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
 
-            var optionsExtension = options.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault();
+            var optionsExtension = dependencies.ContextOptions.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault();
             if (optionsExtension != null)
             {
                 _enforceForeignKeys = optionsExtension.EnforceForeignKeys;
@@ -62,43 +57,30 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override void Open()
+        public override bool Open()
         {
-            base.Open();
-
-            _openedCount++;
-
-            if (_openedCount == 1)
+            if (base.Open())
             {
                 EnableForeignKeys();
+                return true;
             }
+
+            return false;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<bool> OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            await base.OpenAsync(cancellationToken);
-
-            _openedCount++;
-
-            if (_openedCount == 1)
+            if (await base.OpenAsync(cancellationToken))
             {
                 EnableForeignKeys();
+                return true;
             }
-        }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override void Close()
-        {
-            base.Close();
-
-            _openedCount--;
+            return false;
         }
 
         private void EnableForeignKeys()
@@ -117,20 +99,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual SqliteRelationalConnection CreateReadOnlyConnection()
+        public virtual ISqliteRelationalConnection CreateReadOnlyConnection()
         {
-            var builder = new SqliteConnectionStringBuilder(ConnectionString)
+            var connectionStringBuilder = new SqliteConnectionStringBuilder(ConnectionString)
             {
                 Mode = SqliteOpenMode.ReadOnly
             };
 
-            var options = new DbContextOptionsBuilder();
-            options.UseSqlite(builder.ToString());
+            var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
 
-            return new SqliteRelationalConnection(
-                _rawSqlCommandBuilder,
-                options.Options,
-                (ILogger<SqliteRelationalConnection>)Logger);
+            return new SqliteRelationalConnection(Dependencies.With(contextOptions), _rawSqlCommandBuilder);
         }
     }
 }

@@ -1,15 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -26,16 +24,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Expression query;
                 using (var context1 = new QueryKeyCacheContext(rowNumberPaging: true, connection: testStore.Connection))
                 {
-                    var services = ((IInfrastructure<IServiceProvider>)context1).Instance.GetService<IDbContextServices>().DatabaseProviderServices;
+                    var generator = context1.GetService<ICompiledQueryCacheKeyGenerator>();
                     query = context1.Set<Poco1>().Skip(4).Take(10).Expression;
-                    var generator = services.CompiledQueryCacheKeyGenerator;
                     key1 = generator.GenerateCacheKey(query, false);
                 }
 
                 using (var context2 = new QueryKeyCacheContext(rowNumberPaging: false, connection: testStore.Connection))
                 {
-                    var services = ((IInfrastructure<IServiceProvider>)context2).Instance.GetService<IDbContextServices>().DatabaseProviderServices;
-                    var generator = services.CompiledQueryCacheKeyGenerator;
+                    var generator = context2.GetService<ICompiledQueryCacheKeyGenerator>();
                     key2 = generator.GenerateCacheKey(query, false);
                 }
 

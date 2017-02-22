@@ -36,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities
                    && x.IsShadowProperty == y.IsShadowProperty
                    && x.IsNullable == y.IsNullable
                    && x.IsConcurrencyToken == y.IsConcurrencyToken
-                   && x.RequiresValueGenerator == y.RequiresValueGenerator
                    && x.ValueGenerated == y.ValueGenerated
                    && x.IsReadOnlyBeforeSave == y.IsReadOnlyBeforeSave
                    && x.IsReadOnlyAfterSave == y.IsReadOnlyAfterSave

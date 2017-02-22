@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual ModelBuilder CreateModelBuilder()
         {
             var context = CreateContext();
-            var conventionSetBuilder = context.GetService<IDatabaseProviderServices>().ConventionSetBuilder;
+            var conventionSetBuilder = context.GetService<IConventionSetBuilder>();
             var conventionSet = context.GetService<ICoreConventionSetBuilder>().CreateConventionSet();
             conventionSet = conventionSetBuilder == null
                 ? conventionSet
@@ -58,7 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             modelBuilder.GetInfrastructure().Validate();
             var context = CreateContext();
-            context.GetService<CoreModelValidator>().Validate(modelBuilder.Model);
             context.GetService<IModelValidator>().Validate(modelBuilder.Model);
         }
 
@@ -755,24 +755,48 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual ModelBuilder Key_specified_on_multiple_properties_can_be_overriden()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<CompositeKeyAttribute>().HasKey(c => new {c.IdRow, c.Name});
+
+            Validate(modelBuilder);
+
+            Assert.Equal(2, modelBuilder.Model.FindEntityType(typeof(CompositeKeyAttribute)).GetKeys().Single().Properties.Count);
+
+            return modelBuilder;
+        }
+
+        private class CompositeKeyAttribute
+        {
+            [Key]
+            public int IdRow { get; set; }
+
+            [Key]
+            public string Name { get; set; }
+        }
+
+        [Fact]
         public virtual ModelBuilder DatabaseGeneratedOption_configures_the_property_correctly()
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<GeneratedEntity>();
+            modelBuilder.Entity<GeneratedEntity>().HasAlternateKey(e => new { e.Identity, e.Version });
 
             var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity));
 
             var id = entity.FindProperty(nameof(GeneratedEntity.Id));
             Assert.Equal(ValueGenerated.Never, id.ValueGenerated);
-            Assert.False(id.RequiresValueGenerator);
+            Assert.False(id.RequiresValueGenerator());
 
             var identity = entity.FindProperty(nameof(GeneratedEntity.Identity));
             Assert.Equal(ValueGenerated.OnAdd, identity.ValueGenerated);
+            Assert.True(identity.RequiresValueGenerator());
 
             var version = entity.FindProperty(nameof(GeneratedEntity.Version));
             Assert.Equal(ValueGenerated.OnAddOrUpdate, version.ValueGenerated);
-            Assert.False(version.RequiresValueGenerator);
+            Assert.True(version.RequiresValueGenerator());
 
             Validate(modelBuilder);
 
@@ -789,6 +813,46 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
             public Guid Version { get; set; }
+        }
+
+        [Fact]
+        public virtual ModelBuilder DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<GeneratedEntityNonInteger>().HasAlternateKey(e => new {e.String, e.DateTime, e.Guid});
+
+            var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
+
+            var stringProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.String));
+            Assert.Equal(ValueGenerated.OnAdd, stringProperty.ValueGenerated);
+            Assert.True(stringProperty.RequiresValueGenerator());
+
+            var dateTimeProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.DateTime));
+            Assert.Equal(ValueGenerated.OnAdd, dateTimeProperty.ValueGenerated);
+            Assert.True(dateTimeProperty.RequiresValueGenerator());
+
+            var guidProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.Guid));
+            Assert.Equal(ValueGenerated.OnAdd, guidProperty.ValueGenerated);
+            Assert.True(guidProperty.RequiresValueGenerator());
+
+            Validate(modelBuilder);
+
+            return modelBuilder;
+        }
+
+        public class GeneratedEntityNonInteger
+        {
+            public int Id { get; set; }
+
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public string String { get; set; }
+
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public DateTime DateTime { get; set; }
+
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public Guid Guid { get; set; }
         }
 
         [Fact]
@@ -1418,9 +1482,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<SpecialBookLabel>().HasBaseType((Type)null);
 
-            Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book))?.FindInverse());
-            Assert.Null(model.FindEntityType(typeof(BookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)));
+            Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.Label)));
             Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)));
+            Assert.Null(model.FindEntityType(typeof(BookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)));
+            Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)));
+            Assert.Null(model.FindEntityType(typeof(AnotherBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)));
         }
 
         [Fact]
@@ -1447,9 +1513,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<SpecialBookLabel>();
             modelBuilder.Ignore<BookLabel>();
 
-            Assert.Null(model.FindEntityType(typeof(BookLabel)));
-            Assert.Null(model.FindEntityType(typeof(AnotherBookLabel)).FindNavigation(nameof(AnotherBookLabel.Book)).FindInverse());
-            Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)).FindInverse());
+            Assert.Null(model.FindEntityType(typeof(AnotherBookLabel)).FindNavigation(nameof(AnotherBookLabel.Book)));
+            Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)));
             Assert.Equal(0, model.FindEntityType(typeof(Book)).GetNavigations().Count());
         }
 
@@ -1466,6 +1531,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             Assert.Equal(nameof(Book.Label), model.FindEntityType(typeof(SpecialBookLabel))
                 .FindNavigation(nameof(SpecialBookLabel.Book)).FindInverse()?.Name);
             Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)));
+        }
+
+        [Fact]
+        public virtual void InversePropertyAttribute_removes_ambiguity_from_the_ambiguous_end()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Ignore<BookLabel>();
+            modelBuilder.Ignore<AnotherBookLabel>();
+            modelBuilder.Ignore<SpecialBookLabel>();
+            modelBuilder.Entity<Book>().Ignore(e => e.AlternateLabel);
+            modelBuilder.Entity<ExtraSpecialBookLabel>();
+
+            Assert.Null(model.FindEntityType(typeof(BookLabel)));
+            Assert.Equal(nameof(Book.Label), model.FindEntityType(typeof(ExtraSpecialBookLabel))
+                .FindNavigation(nameof(ExtraSpecialBookLabel.Book)).FindInverse()?.Name);
+            Assert.Null(model.FindEntityType(typeof(ExtraSpecialBookLabel))
+                .FindNavigation(nameof(ExtraSpecialBookLabel.ExtraSpecialBook)).FindInverse());
         }
 
         private class Book
@@ -1517,10 +1600,53 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private class ExtraSpecialBookLabel : SpecialBookLabel
         {
+            public Book ExtraSpecialBook { get; set; }
         }
 
         private class AnotherBookLabel : BookLabel
         {
+        }
+
+        [Fact]
+        public virtual void InversePropertyAttribute_removes_ambiguity_with_base_type_bidirectional()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var qEntity = modelBuilder.Entity<Q>().Metadata;
+
+            Assert.Equal(nameof(P.QRef), qEntity.FindNavigation(nameof(Q.PRef)).FindInverse().Name);
+            Assert.Equal(nameof(E.QRefDerived), qEntity.FindNavigation(nameof(Q.ERef)).FindInverse().Name);
+            Assert.Equal(qEntity.GetDeclaredForeignKeys().Count(), qEntity.GetDeclaredIndexes().Count());
+
+            var pEntity = modelBuilder.Model.FindEntityType(typeof(P));
+            Assert.Equal(pEntity.GetDeclaredForeignKeys().Count(), pEntity.GetDeclaredIndexes().Count());
+
+            var eEntity = modelBuilder.Model.FindEntityType(typeof(E));
+            Assert.Equal(eEntity.GetDeclaredForeignKeys().Count(), eEntity.GetDeclaredIndexes().Count());
+        }
+
+        public class Q
+        {
+            public int Id { get; set; }
+
+            [InverseProperty(nameof(E.QRefDerived))]
+            public virtual E ERef { get; set; }
+
+            [InverseProperty(nameof(P.QRef))]
+            public virtual P PRef { get; set; }
+        }
+
+        public class P
+        {
+            public int Id { get; set; }
+
+            [InverseProperty(nameof(Q.PRef))]
+            public virtual Q QRef { get; set; }
+        }
+
+        public class E : P
+        {
+            [InverseProperty(nameof(Q.ERef))]
+            public virtual Q QRefDerived { get; set; }
         }
 
         [Fact]

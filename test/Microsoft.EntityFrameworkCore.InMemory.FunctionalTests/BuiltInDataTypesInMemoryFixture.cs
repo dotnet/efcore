@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             _testStore = new InMemoryTestStore();
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
+                .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()

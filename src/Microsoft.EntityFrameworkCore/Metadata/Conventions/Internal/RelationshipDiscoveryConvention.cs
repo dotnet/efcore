@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var inverseTargetType = inverseCandidateTuple.Value;
 
                     if (inverseTargetType != entityType.ClrType
-                        || navigationPropertyInfo == inversePropertyInfo
+                        || Equals(navigationPropertyInfo, inversePropertyInfo)
                         || candidateTargetEntityTypeBuilder.IsIgnored(inversePropertyInfo.Name, ConfigurationSource.Convention))
                     {
                         continue;
@@ -368,6 +368,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 foreach (var navigation in relationshipCandidate.NavigationProperties)
                 {
+                    if (InversePropertyAttributeConvention.IsAmbiguous(
+                        entityTypeBuilder.Metadata, navigation, relationshipCandidate.TargetTypeBuilder.Metadata))
+                    {
+                        continue;
+                    }
                     var inverse = relationshipCandidate.InverseProperties.SingleOrDefault();
                     if (inverse == null)
                     {
@@ -378,6 +383,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                     else
                     {
+                        if (InversePropertyAttributeConvention.IsAmbiguous(
+                            relationshipCandidate.TargetTypeBuilder.Metadata, inverse, entityTypeBuilder.Metadata))
+                        {
+                            continue;
+                        }
                         entityTypeBuilder.Relationship(
                             relationshipCandidate.TargetTypeBuilder,
                             navigation,

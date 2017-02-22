@@ -181,7 +181,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         [Fact]
         public void Throws_on_attempt_to_use_store_with_no_store_services()
         {
-            var serviceProvider = new ServiceCollection().AddEntityFramework().BuildServiceProvider();
+            var serviceCollection = new ServiceCollection();
+            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
             Assert.Equal(
                 CoreStrings.NoProviderConfigured,

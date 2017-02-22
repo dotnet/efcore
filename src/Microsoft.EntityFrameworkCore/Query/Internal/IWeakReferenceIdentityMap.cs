@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        WeakReference<object> TryGetEntity(ValueBuffer valueBuffer, out bool hasNullKey);
+        WeakReference<object> TryGetEntity(ValueBuffer valueBuffer, bool throwOnNullKey, out bool hasNullKey);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

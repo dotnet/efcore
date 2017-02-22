@@ -80,7 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var clonedProperty = targetEntityType.AddProperty(property.Name, property.ClrType);
                 clonedProperty.IsNullable = property.IsNullable;
                 clonedProperty.IsConcurrencyToken = property.IsConcurrencyToken;
-                clonedProperty.RequiresValueGenerator = property.RequiresValueGenerator;
                 clonedProperty.ValueGenerated = property.ValueGenerated;
                 clonedProperty.IsReadOnlyBeforeSave = property.IsReadOnlyBeforeSave;
                 clonedProperty.IsReadOnlyAfterSave = property.IsReadOnlyAfterSave;

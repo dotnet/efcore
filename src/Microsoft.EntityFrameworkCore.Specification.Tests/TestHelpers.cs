@@ -15,14 +15,8 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
-    public class TestHelpers
+    public abstract class TestHelpers
     {
-        protected TestHelpers()
-        {
-        }
-
-        public static TestHelpers Instance { get; } = new TestHelpers();
-
         public DbContextOptions CreateOptions(IModel model, IServiceProvider serviceProvider = null)
         {
             var optionsBuilder = new DbContextOptionsBuilder()
@@ -64,9 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             return services.BuildServiceProvider();
         }
 
-        public virtual IServiceCollection AddProviderServices(IServiceCollection services) => services.AddEntityFrameworkInMemoryDatabase();
+        public abstract IServiceCollection AddProviderServices(IServiceCollection services);
 
-        protected virtual void UseProviderOptions(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseInMemoryDatabase();
+        protected abstract void UseProviderOptions(DbContextOptionsBuilder optionsBuilder);
 
         public DbContext CreateContext(IServiceProvider serviceProvider, IModel model)
             => new DbContext(CreateOptions(model, serviceProvider));
@@ -132,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             var contextServices = CreateContextServices();
 
-            var conventionSetBuilder = contextServices.GetRequiredService<IDatabaseProviderServices>().ConventionSetBuilder;
+            var conventionSetBuilder = contextServices.GetRequiredService<IConventionSetBuilder>();
             var conventionSet = contextServices.GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet();
             conventionSet = conventionSetBuilder == null
                 ? conventionSet
@@ -181,6 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     }
                 }
             }
+
             return actual.Count;
         }
 
@@ -220,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             elementAsserter = elementAsserter ?? Assert.Equal;
             if (!verifyOrdered)
-            { 
+            {
                 expected = expected.OrderBy(elementSorter).ToList();
                 actual = actual.OrderBy(elementSorter).ToList();
             }

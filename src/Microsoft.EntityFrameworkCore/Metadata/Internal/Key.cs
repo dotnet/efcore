@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource _configurationSource;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
-        private Func<IIdentityMap> _identityMapFactory;
+        private Func<bool, IIdentityMap> _identityMapFactory;
         private Func<IWeakReferenceIdentityMap> _weakReferenceIdentityMap;
         private object _principalKeyValueFactory;
 
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Func<IIdentityMap> IdentityMapFactory
+        public virtual Func<bool, IIdentityMap> IdentityMapFactory
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _identityMapFactory, this, k => new IdentityMapFactoryFactory().Create(k));
 

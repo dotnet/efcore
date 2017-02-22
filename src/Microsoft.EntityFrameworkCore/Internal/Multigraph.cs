@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class Multigraph<TVertex, TEdge> : Graph<TVertex>
     {
         private readonly HashSet<TVertex> _vertices = new HashSet<TVertex>();
-        private readonly HashSet<TEdge> _edges = new HashSet<TEdge>();
         private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap = new Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>>();
 
         /// <summary>
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<TEdge> Edges => _edges;
+        public virtual IEnumerable<TEdge> Edges => _successorMap.Values.SelectMany(s => s.Values).SelectMany(e => e).Distinct();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -100,7 +99,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
 
             edgeList.AddRange(edges);
-            _edges.UnionWith(edgeList);
         }
 
         /// <summary>

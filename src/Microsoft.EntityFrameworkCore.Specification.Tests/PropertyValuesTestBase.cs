@@ -25,247 +25,360 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual async Task Scalar_current_values_can_be_accessed_as_a_property_dictionary()
         {
-            await TestPropertyValuesScalars(e => Task.FromResult(e.CurrentValues));
+            await TestPropertyValuesScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Scalar_original_values_can_be_accessed_as_a_property_dictionary()
         {
-            await TestPropertyValuesScalars(e => Task.FromResult(e.OriginalValues));
+            await TestPropertyValuesScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Scalar_store_values_can_be_accessed_as_a_property_dictionary()
         {
-            await TestPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()));
+            await TestPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Scalar_store_values_can_be_accessed_asynchronously_as_a_property_dictionary()
         {
-            await TestPropertyValuesScalars(e => e.GetDatabaseValuesAsync());
+            await TestPropertyValuesScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
-        private async Task TestPropertyValuesScalars(Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues)
+        private async Task TestPropertyValuesScalars(
+            Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
+            bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
                 var building = context.Buildings.Single(b => b.Name == "Building One");
 
+                building.Name = "Building One Prime";
+                building.Value = 1500001m;
+                context.Entry(building).Property("Shadow1").CurrentValue = 12;
+                context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
                 var values = await getPropertyValues(context.Entry(building));
 
-                Assert.Equal("Building One", values["Name"]);
-                Assert.Equal(1500000m, values["Value"]);
-                Assert.Equal(11, values["Shadow1"]);
-                Assert.Equal("Meadow Drive", values["Shadow2"]);
+                if (expectOriginalValues)
+                {
+                    Assert.Equal("Building One", values["Name"]);
+                    Assert.Equal(1500000m, values["Value"]);
+                    Assert.Equal(11, values["Shadow1"]);
+                    Assert.Equal("Meadow Drive", values["Shadow2"]);
+                }
+                else
+                {
+                    Assert.Equal("Building One Prime", values["Name"]);
+                    Assert.Equal(1500001m, values["Value"]);
+                    Assert.Equal(12, values["Shadow1"]);
+                    Assert.Equal("Pine Walk", values["Shadow2"]);
+                }
             }
         }
 
         [Fact]
         public virtual async Task Scalar_current_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
         {
-            await TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.CurrentValues));
+            await TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Scalar_original_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
         {
-            await TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.OriginalValues));
+            await TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Scalar_store_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
         {
-            await TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()));
+            await TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Scalar_store_values_can_be_accessed_asynchronously_as_a_property_dictionary_using_IProperty()
         {
-            await TestPropertyValuesScalarsIProperty(e => e.GetDatabaseValuesAsync());
+            await TestPropertyValuesScalarsIProperty(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
-        private async Task TestPropertyValuesScalarsIProperty(Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues)
+        private async Task TestPropertyValuesScalarsIProperty(
+            Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
+            bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
                 var building = context.Buildings.Single(b => b.Name == "Building One");
 
+                building.Name = "Building One Prime";
+                building.Value = 1500001m;
+                context.Entry(building).Property("Shadow1").CurrentValue = 12;
+                context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
                 var entry = context.Entry(building);
                 var values = await getPropertyValues(entry);
 
-                Assert.Equal("Building One", values[entry.Property(e => e.Name).Metadata]);
-                Assert.Equal(1500000m, values[entry.Property(e => e.Value).Metadata]);
-                Assert.Equal(11, values[entry.Property("Shadow1").Metadata]);
-                Assert.Equal("Meadow Drive", values[entry.Property("Shadow2").Metadata]);
+                if (expectOriginalValues)
+                {
+                    Assert.Equal("Building One", values[entry.Property(e => e.Name).Metadata]);
+                    Assert.Equal(1500000m, values[entry.Property(e => e.Value).Metadata]);
+                    Assert.Equal(11, values[entry.Property("Shadow1").Metadata]);
+                    Assert.Equal("Meadow Drive", values[entry.Property("Shadow2").Metadata]);
+                }
+                else
+                {
+                    Assert.Equal("Building One Prime", values[entry.Property(e => e.Name).Metadata]);
+                    Assert.Equal(1500001m, values[entry.Property(e => e.Value).Metadata]);
+                    Assert.Equal(12, values[entry.Property("Shadow1").Metadata]);
+                    Assert.Equal("Pine Walk", values[entry.Property("Shadow2").Metadata]);
+                }
             }
         }
 
         [Fact]
         public virtual async Task Scalar_current_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
         {
-            await TestPropertyValuesDerivedScalars(e => Task.FromResult(e.CurrentValues));
+            await TestPropertyValuesDerivedScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Scalar_original_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
         {
-            await TestPropertyValuesDerivedScalars(e => Task.FromResult(e.OriginalValues));
+            await TestPropertyValuesDerivedScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Scalar_store_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
         {
-            await TestPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()));
+            await TestPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Scalar_store_values_of_a_derived_object_can_be_accessed_asynchronously_as_a_property_dictionary()
         {
-            await TestPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync());
+            await TestPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestPropertyValuesDerivedScalars(
-            Func<EntityEntry<CurrentEmployee>, Task<PropertyValues>> getPropertyValues)
+            Func<EntityEntry<CurrentEmployee>, Task<PropertyValues>> getPropertyValues,
+            bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
                 var employee = context.Employees.OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
 
+                employee.LastName = "Milner";
+                employee.LeaveBalance = 55m;
+                context.Entry(employee).Property("Shadow1").CurrentValue = 222;
+                context.Entry(employee).Property("Shadow2").CurrentValue = "Dev";
+                context.Entry(employee).Property("Shadow3").CurrentValue = 2222;
+
                 var values = await getPropertyValues(context.Entry(employee));
 
-                Assert.Equal("Miller", values["LastName"]);
-                Assert.Equal(45m, values["LeaveBalance"]);
-                Assert.Equal(111, values["Shadow1"]);
-                Assert.Equal("PM", values["Shadow2"]);
-                Assert.Equal(1111, values["Shadow3"]);
+                if (expectOriginalValues)
+                {
+                    Assert.Equal("Miller", values["LastName"]);
+                    Assert.Equal(45m, values["LeaveBalance"]);
+                    Assert.Equal(111, values["Shadow1"]);
+                    Assert.Equal("PM", values["Shadow2"]);
+                    Assert.Equal(1111, values["Shadow3"]);
+                }
+                else
+                {
+                    Assert.Equal("Milner", values["LastName"]);
+                    Assert.Equal(55m, values["LeaveBalance"]);
+                    Assert.Equal(222, values["Shadow1"]);
+                    Assert.Equal("Dev", values["Shadow2"]);
+                    Assert.Equal(2222, values["Shadow3"]);
+                }
             }
         }
 
         [Fact]
         public virtual async Task Scalar_current_values_can_be_accessed_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.CurrentValues));
+            await TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Scalar_original_values_can_be_accessed_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.OriginalValues));
+            await TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Scalar_store_values_can_be_accessed_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()));
+            await TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Scalar_store_values_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesScalars(e => e.GetDatabaseValuesAsync());
+            await TestNonGenericPropertyValuesScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
-        private async Task TestNonGenericPropertyValuesScalars(Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
+        private async Task TestNonGenericPropertyValuesScalars(
+            Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
+            bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
                 object building = context.Buildings.Single(b => b.Name == "Building One");
 
+                context.Entry(building).Property("Name").CurrentValue = "Building One Prime";
+                context.Entry(building).Property("Value").CurrentValue = 1500001m;
+                context.Entry(building).Property("Shadow1").CurrentValue = 12;
+                context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
                 var values = await getPropertyValues(context.Entry(building));
 
-                Assert.Equal("Building One", values["Name"]);
-                Assert.Equal(1500000m, values["Value"]);
-                Assert.Equal(11, values["Shadow1"]);
-                Assert.Equal("Meadow Drive", values["Shadow2"]);
+                if (expectOriginalValues)
+                {
+                    Assert.Equal("Building One", values["Name"]);
+                    Assert.Equal(1500000m, values["Value"]);
+                    Assert.Equal(11, values["Shadow1"]);
+                    Assert.Equal("Meadow Drive", values["Shadow2"]);
 
-                Assert.Equal("Building One", values.GetValue<string>("Name"));
-                Assert.Equal(1500000m, values.GetValue<decimal>("Value"));
-                Assert.Equal(11, values.GetValue<int>("Shadow1"));
-                Assert.Equal("Meadow Drive", values.GetValue<string>("Shadow2"));
+                    Assert.Equal("Building One", values.GetValue<string>("Name"));
+                    Assert.Equal(1500000m, values.GetValue<decimal>("Value"));
+                    Assert.Equal(11, values.GetValue<int>("Shadow1"));
+                    Assert.Equal("Meadow Drive", values.GetValue<string>("Shadow2"));
+                }
+                else
+                {
+                    Assert.Equal("Building One Prime", values["Name"]);
+                    Assert.Equal(1500001m, values["Value"]);
+                    Assert.Equal(12, values["Shadow1"]);
+                    Assert.Equal("Pine Walk", values["Shadow2"]);
+
+                    Assert.Equal("Building One Prime", values.GetValue<string>("Name"));
+                    Assert.Equal(1500001m, values.GetValue<decimal>("Value"));
+                    Assert.Equal(12, values.GetValue<int>("Shadow1"));
+                    Assert.Equal("Pine Walk", values.GetValue<string>("Shadow2"));
+                }
             }
         }
 
         [Fact]
         public virtual async Task Scalar_current_values_can_be_accessed_as_a_non_generic_property_dictionary_using_IProperty()
         {
-            await TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.CurrentValues));
+            await TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Scalar_original_values_can_be_accessed_as_a_non_generic_property_dictionary_using_IProperty()
         {
-            await TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.OriginalValues));
+            await TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Scalar_store_values_can_be_accessed_as_a_non_generic_property_dictionary_using_IProperty()
         {
-            await TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()));
+            await TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Scalar_store_values_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary_using_IProperty()
         {
-            await TestNonGenericPropertyValuesScalarsIProperty(e => e.GetDatabaseValuesAsync());
+            await TestNonGenericPropertyValuesScalarsIProperty(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
-        private async Task TestNonGenericPropertyValuesScalarsIProperty(Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
+        private async Task TestNonGenericPropertyValuesScalarsIProperty(
+            Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
+            bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
                 object building = context.Buildings.Single(b => b.Name == "Building One");
 
+                context.Entry(building).Property("Name").CurrentValue = "Building One Prime";
+                context.Entry(building).Property("Value").CurrentValue = 1500001m;
+                context.Entry(building).Property("Shadow1").CurrentValue = 12;
+                context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
                 var entry = context.Entry(building);
                 var values = await getPropertyValues(entry);
 
-                Assert.Equal("Building One", values["Name"]);
-                Assert.Equal(1500000m, values["Value"]);
+                if (expectOriginalValues)
+                {
+                    Assert.Equal("Building One", values["Name"]);
+                    Assert.Equal(1500000m, values["Value"]);
 
-                Assert.Equal("Building One", values.GetValue<string>(entry.Property("Name").Metadata));
-                Assert.Equal(1500000m, values.GetValue<decimal>(entry.Property("Value").Metadata));
-                Assert.Equal(11, values.GetValue<int>(entry.Property("Shadow1").Metadata));
-                Assert.Equal("Meadow Drive", values.GetValue<string>(entry.Property("Shadow2").Metadata));
+                    Assert.Equal("Building One", values.GetValue<string>(entry.Property("Name").Metadata));
+                    Assert.Equal(1500000m, values.GetValue<decimal>(entry.Property("Value").Metadata));
+                    Assert.Equal(11, values.GetValue<int>(entry.Property("Shadow1").Metadata));
+                    Assert.Equal("Meadow Drive", values.GetValue<string>(entry.Property("Shadow2").Metadata));
+                }
+                else
+                {
+                    Assert.Equal("Building One Prime", values["Name"]);
+                    Assert.Equal(1500001m, values["Value"]);
+
+                    Assert.Equal("Building One Prime", values.GetValue<string>(entry.Property("Name").Metadata));
+                    Assert.Equal(1500001m, values.GetValue<decimal>(entry.Property("Value").Metadata));
+                    Assert.Equal(12, values.GetValue<int>(entry.Property("Shadow1").Metadata));
+                    Assert.Equal("Pine Walk", values.GetValue<string>(entry.Property("Shadow2").Metadata));
+                }
             }
         }
 
         [Fact]
         public virtual async Task Scalar_current_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.CurrentValues));
+            await TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Scalar_original_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.OriginalValues));
+            await TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Scalar_store_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()));
+            await TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Scalar_store_values_of_a_derived_object_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync());
+            await TestNonGenericPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
-        private async Task TestNonGenericPropertyValuesDerivedScalars(Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
+        private async Task TestNonGenericPropertyValuesDerivedScalars(
+            Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
+            bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
                 object employee = context.Employees.OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
 
+                ((CurrentEmployee)employee).LastName = "Milner";
+                ((CurrentEmployee)employee).LeaveBalance = 55m;
+                context.Entry(employee).Property("Shadow1").CurrentValue = 222;
+                context.Entry(employee).Property("Shadow2").CurrentValue = "Dev";
+                context.Entry(employee).Property("Shadow3").CurrentValue = 2222;
+
                 var values = await getPropertyValues(context.Entry(employee));
 
-                Assert.Equal("Miller", values["LastName"]);
-                Assert.Equal(45m, values["LeaveBalance"]);
-                Assert.Equal(111, values["Shadow1"]);
-                Assert.Equal("PM", values["Shadow2"]);
-                Assert.Equal(1111, values["Shadow3"]);
+                if (expectOriginalValues)
+                {
+                    Assert.Equal("Miller", values["LastName"]);
+                    Assert.Equal(45m, values["LeaveBalance"]);
+                    Assert.Equal(111, values["Shadow1"]);
+                    Assert.Equal("PM", values["Shadow2"]);
+                    Assert.Equal(1111, values["Shadow3"]);
+                }
+                else
+                {
+                    Assert.Equal("Milner", values["LastName"]);
+                    Assert.Equal(55m, values["LeaveBalance"]);
+                    Assert.Equal(222, values["Shadow1"]);
+                    Assert.Equal("Dev", values["Shadow2"]);
+                    Assert.Equal(2222, values["Shadow3"]);
+                }
             }
         }
 
@@ -389,153 +502,216 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual async Task Current_values_can_be_copied_into_an_object()
         {
-            await TestPropertyValuesClone(e => Task.FromResult(e.CurrentValues));
+            await TestPropertyValuesClone(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Original_values_can_be_copied_into_an_object()
         {
-            await TestPropertyValuesClone(e => Task.FromResult(e.OriginalValues));
+            await TestPropertyValuesClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_copied_into_an_object()
         {
-            await TestPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()));
+            await TestPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_copied_into_an_object_asynchronously()
         {
-            await TestPropertyValuesClone(e => e.GetDatabaseValuesAsync());
+            await TestPropertyValuesClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
-        private async Task TestPropertyValuesClone(Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues)
+        private async Task TestPropertyValuesClone(
+            Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
+            bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
                 var building = context.Buildings.Single(b => b.Name == "Building One");
 
+                building.Name = "Building One Prime";
+                building.Value = 1500001m;
+                context.Entry(building).Property("Shadow1").CurrentValue = 12;
+                context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
                 var buildingClone = (Building)(await getPropertyValues(context.Entry(building))).ToObject();
 
-                Assert.Equal("Building One", buildingClone.Name);
-                Assert.Equal(1500000m, buildingClone.Value);
+                if (expectOriginalValues)
+                {
+                    Assert.Equal("Building One", buildingClone.Name);
+                    Assert.Equal(1500000m, buildingClone.Value);
+                }
+                else
+                {
+                    Assert.Equal("Building One Prime", buildingClone.Name);
+                    Assert.Equal(1500001m, buildingClone.Value);
+                }
             }
         }
 
         [Fact]
         public virtual async Task Current_values_for_derived_object_can_be_copied_into_an_object()
         {
-            await TestPropertyValuesDerivedClone(e => Task.FromResult(e.CurrentValues));
+            await TestPropertyValuesDerivedClone(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Original_values_for_derived_object_can_be_copied_into_an_object()
         {
-            await TestPropertyValuesDerivedClone(e => Task.FromResult(e.OriginalValues));
+            await TestPropertyValuesDerivedClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_for_derived_object_can_be_copied_into_an_object()
         {
-            await TestPropertyValuesDerivedClone(e => Task.FromResult(e.GetDatabaseValues()));
+            await TestPropertyValuesDerivedClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_for_derived_object_can_be_copied_into_an_object_asynchronously()
         {
-            await TestPropertyValuesDerivedClone(e => e.GetDatabaseValuesAsync());
+            await TestPropertyValuesDerivedClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestPropertyValuesDerivedClone(
-            Func<EntityEntry<CurrentEmployee>, Task<PropertyValues>> getPropertyValues)
+            Func<EntityEntry<CurrentEmployee>, Task<PropertyValues>> getPropertyValues,
+            bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
                 var employee = context.Employees.OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
 
+                employee.LastName = "Milner";
+                employee.LeaveBalance = 55m;
+                context.Entry(employee).Property("Shadow1").CurrentValue = 222;
+                context.Entry(employee).Property("Shadow2").CurrentValue = "Dev";
+                context.Entry(employee).Property("Shadow3").CurrentValue = 2222;
+
                 var clone = (CurrentEmployee)(await getPropertyValues(context.Entry(employee))).ToObject();
 
-                Assert.Equal("Rowan", clone.FirstName);
-                Assert.Equal("Miller", clone.LastName);
-                Assert.Equal(45m, clone.LeaveBalance);
+                if (expectOriginalValues)
+                {
+                    Assert.Equal("Rowan", clone.FirstName);
+                    Assert.Equal("Miller", clone.LastName);
+                    Assert.Equal(45m, clone.LeaveBalance);
+                }
+                else
+                {
+                    Assert.Equal("Rowan", clone.FirstName);
+                    Assert.Equal("Milner", clone.LastName);
+                    Assert.Equal(55m, clone.LeaveBalance);
+                }
             }
         }
 
         [Fact]
         public virtual async Task Current_values_can_be_copied_from_a_non_generic_property_dictionary_into_an_object()
         {
-            await TestNonGenericPropertyValuesClone(e => Task.FromResult(e.CurrentValues));
+            await TestNonGenericPropertyValuesClone(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Original_values_can_be_copied_non_generic_property_dictionary_into_an_object()
         {
-            await TestNonGenericPropertyValuesClone(e => Task.FromResult(e.OriginalValues));
+            await TestNonGenericPropertyValuesClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_copied_non_generic_property_dictionary_into_an_object()
         {
-            await TestNonGenericPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()));
+            await TestNonGenericPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_copied_asynchronously_non_generic_property_dictionary_into_an_object()
         {
-            await TestNonGenericPropertyValuesClone(e => e.GetDatabaseValuesAsync());
+            await TestNonGenericPropertyValuesClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
-        private async Task TestNonGenericPropertyValuesClone(Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
+        private async Task TestNonGenericPropertyValuesClone(
+            Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
+            bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
                 object building = context.Buildings.Single(b => b.Name == "Building One");
 
+                ((Building)building).Name = "Building One Prime";
+                ((Building)building).Value = 1500001m;
+                context.Entry(building).Property("Shadow1").CurrentValue = 12;
+                context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
                 var buildingClone = (Building)(await getPropertyValues(context.Entry(building))).ToObject();
 
-                Assert.Equal("Building One", buildingClone.Name);
-                Assert.Equal(1500000m, buildingClone.Value);
+                if (expectOriginalValues)
+                {
+                    Assert.Equal("Building One", buildingClone.Name);
+                    Assert.Equal(1500000m, buildingClone.Value);
+                }
+                else
+                {
+                    Assert.Equal("Building One Prime", buildingClone.Name);
+                    Assert.Equal(1500001m, buildingClone.Value);
+                }
             }
         }
 
         [Fact]
         public virtual async Task Current_values_can_be_copied_into_a_cloned_dictionary()
         {
-            await TestPropertyValuesCloneToValues(e => Task.FromResult(e.CurrentValues));
+            await TestPropertyValuesCloneToValues(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Original_values_can_be_copied_into_a_cloned_dictionary()
         {
-            await TestPropertyValuesCloneToValues(e => Task.FromResult(e.OriginalValues));
+            await TestPropertyValuesCloneToValues(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_copied_into_a_cloned_dictionary()
         {
-            await TestPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()));
+            await TestPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_copied_into_a_cloned_dictionary_asynchronously()
         {
-            await TestPropertyValuesCloneToValues(e => e.GetDatabaseValuesAsync());
+            await TestPropertyValuesCloneToValues(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
-        private async Task TestPropertyValuesCloneToValues(Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues)
+        private async Task TestPropertyValuesCloneToValues(
+            Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
+            bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
                 var building = context.Buildings.Single(b => b.Name == "Building One");
 
+                building.Name = "Building One Prime";
+                building.Value = 1500001m;
+                context.Entry(building).Property("Shadow1").CurrentValue = 12;
+                context.Entry(building).Property("Shadow2").CurrentValue = "The Avenue";
+
                 var buildingValues = await getPropertyValues(context.Entry(building));
                 var clonedBuildingValues = buildingValues.Clone();
 
-                Assert.Equal("Building One", clonedBuildingValues["Name"]);
-                Assert.Equal(1500000m, clonedBuildingValues["Value"]);
-                Assert.Equal(11, clonedBuildingValues["Shadow1"]);
-                Assert.Equal("Meadow Drive", clonedBuildingValues["Shadow2"]);
+                if (expectOriginalValues)
+                {
+                    Assert.Equal("Building One", clonedBuildingValues["Name"]);
+                    Assert.Equal(1500000m, clonedBuildingValues["Value"]);
+                    Assert.Equal(11, clonedBuildingValues["Shadow1"]);
+                    Assert.Equal("Meadow Drive", clonedBuildingValues["Shadow2"]);
+                }
+                else
+                {
+                    Assert.Equal("Building One Prime", clonedBuildingValues["Name"]);
+                    Assert.Equal(1500001m, clonedBuildingValues["Value"]);
+                    Assert.Equal(12, clonedBuildingValues["Shadow1"]);
+                    Assert.Equal("The Avenue", clonedBuildingValues["Shadow2"]);
+                }
 
                 // Test modification of cloned property values does not impact original property values
 
@@ -545,14 +721,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 clonedBuildingValues["Shadow1"] = 13;
                 clonedBuildingValues["Shadow2"] = "Pine Walk";
 
-                Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
-                Assert.Equal("Building 18", clonedBuildingValues["Name"]);
-                Assert.Equal(13, clonedBuildingValues["Shadow1"]);
-                Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
+                if (expectOriginalValues)
+                {
+                    Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
+                    Assert.Equal("Building 18", clonedBuildingValues["Name"]);
+                    Assert.Equal(13, clonedBuildingValues["Shadow1"]);
+                    Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
 
-                Assert.Equal("Building One", buildingValues["Name"]);
-                Assert.Equal(11, buildingValues["Shadow1"]);
-                Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
+                    Assert.Equal("Building One", buildingValues["Name"]);
+                    Assert.Equal(11, buildingValues["Shadow1"]);
+                    Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
+                }
+                else
+                {
+                    Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
+                    Assert.Equal("Building 18", clonedBuildingValues["Name"]);
+                    Assert.Equal(13, clonedBuildingValues["Shadow1"]);
+                    Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
+
+                    Assert.Equal("Building One Prime", buildingValues["Name"]);
+                    Assert.Equal(12, buildingValues["Shadow1"]);
+                    Assert.Equal("The Avenue", buildingValues["Shadow2"]);
+                }
             }
         }
 
@@ -771,42 +961,59 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Fact]
         public virtual async Task Current_values_can_be_copied_into_a_non_generic_cloned_dictionary()
         {
-            await TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.CurrentValues));
+            await TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Original_values_can_be_copied_into_a_non_generic_cloned_dictionary()
         {
-            await TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.OriginalValues));
+            await TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_copied_into_a_non_generic_cloned_dictionary()
         {
-            await TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()));
+            await TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_copied_asynchronously_into_a_non_generic_cloned_dictionary()
         {
-            await TestNonGenericPropertyValuesCloneToValues(e => e.GetDatabaseValuesAsync());
+            await TestNonGenericPropertyValuesCloneToValues(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
-        private async Task TestNonGenericPropertyValuesCloneToValues(Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
+        private async Task TestNonGenericPropertyValuesCloneToValues(
+            Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
+            bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
                 var building = context.Buildings.Single(b => b.Name == "Building One");
 
+                building.Name = "Building One Prime";
+                building.Value = 1500001m;
+                context.Entry(building).Property("Shadow1").CurrentValue = 12;
+                context.Entry(building).Property("Shadow2").CurrentValue = "The Avenue";
+
                 var buildingValues = await getPropertyValues(context.Entry(building));
 
                 var clonedBuildingValues = buildingValues.Clone();
 
-                Assert.Equal("Building One", clonedBuildingValues["Name"]);
-                Assert.Equal(1500000m, clonedBuildingValues["Value"]);
-                Assert.Equal(11, clonedBuildingValues["Shadow1"]);
-                Assert.Equal("Meadow Drive", clonedBuildingValues["Shadow2"]);
-
+                if (expectOriginalValues)
+                {
+                    Assert.Equal("Building One", clonedBuildingValues["Name"]);
+                    Assert.Equal(1500000m, clonedBuildingValues["Value"]);
+                    Assert.Equal(11, clonedBuildingValues["Shadow1"]);
+                    Assert.Equal("Meadow Drive", clonedBuildingValues["Shadow2"]);
+                }
+                else
+                {
+                    Assert.Equal("Building One Prime", clonedBuildingValues["Name"]);
+                    Assert.Equal(1500001m, clonedBuildingValues["Value"]);
+                    Assert.Equal(12, clonedBuildingValues["Shadow1"]);
+                    Assert.Equal("The Avenue", clonedBuildingValues["Shadow2"]);
+                }
+                
                 // Test modification of cloned dictionaries does not impact original property values
 
                 var newKey = new Guid();
@@ -815,139 +1022,155 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 clonedBuildingValues["Shadow1"] = 13;
                 clonedBuildingValues["Shadow2"] = "Pine Walk";
 
-                Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
-                Assert.Equal("Building 18", clonedBuildingValues["Name"]);
-                Assert.Equal(13, clonedBuildingValues["Shadow1"]);
-                Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
+                if (expectOriginalValues)
+                {
+                    Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
+                    Assert.Equal("Building 18", clonedBuildingValues["Name"]);
+                    Assert.Equal(13, clonedBuildingValues["Shadow1"]);
+                    Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
 
-                Assert.Equal("Building One", buildingValues["Name"]);
-                Assert.Equal(11, buildingValues["Shadow1"]);
-                Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
+                    Assert.Equal("Building One", buildingValues["Name"]);
+                    Assert.Equal(11, buildingValues["Shadow1"]);
+                    Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
+                }
+                else
+                {
+                    Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
+                    Assert.Equal("Building 18", clonedBuildingValues["Name"]);
+                    Assert.Equal(13, clonedBuildingValues["Shadow1"]);
+                    Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
+
+                    Assert.Equal("Building One Prime", buildingValues["Name"]);
+                    Assert.Equal(12, buildingValues["Shadow1"]);
+                    Assert.Equal("The Avenue", buildingValues["Shadow2"]);
+                }
             }
         }
 
         [Fact]
         public virtual async Task Current_values_can_be_read_or_set_for_an_object_in_the_Deleted_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Deleted);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Deleted, expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Original_values_can_be_read_and_set_for_an_object_in_the_Deleted_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Deleted);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Deleted, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_read_and_set_for_an_object_in_the_Deleted_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Deleted);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Deleted, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_read_and_set_for_an_object_in_the_Deleted_state_asynchronously()
         {
-            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Deleted);
+            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Deleted, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Current_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Unchanged);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Unchanged, expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Original_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Unchanged);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Unchanged, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Unchanged);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Unchanged, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state_asynchronously()
         {
-            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Unchanged);
+            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Unchanged, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Current_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Modified);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Modified, expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Original_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Modified);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Modified, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Modified);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Modified, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_read_and_set_for_an_object_in_the_Modified_state_asynchronously()
         {
-            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Modified);
+            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Modified, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Current_values_can_be_read_and_set_for_an_object_in_the_Added_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Added);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Added, expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Original_values_can_be_read_or_set_for_an_object_in_the_Added_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Added);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Added, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_read_or_set_for_an_object_in_the_Added_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_read_or_set_for_an_object_in_the_Added_state_asynchronously()
         {
-            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Detached);
+            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Detached, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Current_values_can_be_read_or_set_for_a_Detached_object()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Detached);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Detached, expectOriginalValues: false);
         }
 
         [Fact]
         public virtual async Task Original_values_can_be_read_or_set_for_a_Detached_object()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Detached);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Detached, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_can_be_read_or_set_for_a_Detached_object()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached);
+            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual async Task Store_values_cannot_be_read_or_set_for_a_Detached_object_asynchronously()
         {
-            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Detached);
+            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Detached, expectOriginalValues: true);
         }
 
         private async Task TestPropertyValuesPositiveForState(
-            Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues, EntityState state)
+            Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues, 
+            EntityState state,
+            bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
@@ -955,10 +1178,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var entry = context.Entry(building);
                 entry.State = state;
 
+                building.Name = "Building One Prime";
+
                 var values = await getPropertyValues(entry);
 
-                Assert.Equal("Building One", values["Name"]);
-                values["Name"] = "Building One Prime";
+                if (expectOriginalValues)
+                {
+                    Assert.Equal("Building One", values["Name"]);
+                }
+                else
+                {
+                    Assert.Equal("Building One Prime", values["Name"]);
+                }
+
+                values["Name"] = "Building One Optimal";
+
+                Assert.Equal("Building One Optimal", values["Name"]);
             }
         }
 

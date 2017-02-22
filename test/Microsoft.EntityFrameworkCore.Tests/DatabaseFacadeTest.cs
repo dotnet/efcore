@@ -6,8 +6,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             creatorMock.Setup(m => m.EnsureCreated()).Returns(true);
             creatorMock.Setup(m => m.EnsureDeleted()).Returns(true);
 
-            var context = TestHelpers.Instance.CreateContext(
+            var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddSingleton(creatorMock.Object));
 
             Assert.True(context.Database.EnsureCreated());
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             creatorMock.Setup(m => m.EnsureCreatedAsync(cancellationToken)).Returns(Task.FromResult(true));
             creatorMock.Setup(m => m.EnsureDeletedAsync(cancellationToken)).Returns(Task.FromResult(true));
 
-            var context = TestHelpers.Instance.CreateContext(
+            var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddSingleton(creatorMock.Object));
 
             Assert.True(await context.Database.EnsureCreatedAsync(cancellationToken));
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_get_IServiceProvider()
         {
-            using (var context = TestHelpers.Instance.CreateContext())
+            using (var context = InMemoryTestHelpers.Instance.CreateContext())
             {
                 Assert.Same(
                     ((IInfrastructure<IServiceProvider>)context).Instance,
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_get_DatabaseCreator()
         {
-            using (var context = TestHelpers.Instance.CreateContext())
+            using (var context = InMemoryTestHelpers.Instance.CreateContext())
             {
                 Assert.Same(
                     context.GetService<IDatabaseCreator>(),
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_get_Model()
         {
-            using (var context = TestHelpers.Instance.CreateContext())
+            using (var context = InMemoryTestHelpers.Instance.CreateContext())
             {
                 Assert.Same(context.GetService<IModel>(), context.Database.GetService<IModel>());
             }
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             transactionManagerMock.Setup(m => m.BeginTransaction()).Returns(transaction);
 
-            var context = TestHelpers.Instance.CreateContext(
+            var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddSingleton(transactionManagerMock.Object));
 
             Assert.Same(transaction, context.Database.BeginTransaction());
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             transactionManagerMock.Setup(m => m.BeginTransactionAsync(It.IsAny<CancellationToken>()))
                 .Returns(transactionTask);
 
-            var context = TestHelpers.Instance.CreateContext(
+            var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddSingleton(transactionManagerMock.Object));
 
             var cancellationToken = new CancellationToken();
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var transactionManagerMock = new Mock<IDbContextTransactionManager>();
 
-            var context = TestHelpers.Instance.CreateContext(
+            var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddSingleton(transactionManagerMock.Object));
 
             context.Database.CommitTransaction();
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var transactionManagerMock = new Mock<IDbContextTransactionManager>();
 
-            var context = TestHelpers.Instance.CreateContext(
+            var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddSingleton(transactionManagerMock.Object));
 
             context.Database.RollbackTransaction();
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             transactionManagerMock.Setup(m => m.CurrentTransaction).Returns(transaction);
 
-            var context = TestHelpers.Instance.CreateContext(
+            var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddSingleton(transactionManagerMock.Object));
 
             Assert.Same(transaction, context.Database.CurrentTransaction);
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Cannot_use_DatabaseFacade_after_dispose()
         {
-            var context = TestHelpers.Instance.CreateContext();
+            var context = InMemoryTestHelpers.Instance.CreateContext();
             var facade = context.Database;
             context.Dispose();
 

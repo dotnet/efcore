@@ -6,10 +6,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void PropertyChanging_does_not_snapshot_if_eager_snapshots_are_in_use()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModel());
             var entry = CreateInternalEntry<Product>(contextServices);
 
             Assert.True(entry.EntityType.UseEagerSnapshots());
@@ -36,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void PropertyChanging_snapshots_original_and_FK_value_if_lazy_snapshots_are_in_use()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
             var entity = new NotifyingProduct { DependentId = 77 };
             var entry = CreateInternalEntry(contextServices, entity);
             entry.SetEntityState(EntityState.Unchanged);
@@ -66,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void PropertyChanging_does_not_snapshot_original_values_for_properties_with_no_original_value_tracking()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
             var entity = new NotifyingProduct { Name = "Cheese" };
             var entry = CreateInternalEntry(contextServices, entity);
 
@@ -90,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void PropertyChanging_snapshots_reference_navigations_if_lazy_snapshots_are_in_use()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
             var category = new NotifyingCategory();
             var entity = new NotifyingProduct { Category = category };
             var entry = CreateInternalEntry(contextServices, entity);
@@ -120,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void PropertyChanging_snapshots_PK_for_relationships_if_lazy_snapshots_are_in_use()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
             var id = Guid.NewGuid();
             var entity = new NotifyingProduct { Id = id };
             var entry = CreateInternalEntry(contextServices, entity);
@@ -150,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void Detects_scalar_property_change()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
@@ -169,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void Skips_detection_of_scalar_property_change_for_notification_entities()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanged());
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModelWithChanged());
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
@@ -1434,7 +1436,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private static IModel BuildModel()
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<Product>(b =>
                 {
@@ -1659,7 +1661,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private static IModel BuildNotifyingModel()
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder()
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder()
                 .HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
 
             builder.Entity<NotifyingProduct>(b =>
@@ -1667,7 +1669,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     b.HasOne(e => e.Tag).WithOne(e => e.Product)
                         .HasPrincipalKey<NotifyingProduct>(e => e.TagId)
                         .HasForeignKey<NotifyingProductTag>(e => e.ProductId);
-                    b.Property(e => e.TagId).Metadata.RequiresValueGenerator = false;
+                    b.Property(e => e.TagId).ValueGeneratedNever();
                 });
 
             builder.Entity<NotifyingCategory>(b =>
@@ -1675,12 +1677,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     b.HasMany(e => e.Products).WithOne(e => e.Category)
                         .HasForeignKey(e => e.DependentId)
                         .HasPrincipalKey(e => e.PrincipalId);
-                    b.Property(e => e.PrincipalId).Metadata.RequiresValueGenerator = false;
+                    b.Property(e => e.PrincipalId).ValueGeneratedNever();
 
                     b.HasOne(e => e.Tag).WithOne(e => e.Category)
                         .HasForeignKey<NotifyingCategoryTag>(e => e.CategoryId)
                         .HasPrincipalKey<NotifyingCategory>(e => e.TagId);
-                    b.Property(e => e.TagId).Metadata.RequiresValueGenerator = false;
+                    b.Property(e => e.TagId).ValueGeneratedNever();
                 });
 
             builder.Entity<NotifyingPerson>()
@@ -1719,7 +1721,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private static IModel BuildModelWithChanged()
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder()
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder()
                 .HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
 
             builder.Entity<ProductWithChanged>();
@@ -1739,7 +1741,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private static IServiceProvider CreateContextServices(IModel model = null)
         {
-            return TestHelpers.Instance.CreateContextServices(
+            return InMemoryTestHelpers.Instance.CreateContextServices(
                 new ServiceCollection()
                     .AddScoped<TestRelationshipListener>()
                     .AddScoped<IEntityGraphAttacher, TestAttacher>()
@@ -1752,9 +1754,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             public Tuple<InternalEntityEntry, EntityState> Attached { get; set; }
 
-            public void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState)
+            public void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState) 
+                => Attached = Tuple.Create(rootEntry, entityState);
+
+            public Task AttachGraphAsync(
+                InternalEntityEntry rootEntry,
+                EntityState entityState,
+                CancellationToken cancellationToken = new CancellationToken())
             {
-                Attached = Tuple.Create(rootEntry, entityState);
+                throw new NotImplementedException();
             }
         }
 

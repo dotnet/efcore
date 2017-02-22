@@ -12,8 +12,10 @@ using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
@@ -701,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         aliasExpression
                             = selectExpression.Projection
                                 .OfType<AliasExpression>()
-                                .SingleOrDefault(ae => ae.SourceMember == expression.Member);
+                                .SingleOrDefault(ae => Equals(ae.SourceMember, expression.Member));
                     }
                 }
             }
@@ -714,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             RelationalQueryModelVisitor queryModelVisitor,
             Func<RelationalQueryModelVisitor, AliasExpression> binder)
         {
-            if (queryModelVisitor == null)
+            if (queryModelVisitor == null || queryModelVisitor.RequiresClientProjection)
             {
                 return null;
             }
@@ -899,6 +901,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         = _queryModelVisitor.Queries
                             .ToDictionary(k => k, s => s.Projection.Count);
 
+                    var queryModelMapping = new Dictionary<QueryModel, QueryModel>();
+                    subQueryModel.PopulateQueryModelMapping(queryModelMapping);
+
                     queryModelVisitor.VisitSubQueryModel(subQueryModel);
 
                     if (queryModelVisitor.Queries.Count == 1
@@ -917,6 +922,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                         return selectExpression;
                     }
+
+                    subQueryModel.RecreateQueryModelFromMapping(queryModelMapping);
                 }
             }
 

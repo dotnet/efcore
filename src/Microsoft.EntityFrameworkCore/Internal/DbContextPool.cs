@@ -115,6 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             if (Interlocked.Increment(ref _count) <= _maxSize)
             {
+                ((IDbContextPoolable)context).ResetState();
+
                 _pool.Enqueue(context);
 
                 return true;

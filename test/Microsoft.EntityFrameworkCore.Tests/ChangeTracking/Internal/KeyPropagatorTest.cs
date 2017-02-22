@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -13,10 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 {
     public class KeyPropagatorTest
     {
-        [Fact]
-        public void Foreign_key_value_is_obtained_from_reference_to_principal()
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
         {
-            var model = BuildModel();
+            var model = BuildModel(generateTemporary);
 
             var principal = new Category { Id = 11 };
             var dependent = new Product { Id = 21, Category = principal };
@@ -24,16 +31,22 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
             var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
+            var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-            PropagateValue(contextServices.GetRequiredService<IKeyPropagator>(), dependentEntry, property);
+            PropagateValue(keyPropagator, dependentEntry, property, async);
 
             Assert.Equal(11, dependentEntry[property]);
+            Assert.False(dependentEntry.HasTemporaryValue(property));
         }
 
-        [Fact]
-        public void Foreign_key_value_is_obtained_from_tracked_principal_with_populated_collection()
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Foreign_key_value_is_obtained_from_tracked_principal_with_populated_collection(bool generateTemporary, bool async)
         {
-            var model = BuildModel();
+            var model = BuildModel(generateTemporary);
             var contextServices = CreateContextServices(model);
             var manager = contextServices.GetRequiredService<IStateManager>();
 
@@ -44,16 +57,22 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             manager.GetOrCreateEntry(principal).SetEntityState(EntityState.Unchanged);
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
+            var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-            PropagateValue(contextServices.GetRequiredService<IKeyPropagator>(), dependentEntry, property);
+            PropagateValue(keyPropagator, dependentEntry, property, async);
 
             Assert.Equal(11, dependentEntry[property]);
+            Assert.False(dependentEntry.HasTemporaryValue(property));
         }
 
-        [Fact]
-        public void Non_identifying_foreign_key_value_is_not_generated_if_principal_key_not_set()
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Non_identifying_foreign_key_value_is_not_generated_if_principal_key_not_set(bool generateTemporary, bool async)
         {
-            var model = BuildModel();
+            var model = BuildModel(generateTemporary);
 
             var principal = new Category();
             var dependent = new Product { Id = 21, Category = principal };
@@ -61,16 +80,22 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
             var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
+            var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-            PropagateValue(contextServices.GetRequiredService<IKeyPropagator>(), dependentEntry, property);
+            PropagateValue(keyPropagator, dependentEntry, property, async);
 
             Assert.Equal(0, dependentEntry[property]);
+            Assert.False(dependentEntry.HasTemporaryValue(property));
         }
 
-        [Fact]
-        public void One_to_one_foreign_key_value_is_obtained_from_reference_to_principal()
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void One_to_one_foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
         {
-            var model = BuildModel();
+            var model = BuildModel(generateTemporary);
 
             var principal = new Product { Id = 21 };
             var dependent = new ProductDetail { Product = principal };
@@ -78,16 +103,22 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
             var property = model.FindEntityType(typeof(ProductDetail)).FindProperty("Id");
+            var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-            PropagateValue(contextServices.GetRequiredService<IKeyPropagator>(), dependentEntry, property);
+            PropagateValue(keyPropagator, dependentEntry, property, async);
 
             Assert.Equal(21, dependentEntry[property]);
+            Assert.False(dependentEntry.HasTemporaryValue(property));
         }
 
-        [Fact]
-        public void One_to_one_foreign_key_value_is_obtained_from_tracked_principal()
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void One_to_one_foreign_key_value_is_obtained_from_tracked_principal(bool generateTemporary, bool async)
         {
-            var model = BuildModel();
+            var model = BuildModel(generateTemporary);
             var contextServices = CreateContextServices(model);
             var manager = contextServices.GetRequiredService<IStateManager>();
 
@@ -97,16 +128,22 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             manager.GetOrCreateEntry(principal).SetEntityState(EntityState.Unchanged);
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             var property = model.FindEntityType(typeof(ProductDetail)).FindProperty("Id");
+            var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-            PropagateValue(contextServices.GetRequiredService<IKeyPropagator>(), dependentEntry, property);
+            PropagateValue(keyPropagator, dependentEntry, property, async);
 
             Assert.Equal(21, dependentEntry[property]);
+            Assert.False(dependentEntry.HasTemporaryValue(property));
         }
 
-        [Fact]
-        public void Identifying_foreign_key_value_is_generated_if_principal_key_not_set()
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Identifying_foreign_key_value_is_generated_if_principal_key_not_set(bool generateTemporary, bool async)
         {
-            var model = BuildModel();
+            var model = BuildModel(generateTemporary);
 
             var principal = new Product();
             var dependent = new ProductDetail { Product = principal };
@@ -114,16 +151,52 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
             var property = model.FindEntityType(typeof(ProductDetail)).FindProperty("Id");
+            var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-            PropagateValue(contextServices.GetRequiredService<IKeyPropagator>(), dependentEntry, property);
+            PropagateValue(keyPropagator, dependentEntry, property, async);
 
-            Assert.Equal(1, dependentEntry[property]);
+            Assert.NotEqual(0, dependentEntry[property]);
+            Assert.Equal(generateTemporary, dependentEntry.HasTemporaryValue(property));
         }
 
-        [Fact]
-        public void Composite_foreign_key_value_is_obtained_from_reference_to_principal()
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Identifying_foreign_key_value_is_propagated_if_principal_key_is_generated(bool generateTemporary, bool async)
         {
-            var model = BuildModel();
+            var model = BuildModel(generateTemporary);
+
+            var principal = new Product();
+            var dependent = new ProductDetail { Product = principal };
+
+            var contextServices = CreateContextServices(model);
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
+            var principalEntry = stateManager.GetOrCreateEntry(principal);
+            principalEntry.SetEntityState(EntityState.Added);
+            var dependentEntry = stateManager.GetOrCreateEntry(dependent);
+            var principalProperty = model.FindEntityType(typeof(Product)).FindProperty(nameof(Product.Id));
+            var dependentProperty = model.FindEntityType(typeof(ProductDetail)).FindProperty(nameof(ProductDetail.Id));
+            var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
+
+            PropagateValue(keyPropagator, dependentEntry, dependentProperty, async);
+
+            Assert.NotEqual(0, principalEntry[principalProperty]);
+            Assert.Equal(generateTemporary, principalEntry.HasTemporaryValue(dependentProperty));
+            Assert.NotEqual(0, dependentEntry[dependentProperty]);
+            Assert.Equal(generateTemporary, dependentEntry.HasTemporaryValue(dependentProperty));
+            Assert.Equal(principalEntry[principalProperty], dependentEntry[dependentProperty]);
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Composite_foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
+        {
+            var model = BuildModel(generateTemporary);
 
             var principal = new OrderLine { OrderId = 11, ProductId = 21 };
             var dependent = new OrderLineDetail { OrderLine = principal };
@@ -132,19 +205,25 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
             var property1 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("OrderId");
             var property2 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("ProductId");
-
             var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
-            PropagateValue(keyPropagator, dependentEntry, property1);
-            PropagateValue(keyPropagator, dependentEntry, property2);
+
+            PropagateValue(keyPropagator, dependentEntry, property1, async);
+            PropagateValue(keyPropagator, dependentEntry, property2, async);
 
             Assert.Equal(11, dependentEntry[property1]);
+            Assert.False(dependentEntry.HasTemporaryValue(property1));
             Assert.Equal(21, dependentEntry[property2]);
+            Assert.False(dependentEntry.HasTemporaryValue(property1));
         }
 
-        [Fact]
-        public void Composite_foreign_key_value_is_obtained_from_tracked_principal()
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Composite_foreign_key_value_is_obtained_from_tracked_principal(bool generateTemporary, bool async)
         {
-            var model = BuildModel();
+            var model = BuildModel(generateTemporary);
             var contextServices = CreateContextServices(model);
             var manager = contextServices.GetRequiredService<IStateManager>();
 
@@ -155,23 +234,30 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             var property1 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("OrderId");
             var property2 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("ProductId");
-
             var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
-            PropagateValue(keyPropagator, dependentEntry, property1);
-            PropagateValue(keyPropagator, dependentEntry, property2);
+
+            PropagateValue(keyPropagator, dependentEntry, property1, async);
+            PropagateValue(keyPropagator, dependentEntry, property2, async);
 
             Assert.Equal(11, dependentEntry[property1]);
+            Assert.False(dependentEntry.HasTemporaryValue(property1));
             Assert.Equal(21, dependentEntry[property2]);
+            Assert.False(dependentEntry.HasTemporaryValue(property1));
         }
 
-        private static IServiceProvider CreateContextServices(IModel model = null)
-        {
-            return TestHelpers.Instance.CreateContextServices(model ?? BuildModel());
-        }
+        private static IServiceProvider CreateContextServices(IModel model)
+            => InMemoryTestHelpers.Instance.CreateContextServices(model);
 
-        private static void PropagateValue(IKeyPropagator keyPropagator, InternalEntityEntry dependentEntry, IProperty property)
+        private static void PropagateValue(IKeyPropagator keyPropagator, InternalEntityEntry dependentEntry, IProperty property, bool async)
         {
-            keyPropagator.PropagateValue(dependentEntry, property);
+            if (async)
+            {
+                keyPropagator.PropagateValueAsync(dependentEntry, property).GetAwaiter().GetResult();
+            }
+            else
+            {
+                keyPropagator.PropagateValue(dependentEntry, property);
+            }
         }
 
         private class BaseType
@@ -225,9 +311,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             public virtual OrderLine OrderLine { get; set; }
         }
 
-        private static IModel BuildModel()
+        private static IModel BuildModel(bool generateTemporary = false)
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<BaseType>();
 
@@ -239,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
-            builder.Entity<ProductDetail>();
+            builder.Entity<ProductDetail>().Property(p => p.Id);
 
             builder.Entity<Order>().HasMany(e => e.OrderLines).WithOne(e => e.Order);
 
@@ -250,6 +336,20 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     b.HasKey(e => new { e.OrderId, e.ProductId });
                     b.HasOne(e => e.Detail).WithOne(e => e.OrderLine).HasForeignKey<OrderLineDetail>(e => new { e.OrderId, e.ProductId });
                 });
+
+            if (generateTemporary)
+            {
+                foreach (var entityType in builder.Model.GetEntityTypes())
+                {
+                    foreach (var property in entityType.GetDeclaredProperties())
+                    {
+                        if (property.ValueGenerated == ValueGenerated.OnAdd)
+                        {
+                            property.SetValueGeneratorFactory((p, _) => new TemporaryNumberValueGeneratorFactory().Create(p));
+                        }
+                    }
+                }
+            }
 
             return builder.Model;
         }

@@ -48,9 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var contextServices = ((IInfrastructure<IServiceProvider>)context).Instance;
             ConfigureContextServices(((IInfrastructure<IServiceProvider>)context).Instance, services);
 
-            var databaseProviderServices = contextServices.GetRequiredService<IDatabaseProviderServices>();
-            var provider = databaseProviderServices.InvariantName;
-            ConfigureProviderServices(provider, services);
+            ConfigureProviderServices(contextServices.GetRequiredService<IDatabaseProvider>().InvariantName, services);
 
             ConfigureUserServices(services);
 
@@ -94,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             => services
                 .AddTransient<MigrationsScaffolder>()
                 .AddTransient(_ => contextServices.GetService<ICurrentDbContext>())
-                .AddTransient(_ => contextServices.GetService<IDatabaseProviderServices>())
+                .AddTransient(_ => contextServices.GetService<IDatabaseProvider>())
                 .AddTransient(_ => contextServices.GetService<IDbContextOptions>())
                 .AddTransient(_ => contextServices.GetService<IHistoryRepository>())
                 .AddTransient(_ => contextServices.GetService<ILoggerFactory>())

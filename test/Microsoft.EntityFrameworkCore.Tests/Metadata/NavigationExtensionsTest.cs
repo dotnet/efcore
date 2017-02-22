@@ -4,8 +4,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata
             bool createProducts = true, bool createCategory = true,
             bool createFeaturedProductCategory = true, bool createFeaturedProduct = true)
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             var model = builder.Model;
 
             builder.Entity<Product>(e =>

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+// ReSharper disable ConvertToExpressionBodyWhenPossible
 
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable StringStartsWithIsCultureSpecific
@@ -57,31 +58,32 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        //        [ConditionalFact] // TODO: #6248
-        //        public virtual async Task Mixed_sync_async_query()
-        //        {
-        //            using (var context = CreateContext())
-        //            {
-        //                var results
-        //                    = (await context.Customers
-        //                        .Select(c => new
-        //                        {
-        //                            c.CustomerID,
-        //                            Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID)
-        //                        }).ToListAsync())
-        //                        .Select(x => new
-        //                        {
-        //                            Orders = x.Orders
-        //                                .GroupJoin(new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
-        //                                {
-        //                                    h.Customer
-        //                                })
-        //                        })
-        //                        .ToList();
-        //
-        //                Assert.Equal(546, results.SelectMany(r => r.Orders).ToList().Count);
-        //            }
-        //        }
+        [ConditionalFact] // TODO: See issue#7160
+        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Test is flaky on CoreCLR.")]
+        public virtual async Task Mixed_sync_async_query()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = (await context.Customers
+                        .Select(c => new
+                        {
+                            c.CustomerID,
+                            Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID)
+                        }).ToListAsync())
+                        .Select(x => new
+                        {
+                            Orders = x.Orders
+                                .GroupJoin(new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
+                                {
+                                    h.Customer
+                                })
+                        })
+                        .ToList();
+
+                Assert.Equal(546, results.SelectMany(r => r.Orders).ToList().Count);
+            }
+        }
 
         [ConditionalFact]
         public virtual async Task LoadAsync_should_track_results()
@@ -2541,6 +2543,44 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Sum_with_coalesce()
+        {
+            await AssertQuery<Product>(ps => ps.Where(p => p.ProductID < 40).SumAsync(p => p.UnitPrice ?? 0));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Average_with_no_arg()
+        {
+            await AssertQuery<Order>(os => os.Select(o => o.OrderID).AverageAsync());
+        }
+
+        [ConditionalFact]
+        public virtual async Task Average_with_binary_expression()
+        {
+            await AssertQuery<Order>(os => os.Select(o => o.OrderID * 2).AverageAsync());
+        }
+
+        [ConditionalFact]
+        public virtual async Task Average_with_arg()
+        {
+            await AssertQuery<Order>(os => os.AverageAsync(o => o.OrderID));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Average_with_arg_expression()
+        {
+            await AssertQuery<Order>(os => os.AverageAsync(o => o.OrderID + o.OrderID));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Average_with_coalesce()
+        {
+            await AssertQuery<Product>(ps => ps.Where(p => p.ProductID < 40).AverageAsync(p => p.UnitPrice ?? 0),
+                asserter: (l2o, ef)
+                    => Assert.InRange((decimal)l2o - (decimal)ef, -0.1m, 0.1m));
+        }
+
+        [ConditionalFact]
         public virtual async Task Min_with_no_arg()
         {
             await AssertQuery<Order>(os => os.Select(o => o.OrderID).MinAsync());
@@ -2553,6 +2593,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Min_with_coalesce()
+        {
+            await AssertQuery<Product>(ps => ps.Where(p => p.ProductID < 40).MinAsync(p => p.UnitPrice ?? 0));
+        }
+
+        [ConditionalFact]
         public virtual async Task Max_with_no_arg()
         {
             await AssertQuery<Order>(os => os.Select(o => o.OrderID).MaxAsync());
@@ -2562,6 +2608,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual async Task Max_with_arg()
         {
             await AssertQuery<Order>(os => os.MaxAsync(o => o.OrderID));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Max_with_coalesce()
+        {
+            await AssertQuery<Product>(ps => ps.Where(p => p.ProductID < 40).MaxAsync(p => p.UnitPrice ?? 0));
         }
 
         [ConditionalFact]
@@ -3322,7 +3374,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 14);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "The test is flaky.")] // TODO: See issue#7160
         public virtual async Task Except_nested()
         {
             await AssertQuery<Customer>(
@@ -3416,6 +3468,159 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual async Task Where_bitwise_or()
+        {
+            await AssertQuery<Customer>(cs =>
+                        cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR"),
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Where_bitwise_and()
+        {
+            await AssertQuery<Customer>(cs =>
+                    cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Select_bitwise_or()
+        {
+            using (var context = CreateContext())
+            {
+                var query = await context.Customers.OrderBy(c => c.CustomerID).Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" }).ToListAsync();
+
+                Assert.All(query.Take(2), t => Assert.Equal(true, t.Value));
+                Assert.All(query.Skip(2), t => Assert.Equal(false, t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Select_bitwise_or_multiple()
+        {
+            using (var context = CreateContext())
+            {
+                var query = await context.Customers.OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" | c.CustomerID == "ANTON" }).ToListAsync();
+
+                Assert.All(query.Take(3), t => Assert.Equal(true, t.Value));
+                Assert.All(query.Skip(3), t => Assert.Equal(false, t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Select_bitwise_and()
+        {
+            using (var context = CreateContext())
+            {
+                var query = await context.Customers.OrderBy(c => c.CustomerID).Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" }).ToListAsync();
+
+                Assert.All(query, t => Assert.Equal(false, t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Select_bitwise_and_or()
+        {
+            using (var context = CreateContext())
+            {
+                var query = await context.Customers.OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" | c.CustomerID == "ANTON" }).ToListAsync();
+
+                Assert.All(query.Where(c => c.CustomerID != "ANTON"), t => Assert.Equal(false, t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Where_bitwise_or_with_logical_or()
+        {
+            await AssertQuery<Customer>(cs =>
+                        cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON"),
+                entryCount: 3);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Where_bitwise_and_with_logical_and()
+        {
+            await AssertQuery<Customer>(cs =>
+                    cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Where_bitwise_or_with_logical_and()
+        {
+            await AssertQuery<Customer>(cs =>
+                        cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" && c.Country == "Germany"),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Where_bitwise_and_with_logical_or()
+        {
+            await AssertQuery<Customer>(cs =>
+                    cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" || c.CustomerID == "ANTON"),
+                    entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Select_bitwise_or_with_logical_or()
+        {
+            using (var context = CreateContext())
+            {
+                var query = await context.Customers.OrderBy(c => c.CustomerID).Select(c => new
+                {
+                    c.CustomerID,
+                    Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON"
+                }).ToListAsync();
+
+                Assert.All(query.Take(3), t => Assert.Equal(true, t.Value));
+                Assert.All(query.Skip(3), t => Assert.Equal(false, t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Select_bitwise_and_with_logical_and()
+        {
+            using (var context = CreateContext())
+            {
+                var query = await context.Customers.OrderBy(c => c.CustomerID).Select(c => new
+                {
+                    c.CustomerID,
+                    Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"
+                }).ToListAsync();
+
+                Assert.All(query, t => Assert.Equal(false, t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Skip_CountAsync()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.Skip(7).CountAsync());
+        }
+
+        [ConditionalFact]
+        public virtual async Task Skip_LongCountAsync()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.Skip(7).LongCountAsync());
+        }
+
+        [ConditionalFact]
+        public virtual async Task OrderBy_Skip_CountAsync()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.Country).Skip(7).CountAsync());
+        }
+
+        [ConditionalFact]
+        public virtual async Task OrderBy_Skip_LongCountAsync()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.Country).Skip(7).LongCountAsync());
+        }
+
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();
@@ -3443,7 +3648,51 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         private async Task AssertQuery<TItem>(
+            Func<IQueryable<TItem>, Task<long>> query,
+            bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { await query(NorthwindData.Set<TItem>()) },
+                    new[] { await query(context.Set<TItem>()) },
+                    assertOrder);
+            }
+        }
+
+        private async Task AssertQuery<TItem>(
             Func<IQueryable<TItem>, Task<bool>> query,
+            bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { await query(NorthwindData.Set<TItem>()) },
+                    new[] { await query(context.Set<TItem>()) },
+                    assertOrder);
+            }
+        }
+
+        private async Task AssertQuery<TItem>(
+            Func<IQueryable<TItem>, Task<decimal>> query,
+            bool assertOrder = false,
+            Action<decimal, decimal> asserter = null)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { await query(NorthwindData.Set<TItem>()) },
+                    new[] { await query(context.Set<TItem>()) },
+                    assertOrder,
+                    asserter != null ? ((l2os, efs) => asserter(l2os.Single(), efs.Single())) : (Action<IList<decimal>, IList<decimal>>)null);
+            }
+        }
+
+        private async Task AssertQuery<TItem>(
+            Func<IQueryable<TItem>, Task<double>> query,
             bool assertOrder = false)
             where TItem : class
         {
@@ -3585,7 +3834,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     new[] { await query(NorthwindData.Set<TItem>()) },
                     new[] { await query(context.Set<TItem>()) },
                     assertOrder,
-                    (l2os, efs) => asserter(l2os.Single(), efs.Single()));
+                    asserter != null ? ((l2os, efs) => asserter(l2os.Single(), efs.Single())) : (Action<IList<object>, IList<object>>)null);
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }

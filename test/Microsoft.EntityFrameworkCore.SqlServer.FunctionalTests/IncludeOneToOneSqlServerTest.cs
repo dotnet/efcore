@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.Include_person();
 
             Assert.Equal(
-                @"SELECT [a].[Id], [a].[City], [a].[Street], [p].[Id], [p].[Name]
+                @"SELECT [a].[Id], [a].[City], [a].[Street], [a.Resident].[Id], [a.Resident].[Name]
 FROM [Address] AS [a]
-INNER JOIN [Person] AS [p] ON [a].[Id] = [p].[Id]",
+INNER JOIN [Person] AS [a.Resident] ON [a].[Id] = [a.Resident].[Id]",
                 Sql);
         }
 
@@ -26,9 +26,9 @@ INNER JOIN [Person] AS [p] ON [a].[Id] = [p].[Id]",
             base.Include_person_shadow();
 
             Assert.Equal(
-                @"SELECT [a].[Id], [a].[City], [a].[PersonId], [a].[Street], [p].[Id], [p].[Name]
+                @"SELECT [a].[Id], [a].[City], [a].[PersonId], [a].[Street], [a.Resident].[Id], [a.Resident].[Name]
 FROM [Address2] AS [a]
-INNER JOIN [Person2] AS [p] ON [a].[PersonId] = [p].[Id]",
+INNER JOIN [Person2] AS [a.Resident] ON [a].[PersonId] = [a.Resident].[Id]",
                 Sql);
         }
 
@@ -37,9 +37,9 @@ INNER JOIN [Person2] AS [p] ON [a].[PersonId] = [p].[Id]",
             base.Include_address();
 
             Assert.Equal(
-                @"SELECT [p].[Id], [p].[Name], [a].[Id], [a].[City], [a].[Street]
+                @"SELECT [p].[Id], [p].[Name], [p.Address].[Id], [p.Address].[City], [p.Address].[Street]
 FROM [Person] AS [p]
-LEFT JOIN [Address] AS [a] ON [a].[Id] = [p].[Id]",
+LEFT JOIN [Address] AS [p.Address] ON [p].[Id] = [p.Address].[Id]",
                 Sql);
         }
 
@@ -48,9 +48,9 @@ LEFT JOIN [Address] AS [a] ON [a].[Id] = [p].[Id]",
             base.Include_address_shadow();
 
             Assert.Equal(
-                @"SELECT [p].[Id], [p].[Name], [a].[Id], [a].[City], [a].[PersonId], [a].[Street]
+                @"SELECT [p].[Id], [p].[Name], [p.Address].[Id], [p.Address].[City], [p.Address].[PersonId], [p.Address].[Street]
 FROM [Person2] AS [p]
-LEFT JOIN [Address2] AS [a] ON [a].[PersonId] = [p].[Id]",
+LEFT JOIN [Address2] AS [p.Address] ON [p].[Id] = [p.Address].[PersonId]",
                 Sql);
         }
 

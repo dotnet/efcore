@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 
 namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 {
@@ -920,7 +921,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         [Fact]
         public void TrackGraph_does_not_call_DetectChanges()
         {
-            var provider = TestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
+            var provider = InMemoryTestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
             using (var context = new EarlyLearningCenter(provider))
             {
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
@@ -1128,7 +1129,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 
             public EarlyLearningCenter()
             {
-                _serviceProvider = TestHelpers.Instance.CreateServiceProvider();
+                _serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             }
 
             public EarlyLearningCenter(IServiceProvider serviceProvider)

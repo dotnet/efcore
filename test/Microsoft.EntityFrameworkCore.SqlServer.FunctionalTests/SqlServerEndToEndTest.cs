@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -25,13 +25,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     {
         [Fact]
-        public void Can_use_decimal_as_identity_column()
+        public void Can_use_decimal_and_byte_as_identity_columns()
         {
             using (var testDatabase = SqlServerTestStore.Create(DatabaseName))
             {
                 var optionsBuilder = new DbContextOptionsBuilder()
                     .UseSqlServer(testDatabase.ConnectionString, b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_fixture.ServiceProvider);
+
+                var nownNum1 = new NownNum { Id = 77.0m, TheWalrus = "Crying" };
+                var nownNum2 = new NownNum { Id = 78.0m, TheWalrus = "Walrus" };
 
                 var numNum1 = new NumNum { TheWalrus = "I" };
                 var numNum2 = new NumNum { TheWalrus = "Am" };
@@ -42,25 +45,83 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 var adNum1 = new AdNum { TheWalrus = "Eggman" };
                 var adNum2 = new AdNum { TheWalrus = "Eggmen" };
 
+                var byteNownNum1 = new ByteNownNum { Id = 77, Lucy = "Tangerine" };
+                var byteNownNum2 = new ByteNownNum { Id = 78, Lucy = "Trees" };
+
+                var byteNum1 = new ByteNum { Lucy = "Marmalade" };
+                var byteNum2 = new ByteNum { Lucy = "Skies" };
+
+                var byteAnNum1 = new ByteAnNum { Lucy = "Cellophane" };
+                var byteAnNum2 = new ByteAnNum { Lucy = "Flowers" };
+
+                var byteAdNum1 = new ByteAdNum { Lucy = "Kaleidoscope" };
+                var byteAdNum2 = new ByteAdNum { Lucy = "Eyes" };
+
+                decimal[] preSaveValues;
+                byte[] preSaveByteValues;
+
                 using (var context = new NumNumContext(optionsBuilder.Options))
                 {
                     context.Database.EnsureCreated();
 
-                    context.AddRange(numNum1, numNum2, adNum1, adNum2, anNum1, anNum2);
+                    context.AddRange(
+                        nownNum1, nownNum2, numNum1, numNum2, adNum1, adNum2, anNum1, anNum2,
+                        byteNownNum1, byteNownNum2, byteNum1, byteNum2, byteAdNum1, byteAdNum2, byteAnNum1, byteAnNum2);
+
+                    preSaveValues = new[]
+                    {
+                        numNum1.Id, numNum2.Id, adNum1.Id, adNum2.Id, anNum1.Id, anNum2.Id
+                    };
+
+                    preSaveByteValues = new[]
+                    {
+                        byteNum1.Id, byteNum2.Id, byteAdNum1.Id, byteAdNum2.Id, byteAnNum1.Id, byteAnNum2.Id
+                    };
 
                     context.SaveChanges();
                 }
 
                 using (var context = new NumNumContext(optionsBuilder.Options))
                 {
+                    Assert.Equal(nownNum1.Id, context.NownNums.Single(e => e.TheWalrus == "Crying").Id);
+                    Assert.Equal(nownNum2.Id, context.NownNums.Single(e => e.TheWalrus == "Walrus").Id);
+                    Assert.Equal(nownNum1.Id, 77.0m);
+                    Assert.Equal(nownNum2.Id, 78.0m);
+
                     Assert.Equal(numNum1.Id, context.NumNums.Single(e => e.TheWalrus == "I").Id);
                     Assert.Equal(numNum2.Id, context.NumNums.Single(e => e.TheWalrus == "Am").Id);
-
+                    Assert.NotEqual(numNum1.Id, preSaveValues[0]);
+                    Assert.NotEqual(numNum2.Id, preSaveValues[1]);
+                    
                     Assert.Equal(anNum1.Id, context.AnNums.Single(e => e.TheWalrus == "Goo goo").Id);
                     Assert.Equal(anNum2.Id, context.AnNums.Single(e => e.TheWalrus == "g'joob").Id);
-
+                    Assert.NotEqual(adNum1.Id, preSaveValues[2]);
+                    Assert.NotEqual(adNum2.Id, preSaveValues[3]);
+                    
                     Assert.Equal(adNum1.Id, context.AdNums.Single(e => e.TheWalrus == "Eggman").Id);
                     Assert.Equal(adNum2.Id, context.AdNums.Single(e => e.TheWalrus == "Eggmen").Id);
+                    Assert.NotEqual(anNum1.Id, preSaveValues[4]);
+                    Assert.NotEqual(anNum2.Id, preSaveValues[5]);
+
+                    Assert.Equal(byteNownNum1.Id, context.ByteNownNums.Single(e => e.Lucy == "Tangerine").Id);
+                    Assert.Equal(byteNownNum2.Id, context.ByteNownNums.Single(e => e.Lucy == "Trees").Id);
+                    Assert.Equal(byteNownNum1.Id, 77);
+                    Assert.Equal(byteNownNum2.Id, 78);
+
+                    Assert.Equal(byteNum1.Id, context.ByteNums.Single(e => e.Lucy == "Marmalade").Id);
+                    Assert.Equal(byteNum2.Id, context.ByteNums.Single(e => e.Lucy == "Skies").Id);
+                    Assert.NotEqual(byteNum1.Id, preSaveByteValues[0]);
+                    Assert.NotEqual(byteNum2.Id, preSaveByteValues[1]);
+
+                    Assert.Equal(byteAnNum1.Id, context.ByteAnNums.Single(e => e.Lucy == "Cellophane").Id);
+                    Assert.Equal(byteAnNum2.Id, context.ByteAnNums.Single(e => e.Lucy == "Flowers").Id);
+                    Assert.NotEqual(byteAdNum1.Id, preSaveByteValues[2]);
+                    Assert.NotEqual(byteAdNum2.Id, preSaveByteValues[3]);
+
+                    Assert.Equal(byteAdNum1.Id, context.ByteAdNums.Single(e => e.Lucy == "Kaleidoscope").Id);
+                    Assert.Equal(byteAdNum2.Id, context.ByteAdNums.Single(e => e.Lucy == "Eyes").Id);
+                    Assert.NotEqual(byteAnNum1.Id, preSaveByteValues[4]);
+                    Assert.NotEqual(byteAnNum2.Id, preSaveByteValues[5]);
                 }
             }
         }
@@ -72,9 +133,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
             }
 
+            public DbSet<NownNum> NownNums { get; set; }
             public DbSet<NumNum> NumNums { get; set; }
             public DbSet<AnNum> AnNums { get; set; }
             public DbSet<AdNum> AdNums { get; set; }
+
+            public DbSet<ByteNownNum> ByteNownNums { get; set; }
+            public DbSet<ByteNum> ByteNums { get; set; }
+            public DbSet<ByteAnNum> ByteAnNums { get; set; }
+            public DbSet<ByteAdNum> ByteAdNums { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -89,7 +156,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .Property(e => e.Id)
                     .HasColumnType("decimal(10, 0)")
                     .ValueGeneratedOnAdd();
+
+                modelBuilder
+                    .Entity<ByteNum>()
+                    .Property(e => e.Id)
+                    .UseSqlServerIdentityColumn();
+
+                modelBuilder
+                    .Entity<ByteAdNum>()
+                    .Property(e => e.Id)
+                    .ValueGeneratedOnAdd();
             }
+        }
+
+        private class NownNum
+        {
+            public decimal Id { get; set; }
+            public string TheWalrus { get; set; }
         }
 
         private class NumNum
@@ -111,6 +194,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             public decimal Id { get; set; }
             public string TheWalrus { get; set; }
+        }
+
+        private class ByteNownNum
+        {
+            public byte Id { get; set; }
+            public string Lucy { get; set; }
+        }
+
+        private class ByteNum
+        {
+            public byte Id { get; set; }
+            public string Lucy { get; set; }
+        }
+
+        private class ByteAnNum
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public byte Id { get; set; }
+
+            public string Lucy { get; set; }
+        }
+
+        private class ByteAdNum
+        {
+            public byte Id { get; set; }
+            public string Lucy { get; set; }
         }
 
         private class VariableDataTypes

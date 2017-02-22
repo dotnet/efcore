@@ -1,0 +1,9 @@
+[
+  {
+    "OldTypeId": "public static class Microsoft.Extensions.DependencyInjection.SqliteServiceCollectionExtensions",
+    "NewTypeId": "public static class Microsoft.Extensions.DependencyInjection.SqliteServiceCollectionExtensions",
+    "OldMemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlite(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
+    "NewMemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlite(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection)",
+    "Kind": "Modification"
+  }
+]

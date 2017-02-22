@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
                         .AddEntityFrameworkSqlite()
-                        .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
+                        .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                         .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
                         .BuildServiceProvider()))
                 .UseSqlite(

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26127.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore", "src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj", "{715C38E9-B2F5-4DB2-8025-0C6492DEBDD4}"
 EndProject
@@ -10,8 +10,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{258D5057-81B9-40EC-A872-D21E27452749}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.InMemory", "src\Microsoft.EntityFrameworkCore.InMemory\Microsoft.EntityFrameworkCore.InMemory.csproj", "{6B102CC4-4396-4A7B-9F72-2C6B5C4D8310}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.FunctionalTests", "test\Microsoft.EntityFrameworkCore.FunctionalTests\Microsoft.EntityFrameworkCore.FunctionalTests.csproj", "{390C7CAD-659D-4E45-90BA-6F6DDCB4303D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Relational", "src\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj", "{6A25DF99-2615-46D8-9532-821764647EE1}"
 EndProject
@@ -63,8 +61,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Design.Tests", "test\Microsoft.EntityFrameworkCore.Design.Tests\Microsoft.EntityFrameworkCore.Design.Tests.csproj", "{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Design.FunctionalTests", "test\Microsoft.EntityFrameworkCore.Design.FunctionalTests\Microsoft.EntityFrameworkCore.Design.FunctionalTests.csproj", "{93F36377-39C6-48A2-8C01-FD72373A34A9}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,10 +75,6 @@ Global
 		{6B102CC4-4396-4A7B-9F72-2C6B5C4D8310}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B102CC4-4396-4A7B-9F72-2C6B5C4D8310}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B102CC4-4396-4A7B-9F72-2C6B5C4D8310}.Release|Any CPU.Build.0 = Release|Any CPU
-		{390C7CAD-659D-4E45-90BA-6F6DDCB4303D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{390C7CAD-659D-4E45-90BA-6F6DDCB4303D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{390C7CAD-659D-4E45-90BA-6F6DDCB4303D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{390C7CAD-659D-4E45-90BA-6F6DDCB4303D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6A25DF99-2615-46D8-9532-821764647EE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6A25DF99-2615-46D8-9532-821764647EE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A25DF99-2615-46D8-9532-821764647EE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -183,10 +175,6 @@ Global
 		{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508}.Release|Any CPU.Build.0 = Release|Any CPU
-		{93F36377-39C6-48A2-8C01-FD72373A34A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{93F36377-39C6-48A2-8C01-FD72373A34A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{93F36377-39C6-48A2-8C01-FD72373A34A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{93F36377-39C6-48A2-8C01-FD72373A34A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -194,7 +182,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{715C38E9-B2F5-4DB2-8025-0C6492DEBDD4} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 		{6B102CC4-4396-4A7B-9F72-2C6B5C4D8310} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
-		{390C7CAD-659D-4E45-90BA-6F6DDCB4303D} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{6A25DF99-2615-46D8-9532-821764647EE1} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 		{A257C01B-BB91-44BA-831C-1E04F7800AC8} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 		{DA30FC85-8D88-4BB2-98CE-B8A5845BB3EA} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
@@ -220,6 +207,5 @@ Global
 		{A0B496FE-1E59-4262-A5F5-101CBBA42738} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{D3D0A8E8-EC2F-4E01-8650-8554E186A66F} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 		{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508} = {258D5057-81B9-40EC-A872-D21E27452749}
-		{93F36377-39C6-48A2-8C01-FD72373A34A9} = {258D5057-81B9-40EC-A872-D21E27452749}
 	EndGlobalSection
 EndGlobal

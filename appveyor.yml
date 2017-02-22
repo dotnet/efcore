@@ -23,3 +23,5 @@ matrix:
   fast_finish: true
 artifacts:
   - path: 'artifacts\build\*.nupkg'
+# Required for dotnet-test to work
+os: Visual Studio 2017 RC

@@ -19,20 +19,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Func<IIdentityMap> Create([NotNull] IKey key)
-            => (Func<IIdentityMap>)typeof(IdentityMapFactoryFactory).GetTypeInfo()
+        public virtual Func<bool, IIdentityMap> Create([NotNull] IKey key)
+            => (Func<bool, IIdentityMap>)typeof(IdentityMapFactoryFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))
                 .MakeGenericMethod(GetKeyType(key))
                 .Invoke(null, new object[] { key });
 
         [UsedImplicitly]
-        private static Func<IIdentityMap> CreateFactory<TKey>(IKey key)
+        private static Func<bool, IIdentityMap> CreateFactory<TKey>(IKey key)
         {
             var factory = key.GetPrincipalKeyValueFactory<TKey>();
 
             return typeof(TKey).IsNullableType()
-                ? (Func<IIdentityMap>)(() => new NullableKeyIdentityMap<TKey>(key, factory))
-                : () => new IdentityMap<TKey>(key, factory);
+                ? (Func<bool, IIdentityMap>)(sensitiveLoggingEnabled => new NullableKeyIdentityMap<TKey>(key, factory, sensitiveLoggingEnabled))
+                : sensitiveLoggingEnabled => new IdentityMap<TKey>(key, factory, sensitiveLoggingEnabled);
         }
     }
 }

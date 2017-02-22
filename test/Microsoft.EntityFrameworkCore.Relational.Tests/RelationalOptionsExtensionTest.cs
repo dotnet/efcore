@@ -3,9 +3,8 @@
 
 using System;
 using System.Data.Common;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Moq;
 using Xunit;
 
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public void Can_set_Connection()
         {
-            var optionsExtension = new TestRelationalOptionsExtension();
+            var optionsExtension = new FakeRelationalOptionsExtension();
 
             Assert.Null(optionsExtension.Connection);
 
@@ -31,13 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public void Throws_when_setting_Connection_to_null()
         {
-            Assert.Throws<ArgumentNullException>(() => { new TestRelationalOptionsExtension().Connection = null; });
+            Assert.Throws<ArgumentNullException>(() => { new FakeRelationalOptionsExtension().Connection = null; });
         }
 
         [Fact]
         public void Can_set_ConnectionString()
         {
-            var optionsExtension = new TestRelationalOptionsExtension();
+            var optionsExtension = new FakeRelationalOptionsExtension();
 
             Assert.Null(optionsExtension.ConnectionString);
 
@@ -49,13 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public void Throws_when_setting_ConnectionString_to_null()
         {
-            Assert.Throws<ArgumentNullException>(() => { new TestRelationalOptionsExtension().ConnectionString = null; });
+            Assert.Throws<ArgumentNullException>(() => { new FakeRelationalOptionsExtension().ConnectionString = null; });
         }
 
         [Fact]
         public void Can_set_CommandTimeout()
         {
-            var optionsExtension = new TestRelationalOptionsExtension();
+            var optionsExtension = new FakeRelationalOptionsExtension();
 
             Assert.Null(optionsExtension.CommandTimeout);
 
@@ -70,13 +69,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             Assert.Equal(
                 RelationalStrings.InvalidCommandTimeout,
                 Assert.Throws<InvalidOperationException>(
-                    () => { new TestRelationalOptionsExtension().CommandTimeout = -1; }).Message);
+                    () => { new FakeRelationalOptionsExtension().CommandTimeout = -1; }).Message);
         }
 
         [Fact]
         public void Can_set_MaxBatchSize()
         {
-            var optionsExtension = new TestRelationalOptionsExtension();
+            var optionsExtension = new FakeRelationalOptionsExtension();
 
             Assert.Null(optionsExtension.MaxBatchSize);
 
@@ -91,15 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             Assert.Equal(
                 RelationalStrings.InvalidMaxBatchSize,
                 Assert.Throws<InvalidOperationException>(
-                    () => { new TestRelationalOptionsExtension().MaxBatchSize = -1; }).Message);
-        }
-
-        private class TestRelationalOptionsExtension : RelationalOptionsExtension
-        {
-            public override void ApplyServices(IServiceCollection services)
-            {
-                throw new NotImplementedException();
-            }
+                    () => { new FakeRelationalOptionsExtension().MaxBatchSize = -1; }).Message);
         }
     }
 }

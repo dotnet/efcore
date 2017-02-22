@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -98,14 +100,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public void Constructor_validation()
+        public void Throws_when_used_with_parameterless_constructor_context()
         {
-            var serviceProvider = BuildServiceProvider<BadCtorContext>();
+            var serviceCollection = new ServiceCollection();
 
-            var serviceScope1 = serviceProvider.CreateScope();
+            Assert.Equal(CoreStrings.DbContextMissingConstructor(nameof(BadCtorContext)),
+                Assert.Throws<ArgumentException>(
+                    () => serviceCollection.AddDbContextPool<BadCtorContext>(
+                        _ => { })).Message);
 
-            Assert.Throws<InvalidOperationException>(
-                () => serviceScope1.ServiceProvider.GetService<BadCtorContext>());
+            Assert.Equal(CoreStrings.DbContextMissingConstructor(nameof(BadCtorContext)),
+                Assert.Throws<ArgumentException>(
+                    () => serviceCollection.AddDbContextPool<BadCtorContext>(
+                        (_, __) => { })).Message);
         }
 
         [Fact]
@@ -308,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             Assert.Null(context3.Database.CurrentTransaction);
         }
 
-        //[Fact]
+        [ConditionalFact]
         public async Task Concurrency_test()
         {
             // This test is for measuring different pooling approaches.
@@ -373,15 +380,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 var currentElapsed = elapsed - lastElapsed;
                 lastElapsed = elapsed;
 
-                _testOutputHelper
+                _testOutputHelper?
                     .WriteLine(
                         $"[{DateTime.Now:HH:mm:ss.fff}] Requests: {_requests}, "
                         + $"RPS: {Math.Round(currentRequests / currentElapsed.TotalSeconds)}");
 
                 if (elapsed > _duration)
                 {
-                    _testOutputHelper.WriteLine("");
-                    _testOutputHelper.WriteLine($"Average RPS: {Math.Round(_requests / elapsed.TotalSeconds)}");
+                    _testOutputHelper?.WriteLine("");
+                    _testOutputHelper?.WriteLine($"Average RPS: {Math.Round(_requests / elapsed.TotalSeconds)}");
 
                     _stopwatch.Stop();
                 }
@@ -389,11 +396,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             // ReSharper disable once FunctionNeverReturns
         }
 
-        private readonly ITestOutputHelper _testOutputHelper;
+        private readonly ITestOutputHelper _testOutputHelper = null;
 
+        // ReSharper disable once UnusedParameter.Local
         public DbContextPoolingTest(ITestOutputHelper testOutputHelper)
         {
-            _testOutputHelper = testOutputHelper;
+            //_testOutputHelper = testOutputHelper;
         }
     }
 }

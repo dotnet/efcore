@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 .UseSqlite(SqliteTestStore.CreateConnectionString("InheritanceSqlite"))
                 .UseInternalServiceProvider(new ServiceCollection()
                     .AddEntityFrameworkSqlite()
-                    .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
+                    .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                     .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                     .BuildServiceProvider())
                 .Options;

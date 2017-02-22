@@ -38,21 +38,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var currentKey = entityTypeBuilder.Metadata.FindPrimaryKey();
             var properties = new List<string> { propertyBuilder.Metadata.Name };
 
-            if (currentKey == null)
+            if (currentKey != null
+                && entityType.GetPrimaryKeyConfigurationSource() == ConfigurationSource.DataAnnotation)
             {
-                entityTypeBuilder.PrimaryKey(properties, ConfigurationSource.DataAnnotation);
-                return propertyBuilder;
+                properties.AddRange(currentKey.Properties.Select(p => p.Name));
+                properties.Sort(StringComparer.OrdinalIgnoreCase);
+                entityTypeBuilder.RemoveKey(currentKey, ConfigurationSource.DataAnnotation);
             }
 
-            var newKey = entityTypeBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
-            if (newKey != null)
-            {
-                entityTypeBuilder.PrimaryKey(properties, ConfigurationSource.DataAnnotation);
-                return propertyBuilder;
-            }
-
-            properties.AddRange(currentKey.Properties.Select(p => p.Name));
-            properties.Sort(StringComparer.OrdinalIgnoreCase);
             entityTypeBuilder.PrimaryKey(properties, ConfigurationSource.DataAnnotation);
 
             return propertyBuilder;

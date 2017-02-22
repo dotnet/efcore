@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
@@ -17,11 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public TestModelSource(
             Action<ModelBuilder> onModelCreating,
             IDbSetFinder setFinder,
-            ICoreConventionSetBuilder coreConventionSetBuilder,
-            IModelCustomizer modelCustomizer,
-            IModelCacheKeyFactory modelCacheKeyFactory,
-            CoreModelValidator coreModelValidator)
-            : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory, coreModelValidator)
+            ICoreConventionSetBuilder coreConventionSetBuilder)
+            : base(setFinder, coreConventionSetBuilder, new ModelCustomizer(), new ModelCacheKeyFactory())
         {
             _onModelCreating = onModelCreating;
         }
@@ -39,10 +37,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             _onModelCreating(modelBuilder);
 
             model.Validate();
-            CoreModelValidator.Validate(model);
+
             validator.Validate(model);
 
             return model;
         }
+
+        public static Func<IServiceProvider, IModelSource> GetFactory(Action<ModelBuilder> onModelCreating)
+            => p => new TestModelSource(
+                onModelCreating,
+                p.GetRequiredService<IDbSetFinder>(),
+                p.GetRequiredService<ICoreConventionSetBuilder>());
+
     }
 }

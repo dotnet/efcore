@@ -28,29 +28,33 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Expression Visit(Expression expression)
+        protected override Expression VisitExtension(Expression expression)
         {
-            if (expression != null)
+            var selectExpression = expression as SelectExpression;
+
+            if (selectExpression?.Predicate != null)
             {
-                expression = new EqualityPredicateInExpressionOptimizer().Visit(expression);
+                var predicate = new EqualityPredicateInExpressionOptimizer().Visit(selectExpression.Predicate);
 
                 var predicateNegationExpressionOptimizer = new PredicateNegationExpressionOptimizer();
 
-                expression = predicateNegationExpressionOptimizer.Visit(expression);
+                predicate = predicateNegationExpressionOptimizer.Visit(predicate);
 
-                expression = new PredicateReductionExpressionOptimizer().Visit(expression);
+                predicate = new PredicateReductionExpressionOptimizer().Visit(predicate);
 
-                expression = new EqualityPredicateExpandingVisitor().Visit(expression);
+                predicate = new EqualityPredicateExpandingVisitor().Visit(predicate);
 
-                expression = predicateNegationExpressionOptimizer.Visit(expression);
+                predicate = predicateNegationExpressionOptimizer.Visit(predicate);
 
                 if (_useRelationalNulls)
                 {
-                    expression = new NotNullableExpression(expression);
+                    predicate = new NotNullableExpression(predicate);
                 }
+
+                selectExpression.Predicate = predicate;
             }
 
-            return expression;
+            return base.VisitExtension(expression);
         }
     }
 }

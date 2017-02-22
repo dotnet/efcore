@@ -6,18 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Tests;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -58,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                 new Model(),
                 new MigrationsAssembly(
                     currentContext,
-                    new DbContextOptions<TContext>().WithExtension(new MockRelationalOptionsExtension()),
+                    new DbContextOptions<TContext>().WithExtension(new FakeRelationalOptionsExtension()),
                     idGenerator),
                 new MigrationsModelDiffer(
                     new TestRelationalTypeMapper(),
@@ -68,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                 new CSharpMigrationsGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpSnapshotGenerator(code)),
                 new MockHistoryRepository(),
                 new LoggerFactory().CreateLogger<MigrationsScaffolder>(),
-                new MockProviderServices());
+                new MockProvider());
         }
 
         private class GenericContext<T> : DbContext
@@ -83,13 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
         private class ContextWithSnapshotModelSnapshot : ModelSnapshot
         {
             protected override void BuildModel(ModelBuilder modelBuilder)
-            {
-            }
-        }
-
-        private class MockRelationalOptionsExtension : RelationalOptionsExtension
-        {
-            public override void ApplyServices(IServiceCollection services)
             {
             }
         }
@@ -112,31 +100,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
             public string GetInsertScript(HistoryRow row) => null;
         }
 
-        private class MockProviderServices : IDatabaseProviderServices
+        private class MockProvider : IDatabaseProvider
         {
             public string InvariantName => "Mock.Provider";
-            public IDatabase Database => null;
-            public IDbContextTransactionManager TransactionManager => null;
-            public IDatabaseCreator Creator => null;
-            public IValueGeneratorSelector ValueGeneratorSelector => null;
-            public IConventionSetBuilder ConventionSetBuilder => null;
-            public IModelSource ModelSource => null;
-            public IModelValidator ModelValidator => null;
-            public IValueGeneratorCache ValueGeneratorCache => null;
-            public IQueryContextFactory QueryContextFactory => null;
-            public IQueryCompilationContextFactory QueryCompilationContextFactory => null;
-            public IEntityQueryModelVisitorFactory EntityQueryModelVisitorFactory => null;
-            public ICompiledQueryCacheKeyGenerator CompiledQueryCacheKeyGenerator => null;
-            public IExpressionPrinter ExpressionPrinter => null;
-            public IResultOperatorHandler ResultOperatorHandler => null;
-            public IEntityQueryableExpressionVisitorFactory EntityQueryableExpressionVisitorFactory => null;
-            public IProjectionExpressionVisitorFactory ProjectionExpressionVisitorFactory => null;
-            public IExecutionStrategyFactory ExecutionStrategyFactory => null;
-
-            public void Reset()
-            {
-                
-            }
+            public bool IsConfigured(IDbContextOptions options) => true;
         }
     }
 }

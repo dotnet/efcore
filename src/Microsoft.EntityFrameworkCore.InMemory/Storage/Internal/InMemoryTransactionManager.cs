@@ -51,5 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 InMemoryEventId.TransactionIgnoredWarning,
                 () => InMemoryStrings.TransactionsNotSupported);
         }
+
+        public virtual void Reset()
+        {
+        }
     }
 }

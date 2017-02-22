@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     [SqlServerCondition(SqlServerCondition.SupportsSequences)]
     public class SequenceEndToEndTest : IDisposable
     {
-        [ConditionalFact]
+        [ConditionalFact] // TODO: See issue#7160
+        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Connection timeout error on Linux.")]
         public void Can_use_sequence_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
@@ -112,7 +113,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact] // TODO: See issue#7160
+        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Connection timeout error on Linux.")]
         public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
         {
             var serviceProvider = new ServiceCollection()

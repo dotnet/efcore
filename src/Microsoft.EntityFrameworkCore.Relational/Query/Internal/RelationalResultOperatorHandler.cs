@@ -10,14 +10,12 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -25,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class RelationalResultOperatorHandler : IResultOperatorHandler
+    public class RelationalResultOperatorHandler : IRelationalResultOperatorHandler
     {
         private sealed class HandlerContext
         {
@@ -35,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public HandlerContext(
                 IResultOperatorHandler resultOperatorHandler,
                 IModel model,
-                IRelationalAnnotationProvider relationalAnnotationProvider,
                 ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
                 ISelectExpressionFactory selectExpressionFactory,
                 RelationalQueryModelVisitor queryModelVisitor,
@@ -47,7 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _sqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
 
                 Model = model;
-                RelationalAnnotationProvider = relationalAnnotationProvider;
                 SelectExpressionFactory = selectExpressionFactory;
                 QueryModelVisitor = queryModelVisitor;
                 ResultOperator = resultOperator;
@@ -56,7 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public IModel Model { get; }
-            public IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
             public ISelectExpressionFactory SelectExpressionFactory { get; }
             public ResultOperatorBase ResultOperator { get; }
             public SelectExpression SelectExpression { get; }
@@ -85,6 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 { typeof(AllResultOperator), HandleAll },
                 { typeof(AnyResultOperator), HandleAny },
+                { typeof(AverageResultOperator), HandleAverage },
                 { typeof(CastResultOperator), HandleCast },
                 { typeof(ContainsResultOperator), HandleContains },
                 { typeof(CountResultOperator), HandleCount },
@@ -96,7 +92,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 { typeof(LastResultOperator), HandleLast },
                 { typeof(MaxResultOperator), HandleMax },
                 { typeof(MinResultOperator), HandleMin },
-                { typeof(OfTypeResultOperator), HandleOfType },
                 { typeof(SingleResultOperator), HandleSingle },
                 { typeof(SkipResultOperator), HandleSkip },
                 { typeof(SumResultOperator), HandleSum },
@@ -104,10 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             };
 
         private readonly IModel _model;
-        private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
         private readonly ISelectExpressionFactory _selectExpressionFactory;
-        private readonly ResultOperatorHandler _resultOperatorHandler;
+        private readonly IResultOperatorHandler _resultOperatorHandler;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -115,13 +109,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public RelationalResultOperatorHandler(
             [NotNull] IModel model,
-            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
-            [NotNull] ResultOperatorHandler resultOperatorHandler)
+            [NotNull] IResultOperatorHandler resultOperatorHandler)
         {
             _model = model;
-            _relationalAnnotationProvider = relationalAnnotationProvider;
             _sqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
             _selectExpressionFactory = selectExpressionFactory;
             _resultOperatorHandler = resultOperatorHandler;
@@ -147,7 +139,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 = new HandlerContext(
                     _resultOperatorHandler,
                     _model,
-                    _relationalAnnotationProvider,
                     _sqlTranslatingExpressionVisitorFactory,
                     _selectExpressionFactory,
                     relationalQueryModelVisitor,
@@ -164,6 +155,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 || relationalQueryModelVisitor.RequiresClientResultOperator
                 || !_resultHandlers.TryGetValue(resultOperator.GetType(), out resultHandler)
                 || selectExpression == null)
+            {
+                return handlerContext.EvalOnClient();
+            }
+
+            if (relationalQueryModelVisitor.RequiresClientSingleColumnResultOperator
+                && !(resultOperator is SkipResultOperator
+                    || resultOperator is TakeResultOperator
+                    || resultOperator is FirstResultOperator
+                    || resultOperator is SingleResultOperator
+                    || resultOperator is CountResultOperator
+                    || resultOperator is AllResultOperator
+                    || resultOperator is AnyResultOperator
+                    || resultOperator is GroupResultOperator))
             {
                 return handlerContext.EvalOnClient();
             }
@@ -243,6 +247,36 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return TransformClientExpression<bool>(handlerContext);
         }
 
+        private static Expression HandleAverage(HandlerContext handlerContext)
+        {
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection
+                && handlerContext.SelectExpression.Projection.Count == 1)
+            {
+                var expression = handlerContext.SelectExpression.Projection.First();
+
+                var inputType = expression.Type;
+                var outputType = expression.Type;
+
+                var nonNullableInputType = inputType.UnwrapNullableType();
+                if (nonNullableInputType == typeof(int)
+                    || nonNullableInputType == typeof(long))
+                {
+                    outputType = inputType.IsNullableType() ? typeof(double?) : typeof(double);
+                }
+
+                expression = new ExplicitCastExpression(expression, outputType);
+                var averageExpression = new SqlFunctionExpression("AVG", expression.Type, new[] { expression });
+
+                handlerContext.SelectExpression.SetProjectionExpression(averageExpression);
+
+                return (Expression)_transformClientExpressionMethodInfo
+                    .MakeGenericMethod(averageExpression.Type)
+                    .Invoke(null, new object[] { handlerContext });
+            }
+
+            return handlerContext.EvalOnClient();
+        }
+
         private static Expression HandleCast(HandlerContext handlerContext)
             => handlerContext.EvalOnClient(requiresClientResultOperator: false);
 
@@ -263,15 +297,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     if (entityType != null)
                     {
-                        var outterSelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
-                        outterSelectExpression.SetProjectionExpression(Expression.Constant(1));
+                        var outerSelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
+                        outerSelectExpression.SetProjectionExpression(Expression.Constant(1));
 
                         var collectionSelectExpression
                             = handlerContext.SelectExpression.Clone(handlerContext.QueryModelVisitor.QueryCompilationContext.CreateUniqueTableAlias());
-                        outterSelectExpression.AddTable(collectionSelectExpression);
+                        outerSelectExpression.AddTable(collectionSelectExpression);
 
                         itemSelectExpression.Alias = handlerContext.QueryModelVisitor.QueryCompilationContext.CreateUniqueTableAlias();
-                        var joinExpression = outterSelectExpression.AddInnerJoin(itemSelectExpression);
+                        var joinExpression = outerSelectExpression.AddInnerJoin(itemSelectExpression);
 
                         foreach (var property in entityType.FindPrimaryKey().Properties)
                         {
@@ -308,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         SetProjectionConditionalExpression(
                             handlerContext,
                             Expression.Condition(
-                                new ExistsExpression(outterSelectExpression),
+                                new ExistsExpression(outerSelectExpression),
                                 Expression.Constant(true),
                                 Expression.Constant(false),
                                 typeof(bool)));
@@ -335,6 +369,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleCount(HandlerContext handlerContext)
         {
+            if (handlerContext.SelectExpression.Offset != null)
+            {
+                handlerContext.SelectExpression.PushDownSubquery();
+            }
+
             handlerContext.SelectExpression
                 .SetProjectionExpression(
                     new SqlFunctionExpression(
@@ -368,14 +407,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var emptySelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext, "empty");
             emptySelectExpression.AddToProjection(new AliasExpression("empty", Expression.Constant(null)));
 
-            selectExpression.AddTable(emptySelectExpression, createUniqueAlias: false);
+            selectExpression.AddTable(emptySelectExpression);
 
             var leftOuterJoinExpression = new LeftOuterJoinExpression(subquery);
             var constant1 = Expression.Constant(1);
 
             leftOuterJoinExpression.Predicate = Expression.Equal(constant1, constant1);
 
-            selectExpression.AddTable(leftOuterJoinExpression, createUniqueAlias: false);
+            selectExpression.AddTable(leftOuterJoinExpression);
 
             selectExpression.ProjectStarAlias = subquery.Alias;
 
@@ -535,6 +574,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleLongCount(HandlerContext handlerContext)
         {
+            if (handlerContext.SelectExpression.Offset != null)
+            {
+                handlerContext.SelectExpression.PushDownSubquery();
+            }
+
             handlerContext.SelectExpression
                 .SetProjectionExpression(
                     new SqlFunctionExpression(
@@ -581,112 +625,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return handlerContext.EvalOnClient();
-        }
-
-        private static Expression HandleOfType(HandlerContext handlerContext)
-        {
-            var ofTypeResultOperator
-                = (OfTypeResultOperator)handlerContext.ResultOperator;
-
-            var entityType = handlerContext.Model.FindEntityType(ofTypeResultOperator.SearchedItemType);
-
-            if (entityType == null)
-            {
-                return handlerContext.EvalOnClient();
-            }
-
-            var concreteEntityTypes
-                = entityType.GetConcreteTypesInHierarchy().ToList();
-
-            if (concreteEntityTypes.Count != 1
-                || concreteEntityTypes[0].RootType() != concreteEntityTypes[0])
-            {
-                var relationalMetadataExtensionProvider
-                    = handlerContext.RelationalAnnotationProvider;
-
-                var discriminatorProperty
-                    = relationalMetadataExtensionProvider.For(concreteEntityTypes[0]).DiscriminatorProperty;
-
-                var projectionIndex
-                    = handlerContext.SelectExpression
-                        .GetProjectionIndex(discriminatorProperty, handlerContext.QueryModel.MainFromClause);
-
-                if (projectionIndex < 0)
-                {
-                    projectionIndex
-                        = handlerContext.SelectExpression
-                            .AddToProjection(
-                                relationalMetadataExtensionProvider.For(discriminatorProperty).ColumnName,
-                                discriminatorProperty,
-                                handlerContext.QueryModel.MainFromClause);
-                }
-
-                var discriminatorColumn
-                    = handlerContext.SelectExpression.Projection[projectionIndex];
-
-                var discriminatorPredicate
-                    = concreteEntityTypes
-                        .Select(concreteEntityType =>
-                            Expression.Equal(
-                                discriminatorColumn,
-                                Expression.Constant(relationalMetadataExtensionProvider.For(concreteEntityType).DiscriminatorValue)))
-                        .Aggregate((current, next) => Expression.OrElse(next, current));
-
-                handlerContext.SelectExpression.Predicate
-                    = new DiscriminatorReplacingExpressionVisitor(
-                            discriminatorPredicate,
-                            handlerContext.QueryModel.MainFromClause)
-                        .Visit(handlerContext.SelectExpression.Predicate);
-            }
-
-            var shapedQueryMethod = (MethodCallExpression)handlerContext.QueryModelVisitor.Expression;
-            var entityShaper = (EntityShaper)((ConstantExpression)shapedQueryMethod.Arguments[2]).Value;
-
-            return Expression.Call(
-                shapedQueryMethod.Method
-                    .GetGenericMethodDefinition()
-                    .MakeGenericMethod(ofTypeResultOperator.SearchedItemType),
-                shapedQueryMethod.Arguments[0],
-                shapedQueryMethod.Arguments[1],
-                Expression.Constant(
-                    _createDowncastingShaperMethodInfo
-                        .MakeGenericMethod(ofTypeResultOperator.SearchedItemType)
-                        .Invoke(null, new object[] { entityShaper })));
-        }
-
-        private static readonly MethodInfo _createDowncastingShaperMethodInfo
-            = typeof(RelationalResultOperatorHandler).GetTypeInfo()
-                .GetDeclaredMethod(nameof(CreateDowncastingShaper));
-
-        [UsedImplicitly]
-        private static IShaper<TDerived> CreateDowncastingShaper<TDerived>(EntityShaper shaper)
-            where TDerived : class
-        => shaper.Cast<TDerived>();
-
-        private class DiscriminatorReplacingExpressionVisitor : RelinqExpressionVisitor
-        {
-            private readonly Expression _discriminatorPredicate;
-            private readonly IQuerySource _querySource;
-
-            public DiscriminatorReplacingExpressionVisitor(
-                Expression discriminatorPredicate, IQuerySource querySource)
-            {
-                _discriminatorPredicate = discriminatorPredicate;
-                _querySource = querySource;
-            }
-
-            protected override Expression VisitExtension(Expression expression)
-            {
-                var discriminatorExpression = expression as DiscriminatorPredicateExpression;
-
-                if (discriminatorExpression != null
-                    && discriminatorExpression.QuerySource == _querySource)
-                {
-                    return new DiscriminatorPredicateExpression(_discriminatorPredicate, _querySource);
-                }
-
-                return expression;
-            }
         }
 
         private static Expression HandleSingle(HandlerContext handlerContext)

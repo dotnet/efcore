@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -51,11 +52,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual WeakReference<object> TryGetEntity(ValueBuffer valueBuffer, out bool hasNullKey)
+        public virtual WeakReference<object> TryGetEntity(
+            ValueBuffer valueBuffer, 
+            bool throwOnNullKey,
+            out bool hasNullKey)
         {
             var key = PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer);
             if (key == null)
             {
+                if (throwOnNullKey)
+                {
+                    if (Key.IsPrimaryKey())
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.InvalidKeyValue(
+                                Key.DeclaringEntityType.DisplayName(),
+                                PrincipalKeyValueFactory.FindNullPropertyInValueBuffer(valueBuffer).Name));
+                    }
+
+                    throw new InvalidOperationException(
+                        CoreStrings.InvalidAlternateKeyValue(
+                            Key.DeclaringEntityType.DisplayName(),
+                            PrincipalKeyValueFactory.FindNullPropertyInValueBuffer(valueBuffer).Name));
+                }
+
                 hasNullKey = true;
                 return null;
             }

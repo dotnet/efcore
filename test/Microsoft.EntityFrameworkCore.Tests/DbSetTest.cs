@@ -4,17 +4,45 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests
 {
     public class DbSetTest
     {
+        [Fact]
+        public void Using_ignored_entity_that_has_DbSet_on_context_throws_appropriately()
+        {
+            using (var context = new IgnoredCntext())
+            {
+                Assert.Equal(
+                    CoreStrings.InvalidSetType(nameof(IgnoredEntity)),
+                    Assert.Throws<InvalidOperationException>(() => context.Ignored.ToList()).Message);
+            }
+        }
+
+        private class IgnoredCntext : DbContext
+        {
+            public DbSet<IgnoredEntity> Ignored { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase();
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Ignore<IgnoredEntity>();
+        }
+
+        private class IgnoredEntity
+        {
+            public int Id { get; set; }
+        }
+
         [Fact]
         public async Task Can_add_existing_entities_to_context_to_be_deleted()
         {
@@ -493,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
         }
 
-#if NET451
+#if NET452
         [Fact]
         public void Throws_when_using_with_IListSource()
         {
@@ -533,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInMemoryDatabase()
-                    .UseInternalServiceProvider(TestHelpers.Instance.CreateServiceProvider());
+                    .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider());
         }
     }
 }

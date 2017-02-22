@@ -61,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private bool _requiresClientProjection;
         private bool _requiresClientOrderBy;
         private bool _requiresClientResultOperator;
+        private bool _requiresClientSingleColumnResultOperator;
 
         private NavigationIndexMap _navigationIndexMap = new NavigationIndexMap();
 
@@ -80,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory,
             [NotNull] IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory,
             [NotNull] IQueryAnnotationExtractor queryAnnotationExtractor,
-            [NotNull] IResultOperatorHandler resultOperatorHandler,
+            [NotNull] IRelationalResultOperatorHandler resultOperatorHandler,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IExpressionPrinter expressionPrinter,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
@@ -214,6 +215,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             get { return _requiresClientResultOperator || RequiresClientEval; }
             set { _requiresClientResultOperator = value; }
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether the query requires client evaluation for result operators potentially apply to a subset of columns rather than entire row.
+        /// </summary>
+        /// <value>
+        ///     true if the query requires client single column result operator, false if not.
+        /// </value>
+        internal virtual bool RequiresClientSingleColumnResultOperator
+        {
+            get { return _requiresClientSingleColumnResultOperator || _requiresClientResultOperator || RequiresClientEval; }
+            set { _requiresClientSingleColumnResultOperator = value; }
         }
 
         /// <summary>
@@ -379,19 +392,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var typeIsExpressionTranslatingVisitor
-                = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model, _relationalAnnotationProvider);
-
-            queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
-
             base.VisitQueryModel(queryModel);
 
             var compositePredicateVisitor = _compositePredicateExpressionVisitorFactory.Create();
 
             foreach (var selectExpression in QueriesBySource.Values)
             {
-                selectExpression.Predicate
-                    = compositePredicateVisitor.Visit(selectExpression.Predicate);
+                compositePredicateVisitor.Visit(selectExpression);
             }
         }
 
@@ -420,9 +427,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(mainFromClause, nameof(mainFromClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var expression = base.CompileMainFromClauseExpression(mainFromClause, queryModel);
+            Expression expression = null;
+            var subQueryExpression = mainFromClause.FromExpression as SubQueryExpression;
+            if (subQueryExpression != null)
+            {
+                expression = LiftSubQuery(mainFromClause, subQueryExpression);
+            }
 
-            return LiftSubQuery(mainFromClause, mainFromClause.FromExpression, expression);
+            expression = expression ?? base.CompileMainFromClauseExpression(mainFromClause, queryModel);
+
+            return expression;
         }
 
         /// <summary>
@@ -498,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
 
                         previousSelectExpression
-                            .AddLateralJoin(selectExpression.Tables.First(), selectExpression.Projection);
+                            .AddCrossJoinLateral(selectExpression.Tables.First(), selectExpression.Projection);
                     }
                     else
                     {
@@ -579,9 +593,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(additionalFromClause, nameof(additionalFromClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var expression = base.CompileAdditionalFromClauseExpression(additionalFromClause, queryModel);
+            Expression expression = null;
+            var subQueryExpression = additionalFromClause.FromExpression as SubQueryExpression;
+            if (subQueryExpression != null)
+            {
+                expression = LiftSubQuery(additionalFromClause, subQueryExpression);
+            }
 
-            return LiftSubQuery(additionalFromClause, additionalFromClause.FromExpression, expression);
+            expression = expression ?? base.CompileAdditionalFromClauseExpression(additionalFromClause, queryModel);
+
+            return expression;
         }
 
         /// <summary>
@@ -617,9 +638,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(joinClause, nameof(joinClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var expression = base.CompileJoinClauseInnerSequenceExpression(joinClause, queryModel);
+            Expression expression = null;
+            var subQueryExpression = joinClause.InnerSequence as SubQueryExpression;
+            if (subQueryExpression != null)
+            {
+                expression = LiftSubQuery(joinClause, subQueryExpression);
+            }
 
-            return LiftSubQuery(joinClause, joinClause.InnerSequence, expression);
+            expression = expression ?? base.CompileJoinClauseInnerSequenceExpression(joinClause, queryModel);
+
+            return expression;
         }
 
         /// <summary>
@@ -641,6 +669,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 () => base.VisitGroupJoinClause(groupJoinClause, queryModel, index),
                 LinqOperatorProvider.GroupJoin,
                 groupJoin: true);
+
+            // Workaround until #6647 is addressed - GroupJoin requires materialization of entire entity which results in all columns of that entity being projected
+            // this in turn causes result operators to be applied on all of those columns, even if the query specifies a subset of columns to perform the operation on
+            // this could lead to incorrect results (e.g. for Distinct)
+            // This however is safe to do for some operators, e.g. FirstOrDefault, Count(), Take() because their result is the same whether they are applied on single column or entire row
+            RequiresClientSingleColumnResultOperator = true;
         }
 
         /// <summary>
@@ -702,11 +736,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     if (predicate != null)
                     {
-                        QueriesBySource.Remove(joinClause);
-
                         previousSelectExpression.RemoveRangeFromProjection(previousSelectProjectionCount);
-
                         var tableExpression = selectExpression.Tables.Single();
+
+                        if (groupJoin
+                            && selectExpression.Predicate != null)
+                        {
+                            selectExpression.PushDownSubquery();
+                            selectExpression.ExplodeStarProjection();
+                            tableExpression = selectExpression.Tables.Single();
+                            tableExpression.QuerySource = joinClause;
+
+                            predicate = sqlTranslatingExpressionVisitor.Visit(
+                                Expression.Equal(joinClause.OuterKeySelector, joinClause.InnerKeySelector));
+                        }
+
+                        QueriesBySource.Remove(joinClause);
 
                         var projection
                             = QueryCompilationContext
@@ -714,11 +759,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 ? selectExpression.Projection
                                 : Enumerable.Empty<Expression>();
 
-                        var joinExpression
-                            = !groupJoin
-                                ? previousSelectExpression.AddInnerJoin(tableExpression, projection)
-                                : previousSelectExpression.AddLeftOuterJoin(tableExpression, projection);
-
+                        var joinExpression = !groupJoin
+                            ? previousSelectExpression.AddInnerJoin(tableExpression, projection, selectExpression.Predicate)
+                            : previousSelectExpression.AddLeftOuterJoin(tableExpression, projection);
                         joinExpression.Predicate = predicate;
 
                         if (groupJoin)
@@ -845,10 +888,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 if (QueryCompilationContext.QuerySourceMapping.ContainsMapping(querySource))
                 {
-                    previousMapping.Add(
-                        querySource,
-                        QueryCompilationContext.QuerySourceMapping
-                            .GetExpression(querySource));
+                    previousMapping[querySource] 
+                        = QueryCompilationContext.QuerySourceMapping
+                            .GetExpression(querySource);
 
                     var groupJoinClause = querySource as GroupJoinClause;
 
@@ -986,26 +1028,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(groupJoinClause, nameof(groupJoinClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var expression = base.CompileGroupJoinInnerSequenceExpression(groupJoinClause, queryModel);
+            Expression expression = null;
+            var subQueryExpression = groupJoinClause.JoinClause.InnerSequence as SubQueryExpression;
+            if (subQueryExpression != null)
+            {
+                expression = LiftSubQuery(groupJoinClause.JoinClause, subQueryExpression);
+            }
 
-            return LiftSubQuery(groupJoinClause.JoinClause, groupJoinClause.JoinClause.InnerSequence, expression);
+            expression = expression ?? base.CompileGroupJoinInnerSequenceExpression(groupJoinClause, queryModel);
+
+            return expression;
         }
 
         private Expression LiftSubQuery(
-            IQuerySource querySource, Expression itemsExpression, Expression expression)
+            IQuerySource querySource, SubQueryExpression subQueryExpression)
         {
-            var subQueryExpression = itemsExpression as SubQueryExpression;
-
-            if (subQueryExpression == null)
-            {
-                return expression;
-            }
-
             var subQueryModelVisitor
                 = (RelationalQueryModelVisitor)QueryCompilationContext
                     .CreateQueryModelVisitor(this);
 
-            subQueryModelVisitor.VisitSubQueryModel(subQueryExpression.QueryModel);
+            var subQueryModel = subQueryExpression.QueryModel;
+
+            var queryModelMapping = new Dictionary<QueryModel, QueryModel>();
+            subQueryModel.PopulateQueryModelMapping(queryModelMapping);
+
+            subQueryModelVisitor.VisitSubQueryModel(subQueryModel);
 
             if (subQueryModelVisitor.Queries.Count == 1
                 && !subQueryModelVisitor.RequiresClientEval
@@ -1043,7 +1090,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            return expression;
+            subQueryModel.RecreateQueryModelFromMapping(queryModelMapping);
+
+            return null;
         }
 
         private sealed class QuerySourceUpdater : ExpressionVisitorBase
@@ -1052,6 +1101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
             private readonly ILinqOperatorProvider _linqOperatorProvider;
             private readonly SelectExpression _selectExpression;
+            private bool _insideShapedQueryMethod;
 
             public QuerySourceUpdater(
                 IQuerySource querySource,
@@ -1078,8 +1128,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         queryAnnotation.QuerySource = _querySource;
                     }
 
-                    if (!_relationalQueryCompilationContext.QuerySourceRequiresMaterialization(_querySource)
-                        && shaper is EntityShaper)
+                    if (_insideShapedQueryMethod
+                        && shaper is EntityShaper
+                        && !_relationalQueryCompilationContext.QuerySourceRequiresMaterialization(_querySource))
                     {
                         return Expression.Constant(new ValueBufferShaper(_querySource));
                     }
@@ -1094,12 +1145,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
+                _insideShapedQueryMethod = methodCallExpression.Method.MethodIsClosedFormOf(
+                    _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod);
+
                 var arguments = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCall");
 
                 if (arguments != methodCallExpression.Arguments)
                 {
-                    if (methodCallExpression.Method.MethodIsClosedFormOf(
-                        _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
+                    if (_insideShapedQueryMethod)
                     {
                         return Expression.Call(
                             _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod
@@ -1278,6 +1331,26 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Applies optimizations to the query.
+        /// </summary>
+        /// <param name="queryModel"> The query. </param>
+        /// <param name="includeResultOperators">TODO: This parameter is to be removed.</param>
+        protected override void OptimizeQueryModel(
+            QueryModel queryModel,
+            ICollection<IncludeResultOperator> includeResultOperators)
+        {
+            Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(includeResultOperators, nameof(includeResultOperators));
+
+            var typeIsExpressionTranslatingVisitor
+                = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model, _relationalAnnotationProvider);
+
+            queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
+
+            base.OptimizeQueryModel(queryModel, includeResultOperators);
+        }
+
+        /// <summary>
         ///     Generated a client-eval warning
         /// </summary>
         /// <param name="expression"> The expression being client-eval'd. </param>
@@ -1331,7 +1404,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Select(concreteEntityType =>
                                 Expression.Equal(
                                     discriminatorPropertyExpression,
-                                    Expression.Constant(_relationalAnnotationProvider.For(concreteEntityType).DiscriminatorValue)))
+                                    Expression.Constant(_relationalAnnotationProvider.For(concreteEntityType).DiscriminatorValue, discriminatorPropertyExpression.Type)))
                             .Aggregate((current, next) => Expression.OrElse(next, current));
 
                     return discriminatorPredicate;

@@ -9,8 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
     // TODO revert to anonymous types when https://github.com/dotnet/corefx/issues/4672 is fixed
     internal class RelationalDiagnosticSourceAfterMessage
     {
+        public Guid ConnectionId { get; set; }
         public DbCommand Command { get; set; }
         public string ExecuteMethod { get; set; }
+        public object Result { get; set; }
         public bool IsAsync { get; set; }
         public Guid InstanceId { get; set; }
         public long Timestamp { get; set; }

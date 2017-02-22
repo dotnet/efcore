@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -65,13 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var identityMap = GetOrCreateIdentityMap(key);
 
             bool hasNullKey;
-            var weakReference = identityMap.TryGetEntity(entityLoadInfo.ValueBuffer, out hasNullKey);
+            var weakReference = identityMap.TryGetEntity(entityLoadInfo.ValueBuffer, throwOnNullKey, out hasNullKey);
             if (hasNullKey)
             {
-                if (throwOnNullKey)
-                {
-                    throw new InvalidOperationException(CoreStrings.InvalidKeyValue(key.DeclaringEntityType.DisplayName()));
-                }
                 return null;
             }
 
@@ -92,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     identityMap.Add(entityLoadInfo.ValueBuffer, entity);
                 }
 
-                _valueBuffers.Add(entity, entityLoadInfo.ValueBuffer);
+                _valueBuffers.Add(entity, entityLoadInfo.ForType(entity.GetType()));
             }
 
             return entity;
@@ -143,6 +138,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 includedEntity.StartTracking(_stateManager.Value, (ValueBuffer)boxedValueBuffer);
             }
+        }
+        
+        /// <summary>
+         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+         ///     directly from your code. This API may change or be removed in future releases.
+         /// </summary>
+        public virtual void StartTracking(object entity, IEntityType entityType)
+        {
+            object boxedValueBuffer;
+            if (!_valueBuffers.TryGetValue(entity, out boxedValueBuffer))
+            {
+                boxedValueBuffer = ValueBuffer.Empty;
+            }
+
+            _stateManager.Value
+                .StartTrackingFromQuery(
+                    entityType, 
+                    entity, 
+                    (ValueBuffer)boxedValueBuffer,
+                    handledForeignKeys: null); 
         }
 
         /// <summary>

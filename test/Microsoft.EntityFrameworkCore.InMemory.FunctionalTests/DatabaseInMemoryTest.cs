@@ -3,7 +3,6 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -15,15 +14,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         [Fact]
         public async Task Can_add_update_delete_end_to_end()
         {
-            var model = CreateModel();
-
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestFileLogger.Factory)
+                .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 
             var options = new DbContextOptionsBuilder()
-                .UseModel(model)
                 .UseInternalServiceProvider(serviceProvider)
                 .UseInMemoryDatabase()
                 .Options;
@@ -102,13 +99,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public string Name { get; set; }
         }
 
-        private static IMutableModel CreateModel()
+        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
-
             modelBuilder.Entity<Customer>();
-
-            return modelBuilder.Model;
         }
 
         [Fact]

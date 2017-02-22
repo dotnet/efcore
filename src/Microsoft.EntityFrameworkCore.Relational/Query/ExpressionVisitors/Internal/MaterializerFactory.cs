@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -48,11 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             IEntityType entityType,
             SelectExpression selectExpression,
             Func<IProperty, SelectExpression, int> projectionAdder,
-            IQuerySource querySource)
+            IQuerySource querySource,
+            out Dictionary<Type, int[]> typeIndexMap)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(projectionAdder, nameof(projectionAdder));
+
+            typeIndexMap = null;
 
             var valueBufferParameter
                 = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
@@ -89,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var firstDiscriminatorValue
                 = Expression.Constant(
-                    _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorValue);
+                    _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorValue,
+                    discriminatorColumn.Type);
 
             var discriminatorPredicate
                 = Expression.Equal(discriminatorColumn, firstDiscriminatorValue);
@@ -133,16 +138,30 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 indexMap = new int[concreteEntityType.PropertyCount()];
                 propertyIndex = 0;
+                var shadowPropertyExists = false;
 
                 foreach (var property in concreteEntityType.GetProperties())
                 {
                     indexMap[propertyIndex++]
                         = projectionAdder(property, selectExpression);
+
+                    shadowPropertyExists = shadowPropertyExists || property.IsShadowProperty;
+                }
+
+                if (shadowPropertyExists)
+                {
+                    if (typeIndexMap == null)
+                    {
+                        typeIndexMap = new Dictionary<Type, int[]>();
+                    }
+
+                    typeIndexMap[concreteEntityType.ClrType] = indexMap;
                 }
 
                 var discriminatorValue
                     = Expression.Constant(
-                        _relationalAnnotationProvider.For(concreteEntityType).DiscriminatorValue);
+                        _relationalAnnotationProvider.For(concreteEntityType).DiscriminatorValue,
+                        discriminatorColumn.Type);
 
                 materializer
                     = _entityMaterializerSource

@@ -31,21 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void Composite_primary_key_is_set_when_multiple_key_properties()
-        {
-            var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
-            var convention = new Mock<KeyDiscoveryConvention> { CallBase = true };
-            convention.Setup(c => c.DiscoverKeyProperties(It.IsAny<EntityType>(), It.IsAny<IReadOnlyList<Property>>()))
-                .Returns<EntityType, IReadOnlyList<Property>>((t, properties) => t.GetProperties().ToList());
-
-            Assert.Same(entityBuilder, convention.Object.Apply(entityBuilder));
-
-            var key = entityBuilder.Metadata.FindPrimaryKey();
-            Assert.NotNull(key);
-            Assert.Equal(new[] { "ModifiedDate", "Name" }, key.Properties.Select(p => p.Name));
-        }
-
-        [Fact]
         public void Primary_key_is_set_when_shadow_property_not_defined_by_convention_matches()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();

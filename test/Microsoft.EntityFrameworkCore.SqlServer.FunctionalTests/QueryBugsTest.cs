@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -32,6 +33,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
+
+        #region Bug6901
 
         [Fact]
         public void Left_outer_join_bug_6091()
@@ -124,6 +127,9 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
             }
         }
 
+        #endregion
+
+        #region Bug5481
         [Fact]
         public async Task Multiple_optional_navs_should_not_deadlock_bug_5481()
         {
@@ -224,6 +230,8 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
             }
         }
 
+        #endregion
+
         [Fact]
         public void Query_when_null_key_in_database_should_throw()
         {
@@ -236,7 +244,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                 using (var context = new NullKeyContext(testStore.ConnectionString))
                 {
                     Assert.Equal(
-                        CoreStrings.InvalidKeyValue("ZeroKey"),
+                        CoreStrings.InvalidKeyValue("ZeroKey", "Id"),
                         Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
                 }
             }
@@ -264,6 +272,8 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                 public int Id { get; set; }
             }
         }
+
+        #region Bug603
 
         [Fact]
         public async Task First_FirstOrDefault_ix_async_bug_603()
@@ -328,6 +338,9 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         private SqlServerTestStore CreateDatabase603()
             => CreateTestStore(() => new MyContext603(_options), null);
 
+        #endregion
+
+        #region Bugs925_926
         [Fact]
         public void Include_on_entity_with_composite_key_One_To_Many_bugs_925_926()
         {
@@ -378,9 +391,9 @@ ORDER BY [o].[CustomerFirstName], [o].[CustomerLastName]";
                     Assert.NotNull(result[4].Customer);
 
                     var expectedSql =
-                        @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [c].[FirstName], [c].[LastName]
+                        @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [o.Customer].[FirstName], [o.Customer].[LastName]
 FROM [Order] AS [o]
-LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])";
+LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].[FirstName]) AND ([o].[CustomerLastName] = [o.Customer].[LastName])";
 
                     Assert.Equal(expectedSql, Sql);
                 }
@@ -441,6 +454,131 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
                 modelBuilder.Entity<Order>().ToTable("Order");
             }
         }
+
+        #endregion
+
+        #region Bug7293
+
+        [Fact]
+        public void GroupJoin_expansion_when_optional_nav_in_projection()
+        {
+            using (CreateDatabase7293())
+            {
+                using (var context = new Context7293(_options))
+                {
+                    //TestSqlLoggerFactory.CaptureOutput(_testOutputHelper);
+
+                    var query = from p in context.Project
+                                select new ProjectView
+                                {
+                                    Permissions
+                                        = from u in p.User
+                                          select new PermissionView
+                                          {
+                                              UserName = u.User.Name
+                                          }
+                                };
+
+                    var target = context.ProjectUser.First();
+
+                    query.SingleOrDefault(item => item.Id == target.ProjectId);
+                }
+            }
+        }
+
+        private interface IHasKey
+        {
+            Guid Id { get; set; }
+        }
+
+        private class Project : IHasKey
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+            public ISet<ProjectUser> User { get; set; }
+        }
+
+        private class ProjectUser : IHasKey
+        {
+            public Guid Id { get; set; }
+            public Guid ProjectId { get; set; }
+            public Project Project { get; set; }
+            public Guid UserId { get; set; }
+            public User User { get; set; }
+        }
+
+        private class User : IHasKey
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class ProjectView : IHasKey
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+            public IEnumerable<PermissionView> Permissions { get; set; }
+        }
+
+        private class PermissionView : IHasKey
+        {
+            public Guid Id { get; set; }
+            public Guid UserId { get; set; }
+            public string UserName { get; set; }
+
+        }
+
+        private class Context7293 : DbContext
+        {
+            public Context7293(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Project> Project { get; set; }
+            public DbSet<ProjectUser> ProjectUser { get; set; }
+            public DbSet<User> User { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase7293()
+            => CreateTestStore(() => new Context7293(_options),
+                context =>
+                    {
+                        var projects = new[]
+                        {
+                            new Project { Name = "Project 1" },
+                            new Project { Name = "Project 2" },
+                            new Project { Name = "Project 3" }
+                        };
+
+                        context.Project.AddRange(projects);
+
+                        var users = new[]
+                        {
+                            new User { Name = "User 1" },
+                            new User { Name = "User 2" },
+                            new User { Name = "User 3" }
+                        };
+
+                        context.User.AddRange(users);
+
+                        var permissions = (from project in projects
+                                           from user in users
+                                           select new ProjectUser
+                                           {
+                                               ProjectId = project.Id,
+                                               Project = project,
+                                               UserId = user.Id,
+                                               User = user
+                                           }).ToList();
+
+                        context.ProjectUser.AddRange(permissions);
+                        context.SaveChanges();
+                    });
+
+        #endregion
+
+        #region Bug963
 
         [Fact]
         public void Include_on_optional_navigation_One_To_Many_963()
@@ -580,6 +718,9 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
+        #endregion
+
+        #region Bug1742
         [Fact]
         public void Compiler_generated_local_closure_produces_valid_parameter_name_1742()
             => Execute1742(new CustomerDetails_1742 { FirstName = "Foo", LastName = "Bar" });
@@ -612,6 +753,10 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             public string FirstName { get; set; }
             public string LastName { get; set; }
         }
+
+        #endregion
+
+        #region Bug3758
 
         [Fact]
         public void Customer_collections_materialize_properly_3758()
@@ -763,8 +908,11 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                         context.SaveChanges();
                     });
+        #endregion
 
-        [Fact]
+        #region Bug3409
+
+        [Fact(Skip = "Issue #7573")]
         public void ThenInclude_with_interface_navigations_3409()
         {
             using (CreateDatabase3409())
@@ -779,6 +927,40 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                     Assert.Equal(1, results.Count);
                     Assert.Equal(1, results[0].ChildCollection.Count);
                     Assert.Equal(2, results[0].ChildCollection.Single().SelfReferenceCollection.Count);
+                }
+
+                using (var context = new MyContext3409(_options))
+                {
+                    var results = context.Children
+                        .Select(c => new
+                        {
+                            c.SelfReferenceBackNavigation,
+                            c.SelfReferenceBackNavigation.ParentBackNavigation
+                        })
+                        .ToList();
+
+                    Assert.Equal(3, results.Count);
+                    Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
+                    Assert.Equal(1, results.Count(c => c.ParentBackNavigation != null));
+                }
+
+                using (var context = new MyContext3409(_options))
+                {
+                    var results = context.Children
+                        .Select(c => new
+                        {
+                            SelfReferenceBackNavigation
+                            = EF.Property<IChild3409>(c, "SelfReferenceBackNavigation"),
+                            ParentBackNavigationB
+                            = EF.Property<IParent3409>(
+                                EF.Property<IChild3409>(c, "SelfReferenceBackNavigation"),
+                                "ParentBackNavigation")
+                        })
+                        .ToList();
+
+                    Assert.Equal(3, results.Count);
+                    Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
+                    Assert.Equal(1, results.Count(c => c.ParentBackNavigationB != null));
                 }
 
                 using (var context = new MyContext3409(_options))
@@ -873,6 +1055,10 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                         context.SaveChanges();
                     });
+
+        #endregion
+
+        #region Bug3101
 
         [Fact]
         public virtual void Repro3101_simple_coalesce1()
@@ -1056,13 +1242,6 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        private const string FileLineEnding = @"
-";
-
-        protected virtual void ClearLog() => TestSqlLoggerFactory.Reset();
-
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
-
         private SqlServerTestStore CreateDatabase3101()
             => CreateTestStore(() => new MyContext3101(_options),
                 context =>
@@ -1125,6 +1304,140 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             public int Id { get; set; }
             public string Name { get; set; }
         }
+
+        #endregion
+
+        #region Bug6986
+
+        [Fact]
+        public virtual void Repro6986_can_query_base_type_when_derived_types_contain_shadow_properties()
+        {
+            using (CreateDatabase6986())
+            {
+                using (var context = new ReproContext6986(_options))
+                {
+                    var query = context.Contacts.ToList();
+
+                    Assert.Equal(4, query.Count);
+                    Assert.Equal(2, query.OfType<EmployerContact6986>().Count());
+                    Assert.Equal(1, query.OfType<ServiceOperatorContact6986>().Count());
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Repro6986_can_include_dependent_to_principal_navigation_of_derived_type_with_shadow_fk()
+        {
+            using (CreateDatabase6986())
+            {
+                using (var context = new ReproContext6986(_options))
+                {
+                    var query = context.Contacts.OfType<ServiceOperatorContact6986>().Include(e => e.ServiceOperator6986).ToList();
+
+                    Assert.Equal(1, query.Count);
+                    Assert.NotNull(query[0].ServiceOperator6986);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Repro6986_can_project_shadow_property_using_ef_property()
+        {
+            using (CreateDatabase6986())
+            {
+                using (var context = new ReproContext6986(_options))
+                {
+                    var query = context.Contacts.OfType<ServiceOperatorContact6986>().Select(c => new { c, Prop = EF.Property<int>(c, "ServiceOperator6986Id") }).ToList();
+
+                    Assert.Equal(1, query.Count);
+                    Assert.Equal(1, query[0].Prop);
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase6986()
+            => CreateTestStore(() => new ReproContext6986(_options),
+                context =>
+                {
+                    context.ServiceOperators.Add(new ServiceOperator6986());
+                    context.Employers.AddRange(
+                        new Employer6986 { Name = "UWE" },
+                        new Employer6986 { Name = "Hewlett Packard" });
+
+                    context.SaveChanges();
+
+                    context.Contacts.AddRange(
+                        new ServiceOperatorContact6986
+                        {
+                            UserName = "service.operator@esoterix.co.uk",
+                            ServiceOperator6986 = context.ServiceOperators.First()
+                        },
+                        new EmployerContact6986
+                        {
+                            UserName = "uwe@esoterix.co.uk",
+                            Employer6986 = context.Employers.First(e => e.Name == "UWE")
+                        },
+                        new EmployerContact6986
+                        {
+                            UserName = "hp@esoterix.co.uk",
+                            Employer6986 = context.Employers.First(e => e.Name == "Hewlett Packard")
+                        },
+                        new Contact6986
+                        {
+                            UserName = "noroles@esoterix.co.uk",
+                        });
+                    context.SaveChanges();
+                });
+
+        public class ReproContext6986 : DbContext
+        {
+
+            public ReproContext6986(DbContextOptions options)
+                : base(options)
+            { }
+
+            public DbSet<Contact6986> Contacts { get; set; }
+            public DbSet<EmployerContact6986> EmployerContacts { get; set; }
+            public DbSet<Employer6986> Employers { get; set; }
+            public DbSet<ServiceOperatorContact6986> ServiceOperatorContacts { get; set; }
+            public DbSet<ServiceOperator6986> ServiceOperators { get; set; }
+        }
+
+        public class EmployerContact6986 : Contact6986
+        {
+            [Required]
+            public Employer6986 Employer6986 { get; set; }
+        }
+
+        public class ServiceOperatorContact6986 : Contact6986
+        {
+            [Required]
+            public ServiceOperator6986 ServiceOperator6986 { get; set; }
+        }
+
+        public class Contact6986
+        {
+            public int Id { get; set; }
+            public string UserName { get; set; }
+            public bool IsPrimary { get; set; }
+        }
+
+        public class Employer6986
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public List<EmployerContact6986> Contacts { get; set; }
+        }
+
+        public class ServiceOperator6986
+        {
+            public int Id { get; set; }
+            public List<ServiceOperatorContact6986> Contacts { get; set; }
+        }
+
+        #endregion
+
+        #region Bug5456
 
         [Fact]
         public virtual void Repro5456_include_group_join_is_per_query_context()
@@ -1293,6 +1606,144 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             public Post5456 Blog { get; set; }
         }
 
+        #endregion
+
+        #region Bug7359
+
+        [Fact]
+        public virtual void Discriminator_type_is_handled_correctly_in_materialization_bug_7359()
+        {
+            using (CreateDatabase7359())
+            {
+                using (var ctx = new MyContext7359(_options))
+                {
+                    var query = ctx.Products.OfType<SpecialProduct>().ToList();
+
+                    Assert.Equal(1, query.Count);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Discriminator_type_is_handled_correctly_with_is_operator_bug_7359()
+        {
+            using (CreateDatabase7359())
+            {
+                using (var ctx = new MyContext7359(_options))
+                {
+                    var query = ctx.Products.Where(p => p is SpecialProduct).ToList();
+
+                    Assert.Equal(1, query.Count);
+                }
+            }
+        }
+
+        private class SpecialProduct : Product
+        {
+        }
+
+        private class MyContext7359 : DbContext
+        {
+            public MyContext7359(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Product> Products { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<SpecialProduct>();
+                modelBuilder.Entity<Product>()
+                    .HasDiscriminator<int?>("Discriminator")
+                    .HasValue(0)
+                    .HasValue<SpecialProduct>(1);
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase7359()
+            => CreateTestStore(() => new MyContext7359(_options),
+                context =>
+                    {
+                        context.Add(new Product { Name = "Product1" });
+                        context.Add(new SpecialProduct { Name = "SpecialProduct" });
+                        context.SaveChanges();
+                    });
+
+        #endregion
+
+        #region Bug7312
+
+        [Fact]
+        public virtual void Reference_include_on_derived_type_with_sibling_works_bug_7312()
+        {
+            using (CreateDatabase7312())
+            {
+                using (var context = new MyContext7312(_options))
+                {
+                    var query = context.Proposal.OfType<ProposalLeave7312>().Include(l => l.LeaveType).ToList();
+
+                    Assert.Equal(1, query.Count);
+                }
+            }
+        }
+
+        public class Proposal7312
+        {
+            public int Id { get; set; }
+        }
+
+        public class ProposalCustom7312 : Proposal7312
+        {
+            public string Name { get; set; }
+        }
+
+        public class ProposalLeave7312 : Proposal7312
+        {
+            public DateTime LeaveStart { get; set; }
+            public virtual ProposalLeaveType7312 LeaveType { get; set; }
+        }
+
+        public class ProposalLeaveType7312
+        {
+            public int Id { get; set; }
+            public ICollection<ProposalLeave7312> ProposalLeaves { get; set; }
+        }
+
+        private class MyContext7312 : DbContext
+        {
+            public MyContext7312(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Proposal7312> Proposal { get; set; }
+            public DbSet<ProposalCustom7312> ProposalCustoms { get; set; }
+            public DbSet<ProposalLeave7312> ProposalLeaves { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase7312()
+            => CreateTestStore(() => new MyContext7312(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Proposal7312(),
+                        new ProposalCustom7312
+                        {
+                            Name = "CustomProposal",
+                        },
+                        new ProposalLeave7312
+                        {
+                            LeaveStart = DateTime.Now,
+                            LeaveType = new ProposalLeaveType7312()
+                        }
+                    );
+                    context.SaveChanges();
+                });
+
+        #endregion
+
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
@@ -1317,5 +1768,12 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             TestSqlLoggerFactory.Reset();
             return testStore;
         }
+
+        private const string FileLineEnding = @"
+";
+
+        protected virtual void ClearLog() => TestSqlLoggerFactory.Reset();
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

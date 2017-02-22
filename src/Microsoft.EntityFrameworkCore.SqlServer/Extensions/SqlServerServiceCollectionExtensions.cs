@@ -6,17 +6,22 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -41,62 +46,58 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///          public void ConfigureServices(IServiceCollection services)
-        ///          {
-        ///              var connectionString = "connection string to database";
-        ///
-        ///              services
-        ///                  .AddEntityFrameworkSqlServer()
-        ///                  .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
-        ///                      options.UseSqlServer(connectionString)
-        ///                             .UseInternalServiceProvider(serviceProvider));
-        ///          }
-        ///      </code>
+        ///           public void ConfigureServices(IServiceCollection services)
+        ///           {
+        ///               var connectionString = "connection string to database";
+        /// 
+        ///               services
+        ///                   .AddEntityFrameworkSqlServer()
+        ///                   .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
+        ///                       options.UseSqlServer(connectionString)
+        ///                              .UseInternalServiceProvider(serviceProvider));
+        ///           }
+        ///       </code>
         /// </example>
-        /// <param name="services"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
         /// </returns>
-        public static IServiceCollection AddEntityFrameworkSqlServer([NotNull] this IServiceCollection services)
+        public static IServiceCollection AddEntityFrameworkSqlServer([NotNull] this IServiceCollection serviceCollection)
         {
-            Check.NotNull(services, nameof(services));
+            Check.NotNull(serviceCollection, nameof(serviceCollection));
 
-            services.AddRelational();
+            var serviceCollectionMap = new ServiceCollectionMap(serviceCollection)
+                .TryAddSingletonEnumerable<IDatabaseProvider, DatabaseProvider<SqlServerOptionsExtension>>()
+                .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
+                .TryAddSingleton<IValueGeneratorCache>(p => p.GetService<ISqlServerValueGeneratorCache>())
+                .TryAddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
+                .TryAddSingleton<ISqlGenerationHelper, SqlServerSqlGenerationHelper>()
+                .TryAddSingleton<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
+                .TryAddSingleton<IMigrationsAnnotationProvider, SqlServerMigrationsAnnotationProvider>()
+                .TryAddScoped<IRelationalValueBufferFactoryFactory, UntypedRelationalValueBufferFactoryFactory>()
+                .TryAddScoped<IModelValidator, SqlServerModelValidator>()
+                .TryAddScoped<IConventionSetBuilder, SqlServerConventionSetBuilder>()
+                .TryAddScoped<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
+                .TryAddScoped<IUpdateSqlGenerator>(p => p.GetService<ISqlServerUpdateSqlGenerator>())
+                .TryAddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
+                .TryAddScoped<IModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
+                .TryAddScoped<IValueGeneratorSelector, SqlServerValueGeneratorSelector>()
+                .TryAddScoped<ISqlServerConnection, SqlServerConnection>()
+                .TryAddScoped<IRelationalConnection>(p => p.GetService<ISqlServerConnection>())
+                .TryAddScoped<IMigrationsSqlGenerator, SqlServerMigrationsSqlGenerator>()
+                .TryAddScoped<IRelationalDatabaseCreator, SqlServerDatabaseCreator>()
+                .TryAddScoped<IHistoryRepository, SqlServerHistoryRepository>()
+                .TryAddScoped<IEntityQueryModelVisitorFactory, SqlServerQueryModelVisitorFactory>()
+                .TryAddScoped<ICompiledQueryCacheKeyGenerator, SqlServerCompiledQueryCacheKeyGenerator>()
+                .TryAddScoped<IExecutionStrategyFactory, SqlServerExecutionStrategyFactory>()
+                .TryAddScoped<IQueryCompilationContextFactory, SqlServerQueryCompilationContextFactory>()
+                .TryAddScoped<IMemberTranslator, SqlServerCompositeMemberTranslator>()
+                .TryAddScoped<IMethodCallTranslator, SqlServerCompositeMethodCallTranslator>()
+                .TryAddScoped<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>();
 
-            services.TryAddEnumerable(ServiceDescriptor
-                .Singleton<IDatabaseProvider, DatabaseProvider<SqlServerDatabaseProviderServices, SqlServerOptionsExtension>>());
+            ServiceCollectionRelationalProviderInfrastructure.TryAddDefaultRelationalServices(serviceCollectionMap);
 
-            services.TryAdd(new ServiceCollection()
-                .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
-                .AddSingleton<SqlServerTypeMapper>()
-                .AddSingleton<SqlServerSqlGenerationHelper>()
-                .AddSingleton<SqlServerModelSource>()
-                .AddSingleton<SqlServerAnnotationProvider>()
-                .AddSingleton<SqlServerMigrationsAnnotationProvider>()
-                .AddScoped<SqlServerModelValidator>()
-                .AddScoped<SqlServerConventionSetBuilder>()
-                .AddScoped<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
-                .AddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
-                .AddScoped<SqlServerModificationCommandBatchFactory>()
-                .AddScoped<SqlServerValueGeneratorSelector>()
-                .AddScoped<SqlServerDatabaseProviderServices>()
-                .AddScoped<ISqlServerConnection, SqlServerConnection>()
-                .AddScoped<SqlServerMigrationsSqlGenerator>()
-                .AddScoped<SqlServerDatabaseCreator>()
-                .AddScoped<SqlServerHistoryRepository>()
-                .AddScoped<SqlServerQueryModelVisitorFactory>()
-                .AddScoped<SqlServerCompiledQueryCacheKeyGenerator>()
-                .AddScoped<SqlServerExecutionStrategyFactory>()
-                .AddQuery());
-
-            return services;
+            return serviceCollection;
         }
-
-        private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
-            => serviceCollection
-                .AddScoped<SqlServerQueryCompilationContextFactory>()
-                .AddScoped<SqlServerCompositeMemberTranslator>()
-                .AddScoped<SqlServerCompositeMethodCallTranslator>()
-                .AddScoped<SqlServerQuerySqlGeneratorFactory>();
     }
 }

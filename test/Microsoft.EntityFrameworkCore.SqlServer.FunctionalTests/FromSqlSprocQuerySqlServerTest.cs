@@ -106,12 +106,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             Assert.StartsWith(
                 @"[dbo].[Ten Most Expensive Products]
 
-SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitsInStock]
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM (
     SELECT * FROM Products
 ) AS [p]
 
-SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitsInStock]
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM (
     SELECT * FROM Products
 ) AS [p]",
@@ -123,7 +123,7 @@ FROM (
             base.From_sql_queryable_select_and_stored_procedure();
 
             Assert.StartsWith(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM (
     SELECT * FROM Products
 ) AS [p]

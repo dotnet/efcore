@@ -11,8 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
@@ -38,7 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public void Relational_specific_methods_throws_when_non_relational_provider_is_in_use()
         {
-            var context = RelationalTestHelpers.Instance.CreateContext();
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(
+                    new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider())
+                .UseInMemoryDatabase();
+            var context = new DbContext(optionsBuilder.Options);
 
             Assert.Equal(
                 RelationalStrings.RelationalNotInUse,

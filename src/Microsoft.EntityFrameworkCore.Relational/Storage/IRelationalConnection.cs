@@ -32,6 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         DbConnection DbConnection { get; }
 
         /// <summary>
+        ///     Gets the connection identifier.
+        /// </summary>
+        Guid ConnectionId { get; }
+
+        /// <summary>
         ///     Gets the timeout for executing a command against the database.
         /// </summary>
         int? CommandTimeout { get; set; }
@@ -39,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Opens the connection to the database.
         /// </summary>
-        void Open();
+        /// <returns> True if the underlying connection was actually opened; false otherwise. </returns>
+        bool Open();
 
         /// <summary>
         ///     Asynchronously opens the connection to the database.
@@ -47,13 +53,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        ///     A task that represents the asynchronous operation, with a value of true if the connection
+        ///     was actually opened.
+        /// </returns>
+        Task<bool> OpenAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         ///     Closes the connection to the database.
         /// </summary>
-        void Close();
+        /// <returns> True if the underlying connection was actually closed; false otherwise. </returns>
+        bool Close();
 
         /// <summary>
         ///     Gets a value indicating whether the multiple active result sets feature is enabled.

@@ -44,6 +44,33 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Entity_key_on_shadow_property_is_discovered_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Order>().Property<int>("Id");
+
+                var entity = modelBuilder.Model.FindEntityType(typeof(Order));
+
+                modelBuilder.Validate();
+                Assert.Equal("Id", entity.FindPrimaryKey().Properties.Single().Name);
+            }
+
+            [Fact]
+            public virtual void Entity_key_on_secondary_property_is_discovered_by_convention_when_first_ignored()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<SelfRef>()
+                    .Ignore(s => s.SelfRef1)
+                    .Ignore(s => s.SelfRef2)
+                    .Ignore(s => s.Id);
+
+                modelBuilder.Validate();
+                var entity = modelBuilder.Model.FindEntityType(typeof(SelfRef));
+                Assert.Equal(nameof(SelfRef.SelfRefId), entity.FindPrimaryKey().Properties.Single().Name);
+            }
+
+            [Fact]
             public virtual void Can_set_entity_key_from_property_name_when_no_clr_property()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -142,6 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual void Can_upgrade_candidate_key_to_primary_key()
             {
                 var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Entity<Customer>().Property<int>(Customer.IdProperty.Name);
                 modelBuilder.Entity<Customer>().HasAlternateKey(b => b.Name);
 
@@ -154,11 +182,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 var nameProperty = entity.FindPrimaryKey().Properties.Single();
                 Assert.Equal(Customer.NameProperty.Name, nameProperty.Name);
-                Assert.True(nameProperty.RequiresValueGenerator);
+                Assert.True(nameProperty.RequiresValueGenerator());
                 Assert.Equal(ValueGenerated.OnAdd, nameProperty.ValueGenerated);
 
                 var idProperty = (IProperty)entity.FindProperty(Customer.IdProperty);
-                Assert.False(idProperty.RequiresValueGenerator);
                 Assert.Equal(ValueGenerated.Never, idProperty.ValueGenerated);
             }
 
@@ -634,34 +661,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             [Fact]
             public virtual void Properties_can_be_set_to_generate_values_on_Add()
-            {
-                var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
-
-                modelBuilder.Entity<Quarks>(b =>
-                    {
-                        b.Property(e => e.Id).Metadata.RequiresValueGenerator = false;
-                        b.Property(e => e.Up).Metadata.RequiresValueGenerator = true;
-                        b.Property(e => e.Down).Metadata.RequiresValueGenerator = true;
-                        b.Property<int>("Charm").Metadata.RequiresValueGenerator = true;
-                        b.Property<string>("Strange").Metadata.RequiresValueGenerator = false;
-                        b.Property<int>("Top").Metadata.RequiresValueGenerator = true;
-                        b.Property<string>("Bottom").Metadata.RequiresValueGenerator = false;
-                    });
-
-                var entityType = model.FindEntityType(typeof(Quarks));
-
-                Assert.Equal(false, entityType.FindProperty(Customer.IdProperty.Name).RequiresValueGenerator);
-                Assert.Equal(true, entityType.FindProperty("Up").RequiresValueGenerator);
-                Assert.Equal(true, entityType.FindProperty("Down").RequiresValueGenerator);
-                Assert.Equal(true, entityType.FindProperty("Charm").RequiresValueGenerator);
-                Assert.Equal(false, entityType.FindProperty("Strange").RequiresValueGenerator);
-                Assert.Equal(true, entityType.FindProperty("Top").RequiresValueGenerator);
-                Assert.Equal(false, entityType.FindProperty("Bottom").RequiresValueGenerator);
-            }
-
-            [Fact]
-            public virtual void Properties_can_be_set_to_be_store_computed()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;

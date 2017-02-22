@@ -4,18 +4,21 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
+using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -52,43 +55,36 @@ namespace Microsoft.Extensions.DependencyInjection
         ///          }
         ///      </code>
         /// </example>
-        /// <param name="services"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
         /// </returns>
-        public static IServiceCollection AddEntityFrameworkSqlite([NotNull] this IServiceCollection services)
+        public static IServiceCollection AddEntityFrameworkSqlite([NotNull] this IServiceCollection serviceCollection)
         {
-            Check.NotNull(services, nameof(services));
+            Check.NotNull(serviceCollection, nameof(serviceCollection));
 
-            services.AddRelational();
+            var serviceCollectionMap = new ServiceCollectionMap(serviceCollection)
+                .TryAddSingletonEnumerable<IDatabaseProvider, DatabaseProvider<SqliteOptionsExtension>>()
+                .TryAddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
+                .TryAddSingleton<IRelationalTypeMapper, SqliteTypeMapper>()
+                .TryAddSingleton<ISqlGenerationHelper, SqliteSqlGenerationHelper>()
+                .TryAddSingleton<IMigrationsAnnotationProvider, SqliteMigrationsAnnotationProvider>()
+                .TryAddScoped<IConventionSetBuilder, SqliteConventionSetBuilder>()
+                .TryAddScoped<IUpdateSqlGenerator, SqliteUpdateSqlGenerator>()
+                .TryAddScoped<IModificationCommandBatchFactory, SqliteModificationCommandBatchFactory>()
+                .TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>()
+                .TryAddScoped<IRelationalConnection>(p => p.GetService<ISqliteRelationalConnection>())
+                .TryAddScoped<IMigrationsSqlGenerator, SqliteMigrationsSqlGenerator>()
+                .TryAddScoped<IRelationalDatabaseCreator, SqliteDatabaseCreator>()
+                .TryAddScoped<IHistoryRepository, SqliteHistoryRepository>()
+                .TryAddScoped<IMemberTranslator, SqliteCompositeMemberTranslator>()
+                .TryAddScoped<IMethodCallTranslator, SqliteCompositeMethodCallTranslator>()
+                .TryAddScoped<IQuerySqlGeneratorFactory, SqliteQuerySqlGeneratorFactory>();
+            ;
 
-            services.TryAddEnumerable(ServiceDescriptor
-                .Singleton<IDatabaseProvider, DatabaseProvider<SqliteDatabaseProviderServices, SqliteOptionsExtension>>());
+            ServiceCollectionRelationalProviderInfrastructure.TryAddDefaultRelationalServices(serviceCollectionMap);
 
-            services.TryAdd(new ServiceCollection()
-                .AddSingleton<SqliteValueGeneratorCache>()
-                .AddSingleton<SqliteAnnotationProvider>()
-                .AddSingleton<SqliteTypeMapper>()
-                .AddSingleton<SqliteSqlGenerationHelper>()
-                .AddSingleton<SqliteModelSource>()
-                .AddSingleton<SqliteMigrationsAnnotationProvider>()
-                .AddScoped<SqliteConventionSetBuilder>()
-                .AddScoped<SqliteUpdateSqlGenerator>()
-                .AddScoped<SqliteModificationCommandBatchFactory>()
-                .AddScoped<SqliteDatabaseProviderServices>()
-                .AddScoped<SqliteRelationalConnection>()
-                .AddScoped<SqliteMigrationsSqlGenerator>()
-                .AddScoped<SqliteDatabaseCreator>()
-                .AddScoped<SqliteHistoryRepository>()
-                .AddQuery());
-
-            return services;
+            return serviceCollection;
         }
-
-        private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
-            => serviceCollection
-                .AddScoped<SqliteCompositeMemberTranslator>()
-                .AddScoped<SqliteCompositeMethodCallTranslator>()
-                .AddScoped<SqliteQuerySqlGeneratorFactory>();
     }
 }

@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 
         public int CloseCount { get; private set; }
 
-#if NET451
+#if NET452
         public override void Close()
         {
             CloseCount++;
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             {
                 DisposeCount++;
 
-#if NETCOREAPP1_1
+#if !NET452
                 CloseCount++;
 #endif
                 base.Dispose(true);
@@ -112,10 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             get { throw new NotImplementedException(); }
         }
 
-        public override int RecordsAffected
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public override int RecordsAffected => 0;
 
         public override bool GetBoolean(int ordinal) => (bool)_currentRow[ordinal];
 
@@ -167,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             throw new NotImplementedException();
         }
 
-#if NET451
+#if NET452
         public override DataTable GetSchemaTable()
         {
             throw new NotImplementedException();

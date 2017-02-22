@@ -299,8 +299,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            if (currentState != EntityState.Modified
-                && currentState != EntityState.Unchanged)
+            if (currentState == EntityState.Added
+                || currentState == EntityState.Deleted)
             {
                 return;
             }
@@ -316,6 +316,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (changeState)
             {
                 if (!isModified
+                    && currentState != EntityState.Detached
                     && property.GetOriginalValueIndex() != -1)
                 {
                     SetProperty(property, GetOriginalValue(property), setModified: false);
@@ -323,9 +324,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _stateData.FlagProperty(propertyIndex, PropertyFlag.TemporaryOrModified, isModified);
             }
 
-            // Don't change entity state if it is Added or Deleted
             if (isModified
-                && currentState == EntityState.Unchanged)
+                && (currentState == EntityState.Unchanged
+                    || currentState == EntityState.Detached))
             {
                 if (changeState)
                 {
@@ -341,7 +342,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     StateManager.Notify.StateChanged(this, currentState, fromQuery: false);
                 }
             }
-            else if (changeState
+            else if (currentState != EntityState.Detached
+                     && changeState
                      && !isModified
                      && !_stateData.AnyPropertiesFlagged(PropertyFlag.TemporaryOrModified))
             {
@@ -371,8 +373,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasTemporaryValue(IProperty property)
-            => (_stateData.EntityState == EntityState.Added || _stateData.EntityState == EntityState.Detached)
-               && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified);
+        {
+            object _;
+            return (_stateData.EntityState == EntityState.Added || _stateData.EntityState == EntityState.Detached)
+                   && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified)
+                   && (_storeGeneratedValues.IsEmpty
+                       || !_storeGeneratedValues.TryGetValue(property, out _));
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -542,7 +549,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             // If setting the original value results in the current value being different from the
             // original value, then mark the property as modified.
-            if (!IsModified(property))
+            if (EntityState == EntityState.Unchanged
+                || (EntityState == EntityState.Modified
+                    && !IsModified(property)))
             {
                 var currentValue = this[propertyBase];
                 var propertyIndex = property.GetIndex();
@@ -766,36 +775,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (EntityState == EntityState.Added)
             {
-                IProperty setProperty = null;
                 foreach (var property in EntityType.GetProperties())
                 {
                     if (property.IsReadOnlyBeforeSave
-                        && !IsTemporaryOrDefault(property))
+                        && !HasTemporaryValue(property)
+                        && !HasDefaultValue(property))
                     {
-                        setProperty = property;
-                        break;
+                        throw new InvalidOperationException(CoreStrings.PropertyReadOnlyBeforeSave(property.Name, EntityType.DisplayName()));
                     }
-                }
-                if (setProperty != null)
-                {
-                    throw new InvalidOperationException(CoreStrings.PropertyReadOnlyBeforeSave(setProperty.Name, EntityType.DisplayName()));
                 }
             }
             else if (EntityState == EntityState.Modified)
             {
-                IProperty modifiedProperty = null;
                 foreach (var property in EntityType.GetProperties())
                 {
                     if (property.IsReadOnlyAfterSave
                         && IsModified(property))
                     {
-                        modifiedProperty = property;
-                        break;
+                        throw new InvalidOperationException(CoreStrings.PropertyReadOnlyAfterSave(property.Name, EntityType.DisplayName()));
                     }
-                }
-                if (modifiedProperty != null)
-                {
-                    throw new InvalidOperationException(CoreStrings.PropertyReadOnlyAfterSave(modifiedProperty.Name, EntityType.DisplayName()));
                 }
             }
 
@@ -947,19 +945,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual bool IsStoreGenerated(IProperty property)
             => property.ValueGenerated != ValueGenerated.Never
                && ((EntityState == EntityState.Added
-                    && (property.IsStoreGeneratedAlways || IsTemporaryOrDefault(property)))
+                    && (property.IsStoreGeneratedAlways
+                        || HasTemporaryValue(property)
+                        || HasDefaultValue(property)))
                    || (property.ValueGenerated == ValueGenerated.OnAddOrUpdate && EntityState == EntityState.Modified && (property.IsStoreGeneratedAlways || !IsModified(property))));
 
-        private bool IsTemporaryOrDefault(IProperty property)
-            => HasTemporaryValue(property)
-               || property.ClrType.IsDefaultValue(this[property]);
+        private bool HasDefaultValue(IProperty property)
+            => property.ClrType.IsDefaultValue(this[property]);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsKeySet => !EntityType.FindPrimaryKey().Properties.Any(
-            p => p.ClrType.IsDefaultValue(this[p])
+            p => HasDefaultValue(p)
                  && (p.ValueGenerated == ValueGenerated.OnAdd
                      || p.IsForeignKey()));
 

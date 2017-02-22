@@ -41,12 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Type contextType,
             bool trackQueryResults)
             : base(
-                Check.NotNull(model, nameof(model)),
-                Check.NotNull(logger, nameof(logger)),
-                Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
-                Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
-                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
-                Check.NotNull(contextType, nameof(contextType)),
+                model,
+                logger,
+                entityQueryModelVisitorFactory,
+                requiresMaterializationExpressionVisitorFactory,
+                linqOperatorProvider,
+                contextType,
                 trackQueryResults)
         {
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));

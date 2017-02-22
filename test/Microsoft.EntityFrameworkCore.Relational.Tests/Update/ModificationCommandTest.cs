@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.Update;
 using Xunit;
 
@@ -359,20 +359,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             command.AddEntry(entry);
 
             Assert.False(command.RequiresResultPropagation);
-        }
-
-        [Fact]
-        public void ColumnModifications_throw_on_temporary_values_with_no_store_generation_configured()
-        {
-            var entry = CreateEntry(EntityState.Added);
-            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
-
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
-            command.AddEntry(entry);
-
-            Assert.Equal(
-                CoreStrings.TempValue("Id", "T1"),
-                Assert.Throws<InvalidOperationException>(() => command.ColumnModifications).Message);
         }
 
         private class T1

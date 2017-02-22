@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                     return s.Result;
                 },
-                s => new ExecutionResult<TResult>(s.CommitFailed && s.VerifySucceeded(s.State), s.Result),
+                s => new ExecutionResult<TResult>(s.CommitFailed && s.VerifySucceeded != null && s.VerifySucceeded(s.State), s.Result),
                 new ExecutionState<TState, TResult>(operation, verifySucceeded, state, context));
 
         /// <summary>

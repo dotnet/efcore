@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -36,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private TrackingQueryMode _trackingQueryMode = TrackingQueryMode.Simple;
         private IEntityType _singleQueryModeEntityType;
 
+        private readonly bool _sensitiveLoggingEnabled;
         private readonly IInternalEntityEntryFactory _factory;
         private readonly IInternalEntityEntrySubscriber _subscriber;
         private readonly IModel _model;
@@ -54,7 +56,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IModel model,
             [NotNull] IDatabase database,
             [NotNull] IConcurrencyDetector concurrencyDetector,
-            [NotNull] ICurrentDbContext currentContext)
+            [NotNull] ICurrentDbContext currentContext,
+            [NotNull] IDbContextOptions contextOptions)
         {
             _factory = factory;
             _subscriber = subscriber;
@@ -64,6 +67,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _database = database;
             _concurrencyDetector = concurrencyDetector;
             Context = currentContext.Context;
+
+            if (contextOptions
+                .Extensions
+                .OfType<CoreOptionsExtension>()
+                .FirstOrDefault()
+                ?.IsSensitiveDataLoggingEnabled == true)
+            {
+                _sensitiveLoggingEnabled = true;
+            }
         }
 
         /// <summary>
@@ -216,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_identityMap0 == null)
             {
-                _identityMap0 = key.GetIdentityMapFactory()();
+                _identityMap0 = key.GetIdentityMapFactory()(_sensitiveLoggingEnabled);
                 return _identityMap0;
             }
 
@@ -227,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (_identityMap1 == null)
             {
-                _identityMap1 = key.GetIdentityMapFactory()();
+                _identityMap1 = key.GetIdentityMapFactory()(_sensitiveLoggingEnabled);
                 return _identityMap1;
             }
 
@@ -244,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IIdentityMap identityMap;
             if (!_identityMaps.TryGetValue(key, out identityMap))
             {
-                identityMap = key.GetIdentityMapFactory()();
+                identityMap = key.GetIdentityMapFactory()(_sensitiveLoggingEnabled);
                 _identityMaps[key] = identityMap;
             }
             return identityMap;

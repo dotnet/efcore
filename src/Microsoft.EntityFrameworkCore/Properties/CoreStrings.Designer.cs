@@ -57,11 +57,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. When adding new entities, for most key types a unique temporary key value will be created if no key is set (i.e. if the key property is assigned the default value for its type). If you are explicitly setting key values for new entities, ensure they do not collide with existing entities or temporary values generated for other new entities. When attaching existing entities, ensure that only one entity instance with a given key value is attached to the context.
+        /// The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for '{keyProperties}' is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
         /// </summary>
-        public static string IdentityConflict([CanBeNull] object entityType)
+        public static string IdentityConflict([CanBeNull] object entityType, [CanBeNull] object keyProperties)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("IdentityConflict", "entityType"), entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("IdentityConflict", "entityType", "keyProperties"), entityType, keyProperties);
+        }
+
+        /// <summary>
+        /// The instance of entity type '{entityType}' cannot be tracked because another instance with the key value '{keyValue}' is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached.
+        /// </summary>
+        public static string IdentityConflictSensitive([CanBeNull] object entityType, [CanBeNull] object keyValue)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IdentityConflictSensitive", "entityType", "keyValue"), entityType, keyValue);
         }
 
         /// <summary>
@@ -329,11 +337,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The database providers {storeNames}are configured. A context can only be configured to use a single database provider.
+        /// Services for database providers {storeNames} have been registered in the service provider. Only a single database provider can be registered in a service provider. If possible, ensure that Entity Framework is managing its service provider by removing the call to UseInternalServiceProvider. Otherwise, consider conditionally registering the database provider, or maintaining one service provider per database provider.
         /// </summary>
         public static string MultipleProvidersConfigured([CanBeNull] object storeNames)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MultipleProvidersConfigured", "storeNames"), storeNames);
+        }
+
+        /// <summary>
+        /// AddDbContext was called with configuration, but the context type '{contextType}' only declares a parameterless constructor. This means that the configuration passed to AddDbContext will never be used. If configuration is passed to AddDbContext, then ‘{contextType}’ should declare a constructor that accepts a DbContextOptions&lt;{contextType}&gt; and must pass it to the base constructor for DbContext.
+        /// </summary>
+        public static string DbContextMissingConstructor([CanBeNull] object contextType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DbContextMissingConstructor", "contextType"), contextType);
         }
 
         /// <summary>
@@ -358,14 +374,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string InvalidReplaceService([CanBeNull] object replaceService, [CanBeNull] object useInternalServiceProvider)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidReplaceService", "replaceService", "useInternalServiceProvider"), replaceService, useInternalServiceProvider);
-        }
-
-        /// <summary>
-        /// The database providers {storeNames}are available. A context can only be configured to use a single database provider. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.
-        /// </summary>
-        public static string MultipleProvidersAvailable([CanBeNull] object storeNames)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleProvidersAvailable", "storeNames"), storeNames);
         }
 
         /// <summary>
@@ -1153,11 +1161,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Unable to create or track an entity of type '{entityType}' because it has a null primary or alternate key value.
+        /// Unable to track an entity of type '{entityType}' because primary key property '{keyProperty}' is null.
         /// </summary>
-        public static string InvalidKeyValue([CanBeNull] object entityType)
+        public static string InvalidKeyValue([CanBeNull] object entityType, [CanBeNull] object keyProperty)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidKeyValue", "entityType"), entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidKeyValue", "entityType", "keyProperty"), entityType, keyProperty);
+        }
+
+        /// <summary>
+        /// Unable to track an entity of type '{entityType}' because alternate key property '{keyProperty}' is null. If the alternate key is not used in a relationship, then consider using a unique index instead. Unique indexes may contain nulls, while alternate keys must not.
+        /// </summary>
+        public static string InvalidAlternateKeyValue([CanBeNull] object entityType, [CanBeNull] object keyProperty)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidAlternateKeyValue", "entityType", "keyProperty"), entityType, keyProperty);
         }
 
         /// <summary>
@@ -1329,11 +1345,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The Include operation for navigation: '{navigation}' was ignored because the target navigation is not reachable in the final query results.
+        /// The Include operation '{include}' was ignored because the target navigation is not reachable in the final query results.
         /// </summary>
-        public static string LogIgnoredInclude([CanBeNull] object navigation)
+        public static string LogIgnoredInclude([CanBeNull] object include)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LogIgnoredInclude", "navigation"), navigation);
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogIgnoredInclude", "include"), include);
         }
 
         /// <summary>

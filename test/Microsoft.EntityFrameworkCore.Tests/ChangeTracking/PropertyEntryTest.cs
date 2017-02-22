@@ -5,9 +5,9 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         [Fact]
         public void Can_get_name()
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new Wotty { Id = 1, Primate = "Monkey" });
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         [Fact]
         public void Can_get_current_value()
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new Wotty { Id = 1, Primate = "Monkey" });
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         [Fact]
         public void Can_set_original_value_to_null()
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new Wotty { Id = 1, Primate = "Monkey" });
@@ -98,32 +98,59 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_set_and_clear_modified()
+        public void Can_set_and_clear_modified_on_Modified_entity()
         {
             var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
-                BuildModel(),
-                EntityState.Unchanged,
-                entity);
-
-            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
-
-            new PropertyEntry(entry, "Primate").IsModified = true;
-
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(BuildModel(), EntityState.Modified, entity);
             Assert.True(new PropertyEntry(entry, "Primate").IsModified);
 
             new PropertyEntry(entry, "Primate").IsModified = false;
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
 
+            new PropertyEntry(entry, "Primate").IsModified = true;
+            Assert.True(new PropertyEntry(entry, "Primate").IsModified);
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Deleted)]
+        public void Can_set_and_clear_modified_on_Added_or_Deleted_entity(EntityState initialState)
+        {
+            var entity = new Wotty { Id = 1, Primate = "Monkey" };
+
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(BuildModel(), initialState, entity);
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+
+            new PropertyEntry(entry, "Primate").IsModified = true;
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+
+            new PropertyEntry(entry, "Primate").IsModified = false;
             Assert.False(new PropertyEntry(entry, "Primate").IsModified);
         }
 
+        [Theory]
+        [InlineData(EntityState.Detached)]
+        [InlineData(EntityState.Unchanged)]
+        public void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity(EntityState initialState)
+        {
+            var entity = new Wotty { Id = 1, Primate = "Monkey" };
+
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(BuildModel(), initialState, entity);
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+
+            new PropertyEntry(entry, "Primate").IsModified = true;
+            Assert.True(new PropertyEntry(entry, "Primate").IsModified);
+
+            new PropertyEntry(entry, "Primate").IsModified = false;
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+        }
         [Fact]
         public void Can_reject_changes_when_clearing_modified_flag()
         {
             var entity = new Wotty { Id = 1, Primate = "Monkey", Marmate = "Bovril" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -156,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         [Fact]
         public void Can_get_name_generic()
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new Wotty { Id = 1, Primate = "Monkey" });
@@ -167,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         [Fact]
         public void Can_get_current_value_generic()
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new Wotty { Id = 1, Primate = "Monkey" });
@@ -180,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -195,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -210,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -226,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         [Fact]
         public void Can_set_original_value_to_null_generic()
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new Wotty { Id = 1, Primate = "Monkey" });
@@ -241,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -262,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new NotifyingWotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -278,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         [Fact]
         public void Can_set_original_value_to_null_notifying_entities()
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new NotifyingWotty { Id = 1, Primate = "Monkey" });
@@ -293,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new NotifyingWotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -309,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         [Fact]
         public void Can_set_original_value_to_null_generic_notifying_entities()
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new NotifyingWotty { Id = 1, Primate = "Monkey" });
@@ -324,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -340,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         [Fact]
         public void Can_set_concurrency_token_original_value_to_null_full_notification_entities()
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" });
@@ -355,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -371,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         [Fact]
         public void Can_set_concurrency_token_original_value_to_null_generic_full_notification_entities()
         {
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" });
@@ -386,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new FullyNotifyingWotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -407,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 entity);
@@ -428,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new FullyNotifyingWotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues),
                 EntityState.Unchanged,
                 entity);
@@ -446,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             var entity = new FullyNotifyingWotty { Id = 1, Primate = "Monkey" };
 
-            var entry = TestHelpers.Instance.CreateInternalEntry(
+            var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues),
                 EntityState.Unchanged,
                 entity);
@@ -566,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         public IMutableModel BuildModel(
             ChangeTrackingStrategy fullNotificationStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications)
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             builder.HasChangeTrackingStrategy(fullNotificationStrategy);
 

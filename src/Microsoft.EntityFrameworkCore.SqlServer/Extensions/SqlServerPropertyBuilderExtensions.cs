@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore
             => (PropertyBuilder<TProperty>)ForSqlServerHasComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
 
         /// <summary>
-        ///     Configures the property to use a sequence-based hi-lo pattern to generate values for new entities,
+        ///     Configures the key property to use a sequence-based hi-lo pattern to generate values for new entities,
         ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the property to use a sequence-based hi-lo pattern to generate values for new entities,
+        ///     Configures the key property to use a sequence-based hi-lo pattern to generate values for new entities,
         ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore
             => (PropertyBuilder<TProperty>)ForSqlServerUseSequenceHiLo((PropertyBuilder)propertyBuilder, name, schema);
 
         /// <summary>
-        ///     Configures the property to use the SQL Server IDENTITY feature to generate values for new entities,
+        ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
         ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the property to use the SQL Server IDENTITY feature to generate values for new entities,
+        ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
         ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>

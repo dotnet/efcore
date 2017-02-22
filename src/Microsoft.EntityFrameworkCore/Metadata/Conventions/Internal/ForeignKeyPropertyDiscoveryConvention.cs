@@ -62,13 +62,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 // Try to use PK properties if principal end is not ambiguous
                 if (foreignKey.IsUnique
                     && !foreignKey.IsSelfReferencing()
-                    && !ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
                     && foreignKey.DeclaringEntityType.BaseType == null)
                 {
-                    foreignKeyProperties = GetCompatiblePrimaryKeyProperties(
-                        foreignKey.DeclaringEntityType,
-                        foreignKey.PrincipalEntityType,
-                        foreignKey.PrincipalKey.Properties);
+                    if (!ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
+                    {
+                        foreignKeyProperties = GetCompatiblePrimaryKeyProperties(
+                            foreignKey.DeclaringEntityType,
+                            foreignKey.PrincipalEntityType,
+                            foreignKey.PrincipalKey.Properties);
+                    }
+                    else
+                    {
+                        foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true, matchPK: true);
+                    }
                 }
             }
 
@@ -128,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return relationshipBuilder;
         }
 
-        private IReadOnlyList<Property> FindCandidateForeignKeyProperties(ForeignKey foreignKey, bool onDependent)
+        private IReadOnlyList<Property> FindCandidateForeignKeyProperties(ForeignKey foreignKey, bool onDependent, bool matchPK = false)
         {
             var baseNames = new List<string>();
             var navigation = onDependent
@@ -148,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var baseName in baseNames)
             {
-                var match = FindMatchingProperties(foreignKey, baseName, onDependent);
+                var match = FindMatchingProperties(foreignKey, baseName, onDependent, matchPK);
                 if (match != null)
                 {
                     return match;
@@ -176,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private IReadOnlyList<Property> FindMatchingProperties(
-            ForeignKey foreignKey, string baseName, bool onDependent)
+            ForeignKey foreignKey, string baseName, bool onDependent, bool matchPK = false)
         {
             var dependentEntityType = onDependent
                 ? foreignKey.DeclaringEntityType
@@ -243,7 +249,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var key in dependentEntityType.GetKeys())
             {
                 if (key.Properties.All(property => foreignKeyProperties.Contains(property))
-                    && (!foreignKey.IsUnique || key.IsPrimaryKey()))
+                    && (!foreignKey.IsUnique
+                        || (key.IsPrimaryKey() && !matchPK)))
                 {
                     return null;
                 }

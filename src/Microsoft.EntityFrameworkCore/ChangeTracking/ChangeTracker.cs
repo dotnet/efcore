@@ -227,10 +227,5 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private IEntityEntryGraphIterator GraphIterator
             => _graphIterator ?? (_graphIterator = Context.GetService<IEntityEntryGraphIterator>());
-
-        /// <summary>
-        /// Resets the internal StateManager object.
-        /// </summary>
-        public virtual void Reset() => _stateManager?.Reset();
     }
 }

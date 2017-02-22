@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.Storage;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
@@ -583,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal("varbinary(max)", typeMapping.StoreType);
         }
 
-        private static RelationalTypeMapping GetTypeMapping(
+        private RelationalTypeMapping GetTypeMapping(
             Type propertyType,
             bool? nullable = null,
             int? maxLength = null,
@@ -869,6 +870,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
         }
 
+        protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
+
         private class TestParameter : DbParameter
         {
             public override void ResetDbType()
@@ -880,7 +883,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             public override bool IsNullable { get; set; }
             public override string ParameterName { get; set; }
             public override string SourceColumn { get; set; }
-#if NET451
+#if NET452
             public override DataRowVersion SourceVersion { get; set; }
 #endif
             public override object Value { get; set; }

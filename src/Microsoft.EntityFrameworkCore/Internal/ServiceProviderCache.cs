@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -47,28 +48,50 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     k =>
                         {
                             var services = new ServiceCollection();
-                            var builder = services.AddEntityFramework();
-
-                            foreach (var extension in options.Extensions)
-                            {
-                                extension.ApplyServices(builder);
-                            }
+                            ApplyServices(options, services);
 
                             if (replacedServices != null)
                             {
-                                foreach (var descriptor in services.ToList())
+                                // For replaced services we use the service collection to obtain the lifetime of
+                                // the service to replace. The replaced services are added to a new collection, after
+                                // which provider and core services are applied. This ensures that any patching happens
+                                // to the replaced service.
+                                var updatedServices = new ServiceCollection();
+                                foreach (var descriptor in services)
                                 {
                                     Type replacementType;
                                     if (replacedServices.TryGetValue(descriptor.ServiceType, out replacementType))
                                     {
-                                        services[services.IndexOf(descriptor)]
-                                            = new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime);
+                                        ((IList<ServiceDescriptor>)updatedServices).Add(
+                                            new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
                                     }
                                 }
+
+                                ApplyServices(options, updatedServices);
+                                services = updatedServices;
                             }
 
                             return services.BuildServiceProvider();
                         });
+            }
+        }
+
+        private static void ApplyServices(IDbContextOptions options, ServiceCollection services)
+        {
+            var coreServicesAdded = false;
+
+            foreach (var extension in options.Extensions)
+            {
+                if (extension.ApplyServices(services))
+                {
+                    coreServicesAdded = true;
+                }
+            }
+
+            if (!coreServicesAdded)
+            {
+                ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(
+                    new ServiceCollectionMap(services));
             }
         }
     }

@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         public void Can_get_entity()
         {
             var model = BuildModel();
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entity = new SomeEntity();
             var entry = CreateInternalEntry(configuration, model.FindEntityType(typeof(SomeEntity).FullName), entity);
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.AddProperty("Id_", typeof(int));
             var nonKeyProperty = entityType.FindProperty("Name");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entity = new SomeEntity { Id = 77, Name = "Magic Tree House" };
             var entry = CreateInternalEntry(configuration, entityType, entity);
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
+            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
                 configuration,
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             var someSimpleEntityType = model.AddEntityType(typeof(SomeSimpleEntityBase));
             var simpleKeyProperty = someSimpleEntityType.AddProperty("Id", typeof(int));
-            simpleKeyProperty.RequiresValueGenerator = true;
+            simpleKeyProperty.ValueGenerated = ValueGenerated.OnAdd;
             someSimpleEntityType.GetOrSetPrimaryKey(simpleKeyProperty);
 
             var someCompositeEntityType = model.AddEntityType(typeof(SomeCompositeEntityBase));
@@ -118,8 +118,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             entityType2.HasBaseType(someCompositeEntityType);
             var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
             entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.FindPrimaryKey(), entityType1);
-            var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int));
-            justAProperty.RequiresValueGenerator = true;
+            // TODO: declare this on the derived type
+            // #2611
+            var justAProperty = someCompositeEntityType.AddProperty("JustAProperty", typeof(int));
+            justAProperty.ValueGenerated = ValueGenerated.OnAdd;
+            someCompositeEntityType.AddKey(justAProperty);
 
             var entityType3 = model.AddEntityType(typeof(FullNotificationEntity));
             var property6 = entityType3.AddProperty("Id", typeof(int));

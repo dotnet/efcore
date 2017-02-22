@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
@@ -534,6 +535,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             Assert.Equal("Eeeendeeex", index.Relational().Name);
             Assert.Equal("Dexter", index.SqlServer().Name);
+        }
+
+        [Fact]
+        public void Can_set_index_filter()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Id)
+                .HasFilter("Generic expression")
+                .ForSqlServerHasFilter("SqlServer-specific expression");
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.Equal("Generic expression", index.Relational().Filter);
+            Assert.Equal("SqlServer-specific expression", index.SqlServer().Filter);
         }
 
         [Fact]

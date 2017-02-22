@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 _sb.AppendLine("public virtual DbSet<"
                                + entityConfig.EntityType.Name
-                               + "> " + entityConfig.EntityType.Name
+                               + "> " + entityConfig.EntityType.Scaffolding().DbSetName
                                + " { get; set; }");
             }
 
