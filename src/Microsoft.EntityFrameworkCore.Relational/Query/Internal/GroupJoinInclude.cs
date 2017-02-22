@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class GroupJoinInclude : GroupJoinIncludeBase
     {
-        private readonly IReadOnlyDictionary<IncludeSpecification, Func<QueryContext, IRelatedEntitiesLoader>> _relatedEntitiesLoaderFactories;
+        private readonly IReadOnlyList<Func<QueryContext, KeyValuePair<IncludeSpecification, IRelatedEntitiesLoader>>> _relatedEntitiesLoaderFactories;
 
         private GroupJoinInclude _previous;
 
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public GroupJoinInclude(
             [NotNull] IncludeSpecification includeSpecification,
-            [NotNull] IReadOnlyDictionary<IncludeSpecification, Func<QueryContext, IRelatedEntitiesLoader>> relatedEntitiesLoaderFactories,
+            [NotNull] IReadOnlyList<Func<QueryContext, KeyValuePair<IncludeSpecification, IRelatedEntitiesLoader>>> relatedEntitiesLoaderFactories,
             bool querySourceRequiresTracking)
             : base(includeSpecification, querySourceRequiresTracking)
         {
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 [NotNull] IncludeSpecification includeSpecification,
                 bool querySourceRequiresTracking,
                 [NotNull] RelationalQueryContext queryContext,
-                [NotNull] IReadOnlyDictionary<IncludeSpecification, Func<QueryContext, IRelatedEntitiesLoader>> relatedEntitiesLoaderFactories)
+                [NotNull] IReadOnlyList<Func<QueryContext, KeyValuePair<IncludeSpecification, IRelatedEntitiesLoader>>> relatedEntitiesLoaderFactories)
             {
                 _includeSpecification = includeSpecification;
                 _querySourceRequiresTracking = querySourceRequiresTracking;
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _queryContext.BeginIncludeScope();
 
                 _relatedEntitiesLoaders
-                     = relatedEntitiesLoaderFactories.ToDictionary(pair => pair.Key, pair => pair.Value(queryContext));
+                    = relatedEntitiesLoaderFactories.Select(f => f(queryContext)).ToDictionary(pair => pair.Key, pair => pair.Value);
             }
 
             /// <summary>

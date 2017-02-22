@@ -171,6 +171,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> relatedEntitiesLoaders,
             bool queryStateManager)
         {
+            if (entity == null)
+            {
+                return;
+            }
+
             var navigation = includeSpecification.Navigation;
             var keyComparer = IncludeCore(entity, navigation);
             var key = navigation.GetTargetType().FindPrimaryKey();
@@ -181,24 +186,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 relatedEntitiesLoaders[includeSpecification]
                     .Load(queryContext, keyComparer)
                     .Select(eli =>
-                    {
-                        var targetEntity = GetEntity(key, eli, queryStateManager, throwOnNullKey: false);
-
-                        if (targetEntity != null)
                         {
-                            foreach (var reference in includeSpecification.References)
-                            {
-                                Include(
-                                    queryContext,
-                                    targetEntity,
-                                    reference,
-                                    relatedEntitiesLoaders,
-                                    queryStateManager);
-                            }
-                        }
+                            var targetEntity = GetEntity(key, eli, queryStateManager, throwOnNullKey: false);
 
-                        return targetEntity;
-                    })
+                            if (targetEntity != null)
+                            {
+                                foreach (var reference in includeSpecification.References)
+                                {
+                                    Include(
+                                        queryContext,
+                                        targetEntity,
+                                        reference,
+                                        relatedEntitiesLoaders,
+                                        queryStateManager);
+                                }
+                            }
+
+                            return targetEntity;
+                        })
                     .Where(e => e != null)
                     .ToList(),
                 queryStateManager);
@@ -216,7 +221,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             bool queryStateManager,
             CancellationToken cancellationToken)
         {
-            INavigation navigation = includeSpecification.Navigation;
+            if (entity == null)
+            {
+                return;
+            }
+
+            var navigation = includeSpecification.Navigation;
             var keyComparer = IncludeCore(entity, navigation);
             var key = navigation.GetTargetType().FindPrimaryKey();
 
@@ -369,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private void AddRangeToCollection(object entity, INavigation navigation, IEnumerable<object> values, bool tracking)
+        private void AddRangeToCollection(object entity, INavigation navigation, IReadOnlyList<object> values, bool tracking)
         {
             navigation.GetCollectionAccessor().AddRange(entity, values);
 

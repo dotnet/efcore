@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var previousGroupJoinInclude
                 = new GroupJoinInclude(
                     includeSpecification,
-                    (IReadOnlyDictionary<IncludeSpecification, Func<QueryContext, IRelatedEntitiesLoader>>) relatedEntitiesLoaders,
+                    (IReadOnlyList<Func<QueryContext, KeyValuePair<IncludeSpecification, IRelatedEntitiesLoader>>>) relatedEntitiesLoaders,
                     querySourceRequiresTracking);
 
             var groupJoinInclude = existingGroupJoinInclude as GroupJoinInclude;
@@ -379,13 +379,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             IEnumerable<T> innerResults,
             Func<T, object> entityAccessor,
             IncludeSpecification includeSpecification,
-            IReadOnlyDictionary<IncludeSpecification, Func<QueryContext, IRelatedEntitiesLoader>> relatedEntitiesLoaderFactories,
+            IReadOnlyList<Func<QueryContext, KeyValuePair<IncludeSpecification, IRelatedEntitiesLoader>>> relatedEntitiesLoaderFactories,
             bool querySourceRequiresTracking)
         {
             queryContext.BeginIncludeScope();
 
             var relatedEntitiesLoaders
-                = relatedEntitiesLoaderFactories.ToDictionary(l => l.Key, l => l.Value(queryContext));
+                = relatedEntitiesLoaderFactories.Select(f => f(queryContext)).ToDictionary(l => l.Key, l => l.Value);
 
             try
             {
@@ -406,9 +406,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             finally // Need this to run even if innerResults is not fully consumed.
             {
-                foreach (var relatedEntitiesLoader in relatedEntitiesLoaders)
+                foreach (var relatedEntitiesLoader in relatedEntitiesLoaders.Values)
                 {
-                    relatedEntitiesLoader.Value.Dispose();
+                    relatedEntitiesLoader.Dispose();
                 }
 
                 queryContext.EndIncludeScope();
