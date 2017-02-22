@@ -196,13 +196,16 @@ WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Assert.StartsWith(
                     @"@__p_0: 20
 
-SELECT [c0].[CustomerID]
-FROM [Customers] AS [c0]
-ORDER BY [c0].[CustomerID]
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
 OFFSET @__p_0 ROWS
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+@_outer_CustomerID: FAMIA (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
 ORDER BY [o].[OrderID]",
                     Sql);
             }
@@ -308,13 +311,13 @@ WHERE (([o.Customer].[City] = N'Seattle') AND [o.Customer].[City] IS NOT NULL) A
 
             Assert.Equal(
                 @"SELECT (
-    SELECT SUM([od0].[Quantity])
-    FROM [Order Details] AS [od0]
-    WHERE [o].[OrderID] = [od0].[OrderID]
+    SELECT SUM([od].[Quantity])
+    FROM [Order Details] AS [od]
+    WHERE [o].[OrderID] = [od].[OrderID]
 ) + (
     SELECT COUNT(*)
-    FROM [Order Details] AS [o1]
-    WHERE [o].[OrderID] = [o1].[OrderID]
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]
 )
 FROM [Orders] AS [o]",
                 Sql);
@@ -452,23 +455,41 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 WHERE [o].[CustomerID] = N'ALFKI'
 
-SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]",
+FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]",
                 Sql);
         }
 
@@ -481,8 +502,8 @@ FROM [Orders] AS [o0]",
     SELECT CASE
         WHEN EXISTS (
             SELECT 1
-            FROM [Orders] AS [o0]
-            WHERE [c].[CustomerID] = [o0].[CustomerID])
+            FROM [Orders] AS [o]
+            WHERE [c].[CustomerID] = [o].[CustomerID])
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 )
@@ -544,8 +565,8 @@ WHERE EXISTS (
     SELECT CASE
         WHEN NOT EXISTS (
             SELECT 1
-            FROM [Orders] AS [o0]
-            WHERE (([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL) AND (([o0].[CustomerID] <> N'ALFKI') OR [o0].[CustomerID] IS NULL))
+            FROM [Orders] AS [o]
+            WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND (([o].[CustomerID] <> N'ALFKI') OR [o].[CustomerID] IS NULL))
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 )
@@ -562,17 +583,17 @@ FROM [Customers] AS [c]",
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 
-@_outer_CustomerID1: ALFKI (Size = 450)
+@_outer_CustomerID: ALFKI (Size = 450)
 
-SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
-FROM [Orders] AS [o1]
-WHERE @_outer_CustomerID1 = [o1].[CustomerID]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
 
-@_outer_CustomerID1: ANATR (Size = 450)
+@_outer_CustomerID: ANATR (Size = 450)
 
-SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
-FROM [Orders] AS [o1]
-WHERE @_outer_CustomerID1 = [o1].[CustomerID]",
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Sql);
         }
 
@@ -620,8 +641,8 @@ WHERE @_outer_CustomerID = [o].[CustomerID]",
             Assert.Equal(
                 @"SELECT (
     SELECT COUNT(*)
-    FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] = [o0].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
 )
 FROM [Customers] AS [c]",
                 Sql);
@@ -679,8 +700,8 @@ ORDER BY (
             Assert.Equal(
                 @"SELECT (
     SELECT COUNT_BIG(*)
-    FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] = [o0].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
 )
 FROM [Customers] AS [c]",
                 Sql);
@@ -693,14 +714,14 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT (
     SELECT COUNT(*)
-    FROM [Order Details] AS [o2]
-    WHERE [o].[OrderID] = [o2].[OrderID]
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]
 ), [o].[OrderDate], (
     SELECT CASE
         WHEN EXISTS (
             SELECT 1
-            FROM [Order Details] AS [od1]
-            WHERE ([od1].[UnitPrice] > 10.0) AND ([o].[OrderID] = [od1].[OrderID]))
+            FROM [Order Details] AS [od]
+            WHERE ([od].[UnitPrice] > 10.0) AND ([o].[OrderID] = [od].[OrderID]))
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 ), CASE
@@ -710,14 +731,14 @@ END, [o].[OrderID], (
     SELECT CASE
         WHEN NOT EXISTS (
             SELECT 1
-            FROM [Order Details] AS [od2]
-            WHERE ([o].[OrderID] = [od2].[OrderID]) AND ([od2].[OrderID] <> 42))
+            FROM [Order Details] AS [od0]
+            WHERE ([o].[OrderID] = [od0].[OrderID]) AND ([od0].[OrderID] <> 42))
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 ), (
     SELECT COUNT_BIG(*)
-    FROM [Order Details] AS [o3]
-    WHERE [o].[OrderID] = [o3].[OrderID]
+    FROM [Order Details] AS [o1]
+    WHERE [o].[OrderID] = [o1].[OrderID]
 )
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [o].[CustomerID]) = 1)",
@@ -730,9 +751,9 @@ WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [o].[CustomerID]) =
 
             Assert.Equal(
                 @"SELECT (
-    SELECT SUM([o0].[OrderID])
-    FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] = [o0].[CustomerID]
+    SELECT SUM([o].[OrderID])
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
 )
 FROM [Customers] AS [c]",
                 Sql);
@@ -970,26 +991,26 @@ WHERE EXISTS (
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 
-SELECT [o4].[OrderID]
-FROM [Orders] AS [o4]
+SELECT [o0].[OrderID]
+FROM [Orders] AS [o0]
 
 @_outer_CustomerID: ALFKI (Size = 450)
 
-SELECT [o2].[OrderID]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID = [o2].[CustomerID]
+SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
 
-SELECT [o4].[OrderID]
-FROM [Orders] AS [o4]
+SELECT [o0].[OrderID]
+FROM [Orders] AS [o0]
 
 @_outer_CustomerID: ANATR (Size = 450)
 
-SELECT [o2].[OrderID]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID = [o2].[CustomerID]
+SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
 
-SELECT [o4].[OrderID]
-FROM [Orders] AS [o4]",
+SELECT [o0].[OrderID]
+FROM [Orders] AS [o0]",
                 Sql);
         }
 
@@ -1003,15 +1024,21 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 WHERE [o].[OrderID] IN (10643, 10692)
 
-SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Order.Customer].[CustomerID], [od.Order.Customer].[Address], [od.Order.Customer].[City], [od.Order.Customer].[CompanyName], [od.Order.Customer].[ContactName], [od.Order.Customer].[ContactTitle], [od.Order.Customer].[Country], [od.Order.Customer].[Fax], [od.Order.Customer].[Phone], [od.Order.Customer].[PostalCode], [od.Order.Customer].[Region]
+@_outer_Country: Germany (Size = 4000)
+
+SELECT COUNT(*)
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
 LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
+WHERE @_outer_Country = [od.Order.Customer].[Country]
 
-SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Order.Customer].[CustomerID], [od.Order.Customer].[Address], [od.Order.Customer].[City], [od.Order.Customer].[CompanyName], [od.Order.Customer].[ContactName], [od.Order.Customer].[ContactTitle], [od.Order.Customer].[Country], [od.Order.Customer].[Fax], [od.Order.Customer].[Phone], [od.Order.Customer].[PostalCode], [od.Order.Customer].[Region]
+@_outer_Country: Germany (Size = 4000)
+
+SELECT COUNT(*)
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
-LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]",
+LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
+WHERE @_outer_Country = [od.Order.Customer].[Country]",
                 Sql);
         }
 
@@ -1067,10 +1094,10 @@ ORDER BY [od.Order].[CustomerID]",
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], (
-    SELECT TOP(1) [o0].[OrderID]
-    FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] = [o0].[CustomerID]
-    ORDER BY [o0].[OrderID]
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
 )
 FROM [Customers] AS [c]",
                 Sql);
@@ -1130,24 +1157,24 @@ ORDER BY [o].[OrderID]
 
 @_outer_OrderID: 10248
 
-SELECT TOP(1) [od1].[OrderID]
-FROM [Order Details] AS [od1]
-WHERE @_outer_OrderID = [od1].[OrderID]
-ORDER BY [od1].[OrderID], [od1].[ProductID]
+SELECT TOP(1) [od].[OrderID]
+FROM [Order Details] AS [od]
+WHERE @_outer_OrderID = [od].[OrderID]
+ORDER BY [od].[OrderID], [od].[ProductID]
 
 @_outer_OrderID: 10249
 
-SELECT TOP(1) [od1].[OrderID]
-FROM [Order Details] AS [od1]
-WHERE @_outer_OrderID = [od1].[OrderID]
-ORDER BY [od1].[OrderID], [od1].[ProductID]
+SELECT TOP(1) [od].[OrderID]
+FROM [Order Details] AS [od]
+WHERE @_outer_OrderID = [od].[OrderID]
+ORDER BY [od].[OrderID], [od].[ProductID]
 
 @_outer_OrderID: 10250
 
-SELECT TOP(1) [od1].[OrderID]
-FROM [Order Details] AS [od1]
-WHERE @_outer_OrderID = [od1].[OrderID]
-ORDER BY [od1].[OrderID], [od1].[ProductID]",
+SELECT TOP(1) [od].[OrderID]
+FROM [Order Details] AS [od]
+WHERE @_outer_OrderID = [od].[OrderID]
+ORDER BY [od].[OrderID], [od].[ProductID]",
                 Sql);
         }
 
@@ -1155,18 +1182,13 @@ ORDER BY [od1].[OrderID], [od1].[ProductID]",
         {
             base.GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened();
 
-            Assert.Contains(
-                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
-FROM (
-    SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
-    FROM [Order Details] AS [od]
-    INNER JOIN [Orders] AS [o] ON [od].[OrderID] = 10260
-    INNER JOIN [Customers] AS [c2] ON [o].[CustomerID] = [c2].[CustomerID]
-) AS [t]",
-                Sql);
+            Assert.Equal(
+                @"SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [o] ON [od].[OrderID] = 10260
+INNER JOIN [Customers] AS [c2] ON [o].[CustomerID] = [c2].[CustomerID]
 
-            Assert.Contains(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }

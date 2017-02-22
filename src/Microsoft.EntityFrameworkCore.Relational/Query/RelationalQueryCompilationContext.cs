@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
+using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -21,9 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class RelationalQueryCompilationContext : QueryCompilationContext
     {
-        private readonly List<RelationalQueryModelVisitor> _relationalQueryModelVisitors
-            = new List<RelationalQueryModelVisitor>();
-
         private const string SystemAliasPrefix = "t";
         private readonly ISet<string> _tableAliasSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -72,42 +70,42 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual IList<string> ParentQueryReferenceParameters { get; }
 
         /// <summary>
-        ///     Creates a query model visitor.
-        /// </summary>
-        /// <returns>
-        ///     The new query model visitor.
-        /// </returns>
-        public override EntityQueryModelVisitor CreateQueryModelVisitor()
-        {
-            var relationalQueryModelVisitor
-                = (RelationalQueryModelVisitor)base.CreateQueryModelVisitor();
-
-            _relationalQueryModelVisitors.Add(relationalQueryModelVisitor);
-
-            return relationalQueryModelVisitor;
-        }
-
-        /// <summary>
-        ///     True if the current provider supports SQL LATERAL JOIN.
+        ///     True if the current provider supports SQL LATERAL joins.
         /// </summary>
         public virtual bool IsLateralJoinSupported => false;
 
         /// <summary>
         ///     Creates query model visitor.
         /// </summary>
+        /// <param name="queryModel"> The query model to create the query model visitor for. </param>
+        /// <returns>
+        ///     The new query model visitor.
+        /// </returns>
+        public virtual new RelationalQueryModelVisitor CreateQueryModelVisitor(
+            [NotNull] QueryModel queryModel)
+            => (RelationalQueryModelVisitor)base.CreateQueryModelVisitor(queryModel);
+
+        /// <summary>
+        ///     Creates query model visitor.
+        /// </summary>
+        /// <param name="queryModel"> The query model to create the query model visitor for. </param>
         /// <param name="parentEntityQueryModelVisitor"> The parent entity query model visitor. </param>
         /// <returns>
         ///     The new query model visitor.
         /// </returns>
-        public override EntityQueryModelVisitor CreateQueryModelVisitor(EntityQueryModelVisitor parentEntityQueryModelVisitor)
-        {
-            var relationalQueryModelVisitor
-                = (RelationalQueryModelVisitor)base.CreateQueryModelVisitor(parentEntityQueryModelVisitor);
+        public virtual new RelationalQueryModelVisitor CreateQueryModelVisitor(
+            [NotNull] QueryModel queryModel,
+            [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
+            => (RelationalQueryModelVisitor)base.CreateQueryModelVisitor(queryModel, parentEntityQueryModelVisitor);
 
-            _relationalQueryModelVisitors.Add(relationalQueryModelVisitor);
-
-            return relationalQueryModelVisitor;
-        }
+        /// <summary>
+        /// Gets the query model visitor that was created for a given query model.
+        /// </summary>
+        /// <param name="queryModel"> The query model to get the query model visitor for. </param>
+        /// <returns> The query model visitor. </returns>
+        public virtual new RelationalQueryModelVisitor GetQueryModelVisitor(
+            [NotNull] QueryModel queryModel)
+            => (RelationalQueryModelVisitor)base.GetQueryModelVisitor(queryModel);
 
         /// <summary>
         ///     Searches for a select expression corresponding to the passed query source.
@@ -121,11 +119,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(querySource, nameof(querySource));
 
             return
-                (from v in _relationalQueryModelVisitors
+                (from v in EntityQueryModelVisitors.Cast<RelationalQueryModelVisitor>()
                  let selectExpression = v.TryGetQuery(querySource)
                  where selectExpression != null
                  select selectExpression)
-                    .First();
+                    .FirstOrDefault();
         }
 
         /// <summary>

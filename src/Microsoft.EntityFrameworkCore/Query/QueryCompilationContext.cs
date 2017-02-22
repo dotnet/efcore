@@ -30,6 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly IRequiresMaterializationExpressionVisitorFactory _requiresMaterializationExpressionVisitorFactory;
         private readonly IEntityQueryModelVisitorFactory _entityQueryModelVisitorFactory;
+        private readonly IDictionary<QueryModel, EntityQueryModelVisitor> _entityQueryModelVisitors
+            = new Dictionary<QueryModel, EntityQueryModelVisitor>();
 
         private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
         private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
@@ -64,6 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             ContextType = contextType;
             TrackQueryResults = trackQueryResults;
         }
+
+        /// <summary>
+        /// The set of all query model visitors created for this compilation context.
+        /// </summary>
+        protected virtual IEnumerable<EntityQueryModelVisitor> EntityQueryModelVisitors
+            => _entityQueryModelVisitors.Values;
 
         /// <summary>
         ///     Gets the model.
@@ -266,22 +274,50 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates query model visitor.
         /// </summary>
+        /// <param name="queryModel"> The query model to create the query model visitor for. </param>
         /// <returns>
         ///     The new query model visitor.
         /// </returns>
-        public virtual EntityQueryModelVisitor CreateQueryModelVisitor()
-            => CreateQueryModelVisitor(parentEntityQueryModelVisitor: null);
+        public virtual EntityQueryModelVisitor CreateQueryModelVisitor([NotNull] QueryModel queryModel)
+            => CreateQueryModelVisitor(queryModel, parentEntityQueryModelVisitor: null);
 
         /// <summary>
         ///     Creates query model visitor.
         /// </summary>
+        /// <param name="queryModel"> The query model to create the query model visitor for. </param>
         /// <param name="parentEntityQueryModelVisitor"> The parent entity query model visitor. </param>
         /// <returns>
         ///     The new query model visitor.
         /// </returns>
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor(
+            [NotNull] QueryModel queryModel,
             [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
-            => _entityQueryModelVisitorFactory.Create(this, parentEntityQueryModelVisitor);
+        {
+            var entityQueryModelVisitor = _entityQueryModelVisitorFactory.Create(this, parentEntityQueryModelVisitor);
+
+            _entityQueryModelVisitors.Add(queryModel, entityQueryModelVisitor);
+
+            return entityQueryModelVisitor;
+        }
+
+        /// <summary>
+        /// Gets the query model visitor that was created for a given query model.
+        /// </summary>
+        /// <param name="queryModel"> The query model to get the query model visitor for. </param>
+        /// <returns> The query model visitor. </returns>
+        public virtual EntityQueryModelVisitor GetQueryModelVisitor([NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            EntityQueryModelVisitor entityQueryModelVisitor;
+
+            if (_entityQueryModelVisitors.TryGetValue(queryModel, out entityQueryModelVisitor))
+            {
+                return entityQueryModelVisitor;
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     Adds a trackable include.
@@ -381,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var subQueryInnerSequence = groupJoinClause.JoinClause.InnerSequence as SubQueryExpression;
                 if (subQueryInnerSequence != null)
                 {
-                    var subQuerySourcesRequiringMaterialization = 
+                    var subQuerySourcesRequiringMaterialization =
                         _requiresMaterializationExpressionVisitor
                             .FindQuerySourcesRequiringMaterialization(subQueryInnerSequence.QueryModel);
 
@@ -390,6 +426,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                         _querySourcesRequiringMaterialization.Add(subQuerySource);
                     }
                 }
+
+                base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
+            }
+
+            public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
+            {
+                var subQueryInnerSequence = joinClause.InnerSequence as SubQueryExpression;
+                if (subQueryInnerSequence != null)
+                {
+                    var subQuerySourcesRequiringMaterialization =
+                        _requiresMaterializationExpressionVisitor
+                            .FindQuerySourcesRequiringMaterialization(subQueryInnerSequence.QueryModel);
+
+                    foreach (var subQuerySource in subQuerySourcesRequiringMaterialization)
+                    {
+                        _querySourcesRequiringMaterialization.Add(subQuerySource);
+                    }
+
+                    if (subQuerySourcesRequiringMaterialization.Any())
+                    {
+                        _querySourcesRequiringMaterialization.Add(joinClause);
+                    }
+                }
+
+                base.VisitJoinClause(joinClause, queryModel, index);
             }
         }
 

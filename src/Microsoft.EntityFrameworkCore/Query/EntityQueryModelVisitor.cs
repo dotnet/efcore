@@ -1349,7 +1349,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return BindMemberExpression(
                 memberExpression,
-                null,
                 (property, querySource)
                     => BindReadValueMethod(memberExpression.Type, expression, property.GetIndex()));
         }
@@ -1391,7 +1390,33 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(propertyExpression, nameof(propertyExpression));
             Check.NotNull(propertyBinder, nameof(propertyBinder));
 
-            return BindPropertyExpressionCore(propertyExpression, null, propertyBinder);
+            return BindExpressionCore(propertyExpression, propertyBinder);
+        }
+
+        /// <summary>
+        ///     Binds a member expression.
+        /// </summary>
+        /// <typeparam name="TResult"> Type of the result. </typeparam>
+        /// <param name="memberExpression"> The member access expression. </param>
+        /// <param name="memberBinder"> The member binder. </param>
+        /// <returns>
+        ///     A TResult.
+        /// </returns>
+        public virtual TResult BindMemberExpression<TResult>(
+            [NotNull] MemberExpression memberExpression,
+            [NotNull] Func<IProperty, IQuerySource, TResult> memberBinder)
+        {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(memberBinder, nameof(memberBinder));
+
+            return BindExpressionCore(memberExpression, (properties, querySource) =>
+            {
+                var property = properties.Count == 1 ? properties[0] as IProperty : null;
+
+                return property != null
+                    ? memberBinder(property, querySource)
+                    : default(TResult);
+            });
         }
 
         /// <summary>
@@ -1406,42 +1431,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(memberExpression, nameof(memberExpression));
             Check.NotNull(memberBinder, nameof(memberBinder));
 
-            BindMemberExpression(memberExpression, null,
-                (property, querySource) =>
-                    {
-                        memberBinder(property, querySource);
+            BindMemberExpression(memberExpression, (property, querySource) =>
+            {
+                memberBinder(property, querySource);
 
-                        return default(object);
-                    });
-        }
-
-        /// <summary>
-        ///     Binds a member expression.
-        /// </summary>
-        /// <typeparam name="TResult"> Type of the result. </typeparam>
-        /// <param name="memberExpression"> The member access expression. </param>
-        /// <param name="querySource"> The query source. </param>
-        /// <param name="memberBinder"> The member binder. </param>
-        /// <returns>
-        ///     A TResult.
-        /// </returns>
-        public virtual TResult BindMemberExpression<TResult>(
-            [NotNull] MemberExpression memberExpression,
-            [CanBeNull] IQuerySource querySource,
-            [NotNull] Func<IProperty, IQuerySource, TResult> memberBinder)
-        {
-            Check.NotNull(memberExpression, nameof(memberExpression));
-            Check.NotNull(memberBinder, nameof(memberBinder));
-
-            return BindPropertyExpressionCore(memberExpression, querySource,
-                (ps, qs) =>
-                    {
-                        var property = ps.Count == 1 ? ps[0] as IProperty : null;
-
-                        return property != null
-                            ? memberBinder(property, qs)
-                            : default(TResult);
-                    });
+                return default(object);
+            });
         }
 
         /// <summary>
@@ -1449,66 +1444,53 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <typeparam name="TResult"> Type of the result. </typeparam>
         /// <param name="methodCallExpression"> The method call expression. </param>
-        /// <param name="querySource"> The query source. </param>
         /// <param name="methodCallBinder"> The method call binder. </param>
         /// <returns>
         ///     A TResult.
         /// </returns>
         public virtual TResult BindMethodCallExpression<TResult>(
             [NotNull] MethodCallExpression methodCallExpression,
-            [CanBeNull] IQuerySource querySource,
             [NotNull] Func<IProperty, IQuerySource, TResult> methodCallBinder)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
             Check.NotNull(methodCallBinder, nameof(methodCallBinder));
 
-            return BindPropertyExpressionCore(methodCallExpression, querySource,
-                (ps, qs) =>
-                    {
-                        var property = ps.Count == 1 ? ps[0] as IProperty : null;
+            return BindExpressionCore(methodCallExpression, (properties, querySource) =>
+            {
+                var property = properties.Count == 1 ? properties[0] as IProperty : null;
 
-                        return property != null
-                            ? methodCallBinder(property, qs)
-                            : default(TResult);
-                    });
+                return property != null ? methodCallBinder(property, querySource) : default(TResult);
+            });
         }
 
-        private TResult BindPropertyExpressionCore<TResult>(
-            Expression propertyExpression,
-            IQuerySource querySource,
+        /// <summary>
+        ///     Binds a method call expression.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <param name="methodCallBinder"> The method call binder. </param>
+        public virtual void BindMethodCallExpression(
+            [NotNull] MethodCallExpression methodCallExpression,
+            [NotNull] Action<IProperty, IQuerySource> methodCallBinder)
+        {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(methodCallBinder, nameof(methodCallBinder));
+
+            BindMethodCallExpression(methodCallExpression, (property, querySource) =>
+            {
+                methodCallBinder(property, querySource);
+
+                return default(object);
+            });
+        }
+
+        private TResult BindExpressionCore<TResult>(
+            Expression expression,
             Func<IReadOnlyList<IPropertyBase>, IQuerySource, TResult> propertyBinder)
         {
-            QuerySourceReferenceExpression querySourceReferenceExpression;
-
-            var properties
-                = IterateCompositePropertyExpression(propertyExpression, out querySourceReferenceExpression);
-
-            if (querySourceReferenceExpression != null
-                && (querySource == null
-                    || querySource == querySourceReferenceExpression.ReferencedQuerySource))
-            {
-                return propertyBinder(
-                    properties,
-                    querySourceReferenceExpression.ReferencedQuerySource);
-            }
-
-            if (properties.Count > 0)
-            {
-                return propertyBinder(
-                    properties,
-                    null);
-            }
-
-            return default(TResult);
-        }
-
-        private IReadOnlyList<IPropertyBase> IterateCompositePropertyExpression(
-            Expression expression, out QuerySourceReferenceExpression querySourceReferenceExpression)
-        {
+            QuerySourceReferenceExpression querySourceReferenceExpression = null;
             var properties = new List<IPropertyBase>();
             var memberExpression = expression as MemberExpression;
             var methodCallExpression = expression as MethodCallExpression;
-            querySourceReferenceExpression = null;
 
             while (memberExpression?.Expression != null
                    || IsPropertyMethod(methodCallExpression?.Method)
@@ -1556,47 +1538,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 methodCallExpression = expression as MethodCallExpression;
             }
 
-            return Enumerable.Reverse(properties).ToList();
-        }
-
-        /// <summary>
-        ///     Binds a method call expression.
-        /// </summary>
-        /// <typeparam name="TResult"> Type of the result. </typeparam>
-        /// <param name="methodCallExpression"> The method call expression. </param>
-        /// <param name="methodCallBinder"> The method call binder. </param>
-        /// <returns>
-        ///     A TResult.
-        /// </returns>
-        public virtual TResult BindMethodCallExpression<TResult>(
-            [NotNull] MethodCallExpression methodCallExpression,
-            [NotNull] Func<IProperty, IQuerySource, TResult> methodCallBinder)
-        {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-            Check.NotNull(methodCallBinder, nameof(methodCallBinder));
-
-            return BindMethodCallExpression(methodCallExpression, null, methodCallBinder);
-        }
-
-        /// <summary>
-        ///     Binds a method call expression.
-        /// </summary>
-        /// <param name="methodCallExpression"> The method call expression. </param>
-        /// <param name="methodCallBinder"> The method call binder. </param>
-        public virtual void BindMethodCallExpression(
-            [NotNull] MethodCallExpression methodCallExpression,
-            [NotNull] Action<IProperty, IQuerySource> methodCallBinder)
-        {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-            Check.NotNull(methodCallBinder, nameof(methodCallBinder));
-
-            BindMethodCallExpression(methodCallExpression, null,
-                (property, querySource) =>
-                    {
-                        methodCallBinder(property, querySource);
-
-                        return default(object);
-                    });
+            return propertyBinder(
+                properties.AsEnumerable().Reverse().ToList(),
+                querySourceReferenceExpression?.ReferencedQuerySource);
         }
 
         #endregion

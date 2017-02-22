@@ -67,12 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .HandleResultOperator(QueryModelVisitor, ResultOperator, QueryModel);
             }
 
-            public SqlTranslatingExpressionVisitor CreateSqlTranslatingVisitor(bool bindParentQueries = false)
-                => _sqlTranslatingExpressionVisitorFactory
-                    .Create(
-                        QueryModelVisitor,
-                        SelectExpression,
-                        bindParentQueries: bindParentQueries);
+            public SqlTranslatingExpressionVisitor CreateSqlTranslatingVisitor(bool addToProjections)
+                => _sqlTranslatingExpressionVisitorFactory.Create(
+                    queryModelVisitor: QueryModelVisitor, 
+                    topLevelPredicate: null,
+                    inProjection: false,
+                    addToProjections: addToProjections);
         }
 
         private static readonly Dictionary<Type, Func<HandlerContext, Expression>>
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static Expression HandleAll(HandlerContext handlerContext)
         {
             var sqlTranslatingVisitor
-                = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
+                = handlerContext.CreateSqlTranslatingVisitor(addToProjections: false);
 
             var predicate
                 = sqlTranslatingVisitor.Visit(
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleContains(HandlerContext handlerContext)
         {
-            var filteringVisitor = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
+            var filteringVisitor = handlerContext.CreateSqlTranslatingVisitor(addToProjections: true);
 
             var itemResultOperator = (ContainsResultOperator)handlerContext.ResultOperator;
 
@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 if (methodCallExpression.Method.MethodIsClosedFormOf(
-                    _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersMethod))
+                    _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersSequenceMethod))
                 {
                     var newSource = VisitMethodCall((MethodCallExpression)methodCallExpression.Arguments[1]);
 
@@ -510,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleGroup(HandlerContext handlerContext)
         {
-            var sqlTranslatingExpressionVisitor = handlerContext.CreateSqlTranslatingVisitor();
+            var sqlTranslatingExpressionVisitor = handlerContext.CreateSqlTranslatingVisitor(addToProjections: false);
 
             var groupResultOperator = (GroupResultOperator)handlerContext.ResultOperator;
 
@@ -647,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var skipResultOperator = (SkipResultOperator)handlerContext.ResultOperator;
 
             var sqlTranslatingExpressionVisitor
-                = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
+                = handlerContext.CreateSqlTranslatingVisitor(addToProjections: true);
 
             var offset = sqlTranslatingExpressionVisitor.Visit(skipResultOperator.Count);
             if (offset != null)
@@ -683,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var takeResultOperator = (TakeResultOperator)handlerContext.ResultOperator;
 
             var sqlTranslatingExpressionVisitor
-                = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
+                = handlerContext.CreateSqlTranslatingVisitor(addToProjections: true);
 
             var limit = sqlTranslatingExpressionVisitor.Visit(takeResultOperator.Count);
 

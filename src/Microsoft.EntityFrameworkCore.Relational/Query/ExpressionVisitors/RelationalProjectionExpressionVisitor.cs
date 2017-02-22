@@ -63,20 +63,55 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
             {
-                var newArg0 = Visit(node.Arguments[0]);
+                var handledPropertyExpression
+                    = TryHandlePropertyExpression(
+                        node,
+                        node.Arguments[0].RemoveConvert(),
+                        (node.Arguments[1] as ConstantExpression)?.Value as string);
 
-                if (newArg0 != node.Arguments[0])
+                if (handledPropertyExpression != null)
                 {
-                    return Expression.Call(
-                        node.Method,
-                        newArg0,
-                        node.Arguments[1]);
+                    return handledPropertyExpression;
                 }
-
-                return node;
             }
 
+            var handledMethodCallExpression
+                = TryHandleMemberOrMethodCallExpression(node);
+
+            if (handledMethodCallExpression != null)
+            {
+                return handledMethodCallExpression;
+            }
+
+            QueryModelVisitor.RequiresClientProjection = true;
             return base.VisitMethodCall(node);
+        }
+
+        /// <summary>
+        ///     Visit a member expression.
+        /// </summary>
+        /// <param name="node"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression corresponding to the translated member.
+        /// </returns>
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            Check.NotNull(node, nameof(node));
+
+            var handledExpression
+                = TryHandlePropertyExpression(
+                    node,
+                    node.Expression.RemoveConvert(),
+                    node.Member.Name)
+                ?? TryHandleMemberOrMethodCallExpression(node);
+
+            if (handledExpression != null)
+            {
+                return handledExpression;
+            }
+
+            QueryModelVisitor.RequiresClientProjection = true;
+            return base.VisitMember(node);
         }
 
         /// <summary>
@@ -90,11 +125,32 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             Check.NotNull(expression, nameof(expression));
 
-            var newNewExpression = base.VisitNew(expression);
+            if (QueryModelVisitor.QueryCompilationContext.QuerySourceRequiresMaterialization(_querySource))
+            {
+                QueryModelVisitor.RequiresClientProjection = true;
+            }
+            else
+            {
+                foreach (var qsre in expression.Arguments.OfType<QuerySourceReferenceExpression>())
+                {
+                    var entityType
+                        = QueryModelVisitor.QueryCompilationContext.Model
+                            .FindEntityType(qsre.ReferencedQuerySource.ItemType);
+
+                    if (entityType != null)
+                    {
+                        // TODO: Figure out how to make use of a composite/projection shaper
+                        QueryModelVisitor.RequiresClientProjection = true;
+                        break;
+                    }
+                }
+            }
+
+            var newNewExpression = (NewExpression)base.VisitNew(expression);
 
             var selectExpression = QueryModelVisitor.TryGetQuery(_querySource);
 
-            if (selectExpression != null)
+            if (selectExpression?.Projection.Count > 0)
             {
                 for (var i = 0; i < expression.Arguments.Count; i++)
                 {
@@ -124,107 +180,260 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// </returns>
         public override Expression Visit(Expression node)
         {
+            if (node == null)
+            {
+                return null;
+            }
+
+            if (node is ConstantExpression
+                || node is NewExpression
+                || node is MemberExpression
+                || node is MethodCallExpression)
+            {
+                return base.Visit(node);
+            }
+
             var selectExpression = QueryModelVisitor.TryGetQuery(_querySource);
 
-            if ((node != null)
-                && !(node is ConstantExpression)
-                && (selectExpression != null))
+            if (selectExpression == null)
             {
-                var existingProjectionsCount = selectExpression.Projection.Count;
+                return base.Visit(node);
+            }
 
-                var sqlExpression
-                    = _sqlTranslatingExpressionVisitorFactory
-                        .Create(QueryModelVisitor, selectExpression, inProjection: true)
-                        .Visit(node);
+            var sqlTranslator
+                = _sqlTranslatingExpressionVisitorFactory.Create(
+                    queryModelVisitor: QueryModelVisitor,
+                    topLevelPredicate: null,
+                    addToProjections: false,
+                    inProjection: true);
 
-                if (sqlExpression == null)
+            var sqlExpression = sqlTranslator.Visit(node);
+
+            if (sqlExpression == null)
+            {
+                var referencedQuerySource = (node as QuerySourceReferenceExpression)?.ReferencedQuerySource;
+
+                if (referencedQuerySource != null && QueryModelVisitor.ParentQueryModelVisitor != null)
                 {
-                    var qsre = node as QuerySourceReferenceExpression;
-                    if (qsre == null)
-                    {
-                        QueryModelVisitor.RequiresClientProjection = true;
-                    }
-                    else
-                    {
-                        if (QueryModelVisitor.ParentQueryModelVisitor != null)
-                        {
-                            selectExpression.ProjectStarAlias = selectExpression.GetTableForQuerySource(qsre.ReferencedQuerySource).Alias;
-                        }
-                    }
+                    selectExpression.ProjectStarAlias = selectExpression.GetTableForQuerySource(referencedQuerySource).Alias;
                 }
-                else
+
+                return base.Visit(node);
+            }
+
+            if (!(node is QuerySourceReferenceExpression))
+            {
+                if (sqlExpression.TryGetColumnExpression() != null)
                 {
-                    selectExpression.RemoveRangeFromProjection(existingProjectionsCount);
+                    var index = selectExpression.AddToProjection(sqlExpression);
 
-                    if (!(node is NewExpression))
+                    var aliasExpression = selectExpression.Projection[index] as AliasExpression;
+
+                    if (aliasExpression != null)
                     {
-                        AliasExpression aliasExpression;
-
-                        int index;
-
-                        if (!(node is QuerySourceReferenceExpression))
-                        {
-                            var columnExpression = sqlExpression.TryGetColumnExpression();
-
-                            if (columnExpression != null)
-                            {
-                                index = selectExpression.AddToProjection(sqlExpression);
-
-                                aliasExpression = selectExpression.Projection[index] as AliasExpression;
-
-                                if (aliasExpression != null)
-                                {
-                                    aliasExpression.SourceExpression = node;
-                                }
-
-                                return node;
-                            }
-                        }
-
-                        if (!(sqlExpression is ConstantExpression))
-                        {
-                            var targetExpression
-                                = QueryModelVisitor.QueryCompilationContext.QuerySourceMapping
-                                    .GetExpression(_querySource);
-
-                            if (targetExpression.Type == typeof(ValueBuffer))
-                            {
-                                index = selectExpression.AddToProjection(sqlExpression);
-
-                                aliasExpression = selectExpression.Projection[index] as AliasExpression;
-
-                                if (aliasExpression != null)
-                                {
-                                    aliasExpression.SourceExpression = node;
-                                }
-
-                                var readValueExpression
-                                    = _entityMaterializerSource
-                                        .CreateReadValueCallExpression(targetExpression, index);
-
-                                var outputDataInfo
-                                    = (node as SubQueryExpression)?.QueryModel
-                                        .GetOutputDataInfo();
-
-                                if (outputDataInfo is StreamedScalarValueInfo)
-                                {
-                                    // Compensate for possible nulls
-                                    readValueExpression
-                                        = Expression.Coalesce(
-                                            readValueExpression,
-                                            Expression.Default(node.Type));
-                                }
-
-                                return Expression.Convert(readValueExpression, node.Type);
-                            }
-
-                            return node;
-                        }
+                        aliasExpression.SourceExpression = node;
                     }
+
+                    return node;
                 }
             }
 
+            if (!(sqlExpression is ConstantExpression))
+            {
+                var targetExpression
+                    = QueryModelVisitor.QueryCompilationContext.QuerySourceMapping
+                        .GetExpression(_querySource);
+
+                if (targetExpression.Type == typeof(ValueBuffer))
+                {
+                    return TryReadFromValueBuffer(node, targetExpression, selectExpression, sqlExpression);
+                }
+                
+                return node;
+            }
+
             return base.Visit(node);
+        }
+
+        /// <summary>
+        ///     Visit a subquery expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression corresponding to the translated subquery expression.
+        /// </returns>
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            var compilationContext = QueryModelVisitor.QueryCompilationContext;
+
+            var subQueryModelVisitor = compilationContext.GetQueryModelVisitor(expression.QueryModel);
+
+            if (subQueryModelVisitor == null)
+            {
+                subQueryModelVisitor
+                    = compilationContext.CreateQueryModelVisitor(
+                        expression.QueryModel,
+                        QueryModelVisitor);
+
+                // This override only exists to set this here flag
+                subQueryModelVisitor.RequiresOuterParameterInjection = true;
+
+                subQueryModelVisitor.VisitQueryModel(expression.QueryModel);
+            }
+
+            return base.VisitSubQuery(expression);
+        }
+
+        private Expression TryHandlePropertyExpression(Expression node, Expression objectExpression, string propertyName)
+        {
+            var sqlTranslator
+                = _sqlTranslatingExpressionVisitorFactory.Create(
+                    queryModelVisitor: QueryModelVisitor,
+                    topLevelPredicate: null,
+                    addToProjections: false,
+                    inProjection: true);
+
+            var sqlExpression = sqlTranslator.Visit(node);
+
+            if (objectExpression is QuerySourceReferenceExpression qsre)
+            {
+                var targetExpression
+                    = QueryModelVisitor.QueryCompilationContext.QuerySourceMapping
+                        .GetExpression(qsre.ReferencedQuerySource);
+
+                var selectExpression = QueryModelVisitor.TryGetQuery(qsre.ReferencedQuerySource);
+
+                if (selectExpression != null && sqlExpression != null)
+                {
+                    if (targetExpression.Type == typeof(ValueBuffer))
+                    {
+                        return TryReadFromValueBuffer(node, targetExpression, selectExpression, sqlExpression);
+                    }
+                    else
+                    {
+                        QueryModelVisitor.RequiresClientProjection = true;
+                        return node;
+                    }
+                }
+            }
+            else if (objectExpression is SubQueryExpression subQueryExpression)
+            {
+                if (sqlExpression != null)
+                {
+                    var targetExpression
+                        = QueryModelVisitor.QueryCompilationContext.QuerySourceMapping
+                            .GetExpression(_querySource);
+
+                    var selectExpression
+                        = QueryModelVisitor.TryGetQuery(_querySource);
+
+                    return TryReadFromValueBuffer(node, targetExpression, selectExpression, sqlExpression);
+                }
+
+                var subQueryModelVisitor
+                    = QueryModelVisitor.QueryCompilationContext
+                        .GetQueryModelVisitor(subQueryExpression.QueryModel);
+
+                var entityType
+                    = QueryModelVisitor.QueryCompilationContext.Model
+                        .FindEntityType(subQueryExpression.Type);
+
+                var property
+                    = entityType?.FindProperty(propertyName);
+
+                var selectorQuerySource
+                    = (subQueryExpression.QueryModel.SelectClause.Selector
+                        as QuerySourceReferenceExpression)?.ReferencedQuerySource;
+
+                if (subQueryModelVisitor != null && property != null && selectorQuerySource != null)
+                {
+                    var selectExpression = subQueryModelVisitor.TryGetQuery(selectorQuerySource);
+
+                    var projectionIndex = selectExpression.GetProjectionIndex(property, selectorQuerySource);
+
+                    return _entityMaterializerSource.CreateReadValueExpression(
+                        subQueryModelVisitor.Expression,
+                        property.ClrType,
+                        projectionIndex);
+                }
+            }
+
+            return null;
+        }
+
+        private Expression TryHandleMemberOrMethodCallExpression(Expression node)
+        {
+            var sqlTranslator
+                = _sqlTranslatingExpressionVisitorFactory.Create(
+                    queryModelVisitor: QueryModelVisitor,
+                    topLevelPredicate: null,
+                    addToProjections: false,
+                    inProjection: true);
+
+            var sqlExpression = sqlTranslator.Visit(node);
+
+            if (sqlExpression != null)
+            {
+                var selectExpression = QueryModelVisitor.TryGetQuery(_querySource);
+
+                var targetExpression
+                        = QueryModelVisitor.QueryCompilationContext.QuerySourceMapping
+                            .GetExpression(_querySource);
+
+                if (targetExpression.Type == typeof(ValueBuffer))
+                {
+                    return TryReadFromValueBuffer(node, targetExpression, selectExpression, sqlExpression);
+                }
+                else
+                {
+                    QueryModelVisitor.RequiresClientProjection = true;
+                    return node;
+                }
+            }
+
+            return null;
+        }
+
+        private Expression TryReadFromValueBuffer(
+            Expression node,
+            Expression targetExpression,
+            SelectExpression selectExpression,
+            Expression sqlExpression)
+        {
+            var index = selectExpression.AddToProjection(sqlExpression);
+
+            var aliasExpression = selectExpression.Projection[index] as AliasExpression;
+
+            if (aliasExpression != null)
+            {
+                aliasExpression.SourceExpression = node;
+            }
+
+            Expression readValueExpression;
+
+            var outputDataInfo
+                = (node as SubQueryExpression)?.QueryModel
+                    .GetOutputDataInfo();
+
+            if (outputDataInfo is StreamedScalarValueInfo)
+            {
+                // Compensate for possible nulls
+                readValueExpression
+                    = Expression.Coalesce(
+                        _entityMaterializerSource
+                            .CreateReadValueCallExpression(targetExpression, index),
+                        Expression.Default(node.Type));
+            }
+            else
+            {
+                readValueExpression
+                   = _entityMaterializerSource
+                       .CreateReadValueExpression(targetExpression, node.Type, index);
+            }
+
+            return Expression.Convert(readValueExpression, node.Type);
         }
     }
 }

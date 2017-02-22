@@ -529,15 +529,48 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual MethodInfo InjectParametersMethod => _injectParametersMethodInfo;
+        public virtual MethodInfo InjectParametersItemMethod => _injectParametersItemMethodInfo;
 
-        private static readonly MethodInfo _injectParametersMethodInfo
+        private static readonly MethodInfo _injectParametersItemMethodInfo
             = typeof(QueryMethodProvider)
-                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParameters));
+                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParametersItem));
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IEnumerable<TElement> _InjectParameters<TElement>(
+        private static TItem _InjectParametersItem<TItem>(
+            QueryContext queryContext,
+            Func<TItem> source,
+            string[] parameterNames,
+            object[] parameterValues)
+        {
+            for (var i = 0; i < parameterNames.Length; i++)
+            {
+                queryContext.AddParameter(parameterNames[i], parameterValues[i]);
+            }
+
+            var result = source();
+
+            for (var i = 0; i < parameterNames.Length; i++)
+            {
+                queryContext.RemoveParameter(parameterNames[i]);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual MethodInfo InjectParametersSequenceMethod => _injectParametersSequenceMethodInfo;
+
+        private static readonly MethodInfo _injectParametersSequenceMethodInfo
+            = typeof(QueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParametersSequence));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static IEnumerable<TElement> _InjectParametersSequence<TElement>(
             QueryContext queryContext,
             IEnumerable<TElement> source,
             string[] parameterNames,

@@ -36,11 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// </returns>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            var queryModelVisitor = CreateQueryModelVisitor();
-
-            queryModelVisitor.VisitQueryModel(expression.QueryModel);
-
-            var subExpression = queryModelVisitor.Expression;
+            var subExpression = base.VisitSubQuery(expression);
 
             if (subExpression.Type != expression.Type)
             {
