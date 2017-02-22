@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
@@ -60,6 +61,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             Check.NotNull(node, nameof(node));
+
+            if (IncludeCompiler.IsIncludeMethod(node))
+            {
+                return node;
+            }
 
             if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
             {

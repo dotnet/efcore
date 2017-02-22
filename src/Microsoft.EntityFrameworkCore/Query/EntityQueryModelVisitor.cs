@@ -57,14 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
             Equals(methodInfo, EF.PropertyMethod)
             ||
-            (
-                // fallback to string comparison because MethodInfo.Equals is not
-                // always true in .NET Native even if methods are the same
-                methodInfo != null
-                && methodInfo.IsGenericMethod
-                && methodInfo.Name == nameof(EF.Property)
-                && methodInfo.DeclaringType?.FullName == _efTypeName
-            );
+            methodInfo != null
+            && methodInfo.IsGenericMethod
+            && methodInfo.Name == nameof(EF.Property)
+            && methodInfo.DeclaringType?.FullName == _efTypeName;
 
         /// <summary>
         ///     Creates an expression to access the given property on an given entity.
@@ -682,16 +678,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class IncludeRemovingExpressionVisitor : RelinqExpressionVisitor
         {
-            protected override Expression VisitMethodCall(MethodCallExpression node)
-            {
-                if (node.Method.IsGenericMethod
-                    && node.Method.GetGenericMethodDefinition() == IncludeCompiler.IncludeMethodInfo)
-                {
-                    return node.Arguments[0];
-                }
-
-                return base.VisitMethodCall(node);
-            }
+            protected override Expression VisitMethodCall(MethodCallExpression node) 
+                => IncludeCompiler.IsIncludeMethod(node) 
+                    ? node.Arguments[0] 
+                    : base.VisitMethodCall(node);
         }
 
         private bool TrackResults(QueryModel queryModel)

@@ -870,23 +870,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var customers
                     = useString
                         ? (from c in context.Set<Customer>()
-                           join o in context.Set<Order>().Include("OrderDetails").Include("Customer")
-                           on c.CustomerID equals o.CustomerID into g
-                           where c.CustomerID == "ALFKI"
-                           select new { c, g })
+                            join o in context.Set<Order>().Include("OrderDetails").Include("Customer")
+                            on c.CustomerID equals o.CustomerID into g
+                            where c.CustomerID == "ALFKI"
+                            select new { c, g })
                             .ToList()
                         : (from c in context.Set<Customer>()
-                           join o in context.Set<Order>().Include(o => o.OrderDetails).Include(o => o.Customer)
-                           on c.CustomerID equals o.CustomerID into g
-                           where c.CustomerID == "ALFKI"
-                           select new { c, g })
+                            join o in context.Set<Order>().Include(o => o.OrderDetails).Include(o => o.Customer)
+                            on c.CustomerID equals o.CustomerID into g
+                            where c.CustomerID == "ALFKI"
+                            select new { c, g })
                             .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.g).Count());
                 Assert.True(customers.SelectMany(c => c.g).SelectMany(o => o.OrderDetails).All(od => od.Order != null));
                 Assert.Equal(1 + 6 + 12, context.ChangeTracker.Entries().Count());
-
+                
                 foreach (var order in customers.SelectMany(a => a.c.Orders))
                 {
                     CheckIsLoaded(
