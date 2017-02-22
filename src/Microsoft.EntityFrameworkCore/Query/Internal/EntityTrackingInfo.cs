@@ -170,10 +170,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return _includedSpecifications
-                .SelectMany(navigations => GetIncludedEntities(entity, navigations));
+                .SelectMany(navigations => GetIncludedEntities(stateManager, entity, navigations));
         }
 
-        private IEnumerable<IncludedEntity> GetIncludedEntities(
+        private IEnumerable<IncludedEntity> GetIncludedEntities(IStateManager stateManager,
             object entity, IncludeSpecification reference)
         {
             var navigation = reference.Navigation;
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         yield return new IncludedEntity(referencedEntity, _includedEntityTrackingInfos[navigation], _handledForeignKeys);
 
                         foreach (var includedEntity
-                            in reference.References.SelectMany(r => GetIncludedEntities(referencedEntity, r)))
+                            in reference.References.SelectMany(r => GetIncludedEntities(stateManager, referencedEntity, r)))
                         {
                             yield return includedEntity;
                         }
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     yield return new IncludedEntity(referencedEntity, _includedEntityTrackingInfos[navigation], _handledForeignKeys);
 
                     foreach (var includedEntity
-                        in reference.References.SelectMany(r => GetIncludedEntities(referencedEntity, r)))
+                        in reference.References.SelectMany(r => GetIncludedEntities(stateManager, referencedEntity, r)))
                     {
                         yield return includedEntity;
                     }
