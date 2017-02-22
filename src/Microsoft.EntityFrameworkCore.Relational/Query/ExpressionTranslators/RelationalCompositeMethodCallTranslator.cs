@@ -32,12 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
             _methodCallTranslators
                 = new List<IMethodCallTranslator>
                 {
-                    new ContainsTranslator(dependencies.Logger),
-                    new EndsWithTranslator(dependencies.Logger),
                     new EnumHasFlagTranslator(),
                     new EqualsTranslator(dependencies.Logger),
-                    new IsNullOrEmptyTranslator(),
-                    new StartsWithTranslator(dependencies.Logger)
+                    new IsNullOrEmptyTranslator()
                 };
         }
 
