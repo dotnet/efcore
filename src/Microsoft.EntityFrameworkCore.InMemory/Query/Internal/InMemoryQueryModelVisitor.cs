@@ -140,9 +140,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return base.VisitMethodCall(node);
             }
 
-            private Expression ApplyTopLevelInclude(Expression expression)
+            private Expression ApplyTopLevelInclude(MethodCallExpression expression)
             {
-                var elementType = methodCallExpression.Type.GetGenericArguments().First();
+                var elementType = expression.Type.GenericTypeArguments.First();
                 var includeMethod = _includeMethodInfo.MakeGenericMethod(elementType);
 
                 var relatedEntitiesLoaders = new Dictionary<IncludeSpecification, IRelatedEntitiesLoader>();
@@ -156,6 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     Expression.Constant(_includeSpecification),
                     Expression.Constant(relatedEntitiesLoaders),
                     Expression.Constant(_querySourceRequiresTracking));
+
+                return result;
+            }
 
             private class SelectorIncludeInjectingExpressionVisitor : ExpressionVisitorBase
             {

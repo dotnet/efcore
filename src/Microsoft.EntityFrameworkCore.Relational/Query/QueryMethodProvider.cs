@@ -520,9 +520,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public IEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
-                => _includeCollectionIterator
+            {
+                var result = _includeCollectionIterator
                     .GetRelatedValues(keyComparer)
                     .Select(vr => new EntityLoadInfo(vr, _materializer));
+
+                if (_valueBufferCursor != null)
+                {
+                    (queryContext as RelationalQueryContext)?.EnsureQueryContextIncludesBufferCursor(_valueBufferCursor, _queryIndex);
+                }
+
+                return result;
+            }
 
             public void Dispose() => _includeCollectionIterator?.Dispose();
         }
@@ -563,16 +572,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _innerEnumerable = innerEnumerable;
                 _parameterNames = parameterNames;
                 _parameterValues = parameterValues;
-                var results = _includeCollectionIterator
-                    .GetRelatedValues(keyComparer)
-                    .Select(vr => new EntityLoadInfo(vr, _materializer));
-
-                if (_valueBufferCursor != null)
-                {
-                    (queryContext as RelationalQueryContext)?.EnsureQueryContextIncludesBufferCursor(_valueBufferCursor, _queryIndex);
-                }
-
-                return results;
             }
 
             public IEnumerator<TElement> GetEnumerator() => new InjectParametersEnumerator(this);
