@@ -213,10 +213,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             {
                 if (!_correlated)
                 {
-                    var columnExpression = expression as ColumnExpression;
+                    var querySource
+                        = (expression as ColumnExpression)?.Table.QuerySource
+                            ?? (expression as OuterPropertyExpression)?.QuerySource;
 
-                    if (columnExpression?.Table.QuerySource != null
-                        && !_selectExpression.HandlesQuerySource(columnExpression.Table.QuerySource))
+                    if (querySource != null && !_selectExpression.HandlesQuerySource(querySource))
                     {
                         _correlated = true;
                     }
@@ -952,15 +953,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>
         /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
-        public virtual void AddCrossJoin(
+        public virtual JoinExpressionBase AddCrossJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
 
-            _tables.Add(new CrossJoinExpression(tableExpression));
+            var crossJoinExpression = new CrossJoinExpression(tableExpression);
+
+            _tables.Add(crossJoinExpression);
             _projection.AddRange(projection);
+
+            return crossJoinExpression;
         }
 
         /// <summary>
@@ -968,15 +973,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>
         /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
-        public virtual void AddCrossJoinLateral(
+        public virtual JoinExpressionBase AddCrossJoinLateral(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
 
-            _tables.Add(new CrossJoinLateralExpression(tableExpression));
+            var crossJoinLateralExpression = new CrossJoinLateralExpression(tableExpression);
+
+            _tables.Add(crossJoinLateralExpression);
             _projection.AddRange(projection);
+
+            return crossJoinLateralExpression;
         }
 
         /// <summary>

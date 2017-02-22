@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
                         $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
                         RelationalStrings.ClientEvalWarning(
-                            "{from Customer c2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer]) where (([c1].CustomerID == [c2].CustomerID) AndAlso [c2].IsLondon) select [c2] => Any()}")),
+                            "[c2].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
                             .Where(c1 => context.Customers

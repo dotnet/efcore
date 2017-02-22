@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 // ReSharper disable once CheckNamespace
 namespace System
@@ -99,6 +100,18 @@ namespace System
 
             var underlyingEnumType = Enum.GetUnderlyingType(underlyingNonNullableType);
             return isNullable ? MakeNullable(underlyingEnumType) : underlyingEnumType;
+        }
+
+        public static Type UnwrapTaskResultType(this Type type) => UnwrapTaskResultType(type.GetTypeInfo());
+
+        public static Type UnwrapTaskResultType(this TypeInfo typeInfo)
+        {
+            if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                return typeInfo.GenericTypeArguments[0];
+            }
+
+            return typeInfo.AsType();
         }
 
         public static Type GetSequenceType(this Type type)

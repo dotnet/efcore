@@ -71,29 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private new RelationalQueryModelVisitor QueryModelVisitor => (RelationalQueryModelVisitor)base.QueryModelVisitor;
 
         /// <summary>
-        ///     Visit a sub-query expression.
-        /// </summary>
-        /// <param name="expression"> The expression. </param>
-        /// <returns>
-        ///     An Expression corresponding to the translated sub-query.
-        /// </returns>
-        protected override Expression VisitSubQuery(SubQueryExpression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            var queryModelVisitor = (RelationalQueryModelVisitor)CreateQueryModelVisitor();
-
-            queryModelVisitor.VisitQueryModel(expression.QueryModel);
-
-            if (_querySource != null)
-            {
-                QueryModelVisitor.RegisterSubQueryVisitor(_querySource, queryModelVisitor);
-            }
-
-            return queryModelVisitor.Expression;
-        }
-
-        /// <summary>
         ///     Visit a member expression.
         /// </summary>
         /// <param name="node"> The expression to visit. </param>
@@ -111,8 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         => selectExpression.AddToProjection(
                             _relationalAnnotationProvider.For(property).ColumnName,
                             property,
-                            querySource),
-                    bindSubQueries: true);
+                            querySource));
 
             return base.VisitMember(node);
         }
@@ -135,8 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         => selectExpression.AddToProjection(
                             _relationalAnnotationProvider.For(property).ColumnName,
                             property,
-                            querySource),
-                    bindSubQueries: true);
+                            querySource));
 
             return base.VisitMethodCall(node);
         }

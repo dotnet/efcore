@@ -3202,7 +3202,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             where (from l1_inner in context.LevelOne.ToList()
                                    join l2_inner in context.LevelTwo.ToList() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
                                    from l2_inner in grouping.DefaultIfEmpty()
-                                   select l1_inner).Distinct().Count() > 7
+                                   select ClientStringMethod(l1_inner.Name)).Count() > 7
                             where l1.Id < 3
                             select l1.Name).ToList();
             }
@@ -3321,7 +3321,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private static string ClientStringMethod(string argument)
         {
-            return argument;
+            return argument + " ";
         }
 
         [ConditionalFact]

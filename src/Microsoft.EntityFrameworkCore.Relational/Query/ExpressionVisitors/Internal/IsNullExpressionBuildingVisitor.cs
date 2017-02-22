@@ -115,6 +115,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return node;
             }
 
+            if (node is OuterPropertyExpression outerPropertyExpression)
+            {
+                return Visit(outerPropertyExpression.BoundExpression);
+            }
+
             return node;
         }
 

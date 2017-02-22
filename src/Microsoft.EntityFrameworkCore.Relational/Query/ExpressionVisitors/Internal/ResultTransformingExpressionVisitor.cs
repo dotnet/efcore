@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             if (node.Method.MethodIsClosedFormOf(
-                _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersMethod))
+                _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersSequenceMethod))
             {
                 var sourceArgument = (MethodCallExpression)Visit(node.Arguments[1]);
                 if (sourceArgument.Method.MethodIsClosedFormOf(
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     var getResultArgument = sourceArgument.Arguments[0];
                     var newGetResultArgument = Expression.Call(
-                        _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersMethod.MakeGenericMethod(typeof(ValueBuffer)),
+                        _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersSequenceMethod.MakeGenericMethod(typeof(ValueBuffer)),
                         node.Arguments[0], getResultArgument, node.Arguments[2], node.Arguments[3]);
 
                     return ResultOperatorHandler.CallWithPossibleCancellationToken(sourceArgument.Method, newGetResultArgument);

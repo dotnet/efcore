@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
             => _queryCompilationContextFactory
                 .Create(async: false)
-                .CreateQueryModelVisitor()
+                .CreateQueryModelVisitor(queryModel)
                 .CreateQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
             => _queryCompilationContextFactory
                 .Create(async: true)
-                .CreateQueryModelVisitor()
+                .CreateQueryModelVisitor(queryModel)
                 .CreateAsyncQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
     }
 }
