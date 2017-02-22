@@ -453,23 +453,41 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 WHERE [o].[CustomerID] = N'ALFKI'
 
-SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]",
+FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]
+
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]",
                 Sql);
         }
 
@@ -1004,15 +1022,21 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 WHERE [o].[OrderID] IN (10643, 10692)
 
-SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Order.Customer].[CustomerID], [od.Order.Customer].[Address], [od.Order.Customer].[City], [od.Order.Customer].[CompanyName], [od.Order.Customer].[ContactName], [od.Order.Customer].[ContactTitle], [od.Order.Customer].[Country], [od.Order.Customer].[Fax], [od.Order.Customer].[Phone], [od.Order.Customer].[PostalCode], [od.Order.Customer].[Region]
+@_outer_Country: Germany (Size = 4000)
+
+SELECT COUNT(*)
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
 LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
+WHERE @_outer_Country = [od.Order.Customer].[Country]
 
-SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Order.Customer].[CustomerID], [od.Order.Customer].[Address], [od.Order.Customer].[City], [od.Order.Customer].[CompanyName], [od.Order.Customer].[ContactName], [od.Order.Customer].[ContactTitle], [od.Order.Customer].[Country], [od.Order.Customer].[Fax], [od.Order.Customer].[Phone], [od.Order.Customer].[PostalCode], [od.Order.Customer].[Region]
+@_outer_Country: Germany (Size = 4000)
+
+SELECT COUNT(*)
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
-LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]",
+LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
+WHERE @_outer_Country = [od.Order.Customer].[Country]",
                 Sql);
         }
 

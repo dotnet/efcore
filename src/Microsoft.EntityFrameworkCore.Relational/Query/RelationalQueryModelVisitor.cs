@@ -1608,8 +1608,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             if (querySource != null && _canBindPropertyToOuterParameter)
             {
-                SelectExpression parentSelectExpression = null;
-                ParentQueryModelVisitor?.QueriesBySource.TryGetValue(querySource, out parentSelectExpression);
+                var parentSelectExpression = ParentQueryModelVisitor?.TryGetQuery(querySource);
                 if (parentSelectExpression != null)
                 {
                     var parameterName = OuterQueryParameterNamePrefix + property.Name;
