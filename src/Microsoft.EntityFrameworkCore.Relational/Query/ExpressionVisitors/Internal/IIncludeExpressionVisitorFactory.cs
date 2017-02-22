@@ -21,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         ExpressionVisitor Create(
-            IQuerySource querySource,
-            IncludeSpecification includeSpecification,
-            RelationalQueryCompilationContext relationalQueryCompilationContext,
-            NavigationIndex queryIndexes,
+            [NotNull] IQuerySource querySource,
+            [NotNull] IncludeSpecification includeSpecification,
+            [NotNull] RelationalQueryCompilationContext relationalQueryCompilationContext,
+            [NotNull] NavigationIndex queryIndexes,
             bool querySourceRequiresTracking);
     }
 }

@@ -16,10 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class GroupJoinInclude : GroupJoinIncludeBase
     {
         private readonly IReadOnlyDictionary<IncludeSpecification, Func<QueryContext, IRelatedEntitiesLoader>> _relatedEntitiesLoaderFactories;
-        private readonly bool _querySourceRequiresTracking;
 
-        private RelationalQueryContext _queryContext;
-        private IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> _relatedEntitiesLoaders;
         private GroupJoinInclude _previous;
 
         /// <summary>
@@ -79,8 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 groupJoinIncludeContext.SetPrevious(_previous.CreateIncludeContext(queryContext));
             }
-            _relatedEntitiesLoaders
-                = _relatedEntitiesLoaderFactories.ToDictionary(l => l.Key, l => l.Value(queryContext));
 
             return groupJoinIncludeContext;
         }

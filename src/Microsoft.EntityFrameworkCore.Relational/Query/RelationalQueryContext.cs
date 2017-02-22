@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="valkuBufferCursor"></param>
         /// <param name="queryIndex"></param>
-        public void EnsureQueryContextIncludesBufferCursor([NotNull] IValueBufferCursor valkuBufferCursor, int queryIndex)
+        public virtual void EnsureQueryContextIncludesBufferCursor([NotNull] IValueBufferCursor valkuBufferCursor, int queryIndex)
         {
             if (NeedIncludeValueBufferCursorRegistration(valkuBufferCursor, queryIndex))
             {

@@ -18,10 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class AsyncGroupJoinInclude : GroupJoinIncludeBase
     {
         private readonly IReadOnlyDictionary<IncludeSpecification, Func<QueryContext, IAsyncRelatedEntitiesLoader>> _relatedEntitiesLoaderFactories;
-        private readonly bool _querySourceRequiresTracking;
 
-        private RelationalQueryContext _queryContext;
-        private IReadOnlyDictionary<IncludeSpecification, IAsyncRelatedEntitiesLoader> _relatedEntitiesLoaders;
         private AsyncGroupJoinInclude _previous;
 
         /// <summary>
