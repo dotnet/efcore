@@ -1268,6 +1268,19 @@ WHERE [p].[ProductID] < 40",
                 Sql);
         }
 
+        public override void Sum_over_subquery_is_client_eval()
+        {
+            base.Sum_over_subquery_is_client_eval();
+
+            Assert.Equal(@"SELECT (
+    SELECT SUM([o].[OrderID])
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void Average_with_no_arg()
         {
             base.Average_with_no_arg();
@@ -1332,6 +1345,19 @@ WHERE [p].[ProductID] < 40",
                 Sql);
         }
 
+        public override void Average_over_subquery_is_client_eval()
+        {
+            base.Average_over_subquery_is_client_eval();
+
+            Assert.Equal(@"SELECT (
+    SELECT SUM([o].[OrderID])
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void Min_with_no_arg()
         {
             base.Min_with_no_arg();
@@ -1363,6 +1389,19 @@ WHERE [p].[ProductID] < 40",
                 Sql);
         }
 
+        public override void Min_over_subquery_is_client_eval()
+        {
+            base.Min_over_subquery_is_client_eval();
+
+            Assert.Equal(@"SELECT (
+    SELECT SUM([o].[OrderID])
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void Max_with_no_arg()
         {
             base.Max_with_no_arg();
@@ -1391,6 +1430,19 @@ FROM [Orders] AS [o]",
                 @"SELECT MAX(COALESCE([p].[UnitPrice], 0.0))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40",
+                Sql);
+        }
+
+        public override void Max_over_subquery_is_client_eval()
+        {
+            base.Max_over_subquery_is_client_eval();
+
+            Assert.Equal(@"SELECT (
+    SELECT SUM([o].[OrderID])
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]",
                 Sql);
         }
 

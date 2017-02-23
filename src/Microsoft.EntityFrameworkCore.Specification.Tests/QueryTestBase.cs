@@ -4045,6 +4045,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Sum_over_subquery_is_client_eval()
+        {
+            AssertQuery<Customer>(cs => cs.Sum(c => c.Orders.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
         public virtual void Average_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Average());
@@ -4095,6 +4101,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Average_over_subquery_is_client_eval()
+        {
+            AssertQuery<Customer>(cs => cs.Average(c => c.Orders.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
         public virtual void Min_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Min());
@@ -4113,6 +4125,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Min_over_subquery_is_client_eval()
+        {
+            AssertQuery<Customer>(cs => cs.Min(c => c.Orders.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
         public virtual void Max_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Max());
@@ -4128,6 +4146,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Max_with_coalesce()
         {
             AssertQuery<Product>(ps => ps.Where(p => p.ProductID < 40).Max(p => p.UnitPrice ?? 0));
+        }
+
+        [ConditionalFact]
+        public virtual void Max_over_subquery_is_client_eval()
+        {
+            AssertQuery<Customer>(cs => cs.Max(c => c.Orders.Sum(o => o.OrderID)));
         }
 
         [ConditionalFact]
