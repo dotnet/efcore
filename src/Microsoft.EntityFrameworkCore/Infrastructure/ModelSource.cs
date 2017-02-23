@@ -14,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         An implementation of <see cref="IModelSource" /> that produces a model based on 
-    ///         the <see cref="DbSet{TEntity}" /> properties exposed on the context. The model is cached to avoid 
+    ///         An implementation of <see cref="IModelSource" /> that produces a model based on
+    ///         the <see cref="DbSet{TEntity}" /> properties exposed on the context. The model is cached to avoid
     ///         recreating it every time it is requested.
     ///     </para>
     ///     <para>
@@ -28,49 +28,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private readonly ConcurrentDictionary<object, IModel> _models = new ConcurrentDictionary<object, IModel>();
 
         /// <summary>
-        ///     Gets the <see cref="IDbSetFinder" /> that will locate the <see cref="DbSet{TEntity}" /> properties
-        ///     on the derived context.
-        /// </summary>
-        protected virtual IDbSetFinder SetFinder { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="ICoreConventionSetBuilder" /> that will build the conventions to be used
-        ///     to build the model.
-        /// </summary>
-        protected virtual ICoreConventionSetBuilder CoreConventionSetBuilder { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="IModelCustomizer" /> that will perform additional configuration of the model
-        ///     in addition to what is discovered by convention.
-        /// </summary>
-        protected virtual IModelCustomizer ModelCustomizer { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="IModelCacheKeyFactory" /> that will create keys used to store and lookup models
-        ///     the model cache.
-        /// </summary>
-        protected virtual IModelCacheKeyFactory ModelCacheKeyFactory { get; }
-
-        /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ModelSource(
-            [NotNull] IDbSetFinder setFinder,
-            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
-            [NotNull] IModelCustomizer modelCustomizer,
-            [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
+        public ModelSource([NotNull] ModelSourceDependencies dependencies)
         {
-            Check.NotNull(setFinder, nameof(setFinder));
-            Check.NotNull(coreConventionSetBuilder, nameof(coreConventionSetBuilder));
-            Check.NotNull(modelCustomizer, nameof(modelCustomizer));
-            Check.NotNull(modelCacheKeyFactory, nameof(modelCacheKeyFactory));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            SetFinder = setFinder;
-            CoreConventionSetBuilder = coreConventionSetBuilder;
-            ModelCustomizer = modelCustomizer;
-            ModelCacheKeyFactory = modelCacheKeyFactory;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="ModelSource" />
+        /// </summary>
+        protected virtual ModelSourceDependencies Dependencies { get; }
 
         /// <summary>
         ///     Returns the model from the cache, or creates a model if it is not present in the cache.
@@ -80,7 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="validator"> The validator to verify the model can be successfully used with the context. </param>
         /// <returns> The model to be used. </returns>
         public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
-            => _models.GetOrAdd(ModelCacheKeyFactory.Create(context), k => CreateModel(context, conventionSetBuilder, validator));
+            => _models.GetOrAdd(
+                Dependencies.ModelCacheKeyFactory.Create(context),
+                k => CreateModel(context, conventionSetBuilder, validator));
 
         /// <summary>
         ///     Creates the model. This method is called when the model was not found in the cache.
@@ -106,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             FindSets(modelBuilder, context);
 
-            ModelCustomizer.Customize(modelBuilder, context);
+            Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 
             internalModelBuilder.Validate();
 
@@ -122,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="conventionSetBuilder"> The provider convention set builder to be used. </param>
         /// <returns> The convention set to be used. </returns>
         protected virtual ConventionSet CreateConventionSet([NotNull] IConventionSetBuilder conventionSetBuilder)
-            => conventionSetBuilder.AddConventions(CoreConventionSetBuilder.CreateConventionSet());
+            => conventionSetBuilder.AddConventions(Dependencies.CoreConventionSetBuilder.CreateConventionSet());
 
         /// <summary>
         ///     Adds the entity types found in <see cref="DbSet{TEntity}" /> properties on the context to the model.
@@ -131,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context"> The context to find <see cref="DbSet{TEntity}" /> properties on. </param>
         protected virtual void FindSets([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context)
         {
-            foreach (var setInfo in SetFinder.FindSets(context))
+            foreach (var setInfo in Dependencies.SetFinder.FindSets(context))
             {
                 modelBuilder.Entity(setInfo.ClrType);
             }

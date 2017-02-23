@@ -24,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         internal string DebugView => ToString();
 #endif
 
-        private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly RelationalQueryCompilationContext _queryCompilationContext;
         private readonly List<Expression> _projection = new List<Expression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
@@ -40,36 +39,42 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <summary>
         ///     Creates a new instance of SelectExpression.
         /// </summary>
-        /// <param name="querySqlGeneratorFactory"> The query SQL generator factory. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="queryCompilationContext"> Context for the query compilation. </param>
-        public SelectExpression([NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+        public SelectExpression(
+            [NotNull] SelectExpressionDependencies dependencies,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext)
             : base(null, null)
         {
-            Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
+            Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            _querySqlGeneratorFactory = querySqlGeneratorFactory;
+            Dependencies = dependencies;
             _queryCompilationContext = queryCompilationContext;
         }
 
         /// <summary>
         ///     Creates a new instance of SelectExpression.
         /// </summary>
-        /// <param name="querySqlGeneratorFactory"> The query SQL generator factory. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="queryCompilationContext"> Context for the query compilation. </param>
         /// <param name="alias"> The alias. </param>
         public SelectExpression(
-            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+            [NotNull] SelectExpressionDependencies dependencies,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             [NotNull] string alias)
-            : this(querySqlGeneratorFactory, queryCompilationContext)
+            : this(dependencies, queryCompilationContext)
         {
             Check.NotNull(alias, nameof(alias));
 
             // When assigning alias to select expression make it unique
             Alias = queryCompilationContext.CreateUniqueTableAlias(alias);
         }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="SelectExpression" />
+        /// </summary>
+        protected virtual SelectExpressionDependencies Dependencies { get; }
 
         /// <summary>
         ///     Gets or sets the predicate corresponding to the WHERE part of the SELECT expression.
@@ -104,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual SelectExpression Clone([CanBeNull] string alias = null)
         {
             var selectExpression
-                = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext)
+                = new SelectExpression(Dependencies, _queryCompilationContext)
                 {
                     _limit = _limit,
                     _offset = _offset,
@@ -354,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             _subqueryDepth++;
 
-            var subquery = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext, SystemAliasPrefix);
+            var subquery = new SelectExpression(Dependencies, _queryCompilationContext, SystemAliasPrefix);
 
             var columnAliasCounter = 0;
 
@@ -1130,7 +1135,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The new default query SQL generator.
         /// </returns>
         public virtual IQuerySqlGenerator CreateDefaultQuerySqlGenerator()
-            => _querySqlGeneratorFactory.CreateDefault(this);
+            => Dependencies.QuerySqlGeneratorFactory.CreateDefault(this);
 
         /// <summary>
         ///     Creates the FromSql query SQL generator.
@@ -1143,7 +1148,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual IQuerySqlGenerator CreateFromSqlQuerySqlGenerator(
                 [NotNull] string sql,
                 [NotNull] Expression arguments)
-            => _querySqlGeneratorFactory
+            => Dependencies.QuerySqlGeneratorFactory
                 .CreateFromSql(
                     this,
                     Check.NotEmpty(sql, nameof(sql)),

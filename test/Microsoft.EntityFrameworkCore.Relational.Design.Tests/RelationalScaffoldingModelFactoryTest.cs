@@ -850,7 +850,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IPluralizer pluralizer)
             : base(loggerFactory,
-                new TestTypeMapper(),
+                new TestTypeMapper(new RelationalTypeMapperDependencies()),
                 new FakeDatabaseModelFactory(),
                 new CandidateNamingService(),
                 pluralizer)
@@ -869,6 +869,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
     {
         private static readonly RelationalTypeMapping _string = new RelationalTypeMapping("string", typeof(string));
         private static readonly RelationalTypeMapping _long = new RelationalTypeMapping("long", typeof(long));
+
+        public TestTypeMapper(RelationalTypeMapperDependencies dependencies)
+            : base(dependencies)
+        {
+        }
 
         private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
             = new Dictionary<Type, RelationalTypeMapping>

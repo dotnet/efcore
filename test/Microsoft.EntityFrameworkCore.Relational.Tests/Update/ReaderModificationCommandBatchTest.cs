@@ -19,7 +19,6 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Moq;
 using Xunit;
-using FakeRelationalOptionsExtension = Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider.FakeRelationalOptionsExtension;
 
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -151,7 +150,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         private class FakeSqlGenerator : UpdateSqlGenerator
         {
             public FakeSqlGenerator()
-                : base(new RelationalSqlGenerationHelper())
+                : base(
+                    new UpdateSqlGeneratorDependencies(
+                        new RelationalSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies())))
             {
             }
 
@@ -315,8 +317,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             batch.AddCommand(command);
 
             Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 42),
-                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await batch.ExecuteAsync(connection))).Message);
+            (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                async () => await batch.ExecuteAsync(connection))).Message);
         }
 
         [Fact]
@@ -335,8 +337,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             batch.AddCommand(command);
 
             Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 0),
-                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await batch.ExecuteAsync(connection))).Message);
+            (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                async () => await batch.ExecuteAsync(connection))).Message);
         }
 
         [Fact]
@@ -570,10 +572,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                     new RelationalCommandBuilderFactory(
                         new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
                         new DiagnosticListener("Fake"),
-                        new FakeRelationalTypeMapper()),
-                    new RelationalSqlGenerationHelper(),
+                        new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
+                    new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                     sqlGenerator ?? new FakeSqlGenerator(),
-                    new TypedRelationalValueBufferFactoryFactory())
+                    new TypedRelationalValueBufferFactoryFactory(new RelationalValueBufferFactoryDependencies()))
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;

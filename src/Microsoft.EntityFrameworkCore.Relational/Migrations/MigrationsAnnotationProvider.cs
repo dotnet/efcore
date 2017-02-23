@@ -3,13 +3,24 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class MigrationsAnnotationProvider : IMigrationsAnnotationProvider
     {
+        /// <summary>
+        ///     Initializes a new instance of this class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public MigrationsAnnotationProvider([NotNull] MigrationsAnnotationProviderDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+        }
+
         public virtual IEnumerable<IAnnotation> For(IModel model) => Enumerable.Empty<IAnnotation>();
         public virtual IEnumerable<IAnnotation> For(IEntityType entityType) => Enumerable.Empty<IAnnotation>();
         public virtual IEnumerable<IAnnotation> For(IForeignKey foreignKey) => Enumerable.Empty<IAnnotation>();

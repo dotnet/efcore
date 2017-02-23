@@ -3,10 +3,6 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -17,39 +13,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
     /// </summary>
     public class RelationalEntityQueryableExpressionVisitorFactory : IEntityQueryableExpressionVisitorFactory
     {
-        private readonly IModel _model;
-        private readonly ISelectExpressionFactory _selectExpressionFactory;
-        private readonly IMaterializerFactory _materializerFactory;
-        private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
-        private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
-
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalEntityQueryableExpressionVisitorFactory" />.
         /// </summary>
-        /// <param name="model"> The model. </param>
-        /// <param name="selectExpressionFactory"> The select expression factory. </param>
-        /// <param name="materializerFactory"> The materializer factory. </param>
-        /// <param name="shaperCommandContextFactory"> The shaper command context factory. </param>
-        /// <param name="relationalAnnotationProvider"> The relational annotation provider. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         public RelationalEntityQueryableExpressionVisitorFactory(
-            [NotNull] IModel model,
-            [NotNull] ISelectExpressionFactory selectExpressionFactory,
-            [NotNull] IMaterializerFactory materializerFactory,
-            [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
-            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
+            [NotNull] RelationalEntityQueryableExpressionVisitorDependencies dependencies)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
-            Check.NotNull(materializerFactory, nameof(materializerFactory));
-            Check.NotNull(shaperCommandContextFactory, nameof(shaperCommandContextFactory));
-            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _model = model;
-            _selectExpressionFactory = selectExpressionFactory;
-            _materializerFactory = materializerFactory;
-            _shaperCommandContextFactory = shaperCommandContextFactory;
-            _relationalAnnotationProvider = relationalAnnotationProvider;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="RelationalEntityQueryableExpressionVisitorFactory" />
+        /// </summary>
+        protected virtual RelationalEntityQueryableExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates a new ExpressionVisitor.
@@ -62,11 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         public virtual ExpressionVisitor Create(
             EntityQueryModelVisitor queryModelVisitor, IQuerySource querySource)
             => new RelationalEntityQueryableExpressionVisitor(
-                _model,
-                _selectExpressionFactory,
-                _materializerFactory,
-                _shaperCommandContextFactory,
-                _relationalAnnotationProvider,
+                Dependencies,
                 (RelationalQueryModelVisitor)Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)),
                 querySource);
     }

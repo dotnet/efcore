@@ -2667,6 +2667,28 @@ LEFT JOIN [Level2] AS [l2] ON [l1_inner].[Id] = [l2].[Level1_Optional_Id]",
                 Sql);
         }
 
+        public override void Where_on_multilevel_reference_in_subquery_with_outer_projection()
+        {
+            base.Where_on_multilevel_reference_in_subquery_with_outer_projection();
+
+            Assert.Equal(
+                @"@__p_0: 0
+@__p_1: 10
+
+SELECT [t].[Name]
+FROM (
+    SELECT [l3].*
+    FROM [Level3] AS [l3]
+    INNER JOIN [Level2] AS [l3.OneToMany_Required_Inverse] ON [l3].[OneToMany_Required_InverseId] = [l3.OneToMany_Required_Inverse].[Id]
+    INNER JOIN [Level1] AS [l3.OneToMany_Required_Inverse.OneToOne_Required_FK_Inverse] ON [l3.OneToMany_Required_Inverse].[Level1_Required_Id] = [l3.OneToMany_Required_Inverse.OneToOne_Required_FK_Inverse].[Id]
+    WHERE [l3.OneToMany_Required_Inverse.OneToOne_Required_FK_Inverse].[Name] = N'L1 03'
+    ORDER BY [l3].[Level2_Required_Id]
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t]
+ORDER BY [t].[Level2_Required_Id]",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 

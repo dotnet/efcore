@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal;
 using Xunit;
 
@@ -38,6 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata.Conventions.In
         }
 
         protected override PropertyMappingValidationConvention CreateConvention()
-            => new RelationalPropertyMappingValidationConvention(new TestRelationalTypeMapper());
+            => new RelationalPropertyMappingValidationConvention(new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()));
     }
 }

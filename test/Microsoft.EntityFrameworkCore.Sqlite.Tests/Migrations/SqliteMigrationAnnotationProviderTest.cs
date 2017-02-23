@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
@@ -19,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
         public SqliteMigrationAnnotationProviderTest()
         {
             _modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
-            _provider = new SqliteMigrationsAnnotationProvider();
+            _provider = new SqliteMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies());
         }
 
         [Fact]

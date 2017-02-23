@@ -13,6 +13,44 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
+    ///         Service dependencies parameter class for <see cref="RelationalSqlGenerationHelper" />
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    ///     <para>
+    ///         Do not construct instances of this class directly from either provider or application code as the
+    ///         constructor signature may change as new dependencies are added. Instead, use this type in 
+    ///         your constructor so that an instance will be created and injected automatically by the 
+    ///         dependency injection container. To create an instance with some dependent services replaced, 
+    ///         first resolve the object from the dependency injection container, then replace selected 
+    ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
+    ///     </para>
+    /// </summary>
+    public sealed class RelationalSqlGenerationHelperDependencies
+    {
+        /// <summary>
+        ///     <para>
+        ///         Creates the service dependencies parameter object for a <see cref="RelationalSqlGenerationHelper" />.
+        ///     </para>
+        ///     <para>
+        ///         Do not call this constructor directly from either provider or application code as it may change 
+        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance 
+        ///         will be created and injected automatically by the dependency injection container. To create 
+        ///         an instance with some dependent services replaced, first resolve the object from the dependency 
+        ///         injection container, then replace selected services using the 'With...' methods. Do not call 
+        ///         the constructor at any point in this process.
+        ///     </para>
+        /// </summary>
+        // ReSharper disable once EmptyConstructor
+        public RelationalSqlGenerationHelperDependencies()
+        {
+        }
+    }
+
+    /// <summary>
+    ///     <para>
     ///         Provides services to help with generation of SQL commands.
     ///     </para>
     ///     <para>
@@ -28,6 +66,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private const string DateTimeFormatStringConst = "TIMESTAMP '{0:" + DateTimeFormatConst + "}'";
         private const string DateTimeOffsetFormatConst = @"yyyy-MM-dd HH\:mm\:ss.fffffffzzz";
         private const string DateTimeOffsetFormatStringConst = "TIMESTAMP '{0:" + DateTimeOffsetFormatConst + "}'";
+
+        /// <summary>
+        ///     Initializes a new instance of the this class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public RelationalSqlGenerationHelper([NotNull] RelationalSqlGenerationHelperDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+        }
 
         /// <summary>
         ///     Gets the floating point format.

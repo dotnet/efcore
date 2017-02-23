@@ -17,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 
         protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
+        public FakeRelationalTypeMapper(RelationalTypeMapperDependencies dependencies)
+            : base(dependencies)
+        {
+        }
+
         private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
             = new Dictionary<Type, RelationalTypeMapping>
             {

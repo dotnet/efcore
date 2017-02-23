@@ -43,6 +43,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Storage
         }
 
         protected override ISqlGenerationHelper CreateSqlGenerationHelper()
-            => new SqlServerSqlGenerationHelper();
+            => new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
     }
 }

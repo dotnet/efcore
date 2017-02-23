@@ -31,13 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InMemoryDatabase(
-            [NotNull] IQueryCompilationContextFactory queryCompilationContextFactory,
+            [NotNull] DatabaseDependencies dependencies,
             [NotNull] IInMemoryStoreSource storeSource,
             [NotNull] IDbContextOptions options,
             [NotNull] ILogger<InMemoryDatabase> logger)
-            : base(queryCompilationContextFactory)
+            : base(dependencies)
         {
-            Check.NotNull(queryCompilationContextFactory, nameof(queryCompilationContextFactory));
             Check.NotNull(storeSource, nameof(storeSource));
             Check.NotNull(options, nameof(options));
             Check.NotNull(logger, nameof(logger));

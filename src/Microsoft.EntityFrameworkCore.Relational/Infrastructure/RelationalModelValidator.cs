@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -20,36 +20,34 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public class RelationalModelValidator : CoreModelValidator
     {
         /// <summary>
+        ///     Creates a new instance of <see cref="RelationalModelValidator" />.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this service. </param>
+        public RelationalModelValidator(
+            [NotNull] ModelValidatorDependencies dependencies,
+            [NotNull] RelationalModelValidatorDependencies relationalDependencies)
+            : base(dependencies)
+        {
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+
+            RelationalDependencies = relationalDependencies;
+        }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="ModelValidator" />
+        /// </summary>
+        protected virtual RelationalModelValidatorDependencies RelationalDependencies { get; }
+
+        /// <summary>
         ///     Gets the relational annotation provider.
         /// </summary>
-        /// <value>
-        ///     The relational annotation provider.
-        /// </value>
-        protected virtual IRelationalAnnotationProvider RelationalExtensions { get; }
+        protected virtual IRelationalAnnotationProvider RelationalExtensions => RelationalDependencies.RelationalExtensions;
 
         /// <summary>
         ///     Gets the type mapper.
         /// </summary>
-        /// <value>
-        ///     The type mapper.
-        /// </value>
-        protected virtual IRelationalTypeMapper TypeMapper { get; }
-
-        /// <summary>
-        ///     Creates a new instance of <see cref="RelationalModelValidator" />.
-        /// </summary>
-        /// <param name="loggerFactory"> The logger factory. </param>
-        /// <param name="relationalExtensions"> The relational annotation provider. </param>
-        /// <param name="typeMapper"> The type mapper. </param>
-        public RelationalModelValidator(
-            [NotNull] ILogger<RelationalModelValidator> loggerFactory,
-            [NotNull] IRelationalAnnotationProvider relationalExtensions,
-            [NotNull] IRelationalTypeMapper typeMapper)
-            : base(loggerFactory)
-        {
-            RelationalExtensions = relationalExtensions;
-            TypeMapper = typeMapper;
-        }
+        protected virtual IRelationalTypeMapper TypeMapper => RelationalDependencies.TypeMapper;
 
         /// <summary>
         ///     Validates a model, throwing an exception if any errors are found.
@@ -94,8 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual void EnsureNoDefaultValuesOnKeys([NotNull] IModel model)
         {
             foreach (var property in model.GetEntityTypes().SelectMany(
-                t => t.GetDeclaredKeys().SelectMany(
-                    k => k.Properties))
+                    t => t.GetDeclaredKeys().SelectMany(
+                        k => k.Properties))
                 .Where(p => RelationalExtensions.For(p).DefaultValue != null))
             {
                 ShowWarning(RelationalEventId.ModelValidationKeyDefaultValueWarning,
@@ -450,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void ShowWarning(RelationalEventId eventId, [NotNull] string message)
-            => Logger.LogWarning(eventId, () => message);
+            => Dependencies.Logger.LogWarning(eventId, () => message);
 
         private static string Format(IEnumerable<string> columnNames)
             => "{" + string.Join(", ", columnNames.Select(c => "'" + c + "'")) + "}";

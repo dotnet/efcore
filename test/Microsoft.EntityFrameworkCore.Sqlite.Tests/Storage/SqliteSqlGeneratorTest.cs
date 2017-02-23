@@ -33,6 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Storage
         }
 
         protected override ISqlGenerationHelper CreateSqlGenerationHelper()
-            => new SqliteSqlGenerationHelper();
+            => new SqliteSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
     }
 }

@@ -37,34 +37,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalEntityQueryableExpressionVisitor" />.
         /// </summary>
-        /// <param name="model"> The model. </param>
-        /// <param name="selectExpressionFactory"> The select expression factory. </param>
-        /// <param name="materializerFactory"> The materializer factory. </param>
-        /// <param name="shaperCommandContextFactory"> The shaper command context factory. </param>
-        /// <param name="relationalAnnotationProvider"> The relational annotation provider. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="queryModelVisitor"> The query model visitor. </param>
         /// <param name="querySource"> The query source. </param>
         public RelationalEntityQueryableExpressionVisitor(
-            [NotNull] IModel model,
-            [NotNull] ISelectExpressionFactory selectExpressionFactory,
-            [NotNull] IMaterializerFactory materializerFactory,
-            [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
-            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
+            [NotNull] RelationalEntityQueryableExpressionVisitorDependencies dependencies,
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [CanBeNull] IQuerySource querySource)
             : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
-            Check.NotNull(materializerFactory, nameof(materializerFactory));
-            Check.NotNull(shaperCommandContextFactory, nameof(shaperCommandContextFactory));
-            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _model = model;
-            _selectExpressionFactory = selectExpressionFactory;
-            _materializerFactory = materializerFactory;
-            _shaperCommandContextFactory = shaperCommandContextFactory;
-            _relationalAnnotationProvider = relationalAnnotationProvider;
+            _model = dependencies.Model;
+            _selectExpressionFactory = dependencies.SelectExpressionFactory;
+            _materializerFactory = dependencies.MaterializerFactory;
+            _shaperCommandContextFactory = dependencies.ShaperCommandContextFactory;
+            _relationalAnnotationProvider = dependencies.RelationalAnnotationProvider;
             _querySource = querySource;
         }
 
@@ -357,19 +345,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Dictionary<Type, int[]> typeIndexMap,
             bool useQueryBuffer)
             where TEntity : class
-        => !useQueryBuffer
-            ? (IShaper<TEntity>)new UnbufferedEntityShaper<TEntity>(
-                querySource,
-                entityType,
-                trackingQuery,
-                key,
-                materializer)
-            : new BufferedEntityShaper<TEntity>(
-                querySource,
-                entityType,
-                trackingQuery,
-                key,
-                materializer,
-                typeIndexMap);
+            => !useQueryBuffer
+                ? (IShaper<TEntity>)new UnbufferedEntityShaper<TEntity>(
+                    querySource,
+                    entityType,
+                    trackingQuery,
+                    key,
+                    materializer)
+                : new BufferedEntityShaper<TEntity>(
+                    querySource,
+                    entityType,
+                    trackingQuery,
+                    key,
+                    materializer,
+                    typeIndexMap);
     }
 }

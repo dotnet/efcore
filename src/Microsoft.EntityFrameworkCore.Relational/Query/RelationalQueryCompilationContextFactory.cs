@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -21,15 +18,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalQueryCompilationContextFactory(
-            [NotNull] IModel model,
-            [NotNull] ISensitiveDataLogger<RelationalQueryCompilationContextFactory> logger,
-            [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
-            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
-            [NotNull] INodeTypeProviderFactory nodeTypeProviderFactory,
-            [NotNull] ICurrentDbContext currentContext)
-            : base(model, logger, entityQueryModelVisitorFactory, requiresMaterializationExpressionVisitorFactory, currentContext)
+            [NotNull] QueryCompilationContextDependencies dependencies,
+            [NotNull] RelationalQueryCompilationContextDependencies relationalDependencies)
+            : base(dependencies)
         {
-            nodeTypeProviderFactory
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+
+            relationalDependencies
+                .NodeTypeProviderFactory
                 .RegisterMethods(FromSqlExpressionNode.SupportedMethods, typeof(FromSqlExpressionNode));
         }
 
@@ -43,22 +39,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override QueryCompilationContext Create(bool async)
             => async
                 ? new RelationalQueryCompilationContext(
-                    Model,
-                    (ISensitiveDataLogger)Logger,
-                    EntityQueryModelVisitorFactory,
-                    RequiresMaterializationExpressionVisitorFactory,
+                    Dependencies,
                     new AsyncLinqOperatorProvider(),
                     new AsyncQueryMethodProvider(),
-                    ContextType,
                     TrackQueryResults)
                 : new RelationalQueryCompilationContext(
-                    Model,
-                    (ISensitiveDataLogger)Logger,
-                    EntityQueryModelVisitorFactory,
-                    RequiresMaterializationExpressionVisitorFactory,
+                    Dependencies,
                     new LinqOperatorProvider(),
                     new QueryMethodProvider(),
-                    ContextType,
                     TrackQueryResults);
     }
 }

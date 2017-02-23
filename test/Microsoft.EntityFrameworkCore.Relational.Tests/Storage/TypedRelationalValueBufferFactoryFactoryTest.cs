@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         public void Cache_key_comparison_when_null_index_map()
         {
             var typedRelationalValueBufferFactoryFactory
-                = new TypedRelationalValueBufferFactoryFactory();
+                = new TypedRelationalValueBufferFactoryFactory(new RelationalValueBufferFactoryDependencies());
 
             var factory1
                 = typedRelationalValueBufferFactoryFactory.Create(new[] { typeof(string) }, new[] { 42 });

@@ -5,13 +5,14 @@ using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         A wrapping logger for which logging of sensitive data can be enabled or disabled.
+    ///         The underlying logger to which logging information should be written.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -27,22 +28,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="SensitiveDataLogger{T}" /> class.
         /// </summary>
-        /// <param name="logger">
-        ///     The underlying logger to which logging information should be written.
-        /// </param>
-        /// <param name="contextOptions">
-        ///     The options for the context that this logger is being used with.
-        /// </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         public SensitiveDataLogger(
-            [NotNull] ILogger<T> logger, [CanBeNull] IDbContextOptions contextOptions)
+            [NotNull] SensitiveDataLoggerDependencies<T> dependencies)
         {
-            _logger = logger;
+            Check.NotNull(dependencies, nameof(dependencies));
 
+            Dependencies = dependencies;
+            _logger = dependencies.Logger;
             _coreOptionsExtension
-                = contextOptions?.Extensions
+                = dependencies.ContextOptions?.Extensions
                     .OfType<CoreOptionsExtension>()
                     .FirstOrDefault();
         }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="SensitiveDataLogger{T}" />
+        /// </summary>
+        protected virtual SensitiveDataLoggerDependencies<T> Dependencies { get; }
 
         /// <summary>
         ///     Gets a value indicating whether sensitive information should be written to the underlying logger.

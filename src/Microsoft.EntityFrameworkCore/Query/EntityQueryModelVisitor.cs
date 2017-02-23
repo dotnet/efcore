@@ -56,15 +56,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </returns>
         public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
             Equals(methodInfo, EF.PropertyMethod)
-            ||
-            (
-                // fallback to string comparison because MethodInfo.Equals is not
-                // always true in .NET Native even if methods are the same
-                methodInfo != null
-                && methodInfo.IsGenericMethod
-                && methodInfo.Name == nameof(EF.Property)
-                && methodInfo.DeclaringType?.FullName == _efTypeName
-            );
+            // fallback to string comparison because MethodInfo.Equals is not
+            // always true in .NET Native even if methods are the same
+            || methodInfo != null
+            && methodInfo.IsGenericMethod
+            && methodInfo.Name == nameof(EF.Property)
+            && methodInfo.DeclaringType?.FullName == _efTypeName;
 
         /// <summary>
         ///     Creates an expression to access the given property on an given entity.
@@ -106,88 +103,29 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Initializes a new instance of the <see cref="EntityQueryModelVisitor" /> class.
         /// </summary>
-        /// <param name="queryOptimizer"> The <see cref="IQueryOptimizer" /> to be used when processing the query. </param>
-        /// <param name="navigationRewritingExpressionVisitorFactory">
-        ///     The <see cref="INavigationRewritingExpressionVisitorFactory" /> to be used when
-        ///     processing the query.
-        /// </param>
-        /// <param name="subQueryMemberPushDownExpressionVisitor">
-        ///     The <see cref="ISubQueryMemberPushDownExpressionVisitor" /> to be used when
-        ///     processing the query.
-        /// </param>
-        /// <param name="querySourceTracingExpressionVisitorFactory">
-        ///     The <see cref="IQuerySourceTracingExpressionVisitorFactory" /> to be used when
-        ///     processing the query.
-        /// </param>
-        /// <param name="entityResultFindingExpressionVisitorFactory">
-        ///     The <see cref="IEntityResultFindingExpressionVisitorFactory" /> to be used when
-        ///     processing the query.
-        /// </param>
-        /// <param name="taskBlockingExpressionVisitor"> The <see cref="ITaskBlockingExpressionVisitor" /> to be used when processing the query. </param>
-        /// <param name="memberAccessBindingExpressionVisitorFactory">
-        ///     The <see cref="IMemberAccessBindingExpressionVisitorFactory" /> to be used when
-        ///     processing the query.
-        /// </param>
-        /// <param name="orderingExpressionVisitorFactory"> The <see cref="IOrderingExpressionVisitorFactory" /> to be used when processing the query. </param>
-        /// <param name="projectionExpressionVisitorFactory">
-        ///     The <see cref="IProjectionExpressionVisitorFactory" /> to be used when processing the
-        ///     query.
-        /// </param>
-        /// <param name="entityQueryableExpressionVisitorFactory">
-        ///     The <see cref="IEntityQueryableExpressionVisitorFactory" /> to be used when
-        ///     processing the query.
-        /// </param>
-        /// <param name="queryAnnotationExtractor"> The <see cref="IQueryAnnotationExtractor" /> to be used when processing the query. </param>
-        /// <param name="resultOperatorHandler"> The <see cref="IResultOperatorHandler" /> to be used when processing the query. </param>
-        /// <param name="entityMaterializerSource"> The <see cref="IEntityMaterializerSource" /> to be used when processing the query. </param>
-        /// <param name="expressionPrinter"> The <see cref="IExpressionPrinter" /> to be used when processing the query. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="queryCompilationContext"> The <see cref="QueryCompilationContext" /> to be used when processing the query. </param>
         protected EntityQueryModelVisitor(
-            [NotNull] IQueryOptimizer queryOptimizer,
-            [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
-            [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
-            [NotNull] IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory,
-            [NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory,
-            [NotNull] ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor,
-            [NotNull] IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory,
-            [NotNull] IOrderingExpressionVisitorFactory orderingExpressionVisitorFactory,
-            [NotNull] IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory,
-            [NotNull] IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory,
-            [NotNull] IQueryAnnotationExtractor queryAnnotationExtractor,
-            [NotNull] IResultOperatorHandler resultOperatorHandler,
-            [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IExpressionPrinter expressionPrinter,
+            [NotNull] EntityQueryModelVisitorDependencies dependencies,
             [NotNull] QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(queryOptimizer, nameof(queryOptimizer));
-            Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory));
-            Check.NotNull(subQueryMemberPushDownExpressionVisitor, nameof(subQueryMemberPushDownExpressionVisitor));
-            Check.NotNull(querySourceTracingExpressionVisitorFactory, nameof(querySourceTracingExpressionVisitorFactory));
-            Check.NotNull(entityResultFindingExpressionVisitorFactory, nameof(entityResultFindingExpressionVisitorFactory));
-            Check.NotNull(taskBlockingExpressionVisitor, nameof(taskBlockingExpressionVisitor));
-            Check.NotNull(memberAccessBindingExpressionVisitorFactory, nameof(memberAccessBindingExpressionVisitorFactory));
-            Check.NotNull(orderingExpressionVisitorFactory, nameof(orderingExpressionVisitorFactory));
-            Check.NotNull(projectionExpressionVisitorFactory, nameof(projectionExpressionVisitorFactory));
-            Check.NotNull(entityQueryableExpressionVisitorFactory, nameof(entityQueryableExpressionVisitorFactory));
-            Check.NotNull(queryAnnotationExtractor, nameof(queryAnnotationExtractor));
-            Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
-            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+            Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            _queryOptimizer = queryOptimizer;
-            _navigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
-            _subQueryMemberPushDownExpressionVisitor = subQueryMemberPushDownExpressionVisitor;
-            _querySourceTracingExpressionVisitorFactory = querySourceTracingExpressionVisitorFactory;
-            _entityResultFindingExpressionVisitorFactory = entityResultFindingExpressionVisitorFactory;
-            _taskBlockingExpressionVisitor = taskBlockingExpressionVisitor;
-            _memberAccessBindingExpressionVisitorFactory = memberAccessBindingExpressionVisitorFactory;
-            _projectionExpressionVisitorFactory = projectionExpressionVisitorFactory;
-            _entityQueryableExpressionVisitorFactory = entityQueryableExpressionVisitorFactory;
-            _queryAnnotationExtractor = queryAnnotationExtractor;
-            _resultOperatorHandler = resultOperatorHandler;
-            _entityMaterializerSource = entityMaterializerSource;
-            _expressionPrinter = expressionPrinter;
+            _queryOptimizer = dependencies.QueryOptimizer;
+            _navigationRewritingExpressionVisitorFactory = dependencies.NavigationRewritingExpressionVisitorFactory;
+            _subQueryMemberPushDownExpressionVisitor = dependencies.SubQueryMemberPushDownExpressionVisitor;
+            _querySourceTracingExpressionVisitorFactory = dependencies.QuerySourceTracingExpressionVisitorFactory;
+            _entityResultFindingExpressionVisitorFactory = dependencies.EntityResultFindingExpressionVisitorFactory;
+            _taskBlockingExpressionVisitor = dependencies.TaskBlockingExpressionVisitor;
+            _memberAccessBindingExpressionVisitorFactory = dependencies.MemberAccessBindingExpressionVisitorFactory;
+            _projectionExpressionVisitorFactory = dependencies.ProjectionExpressionVisitorFactory;
+            _entityQueryableExpressionVisitorFactory = dependencies.EntityQueryableExpressionVisitorFactory;
+            _queryAnnotationExtractor = dependencies.QueryAnnotationExtractor;
+            _resultOperatorHandler = dependencies.ResultOperatorHandler;
+            _entityMaterializerSource = dependencies.EntityMaterializerSource;
+            _expressionPrinter = dependencies.ExpressionPrinter;
+
             _queryCompilationContext = queryCompilationContext;
 
             LinqOperatorProvider = queryCompilationContext.LinqOperatorProvider;
@@ -277,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return CreateExecutorLambda<IEnumerable<TResult>>();
             }
         }
-        
+
         /// <summary>
         ///     Creates an action to asynchronously execute this query.
         /// </summary>
@@ -354,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <param name="includeResultOperators">TODO: This parameter is to be removed.</param>
         protected virtual void OptimizeQueryModel(
-            [NotNull] QueryModel queryModel, 
+            [NotNull] QueryModel queryModel,
             [NotNull] ICollection<IncludeResultOperator> includeResultOperators)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -419,7 +357,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 queryModel.TransformExpressions(new RecursiveQueryModelExpressionVisitor(this).Visit);
             }
-
 
             private class RecursiveQueryModelExpressionVisitor : ExpressionVisitorBase
             {
@@ -655,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return;
             }
 
-            var outputExpression 
+            var outputExpression
                 = new IncludeRemovingExpressionVisitor()
                     .Visit(queryModel.SelectClause.Selector);
 
@@ -766,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static readonly MethodInfo _getEntityAccessors
             = typeof(EntityQueryModelVisitor)
                 .GetTypeInfo().GetDeclaredMethod(nameof(GetEntityAccessors));
-        
+
         [UsedImplicitly]
         private static ICollection<Func<TResult, object>> GetEntityAccessors<TResult>(
             IEnumerable<EntityTrackingInfo> entityTrackingInfos,
@@ -1110,9 +1047,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             _expression
                 = Expression.Call(
                     (index == 0
-                            ? LinqOperatorProvider.OrderBy
-                            : LinqOperatorProvider.ThenBy)
-                        .MakeGenericMethod(CurrentParameter.Type, expression.Type),
+                        ? LinqOperatorProvider.OrderBy
+                        : LinqOperatorProvider.ThenBy)
+                    .MakeGenericMethod(CurrentParameter.Type, expression.Type),
                     _expression,
                     Expression.Lambda(expression, CurrentParameter),
                     Expression.Constant(ordering.OrderingDirection));

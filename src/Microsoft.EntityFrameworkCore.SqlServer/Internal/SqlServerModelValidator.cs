@@ -4,22 +4,19 @@
 using System;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class SqlServerModelValidator : RelationalModelValidator
     {
         public SqlServerModelValidator(
-            [NotNull] ILogger<RelationalModelValidator> loggerFactory,
-            [NotNull] IRelationalAnnotationProvider relationalExtensions,
-            [NotNull] IRelationalTypeMapper typeMapper)
-            : base(loggerFactory, relationalExtensions, typeMapper)
+            [NotNull] ModelValidatorDependencies dependencies,
+            [NotNull] RelationalModelValidatorDependencies relationalDependencies)
+            : base(dependencies, relationalDependencies)
         {
         }
 
@@ -71,6 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void ShowWarning(SqlServerEventId eventId, [NotNull] string message)
-            => Logger.LogWarning(eventId, () => message);
+            => Dependencies.Logger.LogWarning(eventId, () => message);
     }
 }

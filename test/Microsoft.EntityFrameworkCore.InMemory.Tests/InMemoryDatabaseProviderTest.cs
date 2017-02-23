@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         {
             Assert.Equal(
                 typeof(InMemoryDatabase).GetTypeInfo().Assembly.GetName().Name,
-                new DatabaseProvider<InMemoryOptionsExtension>().InvariantName);
+                new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).InvariantName);
         }
 
         [Fact]
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryDatabase();
 
-            Assert.True(new DatabaseProvider<InMemoryOptionsExtension>().IsConfigured(optionsBuilder.Options));
+            Assert.True(new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
         }
 
         [Fact]
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            Assert.False(new DatabaseProvider<InMemoryOptionsExtension>().IsConfigured(optionsBuilder.Options));
+            Assert.False(new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
         }
     }
 }

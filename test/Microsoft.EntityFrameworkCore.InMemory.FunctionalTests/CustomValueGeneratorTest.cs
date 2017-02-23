@@ -196,8 +196,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             private readonly ValueGeneratorFactory _factory = new CustomValueGeneratorFactory();
 
-            public CustomInMemoryValueGeneratorSelector(IValueGeneratorCache cache)
-                : base(cache)
+            public CustomInMemoryValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
+                : base(dependencies)
             {
             }
 

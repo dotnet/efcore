@@ -7,10 +7,8 @@ using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -21,27 +19,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     public class SqlServerDatabaseCreator : RelationalDatabaseCreator
     {
         private readonly ISqlServerConnection _connection;
-        private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public SqlServerDatabaseCreator(
+            [NotNull] RelationalDatabaseCreatorDependencies dependencies,
             [NotNull] ISqlServerConnection connection,
-            [NotNull] IMigrationsModelDiffer modelDiffer,
-            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
-            [NotNull] IModel model,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
-            : base(model, connection, modelDiffer, migrationsSqlGenerator, migrationCommandExecutor, executionStrategyFactory)
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
+            : base(dependencies)
         {
-            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
-
             _connection = connection;
-            _migrationsSqlGenerator = migrationsSqlGenerator;
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
         }
 
@@ -53,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                MigrationCommandExecutor
+                Dependencies.MigrationCommandExecutor
                     .ExecuteNonQuery(CreateCreateOperations(), masterConnection);
 
                 ClearPool();
@@ -70,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                await MigrationCommandExecutor
+                await Dependencies.MigrationCommandExecutor
                     .ExecuteNonQueryAsync(CreateCreateOperations(), masterConnection, cancellationToken);
 
                 ClearPool();
@@ -84,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override bool HasTables()
-            => ExecutionStrategyFactory.Create().Execute(
+            => Dependencies.ExecutionStrategyFactory.Create().Execute(
                 connection => (int)CreateHasTablesCommand().ExecuteScalar(connection) != 0,
                 _connection);
 
@@ -93,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => ExecutionStrategyFactory.Create().ExecuteAsync(
+            => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
                 async (connection, ct) => (int)await CreateHasTablesCommand().ExecuteScalarAsync(connection, cancellationToken: ct) != 0,
                 _connection,
                 cancellationToken);
@@ -105,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private IReadOnlyList<MigrationCommand> CreateCreateOperations()
         {
             var builder = new SqlConnectionStringBuilder(_connection.DbConnection.ConnectionString);
-            return _migrationsSqlGenerator.Generate(new[] { new SqlServerCreateDatabaseOperation { Name = builder.InitialCatalog, FileName = builder.AttachDBFilename } });
+            return Dependencies.MigrationsSqlGenerator.Generate(new[] { new SqlServerCreateDatabaseOperation { Name = builder.InitialCatalog, FileName = builder.AttachDBFilename } });
         }
 
         /// <summary>
@@ -116,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => Exists(retryOnNotExists: false);
 
         private bool Exists(bool retryOnNotExists)
-            => ExecutionStrategyFactory.Create().Execute(
+            => Dependencies.ExecutionStrategyFactory.Create().Execute(
                 giveUp =>
                     {
                         var retryCount = 0;
@@ -156,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
         {
-            return ExecutionStrategyFactory.Create().ExecuteAsync(
+            return Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
                 async (giveUp, ct) =>
                     {
                         var retryCount = 0;
@@ -235,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                MigrationCommandExecutor
+                Dependencies.MigrationCommandExecutor
                     .ExecuteNonQuery(CreateDropCommands(), masterConnection);
             }
         }
@@ -250,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                await MigrationCommandExecutor
+                await Dependencies.MigrationCommandExecutor
                     .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, cancellationToken);
             }
         }
@@ -264,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 new SqlServerDropDatabaseOperation { Name = _connection.DbConnection.Database }
             };
 
-            var masterCommands = _migrationsSqlGenerator.Generate(operations);
+            var masterCommands = Dependencies.MigrationsSqlGenerator.Generate(operations);
             return masterCommands;
         }
 

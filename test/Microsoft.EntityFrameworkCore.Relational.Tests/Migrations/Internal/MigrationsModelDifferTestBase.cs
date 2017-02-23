@@ -45,12 +45,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
 
         protected virtual MigrationsModelDiffer CreateModelDiffer()
             => new MigrationsModelDiffer(
-                new ConcreteTypeMapper(),
+                new ConcreteTypeMapper(new RelationalTypeMapperDependencies()),
                 new TestAnnotationProvider(),
-                new MigrationsAnnotationProvider());
+                new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()));
 
         private class ConcreteTypeMapper : RelationalTypeMapper
         {
+            public ConcreteTypeMapper(RelationalTypeMapperDependencies dependencies)
+                : base(dependencies)
+            {
+            }
+
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
             public override RelationalTypeMapping FindMapping(Type clrType)

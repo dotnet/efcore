@@ -531,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var fakeConnection = CreateConnection();
 
-            var typeMapper = new FakeRelationalTypeMapper();
+            var typeMapper = new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies());
 
             var dbParameter = new FakeDbParameter { ParameterName = "FirstParameter", Value = 17, DbType = DbType.Int32 };
 
@@ -883,8 +883,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
 
             var relationalCommand = CreateRelationalCommand(
                 logger: new SensitiveDataLogger<RelationalCommand>(
-                    new ListLogger<RelationalCommand>(log),
-                    options),
+                    new SensitiveDataLoggerDependencies<RelationalCommand>(
+                        new ListLogger<RelationalCommand>(log),
+                        options)),
                 commandText: "Logged Command",
                 parameters: new[]
                 {
@@ -930,8 +931,9 @@ Logged Command",
 
             var relationalCommand = CreateRelationalCommand(
                 logger: new SensitiveDataLogger<RelationalCommand>(
-                    new ListLogger<RelationalCommand>(log),
-                    options),
+                    new SensitiveDataLoggerDependencies<RelationalCommand>(
+                        new ListLogger<RelationalCommand>(log),
+                        options)),
                 commandText: "Logged Command",
                 parameters: new[]
                 {

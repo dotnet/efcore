@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -54,6 +55,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 { typeof(long), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetInt64)) },
                 { typeof(string), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetString)) }
             };
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="TypedRelationalValueBufferFactoryFactory" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public TypedRelationalValueBufferFactoryFactory([NotNull] RelationalValueBufferFactoryDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
+        }
+
+        /// <summary>
+        ///     Parameter object containing dependencies for this service.
+        /// </summary>
+        protected virtual RelationalValueBufferFactoryDependencies Dependencies { get; }
 
         private struct CacheKey
         {
@@ -126,6 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(valueTypes, nameof(valueTypes));
 
             return new TypedRelationalValueBufferFactory(
+                Dependencies,
                 _cache.GetOrAdd(
                     new CacheKey(valueTypes, indexMap),
                     CreateArrayInitializer));

@@ -24,11 +24,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerValueGeneratorSelector(
-            [NotNull] ISqlServerValueGeneratorCache cache,
+            [NotNull] ValueGeneratorSelectorDependencies dependencies,
             [NotNull] ISqlServerSequenceValueGeneratorFactory sequenceFactory,
-            [NotNull] ISqlServerConnection connection,
-            [NotNull] IRelationalAnnotationProvider relationalExtensions)
-            : base(cache, relationalExtensions)
+            [NotNull] ISqlServerConnection connection)
+            : base(dependencies)
         {
             Check.NotNull(sequenceFactory, nameof(sequenceFactory));
             Check.NotNull(connection, nameof(connection));

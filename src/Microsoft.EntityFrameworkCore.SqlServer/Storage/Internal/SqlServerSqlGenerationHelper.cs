@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -18,6 +19,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private const string DateTimeFormatStringConst = "'{0:" + DateTimeFormatConst + "}'";
         private const string DateTimeOffsetFormatConst = "yyyy-MM-ddTHH:mm:ss.fffzzz";
         private const string DateTimeOffsetFormatStringConst = "'{0:" + DateTimeOffsetFormatConst + "}'";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public SqlServerSqlGenerationHelper([NotNull] RelationalSqlGenerationHelperDependencies dependencies)
+            : base(dependencies)
+        {
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

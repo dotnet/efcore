@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
@@ -14,6 +15,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
     public abstract class RelationalCompositeMemberTranslator : IMemberTranslator
     {
         private readonly List<IMemberTranslator> _translators = new List<IMemberTranslator>();
+
+        /// <summary>
+        ///     Initializes a new instance of the this class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        protected RelationalCompositeMemberTranslator([NotNull] RelationalCompositeMemberTranslatorDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+        }
 
         /// <summary>
         ///     Translates the given member expression.

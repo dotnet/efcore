@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalConnection" /> class.
         /// </summary>
-        /// <param name="dependencies">Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         protected RelationalConnection([NotNull] RelationalConnectionDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the logger to write to.
         /// </summary>
-        protected virtual ILogger Logger => Dependencies.Logger;
+        protected virtual ILogger<IRelationalConnection> Logger => Dependencies.Logger;
 
         /// <summary>
         ///     Gets the diagnostic source.

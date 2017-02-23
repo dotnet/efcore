@@ -8,14 +8,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -386,8 +382,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         // ReSharper disable once ClassNeverInstantiated.Local
         private class TestSqlServerExecutionStrategyFactory : SqlServerExecutionStrategyFactory
         {
-            public TestSqlServerExecutionStrategyFactory(IDbContextOptions options, ICurrentDbContext currentDbContext, ILogger<IExecutionStrategy> logger)
-                : base(options, currentDbContext, logger)
+            public TestSqlServerExecutionStrategyFactory(ExecutionStrategyContextDependencies dependencies)
+                : base(dependencies)
             {
             }
 
@@ -413,14 +409,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public class TestDatabaseCreator : SqlServerDatabaseCreator
         {
             public TestDatabaseCreator(
+                RelationalDatabaseCreatorDependencies dependencies,
                 ISqlServerConnection connection,
-                IMigrationsModelDiffer modelDiffer,
-                IMigrationsSqlGenerator sqlGenerator,
-                IMigrationCommandExecutor migrationCommandExecutor,
-                IModel model,
-                IRawSqlCommandBuilder rawSqlCommandBuilder,
-                IExecutionStrategyFactory executionStrategyFactory)
-                : base(connection, modelDiffer, sqlGenerator, migrationCommandExecutor, model, rawSqlCommandBuilder, executionStrategyFactory)
+                IRawSqlCommandBuilder rawSqlCommandBuilder)
+                : base(dependencies, connection, rawSqlCommandBuilder)
             {
             }
 
@@ -429,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public Task<bool> HasTablesAsyncBase(CancellationToken cancellationToken = default(CancellationToken))
                 => HasTablesAsync(cancellationToken);
 
-            public new IExecutionStrategyFactory ExecutionStrategyFactory => base.ExecutionStrategyFactory;
+            public IExecutionStrategyFactory ExecutionStrategyFactory => Dependencies.ExecutionStrategyFactory;
         }
     }
 }

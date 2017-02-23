@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -21,11 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InMemoryQueryContextFactory(
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IConcurrencyDetector concurrencyDetector,
+            [NotNull] QueryContextDependencies dependencies,
             [NotNull] IInMemoryStoreSource storeSource,
             [NotNull] IDbContextOptions contextOptions)
-            : base(currentContext, concurrencyDetector)
+            : base(dependencies)
         {
             _store = storeSource.GetStore(contextOptions);
         }
@@ -35,6 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override QueryContext Create()
-            => new InMemoryQueryContext(CreateQueryBuffer, _store, StateManager, ConcurrencyDetector);
+            => new InMemoryQueryContext(Dependencies, CreateQueryBuffer, _store);
     }
 }

@@ -4,6 +4,7 @@
 using System;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Relational.Tests.Update;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -14,7 +15,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
     public class SqlServerUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
     {
         protected override IUpdateSqlGenerator CreateSqlGenerator()
-            => new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper());
+            => new SqlServerUpdateSqlGenerator(
+                new UpdateSqlGeneratorDependencies(
+                    new SqlServerSqlGenerationHelper(
+                        new RelationalSqlGenerationHelperDependencies())),
+                new SqlServerTypeMapper(
+                    new RelationalTypeMapperDependencies()));
 
         [Fact]
         public void AppendBatchHeader_should_append_SET_NOCOUNT_ON()

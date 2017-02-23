@@ -14,17 +14,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         private readonly TemporaryNumberValueGeneratorFactory _numberFactory
             = new TemporaryNumberValueGeneratorFactory();
 
-        public RelationalValueGeneratorSelector(
-            [NotNull] IValueGeneratorCache cache,
-            [NotNull] IRelationalAnnotationProvider relationalExtensions)
-            : base(cache)
+        public RelationalValueGeneratorSelector([NotNull] ValueGeneratorSelectorDependencies dependencies)
+            : base(dependencies)
         {
-            Check.NotNull(relationalExtensions, nameof(relationalExtensions));
-
-            RelationalExtensions = relationalExtensions;
         }
-
-        protected virtual IRelationalAnnotationProvider RelationalExtensions { get; }
 
         public override ValueGenerator Create(IProperty property, IEntityType entityType)
         {
@@ -36,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
 
                 if (propertyType.IsInteger()
-                    || (propertyType == typeof(decimal))
-                    || (propertyType == typeof(float))
-                    || (propertyType == typeof(double)))
+                    || propertyType == typeof(decimal)
+                    || propertyType == typeof(float)
+                    || propertyType == typeof(double))
                 {
                     return _numberFactory.Create(property);
                 }

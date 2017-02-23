@@ -360,6 +360,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
         }
 
         protected override ModelValidator CreateModelValidator()
-            => new CoreModelValidator(Logger);
+            => new CoreModelValidator(new ModelValidatorDependencies(Logger));
     }
 }

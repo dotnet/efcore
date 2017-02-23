@@ -9,36 +9,44 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqliteQuerySqlGenerator : DefaultQuerySqlGenerator
     {
         protected override string ConcatOperator => "||";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqliteQuerySqlGenerator(
-            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] IRelationalTypeMapper relationalTypeMapper,
+            [NotNull] QuerySqlGeneratorDependencies dependencies,
             [NotNull] SelectExpression selectExpression)
-            : base(
-                relationalCommandBuilderFactory,
-                sqlGenerationHelper,
-                parameterNameGeneratorFactory,
-                relationalTypeMapper,
-                selectExpression)
+            : base(dependencies, selectExpression)
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void GenerateTop(SelectExpression selectExpression)
         {
             // Handled by GenerateLimitOffset
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
-            if ((selectExpression.Limit != null)
-                || (selectExpression.Offset != null))
+            if (selectExpression.Limit != null
+                || selectExpression.Offset != null)
             {
                 Sql.AppendLine()
                     .Append("LIMIT ");

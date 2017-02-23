@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 new RelationalCommandBuilderFactory(
                     new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
                     new DiagnosticListener("Fake"),
-                    new FakeRelationalTypeMapper()),
-                new RelationalSqlGenerationHelper(),
-                new ParameterNameGeneratorFactory());
+                    new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
+                new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
+                new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
 
             var command = builder.Build("SQL COMMAND TEXT");
 
@@ -36,9 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 new RelationalCommandBuilderFactory(
                     new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
                     new DiagnosticListener("Fake"),
-                    new FakeRelationalTypeMapper()),
-                new RelationalSqlGenerationHelper(),
-                new ParameterNameGeneratorFactory());
+                    new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
+                new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
+                new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
 
             var rawSqlCommand = builder.Build("SQL COMMAND TEXT", new object[0]);
 
@@ -54,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 new RelationalCommandBuilderFactory(
                     new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
                     new DiagnosticListener("Fake"),
-                    new FakeRelationalTypeMapper()),
-                new RelationalSqlGenerationHelper(),
-                new ParameterNameGeneratorFactory());
+                    new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
+                new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
+                new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
 
             var rawSqlCommand = builder.Build("SQL COMMAND TEXT {0} {1} {2}", new object[] { 1, 2L, "three" });
 

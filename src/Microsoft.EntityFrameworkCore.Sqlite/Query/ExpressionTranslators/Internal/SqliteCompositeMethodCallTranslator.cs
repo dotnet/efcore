@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
@@ -31,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqliteCompositeMethodCallTranslator(
-            [NotNull] ILogger<SqliteCompositeMethodCallTranslator> logger)
-            : base(logger)
+            [NotNull] RelationalCompositeMethodCallTranslatorDependencies dependencies)
+            : base(dependencies)
         {
             AddTranslators(_sqliteTranslators);
         }

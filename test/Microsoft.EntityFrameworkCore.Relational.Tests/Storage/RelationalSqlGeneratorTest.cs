@@ -8,6 +8,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
     public class RelationalSqlGeneratorTest : SqlGeneratorTestBase
     {
         protected override ISqlGenerationHelper CreateSqlGenerationHelper()
-            => new RelationalSqlGenerationHelper();
+            => new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
     }
 }

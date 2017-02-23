@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -30,7 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly IMaterializerFactory _materializerFactory;
         private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
-        private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly IQuerySource _querySource;
         private readonly IncludeSpecification _includeSpecification;
         private readonly RelationalQueryCompilationContext _queryCompilationContext;
@@ -42,40 +40,46 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IncludeExpressionVisitor(
+            [NotNull] SelectExpressionDependencies selectExpressionDependencies,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
-            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             [NotNull] IQuerySource querySource,
             [NotNull] IncludeSpecification includeSpecification,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             [NotNull] NavigationIndex queryIndexes,
             bool querySourceRequiresTracking)
         {
+            Check.NotNull(selectExpressionDependencies, nameof(selectExpressionDependencies));
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
             Check.NotNull(shaperCommandContextFactory, nameof(shaperCommandContextFactory));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
-            Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
             Check.NotNull(querySource, nameof(querySource));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
             Check.NotNull(queryIndexes, nameof(queryIndexes));
+
+            SelectExpressionDependencies = selectExpressionDependencies;
 
             _selectExpressionFactory = selectExpressionFactory;
             _compositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
             _materializerFactory = materializerFactory;
             _shaperCommandContextFactory = shaperCommandContextFactory;
             _relationalAnnotationProvider = relationalAnnotationProvider;
-            _querySqlGeneratorFactory = querySqlGeneratorFactory;
             _querySource = querySource;
             _includeSpecification = includeSpecification;
             _queryCompilationContext = queryCompilationContext;
             _queryIndexes = queryIndexes;
             _querySourceRequiresTracking = querySourceRequiresTracking;
         }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="SelectExpression" />
+        /// </summary>
+        protected virtual SelectExpressionDependencies SelectExpressionDependencies { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -467,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 queryContextParameter,
                                 Expression.Constant(
                                     _shaperCommandContextFactory.Create(() =>
-                                        _querySqlGeneratorFactory.CreateDefault(targetSelectExpression))),
+                                            SelectExpressionDependencies.QuerySqlGeneratorFactory.CreateDefault(targetSelectExpression))),
                                 Expression.Constant(queryIndex),
                                 materializer
                             )),
@@ -479,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             SelectExpression selectExpression, PredicateJoinExpressionBase joinExpression)
         {
             var subquery
-                = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext)
+                = new SelectExpression(SelectExpressionDependencies, _queryCompilationContext)
                 {
                     Alias = joinExpression.Alias
                 };

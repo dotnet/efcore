@@ -31,6 +31,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         private class MyModelCustomizer : ModelCustomizer
         {
+            public MyModelCustomizer(ModelCustomizerDependencies dependencies)
+                : base(dependencies)
+            {
+            }
+
             public override void Customize(ModelBuilder modelBuilder, DbContext dbContext)
             {
                 base.Customize(modelBuilder, dbContext);

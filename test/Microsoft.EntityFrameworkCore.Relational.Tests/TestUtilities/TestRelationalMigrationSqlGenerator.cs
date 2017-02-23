@@ -4,18 +4,13 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
 {
     public class TestRelationalMigrationSqlGenerator : MigrationsSqlGenerator
     {
-        public TestRelationalMigrationSqlGenerator(
-            IRelationalCommandBuilderFactory commandBuilderFactory,
-            ISqlGenerationHelper sqlGenerationHelper,
-            IRelationalTypeMapper typeMapper,
-            IRelationalAnnotationProvider annotations)
-            : base(commandBuilderFactory, sqlGenerationHelper, typeMapper, annotations)
+        public TestRelationalMigrationSqlGenerator(MigrationsSqlGeneratorDependencies dependencies)
+            : base(dependencies)
         {
         }
 

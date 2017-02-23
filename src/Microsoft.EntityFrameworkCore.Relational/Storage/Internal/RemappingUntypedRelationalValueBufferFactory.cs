@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RemappingUntypedRelationalValueBufferFactory(
+            [NotNull] RelationalValueBufferFactoryDependencies dependencies,
             [NotNull] IReadOnlyList<int> indexMap,
             [CanBeNull] Action<object[]> processValuesAction)
         {

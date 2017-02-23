@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
@@ -293,6 +294,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design
         }
 
         private static ScaffoldingTypeMapper CreateMapper()
-            => new ScaffoldingTypeMapper(new SqlServerTypeMapper());
+            => new ScaffoldingTypeMapper(new SqlServerTypeMapper(new RelationalTypeMapperDependencies()));
     }
 }

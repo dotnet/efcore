@@ -4,11 +4,9 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -16,22 +14,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGenerator
     {
-        private readonly IDbContextOptions _contextOptions;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this service. </param>
         public RelationalCompiledQueryCacheKeyGenerator(
-            [NotNull] IModel model,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IDbContextOptions contextOptions)
-            : base(model, currentContext)
+            [NotNull] CompiledQueryCacheKeyGeneratorDependencies dependencies,
+            [NotNull] RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies)
+            : base(dependencies)
         {
-            Check.NotNull(contextOptions, nameof(contextOptions));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            _contextOptions = contextOptions;
+            RelationalDependencies = relationalDependencies;
         }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="RelationalCompiledQueryCacheKeyGenerator" />
+        /// </summary>
+        protected virtual RelationalCompiledQueryCacheKeyGeneratorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected new RelationalCompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
             => new RelationalCompiledQueryCacheKey(
                 base.GenerateCacheKeyCore(query, async),
-                RelationalOptionsExtension.Extract(_contextOptions).UseRelationalNulls);
+                RelationalOptionsExtension.Extract(RelationalDependencies.ContextOptions).UseRelationalNulls);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -80,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private bool Equals(RelationalCompiledQueryCacheKey other)
                 => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
-                   && (_useRelationalNulls == other._useRelationalNulls);
+                   && _useRelationalNulls == other._useRelationalNulls;
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

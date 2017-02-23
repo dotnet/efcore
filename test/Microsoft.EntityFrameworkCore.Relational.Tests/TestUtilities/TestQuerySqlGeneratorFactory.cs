@@ -3,27 +3,17 @@
 
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Sql;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
 {
     public class TestQuerySqlGeneratorFactory : QuerySqlGeneratorFactoryBase
     {
-        public TestQuerySqlGeneratorFactory(
-            IRelationalCommandBuilderFactory commandBuilderFactory,
-            ISqlGenerationHelper sqlGenerationHelper,
-            IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            IRelationalTypeMapper relationalTypeMapper)
-            : base(commandBuilderFactory, sqlGenerationHelper, parameterNameGeneratorFactory, relationalTypeMapper)
+        public TestQuerySqlGeneratorFactory(QuerySqlGeneratorDependencies dependencies)
+            : base(dependencies)
         {
         }
 
         public override IQuerySqlGenerator CreateDefault(SelectExpression selectExpression)
-        => new TestQuerySqlGenerator(
-                CommandBuilderFactory,
-                SqlGenerationHelper,
-                ParameterNameGeneratorFactory,
-                RelationalTypeMapper,
-                selectExpression);
+            => new TestQuerySqlGenerator(Dependencies, selectExpression);
     }
 }

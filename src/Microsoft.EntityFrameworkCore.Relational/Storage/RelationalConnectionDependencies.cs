@@ -17,6 +17,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
+    ///     <para>
+    ///         Do not construct instances of this class directly from either provider or application code as the
+    ///         constructor signature may change as new dependencies are added. Instead, use this type in 
+    ///         your constructor so that an instance will be created and injected automatically by the 
+    ///         dependency injection container. To create an instance with some dependent services replaced, 
+    ///         first resolve the object from the dependency injection container, then replace selected 
+    ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
+    ///     </para>
     /// </summary>
     public sealed class RelationalConnectionDependencies
     {
@@ -25,8 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Creates the service dependencies parameter object for a <see cref="RelationalConnection" />.
         ///     </para>
         ///     <para>
-        ///         Do not call this constructor directly from provider or application code as it may change
-        ///         as new dependencies are added. Use the 'With...' methods instead.
+        ///         Do not call this constructor directly from either provider or application code as it may change 
+        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance 
+        ///         will be created and injected automatically by the dependency injection container. To create 
+        ///         an instance with some dependent services replaced, first resolve the object from the dependency 
+        ///         injection container, then replace selected services using the 'With...' methods. Do not call 
+        ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
         /// <param name="contextOptions"> The options for the current context instance. </param>
@@ -67,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="contextOptions">
         ///     A replacement for the current dependency of this type.
         /// </param>
-        /// <returns></returns>
+        /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConnectionDependencies With([NotNull] IDbContextOptions contextOptions)
             => new RelationalConnectionDependencies(Check.NotNull(contextOptions, nameof(contextOptions)), Logger, DiagnosticSource);
 
@@ -77,8 +89,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="logger">
         ///     A replacement for the current dependency of this type.
         /// </param>
-        /// <returns></returns>
+        /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConnectionDependencies With([NotNull] ILogger<IRelationalConnection> logger)
             => new RelationalConnectionDependencies(ContextOptions, Check.NotNull(logger, nameof(logger)), DiagnosticSource);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="diagnosticSource">
+        ///     A replacement for the current dependency of this type.
+        /// </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalConnectionDependencies With([NotNull] DiagnosticSource diagnosticSource)
+            => new RelationalConnectionDependencies(ContextOptions, Logger, Check.NotNull(diagnosticSource, nameof(diagnosticSource)));
     }
 }

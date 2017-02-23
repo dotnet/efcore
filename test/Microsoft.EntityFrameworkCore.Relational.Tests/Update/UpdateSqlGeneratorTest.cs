@@ -19,7 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         private class ConcreteSqlGenerator : UpdateSqlGenerator
         {
             public ConcreteSqlGenerator()
-                : base(new RelationalSqlGenerationHelper())
+                : base(
+                    new UpdateSqlGeneratorDependencies(
+                        new RelationalSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies())))
             {
             }
 

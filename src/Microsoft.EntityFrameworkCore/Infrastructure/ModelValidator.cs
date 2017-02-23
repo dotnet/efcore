@@ -4,7 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -20,24 +20,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public abstract class ModelValidator : IModelValidator
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="ModelValidator"/>.
+        ///     Creates a new instance of <see cref="ModelValidator" />.
         /// </summary>
-        /// <param name="logger"> The logger. </param>
-        protected ModelValidator([NotNull] ILogger<ModelValidator> logger)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        protected ModelValidator([NotNull] ModelValidatorDependencies dependencies)
         {
-            Logger = logger;
+            Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
         }
 
         /// <summary>
-        ///     Gets the logger.
+        ///     Dependencies used to create a <see cref="ModelValidator" />
         /// </summary>
-        /// <value>
-        ///     The logger.
-        /// </value>
-        protected virtual ILogger Logger { get; }
+        protected virtual ModelValidatorDependencies Dependencies { get; }
 
         /// <summary>
-        ///      Validates a model, throwing an exception if any errors are found.
+        ///     Validates a model, throwing an exception if any errors are found.
         /// </summary>
         /// <param name="model"> The model to validate. </param>
         public virtual void Validate(IModel model)

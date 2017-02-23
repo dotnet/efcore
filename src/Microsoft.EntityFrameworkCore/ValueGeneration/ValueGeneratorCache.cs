@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -19,6 +20,15 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     public class ValueGeneratorCache : IValueGeneratorCache
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public ValueGeneratorCache([NotNull] ValueGeneratorCacheDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+        }
+
         private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache
             = new ConcurrentDictionary<CacheKey, ValueGenerator>();
 

@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Storage
         [InlineData("", typeof(string))]
         public void It_maps_strings_to_not_null_types(string typeName, Type clrType)
         {
-            Assert.Equal(clrType, new SqliteTypeMapper().GetMapping(typeName).ClrType);
+            Assert.Equal(clrType, new SqliteTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(typeName).ClrType);
         }
     }
 }

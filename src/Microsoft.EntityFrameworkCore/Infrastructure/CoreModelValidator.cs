@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -23,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Creates a new instance of <see cref="CoreModelValidator" />.
         /// </summary>
-        /// <param name="logger"> The logger. </param>
-        public CoreModelValidator([NotNull] ILogger<ModelValidator> logger)
-            : base(logger)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public CoreModelValidator([NotNull] ModelValidatorDependencies dependencies)
+            : base(dependencies)
         {
         }
 
@@ -242,6 +241,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void ShowWarning(CoreEventId eventId, [NotNull] string message)
-            => Logger.LogWarning(eventId, () => message);
+            => Dependencies.Logger.LogWarning(eventId, () => message);
     }
 }

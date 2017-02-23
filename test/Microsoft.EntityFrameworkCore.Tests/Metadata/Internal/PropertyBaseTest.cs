@@ -614,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             try
             {
-                new CoreModelValidator(new FakeLogger()).Validate(propertyBase.DeclaringType.Model);
+                new CoreModelValidator(new ModelValidatorDependencies(new FakeLogger())).Validate(propertyBase.DeclaringType.Model);
                 Assert.Null(failMessage);
             }
             catch (InvalidOperationException ex)

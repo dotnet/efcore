@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
@@ -19,22 +19,32 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         private readonly List<IMethodCallTranslator> _methodCallTranslators;
 
         /// <summary>
-        ///     Specialised constructor for use only by derived class.
+        ///     Initializes a new instance of the this class.
         /// </summary>
-        /// <param name="logger"> A logger. </param>
-        protected RelationalCompositeMethodCallTranslator([NotNull] ILogger logger)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        protected RelationalCompositeMethodCallTranslator(
+            [NotNull] RelationalCompositeMethodCallTranslatorDependencies dependencies)
         {
+            Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
+
             _methodCallTranslators
                 = new List<IMethodCallTranslator>
                 {
-                    new ContainsTranslator(logger),
-                    new EndsWithTranslator(logger),
+                    new ContainsTranslator(dependencies.Logger),
+                    new EndsWithTranslator(dependencies.Logger),
                     new EnumHasFlagTranslator(),
-                    new EqualsTranslator(logger),
+                    new EqualsTranslator(dependencies.Logger),
                     new IsNullOrEmptyTranslator(),
-                    new StartsWithTranslator(logger)
+                    new StartsWithTranslator(dependencies.Logger)
                 };
         }
+
+        /// <summary>
+        ///     Parameter object containing service dependencies.
+        /// </summary>
+        protected virtual RelationalCompositeMethodCallTranslatorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Translates the given method call expression.
@@ -44,12 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         ///     A SQL expression representing the translated MethodCallExpression.
         /// </returns>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
-        {
-            return
-                _methodCallTranslators
-                    .Select(translator => translator.Translate(methodCallExpression))
-                    .FirstOrDefault(translatedMethodCall => translatedMethodCall != null);
-        }
+            => _methodCallTranslators
+                .Select(translator => translator.Translate(methodCallExpression))
+                .FirstOrDefault(translatedMethodCall => translatedMethodCall != null);
 
         /// <summary>
         ///     Adds additional translators to the dispatch list.

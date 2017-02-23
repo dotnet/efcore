@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
@@ -20,6 +21,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
                 new StringCompareTranslator(),
                 new StringConcatTranslator()
             };
+
+        /// <summary>
+        ///     Initializes a new instance of the this class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public RelationalCompositeExpressionFragmentTranslator(
+            [NotNull] RelationalCompositeExpressionFragmentTranslatorDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+        }
 
         /// <summary>
         ///     Translates the given expression.

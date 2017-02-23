@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -84,7 +86,30 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .TryAddScoped<ICompiledQueryCacheKeyGenerator, RelationalCompiledQueryCacheKeyGenerator>()
                 .TryAddScoped<IExpressionFragmentTranslator, RelationalCompositeExpressionFragmentTranslator>()
                 .TryAddScoped<ISqlTranslatingExpressionVisitorFactory, SqlTranslatingExpressionVisitorFactory>()
-                .TryAddScoped<RelationalConnectionDependencies, RelationalConnectionDependencies>();
+                .TryAddSingleton<RelationalCompositeMemberTranslatorDependencies, RelationalCompositeMemberTranslatorDependencies>()
+                .TryAddSingleton<RelationalSqlGenerationHelperDependencies, RelationalSqlGenerationHelperDependencies>()
+                .TryAddSingleton<RelationalTypeMapperDependencies, RelationalTypeMapperDependencies>()
+                .TryAddSingleton<RelationalCompositeExpressionFragmentTranslatorDependencies, RelationalCompositeExpressionFragmentTranslatorDependencies>()
+                .TryAddScoped<RelationalConventionSetBuilderDependencies, RelationalConventionSetBuilderDependencies>()
+                .TryAddScoped<UpdateSqlGeneratorDependencies, UpdateSqlGeneratorDependencies>()
+                .TryAddScoped<QuerySqlGeneratorDependencies, QuerySqlGeneratorDependencies>()
+                .TryAddScoped<RelationalDatabaseCreatorDependencies, RelationalDatabaseCreatorDependencies>()
+                .TryAddScoped<RelationalCompositeMethodCallTranslatorDependencies, RelationalCompositeMethodCallTranslatorDependencies>()
+                .TryAddScoped<MigrationsSqlGeneratorDependencies, MigrationsSqlGeneratorDependencies>()
+                .TryAddScoped<HistoryRepositoryDependencies, HistoryRepositoryDependencies>()
+                .TryAddScoped<MigrationsAnnotationProviderDependencies, MigrationsAnnotationProviderDependencies>()
+                .TryAddScoped<RelationalCompiledQueryCacheKeyGeneratorDependencies, RelationalCompiledQueryCacheKeyGeneratorDependencies>()
+                .TryAddScoped<RelationalModelValidatorDependencies, RelationalModelValidatorDependencies>()
+                .TryAddScoped<SqlTranslatingExpressionVisitorDependencies, SqlTranslatingExpressionVisitorDependencies>()
+                .TryAddScoped<RelationalProjectionExpressionVisitorDependencies, RelationalProjectionExpressionVisitorDependencies>()
+                .TryAddScoped<ParameterNameGeneratorDependencies, ParameterNameGeneratorDependencies>()
+                .TryAddScoped<RelationalQueryModelVisitorDependencies, RelationalQueryModelVisitorDependencies>()
+                .TryAddScoped<RelationalEntityQueryableExpressionVisitorDependencies, RelationalEntityQueryableExpressionVisitorDependencies>()
+                .TryAddScoped<RelationalConnectionDependencies, RelationalConnectionDependencies>()
+                .TryAddScoped<RelationalDatabaseDependencies, RelationalDatabaseDependencies>()
+                .TryAddScoped<SelectExpressionDependencies, SelectExpressionDependencies>()
+                .TryAddScoped<RelationalValueBufferFactoryDependencies, RelationalValueBufferFactoryDependencies>()
+                .TryAddScoped<RelationalQueryCompilationContextDependencies, RelationalQueryCompilationContextDependencies>();
 
             ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollectionMap);
         }

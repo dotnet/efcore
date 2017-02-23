@@ -26,6 +26,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             = new ConcurrentDictionary<string, RelationalTypeMapping>();
 
         /// <summary>
+        ///     Initializes a new instance of the this class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        protected RelationalTypeMapper([NotNull] RelationalTypeMapperDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+        }
+
+        /// <summary>
         ///     Gets the mappings from .NET types to database types.
         /// </summary>
         /// <returns> The type mappings. </returns>
