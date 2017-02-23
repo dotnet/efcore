@@ -1,19 +1,22 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <Import Project="..\..\tools\EntityFramework.props" />
   <PropertyGroup>
     <Description>SQLite database provider for Entity Framework Core.</Description>
     <TargetFrameworks>net451;netstandard1.3</TargetFrameworks>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);SQLite</PackageTags>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Shared\*.cs" />
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Sqlite.Core\Microsoft.EntityFrameworkCore.Sqlite.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj" />
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="1.1.2">
+      <PrivateAssets>None</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="1.2.0-*" />
-  </ItemGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+  <Target Name="Compile" />
+  <Target Name="CopyFilesToOutputDirectory" />
 </Project>

@@ -12,11 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Specification.Tests.csproj" />
-    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Sqlite\Microsoft.EntityFrameworkCore.Sqlite.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Sqlite.Core\Microsoft.EntityFrameworkCore.Sqlite.Core.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Sqlite.Design\Microsoft.EntityFrameworkCore.Sqlite.Design.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-*" />
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="1.1.2" />
     <PackageReference Include="xunit" Version="2.2.0-*" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0-*" />
   </ItemGroup>

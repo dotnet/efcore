@@ -11,6 +11,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.Design\Microsoft.EntityFrameworkCore.Relational.Design.csproj" />
-    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Sqlite\Microsoft.EntityFrameworkCore.Sqlite.csproj" />
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Sqlite.Core\Microsoft.EntityFrameworkCore.Sqlite.Core.csproj" />
   </ItemGroup>
 </Project>
