@@ -470,9 +470,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     Alias = joinExpression.Alias
                 };
 
-            // Don't create new alias when adding tables to subquery
             subquery.AddTable(joinExpression.TableExpression);
-            subquery.ProjectStarAlias = joinExpression.Alias;
+            subquery.ProjectStarTable = joinExpression;
             subquery.IsProjectStar = true;
             subquery.Predicate = selectExpression.Predicate;
 

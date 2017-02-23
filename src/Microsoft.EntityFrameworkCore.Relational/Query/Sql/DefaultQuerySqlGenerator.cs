@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (selectExpression.IsProjectStar)
             {
-                var tableAlias = selectExpression.ProjectStarAlias;
+                var tableAlias = selectExpression.ProjectStarTable.Alias;
 
                 _relationalCommandBuilder
                     .Append(SqlGenerator.DelimitIdentifier(tableAlias))

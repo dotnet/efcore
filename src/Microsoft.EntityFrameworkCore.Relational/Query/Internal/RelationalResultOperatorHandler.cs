@@ -416,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             selectExpression.AddTable(leftOuterJoinExpression);
 
-            selectExpression.ProjectStarAlias = subquery.Alias;
+            selectExpression.ProjectStarTable = subquery;
 
             handlerContext.QueryModelVisitor.Expression
                 = new DefaultIfEmptyExpressionVisitor(

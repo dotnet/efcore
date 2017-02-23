@@ -12,10 +12,143 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     public class QueryNavigationsSqlServerTest : QueryNavigationsTestBase<NorthwindQuerySqlServerFixture>
     {
         public QueryNavigationsSqlServerTest(
+            // ReSharper disable once UnusedParameter.Local
             NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+        }
+
+        public override void Join_with_nav_projected_in_subquery_when_client_eval()
+        {
+            base.Join_with_nav_projected_in_subquery_when_client_eval();
+
+            Assert.Contains(
+                @"SELECT [od0].[OrderID], [od0].[ProductID], [od0].[Discount], [od0].[Quantity], [od0].[UnitPrice], [od.Product0].[ProductID], [od.Product0].[Discontinued], [od.Product0].[ProductName], [od.Product0].[UnitPrice], [od.Product0].[UnitsInStock]
+FROM [Order Details] AS [od0]
+INNER JOIN [Products] AS [od.Product0] ON [od0].[ProductID] = [od.Product0].[ProductID]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+FROM [Orders] AS [o0]
+LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void GroupJoin_with_nav_projected_in_subquery_when_client_eval()
+        {
+            base.GroupJoin_with_nav_projected_in_subquery_when_client_eval();
+
+            Assert.Contains(
+                @"SELECT [od0].[OrderID], [od0].[ProductID], [od0].[Discount], [od0].[Quantity], [od0].[UnitPrice], [od.Product0].[ProductID], [od.Product0].[Discontinued], [od.Product0].[ProductName], [od.Product0].[UnitPrice], [od.Product0].[UnitsInStock]
+FROM [Order Details] AS [od0]
+INNER JOIN [Products] AS [od.Product0] ON [od0].[ProductID] = [od.Product0].[ProductID]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+FROM [Orders] AS [o0]
+LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Join_with_nav_in_predicate_in_subquery_when_client_eval()
+        {
+            base.Join_with_nav_in_predicate_in_subquery_when_client_eval();
+
+            Assert.Contains(
+                @"SELECT [od0].[OrderID], [od0].[ProductID], [od0].[Discount], [od0].[Quantity], [od0].[UnitPrice], [od.Product0].[ProductID], [od.Product0].[Discontinued], [od.Product0].[ProductName], [od.Product0].[UnitPrice], [od.Product0].[UnitsInStock]
+FROM [Order Details] AS [od0]
+INNER JOIN [Products] AS [od.Product0] ON [od0].[ProductID] = [od.Product0].[ProductID]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+FROM [Orders] AS [o0]
+LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void GroupJoin_with_nav_in_predicate_in_subquery_when_client_eval()
+        {
+            base.GroupJoin_with_nav_in_predicate_in_subquery_when_client_eval();
+
+            Assert.Contains(
+                @"SELECT [od0].[OrderID], [od0].[ProductID], [od0].[Discount], [od0].[Quantity], [od0].[UnitPrice], [od.Product0].[ProductID], [od.Product0].[Discontinued], [od.Product0].[ProductName], [od.Product0].[UnitPrice], [od.Product0].[UnitsInStock]
+FROM [Order Details] AS [od0]
+INNER JOIN [Products] AS [od.Product0] ON [od0].[ProductID] = [od.Product0].[ProductID]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+FROM [Orders] AS [o0]
+LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Join_with_nav_in_orderby_in_subquery_when_client_eval()
+        {
+            base.Join_with_nav_in_orderby_in_subquery_when_client_eval();
+
+            Assert.Contains(
+                @"SELECT [od0].[OrderID], [od0].[ProductID], [od0].[Discount], [od0].[Quantity], [od0].[UnitPrice], [od.Product0].[ProductID], [od.Product0].[Discontinued], [od.Product0].[ProductName], [od.Product0].[UnitPrice], [od.Product0].[UnitsInStock]
+FROM [Order Details] AS [od0]
+INNER JOIN [Products] AS [od.Product0] ON [od0].[ProductID] = [od.Product0].[ProductID]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+FROM [Orders] AS [o0]
+LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void GroupJoin_with_nav_in_orderby_in_subquery_when_client_eval()
+        {
+            base.GroupJoin_with_nav_in_orderby_in_subquery_when_client_eval();
+
+            Assert.Contains(
+                @"SELECT [od0].[OrderID], [od0].[ProductID], [od0].[Discount], [od0].[Quantity], [od0].[UnitPrice], [od.Product0].[ProductID], [od.Product0].[Discontinued], [od.Product0].[ProductName], [od.Product0].[UnitPrice], [od.Product0].[UnitsInStock]
+FROM [Order Details] AS [od0]
+INNER JOIN [Products] AS [od.Product0] ON [od0].[ProductID] = [od.Product0].[ProductID]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+FROM [Orders] AS [o0]
+LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
         }
 
         public override void Select_Where_Navigation()

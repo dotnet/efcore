@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         private Expression _limit;
         private Expression _offset;
+        private TableExpressionBase _projectStarTable;
 
         private int _subqueryDepth = -1;
 
@@ -85,12 +86,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual Expression Predicate { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     Gets or sets the table alias to be used for star projection.
+        ///     Gets or sets the table to be used for star projection.
         /// </summary>
         /// <value>
-        ///     The table alias.
+        ///     The table.
         /// </value>
-        public virtual string ProjectStarAlias { get; [param: CanBeNull] set; }
+        public virtual TableExpressionBase ProjectStarTable
+        {
+            get { return _projectStarTable ?? (_tables.Count == 1 ? _tables.Single() : null); }
+            [param: CanBeNull] set { _projectStarTable = value; }
+        }
 
         /// <summary>
         ///     Type of this expression.
@@ -265,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return _tables.FirstOrDefault(te
                        => te.QuerySource == querySource
                           || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false))
-                   ?? _tables.Last();
+                   ?? ProjectStarTable;
         }
 
         /// <summary>
@@ -396,13 +401,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             subquery._offset = _offset;
             subquery._isDistinct = _isDistinct;
             subquery._subqueryDepth = _subqueryDepth;
-            subquery.ProjectStarAlias = ProjectStarAlias;
+            subquery.ProjectStarTable = ProjectStarTable;
             subquery.IsProjectStar = IsProjectStar || !subquery._projection.Any();
 
             _limit = null;
             _offset = null;
             _isDistinct = false;
-            ProjectStarAlias = null;
+            ProjectStarTable = null;
 
             Predicate = null;
 
@@ -411,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             ClearOrderBy();
 
             _tables.Add(subquery);
-            ProjectStarAlias = subquery.Alias;
+            ProjectStarTable = subquery;
 
             foreach (var ordering in subquery.OrderBy)
             {

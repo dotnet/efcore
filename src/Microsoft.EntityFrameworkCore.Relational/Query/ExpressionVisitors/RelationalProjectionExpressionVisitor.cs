@@ -143,9 +143,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     }
                     else
                     {
-                        if (QueryModelVisitor.ParentQueryModelVisitor != null)
+                        if (QueryModelVisitor.ParentQueryModelVisitor != null
+                            && selectExpression.HandlesQuerySource(qsre.ReferencedQuerySource))
                         {
-                            selectExpression.ProjectStarAlias = selectExpression.GetTableForQuerySource(qsre.ReferencedQuerySource).Alias;
+                            selectExpression.ProjectStarTable = selectExpression.GetTableForQuerySource(qsre.ReferencedQuerySource);
                         }
                     }
                 }

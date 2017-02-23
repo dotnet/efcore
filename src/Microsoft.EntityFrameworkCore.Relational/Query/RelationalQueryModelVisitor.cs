@@ -695,7 +695,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             tableExpression = selectExpression.Tables.Single();
                             innerSelectExpression.ClearProjection();
                             innerSelectExpression.IsProjectStar = true;
-                            innerSelectExpression.ProjectStarAlias = innerSelectExpression.Tables.Single().Alias;
                             tableExpression.QuerySource = joinClause;
 
                             predicate = sqlTranslatingExpressionVisitor.Visit(
@@ -1559,13 +1558,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     RelationalQueryModelVisitor subQueryModelVisitor;
                     if (_subQueryModelVisitorsBySource.TryGetValue(querySource, out subQueryModelVisitor))
                     {
-                        selectExpression = subQueryModelVisitor.Queries.SingleOrDefault();
+                        if (!subQueryModelVisitor.RequiresClientProjection)
+                        {
+                            selectExpression = subQueryModelVisitor.Queries.SingleOrDefault();
 
-                        selectExpression?
-                            .AddToProjection(
-                                _relationalAnnotationProvider.For(property).ColumnName,
-                                property,
-                                querySource);
+                            selectExpression?
+                                .AddToProjection(
+                                    _relationalAnnotationProvider.For(property).ColumnName,
+                                    property,
+                                    querySource);
+                        }
                     }
                 }
 
