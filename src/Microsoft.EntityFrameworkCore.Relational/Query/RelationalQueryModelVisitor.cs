@@ -1559,13 +1559,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                     RelationalQueryModelVisitor subQueryModelVisitor;
                     if (_subQueryModelVisitorsBySource.TryGetValue(querySource, out subQueryModelVisitor))
                     {
-                        selectExpression = subQueryModelVisitor.Queries.SingleOrDefault();
+                        if (!(subQueryModelVisitor.RequiresClientProjection
+                            || subQueryModelVisitor.RequiresClientEval
+                            || subQueryModelVisitor.RequiresClientFilter
+                            || subQueryModelVisitor.RequiresClientJoin
+                            || subQueryModelVisitor.RequiresClientOrderBy
+                            || subQueryModelVisitor.RequiresClientResultOperator
+                            || subQueryModelVisitor.RequiresClientSelectMany
+                            || subQueryModelVisitor.RequiresClientSingleColumnResultOperator))
+                        {
+                            selectExpression = subQueryModelVisitor.Queries.SingleOrDefault();
 
-                        selectExpression?
-                            .AddToProjection(
-                                _relationalAnnotationProvider.For(property).ColumnName,
-                                property,
-                                querySource);
+                            selectExpression?
+                                .AddToProjection(
+                                    _relationalAnnotationProvider.For(property).ColumnName,
+                                    property,
+                                    querySource);
+                        }
                     }
                 }
 
