@@ -690,9 +690,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         if (groupJoin
                             && selectExpression.Predicate != null)
                         {
-                            selectExpression.PushDownSubquery();
+                            var innerSelectExpression = selectExpression.PushDownSubquery();
                             selectExpression.ExplodeStarProjection();
                             tableExpression = selectExpression.Tables.Single();
+                            innerSelectExpression.ClearProjection();
+                            innerSelectExpression.IsProjectStar = true;
+                            innerSelectExpression.ProjectStarAlias = innerSelectExpression.Tables.Single().Alias;
                             tableExpression.QuerySource = joinClause;
 
                             predicate = sqlTranslatingExpressionVisitor.Visit(
