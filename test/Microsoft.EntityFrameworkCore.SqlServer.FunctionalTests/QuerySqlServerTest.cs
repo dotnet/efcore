@@ -506,7 +506,7 @@ ORDER BY [t].[OrderID]
 
 SELECT [t1].[OrderID]
 FROM (
-    SELECT TOP(2) [o1].[OrderID], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice]
+    SELECT TOP(2) [o1].*
     FROM [Order Details] AS [o1]
 ) AS [t1]
 ORDER BY [t1].[ProductID], [t1].[OrderID]
@@ -1453,7 +1453,7 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT DISTINCT [c].*
     FROM [Customers] AS [c]
 ) AS [t]",
                 Sql);
@@ -1665,7 +1665,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT DISTINCT TOP(@__p_0) [o].*
     FROM [Orders] AS [o]
 ) AS [t]",
                 Sql);
@@ -1680,7 +1680,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT DISTINCT TOP(@__p_0) [o].*
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = N'FRANK'
 ) AS [t]",
@@ -1831,7 +1831,7 @@ ORDER BY [t].[CustomerID]",
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].*
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t]",
@@ -1847,7 +1847,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].*
     FROM [Orders] AS [o]
 ) AS [t]",
                 Sql);
@@ -6272,20 +6272,12 @@ ORDER BY COALESCE([c].[Region], N'ZZ')",
     WHERE [e].[CustomerID] = [o1].[CustomerID]
 )
 FROM [Customers] AS [e]
-WHERE [e].[ContactTitle] = N'Owner'
-ORDER BY [e].[CustomerID]
-
-@_outer_CustomerID: ANATR (Size = 450)
-
-SELECT COUNT(*)
-FROM [Orders] AS [o]
-WHERE @_outer_CustomerID = [o].[CustomerID]
-
-@_outer_CustomerID: ANTON (Size = 450)
-
-SELECT COUNT(*)
-FROM [Orders] AS [o]
-WHERE @_outer_CustomerID = [o].[CustomerID]",
+WHERE ([e].[ContactTitle] = N'Owner') AND ((
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [e].[CustomerID] = [o].[CustomerID]
+) > 2)
+ORDER BY [e].[CustomerID]",
                 Sql);
         }
 
@@ -7011,7 +7003,7 @@ ORDER BY [e1].[EmployeeID]",
 
 SELECT COUNT(*)
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].*
     FROM [Customers] AS [c]
     ORDER BY (SELECT 1)
     OFFSET @__p_0 ROWS
@@ -7028,7 +7020,7 @@ FROM (
 
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].*
     FROM [Customers] AS [c]
     ORDER BY (SELECT 1)
     OFFSET @__p_0 ROWS
@@ -7045,7 +7037,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].*
     FROM [Customers] AS [c]
     ORDER BY [c].[Country]
     OFFSET @__p_0 ROWS
@@ -7062,7 +7054,7 @@ FROM (
 
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].*
     FROM [Customers] AS [c]
     ORDER BY [c].[Country]
     OFFSET @__p_0 ROWS
