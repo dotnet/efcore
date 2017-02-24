@@ -251,9 +251,36 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            return _tables.Any(te
-                => te.QuerySource == querySource
-                   || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false));
+            if (QuerySource == querySource)
+            {
+                return true;
+            }
+
+            foreach (var table in _tables)
+            {
+                if (table.QuerySource == querySource
+                    || (table.QuerySource as GroupJoinClause)?.JoinClause == querySource)
+                {
+                    return true;
+                }
+
+                var join = table as JoinExpressionBase;
+
+                if (join?.TableExpression.QuerySource == querySource
+                    || (join?.TableExpression.QuerySource as GroupJoinClause)?.JoinClause == querySource)
+                {
+                    return true;
+                }
+
+                var subquery = table as SelectExpression ?? join?.TableExpression as SelectExpression;
+
+                if (subquery != null && subquery.HandlesQuerySource(querySource))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
