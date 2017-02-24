@@ -55,5 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The logger.
         /// </summary>
         public ILogger<IModelValidator> Logger { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="logger"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelValidatorDependencies With([NotNull] ILogger<IModelValidator> logger)
+            => new ModelValidatorDependencies(logger);
     }
 }

@@ -114,5 +114,133 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Gets options for controlling the context.
         /// </summary>
         public IDbContextOptions ContextOptions { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalResultOperatorHandler"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalQueryModelVisitorDependencies With([NotNull] IRelationalResultOperatorHandler relationalResultOperatorHandler)
+            => new RelationalQueryModelVisitorDependencies(
+                relationalResultOperatorHandler,
+                RelationalAnnotationProvider,
+                IncludeExpressionVisitorFactory,
+                SqlTranslatingExpressionVisitorFactory,
+                CompositePredicateExpressionVisitorFactory,
+                ConditionalRemovingExpressionVisitorFactory,
+                QueryFlattenerFactory,
+                ContextOptions);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalAnnotationProvider"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalQueryModelVisitorDependencies With([NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
+            => new RelationalQueryModelVisitorDependencies(
+                RelationalResultOperatorHandler,
+                relationalAnnotationProvider,
+                IncludeExpressionVisitorFactory,
+                SqlTranslatingExpressionVisitorFactory,
+                CompositePredicateExpressionVisitorFactory,
+                ConditionalRemovingExpressionVisitorFactory,
+                QueryFlattenerFactory,
+                ContextOptions);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="includeExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalQueryModelVisitorDependencies With([NotNull] IIncludeExpressionVisitorFactory includeExpressionVisitorFactory)
+            => new RelationalQueryModelVisitorDependencies(
+                RelationalResultOperatorHandler,
+                RelationalAnnotationProvider,
+                includeExpressionVisitorFactory,
+                SqlTranslatingExpressionVisitorFactory,
+                CompositePredicateExpressionVisitorFactory,
+                ConditionalRemovingExpressionVisitorFactory,
+                QueryFlattenerFactory,
+                ContextOptions);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="sqlTranslatingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalQueryModelVisitorDependencies With([NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory)
+            => new RelationalQueryModelVisitorDependencies(
+                RelationalResultOperatorHandler,
+                RelationalAnnotationProvider,
+                IncludeExpressionVisitorFactory,
+                sqlTranslatingExpressionVisitorFactory,
+                CompositePredicateExpressionVisitorFactory,
+                ConditionalRemovingExpressionVisitorFactory,
+                QueryFlattenerFactory,
+                ContextOptions);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="compositePredicateExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalQueryModelVisitorDependencies With([NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory)
+            => new RelationalQueryModelVisitorDependencies(
+                RelationalResultOperatorHandler,
+                RelationalAnnotationProvider,
+                IncludeExpressionVisitorFactory,
+                SqlTranslatingExpressionVisitorFactory,
+                compositePredicateExpressionVisitorFactory,
+                ConditionalRemovingExpressionVisitorFactory,
+                QueryFlattenerFactory,
+                ContextOptions);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="conditionalRemovingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalQueryModelVisitorDependencies With([NotNull] IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory)
+            => new RelationalQueryModelVisitorDependencies(
+                RelationalResultOperatorHandler,
+                RelationalAnnotationProvider,
+                IncludeExpressionVisitorFactory,
+                SqlTranslatingExpressionVisitorFactory,
+                CompositePredicateExpressionVisitorFactory,
+                conditionalRemovingExpressionVisitorFactory,
+                QueryFlattenerFactory,
+                ContextOptions);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="queryFlattenerFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalQueryModelVisitorDependencies With([NotNull] IQueryFlattenerFactory queryFlattenerFactory)
+            => new RelationalQueryModelVisitorDependencies(
+                RelationalResultOperatorHandler,
+                RelationalAnnotationProvider,
+                IncludeExpressionVisitorFactory,
+                SqlTranslatingExpressionVisitorFactory,
+                CompositePredicateExpressionVisitorFactory,
+                ConditionalRemovingExpressionVisitorFactory,
+                queryFlattenerFactory,
+                ContextOptions);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="contextOptions"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalQueryModelVisitorDependencies With([NotNull] IDbContextOptions contextOptions)
+            => new RelationalQueryModelVisitorDependencies(
+                RelationalResultOperatorHandler,
+                RelationalAnnotationProvider,
+                IncludeExpressionVisitorFactory,
+                SqlTranslatingExpressionVisitorFactory,
+                CompositePredicateExpressionVisitorFactory,
+                ConditionalRemovingExpressionVisitorFactory,
+                QueryFlattenerFactory,
+                contextOptions);
     }
 }

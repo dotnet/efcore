@@ -92,5 +92,70 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         ///     The relational annotation provider.
         /// </summary>
         public IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="model"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalEntityQueryableExpressionVisitorDependencies With([NotNull] IModel model)
+            => new RelationalEntityQueryableExpressionVisitorDependencies(
+                model,
+                SelectExpressionFactory,
+                MaterializerFactory,
+                ShaperCommandContextFactory,
+                RelationalAnnotationProvider);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="selectExpressionFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalEntityQueryableExpressionVisitorDependencies With([NotNull] ISelectExpressionFactory selectExpressionFactory)
+            => new RelationalEntityQueryableExpressionVisitorDependencies(
+                Model,
+                selectExpressionFactory,
+                MaterializerFactory,
+                ShaperCommandContextFactory,
+                RelationalAnnotationProvider);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="materializerFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalEntityQueryableExpressionVisitorDependencies With([NotNull] IMaterializerFactory materializerFactory)
+            => new RelationalEntityQueryableExpressionVisitorDependencies(
+                Model,
+                SelectExpressionFactory,
+                materializerFactory,
+                ShaperCommandContextFactory,
+                RelationalAnnotationProvider);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="shaperCommandContextFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalEntityQueryableExpressionVisitorDependencies With([NotNull] IShaperCommandContextFactory shaperCommandContextFactory)
+            => new RelationalEntityQueryableExpressionVisitorDependencies(
+                Model,
+                SelectExpressionFactory,
+                MaterializerFactory,
+                shaperCommandContextFactory,
+                RelationalAnnotationProvider);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalAnnotationProvider"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalEntityQueryableExpressionVisitorDependencies With([NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
+            => new RelationalEntityQueryableExpressionVisitorDependencies(
+                Model,
+                SelectExpressionFactory,
+                MaterializerFactory,
+                ShaperCommandContextFactory,
+                relationalAnnotationProvider);
     }
 }

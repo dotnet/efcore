@@ -55,12 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="nodeTypeProviderFactory">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
+        /// <param name="nodeTypeProviderFactory">A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalQueryCompilationContextDependencies With(
             [NotNull] INodeTypeProviderFactory nodeTypeProviderFactory)
-            => new RelationalQueryCompilationContextDependencies(Check.NotNull(nodeTypeProviderFactory, nameof(nodeTypeProviderFactory)));
+            => new RelationalQueryCompilationContextDependencies(nodeTypeProviderFactory);
     }
 }

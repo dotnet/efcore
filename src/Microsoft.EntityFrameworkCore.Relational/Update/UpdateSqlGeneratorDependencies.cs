@@ -55,5 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Helpers for generating update SQL.
         /// </summary>
         public ISqlGenerationHelper SqlGenerationHelper { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public UpdateSqlGeneratorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            => new UpdateSqlGeneratorDependencies(sqlGenerationHelper);
     }
 }

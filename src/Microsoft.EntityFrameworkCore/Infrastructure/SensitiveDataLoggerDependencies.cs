@@ -68,5 +68,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The options for the context that this logger is being used with.
         /// </summary>
         public IDbContextOptions ContextOptions { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="logger"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public SensitiveDataLoggerDependencies<T> With([NotNull] ILogger<T> logger)
+            => new SensitiveDataLoggerDependencies<T>(logger, ContextOptions);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="contextOptions"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public SensitiveDataLoggerDependencies<T> With([CanBeNull] IDbContextOptions contextOptions)
+            => new SensitiveDataLoggerDependencies<T>(Logger, contextOptions);
     }
 }

@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -20,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///     </para>
     ///     <para>
     ///         Do not construct instances of this class directly from either provider or application code as the
-    ///         constructor signature may change as new dependencies are added. Instead, use this type in 
-    ///         your constructor so that an instance will be created and injected automatically by the 
-    ///         dependency injection container. To create an instance with some dependent services replaced, 
-    ///         first resolve the object from the dependency injection container, then replace selected 
+    ///         constructor signature may change as new dependencies are added. Instead, use this type in
+    ///         your constructor so that an instance will be created and injected automatically by the
+    ///         dependency injection container. To create an instance with some dependent services replaced,
+    ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
@@ -34,11 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         Creates the service dependencies parameter object for a <see cref="QueryContext" />.
         ///     </para>
         ///     <para>
-        ///         Do not call this constructor directly from either provider or application code as it may change 
-        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance 
-        ///         will be created and injected automatically by the dependency injection container. To create 
-        ///         an instance with some dependent services replaced, first resolve the object from the dependency 
-        ///         injection container, then replace selected services using the 'With...' methods. Do not call 
+        ///         Do not call this constructor directly from either provider or application code as it may change
+        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance
+        ///         will be created and injected automatically by the dependency injection container. To create
+        ///         an instance with some dependent services replaced, first resolve the object from the dependency
+        ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
         ///     <para>
@@ -53,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(concurrencyDetector, nameof(concurrencyDetector));
 
+            CurrentDbContext = currentContext;
             StateManager = new LazyRef<IStateManager>(() => currentContext.Context.GetService<IStateManager>());
             ChangeDetector = new LazyRef<IChangeDetector>(() => currentContext.Context.GetService<IChangeDetector>());
 
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The cache being used to store value generator instances.
         /// </summary>
-        public IValueGeneratorCache Cache { get; }
+        public ICurrentDbContext CurrentDbContext { get; }
 
         /// <summary>
         ///     Gets the change detector.
@@ -79,5 +79,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public IConcurrencyDetector ConcurrencyDetector { get; }
 
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="currentDbContext"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public QueryContextDependencies With([NotNull] ICurrentDbContext currentDbContext)
+            => new QueryContextDependencies(currentDbContext, ConcurrencyDetector);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="concurrencyDetector"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public QueryContextDependencies With([NotNull] IConcurrencyDetector concurrencyDetector)
+            => new QueryContextDependencies(CurrentDbContext, concurrencyDetector);
     }
 }
