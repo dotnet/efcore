@@ -2394,9 +2394,9 @@ ORDER BY [t].[Name]",
             Assert.Contains(
                 @"@__p_0: 2
 
-SELECT [t].[Id], [t].[Date], [t].[Name], [t].[OneToMany_Optional_Self_InverseId], [t].[OneToMany_Required_Self_InverseId], [t].[OneToOne_Optional_SelfId], [t].[c0], [t].[c1], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[c2], [t].[OneToMany_Optional_InverseId], [t].[c3], [t].[OneToMany_Required_InverseId], [t].[c4], [t].[OneToOne_Optional_PK_InverseId], [t].[c5]
+SELECT [t].[Id], [t].[Date], [t].[Name], [t].[OneToMany_Optional_Self_InverseId], [t].[OneToMany_Required_Self_InverseId], [t].[OneToOne_Optional_SelfId]
 FROM (
-    SELECT TOP(@__p_0) [x].[Id], [x].[Date], [x].[Name], [x].[OneToMany_Optional_Self_InverseId], [x].[OneToMany_Required_Self_InverseId], [x].[OneToOne_Optional_SelfId], [x.OneToOne_Optional_FK].[Id] AS [c0], [x.OneToOne_Optional_FK].[Date] AS [c1], [x.OneToOne_Optional_FK].[Level1_Optional_Id], [x.OneToOne_Optional_FK].[Level1_Required_Id], [x.OneToOne_Optional_FK].[Name] AS [c2], [x.OneToOne_Optional_FK].[OneToMany_Optional_InverseId], [x.OneToOne_Optional_FK].[OneToMany_Optional_Self_InverseId] AS [c3], [x.OneToOne_Optional_FK].[OneToMany_Required_InverseId], [x.OneToOne_Optional_FK].[OneToMany_Required_Self_InverseId] AS [c4], [x.OneToOne_Optional_FK].[OneToOne_Optional_PK_InverseId], [x.OneToOne_Optional_FK].[OneToOne_Optional_SelfId] AS [c5]
+    SELECT TOP(@__p_0) [x].[Id], [x].[Date], [x].[Name], [x].[OneToMany_Optional_Self_InverseId], [x].[OneToMany_Required_Self_InverseId], [x].[OneToOne_Optional_SelfId]
     FROM [Level1] AS [x]
     LEFT JOIN [Level2] AS [x.OneToOne_Optional_FK] ON [x].[Id] = [x.OneToOne_Optional_FK].[Level1_Optional_Id]
     ORDER BY [x.OneToOne_Optional_FK].[Name]

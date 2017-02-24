@@ -192,7 +192,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     if (newAccessOperation != nullConditionalExpression.AccessOperation)
                     {
-                        return newAccessOperation;
+                        return Expression.Condition(
+                            test: ValueBufferNullComparisonCheck(newCaller),
+                            ifTrue: newAccessOperation.Type != nullConditionalExpression.Type
+                                ? Expression.Convert(newAccessOperation, nullConditionalExpression.Type)
+                                : newAccessOperation,
+                            ifFalse: Expression.Default(nullConditionalExpression.Type));
                     }
                 }
             }
