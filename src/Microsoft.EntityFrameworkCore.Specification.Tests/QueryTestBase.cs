@@ -6936,6 +6936,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 es.Where(e => dates.Contains(e.OrderDate.Value.Date)), entryCount: 1);
         }
 
+        [ConditionalFact]
+        public virtual void Contains_with_subquery_involving_join_binds_to_correct_table()
+        {
+            AssertQuery<Order, OrderDetail>(
+                (os, ods) =>
+                    os.Where(o => o.OrderID > 11000
+                        && ods.Where(od => od.Product.ProductName == "Chai")
+                            .Select(od => od.OrderID)
+                            .Contains(o.OrderID)));
+        }
+
         private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
         {
             return source?.Count() == 0 ? new[] { default(TElement) } : source;

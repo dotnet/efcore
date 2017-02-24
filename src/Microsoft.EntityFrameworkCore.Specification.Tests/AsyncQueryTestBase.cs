@@ -3645,6 +3645,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 cs => cs.OrderBy(c => c.Country).Skip(7).LongCountAsync());
         }
 
+        [ConditionalFact]
+        public virtual async Task Contains_with_subquery_involving_join_binds_to_correct_table()
+        {
+            await AssertQuery<Order, OrderDetail>(
+                (os, ods) =>
+                    os.Where(o => o.OrderID > 11000
+                        && ods.Where(od => od.Product.ProductName == "Chai")
+                            .Select(od => od.OrderID)
+                            .Contains(o.OrderID)));
+        }
+
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();

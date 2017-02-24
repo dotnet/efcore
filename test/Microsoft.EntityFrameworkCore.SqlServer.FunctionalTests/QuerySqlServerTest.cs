@@ -7085,6 +7085,22 @@ WHERE CONVERT(date, [e].[OrderDate]) IN ('1996-07-04T00:00:00.000')",
                 Sql);
         }
 
+        public override void Contains_with_subquery_involving_join_binds_to_correct_table()
+        {
+            base.Contains_with_subquery_involving_join_binds_to_correct_table();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] > 11000) AND [o].[OrderID] IN (
+    SELECT [od].[OrderID]
+    FROM [Order Details] AS [od]
+    INNER JOIN [Products] AS [od.Product] ON [od].[ProductID] = [od.Product].[ProductID]
+    WHERE [od.Product].[ProductName] = N'Chai'
+)",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 
