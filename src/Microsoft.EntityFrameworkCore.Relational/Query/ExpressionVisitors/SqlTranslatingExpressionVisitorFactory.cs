@@ -35,7 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="queryModelVisitor"> The query model visitor. </param>
         /// <param name="targetSelectExpression"> The target select expression. </param>
         /// <param name="topLevelPredicate"> The top level predicate. </param>
-        /// <param name="bindParentQueries"> true to bind parent queries. </param>
         /// <param name="inProjection"> true if we are translating a projection. </param>
         /// <returns>
         ///     A SqlTranslatingExpressionVisitor.
@@ -44,14 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             RelationalQueryModelVisitor queryModelVisitor,
             SelectExpression targetSelectExpression = null,
             Expression topLevelPredicate = null,
-            bool bindParentQueries = false,
             bool inProjection = false)
             => new SqlTranslatingExpressionVisitor(
                 Dependencies,
                 Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)),
                 targetSelectExpression,
                 topLevelPredicate,
-                bindParentQueries,
                 inProjection);
     }
 }

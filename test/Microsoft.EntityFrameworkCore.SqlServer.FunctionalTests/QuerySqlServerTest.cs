@@ -511,8 +511,11 @@ FROM (
 ) AS [t1]
 ORDER BY [t1].[ProductID], [t1].[OrderID]
 
-SELECT [c3].[CustomerID], [c3].[Country]
+@_outer_CustomerID2: VINET (Size = 450)
+
+SELECT TOP(1) [c3].[Country]
 FROM [Customers] AS [c3]
+WHERE [c3].[CustomerID] = @_outer_CustomerID2
 ORDER BY [c3].[CustomerID]
 
 @_outer_OrderID1: 10285
@@ -521,11 +524,7 @@ SELECT TOP(1) [c4].[Country]
 FROM [Orders] AS [o20]
 INNER JOIN [Customers] AS [c4] ON [o20].[CustomerID] = [c4].[CustomerID]
 WHERE [o20].[OrderID] = @_outer_OrderID1
-ORDER BY [o20].[OrderID], [c4].[CustomerID]
-
-SELECT [c3].[CustomerID], [c3].[Country]
-FROM [Customers] AS [c3]
-ORDER BY [c3].[CustomerID]",
+ORDER BY [o20].[OrderID], [c4].[CustomerID]",
                 Sql);
         }
 
@@ -609,23 +608,23 @@ ORDER BY [o0].[OrderID]",
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 
-@_outer_CustomerID1: ALFKI (Size = 450)
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o1]
-        WHERE [o1].[CustomerID] = @_outer_CustomerID1)
+        WHERE [o1].[CustomerID] = @_outer_CustomerID)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 
-@_outer_CustomerID1: ANATR (Size = 450)
+@_outer_CustomerID: ANATR (Size = 450)
 
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o1]
-        WHERE [o1].[CustomerID] = @_outer_CustomerID1)
+        WHERE [o1].[CustomerID] = @_outer_CustomerID)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);
@@ -5589,9 +5588,92 @@ ORDER BY [o].[OrderID]",
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
 
-SELECT [o0].[CustomerID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-WHERE [o0].[OrderID] < 10500",
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT [t].[OrderDate]
+FROM (
+    SELECT TOP(3) [o].*
+    FROM [Orders] AS [o]
+    WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])
+) AS [t]",
+                Sql);
+        }
+
+        public override void Select_nested_collection_multi_level2()
+        {
+            base.Select_nested_collection_multi_level2();
+
+            Assert.StartsWith(
+                @"SELECT [c].[City], [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+
+@_outer_City: Berlin (Size = 6)
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT [t].[OrderDate]
+FROM (
+    SELECT TOP(3) [o].*
+    FROM [Orders] AS [o]
+    WHERE EXISTS (
+        SELECT 1
+        FROM [Order Details] AS [d]
+        WHERE ([d].[Discount] > LEN(@_outer_City)) AND ([o].[OrderID] = [d].[OrderID])) AND (@_outer_CustomerID = [o].[CustomerID])
+) AS [t]",
+                Sql);
+        }
+
+        public override void Select_nested_collection_multi_level3()
+        {
+            base.Select_nested_collection_multi_level3();
+
+            Assert.StartsWith(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+ORDER BY (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE ((
+                SELECT COUNT(*)
+                FROM [Order Details] AS [d]
+                WHERE ([d].[Discount] > LEN([c].[City])) AND ([o].[OrderID] = [d].[OrderID])
+            ) > 0) AND ([c].[CustomerID] = [o].[CustomerID]))
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+)
+
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT [t].[OrderDate]
+FROM (
+    SELECT TOP(3) [o0].*
+    FROM [Orders] AS [o0]
+    WHERE @_outer_CustomerID = [o0].[CustomerID]
+) AS [t]",
+                Sql);
+        }
+
+        public override void Select_nested_collection_multi_level4()
+        {
+            base.Select_nested_collection_multi_level4();
+
+            Assert.StartsWith(
+                @"SELECT [c].[City], [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+
+@_outer_City: Berlin (Size = 6)
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Order Details] AS [d]
+    WHERE ([d].[Discount] > LEN(@_outer_City)) AND ([o].[OrderID] = [d].[OrderID])) AND (@_outer_CustomerID = [o].[CustomerID])",
                 Sql);
         }
 
