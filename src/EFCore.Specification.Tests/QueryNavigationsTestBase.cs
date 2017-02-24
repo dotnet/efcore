@@ -989,7 +989,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened()
+        public virtual void GroupJoin_with_complex_subquery_and_LOJ_gets_flattened()
         {
             AssertQuery<Customer, Order, OrderDetail, Customer>(
                 (cs, os, ods) => (from c in cs

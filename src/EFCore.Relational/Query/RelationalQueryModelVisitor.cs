@@ -782,6 +782,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 subSelectExpression)
                             .Visit(subQueryModelVisitor.Expression);
 
+                    if (newExpression is MethodCallExpression methodCallExpression
+                        && methodCallExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.Select))
+                    {
+                        var shapedQuery = (MethodCallExpression)methodCallExpression.Arguments[0];
+
+                        if (IsShapedQueryExpression(shapedQuery))
+                        {
+                            var newShaper = ProjectionShaper.Create(
+                                querySource,
+                                (Shaper)((ConstantExpression)shapedQuery.Arguments[2]).Value,
+                                ((LambdaExpression)methodCallExpression.Arguments[1]).Compile());
+
+                            return Expression.Call(
+                                shapedQuery.Method
+                                    .GetGenericMethodDefinition()
+                                    .MakeGenericMethod(newExpression.Type.GetSequenceType()),
+                                shapedQuery.Arguments[0],
+                                shapedQuery.Arguments[1],
+                                Expression.Constant(newShaper));
+                        }
+                    }
+
                     return newExpression;
                 }
             }
@@ -1160,12 +1182,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var shaper = (Shaper)((ConstantExpression)UnwrapShapedQueryExpression(shapedQueryExpression).Arguments[2]).Value;
 
-            if (shaper is EntityShaper entityShaper)
-            {
-                shaper = entityShaper.WithOffset(offset);
-            }
-
-            return shaper;
+            return shaper.WithOffset(offset);
         }
 
         private bool TryFlattenSelectMany(
@@ -1529,11 +1546,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 return false;
             }
-            
-            queryModel.BodyClauses.RemoveAt(index + 1);
+
+            var joinClause = groupJoinClause.JoinClause;
+
+            queryModel.BodyClauses.Insert(index, joinClause);
+            queryModel.BodyClauses.Remove(groupJoinClause);
+            queryModel.BodyClauses.Remove(additionalFromClause);
 
             var querySourceMapping = new QuerySourceMapping();
-            var joinClause = groupJoinClause.JoinClause;
 
             querySourceMapping.AddMapping(
                 additionalFromClause,
@@ -1556,8 +1576,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                         querySourceMapping,
                         throwOnUnmappedReferences: false);
             }
+            
+            var groupJoinMethodCallExpression = (MethodCallExpression)Expression;
 
-            Expression = ((MethodCallExpression)Expression).Arguments[0];
+            var outerShapedQuery = (MethodCallExpression)groupJoinMethodCallExpression.Arguments[0];
+            var innerShapedQuery = (MethodCallExpression)groupJoinMethodCallExpression.Arguments[1];
+
+            var outerShaper = ExtractShaper(outerShapedQuery, 0);
+            var innerShaper = ExtractShaper(innerShapedQuery, previousProjectionCount);
 
             CurrentParameter = previousParameter;
 
@@ -1567,39 +1593,39 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ReplaceMapping(mapping.Key, mapping.Value);
             }
 
-            var innerShaperOffset = previousProjectionCount;
-            var selectExpression = TryGetQuery(joinClause);
+            var innerItemParameter
+                = Expression.Parameter(
+                    innerShaper.Type,
+                    joinClause.ItemName);
 
-            previousProjectionCount = selectExpression.Projection.Count;
+            AddOrUpdateMapping(joinClause, innerItemParameter);
 
-            base.VisitJoinClause(joinClause, queryModel, index);
+            var transparentIdentifierType 
+                = CreateTransparentIdentifierType(
+                    previousParameter.Type, 
+                    innerShaper.Type);
 
-            selectExpression.RemoveRangeFromProjection(previousProjectionCount);
-
-            QueriesBySource.Remove(joinClause);
-
-            var joinMethodCallExpression = (MethodCallExpression)Expression;
-            var outerShapedQuery = (MethodCallExpression)joinMethodCallExpression.Arguments[0];
-            var innerShapedQuery = (MethodCallExpression)joinMethodCallExpression.Arguments[1];
-
-            var outerShaper = ExtractShaper(outerShapedQuery, 0);
-            var innerShaper = ExtractShaper(innerShapedQuery, innerShaperOffset);
-
-            var materializerLambda = (LambdaExpression)joinMethodCallExpression.Arguments.Last();
-            var materializer = materializerLambda.Compile();
+            var materializer
+                = Expression.Lambda(
+                    CallCreateTransparentIdentifier(
+                        transparentIdentifierType,
+                        previousParameter,
+                        innerItemParameter),
+                    previousParameter,
+                    innerItemParameter).Compile();
 
             var compositeShaper
                 = CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializer);
 
-            compositeShaper.SaveAccessorExpression(QueryCompilationContext.QuerySourceMapping);
+            IntroduceTransparentScope(joinClause, queryModel, index, transparentIdentifierType);
 
-            innerShaper.UpdateQuerySource(joinClause);
+            compositeShaper.SaveAccessorExpression(QueryCompilationContext.QuerySourceMapping);
 
             Expression
                 = Expression.Call(
                     outerShapedQuery.Method
                         .GetGenericMethodDefinition()
-                        .MakeGenericMethod(materializerLambda.ReturnType),
+                        .MakeGenericMethod(transparentIdentifierType),
                     outerShapedQuery.Arguments[0],
                     outerShapedQuery.Arguments[1],
                     Expression.Constant(compositeShaper));

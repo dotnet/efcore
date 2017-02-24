@@ -35,17 +35,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var compositeShaper
                 = (Shaper)_createCompositeShaperMethodInfo
                     .MakeGenericMethod(
+                        outerShaper.GetType(),
                         outerShaper.Type,
+                        innerShaper.GetType(),
                         innerShaper.Type,
                         materializer.GetMethodInfo().ReturnType)
                     .Invoke(
                         null,
                         new object[]
                         {
-                                querySource,
-                                outerShaper,
-                                innerShaper,
-                                materializer
+                            querySource,
+                            outerShaper,
+                            innerShaper,
+                            materializer
                         });
 
             return compositeShaper;
@@ -56,18 +58,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 .GetDeclaredMethod(nameof(CreateCompositeShaperMethod));
 
         [UsedImplicitly]
-        private static TypedCompositeShaper<TOuter, TInner, TResult> CreateCompositeShaperMethod<TOuter, TInner, TResult>(
+        private static TypedCompositeShaper<TOuterShaper, TOuter, TInnerShaper, TInner, TResult> CreateCompositeShaperMethod<TOuterShaper, TOuter, TInnerShaper, TInner, TResult>(
             IQuerySource querySource,
-            IShaper<TOuter> outerShaper,
-            IShaper<TInner> innerShaper,
+            TOuterShaper outerShaper,
+            TInnerShaper innerShaper,
             Func<TOuter, TInner, TResult> materializer)
-            => new TypedCompositeShaper<TOuter, TInner, TResult>(
+            where TOuterShaper : Shaper, IShaper<TOuter>
+            where TInnerShaper : Shaper, IShaper<TInner>
+            => new TypedCompositeShaper<TOuterShaper, TOuter, TInnerShaper, TInner, TResult>(
                 querySource, outerShaper, innerShaper, materializer);
 
-        private class TypedCompositeShaper<TOuter, TInner, TResult> : Shaper, IShaper<TResult>
+        private class TypedCompositeShaper<TOuterShaper, TOuter, TInnerShaper, TInner, TResult> : Shaper, IShaper<TResult>
+            where TOuterShaper : Shaper, IShaper<TOuter>
+            where TInnerShaper : Shaper, IShaper<TInner>
         {
-            private readonly IShaper<TOuter> _outerShaper;
-            private readonly IShaper<TInner> _innerShaper;
+            private readonly TOuterShaper _outerShaper;
+            private readonly TInnerShaper _innerShaper;
             private readonly Func<TOuter, TInner, TResult> _materializer;
 
             /// <summary>
@@ -76,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             /// </summary>
             public TypedCompositeShaper(
                 IQuerySource querySource,
-                IShaper<TOuter> outerShaper,
-                IShaper<TInner> innerShaper,
+                TOuterShaper outerShaper,
+                TInnerShaper innerShaper,
                 Func<TOuter, TInner, TResult> materializer)
                 : base(querySource)
             {
@@ -107,6 +113,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             public override Expression GetAccessorExpression(IQuerySource querySource)
                 => _outerShaper.GetAccessorExpression(querySource)
                     ?? _innerShaper.GetAccessorExpression(querySource);
+
+            public override Shaper WithOffset(int offset)
+                => new TypedCompositeShaper<TOuterShaper, TOuter, TInnerShaper, TInner, TResult>(
+                    QuerySource,
+                    _outerShaper,
+                    _innerShaper,
+                    _materializer).AddOffset(offset);
+
+            public override Shaper AddOffset(int offset)
+            {
+                _outerShaper.AddOffset(offset);
+                _innerShaper.AddOffset(offset);
+                return base.AddOffset(offset);
+            }
         }
     }
 }
