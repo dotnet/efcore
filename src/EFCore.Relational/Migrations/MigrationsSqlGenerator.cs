@@ -635,14 +635,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder
                 .Append("INSERT INTO ")
-                .AppendLine(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
+                .AppendLine(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
 
-            var columns = FindProperties(model, operation.Schema, operation.Table).Select(p => Annotations.For(p).ColumnName);
+            var columns = FindProperties(model, operation.Schema, operation.Table).Select(p => Dependencies.Annotations.For(p).ColumnName);
             using (builder.Indent())
             {
                 builder
                     .Append("(")
-                    .AppendJoin(", ", columns.Select(SqlGenerationHelper.DelimitIdentifier))
+                    .AppendJoin(", ", columns.Select(Dependencies.SqlGenerationHelper.DelimitIdentifier))
                     .AppendLine(")");
             }
 
@@ -657,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .Append("(")
                         .AppendJoin(
                             ", ",
-                            columns.Select(c => SqlGenerationHelper.GenerateLiteral(row?.GetType()?.GetAnyProperty(c)?.GetValue(row))))
+                            columns.Select(c => Dependencies.SqlGenerationHelper.GenerateLiteral(row?.GetType()?.GetAnyProperty(c)?.GetValue(row))))
                         .Append(")");
 
                     if (i != operation.Rows.Length - 1)
