@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
 {
@@ -31,27 +30,26 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 
             return true;
         }
+
         public static IServiceCollection AddEntityFrameworkRelationalDatabase(IServiceCollection serviceCollection)
         {
-            serviceCollection.TryAddEnumerable(
-                ServiceDescriptor.Singleton<IDatabaseProvider, DatabaseProvider<FakeRelationalOptionsExtension>>());
+            var builder = new EntityFrameworkRelationalServicesBuilder(serviceCollection)
+                .TryAdd<IDatabaseProvider, DatabaseProvider<FakeRelationalOptionsExtension>>()
+                .TryAdd<ISqlGenerationHelper, RelationalSqlGenerationHelper>()
+                .TryAdd<IRelationalTypeMapper, TestRelationalTypeMapper>()
+                .TryAdd<IRelationalAnnotationProvider, TestAnnotationProvider>()
+                .TryAdd<IMigrationsSqlGenerator, TestRelationalMigrationSqlGenerator>()
+                .TryAdd<IConventionSetBuilder, TestRelationalConventionSetBuilder>()
+                .TryAdd<IMemberTranslator, TestRelationalCompositeMemberTranslator>()
+                .TryAdd<IMethodCallTranslator, TestRelationalCompositeMethodCallTranslator>()
+                .TryAdd<IQuerySqlGeneratorFactory, TestQuerySqlGeneratorFactory>()
+                .TryAdd<IRelationalConnection, FakeRelationalConnection>()
+                .TryAdd<IHistoryRepository>(_ => null)
+                .TryAdd<IUpdateSqlGenerator>(_ => null)
+                .TryAdd<IModificationCommandBatchFactory>(_ => null)
+                .TryAdd<IRelationalDatabaseCreator, FakeRelationalDatabaseCreator>();
 
-            serviceCollection.TryAdd(new ServiceCollection()
-                .AddSingleton<ISqlGenerationHelper, RelationalSqlGenerationHelper>()
-                .AddSingleton<IRelationalTypeMapper, TestRelationalTypeMapper>()
-                .AddSingleton<IRelationalAnnotationProvider, TestAnnotationProvider>()
-                .AddScoped<IMigrationsSqlGenerator, TestRelationalMigrationSqlGenerator>()
-                .AddScoped<IConventionSetBuilder, TestRelationalConventionSetBuilder>()
-                .AddScoped<IMemberTranslator, TestRelationalCompositeMemberTranslator>()
-                .AddScoped<IMethodCallTranslator, TestRelationalCompositeMethodCallTranslator>()
-                .AddScoped<IQuerySqlGeneratorFactory, TestQuerySqlGeneratorFactory>()
-                .AddScoped<IRelationalConnection, FakeRelationalConnection>()
-                .AddScoped<IHistoryRepository>(_ => null)
-                .AddScoped<IUpdateSqlGenerator>(_ => null)
-                .AddScoped<IModificationCommandBatchFactory>(_ => null)
-                .AddScoped<IRelationalDatabaseCreator, FakeRelationalDatabaseCreator>());
-
-            ServiceCollectionRelationalProviderInfrastructure.TryAddDefaultRelationalServices(new ServiceCollectionMap(serviceCollection));
+            builder.TryAddCoreServices();
 
             return serviceCollection;
         }

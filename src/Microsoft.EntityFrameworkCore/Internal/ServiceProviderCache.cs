@@ -90,8 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (!coreServicesAdded)
             {
-                ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(
-                    new ServiceCollectionMap(services));
+                new EntityFrameworkServicesBuilder(services).TryAddCoreServices();
             }
         }
     }

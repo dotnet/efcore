@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -19,19 +18,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         collection each time this is done.
     ///     </para>
     ///     <para>
-    ///         Database providers are expected to create an instance of this around the service collection passed
-    ///         to their 'Add...' method and then use the methods of this class to add services.
-    ///     </para>
-    ///     <para>
     ///         Note that the collection should not be modified without in other ways while it is being managed
     ///         by the map. The collection can be used in the normal way after modifications using the map have
     ///         been completed.
     ///     </para>
     /// </summary>
-    public class ServiceCollectionMap
+    public class ServiceCollectionMap : IInfrastructure<InternalServiceCollectionMap>
     {
-        private readonly IServiceCollection _serviceCollection;
-        private readonly IDictionary<Type, IList<int>> _serviceMap = new Dictionary<Type, IList<int>>();
+        private readonly InternalServiceCollectionMap _map;
 
         /// <summary>
         ///     Creates a new <see cref="ServiceCollectionMap" /> to operate on the given <see cref="IServiceCollection" />.
@@ -41,30 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
-            _serviceCollection = serviceCollection;
-
-            var index = 0;
-            foreach (var descriptor in serviceCollection)
-            {
-                GetOrCreateDescriptorIndexes(descriptor.ServiceType).Add(index++);
-            }
-        }
-
-        private IList<int> GetOrCreateDescriptorIndexes(Type serviceType)
-        {
-            IList<int> indexes;
-            if (!_serviceMap.TryGetValue(serviceType, out indexes))
-            {
-                indexes = new List<int>();
-                _serviceMap[serviceType] = indexes;
-            }
-            return indexes;
+            _map = new InternalServiceCollectionMap(serviceCollection);
         }
 
         /// <summary>
         ///     The underlying <see cref="IServiceCollection" />.
         /// </summary>
-        public virtual IServiceCollection ServiceCollection => _serviceCollection;
+        public virtual IServiceCollection ServiceCollection => _map.ServiceCollection;
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Transient" /> service implemented by the given concrete
@@ -132,15 +109,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual ServiceCollectionMap TryAddSingleton([NotNull] Type serviceType, [NotNull] Type implementationType)
             => TryAdd(serviceType, implementationType, ServiceLifetime.Singleton);
 
-        private ServiceCollectionMap TryAdd(Type serviceType, Type implementationType, ServiceLifetime lifetime)
+        /// <summary>
+        ///     Adds a service implemented by the given concrete type if no service for the given service 
+        ///     type has already been registered.
+        /// </summary>
+        /// <param name="serviceType"> The contract for the service. </param>
+        /// <param name="implementationType"> The concrete type that implements the service. </param>
+        /// <param name="lifetime"> The service lifetime. </param>
+        /// <returns> The map, such that further calls can be chained. </returns>
+        public virtual ServiceCollectionMap TryAdd(
+            [NotNull] Type serviceType,
+            [NotNull] Type implementationType,
+            ServiceLifetime lifetime)
         {
             Check.NotNull(serviceType, nameof(serviceType));
             Check.NotNull(implementationType, nameof(implementationType));
 
-            var indexes = GetOrCreateDescriptorIndexes(serviceType);
+            var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
             if (!indexes.Any())
             {
-                AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementationType, lifetime));
+                _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementationType, lifetime));
             }
 
             return this;
@@ -251,15 +239,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual ServiceCollectionMap TryAddSingleton([NotNull] Type serviceType, [NotNull] Func<IServiceProvider, object> factory)
             => TryAdd(serviceType, factory, ServiceLifetime.Singleton);
 
-        private ServiceCollectionMap TryAdd(Type serviceType, Func<IServiceProvider, object> factory, ServiceLifetime lifetime)
+        /// <summary>
+        ///     Adds a service implemented by the given factory if no service for the given service type 
+        ///     has already been registered.
+        /// </summary>
+        /// <param name="serviceType"> The contract for the service. </param>
+        /// <param name="factory"> The factory that implements the service. </param>
+        /// <param name="lifetime"> The service lifetime. </param>
+        /// <returns> The map, such that further calls can be chained. </returns>
+        public virtual ServiceCollectionMap TryAdd(
+            [NotNull] Type serviceType,
+            [NotNull] Func<IServiceProvider, object> factory,
+            ServiceLifetime lifetime)
         {
             Check.NotNull(serviceType, nameof(serviceType));
             Check.NotNull(factory, nameof(factory));
 
-            var indexes = GetOrCreateDescriptorIndexes(serviceType);
+            var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
             if (!indexes.Any())
             {
-                AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, factory, lifetime));
+                _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, factory, lifetime));
             }
 
             return this;
@@ -274,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The map, such that further calls can be chained. </returns>
         public virtual ServiceCollectionMap TryAddSingleton<TService>([CanBeNull] TService implementation)
             where TService : class
-            => TryAdd(typeof(TService), implementation);
+            => TryAddSingleton(typeof(TService), implementation);
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given instance
@@ -284,16 +283,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="implementation"> The object that implements the service. </param>
         /// <returns> The map, such that further calls can be chained. </returns>
         public virtual ServiceCollectionMap TryAddSingleton([NotNull] Type serviceType, [CanBeNull] object implementation)
-            => TryAdd(serviceType, implementation);
-
-        private ServiceCollectionMap TryAdd(Type serviceType, object implementation)
-        {
+        { 
             Check.NotNull(serviceType, nameof(serviceType));
 
-            var indexes = GetOrCreateDescriptorIndexes(serviceType);
+            var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
             if (!indexes.Any())
             {
-                AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementation));
+                _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementation));
             }
 
             return this;
@@ -371,15 +367,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual ServiceCollectionMap TryAddSingletonEnumerable([NotNull] Type serviceType, [NotNull] Type implementationType)
             => TryAddEnumerable(serviceType, implementationType, ServiceLifetime.Singleton);
 
-        private ServiceCollectionMap TryAddEnumerable(Type serviceType, Type implementationType, ServiceLifetime lifetime)
+        /// <summary>
+        ///     Adds a service implemented by the given concrete
+        ///     type to ths list of services that implement the given contract. The service is only added
+        ///     if the collection contains no other registration for the same service and implementation type.
+        /// </summary>
+        /// <param name="serviceType"> The contract for the service. </param>
+        /// <param name="implementationType"> The concrete type that implements the service. </param>
+        /// <param name="lifetime"> The service lifetime. </param>
+        /// <returns> The map, such that further calls can be chained. </returns>
+        public virtual ServiceCollectionMap TryAddEnumerable(
+            [NotNull] Type serviceType,
+            [NotNull] Type implementationType,
+            ServiceLifetime lifetime)
         {
             Check.NotNull(serviceType, nameof(serviceType));
             Check.NotNull(implementationType, nameof(implementationType));
 
-            var indexes = GetOrCreateDescriptorIndexes(serviceType);
-            if (indexes.All(i => TryGetImplementationType(_serviceCollection[i]) != implementationType))
+            var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
+            if (indexes.All(i => TryGetImplementationType(ServiceCollection[i]) != implementationType))
             {
-                AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementationType, lifetime));
+                _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementationType, lifetime));
             }
 
             return this;
@@ -398,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] Func<IServiceProvider, TImplementation> factory)
             where TService : class
             where TImplementation : class, TService
-            => TryAddEnumerable<TService, TImplementation>(factory, ServiceLifetime.Transient);
+            => TryAddEnumerable(typeof(TService), typeof(TImplementation), factory, ServiceLifetime.Transient);
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Scoped" /> service implemented by the given factory
@@ -413,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] Func<IServiceProvider, TImplementation> factory)
             where TService : class
             where TImplementation : class, TService
-            => TryAddEnumerable<TService, TImplementation>(factory, ServiceLifetime.Scoped);
+            => TryAddEnumerable(typeof(TService), typeof(TImplementation), factory, ServiceLifetime.Scoped);
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given factory
@@ -428,19 +436,32 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] Func<IServiceProvider, TImplementation> factory)
             where TService : class
             where TImplementation : class, TService
-            => TryAddEnumerable<TService, TImplementation>(factory, ServiceLifetime.Singleton);
+            => TryAddEnumerable(typeof(TService), typeof(TImplementation), factory, ServiceLifetime.Singleton);
 
-        private ServiceCollectionMap TryAddEnumerable<TService, TImplementation>(
-            [NotNull] Func<IServiceProvider, TImplementation> factory, ServiceLifetime lifetime)
-            where TService : class
-            where TImplementation : class, TService
+        /// <summary>
+        ///     Adds a service implemented by the given factory
+        ///     to ths list of services that implement the given contract. The service is only added
+        ///     if the collection contains no other registration for the same service and implementation type.
+        /// </summary>
+        /// <param name="serviceType"> The contract for the service. </param>
+        /// <param name="implementationType"> The concrete type that implements the service. </param>
+        /// <param name="factory"> The factory that implements this service. </param>
+        /// <param name="lifetime"> The service lifetime. </param>
+        /// <returns> The map, such that further calls can be chained. </returns>
+        public virtual ServiceCollectionMap TryAddEnumerable(
+            [NotNull] Type serviceType,
+            [NotNull] Type implementationType,
+            [NotNull] Func<IServiceProvider, object> factory,
+            ServiceLifetime lifetime)
         {
+            Check.NotNull(serviceType, nameof(serviceType));
+            Check.NotNull(implementationType, nameof(implementationType));
             Check.NotNull(factory, nameof(factory));
 
-            var indexes = GetOrCreateDescriptorIndexes(typeof(TService));
-            if (indexes.All(i => TryGetImplementationType(_serviceCollection[i]) != typeof(TImplementation)))
+            var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
+            if (indexes.All(i => TryGetImplementationType(ServiceCollection[i]) != implementationType))
             {
-                AddNewDescriptor(indexes, new ServiceDescriptor(typeof(TService), factory, lifetime));
+                _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, factory, lifetime));
             }
 
             return this;
@@ -456,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The map, such that further calls can be chained. </returns>
         public virtual ServiceCollectionMap TryAddSingletonEnumerable<TService>([NotNull] TService implementation)
             where TService : class
-            => TryAddEnumerable(typeof(TService), implementation);
+            => TryAddSingletonEnumerable(typeof(TService), implementation);
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given instance
@@ -467,19 +488,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="implementation"> The object that implements the service. </param>
         /// <returns> The map, such that further calls can be chained. </returns>
         public virtual ServiceCollectionMap TryAddSingletonEnumerable([NotNull] Type serviceType, [NotNull] object implementation)
-            => TryAddEnumerable(serviceType, implementation);
-
-        private ServiceCollectionMap TryAddEnumerable(Type serviceType, object implementation)
         {
             Check.NotNull(serviceType, nameof(serviceType));
             Check.NotNull(implementation, nameof(implementation));
 
             var implementationType = implementation.GetType();
 
-            var indexes = GetOrCreateDescriptorIndexes(serviceType);
-            if (indexes.All(i => TryGetImplementationType(_serviceCollection[i]) != implementationType))
+            var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
+            if (indexes.All(i => TryGetImplementationType(ServiceCollection[i]) != implementationType))
             {
-                AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementation));
+                _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementation));
             }
 
             return this;
@@ -491,107 +509,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                // Generic arg on Func may be obejct, but this is the best we can do and matches logic in D.I. container
                ?? descriptor.ImplementationFactory?.GetType().GetTypeInfo().GenericTypeArguments[1];
 
-        private void AddNewDescriptor(IList<int> indexes, ServiceDescriptor newDescriptor)
-        {
-            indexes.Add(_serviceCollection.Count);
-            _serviceCollection.Add(newDescriptor);
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///         directly from your code. This API may change or be removed in future releases.
-        ///     </para>
-        ///     <para>
-        ///         Re-writes the registration for the gicen service such that if the implementation type
-        ///         implements <see cref="IPatchServiceInjectionSite" />, then
-        ///         <see cref="IPatchServiceInjectionSite.InjectServices" /> will be called while resolving
-        ///         the service allowing additional services to be injected without breaking the existing
-        ///         constructor.
-        ///     </para>
-        ///     <para>
-        ///         This mechanism should only be used to allow new services to be injected in a patch or
-        ///         point release without making binary breaking changes.
-        ///     </para>
-        /// </summary>
-        /// <typeparam name="TService"> The service contract. </typeparam>
-        /// <returns> The map, such that further calls can be chained. </returns>
-        public virtual ServiceCollectionMap DoPatchInjection<TService>()
-            where TService : class
-        {
-            IList<int> indexes;
-            if (_serviceMap.TryGetValue(typeof(TService), out indexes))
-            {
-                foreach (var index in indexes)
-                {
-                    var descriptor = _serviceCollection[index];
-                    var lifetime = descriptor.Lifetime;
-                    var implementationType = descriptor.ImplementationType;
-
-                    if (implementationType != null)
-                    {
-                        var implementationIndexes = GetOrCreateDescriptorIndexes(implementationType);
-                        if (!implementationIndexes.Any())
-                        {
-                            AddNewDescriptor(
-                                implementationIndexes,
-                                new ServiceDescriptor(implementationType, implementationType, lifetime));
-                        }
-
-                        var injectedDescriptor = new ServiceDescriptor(
-                            typeof(TService),
-                            p => InjectServices(p, implementationType),
-                            lifetime);
-
-                        _serviceCollection[index] = injectedDescriptor;
-                    }
-                    else if (descriptor.ImplementationFactory != null)
-                    {
-                        var injectedDescriptor = new ServiceDescriptor(
-                            typeof(TService),
-                            p => InjectServices(p, descriptor.ImplementationFactory),
-                            lifetime);
-
-                        _serviceCollection[index] = injectedDescriptor;
-                    }
-                    else
-                    {
-                        var injectedDescriptor = new ServiceDescriptor(
-                            typeof(TService),
-                            p => InjectServices(p, descriptor.ImplementationInstance),
-                            lifetime);
-
-                        _serviceCollection[index] = injectedDescriptor;
-                    }
-                }
-            }
-
-            return this;
-        }
-
-        private static object InjectServices(IServiceProvider serviceProvider, Type concreteType)
-        {
-            var service = serviceProvider.GetService(concreteType);
-
-            (service as IPatchServiceInjectionSite)?.InjectServices(serviceProvider);
-
-            return service;
-        }
-
-        private static object InjectServices(IServiceProvider serviceProvider, object service)
-        {
-            (service as IPatchServiceInjectionSite)?.InjectServices(serviceProvider);
-
-            return service;
-        }
-
-        private static object InjectServices(IServiceProvider serviceProvider, Func<IServiceProvider, object> implementationFactory)
-        {
-            var service = implementationFactory(serviceProvider);
-
-            (service as IPatchServiceInjectionSite)?.InjectServices(serviceProvider);
-
-            return service;
-        }
+        InternalServiceCollectionMap IInfrastructure<InternalServiceCollectionMap>.Instance => _map;
     }
 }

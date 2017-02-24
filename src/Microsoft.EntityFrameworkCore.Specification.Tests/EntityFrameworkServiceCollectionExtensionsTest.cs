@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             var services1 = AddServices(new ServiceCollection());
             var services2 = AddServices(new ServiceCollection());
 
-            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(services2));
+            new EntityFrameworkServicesBuilder(services2).TryAddCoreServices();
 
             AssertServicesSame(services1, services2);
         }

@@ -385,6 +385,38 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by EF and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.
+        /// </summary>
+        public static string NotAnEFService([CanBeNull] object service)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NotAnEFService", "service"), service);
+        }
+
+        /// <summary>
+        /// The implementation type for the registration of the '{service}' service could not be determined. Specific implementation types must be used for services that expect multiple registrations so as to avoid duplicates.
+        /// </summary>
+        public static string ImplementationTypeRequired([CanBeNull] object service)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ImplementationTypeRequired", "service"), service);
+        }
+
+        /// <summary>
+        /// An attempt was made to register an instance for the '{scope}' service '{service}'. Instances can only be registered for 'Singleton' services.
+        /// </summary>
+        public static string SingletonRequired([CanBeNull] object scope, [CanBeNull] object service)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("SingletonRequired", "scope", "service"), scope, service);
+        }
+
+        /// <summary>
+        /// The service dependencies type '{dependenciesType}' has been registered innapropriately in the service collection. Service dependencies types must only be registered by Entity Framework, or in rare cases by database providers and then only to change the service lifetime.
+        /// </summary>
+        public static string BadDependencyRegistration([CanBeNull] object dependenciesType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("BadDependencyRegistration", "dependenciesType"), dependenciesType);
+        }
+
+        /// <summary>
         /// The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.
         /// </summary>
         public static string NoValueGenerator([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)

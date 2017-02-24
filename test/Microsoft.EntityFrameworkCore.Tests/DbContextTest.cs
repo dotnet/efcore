@@ -2017,8 +2017,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Required_low_level_services_are_added_if_needed()
         {
             var serviceCollection = new ServiceCollection();
-            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
-
+            new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
             var provider = serviceCollection.BuildServiceProvider();
 
             Assert.IsType<LoggerFactory>(provider.GetRequiredService<ILoggerFactory>());
@@ -2031,7 +2030,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var loggerFactory = new FakeLoggerFactory();
 
             serviceCollection.AddSingleton<ILoggerFactory>(loggerFactory);
-            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
+
+            new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
 
             var provider = serviceCollection.BuildServiceProvider();
 
@@ -2044,7 +2044,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var serviceCollection = new ServiceCollection();
             var loggerFactory = new FakeLoggerFactory();
 
-            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
+            new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
 
             serviceCollection.AddSingleton<ILoggerFactory>(loggerFactory);
 
@@ -4285,7 +4285,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Throws_with_new_when_no_provider()
         {
             var serviceCollection = new ServiceCollection();
-            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
+            new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var options = new DbContextOptionsBuilder<ConstructorTestContextWithSets>()
@@ -4304,7 +4304,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Throws_with_add_when_no_provider()
         {
             var serviceCollection = new ServiceCollection();
-            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
+            new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
 
             var appServiceProivder = serviceCollection
                 .AddDbContext<ConstructorTestContextWithSets>(
@@ -4327,7 +4327,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Throws_with_new_when_no_provider_and_no_sets()
         {
             var serviceCollection = new ServiceCollection();
-            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
+            new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
@@ -4346,7 +4346,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Throws_with_add_when_no_provider_and_no_sets()
         {
             var serviceCollection = new ServiceCollection();
-            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(new ServiceCollectionMap(serviceCollection));
+            new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
 
             var appServiceProivder = serviceCollection
                 .AddDbContext<ConstructorTestContext1A>(

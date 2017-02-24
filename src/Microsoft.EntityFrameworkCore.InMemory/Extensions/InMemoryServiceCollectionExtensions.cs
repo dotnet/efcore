@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -56,22 +55,23 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
-            var serviceCollectionMap = new ServiceCollectionMap(serviceCollection)
-                .TryAddSingletonEnumerable<IDatabaseProvider, DatabaseProvider<InMemoryOptionsExtension>>()
-                .TryAddSingleton<IInMemoryStoreCache, InMemoryStoreCache>()
-                .TryAddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
-                .TryAddScoped<IInMemoryStoreSource, InMemoryStoreSource>()
-                .TryAddScoped<IValueGeneratorSelector, InMemoryValueGeneratorSelector>()
-                .TryAddScoped<IInMemoryDatabase, InMemoryDatabase>()
-                .TryAddScoped<IDatabase>(p => p.GetService<IInMemoryDatabase>())
-                .TryAddScoped<IDbContextTransactionManager, InMemoryTransactionManager>()
-                .TryAddScoped<IDatabaseCreator, InMemoryDatabaseCreator>()
-                .TryAddScoped<IMaterializerFactory, MaterializerFactory>()
-                .TryAddScoped<IQueryContextFactory, InMemoryQueryContextFactory>()
-                .TryAddScoped<IEntityQueryModelVisitorFactory, InMemoryQueryModelVisitorFactory>()
-                .TryAddScoped<IEntityQueryableExpressionVisitorFactory, InMemoryEntityQueryableExpressionVisitorFactory>();
+            var builder = new EntityFrameworkServicesBuilder(serviceCollection)
+                .TryAdd<IDatabaseProvider, DatabaseProvider<InMemoryOptionsExtension>>()
+                .TryAdd<IValueGeneratorSelector, InMemoryValueGeneratorSelector>()
+                .TryAdd<IDatabase>(p => p.GetService<IInMemoryDatabase>())
+                .TryAdd<IDbContextTransactionManager, InMemoryTransactionManager>()
+                .TryAdd<IDatabaseCreator, InMemoryDatabaseCreator>()
+                .TryAdd<IQueryContextFactory, InMemoryQueryContextFactory>()
+                .TryAdd<IEntityQueryModelVisitorFactory, InMemoryQueryModelVisitorFactory>()
+                .TryAdd<IEntityQueryableExpressionVisitorFactory, InMemoryEntityQueryableExpressionVisitorFactory>()
+                .TryAddProviderSpecificServices(b => b
+                    .TryAddSingleton<IInMemoryStoreCache, InMemoryStoreCache>()
+                    .TryAddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
+                    .TryAddScoped<IInMemoryStoreSource, InMemoryStoreSource>()
+                    .TryAddScoped<IInMemoryDatabase, InMemoryDatabase>()
+                    .TryAddScoped<IMaterializerFactory, MaterializerFactory>());
 
-            ServiceCollectionProviderInfrastructure.TryAddDefaultEntityFrameworkServices(serviceCollectionMap);
+            builder.TryAddCoreServices();
 
             return serviceCollection;
         }
