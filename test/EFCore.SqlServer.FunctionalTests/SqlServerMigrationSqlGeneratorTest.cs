@@ -1116,12 +1116,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.InsertRowsOperation();
 
             Assert.Equal(
-                "INSERT INTO [People] ([asd], [DDDADS], )" + EOL +
+                "INSERT INTO [People]" + EOL +
+                "    ([Id], [Name])" + EOL +
                 "VALUES" + EOL +
-                "(NULL, NULL, )," + EOL +
-                "(NULL, NULL, )," + EOL +
-                "(NULL, NULL, )," + EOL +
-                "(NULL, NULL, )," + EOL,
+                "    (1, N'Daenerys Targaryen')," + EOL +
+                "    (2, N'John Snow')," + EOL +
+                "    (3, N'Arya Stark')," + EOL +
+                "    (4, N'Harry Strickland')," + EOL +
+                "    (5, NULL)",
                 Sql);
         }
 

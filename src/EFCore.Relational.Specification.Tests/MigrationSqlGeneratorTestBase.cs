@@ -565,6 +565,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
         [Fact]
         public virtual void InsertRowsOperation()
             => Generate(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity("People").Property<int>("Id").IsRequired();
+                    modelBuilder.Entity("People").Property<string>("Name").IsRequired();
+                },
                 new InsertRowsOperation
                 {
                     Table = "People",
@@ -572,7 +577,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                         new Person { Id = 1, Name = "Daenerys Targaryen" },
                         new Person { Id = 2, Name = "John Snow" },
                         new Person { Id = 3, Name = "Arya Stark" },
-                        new Person { Id = 4, Name = "Harry Strickland" }
+                        new Person { Id = 4, Name = "Harry Strickland" },
+                        new Person { Id = 5, /* No name */ }
                     }
                 });
 

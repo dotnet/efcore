@@ -623,50 +623,48 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             EndStatement(builder, operation.SuppressTransaction);
         }
 
-        // copy from HistoryRepository.GetInsertScript
         protected virtual void Generate(
             [NotNull] InsertRowsOperation operation,
-            [CanBeNull] IModel model,
+            [NotNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
+            Check.NotEmpty(operation.Rows, nameof(operation.Rows));
+            Check.NotNull(model, nameof(model));
             Check.NotNull(builder, nameof(builder));
-
-            // TODO get column names from the model
-            var columns = new[] { "asd", "DDDADS" };
 
             builder
                 .Append("INSERT INTO ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" (");
+                .AppendLine(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
 
-            // TODO use join because the last comma breaks
-            foreach (var column in columns)
+            var columns = FindProperties(model, operation.Schema, operation.Table).Select(p => Annotations.For(p).ColumnName);
+            using (builder.Indent())
             {
                 builder
-                    .Append(SqlGenerationHelper.DelimitIdentifier(column))
-                    .Append(", ");
+                    .Append("(")
+                    .AppendJoin(", ", columns.Select(SqlGenerationHelper.DelimitIdentifier))
+                    .AppendLine(")");
             }
 
-            builder
-                .AppendLine(")")
-                .AppendLine("VALUES");
+            builder.AppendLine("VALUES");
 
-            // TODO use join because the last comma breaks
-            foreach (var row in operation.Rows)
+            using (builder.Indent())
             {
-                builder.Append("(");
-
-                // TODO use join because the last comma breaks
-                foreach (var column in columns)
+                for (var i = 0; i < operation.Rows.Length; i++)
                 {
+                    var row = operation.Rows[i];
                     builder
-                        // TODO check GetAnyProperty and NULL usage
-                        .Append(row?.GetType()?.GetAnyProperty(column)?.GetValue(row) ?? "NULL")
-                        .Append(", ");
-                }
+                        .Append("(")
+                        .AppendJoin(
+                            ", ",
+                            columns.Select(c => SqlGenerationHelper.GenerateLiteral(row?.GetType()?.GetAnyProperty(c)?.GetValue(row))))
+                        .Append(")");
 
-                builder.AppendLine("),");
+                    if (i != operation.Rows.Length - 1)
+                    {
+                        builder.AppendLine(",");
+                    }
+                }
             }
 
             EndStatement(builder);
@@ -996,6 +994,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => model?.GetEntityTypes().Where(
                 t => Dependencies.Annotations.For(t).TableName == tableName && Dependencies.Annotations.For(t).Schema == schema);
 
+        protected virtual IEnumerable<IProperty> FindProperties(
+            [CanBeNull] IModel model,
+            [CanBeNull] string schema,
+            [NotNull] string tableName)
+            => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties());
+
         protected virtual IProperty FindProperty(
             [CanBeNull] IModel model,
             [CanBeNull] string schema,
@@ -1003,9 +1007,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string columnName
             // Any property that maps to the column will work because model validator has
             // checked that all properties result in the same column definition.
-        )
-            => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
-                .FirstOrDefault(p => Dependencies.Annotations.For(p).ColumnName == columnName);
+            )
+            => FindProperties(model, schema, tableName).FirstOrDefault(p => Dependencies.Annotations.For(p).ColumnName == columnName);
 
         protected virtual void EndStatement(
             [NotNull] MigrationCommandListBuilder builder,

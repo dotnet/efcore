@@ -46,6 +46,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             return this;
         }
 
+        public virtual MigrationCommandListBuilder AppendJoin([NotNull] string separator, [NotNull] IEnumerable<object> o)
+        {
+            Check.NotNull(separator, nameof(separator));
+            Check.NotNull(o, nameof(o));
+
+            using (var iter = o.GetEnumerator())
+            {
+                if (iter.MoveNext())
+                {
+                    var last = iter.Current;
+                    while (iter.MoveNext())
+                    {
+                        _commandBuilder
+                            .Append(last)
+                            .Append(separator);
+                        last = iter.Current;
+                    }
+
+                    _commandBuilder.Append(last);
+                }
+            }
+
+            return this;
+        }
+
         public virtual MigrationCommandListBuilder AppendLine()
         {
             _commandBuilder.AppendLine();
