@@ -2226,6 +2226,66 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level2()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        Orders = c.Orders
+                            .Where(o => o.OrderDetails.Any(d => d.Discount > c.City.Length))
+                            .Take(3)
+                            .Select(o => new { Date = o.OrderDate })
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+                Assert.All(customers, t => Assert.True(t.Orders.Count() <= 3));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level3()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .OrderBy(c => c.Orders.Any(o => o.OrderDetails.Count(d => d.Discount > c.City.Length) > 0))
+                    .Select(c => new
+                    {
+                        Orders = c.Orders.Take(3).Select(o => new { Date = o.OrderDate })
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+                Assert.All(customers, t => Assert.True(t.Orders.Count() <= 3));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level4()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        OrderDate = c.Orders
+                            .Where(o => o.OrderDetails.Any(d => d.Discount > c.City.Length))
+                            .Select(o => new { Date = o.OrderDate })
+                            .FirstOrDefault()
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_correlated_subquery_projection()
         {
             AssertQuery<Customer, Order>((cs, os) =>

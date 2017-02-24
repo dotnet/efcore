@@ -53,8 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly IConditionalRemovingExpressionVisitorFactory _conditionalRemovingExpressionVisitorFactory;
         private readonly IQueryFlattenerFactory _queryFlattenerFactory;
 
-        private bool _bindParentQueries;
-
         private bool _requiresClientSelectMany;
         private bool _requiresClientJoin;
         private bool _requiresClientFilter;
@@ -189,6 +187,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             get { return _requiresClientSingleColumnResultOperator || _requiresClientResultOperator || RequiresClientEval; }
             set { _requiresClientSingleColumnResultOperator = value; }
         }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether this query model visitor will be
+        ///     able to bind directly to properties from its parent query without requiring
+        ///     parameter injection.
+        /// </summary>
+        /// <value>
+        ///     true if the query model visitor can bind to its parent's properties, false if not.
+        /// </value>
+        public virtual bool CanBindToParentQueryModel { get; protected set; }
 
         /// <summary>
         ///     Context for the query compilation.
@@ -356,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The sub-query model. </param>
         public virtual void VisitSubQueryModel([NotNull] QueryModel queryModel)
         {
-            _bindParentQueries = true;
+            CanBindToParentQueryModel = true;
 
             VisitQueryModel(queryModel);
         }
@@ -1154,8 +1162,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (!requiresClientFilter)
             {
                 var sqlTranslatingExpressionVisitor
-                    = _sqlTranslatingExpressionVisitorFactory
-                        .Create(this, selectExpression, whereClause.Predicate, _bindParentQueries);
+                    = _sqlTranslatingExpressionVisitorFactory.Create(
+                        queryModelVisitor: this,
+                        targetSelectExpression: selectExpression,
+                        topLevelPredicate: whereClause.Predicate);
 
                 var sqlPredicateExpression = sqlTranslatingExpressionVisitor.Visit(whereClause.Predicate);
 
@@ -1211,8 +1221,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (!requiresClientOrderBy)
             {
                 var sqlTranslatingExpressionVisitor
-                    = _sqlTranslatingExpressionVisitorFactory
-                        .Create(this, selectExpression, bindParentQueries: _bindParentQueries);
+                    = _sqlTranslatingExpressionVisitorFactory.Create(
+                        queryModelVisitor: this,
+                        targetSelectExpression: selectExpression);
 
                 var orderings = new List<Ordering>();
 
@@ -1595,12 +1606,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private const string OuterQueryParameterNamePrefix = @"_outer_";
 
+        private readonly Dictionary<string, Expression> _injectedParameters = new Dictionary<string, Expression>();
+
         private ParameterExpression BindPropertyToOuterParameter(IQuerySource querySource, IProperty property, bool isMemberExpression)
         {
             if (querySource != null && _canBindPropertyToOuterParameter)
             {
-                var parentSelectExpression = ParentQueryModelVisitor?.TryGetQuery(querySource);
-                if (parentSelectExpression != null)
+                var outerQueryModelVisitor = ParentQueryModelVisitor;
+                var outerSelectExpression = outerQueryModelVisitor?.TryGetQuery(querySource);
+
+                while (outerSelectExpression == null && outerQueryModelVisitor != null)
+                {
+                    outerQueryModelVisitor = outerQueryModelVisitor.ParentQueryModelVisitor;
+                    outerSelectExpression = outerQueryModelVisitor?.TryGetQuery(querySource);
+                }
+
+                if (outerSelectExpression != null)
                 {
                     var parameterName = OuterQueryParameterNamePrefix + property.Name;
                     var parameterWithSamePrefixCount
@@ -1612,7 +1633,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     QueryCompilationContext.ParentQueryReferenceParameters.Add(parameterName);
-                    Expression = CreateInjectParametersExpression(Expression, querySource, property, parameterName, isMemberExpression);
+                    
+                    var querySourceReference = new QuerySourceReferenceExpression(querySource);
+                    var propertyExpression = isMemberExpression
+                        ? Expression.Property(querySourceReference, property.PropertyInfo)
+                        : CreatePropertyExpression(querySourceReference, property);
+
+                    if (propertyExpression.Type.GetTypeInfo().IsValueType)
+                    {
+                        propertyExpression = Expression.Convert(propertyExpression, typeof(object));
+                    }
+
+                    _injectedParameters[parameterName] = propertyExpression;
+
+                    Expression 
+                        = CreateInjectParametersExpression(
+                            Expression, 
+                            new Dictionary<string, Expression> { [parameterName] = propertyExpression });
 
                     return Expression.Parameter(
                         property.ClrType,
@@ -1623,32 +1660,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             return null;
         }
 
-        private Expression CreateInjectParametersExpression(
-            Expression expression,
-            IQuerySource querySource,
-            IProperty property,
-            string parameterName,
-            bool isMemberExpression)
+        private Expression CreateInjectParametersExpression(Expression expression, Dictionary<string, Expression> parameters)
         {
-            var querySourceReference = new QuerySourceReferenceExpression(querySource);
-            var propertyExpression = isMemberExpression
-                ? Expression.Property(querySourceReference, property.PropertyInfo)
-                : CreatePropertyExpression(querySourceReference, property);
-
-            if (propertyExpression.Type.GetTypeInfo().IsValueType)
-            {
-                propertyExpression = Expression.Convert(propertyExpression, typeof(object));
-            }
-
             var parameterNameExpressions = new List<ConstantExpression>();
             var parameterValueExpressions = new List<Expression>();
 
-            var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression != null
+            if (expression is MethodCallExpression methodCallExpression
                 && methodCallExpression.Method.MethodIsClosedFormOf(QueryCompilationContext.QueryMethodProvider.InjectParametersMethod))
             {
-                var existingParamterNamesExpression = (NewArrayExpression)methodCallExpression.Arguments[2];
-                parameterNameExpressions.AddRange(existingParamterNamesExpression.Expressions.Cast<ConstantExpression>());
+                var existingParameterNamesExpression = (NewArrayExpression)methodCallExpression.Arguments[2];
+                parameterNameExpressions.AddRange(existingParameterNamesExpression.Expressions.Cast<ConstantExpression>());
 
                 var existingParameterValuesExpression = (NewArrayExpression)methodCallExpression.Arguments[3];
                 parameterValueExpressions.AddRange(existingParameterValuesExpression.Expressions);
@@ -1656,8 +1677,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expression = methodCallExpression.Arguments[1];
             }
 
-            parameterNameExpressions.Add(Expression.Constant(parameterName));
-            parameterValueExpressions.Add(propertyExpression);
+            parameterNameExpressions.AddRange(parameters.Keys.Select(k => Expression.Constant(k)));
+            parameterValueExpressions.AddRange(parameters.Values);
 
             var elementType = expression.Type.GetTypeInfo().GenericTypeArguments.Single();
 
@@ -1667,6 +1688,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expression,
                 Expression.NewArrayInit(typeof(string), parameterNameExpressions),
                 Expression.NewArrayInit(typeof(object), parameterValueExpressions));
+        }
+
+        /// <summary>
+        ///     Lifts the outer parameters injected into a subquery into the query
+        ///     expression that is being built by this query model visitor, so that
+        ///     the subquery can be lifted.
+        /// </summary>
+        /// <param name="subQueryModelVisitor"> The query model visitor for the subquery being lifted. </param>
+        public virtual void LiftInjectedParameters([NotNull] RelationalQueryModelVisitor subQueryModelVisitor)
+        {
+            Check.NotNull(subQueryModelVisitor, nameof(subQueryModelVisitor));
+
+            if (!subQueryModelVisitor._injectedParameters.Any())
+            {
+                return;
+            }
+
+            foreach (var pair in subQueryModelVisitor._injectedParameters)
+            {
+                _injectedParameters[pair.Key] = pair.Value;
+            }
+
+            Expression = CreateInjectParametersExpression(Expression, subQueryModelVisitor._injectedParameters);
         }
     }
 }

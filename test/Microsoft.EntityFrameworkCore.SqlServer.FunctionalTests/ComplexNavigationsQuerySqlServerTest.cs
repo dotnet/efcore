@@ -1660,28 +1660,14 @@ WHERE EXISTS (
             base.Correlated_nested_two_levels_up_subquery_doesnt_project_unnecessary_columns_in_top_level();
 
             Assert.StartsWith(
-                @"SELECT [l1].[Name]
+                @"SELECT DISTINCT [l1].[Name]
 FROM [Level1] AS [l1]
-
-SELECT 1
-FROM [Level2] AS [l20]
-
-SELECT CASE
-    WHEN EXISTS (
+WHERE EXISTS (
+    SELECT 1
+    FROM [Level2] AS [l2]
+    WHERE EXISTS (
         SELECT 1
-        FROM [Level3] AS [l32])
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END
-
-SELECT 1
-FROM [Level2] AS [l20]
-
-SELECT CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Level3] AS [l32])
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END",
+        FROM [Level3] AS [l3]))",
                 Sql);
         }
 

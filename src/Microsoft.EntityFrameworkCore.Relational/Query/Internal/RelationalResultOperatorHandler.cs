@@ -67,12 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .HandleResultOperator(QueryModelVisitor, ResultOperator, QueryModel);
             }
 
-            public SqlTranslatingExpressionVisitor CreateSqlTranslatingVisitor(bool bindParentQueries = false)
-                => _sqlTranslatingExpressionVisitorFactory
-                    .Create(
-                        QueryModelVisitor,
-                        SelectExpression,
-                        bindParentQueries: bindParentQueries);
+            public SqlTranslatingExpressionVisitor CreateSqlTranslatingVisitor()
+                => _sqlTranslatingExpressionVisitorFactory.Create(QueryModelVisitor, SelectExpression);
         }
 
         private static readonly Dictionary<Type, Func<HandlerContext, Expression>>
@@ -178,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static Expression HandleAll(HandlerContext handlerContext)
         {
             var sqlTranslatingVisitor
-                = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
+                = handlerContext.CreateSqlTranslatingVisitor();
 
             var predicate
                 = sqlTranslatingVisitor.Visit(
@@ -286,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleContains(HandlerContext handlerContext)
         {
-            var filteringVisitor = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
+            var filteringVisitor = handlerContext.CreateSqlTranslatingVisitor();
 
             var itemResultOperator = (ContainsResultOperator)handlerContext.ResultOperator;
 
@@ -659,7 +655,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var skipResultOperator = (SkipResultOperator)handlerContext.ResultOperator;
 
             var sqlTranslatingExpressionVisitor
-                = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
+                = handlerContext.CreateSqlTranslatingVisitor();
 
             var offset = sqlTranslatingExpressionVisitor.Visit(skipResultOperator.Count);
             if (offset != null)
@@ -699,7 +695,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var takeResultOperator = (TakeResultOperator)handlerContext.ResultOperator;
 
             var sqlTranslatingExpressionVisitor
-                = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
+                = handlerContext.CreateSqlTranslatingVisitor();
 
             var limit = sqlTranslatingExpressionVisitor.Visit(takeResultOperator.Count);
 
