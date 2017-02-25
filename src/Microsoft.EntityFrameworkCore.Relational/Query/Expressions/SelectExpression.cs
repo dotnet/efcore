@@ -247,13 +247,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <returns>
         ///     true if the supplied query source is handled by this SelectExpression; otherwise false.
         /// </returns>
-        public virtual bool HandlesQuerySource([NotNull] IQuerySource querySource)
+        public override bool HandlesQuerySource([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            return _tables.Any(te
-                => te.QuerySource == querySource
-                   || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false));
+            return _tables.Any(te => te.QuerySource == querySource || te.HandlesQuerySource(querySource));
         }
 
         /// <summary>
@@ -267,10 +265,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            return _tables.FirstOrDefault(te
-                       => te.QuerySource == querySource
-                          || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false))
-                   ?? ProjectStarTable;
+            return _tables.FirstOrDefault(te => te.QuerySource == querySource || te.HandlesQuerySource(querySource)) 
+                ?? ProjectStarTable;
         }
 
         /// <summary>

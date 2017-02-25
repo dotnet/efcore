@@ -78,6 +78,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
+        ///     Determines whether or not this TableExpressionBase handles the given query source.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <returns>
+        ///     true if the supplied query source is handled by this TableExpressionBase; otherwise false.
+        /// </returns>
+        public virtual bool HandlesQuerySource(IQuerySource querySource)
+        {
+            return _querySource == querySource;
+        }
+
+        /// <summary>
         ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(System.Linq.Expressions.Expression)" /> method passing the
         ///     reduced expression.
         ///     Throws an exception if the node isn't reducible.
