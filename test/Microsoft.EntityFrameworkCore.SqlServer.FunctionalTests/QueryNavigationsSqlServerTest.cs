@@ -329,13 +329,27 @@ WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Assert.StartsWith(
                     @"@__p_0: 20
 
-SELECT [c0].[CustomerID]
-FROM [Customers] AS [c0]
-ORDER BY [c0].[CustomerID]
-OFFSET @__p_0 ROWS
+SELECT [t].[CustomerID]
+FROM (
+    SELECT [c].*
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+    OFFSET @__p_0 ROWS
+) AS [t]
+ORDER BY [t].[CustomerID]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+@_outer_CustomerID: FAMIA (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]
+
+@_outer_CustomerID: FISSA (Size = 450)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
 ORDER BY [o].[OrderID]",
                     Sql);
             }

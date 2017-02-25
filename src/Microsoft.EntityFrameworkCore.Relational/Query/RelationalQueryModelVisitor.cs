@@ -1019,7 +1019,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var subSelectExpression = subQueryModelVisitor.Queries.First();
 
                 if ((!subSelectExpression.OrderBy.Any()
-                     || subSelectExpression.Limit != null)
+                     || subSelectExpression.Limit != null
+                     || subSelectExpression.Offset != null)
                     && (QueryCompilationContext.IsLateralJoinSupported
                         || !subSelectExpression.IsCorrelated()
                         || !(querySource is AdditionalFromClause)))
