@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 if (subQueryModel != null
                     && !subQueryModel.BodyClauses.Any()
                     && subQueryModel.ResultOperators.Count == 1
-                    && subQueryModel.ResultOperators.Single() is DefaultIfEmptyResultOperator
+                    && subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator
                     && (subQueryModel.SelectClause.Selector as QuerySourceReferenceExpression)?.ReferencedQuerySource == subQueryModel.MainFromClause
                     && (subQueryModel.MainFromClause.FromExpression as QuerySourceReferenceExpression)?.ReferencedQuerySource is GroupJoinClause targetGroupJoin)
                 {
