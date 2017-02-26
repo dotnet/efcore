@@ -35,7 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly NavigationRewritingQueryModelVisitor _navigationRewritingQueryModelVisitor;
         private QueryModel _queryModel;
         private QueryModel _parentQueryModel;
-        private IAsyncQueryProvider _entityQueryProvider;
 
         private bool _insideInnerSequence;
         private bool _innerKeySelectorRequiresNullRefProtection;
@@ -154,15 +153,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _navigationRewritingQueryModelVisitor = new NavigationRewritingQueryModelVisitor(this, _queryModelVisitor, navigationExpansionSubquery);
         }
 
-        private NavigationRewritingExpressionVisitor(
-            EntityQueryModelVisitor queryModelVisitor,
-            IAsyncQueryProvider entityQueryProvider,
-            bool navigationExpansionSubquery)
-            : this(queryModelVisitor, navigationExpansionSubquery)
-        {
-            _entityQueryProvider = entityQueryProvider;
-        }
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -232,21 +222,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             Rewrite(expression.QueryModel, _queryModel);
 
             return expression;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override Expression VisitConstant(ConstantExpression node)
-        {
-            if (_entityQueryProvider == null)
-            {
-                _entityQueryProvider
-                    = (node.Value as IQueryable)?.Provider as IAsyncQueryProvider;
-            }
-
-            return node;
         }
 
         /// <summary>
@@ -775,7 +750,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var mainFromClause
                 = new MainFromClause(
                     "subQuery",
-                    targetEntityType.ClrType, _entityQueryProvider.CreateEntityQueryable(targetEntityType));
+                    targetEntityType.ClrType,
+                    NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(targetEntityType.ClrType));
 
             var querySourceReference = new QuerySourceReferenceExpression(mainFromClause);
             var subQueryModel = new QueryModel(mainFromClause, new SelectClause(querySourceReference));
@@ -827,7 +803,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         public virtual NavigationRewritingExpressionVisitor CreateVisitorForSubQuery(bool navigationExpansionSubquery)
             => new NavigationRewritingExpressionVisitor(
                 _queryModelVisitor,
-                _entityQueryProvider,
                 navigationExpansionSubquery);
 
         private static BinaryExpression CreateKeyComparisonExpression(Expression leftExpression, Expression rightExpression)
@@ -879,7 +854,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (navigation.IsCollection())
                 {
-                    _queryModel.MainFromClause.FromExpression = _entityQueryProvider.CreateEntityQueryable(targetEntityType);
+                    _queryModel.MainFromClause.FromExpression 
+                        = NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(targetEntityType.ClrType);
 
                     var innerQuerySourceReferenceExpression
                         = new QuerySourceReferenceExpression(_queryModel.MainFromClause);
@@ -1168,7 +1144,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 = new JoinClause(
                     $"{querySourceReferenceExpression.ReferencedQuerySource.ItemName}.{navigation.Name}", // Interpolation okay; strings
                     targetEntityType.ClrType,
-                    _entityQueryProvider.CreateEntityQueryable(targetEntityType),
+                    NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(targetEntityType.ClrType),
                     outerKeySelector,
                     Expression.Constant(null));
 
