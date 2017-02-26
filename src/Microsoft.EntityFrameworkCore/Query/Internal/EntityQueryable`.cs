@@ -45,6 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         IDetachableContext IDetachableContext.DetachContext()
             => new EntityQueryable<TResult>(_nullAsyncQueryProvider);
 
+        bool IDetachableContext.IsDetached => Provider == _nullAsyncQueryProvider;
+
         private static readonly IAsyncQueryProvider _nullAsyncQueryProvider = new NullAsyncQueryProvider();
 
         private class NullAsyncQueryProvider : IAsyncQueryProvider

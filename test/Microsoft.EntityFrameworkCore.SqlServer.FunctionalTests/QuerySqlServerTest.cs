@@ -69,6 +69,28 @@ WHERE [e].[EmployeeID] = 1",
                 Sql);
         }
 
+        [Fact]
+        public void Test()
+        {
+            using (var context = CreateContext())
+            {
+                (from c in context.Set<Customer>()
+                 from o in context.Set<Order>()
+                 select new { c, o }).ToList();
+            }
+        }
+
+        [Fact]
+        public void Test2()
+        {
+            using (var context = CreateContext())
+            {
+                (from c in context.Set<Customer>()
+                 from o in context.Set<Order>()
+                 select new { c, o }).ToList();
+            }
+        }
+
         public override void Project_to_int_array()
         {
             base.Project_to_int_array();
