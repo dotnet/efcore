@@ -33,11 +33,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// SQLite does not support schemas. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
+        /// The entity type '{entityType}' is configured to use schema '{schema}'. SQLite does not support schemas. This configuration will be ignored by the SQLite provider.
         /// </summary>
-        public static string SchemasNotSupported
+        public static string SchemaConfigured([CanBeNull] object entityType, [CanBeNull] object schema)
         {
-            get { return GetString("SchemasNotSupported"); }
+            return string.Format(CultureInfo.CurrentCulture, GetString("SchemaConfigured", "entityType", "schema"), entityType, schema);
+        }
+
+        /// <summary>
+        /// The model was configured with the database sequence '{sequence}'. SQLite does not support sequences.
+        /// </summary>
+        public static string SequenceConfigured([CanBeNull] object sequence)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("SequenceConfigured", "sequence"), sequence);
         }
 
         /// <summary>

@@ -52,7 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected override string DateTimeOffsetFormatString => DateTimeOffsetFormatStringConst;
 
-        // TODO throw a logger warning that this call was improperly made. The SQLite provider should never specify a schema
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
