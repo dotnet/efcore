@@ -1,6 +1,5 @@
 <Project>
   <PropertyGroup>
-    <SourceLinkCreate>true</SourceLinkCreate>
     <SourceLinkNoAutoLF>true</SourceLinkNoAutoLF>
   </PropertyGroup>
   <ItemGroup>
