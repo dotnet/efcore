@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -47,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 { typeof(RenameTableOperation), (g, o, m, b) => g.Generate((RenameTableOperation)o, m, b) },
                 { typeof(RestartSequenceOperation), (g, o, m, b) => g.Generate((RestartSequenceOperation)o, m, b) },
                 { typeof(SqlOperation), (g, o, m, b) => g.Generate((SqlOperation)o, m, b) },
-                { typeof(InsertRowsOperation), (g, o, m, b) => g.Generate((InsertRowsOperation)o, m, b) }
+                { typeof(InsertRowsOperation), (g, o, m, b) => g.Generate((InsertRowsOperation)o, m, b) },
+                { typeof(DeleteRowsOperation), (g, o, m, b) => g.Generate((DeleteRowsOperation)o, m, b) }
             };
 
         /// <summary>
@@ -625,28 +627,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected virtual void Generate(
             [NotNull] InsertRowsOperation operation,
-            [NotNull] IModel model,
+            [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotEmpty(operation.Rows, nameof(operation.Rows));
-            Check.NotNull(model, nameof(model));
             Check.NotNull(builder, nameof(builder));
 
+            var columns = operation.Rows[0].GetType().GetRuntimeProperties()
+                .Select(p => p.Name)
+                .ToArray();
             builder
                 .Append("INSERT INTO ")
-                .AppendLine(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
-
-            var columns = FindProperties(model, operation.Schema, operation.Table).Select(p => Dependencies.Annotations.For(p).ColumnName);
-            using (builder.Indent())
-            {
-                builder
-                    .Append("(")
-                    .AppendJoin(", ", columns.Select(Dependencies.SqlGenerationHelper.DelimitIdentifier))
-                    .AppendLine(")");
-            }
-
-            builder.AppendLine("VALUES");
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" (")
+                .Append(ColumnList(columns))
+                .AppendLine(")")
+                .Append("VALUES ");
 
             using (builder.Indent())
             {
@@ -657,12 +654,55 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .Append("(")
                         .AppendJoin(
                             ", ",
-                            columns.Select(c => Dependencies.SqlGenerationHelper.GenerateLiteral(row?.GetType()?.GetAnyProperty(c)?.GetValue(row))))
+                            columns.Select(c => Dependencies.SqlGenerationHelper.GenerateLiteral(row.GetType().GetAnyProperty(c)?.GetValue(row))))
                         .Append(")");
 
                     if (i != operation.Rows.Length - 1)
                     {
                         builder.AppendLine(",");
+                    }
+                }
+            }
+
+            EndStatement(builder);
+        }
+
+        protected virtual void Generate(
+            [NotNull] DeleteRowsOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotEmpty(operation.Keys, nameof(operation.Keys));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("DELETE FROM ")
+                .AppendLine(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .AppendLine("WHERE");
+
+            var columns = operation.Keys[0].GetType().GetRuntimeProperties()
+                .Select(p => p.Name)
+                .ToArray();
+
+            using (builder.Indent())
+            {
+                for (var i = 0; i < operation.Keys.Length; i++)
+                {
+                    var row = operation.Keys[i];
+                    builder
+                        .Append("(")
+                        .AppendJoin(
+                            " AND ",
+                            columns.Select(c =>
+                                Dependencies.SqlGenerationHelper.DelimitIdentifier(c) +
+                                " = " +
+                                Dependencies.SqlGenerationHelper.GenerateLiteral(row?.GetType()?.GetAnyProperty(c)?.GetValue(row))))
+                        .Append(")");
+
+                    if (i != operation.Keys.Length - 1)
+                    {
+                        builder.AppendLine(" OR");
                     }
                 }
             }
@@ -994,12 +1034,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => model?.GetEntityTypes().Where(
                 t => Dependencies.Annotations.For(t).TableName == tableName && Dependencies.Annotations.For(t).Schema == schema);
 
-        protected virtual IEnumerable<IProperty> FindProperties(
-            [CanBeNull] IModel model,
-            [CanBeNull] string schema,
-            [NotNull] string tableName)
-            => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties());
-
         protected virtual IProperty FindProperty(
             [CanBeNull] IModel model,
             [CanBeNull] string schema,
@@ -1008,7 +1042,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             // Any property that maps to the column will work because model validator has
             // checked that all properties result in the same column definition.
             )
-            => FindProperties(model, schema, tableName).FirstOrDefault(p => Dependencies.Annotations.For(p).ColumnName == columnName);
+            => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
+                 .FirstOrDefault(p => Dependencies.Annotations.For(p).ColumnName == columnName);
 
         protected virtual void EndStatement(
             [NotNull] MigrationCommandListBuilder builder,

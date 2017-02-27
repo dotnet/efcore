@@ -5,15 +5,15 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
-    public class InsertRowsOperation : MigrationOperation
+    public class DeleteRowsOperation : MigrationOperation
     {
         public virtual string Table { get; [param: NotNull] set; }
         public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The Rows attributes should map to the column names, and not to the
-        ///     model attributes. They must all be the same type.
+        ///     The Keys should be objects with attribute names that map to the column names,
+        ///     and not to the model attributes. They must all be the same type.
         /// </summary>
-        public virtual object[] Rows { get; [param: NotNull] set; }
+        public virtual object[] Keys { get; [param: NotNull] set; }
     }
 }

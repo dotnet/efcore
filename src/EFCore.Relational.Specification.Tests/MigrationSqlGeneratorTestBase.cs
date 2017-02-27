@@ -565,20 +565,39 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
         [Fact]
         public virtual void InsertRowsOperation()
             => Generate(
-                modelBuilder =>
-                {
-                    modelBuilder.Entity("People").Property<int>("Id").IsRequired();
-                    modelBuilder.Entity("People").Property<string>("Name").IsRequired();
-                },
                 new InsertRowsOperation
                 {
                     Table = "People",
                     Rows = new[] {
-                        new Person { Id = 1, Name = "Daenerys Targaryen" },
-                        new Person { Id = 2, Name = "John Snow" },
-                        new Person { Id = 3, Name = "Arya Stark" },
-                        new Person { Id = 4, Name = "Harry Strickland" },
-                        new Person { Id = 5, /* No name */ }
+                        new { Id = 0, Name = default(string) },
+                        new { Id = 1, Name = "Daenerys Targaryen" },
+                        new { Id = 2, Name = "John Snow" },
+                        new { Id = 3, Name = "Arya Stark" },
+                        new { Id = 4, Name = "Harry Strickland" }
+                    }
+                });
+
+        [Fact]
+        public virtual void DeleteRowsOperation_simple_key()
+            => Generate(
+                new DeleteRowsOperation
+                {
+                    Table = "People",
+                    Keys = new[] {
+                        new { Id = 2 },
+                        new { Id = 4 }
+                    }
+                });
+
+        [Fact]
+        public virtual void DeleteRowsOperation_composite_key()
+            => Generate(
+                new DeleteRowsOperation
+                {
+                    Table = "People",
+                    Keys = new[] {
+                        new { Id = 1, Name = "Daenerys Targaryen" },
+                        new { Id = 2, Name = "John Snow" }
                     }
                 });
 
