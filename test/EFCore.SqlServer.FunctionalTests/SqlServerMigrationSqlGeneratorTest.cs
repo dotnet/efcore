@@ -1117,12 +1117,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             Assert.Equal(
                 "INSERT INTO [People] ([Id], [Name])" + EOL +
-                "VALUES" + EOL +
-                "    (0, NULL)," + EOL +
-                "    (1, N'Daenerys Targaryen')," + EOL +
-                "    (2, N'John Snow')," + EOL +
-                "    (3, N'Arya Stark')," + EOL +
-                "    (4, N'Harry Strickland')",
+                "VALUES (0, NULL)," + EOL +
+                "       (1, N'Daenerys Targaryen')," + EOL +
+                "       (2, N'John Snow')," + EOL +
+                "       (3, N'Arya Stark')," + EOL +
+                "       (4, N'Harry Strickland');" + EOL,
                 Sql);
         }
 
@@ -1132,9 +1131,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             Assert.Equal(
                 "DELETE FROM [People]" + EOL +
-                "WHERE" + EOL +
-                "    ([Id] = 2) OR" + EOL +
-                "    ([Id] = 4)",
+                "WHERE ([Id] = 2) OR" + EOL +
+                "      ([Id] = 4);" + EOL,
                 Sql);
         }
 
@@ -1144,9 +1142,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             Assert.Equal(
                 "DELETE FROM [People]" + EOL +
-                "WHERE" + EOL +
-                "    ([Id] = 1 AND [Name] = N\"Daenerys Targaryen\") OR" + EOL +
-                "    ([Id] = 2 AND [Name] = N\"John Snow\")",
+                "WHERE ([Id] = 1 AND [Name] = N'Daenerys Targaryen') OR" + EOL +
+                "      ([Id] = 2 AND [Name] = N'John Snow');" + EOL,
+                Sql);
+        }
+
+        public override void UpdateRowsOperation()
+        {
+            base.UpdateRowsOperation();
+
+            Assert.Equal(
+                "UPDATE [People]" + EOL +
+                "SET [Name] = N'Daenerys Stormborn'" + EOL +
+                "WHERE ([Id] = 1);" + EOL +
+                "UPDATE [People]" + EOL +
+                "SET [Name] = N'Homeless Harry Strickland'" + EOL +
+                "WHERE ([Id] = 4);" + EOL,
                 Sql);
         }
 

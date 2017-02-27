@@ -49,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 { typeof(RestartSequenceOperation), (g, o, m, b) => g.Generate((RestartSequenceOperation)o, m, b) },
                 { typeof(SqlOperation), (g, o, m, b) => g.Generate((SqlOperation)o, m, b) },
                 { typeof(InsertRowsOperation), (g, o, m, b) => g.Generate((InsertRowsOperation)o, m, b) },
-                { typeof(DeleteRowsOperation), (g, o, m, b) => g.Generate((DeleteRowsOperation)o, m, b) }
+                { typeof(DeleteRowsOperation), (g, o, m, b) => g.Generate((DeleteRowsOperation)o, m, b) },
+                { typeof(UpdateRowsOperation), (g, o, m, b) => g.Generate((UpdateRowsOperation)o, m, b) }
             };
 
         /// <summary>
@@ -645,25 +646,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .AppendLine(")")
                 .Append("VALUES ");
 
-            using (builder.Indent())
+            for (var i = 0; i < operation.Rows.Length; i++)
             {
-                for (var i = 0; i < operation.Rows.Length; i++)
-                {
-                    var row = operation.Rows[i];
-                    builder
-                        .Append("(")
-                        .AppendJoin(
-                            ", ",
-                            columns.Select(c => Dependencies.SqlGenerationHelper.GenerateLiteral(row.GetType().GetAnyProperty(c)?.GetValue(row))))
-                        .Append(")");
+                var row = operation.Rows[i];
+                builder
+                    .Append("(")
+                    .Append(string.Join(
+                        ", ",
+                        columns.Select(c => Dependencies.SqlGenerationHelper.GenerateLiteral(row.GetType().GetAnyProperty(c)?.GetValue(row)))))
+                    .Append(")");
 
-                    if (i != operation.Rows.Length - 1)
-                    {
-                        builder.AppendLine(",");
-                    }
+                if (i != operation.Rows.Length - 1)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("       ");
                 }
             }
 
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             EndStatement(builder);
         }
 
@@ -678,36 +679,84 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder
                 .Append("DELETE FROM ")
-                .AppendLine(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                .AppendLine("WHERE");
+                .AppendLine(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
 
             var columns = operation.Keys[0].GetType().GetRuntimeProperties()
                 .Select(p => p.Name)
                 .ToArray();
 
-            using (builder.Indent())
-            {
-                for (var i = 0; i < operation.Keys.Length; i++)
-                {
-                    var row = operation.Keys[i];
-                    builder
-                        .Append("(")
-                        .AppendJoin(
-                            " AND ",
-                            columns.Select(c =>
-                                Dependencies.SqlGenerationHelper.DelimitIdentifier(c) +
-                                " = " +
-                                Dependencies.SqlGenerationHelper.GenerateLiteral(row?.GetType()?.GetAnyProperty(c)?.GetValue(row))))
-                        .Append(")");
+            GenerateWhere(columns, operation.Keys, builder);
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            EndStatement(builder);
+        }
 
-                    if (i != operation.Keys.Length - 1)
+        protected virtual void Generate(
+            [NotNull] UpdateRowsOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotEmpty(operation.Rows, nameof(operation.Rows));
+            Check.NotNull(builder, nameof(builder));
+
+            var columns = operation.Rows[0].GetType().GetRuntimeProperties()
+                .Select(p => p.Name)
+                .ToArray();
+
+            for (var i = 0; i < operation.Rows.Length; i++)
+            {
+                builder
+                    .Append("UPDATE ")
+                    .AppendLine(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append("SET ");
+
+                var row = operation.Rows[i];
+                for (var j = 0; j < columns.Length; j++)
+                {
+                    var column = columns[j];
+                    if (!operation.KeyColumns.Contains(column))
                     {
-                        builder.AppendLine(" OR");
+                        builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(column) +
+                                       " = " +
+                                       Dependencies.SqlGenerationHelper.GenerateLiteral(row?.GetType()?.GetAnyProperty(column)?.GetValue(row)));
+                        if (j != columns.Length - 1)
+                        {
+                            builder.AppendLine(",");
+                        }
                     }
                 }
+
+                builder.AppendLine();
+                GenerateWhere(operation.KeyColumns, new[] { row }, builder);
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
 
             EndStatement(builder);
+        }
+
+        private void GenerateWhere(string[] columns, object[] rows, MigrationCommandListBuilder builder)
+        {
+            builder.Append("WHERE ");
+
+            for (var i = 0; i < rows.Length; i++)
+            {
+                var row = rows[i];
+                builder
+                    .Append("(")
+                    .Append(string.Join(
+                        " AND ",
+                        columns.Select(c =>
+                            Dependencies.SqlGenerationHelper.DelimitIdentifier(c) +
+                            " = " +
+                            Dependencies.SqlGenerationHelper.GenerateLiteral(row?.GetType()?.GetAnyProperty(c)?.GetValue(row)))))
+                    .Append(")");
+
+                if (i != rows.Length - 1)
+                {
+                    builder.AppendLine(" OR")
+                            .Append("      ");
+                }
+            }
         }
 
         protected virtual void SequenceOptions(

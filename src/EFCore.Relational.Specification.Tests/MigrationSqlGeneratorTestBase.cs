@@ -601,6 +601,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                     }
                 });
 
+        [Fact]
+        public virtual void UpdateRowsOperation()
+            => Generate(
+                new UpdateRowsOperation
+                {
+                    Table = "People",
+                    KeyColumns = new[] { "Id" },
+                    Rows = new[] {
+                        new { Id = 1, Name = "Daenerys Stormborn" },
+                        new { Id = 4, Name = "Homeless Harry Strickland" }
+                    }
+                });
+
         private readonly TestHelpers _testHelpers;
 
         protected MigrationSqlGeneratorTestBase(TestHelpers testHelpers)
