@@ -632,8 +632,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] MigrationCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
-            Check.NotEmpty(operation.Rows, nameof(operation.Rows));
             Check.NotNull(builder, nameof(builder));
+
+            if (operation.Rows.Length == 0)
+            {
+                return;
+            }
 
             var columns = operation.Rows[0].GetType().GetRuntimeProperties()
                 .Select(p => p.Name)
@@ -674,8 +678,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] MigrationCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
-            Check.NotEmpty(operation.Keys, nameof(operation.Keys));
             Check.NotNull(builder, nameof(builder));
+
+            if (operation.Keys.Length == 0)
+            {
+                return;
+            }
 
             builder
                 .Append("DELETE FROM ")
@@ -696,8 +704,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] MigrationCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
-            Check.NotEmpty(operation.Rows, nameof(operation.Rows));
+            Check.NotEmpty(operation.KeyColumns, nameof(operation.KeyColumns));
             Check.NotNull(builder, nameof(builder));
+
+            if (operation.Rows.Length == 0)
+            {
+                return;
+            }
 
             var columns = operation.Rows[0].GetType().GetRuntimeProperties()
                 .Select(p => p.Name)
@@ -753,8 +766,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 if (i != rows.Length - 1)
                 {
-                    builder.AppendLine(" OR")
-                            .Append("      ");
+                    builder
+                        .AppendLine(" OR")
+                        .Append("      ");
                 }
             }
         }
