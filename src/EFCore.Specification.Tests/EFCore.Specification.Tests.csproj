@@ -11,8 +11,8 @@
     <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
   <ItemGroup>
-	<ProjectReference Include="..\EFCore\EFCore.csproj" />
-    <ProjectReference Include="..\EFCore\EFCore.Relational.csproj" />
+    <ProjectReference Include="..\EFCore\EFCore.csproj" />
+    <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="$(CoreFxVersion)" />

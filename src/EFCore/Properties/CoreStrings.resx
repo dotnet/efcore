@@ -703,7 +703,7 @@
     <value>Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.</value>
   </data>
   <data name="DbFunctionIdentifierMustBeConstant" xml:space="preserve">
-    <value>Db Function '{dbFunctionName}' has parameters '{dbParams}' which are Identifer parameters that done have a set value.</value>
+    <value>Db Function '{dbFunctionName}' has parameters '{badParam}' which are Identifer parameters that done have a set value.</value>
   </data>
   <data name="DbFunctionNonContinuousIndex" xml:space="preserve">
     <value>Db Function '{dbFunctionName}' has a non continuous parameter index.</value>
@@ -766,7 +766,7 @@
     <value>Db Function has no name set.</value>
   </data>
   <data name="DbFunctionObjectParameterOnStaticMethod" xml:space="preserve">
-    <value>Db Function '{dbFunctionName}' is a static method but has parameters {dbParams} which are Object parameters</value>
+    <value>Db Function '{dbFunctionName}' is a static method but has parameters {badParam} which are Object parameters</value>
   </data>
   <data name="DbFunctionInvalidParameterType" xml:space="preserve">
     <value>The parameter '{dbParameter}' for Db Function '{dbFunction}' has an invalid type.  The type is '{dbParamType}'.  The type must be a primitive, datetime, decimal, guid, enum, nullable versions of those types, object, string, or an array of those types.</value>
@@ -778,7 +778,7 @@
     <value>The parameter '{dbParameter}' Db Function '{dbFunction}' has an invalid type and is set to IsObject.  The parent function must provide a TranslateCallback, or the type must be a primitive, datetime, decimal, guid, enum, nullable versions of those types, object, string, or an array of those types.</value>
   </data>
   <data name="DbFunctionParameterArrayNoTranslate" xml:space="preserve">
-    <value>The parameter '{dbParameter}' for Db Function '{dbFunctionName}' is an array type.  The db function must supply a translate method in this case.</value>
+    <value>The parameter '{badParam}' for Db Function '{dbFunctionName}' is an array type.  The db function must supply a translate method in this case.</value>
   </data>
   <data name="DbFunctionParameterMissingType" xml:space="preserve">
     <value>The parameter '{dbParameter}' for Db Function '{dbFunctionName}' is missing its type.  The type must be a primitive, datetime, decimal, guid, nullable versions of those types, object, string, or an array of those types.</value>

@@ -112,6 +112,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
+            public virtual InternalDbFunctionBuilder OnDbFunctionAdded([NotNull] InternalDbFunctionBuilder dbFunctionBuilder)
+            {
+                Add(new OnDbFunctionAddedNode(dbFunctionBuilder));
+                return dbFunctionBuilder;
+            }
+
             public virtual InternalRelationshipBuilder OnForeignKeyAdded([NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyAddedNode(relationshipBuilder));
@@ -320,6 +326,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 return annotation;
+            }
+
+            public override InternalDbFunctionBuilder OnDbFunctionAdded(InternalDbFunctionBuilder dbFunctionBuilder)
+            {
+                if (dbFunctionBuilder.Metadata.Builder == null)
+                {
+                    return null;
+                }
+
+                foreach (var dbFunctionConvention in _conventionSet.DbFunctionAddedConventions)
+                {
+                    dbFunctionBuilder = dbFunctionConvention.Apply(dbFunctionBuilder);
+                    if (dbFunctionBuilder == null)
+                    {
+                        break;
+                    }
+                }
+
+                return dbFunctionBuilder;
             }
 
             public override InternalRelationshipBuilder OnForeignKeyAdded(InternalRelationshipBuilder relationshipBuilder)
@@ -741,6 +766,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public Annotation OldAnnotation { get; }
 
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnEntityTypeAnnotationSet(this);
+        }
+
+        private class OnDbFunctionAddedNode : ConventionNode
+        {
+            public OnDbFunctionAddedNode(InternalDbFunctionBuilder dbFunctionBuilder)
+            {
+                DbFunctionBuilder = dbFunctionBuilder;
+            }
+
+            public InternalDbFunctionBuilder DbFunctionBuilder { get; }
+
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnDbFunctionAdded(this);
         }
 
         private class OnForeignKeyAddedNode : ConventionNode

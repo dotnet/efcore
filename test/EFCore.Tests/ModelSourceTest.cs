@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 });
 
             var model = CreateDefaultModelSource(setFinderMock.Object)
-                .GetModel(new Mock<DbContext>().Object, _nullConventionSetBuilder, _coreModelValidator, null);
+                .GetModel(new Mock<DbContext>().Object, _nullConventionSetBuilder, _coreModelValidator);
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
@@ -64,12 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model1 = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, null);
-            var model2 = modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator, null);
+            var model1 = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator);
+            var model2 = modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator);
 
             Assert.NotSame(model1, model2);
-            Assert.Same(model1, modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, null));
-            Assert.Same(model2, modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator, null));
+            Assert.Same(model1, modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator));
+            Assert.Same(model2, modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator));
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, null);
+            var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator);
 
             Assert.StartsWith("2.0.0", model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
         }

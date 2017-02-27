@@ -1062,7 +1062,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             var projectionExpression = _projectionExpressionVisitorFactory
                                             .Create(this, queryModel.MainFromClause)
                                             .Visit(selectClause.Selector);
-
             
             var selector = new DbFunctionUnwindingExpressionVisitor().Visit(projectionExpression);
 

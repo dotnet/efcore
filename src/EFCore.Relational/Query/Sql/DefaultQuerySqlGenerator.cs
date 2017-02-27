@@ -1363,7 +1363,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 }
                 case ExpressionType.Negate:
                 {
-                     _relationalCommandBuilder.Append("-(");
+                    _relationalCommandBuilder.Append("-(");
 
                     Visit(expression.Operand);
 

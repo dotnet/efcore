@@ -2,15 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using JetBrains.Annotations;
 using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
@@ -124,12 +122,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
                                            : p.Value != null
                                                ? Expression.Constant(p.Value)
                                                : pa?.Argument).ToList());
-
-            /*if (_dbFunction.ReturnType.GetTypeInfo().IsGenericType == true
-                   && _dbFunction.ReturnType.GetGenericTypeDefinition() == typeof(IQueryable<>))
-            {
-                FunctionType = DbFunctionType.TableValued;
-            }*/
         }
 
         private Expression GerneateIdentiferExpression(DbFunctionParameter dbFunctionParameter, Expression argunment)

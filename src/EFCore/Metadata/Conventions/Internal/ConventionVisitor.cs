@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public virtual OnEntityTypeMemberIgnoredNode VisitOnEntityTypeMemberIgnored(OnEntityTypeMemberIgnoredNode node) => node;
             public virtual OnBaseEntityTypeSetNode VisitOnBaseEntityTypeSet(OnBaseEntityTypeSetNode node) => node;
             public virtual OnEntityTypeAnnotationSetNode VisitOnEntityTypeAnnotationSet(OnEntityTypeAnnotationSetNode node) => node;
+            public virtual OnDbFunctionAddedNode VisitOnDbFunctionAdded(OnDbFunctionAddedNode node) => node;
             public virtual OnForeignKeyAddedNode VisitOnForeignKeyAdded(OnForeignKeyAddedNode node) => node;
             public virtual OnForeignKeyRemovedNode VisitOnForeignKeyRemoved(OnForeignKeyRemovedNode node) => node;
             public virtual OnKeyAddedNode VisitOnKeyAdded(OnKeyAddedNode node) => node;

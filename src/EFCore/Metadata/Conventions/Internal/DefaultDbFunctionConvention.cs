@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             dbFunctionBuilder.HasSchema(dbFuncAttribute?.Schema ?? "");
 
             var parameters = dbFuncMethodInfo.GetParameters()
-                                .Where(p => p.ParameterType != typeof(EFFunctions))
+                                .Where(p => p.ParameterType != typeof(DbFunctions))
                                 .Select((pi, i) => new
                                 {
                                     ParameterIndex = i,

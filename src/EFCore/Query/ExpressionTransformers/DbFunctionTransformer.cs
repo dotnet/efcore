@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTransformers
     /// </summary>
     public class DbFunctionTransformer : IExpressionTransformer<MethodCallExpression>
     {
-        private readonly Dictionary<MethodInfo, IDbFunction> _dbFunctions;
+        private Dictionary<MethodInfo, IDbFunction> _dbFunctions;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -51,40 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTransformers
 
             if (_dbFunctions.TryGetValue(expression.Method, out dbFunction))
             {
-                var methodParameterChecker = new ContainsNonTranslatableChildMethodCallVisitor(_dbFunctions);
-                methodParameterChecker.Visit(expression);
+                var dbFunc = new DbFunctionExpression(dbFunction, expression);
 
-                if (methodParameterChecker.CanTranslate == true && dbFunction.BeforeDbFunctionExpressionCreate(expression) == false)
-                {
-                    var dbFunc = new DbFunctionExpression(dbFunction, expression);
+                dbFunction.AfterDbFunctionExpressionCreate(dbFunc);
 
-                    dbFunction.AfterDbFunctionExpressionCreate(dbFunc);
-
-                    return dbFunc;
-                }
+                return dbFunc;
             }
 
             return expression;
-        }
-
-        private class ContainsNonTranslatableChildMethodCallVisitor : ExpressionVisitor
-        {
-            private Dictionary<MethodInfo, IDbFunction> _dbFunctions;
-
-            public ContainsNonTranslatableChildMethodCallVisitor(Dictionary<MethodInfo, IDbFunction> dbFunctions)
-            {
-                _dbFunctions = dbFunctions;
-            }
-
-            public bool CanTranslate { get; set; } = true;
-
-            protected override Expression VisitMethodCall(MethodCallExpression node)
-            {
-                if (_dbFunctions.ContainsKey(node.Method) == false)
-                    CanTranslate = false;
-
-                return base.VisitMethodCall(node);
-            }
         }
     }
 }

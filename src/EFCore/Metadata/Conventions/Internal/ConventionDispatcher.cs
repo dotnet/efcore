@@ -52,20 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalDbFunctionBuilder OnDbFunctionAdded([NotNull] InternalDbFunctionBuilder dbFunctionBuilder)
-        {
-            Check.NotNull(dbFunctionBuilder, nameof(dbFunctionBuilder));
-
-            foreach (var dbFunctionConvention in _conventionSet.DbFunctionAddedConventions)
-            {
-                dbFunctionBuilder = dbFunctionConvention.Apply(dbFunctionBuilder);
-                if (dbFunctionBuilder == null)
-                {
-                    break;
-                }
-            }
-
-            return dbFunctionBuilder;
-        }
+            => _scope.OnDbFunctionAdded(Check.NotNull(dbFunctionBuilder, nameof(dbFunctionBuilder)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

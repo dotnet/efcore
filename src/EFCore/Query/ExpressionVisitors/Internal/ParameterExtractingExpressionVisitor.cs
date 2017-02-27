@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private Expression TryExtractParameter(Expression expression)
         {
-            if (expression.Type == typeof(EFFunctions))
+            if (expression.Type == typeof(DbFunctions))
                 return expression;
 
             string parameterName;

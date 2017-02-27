@@ -9,13 +9,12 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Design
 {
-    //temp comment out due to bug in dotnet sdk
-    /*public class SqlServerDesignTimeProviderServicesTest : DesignTimeProviderServicesTest
+    public class SqlServerDesignTimeProviderServicesTest : DesignTimeProviderServicesTest
     {
         protected override Assembly GetRuntimeAssembly()
             => typeof(SqlServerConnection).GetTypeInfo().Assembly;
 
         protected override Type GetDesignTimeServicesType()
             => typeof(SqlServerDesignTimeServices);
-    }*/
+    }
 }

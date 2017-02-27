@@ -491,7 +491,7 @@ FROM [Employees] AS [e]",
                 Assert.Equal(
                     @"SELECT TOP(2) [e].[EmployeeID]
 FROM [Employees] AS [e]
-WHERE 127 = Abs([dbo].EmployeeOrderCount([e].[EmployeeID]))",
+WHERE 127 = ABS([dbo].EmployeeOrderCount([e].[EmployeeID]))",
                     Sql);
             }
         }
@@ -526,7 +526,7 @@ FROM [Employees] AS [e]",
                 Assert.Equal(
                     @"SELECT TOP(2) [e].[EmployeeID]
 FROM [Employees] AS [e]
-WHERE 127 = [dbo].EmployeeOrderCount(Abs([e].[EmployeeID]))",
+WHERE 127 = [dbo].EmployeeOrderCount(ABS([e].[EmployeeID]))",
                     Sql);
             }
         }

@@ -4,12 +4,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
-using System.Reflection;
-using System.Linq;
+
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
 {

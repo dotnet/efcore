@@ -341,7 +341,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => mb.DbFunction(typeof(A), nameof(A.MethodJ))).Message);
         }
 
-
         private InternalModelBuilder CreateModelBuilder()
         {
             var conventionset = new ConventionSet();

@@ -9,13 +9,12 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design
 {
-    //temp comment out due to bug in dotnet sdk
-    /*public class SqliteDesignTimeProviderServicesTest : DesignTimeProviderServicesTest
+    public class SqliteDesignTimeProviderServicesTest : DesignTimeProviderServicesTest
     {
         protected override Assembly GetRuntimeAssembly()
             => typeof(SqliteRelationalConnection).GetTypeInfo().Assembly;
 
         protected override Type GetDesignTimeServicesType()
             => typeof(SqliteDesignTimeServices);
-    }*/
+    }
 }

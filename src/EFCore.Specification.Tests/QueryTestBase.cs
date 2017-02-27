@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
@@ -5131,14 +5130,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Where_math_round_decimals()
-        {
-            AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Math.Round(od.UnitPrice, 1) > 15m),
-                entryCount: 1336);
-        }
-
-        [ConditionalFact]
         public virtual void Where_math_truncate()
         {
             AssertQuery<OrderDetail>(
@@ -5167,14 +5158,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<OrderDetail>(
                 ods => ods.Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log(od.Discount) < 0),
-                entryCount: 13);
-        }
-
-         [ConditionalFact]
-        public virtual void Where_math_log_with_base()
-        {
-            AssertQuery<OrderDetail>(
-                ods => ods.Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log(od.Discount, 10) < 0),
                 entryCount: 13);
         }
 
@@ -5240,22 +5223,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<OrderDetail>(
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Tan(od.Discount) > 0),
                 entryCount: 13);
-        }
-
-        [ConditionalFact]
-        public virtual void Where_math_max()
-        {
-            AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Math.Max(od.UnitPrice, 5) > 10),
-                entryCount: 1677);
-        }
-
-        [ConditionalFact]
-        public virtual void Where_math_min()
-        {
-            AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Math.Min(od.UnitPrice, 50) > 10),
-                entryCount: 1677);
         }
 
         [ConditionalFact]
@@ -7329,241 +7296,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             .Select(od => od.OrderID)
                             .Contains(o.OrderID)));
         }
-
-         #region DateTime Overloads
-
-        [ConditionalFact]
-        public virtual void DateTime_AddYears()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => o.OrderDate.Value.AddYears(3).Year == 1999)).ToList();
-
-                Assert.Equal(152, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DateTime_AddMonths()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => o.OrderDate.Value.AddMonths(2).Month == 5)).ToList();
-
-                Assert.Equal(103, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DateTime_AddDays()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => o.OrderDate.Value.AddDays(2).Day == 5)).ToList();
-
-                Assert.Equal(30, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DateTime_AddHours()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => o.OrderDate.Value.AddHours(11).Hour == 11)).ToList();
-
-                Assert.Equal(830, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DateTime_AddMinutes()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => o.OrderDate.Value.AddMinutes(7).Minute == 7)).ToList();
-
-                Assert.Equal(830, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DateTime_AddSeconds()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => o.OrderDate.Value.AddSeconds(6).Second == 6)).ToList();
-
-                Assert.Equal(830, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DateTime_AddMilliSeconds()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => o.OrderDate.Value.AddMilliseconds(843).Millisecond == 843)).ToList();
-
-                Assert.Equal(830, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DateTime_Add_Chained()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => o.OrderDate.Value.AddYears(1).AddDays(1).AddHours(1).AddMinutes(1).AddSeconds(6).Second == 6)).ToList();
-
-                Assert.Equal(830, results.Count);
-            }
-        }
-
-        #endregion
-
-        #region DBFunctions
-
-        [ConditionalFact]
-        public virtual void DbFunction_Left()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (from c in context.Customers
-                               where EF.Functions.Left(c.City, 3) == "Sea"
-                               select new { c.CustomerID }).ToList();
-
-                Assert.Equal(1, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DbFunction_Right()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (from c in context.Customers
-                               where EF.Functions.Right(c.City, 2) == "le"
-                               select new { c.CustomerID }).ToList();
-
-                Assert.Equal(3, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DbFunction_Reverse()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (from c in context.Customers
-                               where EF.Functions.Reverse(c.City) == "elttaeS"
-                               select new { c.CustomerID }).ToList();
-
-                Assert.Equal(1, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DbFunction_Truncate()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.OrderDetails.Where(od => EF.Functions.Truncate(od.UnitPrice, 0) > 10)).ToList();
-
-                Assert.Equal(1658, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DbFunction_DiffYears_Date()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => EF.Functions.DiffYears(o.OrderDate, DateTime.Parse("1/1/2016")) == 20)).ToList();
-
-                Assert.Equal(152, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DbFunction_DiffMonths_Date()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => EF.Functions.DiffMonths(o.OrderDate, DateTime.Parse("1996-09-22")) == -4)).ToList();
-
-                Assert.Equal(33, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DbFunction_DiffDays_Date()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => EF.Functions.DiffDays(o.OrderDate, DateTime.Parse("1996-10-22")) == -7)).ToList();
-
-                Assert.Equal(2, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DbFunction_DiffHours_Date()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => EF.Functions.DiffHours(o.OrderDate, DateTime.Parse("1996-10-22 00:00:00")) > 0)).ToList();
-
-                Assert.Equal(87, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DbFunction_DiffMinutes_Date()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => EF.Functions.DiffMinutes(o.OrderDate, DateTime.Parse("1996-10-22 00:00:00")) > 0)).ToList();
-
-                Assert.Equal(87, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DbFunction_DiffSeconds_Date()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => EF.Functions.DiffSeconds(o.OrderDate, DateTime.Parse("1996-10-22")) > 0)).ToList();
-
-                Assert.Equal(87, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DbFunction_DiffMilliSeconds_Date()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => EF.Functions.DiffMilliseconds(o.OrderDate, DateTime.Parse("1996-10-22")) < 0
-                                    && o.OrderID == 10336)).ToList();
-
-                Assert.Equal(1, results.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void DbFunction_TruncateTime_Date()
-        {
-            using (var context = CreateContext())
-            {
-                var results = (context.Orders.Where(o => EF.Functions.TruncateTime(o.OrderDate) == EF.Functions.TruncateTime(DateTime.Parse("1996-10-22 1:23:45")))).ToList();
-
-                Assert.Equal(1, results.Count);
-            }
-        }
-
-        #endregion
 
         [ConditionalFact]
         public virtual void GroupJoin_SelectMany_subquery_with_filter()
