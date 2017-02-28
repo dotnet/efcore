@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Shared Entity Framework Core components for relational database providers.",
   "packOptions": {
     "tags": [
@@ -25,7 +25,7 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore": "1.1.1",
+    "Microsoft.EntityFrameworkCore": "1.1.2",
     "NETStandard.Library": "1.6.1-*"
   },
   "frameworks": {
