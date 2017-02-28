@@ -168,7 +168,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var first = true;
                 foreach (var ordering in orderByClause.Orderings)
                 {
-                    VisitOrdering(ordering, queryModel, orderByClause, index);
                     if (first)
                     {
                         first = false;
@@ -177,6 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         TransformingVisitor.StringBuilder.Append(", ");
                     }
+
+                    VisitOrdering(ordering, queryModel, orderByClause, index);
                 }
             }
 
