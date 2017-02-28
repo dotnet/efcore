@@ -71,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 var services = _servicesBuilder.Build(context);
                 EnsureServices(services);
+                EnsureMigrationsAssembly(services);
 
                 var scaffolder = services.GetRequiredService<MigrationsScaffolder>();
                 var migration = scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace);
@@ -155,6 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 var services = _servicesBuilder.Build(context);
                 EnsureServices(services);
+                EnsureMigrationsAssembly(services);
 
                 var scaffolder = services.GetRequiredService<MigrationsScaffolder>();
 
@@ -173,7 +175,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 throw new OperationException(DesignStrings.NonRelationalProvider(providerServices.InvariantName));
             }
+        }
 
+        private void EnsureMigrationsAssembly(IServiceProvider services)
+        {
             var assemblyName = _assembly.GetName();
             var options = services.GetRequiredService<IDbContextOptions>();
             var contextType = services.GetRequiredService<ICurrentDbContext>().Context.GetType();
