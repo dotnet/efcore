@@ -5,7 +5,7 @@
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Tests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.3"
+    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.4"
   },
   "testRunner": "xunit",
   "frameworks": {
