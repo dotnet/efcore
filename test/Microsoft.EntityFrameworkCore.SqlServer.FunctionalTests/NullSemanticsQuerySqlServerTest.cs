@@ -5,14 +5,16 @@ using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class NullSemanticsQuerySqlServerTest : NullSemanticsQueryTestBase<SqlServerTestStore, NullSemanticsQuerySqlServerFixture>
     {
-        public NullSemanticsQuerySqlServerTest(NullSemanticsQuerySqlServerFixture fixture)
+        public NullSemanticsQuerySqlServerTest(NullSemanticsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
         public override void Compare_bool_with_bool_equal()
@@ -1179,6 +1181,28 @@ FROM (
 WHERE [c].[StringA] = [c].[StringB]",
                 Sql);
         }
+
+        public override void Projecting_nullable_bool_with_coalesce()
+        {
+            base.Projecting_nullable_bool_with_coalesce();
+
+            Assert.Equal(
+                @"SELECT [e].[Id], CAST(COALESCE([e].[NullableBoolA], 0) AS bit)
+FROM [NullSemanticsEntity1] AS [e]",
+                Sql);
+        }
+
+        public override void Projecting_nullable_bool_with_coalesce_nested()
+        {
+            base.Projecting_nullable_bool_with_coalesce_nested();
+
+            Assert.Equal(
+                @"SELECT [e].[Id], CAST(COALESCE([e].[NullableBoolA], COALESCE([e].[NullableBoolB], 0)) AS bit)
+FROM [NullSemanticsEntity1] AS [e]",
+                Sql);
+        }
+
+        protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private const string FileLineEnding = @"
 ";
