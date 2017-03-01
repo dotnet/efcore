@@ -1216,6 +1216,82 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
+        public virtual void Include_collection_principal_already_tracked_as_tracking(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var customer1
+                    = context.Set<Customer>()
+                        .Single(c => c.CustomerID == "ALFKI");
+
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+
+                var customer2
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .AsTracking()
+                            .Single(c => c.CustomerID == "ALFKI")
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .AsTracking()
+                            .Single(c => c.CustomerID == "ALFKI");
+
+                Assert.Same(customer1, customer2);
+                Assert.Equal(6, customer2.Orders.Count);
+                Assert.True(customer2.Orders.All(o => o.Customer != null));
+                Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
+
+                CheckIsLoaded(
+                    context,
+                    customer2,
+                    ordersLoaded: true,
+                    orderDetailsLoaded: false,
+                    productLoaded: false);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_principal_already_tracked_as_tracking2(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var customer1
+                    = context.Set<Customer>()
+                        .Single(c => c.CustomerID == "ALFKI");
+
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+
+                var customer2
+                    = useString
+                        ? context.Set<Customer>()
+                            .AsTracking()
+                            .Include("Orders")
+                            .Single(c => c.CustomerID == "ALFKI")
+                        : context.Set<Customer>()
+                            .AsTracking()
+                            .Include(c => c.Orders)
+                            .Single(c => c.CustomerID == "ALFKI");
+
+                Assert.Same(customer1, customer2);
+                Assert.Equal(6, customer2.Orders.Count);
+                Assert.True(customer2.Orders.All(o => o.Customer != null));
+                Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
+
+                CheckIsLoaded(
+                    context,
+                    customer2,
+                    ordersLoaded: true,
+                    orderDetailsLoaded: false,
+                    productLoaded: false);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public virtual void Include_collection_principal_already_tracked_as_no_tracking(bool useString)
         {
             using (var context = CreateContext())
