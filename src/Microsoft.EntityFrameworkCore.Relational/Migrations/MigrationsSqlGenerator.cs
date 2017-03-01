@@ -617,9 +617,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder
-                .Append(operation.Sql)
-                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            builder.AppendLine(operation.Sql);
 
             EndStatement(builder, operation.SuppressTransaction);
         }

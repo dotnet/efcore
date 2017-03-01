@@ -77,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 if (ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
                 {
-                    migrationBuilder.Sql("CREATE DATABASE TransactionSuppressed", suppressTransaction: true);
-                    migrationBuilder.Sql("DROP DATABASE TransactionSuppressed", suppressTransaction: true);
+                    migrationBuilder.Sql("CREATE DATABASE TransactionSuppressed;", suppressTransaction: true);
+                    migrationBuilder.Sql("DROP DATABASE TransactionSuppressed;", suppressTransaction: true);
                 }
             }
 
