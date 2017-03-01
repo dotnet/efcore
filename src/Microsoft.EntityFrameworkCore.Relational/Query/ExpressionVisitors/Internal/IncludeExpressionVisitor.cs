@@ -383,10 +383,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                         var existsPredicateExpression = new ExistsExpression(subqueryExpression);
 
-                        AddToPredicate(targetSelectExpression, existsPredicateExpression);
+                        targetSelectExpression.AddToPredicate(existsPredicateExpression);
 
-                        AddToPredicate(
-                            subqueryExpression,
+                        subqueryExpression.AddToPredicate(
                             BuildJoinEqualityExpression(navigation, targetTableExpression, subqueryTable, querySource));
 
                         compositePredicateExpressionVisitor.Visit(subqueryExpression);
@@ -656,12 +655,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 ? ExtractProjections(joinExpression.TableExpression)
                 : Enumerable.Empty<Expression>();
         }
-
-        private static void AddToPredicate(SelectExpression selectExpression, Expression predicateToAdd)
-            => selectExpression.Predicate
-                = selectExpression.Predicate == null
-                    ? predicateToAdd
-                    : Expression.AndAlso(selectExpression.Predicate, predicateToAdd);
 
         private static bool IsOrderingOnNonPrincipalKeyProperties(
                 IEnumerable<Ordering> orderings, IReadOnlyList<IProperty> properties)
