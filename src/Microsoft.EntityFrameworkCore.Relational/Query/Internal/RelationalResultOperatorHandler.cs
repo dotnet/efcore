@@ -190,18 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 innerSelectExpression.ClearProjection();
                 innerSelectExpression.AddToProjection(Expression.Constant(1));
-
-                if (handlerContext.SelectExpression.Predicate != null)
-                {
-                    innerSelectExpression.Predicate
-                        = Expression.AndAlso(
-                            handlerContext.SelectExpression.Predicate,
-                            Expression.Not(predicate));
-                }
-                else
-                {
-                    innerSelectExpression.Predicate = Expression.Not(predicate);
-                }
+                innerSelectExpression.AddToPredicate(Expression.Not(predicate));
 
                 if (innerSelectExpression.Limit == null
                     && innerSelectExpression.Offset == null)

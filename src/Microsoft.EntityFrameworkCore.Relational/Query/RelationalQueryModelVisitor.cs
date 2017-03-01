@@ -1165,11 +1165,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         _conditionalRemovingExpressionVisitorFactory
                             .Create()
                             .Visit(sqlPredicateExpression);
-
-                    selectExpression.Predicate
-                        = selectExpression.Predicate == null
-                            ? sqlPredicateExpression
-                            : Expression.AndAlso(selectExpression.Predicate, sqlPredicateExpression);
+                    
+                    selectExpression.AddToPredicate(sqlPredicateExpression);
                 }
                 else
                 {

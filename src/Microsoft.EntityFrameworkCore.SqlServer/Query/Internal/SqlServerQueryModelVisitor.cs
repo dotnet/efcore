@@ -134,13 +134,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 subQuery.ClearOrderBy();
                 subQuery.AddToProjection(rowNumber, false);
 
-                Expression predicate = null;
-
                 var offset = subQuery.Offset ?? Expression.Constant(0);
 
                 if (subQuery.Offset != null)
                 {
-                    predicate = Expression.GreaterThan(columnExpression, offset);
+                    selectExpression.AddToPredicate
+                        (Expression.GreaterThan(columnExpression, offset));
                 }
 
                 if (subQuery.Limit != null)
@@ -154,17 +153,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             ? (Expression)Expression.Constant((int)offsetValue + (int)constantValue)
                             : Expression.Add(offset, subQuery.Limit);
 
-                    var expression = Expression.LessThanOrEqual(columnExpression, limitExpression);
-
-                    if (predicate != null)
-                    {
-                        expression = Expression.AndAlso(predicate, expression);
-                    }
-
-                    predicate = expression;
+                    selectExpression.AddToPredicate(
+                        Expression.LessThanOrEqual(columnExpression, limitExpression));
                 }
-
-                selectExpression.Predicate = predicate;
 
                 if (selectExpression.Alias != null)
                 {

@@ -1017,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             if (innerPredicate != null)
             {
-                Predicate = Predicate == null ? innerPredicate : AndAlso(Predicate, innerPredicate);
+                AddToPredicate(innerPredicate);
             }
 
             return innerJoinExpression;
@@ -1078,6 +1078,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(tableExpression, nameof(tableExpression));
 
             _tables.Remove(tableExpression);
+        }
+
+        /// <summary>
+        ///     Adds a predicate expression to this SelectExpression, combining it with
+        ///     any existing predicate if necessary.
+        /// </summary>
+        /// <param name="predicate"> The predicate expression to add. </param>
+        public virtual void AddToPredicate([NotNull] Expression predicate)
+        {
+            Check.NotNull(predicate, nameof(predicate));
+
+            Predicate = Predicate != null ? AndAlso(Predicate, predicate) : predicate;
         }
 
         /// <summary>
