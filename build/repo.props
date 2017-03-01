@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup>
+    <ExcludeFromTest Include="$(RepositoryRoot)test\Microsoft.EntityFrameworkCore.Benchmarks.EF6\*.csproj" Condition="'$(OS)' != 'Windows_NT'" />
+  </ItemGroup>
+</Project>
