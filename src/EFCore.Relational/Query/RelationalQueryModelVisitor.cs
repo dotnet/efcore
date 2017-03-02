@@ -197,6 +197,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     true if the query model visitor can bind to its parent's properties, false if not.
         /// </value>
         public virtual bool CanBindToParentQueryModel { get; protected set; }
+        
+        /// <summary>
+        ///     Gets a value indicating whether query model visitor's resulting expression
+        ///     can be lifted into the parent query. Liftable queries contain a single SelectExpression.
+        /// </summary>
+        public virtual bool IsLiftable
+        {
+            get
+            {
+                return Queries.Count == 1
+                    && !RequiresClientEval
+                    && !RequiresClientSelectMany
+                    && !RequiresClientJoin
+                    && !RequiresClientFilter
+                    && !RequiresClientProjection
+                    && !RequiresClientOrderBy
+                    && !RequiresClientResultOperator;
+            }
+        }
 
         /// <summary>
         ///     Context for the query compilation.
@@ -1015,14 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             subQueryModelVisitor.VisitSubQueryModel(subQueryModel);
 
-            if (subQueryModelVisitor.Queries.Count == 1
-                && !subQueryModelVisitor.RequiresClientEval
-                && !subQueryModelVisitor.RequiresClientSelectMany
-                && !subQueryModelVisitor.RequiresClientJoin
-                && !subQueryModelVisitor.RequiresClientFilter
-                && !subQueryModelVisitor.RequiresClientProjection
-                && !subQueryModelVisitor.RequiresClientOrderBy
-                && !subQueryModelVisitor.RequiresClientResultOperator)
+            if (subQueryModelVisitor.IsLiftable)
             {
                 var subSelectExpression = subQueryModelVisitor.Queries.First();
 
