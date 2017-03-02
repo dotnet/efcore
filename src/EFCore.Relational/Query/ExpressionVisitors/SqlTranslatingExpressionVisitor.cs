@@ -875,10 +875,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                     subQueryModelVisitor.VisitSubQueryModel(subQueryModel);
 
-                    if (subQueryModelVisitor.Queries.Count == 1
-                        && !subQueryModelVisitor.RequiresClientFilter
-                        && !subQueryModelVisitor.RequiresClientProjection
-                        && !subQueryModelVisitor.RequiresClientResultOperator)
+                    if (subQueryModelVisitor.IsLiftable)
                     {
                         var selectExpression = subQueryModelVisitor.Queries.First();
 
