@@ -487,7 +487,9 @@ namespace E2ETest.Namespace
                 entity.HasIndex(e => new { e.A, e.B })
                     .HasName("Test_PropertyConfiguration_Index");
 
-                entity.Property(e => e.PropertyConfigurationId).HasColumnName("PropertyConfigurationID");
+                entity.Property(e => e.PropertyConfigurationId)
+                    .HasColumnName("PropertyConfigurationID")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.ComputedDateTimeColumn)
                     .HasColumnType("datetime")

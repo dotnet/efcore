@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEng
         {
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public async Task One_to_one()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("OneToOne" + DbSuffix))
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
             }
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public async Task One_to_many()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("OneToMany" + DbSuffix))
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
             }
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public async Task Many_to_many()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("ManyToMany" + DbSuffix))
@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
             }
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public async Task Self_referencing()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("SelfRef" + DbSuffix))
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
             }
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public async Task Principal_missing_primary_key()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("NoPrincipalPk" + DbSuffix))
@@ -295,7 +295,7 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
             }
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public async Task It_handles_unsafe_names()
         {
             using (var testStore = SqliteTestStore.CreateScratch())
@@ -344,7 +344,7 @@ CREATE TABLE IF NOT EXISTS String (
             }
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual async Task Foreign_key_to_unique_index()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("FkToAltKey" + DbSuffix))

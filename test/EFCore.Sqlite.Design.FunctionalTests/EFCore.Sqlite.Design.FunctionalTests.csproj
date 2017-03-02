@@ -6,6 +6,9 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests</RootNamespace>
+    <!-- TODO: Remove when Microsoft/vstest#428 is fixed. -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="ReverseEngineering\**\*.expected">

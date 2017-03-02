@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
 
         #region Model
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Model_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Model_default_schema_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Entities_are_stored_in_model_snapshot()
         {
             Test(
@@ -193,7 +193,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
 
         #region EntityType
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void EntityType_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -222,7 +222,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void BaseType_is_stored_in_snapshot()
         {
             Test(
@@ -281,7 +281,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Discriminator_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -342,7 +342,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Properties_are_stored_in_snapshot()
         {
             Test(
@@ -375,7 +375,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Primary_key_is_stored_in_snapshot()
         {
             Test(
@@ -407,7 +407,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Alternate_keys_are_stored_in_snapshot()
         {
             Test(
@@ -441,7 +441,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Indexes_are_stored_in_snapshot()
         {
             Test(
@@ -472,7 +472,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Indexes_are_stored_in_snapshot_including_composite_index()
         {
             Test(
@@ -506,7 +506,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Foreign_keys_are_stored_in_snapshot()
         {
             Test(
@@ -561,7 +561,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Relationship_principal_key_is_stored_in_snapshot()
         {
             Test(
@@ -611,7 +611,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void TableName_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -644,7 +644,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void PrimaryKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -680,7 +680,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void AlternateKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -724,7 +724,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
 
         #region Property
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -749,7 +749,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
             );
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Custom_value_generator_is_ignored_in_snapshot()
         {
             Test(
@@ -773,7 +773,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
             );
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_isNullable_is_stored_in_snapshot()
         {
             Test(
@@ -795,7 +795,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(false, o.GetEntityTypes().First().FindProperty("Name").IsNullable); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_ValueGenerated_value_is_stored_in_snapshot()
         {
             Test(
@@ -821,7 +821,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes().First().FindProperty("AlternateId").ValueGenerated); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_maxLength_is_stored_in_snapshot()
         {
             Test(
@@ -843,7 +843,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_unicodeness_is_stored_in_snapshot()
         {
             Test(
@@ -865,7 +865,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsUnicode()); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Many_facets_chained_in_snapshot()
         {
             Test(
@@ -902,7 +902,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_concurrencyToken_is_stored_in_snapshot()
         {
             Test(
@@ -928,7 +928,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(true, o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_column_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -954,7 +954,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("CName", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnName"]); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_column_type_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -980,7 +980,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("CType", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnType"]); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_default_value_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1007,7 +1007,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValue"]); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_default_value_sql_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1034,7 +1034,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValueSql"]); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_computed_column_sql_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1061,7 +1061,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_default_value_of_enum_type_is_stored_in_snapshot_without_actual_enum()
         {
             Test(
@@ -1084,7 +1084,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Property_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1121,7 +1121,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
 
         #region HasKey
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Key_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1149,7 +1149,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First()["AnnotationName"]); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Key_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1177,7 +1177,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("KeyName", o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First()["Relational:Name"]); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Key_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1216,7 +1216,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
 
         #region HasIndex
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Index_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1244,7 +1244,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetIndexes().First()["AnnotationName"]); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Index_isUnique_is_stored_in_snapshot()
         {
             Test(
@@ -1272,7 +1272,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(true, o.GetEntityTypes().First().GetIndexes().First().IsUnique); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Index_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1300,7 +1300,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("IndexName", o.GetEntityTypes().First().GetIndexes().First()["Relational:Name"]); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Index_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1339,7 +1339,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
 
         #region ForeignKey
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void ForeignKey_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1389,7 +1389,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["AnnotationName"]); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void ForeignKey_isRequired_is_stored_in_snapshot()
         {
             Test(
@@ -1440,7 +1440,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).FindProperty("Name").IsNullable); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void ForeignKey_isUnique_is_stored_in_snapshot()
         {
             Test(
@@ -1486,7 +1486,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void ForeignKey_deleteBehavior_is_stored_in_snapshot()
         {
             Test(
@@ -1531,7 +1531,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void ForeignKey_deleteBehavior_is_stored_in_snapshot_for_one_to_one()
         {
             Test(
@@ -1575,7 +1575,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void ForeignKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -1649,7 +1649,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void ForeignKey_constraint_name_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1699,7 +1699,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal("Constraint", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["Relational:Name"]); });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void ForeignKey_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1757,7 +1757,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                     });
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public virtual void Do_not_generate_entity_type_builder_again_if_no_foreign_key_is_defined_on_it()
         {
             Test(

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
     public class ForwardingProxyTest
     {
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         public void Forwards_to_instances_of_a_different_type()
         {
             using (var directory = new TempDirectory())

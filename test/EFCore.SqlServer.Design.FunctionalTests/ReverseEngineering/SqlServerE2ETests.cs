@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             "UnmappablePKColumn.expected"
         };
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         [UseCulture("en-US")]
         public void E2ETest_UseAttributesInsteadOfFluentApi()
         {
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             AssertCompile(actualFileSet);
         }
 
-        [Fact(Skip = "Roslyn assembly missmatch")]
+        [Fact]
         [UseCulture("en-US")]
         public void E2ETest_AllFluentApi()
         {
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             AssertCompile(actualFileSet);
         }
 
-        [ConditionalFact(Skip = "Roslyn assembly missmatch")]
+        [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public void Sequences()
         {
@@ -254,7 +254,7 @@ CREATE SEQUENCE NumericSequence
             }
         }
 
-        [ConditionalFact(Skip = "Roslyn assembly missmatch")]
+        [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void PrimaryKeyWithSequence()
         {
@@ -303,7 +303,7 @@ CREATE TABLE PrimaryKeyWithSequence (
             }
         }
 
-        [ConditionalFact(Skip = "Roslyn assembly missmatch")]
+        [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Index_with_filter()
         {
