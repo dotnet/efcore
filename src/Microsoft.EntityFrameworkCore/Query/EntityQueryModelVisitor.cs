@@ -622,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
                 if (node.Method.IsGenericMethod
-                    && node.Method.GetGenericMethodDefinition() == IncludeCompiler.IncludeMethodInfo)
+                    && Equals(node.Method.GetGenericMethodDefinition(), IncludeCompiler.IncludeMethodInfo))
                 {
                     return node.Arguments[0];
                 }

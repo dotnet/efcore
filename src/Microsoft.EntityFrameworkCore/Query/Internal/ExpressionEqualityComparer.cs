@@ -552,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 for (int i = 0, n = a.Count; i < n; i++)
                 {
-                    if (a[i] != b[i])
+                    if (!Equals(a[i], b[i]))
                     {
                         return false;
                     }
@@ -619,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return false;
                 }
 
-                if (a.Member != b.Member)
+                if (!Equals(a.Member, b.Member))
                 {
                     return false;
                 }

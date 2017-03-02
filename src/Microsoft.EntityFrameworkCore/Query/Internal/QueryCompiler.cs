@@ -341,7 +341,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public override bool IsEvaluatableMember(MemberExpression memberExpression)
-                => memberExpression.Member != _dateTimeNow && memberExpression.Member != _dateTimeUtcNow;
+                => !Equals(memberExpression.Member, _dateTimeNow) 
+                    && !Equals(memberExpression.Member, _dateTimeUtcNow);
         }
 
         private INodeTypeProvider NodeTypeProvider
