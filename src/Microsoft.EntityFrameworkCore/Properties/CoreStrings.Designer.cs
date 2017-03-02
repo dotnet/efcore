@@ -137,6 +137,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// Navigation property '{navigation}' on entity of type '{entityType}' cannot be loaded because the entity is not being tracked. Navigation properties can only be loaded for tracked entities.
+        /// </summary>
+        public static string CannotLoadDetached([CanBeNull] object navigation, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotLoadDetached", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
         /// The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
         public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)

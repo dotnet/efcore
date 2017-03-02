@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public DbSet<EarthPony> EarthPonies { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase().UseInternalServiceProvider(_serviceProvider);
+                => optionsBuilder.UseInMemoryDatabase(nameof(BronieContext)).UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

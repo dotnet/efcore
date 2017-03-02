@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model)
-                .UseInMemoryDatabase()
+                .UseInMemoryDatabase(nameof(ShadowStateUpdateTest))
                 .UseInternalServiceProvider(_fixture.ServiceProvider);
 
             var customer = new Customer { Id = 42 };

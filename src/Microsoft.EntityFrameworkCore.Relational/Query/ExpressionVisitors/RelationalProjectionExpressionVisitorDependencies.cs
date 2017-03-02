@@ -65,5 +65,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         ///     The entity materializer source.
         /// </summary>
         public IEntityMaterializerSource EntityMaterializerSource { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="sqlTranslatingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalProjectionExpressionVisitorDependencies With([NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory)
+            => new RelationalProjectionExpressionVisitorDependencies(
+                sqlTranslatingExpressionVisitorFactory,
+                EntityMaterializerSource);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="entityMaterializerSource"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalProjectionExpressionVisitorDependencies With([NotNull] IEntityMaterializerSource entityMaterializerSource)
+            => new RelationalProjectionExpressionVisitorDependencies(
+                SqlTranslatingExpressionVisitorFactory,
+                entityMaterializerSource);
     }
 }

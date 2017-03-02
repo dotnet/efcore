@@ -13,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
 {
     public class SharedCrossStoreFixture : CrossStoreFixture
     {
+        private const string StoreName = "SharedCrossStore";
+
         private readonly IServiceProvider _serviceProvider;
         private Guid id = Guid.NewGuid();
 
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
 
             if (testStoreType == typeof(SqlServerTestStore))
             {
-                return SqlServerTestStore.Create("SharedCrossStore");
+                return SqlServerTestStore.Create(StoreName);
             }
 
             if (testStoreType == typeof(SqliteTestStore))
@@ -54,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             if (inMemoryTestStore != null)
             {
                 var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase()
+                    .UseInMemoryDatabase(StoreName)
                     .UseInternalServiceProvider(_serviceProvider);
 
                 return new CrossStoreContext(optionsBuilder.Options);

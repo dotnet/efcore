@@ -104,8 +104,87 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public IExecutionStrategyFactory ExecutionStrategyFactory { get; }
 
         /// <summary>
-        ///     Helpers for generating update SQL.
+        ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; }
+        /// <param name="model"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalDatabaseCreatorDependencies With([NotNull] IModel model)
+            => new RelationalDatabaseCreatorDependencies(
+                model,
+                Connection,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                MigrationCommandExecutor,
+                ExecutionStrategyFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="connection"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalDatabaseCreatorDependencies With([NotNull] IRelationalConnection connection)
+            => new RelationalDatabaseCreatorDependencies(
+                Model,
+                connection,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                MigrationCommandExecutor,
+                ExecutionStrategyFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="modelDiffer"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalDatabaseCreatorDependencies With([NotNull] IMigrationsModelDiffer modelDiffer)
+            => new RelationalDatabaseCreatorDependencies(
+                Model,
+                Connection,
+                modelDiffer,
+                MigrationsSqlGenerator,
+                MigrationCommandExecutor,
+                ExecutionStrategyFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="migrationsSqlGenerator"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalDatabaseCreatorDependencies With([NotNull] IMigrationsSqlGenerator migrationsSqlGenerator)
+            => new RelationalDatabaseCreatorDependencies(
+                Model,
+                Connection,
+                ModelDiffer,
+                migrationsSqlGenerator,
+                MigrationCommandExecutor,
+                ExecutionStrategyFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="migrationCommandExecutor"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalDatabaseCreatorDependencies With([NotNull] IMigrationCommandExecutor migrationCommandExecutor)
+            => new RelationalDatabaseCreatorDependencies(
+                Model,
+                Connection,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                migrationCommandExecutor,
+                ExecutionStrategyFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="executionStrategyFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalDatabaseCreatorDependencies With([NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            => new RelationalDatabaseCreatorDependencies(
+                Model,
+                Connection,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                MigrationCommandExecutor,
+                executionStrategyFactory);
     }
 }

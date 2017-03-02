@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseInMemoryDatabase()
+                    .UseInMemoryDatabase(nameof(JustSomeContext))
                     .UseInternalServiceProvider(_serviceProvider);
         }
 

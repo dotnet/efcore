@@ -201,16 +201,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         #endregion
 
-        #region Invalid schema operations
+        #region Ignored schema operations
 
         protected override void Generate(EnsureSchemaOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
-            throw new NotSupportedException(SqliteStrings.SchemasNotSupported);
         }
 
         protected override void Generate(DropSchemaOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
-            throw new NotSupportedException(SqliteStrings.SchemasNotSupported);
         }
 
         #endregion

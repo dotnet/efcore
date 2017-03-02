@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis;
 #if !NET452
 using Microsoft.Extensions.DependencyModel;
 using System.Linq;
+using IOPath = System.IO.Path;
 #endif
 namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities
 {
@@ -37,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
 #else
             var references = Enumerable.ToList(
                 from l in DependencyContext.Default.CompileLibraries
-                where string.Equals(l.Name, name, StringComparison.OrdinalIgnoreCase)
                 from r in l.ResolveReferencePaths()
+                where IOPath.GetFileNameWithoutExtension(r) == name
                 select MetadataReference.CreateFromFile(r));
             if (references.Count == 0)
             {

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseInMemoryDatabase()
+                .UseInMemoryDatabase(DatabaseName)
                 .UseInternalServiceProvider(serviceProvider);
 
             _options = optionsBuilder.Options;

@@ -22,21 +22,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 .BuildServiceProvider();
 
             _optionsBuilder = new DbContextOptionsBuilder()
-                .UseInMemoryDatabase()
+                .UseInMemoryDatabase(nameof(UpdatesInMemoryFixture))
                 .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .UseInternalServiceProvider(_serviceProvider);
         }
 
         public override InMemoryTestStore CreateTestStore()
             => InMemoryTestStore.CreateScratch(
+                _serviceProvider,
+                nameof(UpdatesInMemoryFixture),
                 () =>
                     {
                         using (var context = new UpdatesContext(_optionsBuilder.Options))
                         {
                             UpdatesModelInitializer.Seed(context);
                         }
-                    },
-                _serviceProvider);
+                    });
 
         public override UpdatesContext CreateContext(InMemoryTestStore testStore)
             => new UpdatesContext(_optionsBuilder.Options);

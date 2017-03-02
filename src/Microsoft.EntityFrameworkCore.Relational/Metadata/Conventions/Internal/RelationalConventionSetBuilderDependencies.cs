@@ -77,5 +77,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IDbSetFinder SetFinder { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalConventionSetBuilderDependencies With([NotNull] IRelationalTypeMapper typeMapper)
+            => new RelationalConventionSetBuilderDependencies(typeMapper, Context, SetFinder);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalConventionSetBuilderDependencies With([NotNull] ICurrentDbContext currentContext)
+            => new RelationalConventionSetBuilderDependencies(TypeMapper, currentContext, SetFinder);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="setFinder"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalConventionSetBuilderDependencies With([NotNull] IDbSetFinder setFinder)
+            => new RelationalConventionSetBuilderDependencies(TypeMapper, Context, setFinder);
     }
 }

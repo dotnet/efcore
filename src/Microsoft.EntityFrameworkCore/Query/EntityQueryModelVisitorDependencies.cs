@@ -201,9 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="resultOperatorHandler">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
+        /// <param name="resultOperatorHandler"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public EntityQueryModelVisitorDependencies With([NotNull] IResultOperatorHandler resultOperatorHandler)
             => new EntityQueryModelVisitorDependencies(
@@ -218,8 +216,294 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ProjectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,
-                Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
+                resultOperatorHandler,
                 EntityMaterializerSource,
                 ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="queryOptimizer"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] IQueryOptimizer queryOptimizer)
+            => new EntityQueryModelVisitorDependencies(
+                queryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="navigationRewritingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                navigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="subQueryMemberPushDownExpressionVisitor"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                subQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="querySourceTracingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                querySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="entityResultFindingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                entityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="taskBlockingExpressionVisitor"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                taskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="memberAccessBindingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                memberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="orderingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] IOrderingExpressionVisitorFactory orderingExpressionVisitorFactory)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                orderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="projectionExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                projectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="entityQueryableExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                entityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="queryAnnotationExtractor"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] IQueryAnnotationExtractor queryAnnotationExtractor)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                queryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="entityMaterializerSource"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] IEntityMaterializerSource entityMaterializerSource)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                entityMaterializerSource,
+                ExpressionPrinter);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="expressionPrinter"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] IExpressionPrinter expressionPrinter)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                expressionPrinter);
     }
 }

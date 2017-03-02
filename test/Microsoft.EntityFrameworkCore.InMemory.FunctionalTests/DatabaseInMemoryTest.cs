@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             var options = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(serviceProvider)
-                .UseInMemoryDatabase()
+                .UseInMemoryDatabase(nameof(DatabaseInMemoryTest))
                 .Options;
 
             var customer = new Customer { Id = 42, Name = "Theon" };
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public DbSet<Artist> Artists { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(nameof(SimpleContext));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Artist>().HasKey(a => a.ArtistId);

@@ -48,5 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         ///     The logger.
         /// </summary>
         public ILogger<IMethodCallTranslator> Logger { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="logger"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalCompositeMethodCallTranslatorDependencies With([NotNull] ILogger<IMethodCallTranslator> logger)
+            => new RelationalCompositeMethodCallTranslatorDependencies(logger);
     }
 }

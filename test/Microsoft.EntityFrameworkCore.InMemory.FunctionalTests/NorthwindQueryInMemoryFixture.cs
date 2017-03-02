@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         public override DbContextOptions BuildOptions(IServiceCollection serviceCollection = null)
             => new DbContextOptionsBuilder()
-                .UseInMemoryDatabase()
+                .UseInMemoryDatabase(nameof(NorthwindQueryInMemoryFixture))
                 .UseInternalServiceProvider(
                     (serviceCollection ?? new ServiceCollection())
                         .AddEntityFrameworkInMemoryDatabase()

@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -69,6 +70,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAddSingleton<IRelationalTypeMapper, SqliteTypeMapper>()
                 .TryAddSingleton<ISqlGenerationHelper, SqliteSqlGenerationHelper>()
                 .TryAddSingleton<IMigrationsAnnotationProvider, SqliteMigrationsAnnotationProvider>()
+                .TryAddScoped<IModelValidator, SqliteModelValidator>()
                 .TryAddScoped<IConventionSetBuilder, SqliteConventionSetBuilder>()
                 .TryAddScoped<IUpdateSqlGenerator, SqliteUpdateSqlGenerator>()
                 .TryAddScoped<IModificationCommandBatchFactory, SqliteModificationCommandBatchFactory>()

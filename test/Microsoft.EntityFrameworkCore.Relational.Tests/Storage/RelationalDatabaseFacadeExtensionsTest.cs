@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInternalServiceProvider(_serviceProvider)
-                    .UseInMemoryDatabase();
+                    .UseTransientInMemoryDatabase();
         }
 
         private class TestRawSqlCommandBuilder : IRawSqlCommandBuilder

@@ -11,6 +11,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class F1InMemoryFixture : F1FixtureBase<InMemoryTestStore>
     {
+        private const string DatabaseName = "F1";
+
         private readonly IServiceProvider _serviceProvider;
 
         public F1InMemoryFixture()
@@ -35,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         public override F1Context CreateContext(InMemoryTestStore testStore)
             => new F1Context(new DbContextOptionsBuilder()
-                .UseInMemoryDatabase()
+                .UseInMemoryDatabase(DatabaseName)
                 .UseInternalServiceProvider(_serviceProvider).Options);
 
         public class InMemoryF1TestStore : InMemoryTestStore
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             public override void Dispose()
             {
-                _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear();
+                _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetPersistentStore(DatabaseName).Clear();
 
                 base.Dispose();
             }

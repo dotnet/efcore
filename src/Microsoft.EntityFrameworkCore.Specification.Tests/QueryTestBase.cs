@@ -2226,6 +2226,66 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level2()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        Orders = c.Orders
+                            .Where(o => o.OrderDetails.Any(d => d.Discount > c.City.Length))
+                            .Take(3)
+                            .Select(o => new { Date = o.OrderDate })
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+                Assert.All(customers, t => Assert.True(t.Orders.Count() <= 3));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level3()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .OrderBy(c => c.Orders.Any(o => o.OrderDetails.Count(d => d.Discount > c.City.Length) > 0))
+                    .Select(c => new
+                    {
+                        Orders = c.Orders.Take(3).Select(o => new { Date = o.OrderDate })
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+                Assert.All(customers, t => Assert.True(t.Orders.Count() <= 3));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level4()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        OrderDate = c.Orders
+                            .Where(o => o.OrderDetails.Any(d => d.Discount > c.City.Length))
+                            .Select(o => new { Date = o.OrderDate })
+                            .FirstOrDefault()
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_correlated_subquery_projection()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -4045,6 +4105,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Sum_over_subquery_is_client_eval()
+        {
+            AssertQuery<Customer>(cs => cs.Sum(c => c.Orders.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
         public virtual void Average_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Average());
@@ -4095,6 +4161,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Average_over_subquery_is_client_eval()
+        {
+            AssertQuery<Customer>(cs => cs.Average(c => c.Orders.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
         public virtual void Min_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Min());
@@ -4113,6 +4185,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Min_over_subquery_is_client_eval()
+        {
+            AssertQuery<Customer>(cs => cs.Min(c => c.Orders.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
         public virtual void Max_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Max());
@@ -4128,6 +4206,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Max_with_coalesce()
         {
             AssertQuery<Product>(ps => ps.Where(p => p.ProductID < 40).Max(p => p.UnitPrice ?? 0));
+        }
+
+        [ConditionalFact]
+        public virtual void Max_over_subquery_is_client_eval()
+        {
+            AssertQuery<Customer>(cs => cs.Max(c => c.Orders.Sum(o => o.OrderID)));
         }
 
         [ConditionalFact]
@@ -6910,6 +6994,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             AssertQuery<Order>(es =>
                 es.Where(e => dates.Contains(e.OrderDate.Value.Date)), entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Contains_with_subquery_involving_join_binds_to_correct_table()
+        {
+            AssertQuery<Order, OrderDetail>(
+                (os, ods) =>
+                    os.Where(o => o.OrderID > 11000
+                        && ods.Where(od => od.Product.ProductName == "Chai")
+                            .Select(od => od.OrderID)
+                            .Contains(o.OrderID)));
         }
 
         private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)

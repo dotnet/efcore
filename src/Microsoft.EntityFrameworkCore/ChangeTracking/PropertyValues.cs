@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         protected virtual InternalEntityEntry InternalEntry { get; }
 
         /// <summary>
-        ///     Creates an insatcne of the entity type and sets all its properties using the
+        ///     Creates an instance of the entity type and sets all its properties using the
         ///     values from this object.
         /// </summary>
         /// <returns> The values of this object copied into a new entity instance. </returns>

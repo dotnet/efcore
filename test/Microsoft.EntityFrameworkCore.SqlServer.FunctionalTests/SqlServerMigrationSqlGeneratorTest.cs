@@ -509,6 +509,51 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [Fact]
+        public virtual void AlterColumnOperation_with_added_index()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .Entity("Person", x =>
+                        {
+                            x.Property<string>("Name").HasMaxLength(30);
+                            x.HasIndex("Name");
+                        }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    MaxLength = 30,
+                    IsNullable = true,
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        IsNullable = true
+                    }
+                },
+                new CreateIndexOperation
+                {
+                    Name = "IX_Person_Name",
+                    Table = "Person",
+                    Columns = new[] { "Name" }
+                });
+
+            Assert.Equal(
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30);" + EOL +
+                "GO" + EOL +
+                EOL +
+                "CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
         public virtual void AlterColumnOperation_identity()
         {
             Generate(
@@ -981,6 +1026,88 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             Assert.Equal(
                 "EXEC sp_rename N'dbo.People', N'Person';" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void SqlOperation_handles_backslash()
+        {
+            Generate(
+                new SqlOperation
+                {
+                    Sql = @"-- Multiline \" + EOL +
+                        "comment"
+                });
+
+            Assert.Equal(
+                "-- Multiline comment" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void SqlOperation_ignores_sequential_gos()
+        {
+            Generate(
+                new SqlOperation
+                {
+                    Sql = "-- Ready set" + EOL +
+                        "GO" + EOL +
+                        "GO"
+                });
+
+            Assert.Equal(
+                "-- Ready set" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void SqlOperation_handles_go()
+        {
+            Generate(
+                new SqlOperation
+                {
+                    Sql = "-- I" + EOL +
+                        "go" + EOL +
+                        "-- Too"
+                });
+
+            Assert.Equal(
+                "-- I" + EOL +
+                "GO" + EOL +
+                EOL +
+                "-- Too" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void SqlOperation_handles_go_with_count()
+        {
+            Generate(
+                new SqlOperation
+                {
+                    Sql = "-- I" + EOL +
+                        "GO 2"
+                });
+
+            Assert.Equal(
+                "-- I" + EOL +
+                "GO" + EOL +
+                EOL +
+                "-- I" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void SqlOperation_ignores_non_go()
+        {
+            Generate(
+                new SqlOperation
+                {
+                    Sql = "-- I GO 2"
+                });
+
+            Assert.Equal(
+                "-- I GO 2" + EOL,
                 Sql);
         }
 

@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         private static IInMemoryDatabase CreateStore(IServiceProvider serviceProvider, bool persist)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase(nameof(InMemoryDatabaseCreatorTest));
 
             return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, optionsBuilder.Options).GetRequiredService<IInMemoryDatabase>();
         }
@@ -110,7 +110,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         {
             public DbSet<Fraggle> Fraggles { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseInMemoryDatabase();
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+                => optionsBuilder.UseInMemoryDatabase(nameof(FraggleContext));
         }
 
         private class Fraggle

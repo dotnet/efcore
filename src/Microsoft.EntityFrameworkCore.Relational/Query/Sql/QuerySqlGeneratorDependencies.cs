@@ -79,5 +79,53 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     Gets the relational type mapper.
         /// </summary>
         public IRelationalTypeMapper RelationalTypeMapper { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="commandBuilderFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public QuerySqlGeneratorDependencies With([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
+            => new QuerySqlGeneratorDependencies(
+                commandBuilderFactory,
+                SqlGenerationHelper,
+                ParameterNameGeneratorFactory,
+                RelationalTypeMapper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public QuerySqlGeneratorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            => new QuerySqlGeneratorDependencies(
+                CommandBuilderFactory,
+                sqlGenerationHelper,
+                ParameterNameGeneratorFactory,
+                RelationalTypeMapper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="parameterNameGeneratorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public QuerySqlGeneratorDependencies With([NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+            => new QuerySqlGeneratorDependencies(
+                CommandBuilderFactory,
+                SqlGenerationHelper,
+                parameterNameGeneratorFactory,
+                RelationalTypeMapper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalTypeMapper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public QuerySqlGeneratorDependencies With([NotNull] IRelationalTypeMapper relationalTypeMapper)
+            => new QuerySqlGeneratorDependencies(
+                CommandBuilderFactory,
+                SqlGenerationHelper,
+                ParameterNameGeneratorFactory,
+                relationalTypeMapper);
     }
 }

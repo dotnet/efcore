@@ -416,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseTransientInMemoryDatabase();
 
             return new DbContext(optionsBuilder.Options).GetInfrastructure();
         }

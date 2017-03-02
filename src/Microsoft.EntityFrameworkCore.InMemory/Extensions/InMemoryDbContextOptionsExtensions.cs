@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [CanBeNull] string databaseName,
+            [NotNull] string databaseName,
             [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
@@ -46,10 +46,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseInMemoryDatabase(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [CanBeNull] string databaseName,
+            [NotNull] string databaseName,
             [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
+            Check.NotEmpty(databaseName, nameof(databaseName));
 
             var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>();
 
@@ -72,28 +73,30 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the context to connect to an in-memory database. By default, the same in-memory database instance
-        ///     will be shared by all instances of a given context type. To change this, use the overload that takes a database name.
+        ///     Configures the context to connect to an in-memory database. The database will only exist for the scope
+        ///     of the <see cref="DbContext"/> instance that uses it. Use <see cref="UseInMemoryDatabase{TContext}"/> with
+        ///     a name to create a longer-lived database.
         /// </summary>
         /// <typeparam name="TContext"> The type of context being configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
-        public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
+        public static DbContextOptionsBuilder<TContext> UseTransientInMemoryDatabase<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
             [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
             where TContext : DbContext
-            => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
+            => (DbContextOptionsBuilder<TContext>)UseTransientInMemoryDatabase(
                 (DbContextOptionsBuilder)optionsBuilder, inMemoryOptionsAction);
 
         /// <summary>
-        ///     Configures the context to connect to an in-memory database. By default, the same in-memory database instance
-        ///     will be shared by all instances of a given context type. To change this, use the overload that takes a database name.
+        ///     Configures the context to connect to an in-memory database. The database will only exist for the scope
+        ///     of the <see cref="DbContext"/> instance that uses it. Use <see cref="UseInMemoryDatabase{TContext}"/> with
+        ///     a name to create a longer-lived database.
         /// </summary>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
-        public static DbContextOptionsBuilder UseInMemoryDatabase(
+        public static DbContextOptionsBuilder UseTransientInMemoryDatabase(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
             [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
         {

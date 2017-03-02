@@ -661,6 +661,50 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [Fact]
+        public virtual void Projecting_nullable_bool_with_coalesce()
+        {
+            using (var context = CreateContext())
+            {
+                var expected = context.Entities1.ToList()
+                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? false });
+
+                ClearLog();
+
+                var query = context.Entities1
+                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? false });
+
+                var results = query.ToList();
+                Assert.Equal(expected.Count(), results.Count);
+                foreach (var result in results)
+                {
+                    expected.Contains(result);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Projecting_nullable_bool_with_coalesce_nested()
+        {
+            using (var context = CreateContext())
+            {
+                var expected = context.Entities1.ToList()
+                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) });
+
+                ClearLog();
+
+                var query = context.Entities1
+                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) });
+
+                var results = query.ToList();
+                Assert.Equal(expected.Count(), results.Count);
+                foreach (var result in results)
+                {
+                    expected.Contains(result);
+                }
+            }
+        }
+
         protected void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<TItem>> l2eQuery,
             Func<IQueryable<TItem>, IQueryable<TItem>> l2oQuery,
@@ -692,6 +736,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     Assert.Equal(expectedIds[i], actualIds[i]);
                 }
             }
+        }
+
+        protected virtual void ClearLog()
+        {
         }
     }
 }

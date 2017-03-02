@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()
-                .UseInMemoryDatabase()
+                .UseInMemoryDatabase(nameof(OneToOneQueryInMemoryFixture))
                 .UseInternalServiceProvider(serviceProvider).Options;
 
             using (var context = new DbContext(_options))

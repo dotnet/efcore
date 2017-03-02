@@ -257,15 +257,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         var oldQuerySource = queryModel.MainFromClause;
 
-                        var entityQueryProvider = ((oldQuerySource.FromExpression as ConstantExpression)?.Value as IQueryable)?.Provider as IAsyncQueryProvider;
+                        var entityQueryProvider 
+                            = ((oldQuerySource.FromExpression as ConstantExpression)?.Value as IQueryable)?.Provider as IAsyncQueryProvider;
+
                         if (entityQueryProvider != null)
                         {
                             queryModel.ResultOperators.RemoveAt(index);
 
-                            var newMainFromClause = new MainFromClause(
-                                oldQuerySource.ItemName,
-                                entityType.ClrType,
-                                entityQueryProvider.CreateEntityQueryable(entityType));
+                            var newMainFromClause 
+                                = new MainFromClause(
+                                    oldQuerySource.ItemName,
+                                    entityType.ClrType,
+                                    entityQueryProvider.CreateEntityQueryableExpression(entityType.ClrType));
+
                             queryModel.MainFromClause = newMainFromClause;
 
                             UpdateQuerySourceMapping(queryModel,

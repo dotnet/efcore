@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
 {
@@ -42,8 +43,26 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
         {
         }
 
+        [Fact]
+        public void Detects_schemas()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Animal>().ToTable("Animals", "pet");
+
+            VerifyWarning(SqliteStrings.SchemaConfigured("Animal", "pet"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Detects_sequences()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.HasSequence("Fibonacci");
+
+            VerifyWarning(SqliteStrings.SequenceConfigured("Fibonacci"), modelBuilder.Model);
+        }
+
         protected override ModelValidator CreateModelValidator()
-            => new RelationalModelValidator(
+            => new SqliteModelValidator(
                 new ModelValidatorDependencies(
                     new Logger<RelationalModelValidator>(
                         new ListLoggerFactory(Log, l => l == typeof(RelationalModelValidator).FullName))),

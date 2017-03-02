@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
@@ -17,6 +19,59 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class TestHelpers
     {
+        /// <summary>
+        ///     Tests that calling the 'With' method for each constructor-injected service creates a clone 
+        ///     of TDependencies with only that service replaced.
+        /// </summary>
+        public void TestDependenciesClone<TDependencies>(params string[] ignoreProperties)
+        {
+            var customServices = new ServiceCollection()
+                .AddScoped<IDbContextOptions>(CreateOptions)
+                .AddScoped<ICurrentDbContext, FakeCurrentDbContext>()
+                .AddScoped<IModel, Model>();
+
+            var services1 = CreateServiceProvider(customServices).CreateScope().ServiceProvider;
+            var services2 = CreateServiceProvider(customServices).CreateScope().ServiceProvider;
+
+            var dependencies = services1.GetService<TDependencies>();
+
+            var constructor = typeof(TDependencies).GetTypeInfo().DeclaredConstructors.Single();
+            var constructorParameters = constructor.GetParameters();
+
+            var serviceProperties = typeof(TDependencies).GetTypeInfo()
+                .DeclaredProperties
+                .Where(p => !ignoreProperties.Contains(p.Name))
+                .ToList();
+
+            Assert.Equal(constructorParameters.Length, serviceProperties.Count);
+
+            foreach (var serviceType in constructorParameters.Select(p => p.ParameterType))
+            {
+                var withMethod = typeof(TDependencies).GetTypeInfo().DeclaredMethods
+                    .Single(m => m.Name == "With"
+                                 && m.GetParameters()[0].ParameterType == serviceType);
+
+                var clone = withMethod.Invoke(dependencies, new[] { services2.GetService(serviceType) });
+
+                foreach (var property in serviceProperties)
+                {
+                    if (property.PropertyType == serviceType)
+                    {
+                        Assert.NotSame(property.GetValue(clone), property.GetValue(dependencies));
+                    }
+                    else
+                    {
+                        Assert.Same(property.GetValue(clone), property.GetValue(dependencies));
+                    }
+                }
+            }
+        }
+
+        private class FakeCurrentDbContext : ICurrentDbContext
+        {
+            public DbContext Context { get; }
+        }
+
         public DbContextOptions CreateOptions(IModel model, IServiceProvider serviceProvider = null)
         {
             var optionsBuilder = new DbContextOptionsBuilder()

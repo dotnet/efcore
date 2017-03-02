@@ -19,13 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IInMemoryStore GetStore([NotNull] this IInMemoryStoreSource storeSource, [NotNull] IDbContextOptions options)
-            => storeSource.GetNamedStore(options.Extensions.OfType<InMemoryOptionsExtension>().FirstOrDefault()?.StoreName);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static IInMemoryStore GetGlobalStore([NotNull] this IInMemoryStoreSource storeSource)
-            => storeSource.GetNamedStore(null);
+        {
+            var storeName = options.Extensions.OfType<InMemoryOptionsExtension>().FirstOrDefault()?.StoreName;
+            return storeName == null
+                ? storeSource.GetTransientStore()
+                : storeSource.GetPersistentStore(storeName);
+        }
     }
 }

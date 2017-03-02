@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 => InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
                         var optionsBuilder = new DbContextOptionsBuilder()
-                            .UseInMemoryDatabase()
+                            .UseInMemoryDatabase(nameof(StoreGeneratedInMemoryFixture))
                             .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                             .UseInternalServiceProvider(_serviceProvider);
 
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public override DbContext CreateContext(InMemoryTestStore testStore)
             {
                 var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase()
+                    .UseInMemoryDatabase(nameof(StoreGeneratedInMemoryFixture))
                     .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                     .UseInternalServiceProvider(_serviceProvider);
 

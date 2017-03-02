@@ -2,9 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -19,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     {
         private readonly IMigrationsAnnotationProvider _migrationsAnnotations;
 
+        private IReadOnlyList<MigrationOperation> _operations;
         private int _variableCounter;
 
         public SqlServerMigrationsSqlGenerator(
@@ -27,6 +32,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             : base(dependencies)
         {
             _migrationsAnnotations = migrationsAnnotations;
+        }
+
+        public override IReadOnlyList<MigrationCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model)
+        {
+            _operations = operations;
+            try
+            {
+                return base.Generate(operations, model);
+            }
+            finally
+            {
+                _operations = null;
+            }
         }
 
         protected override void Generate(MigrationOperation operation, IModel model, MigrationCommandListBuilder builder)
@@ -104,6 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            IEnumerable<IIndex> indexesToRebuild = null;
             var property = FindProperty(model, operation.Schema, operation.Table, operation.Name);
 
             if (operation.ComputedColumnSql != null)
@@ -137,12 +156,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 addColumnOperation.AddAnnotations(operation.GetAnnotations());
 
                 // TODO: Use a column rebuild instead
-                DropIndexes(property, builder);
+                indexesToRebuild = GetIndexesToRebuild(property, operation).ToList();
+                DropIndexes(indexesToRebuild, builder);
                 Generate(dropColumnOperation, model, builder, terminate: false);
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
                 Generate(addColumnOperation, model, builder, terminate: false);
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-                CreateIndexes(property, builder);
+                CreateIndexes(indexesToRebuild, builder);
                 builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation));
 
                 return;
@@ -187,7 +207,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             if (narrowed)
             {
-                DropIndexes(property, builder);
+                indexesToRebuild = GetIndexesToRebuild(property, operation).ToList();
+                DropIndexes(indexesToRebuild, builder);
             }
 
             DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
@@ -233,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             if (narrowed)
             {
-                CreateIndexes(property, builder);
+                CreateIndexes(indexesToRebuild, builder);
             }
 
             builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation));
@@ -748,6 +769,57 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             builder.EndCommand();
         }
 
+        protected override void Generate([NotNull] SqlOperation operation, [CanBeNull] IModel model, [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            var batches = Regex.Split(
+                Regex.Replace(
+                    operation.Sql,
+                    @"\\\r?\n",
+                    string.Empty,
+                    default(RegexOptions),
+                    TimeSpan.FromMilliseconds(1000.0)),
+                @"^\s*(GO[ \t]+[0-9]+|GO)(?:\s+|$)",
+                RegexOptions.IgnoreCase | RegexOptions.Multiline,
+                TimeSpan.FromMilliseconds(1000.0));
+            for (var i = 0; i < batches.Length; i++)
+            {
+                if (batches[i].StartsWith("GO", StringComparison.OrdinalIgnoreCase)
+                    || string.IsNullOrWhiteSpace(batches[i]))
+                {
+                    continue;
+                }
+
+                var count = 1;
+                if (i != batches.Length - 1
+                    && batches[i + 1].StartsWith("GO", StringComparison.OrdinalIgnoreCase))
+                {
+                    var match = Regex.Match(
+                        batches[i + 1], "([0-9]+)",
+                        default(RegexOptions),
+                        TimeSpan.FromMilliseconds(1000.0));
+                    if (match.Success)
+                    {
+                        count = int.Parse(match.Value);
+                    }
+                }
+
+                for (var j = 0; j < count; j++)
+                {
+                    builder.Append(batches[i]);
+
+                    if (i == batches.Length - 1)
+                    {
+                        builder.AppendLine();
+                    }
+
+                    EndStatement(builder, operation.SuppressTransaction);
+                }
+            }
+        }
+
         protected override void ColumnDefinition(
             string schema,
             string table,
@@ -967,18 +1039,39 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         }
 
-        protected virtual void DropIndexes(
+        protected virtual IEnumerable<IIndex> GetIndexesToRebuild(
             [CanBeNull] IProperty property,
-            [NotNull] MigrationCommandListBuilder builder)
+            [NotNull] MigrationOperation currentOperation)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(currentOperation, nameof(currentOperation));
 
             if (property == null)
             {
-                return;
+                yield break;
             }
 
+            var createIndexOperations = _operations.SkipWhile(o => o != currentOperation).Skip(1)
+                .OfType<CreateIndexOperation>().ToList();
             foreach (var index in property.GetContainingIndexes())
+            {
+                var indexName = Dependencies.Annotations.For(index).Name;
+                if (createIndexOperations.Any(o => o.Name == indexName))
+                {
+                    continue;
+                }
+
+                yield return index;
+            }
+        }
+
+        protected virtual void DropIndexes(
+            [NotNull] IEnumerable<IIndex> indexes,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(indexes, nameof(indexes));
+            Check.NotNull(builder, nameof(builder));
+
+            foreach (var index in indexes)
             {
                 var operation = new DropIndexOperation
                 {
@@ -994,17 +1087,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         protected virtual void CreateIndexes(
-            [CanBeNull] IProperty property,
+            [NotNull] IEnumerable<IIndex> indexes,
             [NotNull] MigrationCommandListBuilder builder)
         {
+            Check.NotNull(indexes, nameof(indexes));
             Check.NotNull(builder, nameof(builder));
 
-            if (property == null)
-            {
-                return;
-            }
-
-            foreach (var index in property.GetContainingIndexes())
+            foreach (var index in indexes)
             {
                 var operation = new CreateIndexOperation
                 {

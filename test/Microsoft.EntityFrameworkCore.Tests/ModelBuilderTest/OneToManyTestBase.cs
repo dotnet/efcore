@@ -2236,7 +2236,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 var contextOptions = new DbContextOptionsBuilder()
                     .UseModel(modelBuilder.Model)
-                    .UseInMemoryDatabase()
+                    .UseInMemoryDatabase("Can_use_self_referencing_overlapping_FK_PK")
                     .Options;
 
                 using (var context = new DbContext(contextOptions))

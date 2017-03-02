@@ -71,22 +71,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                     .BuildServiceProvider();
 
                 _options = new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase()
+                    .UseInMemoryDatabase(nameof(FindInMemoryFixture))
                     .UseInternalServiceProvider(_serviceProvider)
                     .Options;
             }
 
             public override InMemoryTestStore CreateTestStore()
-            {
-                return InMemoryTestStore.CreateScratch(() =>
+                => InMemoryTestStore.CreateScratch(
+                    _serviceProvider,
+                    nameof(FindInMemoryFixture),
+                    () =>
                         {
                             using (var context = new FindContext(_options))
                             {
                                 Seed(context);
                             }
-                        },
-                    _serviceProvider);
-            }
+                        });
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
                 => new FindContext(_options);

@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public DbSet<IgnoredEntity> Ignored { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseTransientInMemoryDatabase();
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Ignore<IgnoredEntity>();
@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseInMemoryDatabase()
+                    .UseTransientInMemoryDatabase()
                     .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider());
         }
     }

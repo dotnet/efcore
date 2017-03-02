@@ -506,13 +506,16 @@ ORDER BY [t].[OrderID]
 
 SELECT [t1].[OrderID]
 FROM (
-    SELECT TOP(2) [o1].[OrderID], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice]
+    SELECT TOP(2) [o1].*
     FROM [Order Details] AS [o1]
 ) AS [t1]
 ORDER BY [t1].[ProductID], [t1].[OrderID]
 
-SELECT [c3].[CustomerID], [c3].[Country]
+@_outer_CustomerID2: VINET (Size = 450)
+
+SELECT TOP(1) [c3].[Country]
 FROM [Customers] AS [c3]
+WHERE [c3].[CustomerID] = @_outer_CustomerID2
 ORDER BY [c3].[CustomerID]
 
 @_outer_OrderID1: 10285
@@ -521,11 +524,7 @@ SELECT TOP(1) [c4].[Country]
 FROM [Orders] AS [o20]
 INNER JOIN [Customers] AS [c4] ON [o20].[CustomerID] = [c4].[CustomerID]
 WHERE [o20].[OrderID] = @_outer_OrderID1
-ORDER BY [o20].[OrderID], [c4].[CustomerID]
-
-SELECT [c3].[CustomerID], [c3].[Country]
-FROM [Customers] AS [c3]
-ORDER BY [c3].[CustomerID]",
+ORDER BY [o20].[OrderID], [c4].[CustomerID]",
                 Sql);
         }
 
@@ -609,23 +608,23 @@ ORDER BY [o0].[OrderID]",
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 
-@_outer_CustomerID1: ALFKI (Size = 450)
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o1]
-        WHERE [o1].[CustomerID] = @_outer_CustomerID1)
+        WHERE [o1].[CustomerID] = @_outer_CustomerID)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 
-@_outer_CustomerID1: ANATR (Size = 450)
+@_outer_CustomerID: ANATR (Size = 450)
 
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o1]
-        WHERE [o1].[CustomerID] = @_outer_CustomerID1)
+        WHERE [o1].[CustomerID] = @_outer_CustomerID)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);
@@ -1268,6 +1267,19 @@ WHERE [p].[ProductID] < 40",
                 Sql);
         }
 
+        public override void Sum_over_subquery_is_client_eval()
+        {
+            base.Sum_over_subquery_is_client_eval();
+
+            Assert.Equal(@"SELECT (
+    SELECT SUM([o].[OrderID])
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void Average_with_no_arg()
         {
             base.Average_with_no_arg();
@@ -1332,6 +1344,19 @@ WHERE [p].[ProductID] < 40",
                 Sql);
         }
 
+        public override void Average_over_subquery_is_client_eval()
+        {
+            base.Average_over_subquery_is_client_eval();
+
+            Assert.Equal(@"SELECT (
+    SELECT SUM([o].[OrderID])
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void Min_with_no_arg()
         {
             base.Min_with_no_arg();
@@ -1360,6 +1385,19 @@ FROM [Orders] AS [o]",
                 @"SELECT MIN(COALESCE([p].[UnitPrice], 0.0))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40",
+                Sql);
+        }
+
+        public override void Min_over_subquery_is_client_eval()
+        {
+            base.Min_over_subquery_is_client_eval();
+
+            Assert.Equal(@"SELECT (
+    SELECT SUM([o].[OrderID])
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -1394,6 +1432,19 @@ WHERE [p].[ProductID] < 40",
                 Sql);
         }
 
+        public override void Max_over_subquery_is_client_eval()
+        {
+            base.Max_over_subquery_is_client_eval();
+
+            Assert.Equal(@"SELECT (
+    SELECT SUM([o].[OrderID])
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void Distinct_Count()
         {
             base.Distinct_Count();
@@ -1401,7 +1452,7 @@ WHERE [p].[ProductID] < 40",
             Assert.Equal(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT DISTINCT [c].*
     FROM [Customers] AS [c]
 ) AS [t]",
                 Sql);
@@ -1613,7 +1664,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT DISTINCT TOP(@__p_0) [o].*
     FROM [Orders] AS [o]
 ) AS [t]",
                 Sql);
@@ -1628,7 +1679,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT DISTINCT TOP(@__p_0) [o].*
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = N'FRANK'
 ) AS [t]",
@@ -1779,7 +1830,7 @@ ORDER BY [t].[CustomerID]",
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].*
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t]",
@@ -1795,7 +1846,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].*
     FROM [Orders] AS [o]
 ) AS [t]",
                 Sql);
@@ -5537,9 +5588,92 @@ ORDER BY [o].[OrderID]",
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
 
-SELECT [o0].[CustomerID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-WHERE [o0].[OrderID] < 10500",
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT [t].[OrderDate]
+FROM (
+    SELECT TOP(3) [o].*
+    FROM [Orders] AS [o]
+    WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])
+) AS [t]",
+                Sql);
+        }
+
+        public override void Select_nested_collection_multi_level2()
+        {
+            base.Select_nested_collection_multi_level2();
+
+            Assert.StartsWith(
+                @"SELECT [c].[City], [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+
+@_outer_City: Berlin (Size = 6)
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT [t].[OrderDate]
+FROM (
+    SELECT TOP(3) [o].*
+    FROM [Orders] AS [o]
+    WHERE EXISTS (
+        SELECT 1
+        FROM [Order Details] AS [d]
+        WHERE ([d].[Discount] > LEN(@_outer_City)) AND ([o].[OrderID] = [d].[OrderID])) AND (@_outer_CustomerID = [o].[CustomerID])
+) AS [t]",
+                Sql);
+        }
+
+        public override void Select_nested_collection_multi_level3()
+        {
+            base.Select_nested_collection_multi_level3();
+
+            Assert.StartsWith(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+ORDER BY (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE ((
+                SELECT COUNT(*)
+                FROM [Order Details] AS [d]
+                WHERE ([d].[Discount] > LEN([c].[City])) AND ([o].[OrderID] = [d].[OrderID])
+            ) > 0) AND ([c].[CustomerID] = [o].[CustomerID]))
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+)
+
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT [t].[OrderDate]
+FROM (
+    SELECT TOP(3) [o0].*
+    FROM [Orders] AS [o0]
+    WHERE @_outer_CustomerID = [o0].[CustomerID]
+) AS [t]",
+                Sql);
+        }
+
+        public override void Select_nested_collection_multi_level4()
+        {
+            base.Select_nested_collection_multi_level4();
+
+            Assert.StartsWith(
+                @"SELECT [c].[City], [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+
+@_outer_City: Berlin (Size = 6)
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT TOP(1) [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Order Details] AS [d]
+    WHERE ([d].[Discount] > LEN(@_outer_City)) AND ([o].[OrderID] = [d].[OrderID])) AND (@_outer_CustomerID = [o].[CustomerID])",
                 Sql);
         }
 
@@ -6220,20 +6354,12 @@ ORDER BY COALESCE([c].[Region], N'ZZ')",
     WHERE [e].[CustomerID] = [o1].[CustomerID]
 )
 FROM [Customers] AS [e]
-WHERE [e].[ContactTitle] = N'Owner'
-ORDER BY [e].[CustomerID]
-
-@_outer_CustomerID: ANATR (Size = 450)
-
-SELECT COUNT(*)
-FROM [Orders] AS [o]
-WHERE @_outer_CustomerID = [o].[CustomerID]
-
-@_outer_CustomerID: ANTON (Size = 450)
-
-SELECT COUNT(*)
-FROM [Orders] AS [o]
-WHERE @_outer_CustomerID = [o].[CustomerID]",
+WHERE ([e].[ContactTitle] = N'Owner') AND ((
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [e].[CustomerID] = [o].[CustomerID]
+) > 2)
+ORDER BY [e].[CustomerID]",
                 Sql);
         }
 
@@ -6959,7 +7085,7 @@ ORDER BY [e1].[EmployeeID]",
 
 SELECT COUNT(*)
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].*
     FROM [Customers] AS [c]
     ORDER BY (SELECT 1)
     OFFSET @__p_0 ROWS
@@ -6976,7 +7102,7 @@ FROM (
 
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].*
     FROM [Customers] AS [c]
     ORDER BY (SELECT 1)
     OFFSET @__p_0 ROWS
@@ -6993,7 +7119,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].*
     FROM [Customers] AS [c]
     ORDER BY [c].[Country]
     OFFSET @__p_0 ROWS
@@ -7010,7 +7136,7 @@ FROM (
 
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].*
     FROM [Customers] AS [c]
     ORDER BY [c].[Country]
     OFFSET @__p_0 ROWS
@@ -7030,6 +7156,22 @@ WHERE CONVERT(date, [e].[OrderDate]) IN ('1996-07-04T00:00:00.000', '1996-07-16T
 SELECT [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
 FROM [Orders] AS [e]
 WHERE CONVERT(date, [e].[OrderDate]) IN ('1996-07-04T00:00:00.000')",
+                Sql);
+        }
+
+        public override void Contains_with_subquery_involving_join_binds_to_correct_table()
+        {
+            base.Contains_with_subquery_involving_join_binds_to_correct_table();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] > 11000) AND [o].[OrderID] IN (
+    SELECT [od].[OrderID]
+    FROM [Order Details] AS [od]
+    INNER JOIN [Products] AS [od.Product] ON [od].[ProductID] = [od.Product].[ProductID]
+    WHERE [od.Product].[ProductName] = N'Chai'
+)",
                 Sql);
         }
 

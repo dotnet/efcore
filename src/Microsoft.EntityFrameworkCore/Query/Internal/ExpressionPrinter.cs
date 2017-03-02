@@ -47,6 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { ExpressionType.Or, " | " }
         };
 
+        private bool _highlightNonreducibleNodes;
+
+        private const string HighlightLeft = " ---> ";
+        private const string HighlightRight = " <--- ";
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -119,11 +124,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual string Print(Expression expression, bool removeFormatting = false, int? characterLimit = null)
         {
+            return PrintInternal(expression, removeFormatting, characterLimit, highlightNonreducibleNodes: false);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual string PrintDebug(Expression expression, bool highlightNonreducibleNodes = true)
+        {
+            return PrintInternal(
+                expression, 
+                removeFormatting: false, 
+                characterLimit: null, 
+                highlightNonreducibleNodes: highlightNonreducibleNodes);
+        }
+
+        private string PrintInternal(
+            Expression expression, 
+            bool removeFormatting, 
+            int? characterLimit, 
+            bool highlightNonreducibleNodes)
+        {
             _stringBuilder.Clear();
             _parametersInScope.Clear();
-                 
+
             RemoveFormatting = removeFormatting;
             CharacterLimit = characterLimit;
+            _highlightNonreducibleNodes = highlightNonreducibleNodes;
 
             Visit(expression);
 
@@ -467,7 +495,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var assignment = node.Bindings[i] as MemberAssignment;
                 if (assignment != null)
                 {
-                    _stringBuilder.Append(assignment.Member.Name + " = " + Visit(assignment.Expression));
+                    _stringBuilder.Append(assignment.Member.Name + " = ");
+                    Visit(assignment.Expression);
                     appendAction(i == node.Bindings.Count - 1 ? " " : ", ");
                 }
                 else
@@ -688,23 +717,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression node)
         {
-            var qsre = node as QuerySourceReferenceExpression;
-            if (qsre != null)
+            if (_highlightNonreducibleNodes && !node.CanReduce)
+            {
+                StringBuilder.Append(HighlightLeft);
+            }
+
+            if (node is QuerySourceReferenceExpression qsre)
             {
                 StringBuilder.Append(qsre.ReferencedQuerySource.ItemName);
-
-                return node;
             }
-
-            var nullConditional = node as NullConditionalExpression;
-            if (nullConditional != null)
+            else if (node is NullConditionalExpression nullConditional)
             {
                 StringBuilder.Append(nullConditional.ToString());
-
-                return node;
+            }
+            else
+            {
+                UnhandledExpressionType(node);
             }
 
-            UnhandledExpressionType(node);
+            if (_highlightNonreducibleNodes && !node.CanReduce)
+            {
+                StringBuilder.Append(HighlightRight);
+            }
 
             return node;
         }

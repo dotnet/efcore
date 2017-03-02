@@ -12,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
     public class FieldMappingInMemoryTest
         : FieldMappingTestBase<InMemoryTestStore, FieldMappingInMemoryTest.FieldMappingInMemoryFixture>
     {
+        private const string DatabaseName = "FieldMapping";
+
         public FieldMappingInMemoryTest(FieldMappingInMemoryFixture fixture)
             : base(fixture)
         {
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
                 => new FieldMappingContext(new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase()
+                    .UseInMemoryDatabase(DatabaseName)
                     .UseInternalServiceProvider(_serviceProvider)
                     .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                     .Options);
@@ -59,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
                 public override void Dispose()
                 {
-                    _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear();
+                    _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetPersistentStore(DatabaseName).Clear();
 
                     base.Dispose();
                 }

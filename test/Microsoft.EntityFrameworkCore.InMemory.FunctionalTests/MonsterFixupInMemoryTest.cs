@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         protected override DbContextOptions CreateOptions(string databaseName)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase(nameof(MonsterFixupInMemoryTest));
 
             return optionsBuilder.Options;
         }

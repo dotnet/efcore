@@ -84,5 +84,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     the model cache.
         /// </summary>
         public IModelCacheKeyFactory ModelCacheKeyFactory { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="setFinder"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelSourceDependencies With([NotNull] IDbSetFinder setFinder)
+            => new ModelSourceDependencies(setFinder, CoreConventionSetBuilder, ModelCustomizer, ModelCacheKeyFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="coreConventionSetBuilder"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelSourceDependencies With([NotNull] ICoreConventionSetBuilder coreConventionSetBuilder)
+            => new ModelSourceDependencies(SetFinder, coreConventionSetBuilder, ModelCustomizer, ModelCacheKeyFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="modelCustomizer"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelSourceDependencies With([NotNull] IModelCustomizer modelCustomizer)
+            => new ModelSourceDependencies(SetFinder, CoreConventionSetBuilder, modelCustomizer, ModelCacheKeyFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="modelCacheKeyFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelSourceDependencies With([NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
+            => new ModelSourceDependencies(SetFinder, CoreConventionSetBuilder, ModelCustomizer, modelCacheKeyFactory);
     }
 }

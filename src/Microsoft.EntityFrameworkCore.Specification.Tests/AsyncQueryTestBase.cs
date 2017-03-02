@@ -2549,6 +2549,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Sum_over_subquery_is_client_eval()
+        {
+            await AssertQuery<Customer>(cs => cs.SumAsync(c => c.Orders.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
         public virtual async Task Average_with_no_arg()
         {
             await AssertQuery<Order>(os => os.Select(o => o.OrderID).AverageAsync());
@@ -2581,6 +2587,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Average_over_subquery_is_client_eval()
+        {
+            await AssertQuery<Customer>(cs => cs.AverageAsync(c => c.Orders.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
         public virtual async Task Min_with_no_arg()
         {
             await AssertQuery<Order>(os => os.Select(o => o.OrderID).MinAsync());
@@ -2599,6 +2611,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Min_over_subquery_is_client_eval()
+        {
+            await AssertQuery<Customer>(cs => cs.MinAsync(c => c.Orders.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
         public virtual async Task Max_with_no_arg()
         {
             await AssertQuery<Order>(os => os.Select(o => o.OrderID).MaxAsync());
@@ -2614,6 +2632,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual async Task Max_with_coalesce()
         {
             await AssertQuery<Product>(ps => ps.Where(p => p.ProductID < 40).MaxAsync(p => p.UnitPrice ?? 0));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Max_over_subquery_is_client_eval()
+        {
+            await AssertQuery<Customer>(cs => cs.MaxAsync(c => c.Orders.Sum(o => o.OrderID)));
         }
 
         [ConditionalFact]
@@ -3619,6 +3643,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             await AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.Country).Skip(7).LongCountAsync());
+        }
+
+        [ConditionalFact]
+        public virtual async Task Contains_with_subquery_involving_join_binds_to_correct_table()
+        {
+            await AssertQuery<Order, OrderDetail>(
+                (os, ods) =>
+                    os.Where(o => o.OrderID > 11000
+                        && ods.Where(od => od.Product.ProductName == "Chai")
+                            .Select(od => od.OrderID)
+                            .Contains(o.OrderID)));
         }
 
         protected NorthwindContext CreateContext()

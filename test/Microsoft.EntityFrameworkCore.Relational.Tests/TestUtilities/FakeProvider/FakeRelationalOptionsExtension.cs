@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
                 .AddScoped<IHistoryRepository>(_ => null)
                 .AddScoped<IUpdateSqlGenerator>(_ => null)
                 .AddScoped<IModificationCommandBatchFactory>(_ => null)
-                .AddScoped<IRelationalDatabaseCreator>(_ => null));
+                .AddScoped<IRelationalDatabaseCreator, FakeRelationalDatabaseCreator>());
 
             ServiceCollectionRelationalProviderInfrastructure.TryAddDefaultRelationalServices(new ServiceCollectionMap(serviceCollection));
 

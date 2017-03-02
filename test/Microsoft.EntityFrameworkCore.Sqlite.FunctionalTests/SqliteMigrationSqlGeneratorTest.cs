@@ -148,10 +148,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         [Fact]
-        public void CreateSchemaOperation_not_supported()
+        public void CreateSchemaOperation_is_ignored()
         {
-            var ex = Assert.Throws<NotSupportedException>(() => Generate(new EnsureSchemaOperation()));
-            Assert.Equal(SqliteStrings.SchemasNotSupported, ex.Message);
+            Generate(new EnsureSchemaOperation());
+
+            Assert.Empty(Sql);
         }
 
         public override void AddColumnOperation_with_defaultValue()
@@ -241,10 +242,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         [Fact]
-        public void DropSchemaOperation_not_supported()
+        public void DropSchemaOperation_is_ignored()
         {
-            var ex = Assert.Throws<NotSupportedException>(() => Generate(new DropSchemaOperation()));
-            Assert.Equal(SqliteStrings.SchemasNotSupported, ex.Message);
+            Generate(new DropSchemaOperation());
+
+            Assert.Empty(Sql);
         }
 
         [Fact]

@@ -15,16 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     {
         private readonly Action<ModelBuilder> _onModelCreating;
 
-        public TestModelSource(
-            Action<ModelBuilder> onModelCreating,
-            IDbSetFinder setFinder,
-            ICoreConventionSetBuilder coreConventionSetBuilder)
-            : base(
-                new ModelSourceDependencies(
-                    setFinder,
-                    coreConventionSetBuilder,
-                    new ModelCustomizer(new ModelCustomizerDependencies()),
-                    new ModelCacheKeyFactory(new ModelCacheKeyFactoryDependencies())))
+        public TestModelSource(Action<ModelBuilder> onModelCreating, ModelSourceDependencies dependencies)
+            : base(dependencies)
         {
             _onModelCreating = onModelCreating;
         }
@@ -51,8 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public static Func<IServiceProvider, IModelSource> GetFactory(Action<ModelBuilder> onModelCreating)
             => p => new TestModelSource(
                 onModelCreating,
-                p.GetRequiredService<IDbSetFinder>(),
-                p.GetRequiredService<ICoreConventionSetBuilder>());
-
+                p.GetRequiredService<ModelSourceDependencies>());
     }
 }

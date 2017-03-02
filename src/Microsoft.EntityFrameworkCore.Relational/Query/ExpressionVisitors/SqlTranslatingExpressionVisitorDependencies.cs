@@ -94,5 +94,70 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         ///     The relational type mapper.
         /// </summary>
         public IRelationalTypeMapper RelationalTypeMapper { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalAnnotationProvider"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public SqlTranslatingExpressionVisitorDependencies With([NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
+            => new SqlTranslatingExpressionVisitorDependencies(
+                relationalAnnotationProvider,
+                CompositeExpressionFragmentTranslator,
+                MethodCallTranslator,
+                MemberTranslator,
+                RelationalTypeMapper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="compositeExpressionFragmentTranslator"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public SqlTranslatingExpressionVisitorDependencies With([NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator)
+            => new SqlTranslatingExpressionVisitorDependencies(
+                RelationalAnnotationProvider,
+                compositeExpressionFragmentTranslator,
+                MethodCallTranslator,
+                MemberTranslator,
+                RelationalTypeMapper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="methodCallTranslator"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public SqlTranslatingExpressionVisitorDependencies With([NotNull] IMethodCallTranslator methodCallTranslator)
+            => new SqlTranslatingExpressionVisitorDependencies(
+                RelationalAnnotationProvider,
+                CompositeExpressionFragmentTranslator,
+                methodCallTranslator,
+                MemberTranslator,
+                RelationalTypeMapper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="memberTranslator"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public SqlTranslatingExpressionVisitorDependencies With([NotNull] IMemberTranslator memberTranslator)
+            => new SqlTranslatingExpressionVisitorDependencies(
+                RelationalAnnotationProvider,
+                CompositeExpressionFragmentTranslator,
+                MethodCallTranslator,
+                memberTranslator,
+                RelationalTypeMapper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalTypeMapper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public SqlTranslatingExpressionVisitorDependencies With([NotNull] IRelationalTypeMapper relationalTypeMapper)
+            => new SqlTranslatingExpressionVisitorDependencies(
+                RelationalAnnotationProvider,
+                CompositeExpressionFragmentTranslator,
+                MethodCallTranslator,
+                MemberTranslator,
+                relationalTypeMapper);
     }
 }

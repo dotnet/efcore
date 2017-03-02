@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public DbSet<ExamQuestion3595> ExamQuestions { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(DatabaseName);
         }
 
         [Fact]
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public DbSet<Child3101> Children { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(DatabaseName);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -460,6 +460,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             context.SaveChanges();
         }
 
+        private const string DatabaseName = "QueryBugs";
+
         public class MyContext5456 : DbContext
         {
             public DbSet<Blog5456> Blogs { get; set; }
@@ -468,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public DbSet<Author5456> Authors { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(DatabaseName);
         }
 
         public class Blog5456
@@ -499,20 +501,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> Seed)
             where TContext : DbContext, new()
-        => InMemoryTestStore.CreateScratch(
-            () =>
-                {
-                    using (var context = new TContext())
+            => InMemoryTestStore.CreateScratch(
+                () =>
                     {
-                        Seed(context);
-                    }
-                },
-            () =>
-                {
-                    using (var context = new Context3595())
+                        using (var context = new TContext())
+                        {
+                            Seed(context);
+                        }
+                    },
+                () =>
                     {
-                        context.GetInfrastructure().GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear();
-                    }
-                });
+                        using (var context = new Context3595())
+                        {
+                            context.GetInfrastructure().GetRequiredService<IInMemoryStoreSource>().GetPersistentStore(DatabaseName).Clear();
+                        }
+                    });
     }
 }

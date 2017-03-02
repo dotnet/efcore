@@ -18,6 +18,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             => services.AddEntityFrameworkInMemoryDatabase();
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseInMemoryDatabase();
+            => optionsBuilder.UseInMemoryDatabase(nameof(InMemoryTestHelpers));
     }
 }

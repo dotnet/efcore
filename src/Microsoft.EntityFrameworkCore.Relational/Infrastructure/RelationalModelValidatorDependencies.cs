@@ -66,5 +66,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Gets the type mapper.
         /// </summary>
         public IRelationalTypeMapper TypeMapper { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalExtensions"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalModelValidatorDependencies With([NotNull] IRelationalAnnotationProvider relationalExtensions)
+            => new RelationalModelValidatorDependencies(relationalExtensions, TypeMapper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalModelValidatorDependencies With([NotNull] IRelationalTypeMapper typeMapper)
+            => new RelationalModelValidatorDependencies(RelationalExtensions, typeMapper);
     }
 }

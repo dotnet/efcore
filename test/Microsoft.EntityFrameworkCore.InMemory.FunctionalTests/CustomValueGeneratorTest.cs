@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInternalServiceProvider(_serviceProvider)
-                    .UseInMemoryDatabase();
+                    .UseInMemoryDatabase(nameof(CustomValueGeneratorContext));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInternalServiceProvider(_serviceProvider)
-                    .UseInMemoryDatabase();
+                    .UseInMemoryDatabase(nameof(CustomValueGeneratorContextAnnotateType));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInternalServiceProvider(_serviceProvider)
-                    .UseInMemoryDatabase();
+                    .UseInMemoryDatabase(nameof(CustomValueGeneratorContextAnnotateFactory));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder

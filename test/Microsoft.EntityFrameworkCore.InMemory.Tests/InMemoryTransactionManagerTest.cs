@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         public void CurrentTransaction_returns_null()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseTransientInMemoryDatabase();
 
             var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         public void Throws_on_BeginTransaction()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseTransientInMemoryDatabase();
 
             var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         public async Task Throws_on_BeginTransactionAsync()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseTransientInMemoryDatabase();
 
             var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         public void Throws_on_CommitTransaction()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseTransientInMemoryDatabase();
 
             var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         public void Throws_on_RollbackTransaction()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseTransientInMemoryDatabase();
 
             var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 

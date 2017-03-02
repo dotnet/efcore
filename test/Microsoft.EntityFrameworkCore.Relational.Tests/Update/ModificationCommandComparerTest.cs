@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseTransientInMemoryDatabase();
 
             var contextServices = new DbContext(optionsBuilder.Options).GetInfrastructure();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var model = new Model();
             var entityType = model.AddEntityType(typeof(object));
 
-            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model).UseInMemoryDatabase();
+            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model).UseTransientInMemoryDatabase();
 
             var contextServices = new DbContext(optionsBuilder.Options).GetInfrastructure();
             var stateManager = contextServices.GetRequiredService<IStateManager>();

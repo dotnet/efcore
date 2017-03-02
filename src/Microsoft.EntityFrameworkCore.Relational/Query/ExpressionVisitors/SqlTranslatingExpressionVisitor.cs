@@ -49,8 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly IRelationalTypeMapper _relationalTypeMapper;
         private readonly SelectExpression _targetSelectExpression;
         private readonly Expression _topLevelPredicate;
-
-        private readonly bool _bindParentQueries;
+        
         private readonly bool _inProjection;
 
         /// <summary>
@@ -60,14 +59,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="queryModelVisitor"> The query model visitor. </param>
         /// <param name="targetSelectExpression"> The target select expression. </param>
         /// <param name="topLevelPredicate"> The top level predicate. </param>
-        /// <param name="bindParentQueries"> true to bind parent queries. </param>
         /// <param name="inProjection"> true if the expression to be translated is a LINQ projection. </param>
         public SqlTranslatingExpressionVisitor(
             [NotNull] SqlTranslatingExpressionVisitorDependencies dependencies,
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [CanBeNull] SelectExpression targetSelectExpression = null,
             [CanBeNull] Expression topLevelPredicate = null,
-            bool bindParentQueries = false,
             bool inProjection = false)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -81,7 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             _queryModelVisitor = queryModelVisitor;
             _targetSelectExpression = targetSelectExpression;
             _topLevelPredicate = topLevelPredicate;
-            _bindParentQueries = bindParentQueries;
             _inProjection = inProjection;
         }
 
@@ -612,47 +608,35 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            var expression
-                = _queryModelVisitor
-                      .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpression)
-                  ?? _queryModelVisitor.BindLocalMethodCallExpression(methodCallExpression);
-
-            if (expression == null
-                && _bindParentQueries)
-            {
-                expression
-                    = TryBindParentExpression(
-                        _queryModelVisitor.ParentQueryModelVisitor,
-                        qmv => qmv.BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpressionCore));
-            }
-
-            return expression
-                   ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
+            return TryBindMemberOrMethodToAliasExpression(methodCallExpression, (expression, visitor, binder)
+                    => visitor.BindMethodCallExpression(expression, binder))
+                ?? _queryModelVisitor.BindLocalMethodCallExpression(methodCallExpression)
+                ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
         }
 
         /// <summary>
         ///     Visit a member expression.
         /// </summary>
-        /// <param name="expression"> The expression to visit. </param>
+        /// <param name="memberExpression"> The expression to visit. </param>
         /// <returns>
         ///     An Expression.
         /// </returns>
-        protected override Expression VisitMember(MemberExpression expression)
+        protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(memberExpression, nameof(memberExpression));
 
-            if (!(expression.Expression is QuerySourceReferenceExpression)
-                && !(expression.Expression is SubQueryExpression))
+            if (!(memberExpression.Expression is QuerySourceReferenceExpression)
+                && !(memberExpression.Expression is SubQueryExpression))
             {
-                var newExpression = Visit(expression.Expression);
+                var newExpression = Visit(memberExpression.Expression);
 
                 if (newExpression != null
-                    || expression.Expression == null)
+                    || memberExpression.Expression == null)
                 {
                     var newMemberExpression
-                        = newExpression != expression.Expression
-                            ? Expression.Property(newExpression, expression.Member.Name)
-                            : expression;
+                        = newExpression != memberExpression.Expression
+                            ? Expression.Property(newExpression, memberExpression.Member.Name)
+                            : memberExpression;
 
                     var translatedExpression = _memberTranslator.Translate(newMemberExpression);
 
@@ -663,80 +647,77 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            var aliasExpression
-                = _queryModelVisitor
-                    .BindMemberExpression(expression, CreateAliasedColumnExpression);
+            return TryBindMemberOrMethodToAliasExpression(memberExpression, (expression, visitor, binder)
+                    => visitor.BindMemberExpression(expression, binder))
+                ?? TryBindQuerySourcePropertyExpression(memberExpression)
+                ?? _queryModelVisitor.BindMemberToOuterQueryParameter(memberExpression);
+        }
 
-            if (aliasExpression == null
-                && _bindParentQueries)
+        private Expression TryBindQuerySourcePropertyExpression(MemberExpression memberExpression)
+        {
+            if (memberExpression.Expression is QuerySourceReferenceExpression qsre)
             {
-                aliasExpression
-                    = TryBindParentExpression(
-                        _queryModelVisitor.ParentQueryModelVisitor,
-                        qmv => qmv.BindMemberExpression(expression, CreateAliasedColumnExpressionCore));
-            }
+                var selectExpression = _queryModelVisitor.TryGetQuery(qsre.ReferencedQuerySource);
 
-            if (aliasExpression == null)
-            {
-                var querySourceReferenceExpression
-                    = expression.Expression as QuerySourceReferenceExpression;
-
-                if (querySourceReferenceExpression != null)
+                if (selectExpression != null)
                 {
-                    var selectExpression
-                        = _queryModelVisitor.TryGetQuery(querySourceReferenceExpression.ReferencedQuerySource);
-
-                    if (selectExpression != null)
-                    {
-                        aliasExpression
-                            = selectExpression.Projection
-                                .OfType<AliasExpression>()
-                                .SingleOrDefault(ae => Equals(ae.SourceMember, expression.Member));
-                    }
+                    return selectExpression.Projection
+                        .OfType<AliasExpression>()
+                        .SingleOrDefault(ae => Equals(ae.SourceMember, memberExpression.Member));
                 }
             }
 
-            return aliasExpression
-                   ?? _queryModelVisitor.BindMemberToOuterQueryParameter(expression);
+            return null;
         }
 
-        private static AliasExpression TryBindParentExpression(
-            RelationalQueryModelVisitor queryModelVisitor,
-            Func<RelationalQueryModelVisitor, AliasExpression> binder)
+        private Expression TryBindMemberOrMethodToAliasExpression<TExpression>(
+            TExpression sourceExpression,
+            Func<TExpression, RelationalQueryModelVisitor, Func<IProperty, IQuerySource, SelectExpression, Expression>, Expression> binder)
         {
-            if (queryModelVisitor == null || queryModelVisitor.RequiresClientProjection)
-            {
-                return null;
-            }
-
-            return binder(queryModelVisitor)
-                   ?? TryBindParentExpression(queryModelVisitor.ParentQueryModelVisitor, binder);
-        }
-
-        private AliasExpression CreateAliasedColumnExpression(
-            IProperty property, IQuerySource querySource, SelectExpression selectExpression)
-        {
-            if (_targetSelectExpression != null
-                && selectExpression != _targetSelectExpression)
-            {
-                selectExpression?.AddToProjection(
-                    _relationalAnnotationProvider.For(property).ColumnName,
-                    property,
-                    querySource);
-
-                return null;
-            }
-
-            return CreateAliasedColumnExpressionCore(property, querySource, selectExpression);
-        }
-
-        private AliasExpression CreateAliasedColumnExpressionCore(
+            AliasExpression CreateAliasExpression(
                 IProperty property, IQuerySource querySource, SelectExpression selectExpression)
-            => new AliasExpression(
-                new ColumnExpression(
-                    _relationalAnnotationProvider.For(property).ColumnName,
-                    property,
-                    selectExpression.GetTableForQuerySource(querySource)));
+                => new AliasExpression(
+                    new ColumnExpression(
+                        _relationalAnnotationProvider.For(property).ColumnName,
+                        property,
+                        selectExpression.GetTableForQuerySource(querySource)));
+
+            var boundExpression = binder(sourceExpression, _queryModelVisitor, (property, querySource, selectExpression) =>
+            {
+                var aliasExpression = CreateAliasExpression(property, querySource, selectExpression);
+
+                if (_targetSelectExpression != null && selectExpression != _targetSelectExpression)
+                {
+                    selectExpression.AddToProjection(aliasExpression);
+                    return null;
+                }
+
+                return aliasExpression;
+            });
+
+            if (boundExpression != null)
+            {
+                return boundExpression;
+            }
+
+            var outerQueryModelVisitor = _queryModelVisitor.ParentQueryModelVisitor;
+            var canBindToOuterQueryModelVisitor = _queryModelVisitor.CanBindToParentQueryModel;
+
+            while (outerQueryModelVisitor != null && canBindToOuterQueryModelVisitor)
+            {
+                boundExpression = binder(sourceExpression, outerQueryModelVisitor, CreateAliasExpression);
+
+                if (boundExpression != null)
+                {
+                    return boundExpression;
+                }
+
+                canBindToOuterQueryModelVisitor = outerQueryModelVisitor.CanBindToParentQueryModel;
+                outerQueryModelVisitor = outerQueryModelVisitor.ParentQueryModelVisitor;
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     Visit a unary expression.
@@ -881,7 +862,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     || !_queryModelVisitor.QueryCompilationContext
                         .QuerySourceRequiresMaterialization(querySourceReferenceExpression.ReferencedQuerySource))
                 {
-                    var queryModelVisitor
+                    var subQueryModelVisitor
                         = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
                             .CreateQueryModelVisitor(_queryModelVisitor);
 
@@ -892,14 +873,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var queryModelMapping = new Dictionary<QueryModel, QueryModel>();
                     subQueryModel.PopulateQueryModelMapping(queryModelMapping);
 
-                    queryModelVisitor.VisitSubQueryModel(subQueryModel);
+                    subQueryModelVisitor.VisitSubQueryModel(subQueryModel);
 
-                    if (queryModelVisitor.Queries.Count == 1
-                        && !queryModelVisitor.RequiresClientFilter
-                        && !queryModelVisitor.RequiresClientProjection
-                        && !queryModelVisitor.RequiresClientResultOperator)
+                    if (subQueryModelVisitor.Queries.Count == 1
+                        && !subQueryModelVisitor.RequiresClientFilter
+                        && !subQueryModelVisitor.RequiresClientProjection
+                        && !subQueryModelVisitor.RequiresClientResultOperator)
                     {
-                        var selectExpression = queryModelVisitor.Queries.First();
+                        var selectExpression = subQueryModelVisitor.Queries.First();
 
                         selectExpression.Alias = string.Empty; // anonymous
 
@@ -907,6 +888,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         {
                             mappingElement.Key.RemoveRangeFromProjection(mappingElement.Value);
                         }
+
+                        _queryModelVisitor.LiftInjectedParameters(subQueryModelVisitor);
 
                         return selectExpression;
                     }

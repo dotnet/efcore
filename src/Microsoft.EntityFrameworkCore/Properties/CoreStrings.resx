@@ -162,6 +162,9 @@
   <data name="ReferenceMustBeLoaded" xml:space="preserve">
     <value>Navigation property '{navigation}' on entity type '{entityType}' cannot have 'IsLoaded' set to false because the referenced entity is non-null and therefore is loaded.</value>
   </data>
+  <data name="CannotLoadDetached" xml:space="preserve">
+    <value>Navigation property '{navigation}' on entity of type '{entityType}' cannot be loaded because the entity is not being tracked. Navigation properties can only be loaded for tracked entities.</value>
+  </data>
   <data name="CollectionArgumentIsEmpty" xml:space="preserve">
     <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>

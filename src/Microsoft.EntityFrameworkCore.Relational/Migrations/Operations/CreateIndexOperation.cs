@@ -12,6 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Schema { get; [param: CanBeNull] set; }
         public virtual string Table { get; [param: NotNull] set; }
         public virtual string[] Columns { get; [param: NotNull] set; }
-        public virtual string Filter { get; [param: NotNull] set; }
+        public virtual string Filter { get; [param: CanBeNull] set; }
     }
 }

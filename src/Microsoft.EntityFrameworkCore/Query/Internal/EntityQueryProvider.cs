@@ -22,6 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(EntityQueryProvider).GetRuntimeMethods()
                 .Single(m => (m.Name == "CreateQuery") && m.IsGenericMethod);
 
+        private readonly MethodInfo _genericExecuteMethod;
+
         private readonly IQueryCompiler _queryCompiler;
 
         /// <summary>
@@ -31,6 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public EntityQueryProvider([NotNull] IQueryCompiler queryCompiler)
         {
             _queryCompiler = queryCompiler;
+            _genericExecuteMethod = queryCompiler.GetType()
+                    .GetRuntimeMethods()
+                    .Single(m => (m.Name == "Execute") && m.IsGenericMethod);
         }
 
         /// <summary>
@@ -61,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object Execute(Expression expression)
-            => Execute<object>(expression);
+            => _genericExecuteMethod.MakeGenericMethod(expression.Type)
+                .Invoke(_queryCompiler, new object[] { expression });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -24,18 +24,82 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     public abstract class QueryNavigationsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
-        [ConditionalFact(Skip="#7220")]
+        [ConditionalFact]
         public virtual void Join_with_nav_projected_in_subquery_when_client_eval()
         {
             AssertQuery<Customer, Order, OrderDetail, Customer>(
                 (cs, os, ods) => (from c in cs
-                                  join o in os.Select(o => ClientMethod2(o, o.Customer)) on c.CustomerID equals o.CustomerID
-                                  join od in ods.Select(od => ClientMethod2(od, od.Product)) on o.OrderID equals od.OrderID
+                                  join o in os.Select(o => ClientProjection(o, o.Customer)) on c.CustomerID equals o.CustomerID
+                                  join od in ods.Select(od => ClientProjection(od, od.Product)) on o.OrderID equals od.OrderID
                                   select c),
-                entryCount: 91);
+                entryCount: 89);
         }
 
-        private static T ClientMethod2<T>(T t, object _) => t;
+        [ConditionalFact]
+        public virtual void GroupJoin_with_nav_projected_in_subquery_when_client_eval()
+        {
+            AssertQuery<Customer, Order, OrderDetail, Customer>(
+                (cs, os, ods) => (from c in cs
+                                  join o in os.Select(o => ClientProjection(o, o.Customer)) on c.CustomerID equals o.CustomerID into grouping
+                                  from o in grouping
+                                  join od in ods.Select(od => ClientProjection(od, od.Product)) on o.OrderID equals od.OrderID into grouping2
+                                  from od in grouping2
+                                  select c),
+                entryCount: 89);
+        }
+
+        [ConditionalFact]
+        public virtual void Join_with_nav_in_predicate_in_subquery_when_client_eval()
+        {
+            AssertQuery<Customer, Order, OrderDetail, Customer>(
+                (cs, os, ods) => (from c in cs
+                                  join o in os.Where(o => ClientPredicate(o, o.Customer)) on c.CustomerID equals o.CustomerID
+                                  join od in ods.Where(od => ClientPredicate(od, od.Product)) on o.OrderID equals od.OrderID
+                                  select c),
+                entryCount: 89);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_with_nav_in_predicate_in_subquery_when_client_eval()
+        {
+            AssertQuery<Customer, Order, OrderDetail, Customer>(
+                (cs, os, ods) => (from c in cs
+                                  join o in os.Where(o => ClientPredicate(o, o.Customer)) on c.CustomerID equals o.CustomerID into grouping
+                                  from o in grouping
+                                  join od in ods.Where(od => ClientPredicate(od, od.Product)) on o.OrderID equals od.OrderID into grouping2
+                                  from od in grouping2
+                                  select c),
+                entryCount: 89);
+        }
+
+        [ConditionalFact]
+        public virtual void Join_with_nav_in_orderby_in_subquery_when_client_eval()
+        {
+            AssertQuery<Customer, Order, OrderDetail, Customer>(
+                (cs, os, ods) => (from c in cs
+                                  join o in os.OrderBy(o => ClientOrderBy(o, o.Customer)) on c.CustomerID equals o.CustomerID
+                                  join od in ods.OrderBy(od => ClientOrderBy(od, od.Product)) on o.OrderID equals od.OrderID
+                                  select c),
+                entryCount: 89);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_with_nav_in_orderby_in_subquery_when_client_eval()
+        {
+            AssertQuery<Customer, Order, OrderDetail, Customer>(
+                (cs, os, ods) => (from c in cs
+                                  join o in os.OrderBy(o => ClientOrderBy(o, o.Customer)) on c.CustomerID equals o.CustomerID into grouping
+                                  from o in grouping
+                                  join od in ods.OrderBy(od => ClientOrderBy(od, od.Product)) on o.OrderID equals od.OrderID into grouping2
+                                  from od in grouping2
+                                  select c),
+                entryCount: 89);
+        }
+
+        private static Random randomGenrator = new Random();
+        private static T ClientProjection<T>(T t, object _) => t;
+        private static bool ClientPredicate<T>(T t, object _) => true;
+        private static int ClientOrderBy<T>(T t, object _) => randomGenrator.Next(0, 20);
 
         [ConditionalFact]
         public virtual void Select_Where_Navigation()

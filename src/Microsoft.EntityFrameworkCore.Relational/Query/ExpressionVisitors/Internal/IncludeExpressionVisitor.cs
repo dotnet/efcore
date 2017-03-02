@@ -259,6 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             ref bool canProduceInnerJoin, ref TableExpressionBase targetTableExpression)
         {
             var navigation = includeSpecification.Navigation;
+
             var targetEntityType = navigation.GetTargetType();
             var targetTableName = _relationalAnnotationProvider.For(targetEntityType).TableName;
             var targetTableAlias
@@ -405,10 +406,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     var existsPredicateExpression = new ExistsExpression(subqueryExpression);
 
-                    AddToPredicate(targetSelectExpression, existsPredicateExpression);
+                    targetSelectExpression.AddToPredicate(existsPredicateExpression);
 
-                    AddToPredicate(
-                        subqueryExpression,
+                    subqueryExpression.AddToPredicate(
                         BuildJoinEqualityExpression(navigation, targetTableExpression, subqueryTable, querySource));
 
                     compositePredicateExpressionVisitor.Visit(subqueryExpression);
@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 queryContextParameter,
                                 Expression.Constant(
                                     _shaperCommandContextFactory.Create(() =>
-                                            SelectExpressionDependencies.QuerySqlGeneratorFactory.CreateDefault(targetSelectExpression))),
+                                        SelectExpressionDependencies.QuerySqlGeneratorFactory.CreateDefault(targetSelectExpression))),
                                 Expression.Constant(queryIndex),
                                 materializer
                             )),
@@ -488,9 +488,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     Alias = joinExpression.Alias
                 };
 
-            // Don't create new alias when adding tables to subquery
             subquery.AddTable(joinExpression.TableExpression);
-            subquery.ProjectStarAlias = joinExpression.Alias;
+            subquery.ProjectStarTable = joinExpression;
             subquery.IsProjectStar = true;
             subquery.Predicate = selectExpression.Predicate;
 
@@ -675,12 +674,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 ? ExtractProjections(joinExpression.TableExpression)
                 : Enumerable.Empty<Expression>();
         }
-
-        private static void AddToPredicate(SelectExpression selectExpression, Expression predicateToAdd)
-            => selectExpression.Predicate
-                = selectExpression.Predicate == null
-                    ? predicateToAdd
-                    : Expression.AndAlso(selectExpression.Predicate, predicateToAdd);
 
         private static bool IsOrderingOnNonPrincipalKeyProperties(
                 IEnumerable<Ordering> orderings, IReadOnlyList<IProperty> properties)

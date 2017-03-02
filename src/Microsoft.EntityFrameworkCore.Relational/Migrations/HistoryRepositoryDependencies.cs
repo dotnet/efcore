@@ -19,18 +19,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///     </para>
     ///     <para>
     ///         Do not construct instances of this class directly from either provider or application code as the
-    ///         constructor signature may change as new dependencies are added. Instead, use this type in 
-    ///         your constructor so that an instance will be created and injected automatically by the 
-    ///         dependency injection container. To create an instance with some dependent services replaced, 
-    ///         first resolve the object from the dependency injection container, then replace selected 
+    ///         constructor signature may change as new dependencies are added. Instead, use this type in
+    ///         your constructor so that an instance will be created and injected automatically by the
+    ///         dependency injection container. To create an instance with some dependent services replaced,
+    ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     ///     <para>
     ///         Do not construct instances of this class directly from either provider or application code as the
-    ///         constructor signature may change as new dependencies are added. Instead, use this type in 
-    ///         your constructor so that an instance will be created and injected automatically by the 
-    ///         dependency injection container. To create an instance with some dependent services replaced, 
-    ///         first resolve the object from the dependency injection container, then replace selected 
+    ///         constructor signature may change as new dependencies are added. Instead, use this type in
+    ///         your constructor so that an instance will be created and injected automatically by the
+    ///         dependency injection container. To create an instance with some dependent services replaced,
+    ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
@@ -41,11 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         Creates the service dependencies parameter object for a <see cref="HistoryRepository" />.
         ///     </para>
         ///     <para>
-        ///         Do not call this constructor directly from either provider or application code as it may change 
-        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance 
-        ///         will be created and injected automatically by the dependency injection container. To create 
-        ///         an instance with some dependent services replaced, first resolve the object from the dependency 
-        ///         injection container, then replace selected services using the 'With...' methods. Do not call 
+        ///         Do not call this constructor directly from either provider or application code as it may change
+        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance
+        ///         will be created and injected automatically by the dependency injection container. To create
+        ///         an instance with some dependent services replaced, first resolve the object from the dependency
+        ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
         ///     <para>
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="annotations"> Access to relational metadata for the model. </param>
         /// <param name="sqlGenerationHelper"> Helpers for generating update SQL. </param>
         public HistoryRepositoryDependencies(
-            [NotNull] IDatabaseCreator databaseCreator,
+            [NotNull] IRelationalDatabaseCreator databaseCreator,
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
             [NotNull] IRelationalConnection connection,
             [NotNull] IDbContextOptions options,
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(annotations, nameof(annotations));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
 
-            DatabaseCreator = (IRelationalDatabaseCreator)databaseCreator;
+            DatabaseCreator = databaseCreator;
             RawSqlCommandBuilder = rawSqlCommandBuilder;
             Connection = connection;
             Options = options;
@@ -129,5 +129,133 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Helpers for generating update SQL.
         /// </summary>
         public ISqlGenerationHelper SqlGenerationHelper { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="databaseCreator"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public HistoryRepositoryDependencies With([NotNull] IRelationalDatabaseCreator databaseCreator)
+            => new HistoryRepositoryDependencies(
+                databaseCreator,
+                RawSqlCommandBuilder,
+                Connection,
+                Options,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                Annotations,
+                SqlGenerationHelper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="rawSqlCommandBuilder"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public HistoryRepositoryDependencies With([NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
+            => new HistoryRepositoryDependencies(
+                DatabaseCreator,
+                rawSqlCommandBuilder,
+                Connection,
+                Options,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                Annotations,
+                SqlGenerationHelper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="connection"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public HistoryRepositoryDependencies With([NotNull] IRelationalConnection connection)
+            => new HistoryRepositoryDependencies(
+                DatabaseCreator,
+                RawSqlCommandBuilder,
+                connection,
+                Options,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                Annotations,
+                SqlGenerationHelper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="options"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public HistoryRepositoryDependencies With([NotNull] IDbContextOptions options)
+            => new HistoryRepositoryDependencies(
+                DatabaseCreator,
+                RawSqlCommandBuilder,
+                Connection,
+                options,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                Annotations,
+                SqlGenerationHelper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="modelDiffer"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public HistoryRepositoryDependencies With([NotNull] IMigrationsModelDiffer modelDiffer)
+            => new HistoryRepositoryDependencies(
+                DatabaseCreator,
+                RawSqlCommandBuilder,
+                Connection,
+                Options,
+                modelDiffer,
+                MigrationsSqlGenerator,
+                Annotations,
+                SqlGenerationHelper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="migrationsSqlGenerator"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public HistoryRepositoryDependencies With([NotNull] IMigrationsSqlGenerator migrationsSqlGenerator)
+            => new HistoryRepositoryDependencies(
+                DatabaseCreator,
+                RawSqlCommandBuilder,
+                Connection,
+                Options,
+                ModelDiffer,
+                migrationsSqlGenerator,
+                Annotations,
+                SqlGenerationHelper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="annotations"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public HistoryRepositoryDependencies With([NotNull] IRelationalAnnotationProvider annotations)
+            => new HistoryRepositoryDependencies(
+                DatabaseCreator,
+                RawSqlCommandBuilder,
+                Connection,
+                Options,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                annotations,
+                SqlGenerationHelper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public HistoryRepositoryDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            => new HistoryRepositoryDependencies(
+                DatabaseCreator,
+                RawSqlCommandBuilder,
+                Connection,
+                Options,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                Annotations,
+                sqlGenerationHelper);
     }
 }

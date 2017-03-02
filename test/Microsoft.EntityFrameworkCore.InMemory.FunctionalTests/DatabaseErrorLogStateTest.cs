@@ -107,18 +107,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             Query_logs_DatabaseErrorLogState(c => c.Blogs.FirstOrDefaultAsync().Wait());
         }
 
-        [Fact]
-        public void Query_logs_DatabaseErrorLogState_during_scalar()
-        {
-            Query_logs_DatabaseErrorLogState(c => c.Blogs.Count());
-        }
-
-        [Fact]
-        public void Query_logs_DatabaseErrorLogState_during_scalar_async()
-        {
-            Query_logs_DatabaseErrorLogState(c => c.Blogs.CountAsync().Wait());
-        }
-
         public void Query_logs_DatabaseErrorLogState(Action<BloggingContext> test)
         {
             var loggerFactory = new TestLoggerFactory();
@@ -222,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseInMemoryDatabase()
+                    .UseTransientInMemoryDatabase()
                     .UseInternalServiceProvider(_serviceProvider);
         }
 

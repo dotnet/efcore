@@ -18,10 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///     </para>
     ///     <para>
     ///         Do not construct instances of this class directly from either provider or application code as the
-    ///         constructor signature may change as new dependencies are added. Instead, use this type in 
-    ///         your constructor so that an instance will be created and injected automatically by the 
-    ///         dependency injection container. To create an instance with some dependent services replaced, 
-    ///         first resolve the object from the dependency injection container, then replace selected 
+    ///         constructor signature may change as new dependencies are added. Instead, use this type in
+    ///         your constructor so that an instance will be created and injected automatically by the
+    ///         dependency injection container. To create an instance with some dependent services replaced,
+    ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
@@ -32,11 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         Creates the service dependencies parameter object for a <see cref="MigrationsSqlGenerator" />.
         ///     </para>
         ///     <para>
-        ///         Do not call this constructor directly from either provider or application code as it may change 
-        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance 
-        ///         will be created and injected automatically by the dependency injection container. To create 
-        ///         an instance with some dependent services replaced, first resolve the object from the dependency 
-        ///         injection container, then replace selected services using the 'With...' methods. Do not call 
+        ///         Do not call this constructor directly from either provider or application code as it may change
+        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance
+        ///         will be created and injected automatically by the dependency injection container. To create
+        ///         an instance with some dependent services replaced, first resolve the object from the dependency
+        ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
         ///     <para>
@@ -84,5 +84,53 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Helpers for obtaining relational metadata.
         /// </summary>
         public IRelationalAnnotationProvider Annotations { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="commandBuilderFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public MigrationsSqlGeneratorDependencies With([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
+            => new MigrationsSqlGeneratorDependencies(
+                commandBuilderFactory,
+                SqlGenerationHelper,
+                TypeMapper,
+                Annotations);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public MigrationsSqlGeneratorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            => new MigrationsSqlGeneratorDependencies(
+                CommandBuilderFactory,
+                sqlGenerationHelper,
+                TypeMapper,
+                Annotations);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public MigrationsSqlGeneratorDependencies With([NotNull] IRelationalTypeMapper typeMapper)
+            => new MigrationsSqlGeneratorDependencies(
+                CommandBuilderFactory,
+                SqlGenerationHelper,
+                typeMapper,
+                Annotations);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="annotations"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public MigrationsSqlGeneratorDependencies With([NotNull] IRelationalAnnotationProvider annotations)
+            => new MigrationsSqlGeneratorDependencies(
+                CommandBuilderFactory,
+                SqlGenerationHelper,
+                TypeMapper,
+                annotations);
     }
 }

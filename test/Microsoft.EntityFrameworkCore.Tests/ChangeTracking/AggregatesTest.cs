@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         private class AggregateContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(nameof(AggregateContext));
 
             public DbSet<Blog> Blogs { get; set; }
             public DbSet<Post> Posts { get; set; }

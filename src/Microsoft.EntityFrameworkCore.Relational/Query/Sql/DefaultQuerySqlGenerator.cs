@@ -17,6 +17,7 @@ using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
 
 // ReSharper disable SwitchStatementMissingSomeCases
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Query.Sql
 {
     /// <summary>
@@ -194,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (selectExpression.IsProjectStar)
             {
-                var tableAlias = selectExpression.ProjectStarAlias;
+                var tableAlias = selectExpression.ProjectStarTable.Alias;
 
                 _relationalCommandBuilder
                     .Append(SqlGenerator.DelimitIdentifier(tableAlias))
@@ -210,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     _relationalCommandBuilder.Append(", ");
                 }
 
-                VisitProjection(selectExpression.Projection);
+                ProcessExpressionList(selectExpression.Projection, GenerateProjection);
 
                 projectionAdded = true;
             }
@@ -225,19 +226,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.AppendLine()
                     .Append("FROM ");
 
-                VisitJoin(selectExpression.Tables, sql => sql.AppendLine());
+                ProcessExpressionList(selectExpression.Tables, sql => sql.AppendLine());
             }
 
             if (selectExpression.Predicate != null)
             {
-                var optimizedPredicate = ApplyOptimizations(selectExpression.Predicate, searchCondition: true);
-                if (optimizedPredicate != null)
-                {
-                    _relationalCommandBuilder.AppendLine()
-                        .Append("WHERE ");
-
-                    Visit(optimizedPredicate);
-                }
+                GeneratePredicate(selectExpression.Predicate);
             }
 
             if (selectExpression.OrderBy.Any())
@@ -315,13 +309,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
-        ///     Visit the projection.
+        ///     Visit a single projection in SQL SELECT clause
         /// </summary>
-        /// <param name="projections"> The projection expression. </param>
-        protected virtual void VisitProjection([NotNull] IReadOnlyList<Expression> projections) => VisitJoin(
-            projections
-                .Select(e => ApplyOptimizations(e, searchCondition: false))
-                .ToList());
+        /// <param name="projection"> The projection expression. </param>
+        protected virtual void GenerateProjection([NotNull] Expression projection) => Visit(ApplyOptimizations(projection, searchCondition: false));
+
+        /// <summary>
+        ///     Visit the predicate in SQL WHERE clause
+        /// </summary>
+        /// <param name="predicate"> The predicate expression. </param>
+        protected virtual void GeneratePredicate([NotNull] Expression predicate)
+        {
+            var optimizedPredicate = ApplyOptimizations(predicate, searchCondition: true);
+            if (optimizedPredicate != null)
+            {
+                _relationalCommandBuilder.AppendLine()
+                    .Append("WHERE ");
+
+                Visit(optimizedPredicate);
+            }
+        }
 
         /// <summary>
         ///     Generates the ORDER BY SQL.
@@ -331,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             _relationalCommandBuilder.Append("ORDER BY ");
 
-            VisitJoin(orderings, GenerateOrdering);
+            ProcessExpressionList(orderings, GenerateOrdering);
         }
 
         /// <summary>
@@ -381,11 +388,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
         }
 
-        private void VisitJoin(
+        private void ProcessExpressionList(
             IReadOnlyList<Expression> expressions, Action<IRelationalCommandBuilder> joinAction = null)
-            => VisitJoin(expressions, e => Visit(e), joinAction);
+            => ProcessExpressionList(expressions, e => Visit(e), joinAction);
 
-        private void VisitJoin<T>(
+        private void ProcessExpressionList<T>(
             IReadOnlyList<T> items, Action<T> itemAction, Action<IRelationalCommandBuilder> joinAction = null)
         {
             joinAction = joinAction ?? (isb => isb.Append(", "));
@@ -674,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     _relationalCommandBuilder.Append(" IN (");
 
-                    VisitJoin(inValuesNotNull);
+                    ProcessExpressionList(inValuesNotNull);
 
                     _relationalCommandBuilder.Append(")");
 
@@ -709,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns>
         ///     An Expression.
         /// </returns>
-        protected virtual Expression VisitNotIn([NotNull] InExpression inExpression)
+        protected virtual Expression GenerateNotIn([NotNull] InExpression inExpression)
         {
             if (inExpression.Values != null)
             {
@@ -732,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     _relationalCommandBuilder.Append(" NOT IN (");
 
-                    VisitJoin(inValues);
+                    ProcessExpressionList(inValues);
 
                     _relationalCommandBuilder.Append(")");
                 }
@@ -967,13 +974,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     Visit a ConditionalExpression.
         /// </summary>
-        /// <param name="expression"> The conditional expression to visit. </param>
+        /// <param name="conditionalExpression"> The conditional expression to visit. </param>
         /// <returns>
         ///     An Expression.
         /// </returns>
-        protected override Expression VisitConditional(ConditionalExpression expression)
+        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(conditionalExpression, nameof(conditionalExpression));
 
             _relationalCommandBuilder.AppendLine("CASE");
 
@@ -981,12 +988,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 _relationalCommandBuilder.Append("WHEN ");
 
-                Visit(expression.Test);
+                Visit(conditionalExpression.Test);
 
                 _relationalCommandBuilder.AppendLine();
                 _relationalCommandBuilder.Append("THEN ");
 
-                var constantIfTrue = expression.IfTrue as ConstantExpression;
+                var constantIfTrue = conditionalExpression.IfTrue as ConstantExpression;
 
                 if (constantIfTrue != null
                     && constantIfTrue.Type == typeof(bool))
@@ -995,12 +1002,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 }
                 else
                 {
-                    Visit(expression.IfTrue);
+                    Visit(conditionalExpression.IfTrue);
                 }
 
                 _relationalCommandBuilder.Append(" ELSE ");
 
-                var constantIfFalse = expression.IfFalse as ConstantExpression;
+                var constantIfFalse = conditionalExpression.IfFalse as ConstantExpression;
 
                 if (constantIfFalse != null
                     && constantIfFalse.Type == typeof(bool))
@@ -1009,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 }
                 else
                 {
-                    Visit(expression.IfFalse);
+                    Visit(conditionalExpression.IfFalse);
                 }
 
                 _relationalCommandBuilder.AppendLine();
@@ -1017,7 +1024,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             _relationalCommandBuilder.Append("END");
 
-            return expression;
+            return conditionalExpression;
         }
 
         /// <summary>
@@ -1046,22 +1053,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     Visit a BinaryExpression.
         /// </summary>
-        /// <param name="expression"> The binary expression to visit. </param>
+        /// <param name="binaryExpression"> The binary expression to visit. </param>
         /// <returns>
         ///     An Expression.
         /// </returns>
-        protected override Expression VisitBinary(BinaryExpression expression)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
 
-            switch (expression.NodeType)
+            switch (binaryExpression.NodeType)
             {
                 case ExpressionType.Coalesce:
                 {
                     _relationalCommandBuilder.Append("COALESCE(");
-                    Visit(expression.Left);
+                    Visit(binaryExpression.Left);
                     _relationalCommandBuilder.Append(", ");
-                    Visit(expression.Right);
+                    Visit(binaryExpression.Right);
                     _relationalCommandBuilder.Append(")");
 
                     break;
@@ -1070,39 +1077,39 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 {
                     var parentTypeMapping = _typeMapping;
 
-                    if (expression.IsComparisonOperation()
-                        || expression.NodeType == ExpressionType.Add)
+                    if (binaryExpression.IsComparisonOperation()
+                        || binaryExpression.NodeType == ExpressionType.Add)
                     {
                         _typeMapping
-                            = InferTypeMappingFromColumn(expression.Left)
-                              ?? InferTypeMappingFromColumn(expression.Right)
+                            = InferTypeMappingFromColumn(binaryExpression.Left)
+                              ?? InferTypeMappingFromColumn(binaryExpression.Right)
                               ?? parentTypeMapping;
                     }
 
-                    var needParens = expression.Left.RemoveConvert() is BinaryExpression;
+                    var needParens = binaryExpression.Left.RemoveConvert() is BinaryExpression;
 
                     if (needParens)
                     {
                         _relationalCommandBuilder.Append("(");
                     }
 
-                    Visit(expression.Left);
+                    Visit(binaryExpression.Left);
 
                     if (needParens)
                     {
                         _relationalCommandBuilder.Append(")");
                     }
 
-                    _relationalCommandBuilder.Append(GenerateOperator(expression));
+                    _relationalCommandBuilder.Append(GenerateOperator(binaryExpression));
 
-                    needParens = expression.Right.RemoveConvert() is BinaryExpression;
+                    needParens = binaryExpression.Right.RemoveConvert() is BinaryExpression;
 
                     if (needParens)
                     {
                         _relationalCommandBuilder.Append("(");
                     }
 
-                    Visit(expression.Right);
+                    Visit(binaryExpression.Right);
 
                     if (needParens)
                     {
@@ -1115,7 +1122,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 }
             }
 
-            return expression;
+            return binaryExpression;
         }
 
         /// <summary>
@@ -1190,7 +1197,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns>
         ///     An Expression.
         /// </returns>
-        public virtual Expression VisitIsNotNull([NotNull] IsNullExpression isNotNullExpression)
+        public virtual Expression GenerateIsNotNull([NotNull] IsNullExpression isNotNullExpression)
         {
             Check.NotNull(isNotNullExpression, nameof(isNotNullExpression));
 
@@ -1254,7 +1261,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalCommandBuilder.Append(functionName);
             _relationalCommandBuilder.Append("(");
 
-            VisitJoin(arguments);
+            ProcessExpressionList(arguments);
 
             _relationalCommandBuilder.Append(")");
         }
@@ -1313,14 +1320,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     if (inExpression != null)
                     {
-                        return VisitNotIn(inExpression);
+                        return GenerateNotIn(inExpression);
                     }
 
                     var isNullExpression = expression.Operand as IsNullExpression;
 
                     if (isNullExpression != null)
                     {
-                        return VisitIsNotNull(isNullExpression);
+                        return GenerateIsNotNull(isNullExpression);
                     }
 
                     if (expression.Operand is ExistsExpression)
@@ -1362,20 +1369,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     Visits a ConstantExpression.
         /// </summary>
-        /// <param name="expression"> The constant expression to visit. </param>
+        /// <param name="constantExpression"> The constant expression to visit. </param>
         /// <returns>
         ///     An Expression.
         /// </returns>
-        protected override Expression VisitConstant(ConstantExpression expression)
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(constantExpression, nameof(constantExpression));
 
-            var value = expression.Value;
+            var value = constantExpression.Value;
             _relationalCommandBuilder.Append(value == null
                 ? "NULL"
                 : SqlGenerator.GenerateLiteral(value, GetTypeMapping(value)));
 
-            return expression;
+            return constantExpression;
         }
 
         /// <summary>

@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalDatabaseDependencies With([NotNull] ICommandBatchPreparer batchPreparer)
-            => new RelationalDatabaseDependencies(Check.NotNull(batchPreparer, nameof(batchPreparer)), BatchExecutor, Connection);
+            => new RelationalDatabaseDependencies(batchPreparer, BatchExecutor, Connection);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalDatabaseDependencies With([NotNull] IBatchExecutor batchExecutor)
-            => new RelationalDatabaseDependencies(BatchPreparer, Check.NotNull(batchExecutor, nameof(batchExecutor)), Connection);
+            => new RelationalDatabaseDependencies(BatchPreparer, batchExecutor, Connection);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -99,6 +99,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalDatabaseDependencies With([NotNull] IRelationalConnection connection)
-            => new RelationalDatabaseDependencies(BatchPreparer, BatchExecutor, Check.NotNull(connection, nameof(connection)));
+            => new RelationalDatabaseDependencies(BatchPreparer, BatchExecutor, connection);
     }
 }

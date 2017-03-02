@@ -102,5 +102,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 
             return base.VisitSqlFunction(sqlFunctionExpression);
         }
+
+        protected override void GenerateProjection([NotNull] Expression projection)
+        {
+            var newProjection = (projection as AliasExpression)?.Expression?.NodeType == ExpressionType.Coalesce
+                && projection.Type.UnwrapNullableType() == typeof(bool)
+                    ? new ExplicitCastExpression(projection, projection.Type)
+                    : projection;
+
+            base.GenerateProjection(newProjection);
+        }
     }
 }

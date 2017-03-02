@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseInMemoryDatabase();
+                optionsBuilder.UseInMemoryDatabase(nameof(NorthwindContextBase));
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
                 }
                 else
                 {
-                    optionsBuilder.UseInMemoryDatabase();
+                    optionsBuilder.UseInMemoryDatabase(nameof(NorthwindContextBase));
                 }
             }
         }
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                     => optionsBuilder
-                        .UseInMemoryDatabase()
+                        .UseInMemoryDatabase(nameof(BlogContext))
                         .UseInternalServiceProvider(_serviceProvider);
             }
 

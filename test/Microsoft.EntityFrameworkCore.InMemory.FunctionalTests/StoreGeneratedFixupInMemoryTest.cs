@@ -41,6 +41,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         public class StoreGeneratedFixupInMemoryFixture : StoreGeneratedFixupFixtureBase
         {
+            private const string DatabaseName = "StoreGeneratedFixup";
+
             private readonly IServiceProvider _serviceProvider;
 
             public StoreGeneratedFixupInMemoryFixture()
@@ -65,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
                 => new StoreGeneratedFixupContext(new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase()
+                    .UseInMemoryDatabase(DatabaseName)
                     .UseInternalServiceProvider(_serviceProvider)
                     .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                     .Options);
@@ -81,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
                 public override void Dispose()
                 {
-                    _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear();
+                    _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetPersistentStore(DatabaseName).Clear();
 
                     base.Dispose();
                 }

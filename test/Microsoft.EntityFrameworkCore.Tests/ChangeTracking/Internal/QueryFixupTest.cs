@@ -1130,7 +1130,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase("QueryFixup");
+                => optionsBuilder.UseInMemoryDatabase(nameof(QueryFixupContext));
         }
 
         private void AssertFixup(DbContext context, Action asserts)
