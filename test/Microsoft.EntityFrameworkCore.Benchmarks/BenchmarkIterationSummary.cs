@@ -1,0 +1,20 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using Xunit.Sdk;
+
+namespace Microsoft.EntityFrameworkCore.Benchmarks
+{
+    public class BenchmarkIterationSummary : RunSummary
+    {
+        public long TimeElapsed { get; set; }
+        public long MemoryDelta { get; set; }
+
+        public void Aggregate(RunSummary other, IMetricCollector collector)
+        {
+            Aggregate(other);
+            TimeElapsed = collector.TimeElapsed;
+            MemoryDelta = collector.MemoryDelta;
+        }
+    }
+}

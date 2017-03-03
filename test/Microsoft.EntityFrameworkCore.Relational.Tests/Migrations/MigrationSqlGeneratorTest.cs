@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             base.SqlOperation();
 
             Assert.Equal(
-                "-- I <3 DDL;" + EOL,
+                "-- I <3 DDL" + EOL,
                 Sql);
         }
 
