@@ -34,12 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 int index,
                 IProperty property = null)
             => Expression.Call(
-                _tryReadValueMethod.MakeGenericMethod(type),
+                TryReadValueMethod.MakeGenericMethod(type),
                 valueBuffer,
                 Expression.Constant(index),
                 Expression.Constant(property, typeof(IPropertyBase)));
 
-        private static readonly MethodInfo _tryReadValueMethod
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static readonly MethodInfo TryReadValueMethod
             = typeof(EntityMaterializerSource).GetTypeInfo()
                 .GetDeclaredMethod(nameof(TryReadValue));
 

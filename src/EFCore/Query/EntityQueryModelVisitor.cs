@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -318,6 +319,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             _navigationRewritingExpressionVisitorFactory
                 .Create(this).Rewrite(queryModel, parentQueryModel: null);
 
+            entityEqualityRewritingExpressionVisitor.Rewrite(queryModel);
+
+            queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
+
             QueryCompilationContext.Logger
                 .LogDebug(
                     CoreEventId.OptimizedQueryModel,
@@ -336,7 +341,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public override void VisitQueryModel(QueryModel queryModel)
             {
-                if (queryModel.ResultOperators.Any(o => o is SkipResultOperator || o is TakeResultOperator)
+                queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<NondeterministicResultCheckingVisitor>(this).Visit);
+
+                base.VisitQueryModel(queryModel);
+            }
+
+            protected override void VisitResultOperators(ObservableCollection<ResultOperatorBase> resultOperators, QueryModel queryModel)
+            {
+                if (resultOperators.Any(o => o is SkipResultOperator || o is TakeResultOperator)
                     && !queryModel.BodyClauses.OfType<OrderByClause>().Any())
                 {
                     _logger.LogWarning(
@@ -345,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit)));
                 }
 
-                if (queryModel.ResultOperators.Any(o => o is FirstResultOperator)
+                if (resultOperators.Any(o => o is FirstResultOperator)
                     && !queryModel.BodyClauses.OfType<OrderByClause>().Any()
                     && !queryModel.BodyClauses.OfType<WhereClause>().Any())
                 {
@@ -355,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit)));
                 }
 
-                queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<NondeterministicResultCheckingVisitor>(this).Visit);
+                base.VisitResultOperators(resultOperators, queryModel);
             }
         }
 

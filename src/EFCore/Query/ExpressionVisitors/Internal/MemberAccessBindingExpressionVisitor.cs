@@ -1,11 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -179,9 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression node)
         {
-            var nullConditionalExpression = node as NullConditionalExpression;
-
-            if (nullConditionalExpression != null)
+            if (node is NullConditionalExpression nullConditionalExpression)
             {
                 var newCaller = Visit(nullConditionalExpression.Caller);
 
@@ -189,11 +189,27 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     && newCaller.Type == typeof(ValueBuffer))
                 {
                     var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
-
                     if (newAccessOperation != nullConditionalExpression.AccessOperation)
                     {
+                        var test = ValueBufferNullComparisonCheck(newCaller);
+                        if (!newAccessOperation.Type.IsNullableType())
+                        {
+                            // since we are in the NullConditionalExpression, member we are trying to bind to could be coming from Left Join
+                            // and therefore it's value could be null, even though the property type itself is not nullable
+                            // we need to compensate for this with additional check
+                            var nullableAccessOperation = TryCreateNullableAccessOperation(newAccessOperation);
+                            if (nullableAccessOperation != null)
+                            {
+                                test = Expression.AndAlso(
+                                    test,
+                                    Expression.NotEqual(
+                                        nullableAccessOperation,
+                                        Expression.Constant(null, nullableAccessOperation.Type)));
+                            }
+                        }
+
                         return Expression.Condition(
-                            test: ValueBufferNullComparisonCheck(newCaller),
+                            test: test,
                             ifTrue: newAccessOperation.Type != nullConditionalExpression.Type
                                 ? Expression.Convert(newAccessOperation, nullConditionalExpression.Type)
                                 : newAccessOperation,
@@ -203,6 +219,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return base.VisitExtension(node);
+        }
+
+        private Expression TryCreateNullableAccessOperation(Expression accessOperation)
+        {
+            if (accessOperation is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method.MethodIsClosedFormOf(EntityMaterializerSource.TryReadValueMethod))
+            {
+                var tryReadValueMethodInfo = EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(accessOperation.Type.MakeNullable());
+
+                return Expression.Call(
+                    tryReadValueMethodInfo, 
+                    methodCallExpression.Arguments[0], 
+                    methodCallExpression.Arguments[1], 
+                    methodCallExpression.Arguments[2]);
+            }
+
+            return null;
         }
 
         /// <summary>

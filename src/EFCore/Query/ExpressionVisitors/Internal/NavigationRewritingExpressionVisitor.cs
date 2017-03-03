@@ -1204,26 +1204,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 target,
                 Expression.Constant(property.Name));
 
-            if (!addNullCheck)
-            {
-                return propertyExpression;
-            }
-
-            var constantNull = property.ClrType.IsNullableType()
-                ? Expression.Constant(null, property.ClrType)
-                : Expression.Constant(null, property.ClrType.MakeNullable());
-
-            if (!property.ClrType.IsNullableType())
-            {
-                propertyExpression = Expression.Convert(propertyExpression, propertyExpression.Type.MakeNullable());
-            }
-
-            return Expression.Condition(
-                Expression.NotEqual(
-                    target,
-                    Expression.Constant(null, target.Type)),
-                propertyExpression,
-                constantNull);
+            return addNullCheck
+                ? new NullConditionalExpression(target, target, propertyExpression)
+                : propertyExpression;
         }
 
         private static bool IsCompositeKey([NotNull] Type type)

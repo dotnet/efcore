@@ -2127,7 +2127,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Distinct_with_optional_navigation_is_evaluated_on_client()
+        public virtual void Distinct_with_optional_navigation_is_translated_to_sql()
         {
             using (var context = CreateContext())
             {
@@ -2141,7 +2141,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Sum_with_optional_navigation_is_evaluated_on_client()
+        public virtual void Sum_with_optional_navigation_is_translated_to_sql()
         {
             using (var context = CreateContext())
             {
@@ -2166,6 +2166,38 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var query = (from g in context.Gears
                              where g.Tag.Note != "Foo"
                              select g.HasSoulPatch).Count();
+
+                Assert.Equal(5, query);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Distinct_with_unflattened_groupjoin_is_evaluated_on_client()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.GroupJoin(
+                    context.Tags,
+                    g => new { k1 = g.Nickname, k2 = (int?)g.SquadId },
+                    t => new { k1 = t.GearNickName, k2 = t.GearSquadId },
+                    (g, t) => g.HasSoulPatch).Distinct();
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Count_with_unflattened_groupjoin_is_evaluated_on_client()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.GroupJoin(
+                    context.Tags,
+                    g => new { k1 = g.Nickname, k2 = (int?)g.SquadId },
+                    t => new { k1 = t.GearNickName, k2 = t.GearSquadId },
+                    (g, t) => g).Count();
 
                 Assert.Equal(5, query);
             }

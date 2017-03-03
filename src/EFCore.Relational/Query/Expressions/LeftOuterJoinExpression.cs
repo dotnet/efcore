@@ -41,35 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Determines whether or not this LeftOuterJoinExpression handles the given query source.
-        /// </summary>
-        /// <param name="querySource"> The query source. </param>
-        /// <returns>
-        ///     true if the supplied query source is handled by this LeftOuterJoinExpression; otherwise false.
-        /// </returns>
-        public override bool HandlesQuerySource(IQuerySource querySource)
-        {
-            if (querySource is AdditionalFromClause additionalFromClause)
-            {
-                var subQueryModel = (additionalFromClause.FromExpression as SubQueryExpression)?.QueryModel;
-                if (subQueryModel != null
-                    && !subQueryModel.BodyClauses.Any()
-                    && subQueryModel.ResultOperators.Count == 1
-                    && subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator
-                    && (subQueryModel.SelectClause.Selector as QuerySourceReferenceExpression)?.ReferencedQuerySource == subQueryModel.MainFromClause
-                    && (subQueryModel.MainFromClause.FromExpression as QuerySourceReferenceExpression)?.ReferencedQuerySource is GroupJoinClause targetGroupJoin)
-                {
-                    if (QuerySource == targetGroupJoin.JoinClause)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return base.HandlesQuerySource(querySource);
-        }
-
-        /// <summary>
         ///     Creates a <see cref="string" /> representation of the Expression.
         /// </summary>
         /// <returns>A <see cref="string" /> representation of the Expression.</returns>

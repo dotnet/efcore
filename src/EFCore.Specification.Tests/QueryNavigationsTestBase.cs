@@ -1007,6 +1007,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 91);
         }
 
+        [ConditionalFact]
+        public virtual void GroupJoin_with_complex_subquery_and_LOJ_gets_flattened2()
+        {
+            AssertQuery<Customer, Order, OrderDetail, string>(
+                (cs, os, ods) => (from c in cs
+                                  join subquery in
+                                      (
+                                          from od in ods
+                                          join o in os on od.OrderID equals 10260
+                                          join c2 in cs on o.CustomerID equals c2.CustomerID
+                                          select c2
+                                          )
+                                      on c.CustomerID equals subquery.CustomerID
+                                      into result
+                                  from subquery in result.DefaultIfEmpty()
+                                  select c.CustomerID));
+        }
+
         protected QueryNavigationsTestBase(TFixture fixture)
         {
             Fixture = fixture;
