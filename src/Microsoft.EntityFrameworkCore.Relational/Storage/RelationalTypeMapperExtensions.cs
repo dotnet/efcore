@@ -98,21 +98,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             throw new InvalidOperationException(RelationalStrings.UnsupportedType(typeName));
         }
-
-        /// <summary>
-        ///     Gets a value indicating whether the given .NET type is mapped.
-        /// </summary>
-        /// <param name="typeMapper"> The type mapper. </param>
-        /// <param name="clrType"> The .NET type. </param>
-        /// <returns> True if the type can be mapped; otherwise false. </returns>
-        public static bool IsTypeMapped(
-            [NotNull] this IRelationalTypeMapper typeMapper,
-            [NotNull] Type clrType)
-        {
-            Check.NotNull(typeMapper, nameof(typeMapper));
-            Check.NotNull(clrType, nameof(clrType));
-
-            return typeMapper.FindMapping(clrType) != null;
-        }
     }
 }

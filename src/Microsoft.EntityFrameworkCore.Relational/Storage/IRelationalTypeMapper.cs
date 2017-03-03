@@ -43,6 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         RelationalTypeMapping FindMapping([NotNull] string storeType);
 
         /// <summary>
+        ///     Gets a value indicating whether the given .NET type is mapped.
+        /// </summary>
+        /// <param name="clrType"> The .NET type. </param>
+        /// <returns> True if the type can be mapped; otherwise false. </returns>
+        bool IsTypeMapped([NotNull] Type clrType);
+
+        /// <summary>
         ///     Ensures that the given type name is a valid type for the relational database.
         ///     An exception is thrown if it is not a valid type.
         /// </summary>
