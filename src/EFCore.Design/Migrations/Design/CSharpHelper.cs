@@ -352,14 +352,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         public virtual string Literal([NotNull] Enum value) => Reference(value.GetType()) + "." + value;
 
-        public virtual string UnknownLiteral([CanBeNull] object value)
+        public virtual string UnknownLiteral([CanBeNull] object value, [CanBeNull] Type type = null)
         {
             if (value == null)
             {
-                return "null";
+                if (type == null)
+                {
+                    return "null";
+                }
+
+                return $"default({type.FullName})";
             }
 
-            var type = value.GetType().UnwrapNullableType();
+            type = type ?? value.GetType().UnwrapNullableType();
 
             Func<CSharpHelper, object, string> literalFunc;
             if (_literalFuncs.TryGetValue(type, out literalFunc))

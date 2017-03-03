@@ -1937,6 +1937,37 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                 o => Assert.Equal("-- I <3 DDL", o.Sql));
         }
 
+        [Fact]
+        public void InsertRowsOperation_all_args()
+        {
+            Test(
+                new InsertRowsOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Rows = new[] {
+                        new { Id = 0, Name = default(string) },
+                        new { Id = 1, Name = "Daenerys Targaryen" },
+                        new { Id = 2, Name = "John Snow" },
+                        new { Id = 3, Name = "Arya Stark" },
+                        new { Id = 4, Name = "Harry Strickland" }
+                    }
+                },
+                "mb.InsertRows(" + EOL +
+                "    table: \"People\"," + EOL +
+                "    schema: \"dbo\"," + EOL +
+                "    rows: new[] {" + EOL +
+                "        new { Id = 0, Name = default(System.String) }," + EOL +
+                "        new { Id = 1, Name = \"Daenerys Targaryen\" }," + EOL +
+                "        new { Id = 2, Name = \"John Snow\" }," + EOL +
+                "        new { Id = 3, Name = \"Arya Stark\" }," + EOL +
+                "        new { Id = 4, Name = \"Harry Strickland\" }});",
+                o =>
+                {
+                    // TODO;
+                });
+        }
+
         private void Test<T>(T operation, string expectedCode, Action<T> assert)
             where T : MigrationOperation
         {

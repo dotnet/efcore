@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -1375,6 +1376,61 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             using (builder.Indent())
             {
                 Annotations(operation.GetAnnotations(), builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] InsertRowsOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".InsertRows(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .AppendLine("rows: new[] {");
+
+                using (builder.Indent())
+                {
+                    var columns = operation.Rows[0].GetType().GetRuntimeProperties()
+                        .Select(p => p.Name)
+                        .ToArray();
+                    for (var i = 0; i < operation.Rows.Length; i++)
+                    {
+                        var row = operation.Rows[i];
+
+                        builder
+                            .Append("new { ")
+                            .Append(string.Join(
+                                ", ",
+                                columns.Select(c => {
+                                    var prop = row.GetType().GetAnyProperty(c);
+                                    return c + " = " + _code.UnknownLiteral(prop?.GetValue(row), prop.PropertyType);
+                                })))
+                            .Append(" }");
+
+                        if (i != operation.Rows.Length - 1)
+                        {
+                            builder.AppendLine(",");
+                        }
+                    }
+                }
+
+                builder.Append("})");
             }
         }
 
