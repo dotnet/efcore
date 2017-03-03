@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Skip_Take_All()
         {
             AssertQuery<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10).All(p => p.CustomerID.Length == 5));
+                cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10).All(p => !p.CustomerID.StartsWith("A")));
         }
 
         [ConditionalFact]
@@ -1088,6 +1088,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Employee>(
                 es => from e in es.OrderBy(e => e.EmployeeID).Take(5)
+                      where EF.Property<string>(e, "Title") == "Sales Representative"
+                      select e,
+                entryCount: 3);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_simple_shadow_subquery2()
+        {
+            AssertQuery<Employee>(
+                es => from e in es.OrderBy(e => e.EmployeeID).Skip(5)
                       where EF.Property<string>(e, "Title") == "Sales Representative"
                       select e,
                 entryCount: 3);
@@ -7005,6 +7015,30 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         && ods.Where(od => od.Product.ProductName == "Chai")
                             .Select(od => od.OrderID)
                             .Contains(o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Take_OrderBy()
+        {
+            AssertQuery<OrderDetail>(ods =>
+                ods.OrderBy(d => d.Quantity).ThenBy(d => d.OrderID).Take(2).OrderBy(d => d.ProductID).ThenBy(d => d.Quantity),
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Skip_OrderBy()
+        {
+            AssertQuery<OrderDetail>(ods =>
+                ods.OrderBy(d => d.Quantity).ThenBy(d => d.OrderID).Skip(2153).OrderBy(d => d.ProductID).ThenBy(d => d.Quantity),
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void Skip_Skip_Take()
+        {
+            AssertQuery<OrderDetail>(ods =>
+                ods.OrderBy(d => d.OrderID).ThenBy(d => d.ProductID).Skip(23).Skip(19).Take(11),
+                entryCount: 11);
         }
 
         private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)

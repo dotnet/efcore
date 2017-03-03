@@ -151,23 +151,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual bool IsProjectStar { get; set; }
 
         /// <summary>
-        ///     Determines whether this SelectExpression is an identity query. An identity query
-        ///     has a single table, and returns all of the rows from that table, unmodified.
-        /// </summary>
-        /// <returns>
-        ///     true if this SelectExpression is an identity query, false if not.
-        /// </returns>
-        public virtual bool IsIdentityQuery()
-            => !IsProjectStar
-               && !IsDistinct
-               && Predicate == null
-               && Limit == null
-               && Offset == null
-               && Projection.Count == 0
-               && OrderBy.Count == 0
-               && Tables.Count == 1;
-
-        /// <summary>
         ///     Adds a table to this SelectExpression.
         /// </summary>
         /// <param name="tableExpression"> The table expression. </param>
@@ -302,9 +285,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [param: CanBeNull]
             set
             {
-                if (value != null)
+                if (value != null && _limit != null)
                 {
-                    PushDownIfLimit();
+                    PushDownSubquery();
                 }
 
                 _limit = value;
@@ -323,29 +306,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [param: CanBeNull]
             set
             {
-                if (_limit != null
-                    && value != null)
+                if (value != null && (_limit != null || _offset != null))
                 {
-                    var subquery = PushDownSubquery();
+                    PushDownSubquery();
                 }
 
                 _offset = value;
-            }
-        }
-
-        private void PushDownIfLimit()
-        {
-            if (_limit != null)
-            {
-                PushDownSubquery();
-            }
-        }
-
-        private void PushDownIfDistinct()
-        {
-            if (_isDistinct)
-            {
-                PushDownSubquery();
             }
         }
 
@@ -386,6 +352,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 }
 
                 subquery._projection.Add(aliasExpression);
+            }
+
+            if (QuerySource != null)
+            {
+                subquery.QuerySource = QuerySource;
             }
 
             subquery.AddTables(_tables);
@@ -459,6 +430,84 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             return subquery;
+        }
+
+        /// <summary>
+        ///     Pushes down this SelectExpression into a subquery if doing so
+        ///     would be required prior to joining another SelectExpression to it.
+        /// </summary>
+        /// <returns>
+        ///     The subquery if it was pushed down, otherwise null.
+        /// </returns>
+        public virtual SelectExpression PushDownForLeftSideOfJoin()
+        {
+            if (_isDistinct 
+                || _limit != null 
+                || _offset != null)
+            {
+                var subquery = PushDownSubquery();
+                ExplodeStarProjection();
+                return subquery;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Pushes down this SelectExpression into a subquery if doing so
+        ///     would be required prior to joining it to another SelectExpression.
+        /// </summary>
+        /// <returns>
+        ///     The subquery if it was pushed down, otherwise null.
+        /// </returns>
+        public virtual SelectExpression PushDownForRightSideOfJoin()
+        {
+            if (_isDistinct
+               || _limit != null
+               || _offset != null
+               || _orderBy.Count != 0
+               || _tables.Count != 1)
+            {
+                var subquery = PushDownSubquery();
+                ExplodeStarProjection();
+                return subquery;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Updates a translated expression so that any references to this 
+        ///     SelectExpression's tables are replaced with references to this 
+        ///     SelectExpression.
+        /// </summary>
+        /// <param name="expression"> The expression to update. </param>
+        /// <returns>
+        ///     The updated expression.
+        /// </returns>
+        public virtual Expression LiftTableReferences([NotNull] Expression expression)
+            => new TableReferenceLiftingExpressionVisitor(this)
+                .Visit(Check.NotNull(expression, nameof(expression)));
+
+        private class TableReferenceLiftingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly SelectExpression _selectExpression;
+
+            public TableReferenceLiftingExpressionVisitor(SelectExpression selectExpression)
+            {
+                _selectExpression = selectExpression;
+            }
+
+            protected override Expression VisitExtension(Expression node)
+            {
+                if (node is ColumnExpression columnExpression
+                    && _selectExpression.Tables.Contains(columnExpression.Table))
+                {
+                    return _selectExpression.UpdateColumnExpression(columnExpression, _selectExpression);
+                }
+
+                return base.VisitExtension(node);
+            }
         }
 
         /// <summary>
@@ -716,8 +765,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(expression, nameof(expression));
 
-            PushDownIfLimit();
-            PushDownIfDistinct();
+            if (_limit != null || _isDistinct)
+            {
+                PushDownSubquery();
+            }
 
             ClearProjection();
             AddToProjection(expression);
@@ -883,6 +934,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual void PrependToOrderBy([NotNull] IEnumerable<Ordering> orderings)
         {
             Check.NotNull(orderings, nameof(orderings));
+
+            if (_orderBy.Any() && (_limit != null || _offset != null))
+            {
+                var subQuery = PushDownSubquery();
+
+                ExplodeStarProjection();
+                ClearOrderBy();
+
+                foreach (var ordering in orderings)
+                {
+                    ordering.Expression = subQuery.LiftTableReferences(ordering.Expression);
+                }
+
+                _orderBy.AddRange(orderings);
+
+                return;
+            }
 
             var oldOrderBy = _orderBy.ToList();
 
@@ -1096,6 +1164,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual void AddToPredicate([NotNull] Expression predicate)
         {
             Check.NotNull(predicate, nameof(predicate));
+
+            if (_limit != null || _offset != null)
+            {
+                Predicate = PushDownSubquery().LiftTableReferences(predicate);
+                ExplodeStarProjection();
+                return;
+            }
 
             Predicate = Predicate != null ? AndAlso(Predicate, predicate) : predicate;
         }
