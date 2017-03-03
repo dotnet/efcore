@@ -1029,6 +1029,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Sql);
         }
 
+<<<<<<< HEAD:test/EFCore.SqlServer.FunctionalTests/SqlServerMigrationSqlGeneratorTest.cs
         [Fact]
         public virtual void SqlOperation_handles_backslash()
         {
@@ -1108,9 +1109,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             Assert.Equal(
                 "-- I GO 2" + EOL,
-                Sql);
-        }
-
+=======
         public override void InsertRowsOperation()
         {
             base.InsertRowsOperation();
@@ -1122,6 +1121,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 "(NULL, NULL, )," + EOL +
                 "(NULL, NULL, )," + EOL +
                 "(NULL, NULL, )," + EOL,
+>>>>>>> 2e6a6a697... Adding a hardcoded InsertRowsOperation and test:test/Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests/SqlServerMigrationSqlGeneratorTest.cs
                 Sql);
         }
 

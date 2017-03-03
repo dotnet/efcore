@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 { typeof(RenameSequenceOperation), (g, o, m, b) => g.Generate((RenameSequenceOperation)o, m, b) },
                 { typeof(RenameTableOperation), (g, o, m, b) => g.Generate((RenameTableOperation)o, m, b) },
                 { typeof(RestartSequenceOperation), (g, o, m, b) => g.Generate((RestartSequenceOperation)o, m, b) },
-                { typeof(SqlOperation), (g, o, m, b) => g.Generate((SqlOperation)o, m, b) }
+                { typeof(SqlOperation), (g, o, m, b) => g.Generate((SqlOperation)o, m, b) },
+                { typeof(InsertRowsOperation), (g, o, m, b) => g.Generate((InsertRowsOperation)o, m, b) }
             };
 
         /// <summary>
@@ -620,6 +621,55 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             builder.AppendLine(operation.Sql);
 
             EndStatement(builder, operation.SuppressTransaction);
+        }
+
+        // copy from HistoryRepository.GetInsertScript
+        protected virtual void Generate(
+            [NotNull] InsertRowsOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            // TODO get column names from the model
+            var columns = new[] { "asd", "DDDADS" };
+
+            builder
+                .Append("INSERT INTO ")
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" (");
+
+            // TODO use join because the last comma breaks
+            foreach (var column in columns)
+            {
+                builder
+                    .Append(SqlGenerationHelper.DelimitIdentifier(column))
+                    .Append(", ");
+            }
+
+            builder
+                .AppendLine(")")
+                .AppendLine("VALUES");
+
+            // TODO use join because the last comma breaks
+            foreach (var row in operation.Rows)
+            {
+                builder.Append("(");
+
+                // TODO use join because the last comma breaks
+                foreach (var column in columns)
+                {
+                    builder
+                        // TODO check GetAnyProperty and NULL usage
+                        .Append(row?.GetType()?.GetAnyProperty(column)?.GetValue(row) ?? "NULL")
+                        .Append(", ");
+                }
+
+                builder.AppendLine("),");
+            }
+
+            EndStatement(builder);
         }
 
         protected virtual void SequenceOptions(

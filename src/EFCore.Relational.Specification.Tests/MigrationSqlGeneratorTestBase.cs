@@ -562,6 +562,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                     Sql = "-- I <3 DDL"
                 });
 
+        [Fact]
+        public virtual void InsertRowsOperation()
+            => Generate(
+                new InsertRowsOperation
+                {
+                    Table = "People",
+                    Rows = new[] {
+                        new Person { Id = 1, Name = "Daenerys Targaryen" },
+                        new Person { Id = 2, Name = "John Snow" },
+                        new Person { Id = 3, Name = "Arya Stark" },
+                        new Person { Id = 4, Name = "Harry Strickland" }
+                    }
+                });
+
         private readonly TestHelpers _testHelpers;
 
         protected MigrationSqlGeneratorTestBase(TestHelpers testHelpers)
