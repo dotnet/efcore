@@ -53,7 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory,
-            [NotNull] IQueryFlattenerFactory queryFlattenerFactory,
             [NotNull] IDbContextOptions contextOptions)
         {
             Check.NotNull(relationalResultOperatorHandler, nameof(relationalResultOperatorHandler));
@@ -62,7 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(conditionalRemovingExpressionVisitorFactory, nameof(conditionalRemovingExpressionVisitorFactory));
-            Check.NotNull(queryFlattenerFactory, nameof(queryFlattenerFactory));
             Check.NotNull(contextOptions, nameof(contextOptions));
 
             RelationalResultOperatorHandler = relationalResultOperatorHandler;
@@ -71,7 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
             CompositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
             ConditionalRemovingExpressionVisitorFactory = conditionalRemovingExpressionVisitorFactory;
-            QueryFlattenerFactory = queryFlattenerFactory;
             ContextOptions = contextOptions;
         }
 
@@ -104,11 +101,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Gets the conditional removing expression visitor factory.
         /// </summary>
         public IConditionalRemovingExpressionVisitorFactory ConditionalRemovingExpressionVisitorFactory { get; }
-
-        /// <summary>
-        ///     Gets the query flattener factory.
-        /// </summary>
-        public IQueryFlattenerFactory QueryFlattenerFactory { get; }
 
         /// <summary>
         ///     Gets options for controlling the context.
