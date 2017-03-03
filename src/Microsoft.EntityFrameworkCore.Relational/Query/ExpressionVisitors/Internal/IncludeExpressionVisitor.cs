@@ -326,14 +326,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 targetTableExpression = joinedTableExpression;
 
                 return Expression.Lambda<Func<QueryContext, KeyValuePair<IncludeSpecification, TRelatedEntitiesLoader>>>(
-                    Expression.New(typeof(KeyValuePair<IncludeSpecification, TRelatedEntitiesLoader>).GetDeclaredConstructor(null), Expression.Constant(includeSpecification),
+                    Expression.New(
+                        typeof(KeyValuePair<IncludeSpecification, TRelatedEntitiesLoader>)
+                            .GetTypeInfo().DeclaredConstructors.First(),
+                        Expression.Constant(includeSpecification),
                         Expression.Call(
                             _queryCompilationContext.QueryMethodProvider
                                 .CreateReferenceRelatedEntitiesLoaderMethod,
                             Expression.Constant(valueBufferOffset),
                             Expression.Constant(queryIndex),
                             materializer
-                        )),
+                        )
+                    ),
                     queryContextParameter);
             }
             else
@@ -464,7 +468,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 return
                     Expression.Lambda<Func<QueryContext, KeyValuePair<IncludeSpecification, TRelatedEntitiesLoader>>>(
-                        Expression.New(typeof(KeyValuePair<IncludeSpecification, TRelatedEntitiesLoader>).GetDeclaredConstructor(null), Expression.Constant(includeSpecification),
+                        Expression.New(
+                            typeof(KeyValuePair<IncludeSpecification, TRelatedEntitiesLoader>)
+                                .GetTypeInfo().DeclaredConstructors.First(),
+                            Expression.Constant(includeSpecification),
                             Expression.Call(
                                 _queryCompilationContext.QueryMethodProvider
                                     .CreateCollectionRelatedEntitiesLoaderMethod,
@@ -474,7 +481,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                         SelectExpressionDependencies.QuerySqlGeneratorFactory.CreateDefault(targetSelectExpression))),
                                 Expression.Constant(queryIndex),
                                 materializer
-                            )),
+                            )
+                        ),
                         queryContextParameter);
             }
         }

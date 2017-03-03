@@ -433,18 +433,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 entityType = navigationPath[i].GetTargetType();
                             }
 
-                        return new
-                        {
-                            specification = new IncludeSet { QuerySource =  includeResultOperator.QuerySource, Navigations = navigationPath},
-                            order = string.Concat(navigationPath.Select(n => n.IsCollection() ? "1" : "0"))
-                        };
-                    })
+                            return new
+                            {
+                                specification = new IncludeSet { QuerySource = includeResultOperator.QuerySource, Navigations = navigationPath },
+                                order = string.Concat(navigationPath.Select(n => n.IsCollection() ? "1" : "0"))
+                            };
+                        })
                     .OrderByDescending(e => e.order)
                     .ThenBy(e => e.specification.Navigations.First().IsDependentToPrincipal())
-                    .Select(e => e.specification)
-                    .ToList();
+                    .Select(e => e.specification);
 
-            IncludeNavigations(queryModel, CreateSpecifications(includeSpecifications).ToList());
+            IncludeNavigations(queryModel, CreateSpecifications(includeSpecifications, navigationIndex: 0).ToList());
         }
 
         private struct IncludeSet
@@ -479,27 +478,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             public INavigation Navigation { get; set; }
         }
 
-        private static IEnumerable<IncludeSpecification> CreateSpecifications(IEnumerable<IncludeSet> includeSets)
-        {
-            return includeSets.GroupBy(i => new IncludeKey
-            {
-                QuerySource = i.QuerySource,
-                Navigation = i.Navigations[0]
-            }, IncludeKey.QuerySourceNavigationComparer)
+        private static IEnumerable<IncludeSpecification> CreateSpecifications(IEnumerable<IncludeSet> includeSets, int navigationIndex) =>
+            includeSets.GroupBy(set => new IncludeKey
+                {
+                    QuerySource = set.QuerySource,
+                    Navigation = set.Navigations[navigationIndex]
+                }, IncludeKey.QuerySourceNavigationComparer)
                 .Select(
-                    i =>
-                        new IncludeSpecification(i.Key.QuerySource, i.Key.Navigation,
+                    sets =>
+                        new IncludeSpecification(sets.Key.QuerySource, sets.Key.Navigation,
                             CreateSpecifications(
-                                i.Where(l => l.Navigations.Length > 1)
-                                    .Select(l => new IncludeSet
-                                    {
-                                        QuerySource = l.QuerySource,
-                                        Navigations = l.Navigations.Skip(1).ToArray()
-                                    })
-                                ).ToList()
-                            )
+                                sets.Where(l => l.Navigations.Length > navigationIndex + 1), navigationIndex + 1
+                            ).ToArray()
+                        )
                 );
-        }
 
         /// <summary>
         ///     Includes related data requested in the LINQ query.

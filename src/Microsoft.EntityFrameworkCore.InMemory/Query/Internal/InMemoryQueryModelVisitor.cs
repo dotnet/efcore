@@ -314,52 +314,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class IncludeGrouping<TKey, TOut> : IGrouping<TKey, TOut>
-        {
-            private readonly QueryContext _queryContext;
-            private readonly IGrouping<TKey, TOut> _grouping;
-            private readonly IncludeSpecification _includeSpecification;
-            private readonly Func<TOut, object> _accessorLambda;
-            private readonly IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> _relatedEntitiesLoaders;
-            private readonly bool _querySourceRequiresTracking;
-
-            public IncludeGrouping(
-                QueryContext queryContext,
-                IGrouping<TKey, TOut> grouping,
-                IncludeSpecification includeSpecification,
-                Func<TOut, object> accessorLambda,
-                IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> relatedEntitiesLoaders,
-                bool querySourceRequiresTracking)
-            {
-                _queryContext = queryContext;
-                _grouping = grouping;
-                _includeSpecification = includeSpecification;
-                _accessorLambda = accessorLambda;
-                _relatedEntitiesLoaders = relatedEntitiesLoaders;
-                _querySourceRequiresTracking = querySourceRequiresTracking;
-            }
-
-            public TKey Key => _grouping.Key;
-
-            public IEnumerator<TOut> GetEnumerator()
-            {
-                foreach (var result in _grouping)
-                {
-                    _queryContext.QueryBuffer
-                        .Include(
-                            _queryContext,
-                            _accessorLambda.Invoke(result),
-                            _includeSpecification,
-                            _relatedEntitiesLoaders,
-                            _querySourceRequiresTracking);
-
-                    yield return result;
-                }
-            }
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        }
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.

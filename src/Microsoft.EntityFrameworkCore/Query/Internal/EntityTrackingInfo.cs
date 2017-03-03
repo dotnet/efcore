@@ -213,8 +213,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                 }
 
-                stateManager.TryGetEntry(entity)?.SetIsLoaded(navigation);
             }
+
+            stateManager.TryGetEntry(entity)?.SetIsLoaded(navigation);
         }
     }
 }
