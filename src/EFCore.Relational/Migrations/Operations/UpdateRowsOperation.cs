@@ -10,11 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Table { get; [param: NotNull] set; }
         public virtual string Schema { get; [param: CanBeNull] set; }
         public virtual string[] KeyColumns { get; [param: NotNull] set; }
-
-        /// <summary>
-        ///     The Rows attributes should map to the column names, and not to the
-        ///     model attributes. They must all be the same type.
-        /// </summary>
-        public virtual object[] Rows { get; [param: NotNull] set; }
+        public virtual string[] Columns { get; [param: NotNull] set; }
+        public virtual object[,] Values { get; [param: NotNull] set; }
     }
 }

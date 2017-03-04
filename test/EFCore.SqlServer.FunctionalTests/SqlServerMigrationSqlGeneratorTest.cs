@@ -1142,22 +1142,36 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             Assert.Equal(
                 "DELETE FROM [People]" + EOL +
-                "WHERE ([Id] = 1 AND [Name] = N'Daenerys Targaryen') OR" + EOL +
-                "      ([Id] = 2 AND [Name] = N'John Snow');" + EOL,
+                "WHERE ([Id] = 1 AND [Full Name] = N'Daenerys Targaryen') OR" + EOL +
+                "      ([Id] = 2 AND [Full Name] = N'John Snow');" + EOL,
                 Sql);
         }
 
-        public override void UpdateRowsOperation()
+        public override void UpdateRowsOperation_simple_key()
         {
-            base.UpdateRowsOperation();
+            base.UpdateRowsOperation_simple_key();
 
             Assert.Equal(
                 "UPDATE [People]" + EOL +
-                "SET [Name] = N'Daenerys Stormborn'" + EOL +
+                "SET [Full Name] = N'Daenerys Stormborn'" + EOL +
                 "WHERE ([Id] = 1);" + EOL +
                 "UPDATE [People]" + EOL +
-                "SET [Name] = N'Homeless Harry Strickland'" + EOL +
+                "SET [Full Name] = N'Homeless Harry Strickland'" + EOL +
                 "WHERE ([Id] = 4);" + EOL,
+                Sql);
+        }
+
+        public override void UpdateRowsOperation_composite_key()
+        {
+            base.UpdateRowsOperation_composite_key();
+
+            Assert.Equal(
+                "UPDATE [People]" + EOL +
+                "SET [First Name] = N'Dany'" + EOL +
+                "WHERE ([Id] = 1 AND [Last Name] = N'Targaryen');" + EOL +
+                "UPDATE [People]" + EOL +
+                "SET [First Name] = N'Homeless Harry'" + EOL +
+                "WHERE ([Id] = 4 AND [Last Name] = N'Strickland');" + EOL,
                 Sql);
         }
 

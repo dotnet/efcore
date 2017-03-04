@@ -585,9 +585,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                 new DeleteRowsOperation
                 {
                     Table = "People",
-                    Keys = new[] {
-                        new { Id = 2 },
-                        new { Id = 4 }
+                    KeyColumns = new[] { "Id" },
+                    Keys = new object[,]
+                    {
+                        { 2 },
+                        { 4 }
                     }
                 });
 
@@ -597,22 +599,41 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                 new DeleteRowsOperation
                 {
                     Table = "People",
-                    Keys = new[] {
-                        new { Id = 1, Name = "Daenerys Targaryen" },
-                        new { Id = 2, Name = "John Snow" }
+                    KeyColumns = new[] { "Id", "Full Name" },
+                    Keys = new object[,]
+                    {
+                        { 1, "Daenerys Targaryen" },
+                        { 2, "John Snow" }
                     }
                 });
 
         [Fact]
-        public virtual void UpdateRowsOperation()
+        public virtual void UpdateRowsOperation_simple_key()
             => Generate(
                 new UpdateRowsOperation
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id" },
-                    Rows = new[] {
-                        new { Id = 1, Name = "Daenerys Stormborn" },
-                        new { Id = 4, Name = "Homeless Harry Strickland" }
+                    Columns = new[] { "Id", "Full Name" },
+                    Values = new object[,]
+                    {
+                        { 1, "Daenerys Stormborn" },
+                        { 4, "Homeless Harry Strickland" }
+                    }
+                });
+
+        [Fact]
+        public virtual void UpdateRowsOperation_composite_key()
+            => Generate(
+                new UpdateRowsOperation
+                {
+                    Table = "People",
+                    KeyColumns = new[] { "Id", "Last Name" },
+                    Columns = new[] { "Id", "First Name", "Last Name" },
+                    Values = new object[,]
+                    {
+                        { 1, "Dany", "Targaryen" },
+                        { 4, "Homeless Harry", "Strickland" }
                     }
                 });
 
