@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp1.1</TargetFrameworks>
+    <TargetFrameworks>net452;netstandard1.6</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Benchmarks</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks</RootNamespace>
   </PropertyGroup>
@@ -10,8 +9,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.2.0-*" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="1.2.0-*" />
     <PackageReference Include="System.Data.SqlClient" Version="$(CoreFxVersion)" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-*" />
     <PackageReference Include="xunit" Version="2.2.0-*" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0-*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
+    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="15.0.0" />
   </ItemGroup>
 </Project>

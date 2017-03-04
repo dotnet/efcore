@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
-    <TargetFrameworks>net452</TargetFrameworks>
+    <TargetFramework>net452</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Benchmarks.EF6</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks.EF6</RootNamespace>
   </PropertyGroup>
