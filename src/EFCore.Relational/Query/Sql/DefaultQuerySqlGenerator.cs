@@ -153,11 +153,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual IRelationalCommandBuilder Sql => _relationalCommandBuilder;
 
         /// <summary>
-        ///     The default string concatenation operator SQL.
-        /// </summary>
-        protected virtual string ConcatOperator => "+";
-
-        /// <summary>
         ///     The default true literal SQL.
         /// </summary>
         protected virtual string TypedTrueLiteral => "CAST(1 AS BIT)";
@@ -1506,8 +1501,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             switch (expression.NodeType)
             {
-                case ExpressionType.Add:
-                    return expression.Type == typeof(string) ? " " + ConcatOperator + " " : " + ";
                 case ExpressionType.Extension:
                 {
                     var asStringCompareExpression = expression as StringCompareExpression;
