@@ -683,7 +683,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual OperationBuilder<InsertRowsOperation> InsertRows(
             [NotNull] string table,
             [CanBeNull] string schema = null,
-            [CanBeNull] object[] rows = null)
+            [CanBeNull] string[] columns = null,
+            [CanBeNull] object[,] values = null)
         {
             Check.NotEmpty(table, nameof(table));
 
@@ -691,7 +692,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 Table = table,
                 Schema = schema,
-                Rows = rows
+                Columns = columns,
+                Values = values
             };
             Operations.Add(operation);
 

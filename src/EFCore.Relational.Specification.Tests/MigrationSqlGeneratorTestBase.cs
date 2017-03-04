@@ -568,12 +568,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                 new InsertRowsOperation
                 {
                     Table = "People",
-                    Rows = new[] {
-                        new { Id = 0, Name = default(string) },
-                        new { Id = 1, Name = "Daenerys Targaryen" },
-                        new { Id = 2, Name = "John Snow" },
-                        new { Id = 3, Name = "Arya Stark" },
-                        new { Id = 4, Name = "Harry Strickland" }
+                    Columns = new[] { "Id", "Full Name" },
+                    Values = new object[,]
+                    {
+                        { 0, null },
+                        { 1, "Daenerys Targaryen" },
+                        { 2, "John Snow" },
+                        { 3, "Arya Stark" },
+                        { 4, "Harry Strickland" },
                     }
                 });
 

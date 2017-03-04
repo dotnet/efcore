@@ -1116,7 +1116,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.InsertRowsOperation();
 
             Assert.Equal(
-                "INSERT INTO [People] ([Id], [Name])" + EOL +
+                "INSERT INTO [People] ([Id], [Full Name])" + EOL +
                 "VALUES (0, NULL)," + EOL +
                 "       (1, N'Daenerys Targaryen')," + EOL +
                 "       (2, N'John Snow')," + EOL +

@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using System;
+using System.Collections.Generic;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -9,11 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     {
         public virtual string Table { get; [param: NotNull] set; }
         public virtual string Schema { get; [param: CanBeNull] set; }
-
-        /// <summary>
-        ///     The Rows attributes should map to the column names, and not to the
-        ///     model attributes. They must all be the same type.
-        /// </summary>
-        public virtual object[] Rows { get; [param: NotNull] set; }
+        public virtual string[] Columns { get; [param: NotNull] set; }
+        public virtual object[,] Values { get; [param: NotNull] set; }
     }
 }

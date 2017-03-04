@@ -1388,49 +1388,50 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             using (builder.Indent())
             {
-                builder
-                    .Append("table: ")
-                    .Append(_code.Literal(operation.Table));
-
                 if (operation.Schema != null)
                 {
                     builder
-                        .AppendLine(",")
                         .Append("schema: ")
-                        .Append(_code.Literal(operation.Schema));
+                        .Append(_code.Literal(operation.Schema))
+                        .AppendLine(",");
                 }
 
                 builder
-                    .AppendLine(",")
-                    .AppendLine("rows: new[] {");
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .AppendLine(",");
 
+                builder
+                    .Append("columns: new[] { ")
+                    .Append(string.Join(", ", operation.Columns.Select(_code.Literal)))
+                    .AppendLine(" },");
+
+                builder
+                    .AppendLine("values: new object[,]")
+                    .AppendLine("{");
                 using (builder.Indent())
                 {
-                    var columns = operation.Rows[0].GetType().GetRuntimeProperties()
-                        .Select(p => p.Name)
-                        .ToArray();
-                    for (var i = 0; i < operation.Rows.Length; i++)
+                    var rowCount = operation.Values.GetLength(0);
+                    var valueCount = operation.Values.GetLength(1);
+                    for (var i = 0; i < rowCount; i++)
                     {
-                        var row = operation.Rows[i];
-
                         builder
-                            .Append("new { ")
+                            .Append("{ ")
                             .Append(string.Join(
                                 ", ",
-                                columns.Select(c => {
-                                    var prop = row.GetType().GetAnyProperty(c);
-                                    return c + " = " + _code.UnknownLiteral(prop?.GetValue(row), prop.PropertyType);
-                                })))
+                                Enumerable.Range(0, valueCount).Select(j => _code.UnknownLiteral(operation.Values[i, j]))))
                             .Append(" }");
 
-                        if (i != operation.Rows.Length - 1)
+                        if (i != rowCount - 1)
                         {
                             builder.AppendLine(",");
                         }
                     }
                 }
 
-                builder.Append("})");
+                builder
+                    .AppendLine()
+                    .Append("})");
             }
         }
 

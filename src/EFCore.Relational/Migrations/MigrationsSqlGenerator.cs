@@ -634,14 +634,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            if (operation.Rows.Length == 0)
+            if (operation.Values.Length == 0)
             {
                 return;
             }
 
-            var columns = operation.Rows[0].GetType().GetRuntimeProperties()
-                .Select(p => p.Name)
-                .ToArray();
+            var columns = operation.Columns;
             builder
                 .Append("INSERT INTO ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
@@ -650,17 +648,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .AppendLine(")")
                 .Append("VALUES ");
 
-            for (var i = 0; i < operation.Rows.Length; i++)
+            var rowCount = operation.Values.GetLength(0);
+            var valueCount = operation.Values.GetLength(1);
+            for (var i = 0; i < rowCount; i++)
             {
-                var row = operation.Rows[i];
                 builder
                     .Append("(")
                     .Append(string.Join(
                         ", ",
-                        columns.Select(c => Dependencies.SqlGenerationHelper.GenerateLiteral(row.GetType().GetAnyProperty(c)?.GetValue(row)))))
+                        Enumerable.Range(0, valueCount).Select(j => Dependencies.SqlGenerationHelper.GenerateLiteral(operation.Values[i, j]))))
                     .Append(")");
 
-                if (i != operation.Rows.Length - 1)
+                if (i != rowCount - 1)
                 {
                     builder
                         .AppendLine(",")

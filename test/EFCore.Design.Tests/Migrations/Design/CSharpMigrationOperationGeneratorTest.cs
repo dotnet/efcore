@@ -1943,28 +1943,37 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
             Test(
                 new InsertRowsOperation
                 {
-                    Table = "People",
                     Schema = "dbo",
-                    Rows = new[] {
-                        new { Id = 0, Name = default(string) },
-                        new { Id = 1, Name = "Daenerys Targaryen" },
-                        new { Id = 2, Name = "John Snow" },
-                        new { Id = 3, Name = "Arya Stark" },
-                        new { Id = 4, Name = "Harry Strickland" }
+                    Table = "People",
+                    Columns = new[] { "Id", "Full Name" },
+                    Values = new object[,]
+                    {
+                        { 0, null },
+                        { 1, "Daenerys Targaryen" },
+                        { 2, "John Snow" },
+                        { 3, "Arya Stark" },
+                        { 4, "Harry Strickland" },
                     }
                 },
                 "mb.InsertRows(" + EOL +
-                "    table: \"People\"," + EOL +
                 "    schema: \"dbo\"," + EOL +
-                "    rows: new[] {" + EOL +
-                "        new { Id = 0, Name = default(System.String) }," + EOL +
-                "        new { Id = 1, Name = \"Daenerys Targaryen\" }," + EOL +
-                "        new { Id = 2, Name = \"John Snow\" }," + EOL +
-                "        new { Id = 3, Name = \"Arya Stark\" }," + EOL +
-                "        new { Id = 4, Name = \"Harry Strickland\" }});",
+                "    table: \"People\"," + EOL +
+                "    columns: new[] { \"Id\", \"Full Name\" }," + EOL +
+                "    values: new object[,]" + EOL +
+                "    {" + EOL +
+                "        { 0, null }," + EOL +
+                "        { 1, \"Daenerys Targaryen\" }," + EOL +
+                "        { 2, \"John Snow\" }," + EOL +
+                "        { 3, \"Arya Stark\" }," + EOL +
+                "        { 4, \"Harry Strickland\" }" + EOL +
+                "    });",
                 o =>
                 {
-                    // TODO;
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(2, o.Columns.Length);
+                    Assert.Equal(10, o.Values.Length);
+                    Assert.Equal("John Snow", o.Values[2, 1]);
                 });
         }
 
