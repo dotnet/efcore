@@ -599,11 +599,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                 new DeleteOperation
                 {
                     Table = "People",
-                    KeyColumns = new[] { "Id", "Full Name" },
+                    KeyColumns = new[] { "First Name", "Last Name" },
                     KeyValues = new object[,]
                     {
-                        { 1, "Daenerys Targaryen" },
-                        { 2, "John Snow" }
+                        { "Hodor", null },
+                        { "Daenerys", "Targaryen" }
                     }
                 });
 
@@ -636,13 +636,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                     KeyColumns = new[] { "Id", "Last Name" },
                     KeyValues = new object[,]
                     {
-                        { 1, "Targaryen" },
+                        { 0, null },
                         { 4, "Strickland" }
                     },
                     Columns = new[] { "First Name" },
                     Values = new object[,]
                     {
-                        { "Dany" },
+                        { "Hodor" },
                         { "Homeless Harry" }
                     }
                 });

@@ -714,10 +714,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         builder.Append(" AND ");
                     }
 
-                    builder.Append(
-                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.KeyColumns[j]) +
-                        " = " +
-                        Dependencies.SqlGenerationHelper.GenerateLiteral(operation.KeyValues[i, j]));
+                    builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.KeyColumns[j]));
+
+                    var value = operation.KeyValues[i, j];
+                    if (value == null)
+                    {
+                        builder.Append(" IS NULL");
+                    }
+                    else
+                    {
+                        builder
+                            .Append(" = ")
+                            .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(value));
+                    }
                 }
 
                 builder.Append(")");
@@ -775,10 +784,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         builder.Append(" AND ");
                     }
 
-                    builder.Append(
-                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.KeyColumns[j]) +
-                        " = " +
-                        Dependencies.SqlGenerationHelper.GenerateLiteral(operation.KeyValues[i, j]));
+                    builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.KeyColumns[j]));
+
+                    var value = operation.KeyValues[i, j];
+                    if (value == null)
+                    {
+                        builder.Append(" IS NULL");
+                    }
+                    else
+                    {
+                        builder
+                            .Append(" = ")
+                            .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(value));
+                    }
                 }
 
                 builder

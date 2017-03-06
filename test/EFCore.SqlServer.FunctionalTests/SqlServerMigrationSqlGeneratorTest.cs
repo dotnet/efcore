@@ -1142,8 +1142,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             Assert.Equal(
                 "DELETE FROM [People]" + EOL +
-                "WHERE ([Id] = 1 AND [Full Name] = N'Daenerys Targaryen') OR" + EOL +
-                "      ([Id] = 2 AND [Full Name] = N'John Snow');" + EOL,
+                "WHERE ([First Name] = N'Hodor' AND [Last Name] IS NULL) OR" + EOL +
+                "      ([First Name] = N'Daenerys' AND [Last Name] = N'Targaryen');" + EOL,
                 Sql);
         }
 
@@ -1169,8 +1169,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             Assert.Equal(
                 "UPDATE [People]" + EOL +
-                "SET [First Name] = N'Dany'" + EOL +
-                "WHERE ([Id] = 1 AND [Last Name] = N'Targaryen');" + EOL +
+                "SET [First Name] = N'Hodor'" + EOL +
+                "WHERE ([Id] = 0 AND [Last Name] IS NULL);" + EOL +
                 "GO" + EOL +
                 EOL +
                 "UPDATE [People]" + EOL +
