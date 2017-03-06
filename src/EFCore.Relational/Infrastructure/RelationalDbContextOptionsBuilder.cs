@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension>
         where TBuilder : RelationalDbContextOptionsBuilder<TBuilder, TExtension>
-        where TExtension : RelationalOptionsExtension
+        where TExtension : RelationalOptionsExtension, new()
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalDbContextOptionsBuilder{TBuilder, TExtension}" /> class.
@@ -38,19 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual DbContextOptionsBuilder OptionsBuilder { get; }
 
         /// <summary>
-        ///     Clones the configuration in this builder.
-        /// </summary>
-        /// <returns> The cloned configuration. </returns>
-        protected abstract TExtension CloneExtension();
-
-        /// <summary>
         ///     Configures the maximum number of statements that will be included in commands sent to the database
         ///     during <see cref="DbContext.SaveChanges()" />.
         /// </summary>
         /// <param name="maxBatchSize"> The maximum number of statements. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TBuilder MaxBatchSize(int maxBatchSize)
-            => SetOption(e => e.MaxBatchSize = maxBatchSize);
+            => WithOption(e => (TExtension)e.WithMaxBatchSize(maxBatchSize));
 
         /// <summary>
         ///     Configures the wait time (in seconds) before terminating the attempt to execute a command and generating an error.
@@ -58,15 +52,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="commandTimeout"> The time in seconds to wait for the command to execute. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TBuilder CommandTimeout(int? commandTimeout)
-            => SetOption(e => e.CommandTimeout = commandTimeout);
+            => WithOption(e => (TExtension)e.WithCommandTimeout(commandTimeout));
 
         /// <summary>
         ///     Configures the assembly where migrations are maintained for this context.
         /// </summary>
         /// <param name="assemblyName"> The name of the assembly. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual TBuilder MigrationsAssembly([NotNull] string assemblyName)
-            => SetOption(e => e.MigrationsAssembly = Check.NullButNotEmpty(assemblyName, nameof(assemblyName)));
+        public virtual TBuilder MigrationsAssembly([CanBeNull] string assemblyName)
+            => WithOption(e => (TExtension)e.WithMigrationsAssembly(Check.NullButNotEmpty(assemblyName, nameof(assemblyName))));
 
         /// <summary>
         ///     Configures the name of the table used to record which migrations have been applied to the database.
@@ -79,12 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotEmpty(tableName, nameof(tableName));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            return SetOption(
-                e =>
-                    {
-                        e.MigrationsHistoryTableName = tableName;
-                        e.MigrationsHistoryTableSchema = schema;
-                    });
+            return WithOption(e => (TExtension)e.WithMigrationsHistoryTableName(tableName).WithMigrationsHistoryTableSchema(schema));
         }
 
         /// <summary>
@@ -93,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     in how the database handles nulls.
         /// </summary>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual TBuilder UseRelationalNulls()
-            => SetOption(e => e.UseRelationalNulls = true);
+        public virtual TBuilder UseRelationalNulls(bool useRelationalNulls = true)
+            => WithOption(e => (TExtension)e.WithUseRelationalNulls(useRelationalNulls));
 
         /// <summary>
         ///     Configures the context to use the provided <see cref="IExecutionStrategy" />.
@@ -102,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="getExecutionStrategy"> A function that returns a new instance of an execution strategy. </param>
         public virtual TBuilder ExecutionStrategy(
             [NotNull] Func<ExecutionStrategyContext, IExecutionStrategy> getExecutionStrategy)
-            => SetOption(e => e.ExecutionStrategyFactory = Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy)));
+            => WithOption(e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
 
         /// <summary>
         ///     Sets an option by cloning the extension used to store the settings. This ensures the builder
@@ -110,15 +99,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="setAction"> An action to set the option. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        protected virtual TBuilder SetOption([NotNull] Action<TExtension> setAction)
+        protected virtual TBuilder WithOption([NotNull] Func<TExtension, TExtension> setAction)
         {
-            Check.NotNull(setAction, nameof(setAction));
-
-            var extension = CloneExtension();
-
-            setAction(extension);
-
-            ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
+            ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(
+                setAction(OptionsBuilder.Options.FindExtension<TExtension>() ?? new TExtension()));
 
             return (TBuilder)this;
         }

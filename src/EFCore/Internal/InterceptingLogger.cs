@@ -4,7 +4,6 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -25,18 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InterceptingLogger(
-            [NotNull] IDbContextServices contextServices,
-            [NotNull] IServiceProvider serviceProvider,
-            [CanBeNull] IDbContextOptions contextOptions)
+            [NotNull] ILoggerFactory loggerFactory,
+            [CanBeNull] ILoggingOptions loggingOptions)
         {
-            _logger = (contextServices.LoggerFactory
-                       ?? serviceProvider.GetRequiredService<ILoggerFactory>())
-                .CreateLogger(_name);
+            _logger = loggerFactory.CreateLogger(_name);
 
-            _warningsConfiguration
-                = contextOptions
-                    ?.FindExtension<CoreOptionsExtension>()
-                    ?.WarningsConfiguration;
+            _warningsConfiguration = loggingOptions?.WarningsConfiguration;
         }
 
         /// <summary>

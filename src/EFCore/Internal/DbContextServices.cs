@@ -8,9 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -25,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private ICurrentDbContext _currentContext;
         private IModel _modelFromSource;
         private bool _inOnModelCreating;
-        private ILoggerFactory _loggerFactory;
-        private IMemoryCache _memoryCache;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -97,20 +93,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => CoreOptions?.Model
                ?? (_modelFromSource
                    ?? (_modelFromSource = CreateModel()));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ILoggerFactory LoggerFactory
-            => _loggerFactory ?? (_loggerFactory = CoreOptions?.LoggerFactory ?? _scopedProvider?.GetRequiredService<ILoggerFactory>());
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual IMemoryCache MemoryCache
-            => _memoryCache ?? (_memoryCache = CoreOptions?.MemoryCache ?? _scopedProvider?.GetRequiredService<IMemoryCache>());
 
         private CoreOptionsExtension CoreOptions
             => _contextOptions?.FindExtension<CoreOptionsExtension>();

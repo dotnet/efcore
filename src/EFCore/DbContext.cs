@@ -96,13 +96,9 @@ namespace Microsoft.EntityFrameworkCore
 
             _options = options;
 
-            var initializer = GetServiceProvider(options).GetService<IDbSetInitializer>();
-            if (initializer == null)
-            {
-                throw new InvalidOperationException(CoreStrings.NoEfServices);
-            }
-
-            initializer.InitializeSets(this);
+            ServiceProviderCache.Instance.GetOrAdd(options, providerRequired: false)
+                .GetRequiredService<IDbSetInitializer>()
+                .InitializeSets(this);
         }
 
         private IStateManager StateManager
@@ -153,18 +149,13 @@ namespace Microsoft.EntityFrameworkCore
 
                 var options = optionsBuilder.Options;
 
-                _serviceScope = GetServiceProvider(options)
+                _serviceScope = ServiceProviderCache.Instance.GetOrAdd(options, providerRequired: true)
                     .GetRequiredService<IServiceScopeFactory>()
                     .CreateScope();
 
                 var scopedServiceProvider = _serviceScope.ServiceProvider;
 
                 var contextServices = scopedServiceProvider.GetService<IDbContextServices>();
-
-                if (contextServices == null)
-                {
-                    throw new InvalidOperationException(CoreStrings.NoEfServices);
-                }
 
                 contextServices.Initialize(scopedServiceProvider, options, this);
 
@@ -176,22 +167,6 @@ namespace Microsoft.EntityFrameworkCore
             {
                 _initializing = false;
             }
-        }
-
-        private static IServiceProvider GetServiceProvider(IDbContextOptions options)
-        {
-            var coreExtension = options.FindExtension<CoreOptionsExtension>();
-            if (coreExtension?.InternalServiceProvider != null
-                && coreExtension.ReplacedServices != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.InvalidReplaceService(
-                        nameof(DbContextOptionsBuilder.ReplaceService),
-                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
-            }
-
-            return coreExtension?.InternalServiceProvider
-                   ?? ServiceProviderCache.Instance.GetOrAdd(options);
         }
 
         /// <summary>

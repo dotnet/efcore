@@ -6,6 +6,7 @@ using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -31,8 +32,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
-            var extension = GetOrCreateExtension(optionsBuilder);
-            extension.ConnectionString = connectionString;
+            var extension = (SqlServerOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnectionString(connectionString);
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
             ConfigureWarnings(optionsBuilder);
@@ -62,8 +62,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(connection, nameof(connection));
 
-            var extension = GetOrCreateExtension(optionsBuilder);
-            extension.Connection = connection;
+            var extension = (SqlServerOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnection(connection);
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
             ConfigureWarnings(optionsBuilder);
@@ -111,21 +110,20 @@ namespace Microsoft.EntityFrameworkCore
                 (DbContextOptionsBuilder)optionsBuilder, connection, sqlServerOptionsAction);
 
         private static SqlServerOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)
-        {
-            var existing = optionsBuilder.Options.FindExtension<SqlServerOptionsExtension>();
-            return existing != null
-                ? new SqlServerOptionsExtension(existing)
-                : new SqlServerOptionsExtension();
-        }
+            => optionsBuilder.Options.FindExtension<SqlServerOptionsExtension>()
+               ?? new SqlServerOptionsExtension();
 
         private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
         {
-            // Set warnings defaults
-            optionsBuilder.ConfigureWarnings(w =>
-                {
-                    w.Configuration.TryAddExplicit(
-                        RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw);
-                });
+            var coreOptionsExtension
+                = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
+                  ?? new CoreOptionsExtension();
+
+            coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
+                coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
+                    RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw));
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(coreOptionsExtension);
         }
     }
 }

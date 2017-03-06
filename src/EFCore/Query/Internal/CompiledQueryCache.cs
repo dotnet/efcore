@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -31,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public CompiledQueryCache([NotNull] IDbContextServices contextServices)
+        public CompiledQueryCache([NotNull] IMemoryCache memoryCache)
         {
-            _memoryCache = contextServices.MemoryCache;
+            _memoryCache = memoryCache;
         }
 
         /// <summary>

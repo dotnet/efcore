@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.FunkyDataModel;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
@@ -14,26 +13,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     {
         public const string DatabaseName = "FunkyDataQueryTest";
 
-        private readonly IServiceProvider _serviceProvider;
+        private readonly DbContextOptions _options;
 
         private readonly string _connectionString = SqlServerTestStore.CreateConnectionString(DatabaseName);
 
         public FunkyDataQuerySqlServerFixture()
         {
-            _serviceProvider = new ServiceCollection()
+            var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
+
+            _options = new DbContextOptionsBuilder()
+                .EnableSensitiveDataLogging()
+                .UseInternalServiceProvider(serviceProvider)
+                .Options;
         }
 
         public override SqlServerTestStore CreateTestStore()
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
-                        .UseInternalServiceProvider(_serviceProvider);
+                    var optionsBuilder = new DbContextOptionsBuilder(_options)
+                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
                     using (var context = new FunkyDataContext(optionsBuilder.Options))
                     {
@@ -47,14 +50,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override FunkyDataContext CreateContext(SqlServerTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var options = new DbContextOptionsBuilder(_options)
+                .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
+                .Options;
 
-            optionsBuilder
-                .EnableSensitiveDataLogging()
-                .UseInternalServiceProvider(_serviceProvider)
-                .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration());
-
-            var context = new FunkyDataContext(optionsBuilder.Options);
+            var context = new FunkyDataContext(options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

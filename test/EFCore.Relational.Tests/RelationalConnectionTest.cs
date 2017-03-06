@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Can_create_new_connection_lazily_using_given_connection_string()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Lazy_connection_is_opened_and_closed_when_necessary()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public async Task Lazy_connection_is_async_opened_and_closed_when_necessary()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Lazy_connection_is_recreated_if_used_again_after_being_disposed()
         {
             var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" }));
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
 
             Assert.Equal(0, connection.DbConnections.Count);
             var dbConnection = (FakeDbConnection)connection.DbConnection;
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Lazy_connection_is_not_created_just_so_it_can_be_disposed()
         {
             var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" }));
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
 
             connection.Dispose();
 
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             var dbConnection = new FakeDbConnection("Database=FrodoLives");
 
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { Connection = dbConnection })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             var dbConnection = new FakeDbConnection("Database=FrodoLives");
 
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { Connection = dbConnection })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 state: ConnectionState.Open);
 
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { Connection = dbConnection })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 state: ConnectionState.Closed);
 
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { Connection = dbConnection })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 state: ConnectionState.Closed);
 
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { Connection = dbConnection })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         {
             var dbConnection = new FakeDbConnection("Database=FrodoLives");
             var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { Connection = dbConnection }));
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
 
             Assert.Equal(0, connection.DbConnections.Count);
             Assert.Same(dbConnection, connection.DbConnection);
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Connection_is_opened_and_closed_by_using_transaction()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -610,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public async Task Connection_is_opened_and_closed_by_using_transaction_async()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -643,7 +643,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Transaction_can_begin_with_isolation_level()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -670,7 +670,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public async Task Transaction_can_begin_with_isolation_level_async()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -698,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         {
             var connection = new FakeRelationalConnection(
                 CreateOptions(
-                    new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" }));
+                    new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
 
             Assert.Equal(0, connection.DbConnections.Count);
 
@@ -728,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             var dbTransaction = dbConnection.BeginTransaction(IsolationLevel.Unspecified);
 
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { Connection = dbConnection })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
             {
                 Assert.Null(connection.CurrentTransaction);
 
@@ -745,7 +745,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Commit_calls_commit_on_DbTransaction()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -774,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Rollback_calls_rollback_on_DbTransaction()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -803,11 +803,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Can_create_new_connection_with_CommandTimeout()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension
-                {
-                    ConnectionString = "Database=FrodoLives",
-                    CommandTimeout = 99
-                })))
+                CreateOptions(new FakeRelationalOptionsExtension()
+                    .WithConnectionString("Database=FrodoLives")
+                    .WithCommandTimeout(99))))
             {
                 Assert.Equal(99, connection.CommandTimeout);
             }
@@ -817,7 +815,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Can_set_CommandTimeout()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 connection.CommandTimeout = 88;
 
@@ -829,7 +827,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Throws_if_CommandTimeout_out_of_range()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 Assert.Throws<ArgumentException>(
                     () => connection.CommandTimeout = -1);
@@ -874,18 +872,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             Assert.Equal(
                 RelationalStrings.ConnectionAndConnectionString,
                 Assert.Throws<InvalidOperationException>(() => new FakeRelationalConnection(
-                    CreateOptions(new FakeRelationalOptionsExtension
-                    {
-                        Connection = new FakeDbConnection("Database=FrodoLives"),
-                        ConnectionString = "Database=FrodoLives"
-                    }))).Message);
+                    CreateOptions(new FakeRelationalOptionsExtension()
+                        .WithConnection(new FakeDbConnection("Database=FrodoLives"))
+                        .WithConnectionString("Database=FrodoLives")))).Message);
         }
 
         [Fact]
         public void Throws_when_commit_is_called_without_active_transaction()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 
@@ -900,7 +896,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         public void Throws_when_rollback_is_called_without_active_transaction()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
             {
                 Assert.Equal(0, connection.DbConnections.Count);
 

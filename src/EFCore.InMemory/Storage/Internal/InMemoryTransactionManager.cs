@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly ILogger<InMemoryTransactionManager> _logger;
 
-        public InMemoryTransactionManager([NotNull] ILogger<InMemoryTransactionManager> logger)
+        public InMemoryTransactionManager(
+            [NotNull] ILogger<InMemoryTransactionManager> logger)
         {
             Check.NotNull(logger, nameof(logger));
 

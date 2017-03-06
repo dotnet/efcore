@@ -1,11 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
@@ -14,39 +11,34 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
     {
         public static readonly string DatabaseName = "DataAnnotations";
 
-        private readonly IServiceProvider _serviceProvider;
+        private readonly DbContextOptions _options;
 
         public DataAnnotationInMemoryFixture()
         {
-            _serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .BuildServiceProvider();
+            _options = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase(nameof(DataAnnotationInMemoryFixture))
+                .UseInternalServiceProvider(new ServiceCollection()
+                    .AddEntityFrameworkInMemoryDatabase()
+                    .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
+                    .BuildServiceProvider())
+                .ConfigureWarnings(w =>
+                    {
+                        w.Default(WarningBehavior.Throw);
+                        w.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+                    })
+                .Options;
         }
 
         public override InMemoryTestStore CreateTestStore()
             => InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseInMemoryDatabase(nameof(DataAnnotationInMemoryFixture))
-                        .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-                        .UseInternalServiceProvider(_serviceProvider);
-
-                    using (var context = new DataAnnotationContext(optionsBuilder.Options))
+                    using (var context = new DataAnnotationContext(_options))
                     {
                         DataAnnotationModelInitializer.Seed(context);
                     }
                 });
 
         public override DataAnnotationContext CreateContext(InMemoryTestStore testStore)
-            => new DataAnnotationContext(new DbContextOptionsBuilder()
-                .UseInMemoryDatabase(nameof(DataAnnotationInMemoryFixture))
-                .UseInternalServiceProvider(_serviceProvider)
-                .ConfigureWarnings(w =>
-				{
-					w.Default(WarningBehavior.Throw);
-					w.Ignore(InMemoryEventId.TransactionIgnoredWarning);
-				})
-                .Options);
+            => new DataAnnotationContext(_options);
     }
 }

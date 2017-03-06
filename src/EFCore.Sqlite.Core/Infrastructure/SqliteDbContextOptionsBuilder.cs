@@ -29,17 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Clones the configuration in this builder.
-        /// </summary>
-        /// <returns> The cloned configuration. </returns>
-        protected override SqliteOptionsExtension CloneExtension()
-            => new SqliteOptionsExtension(OptionsBuilder.Options.GetExtension<SqliteOptionsExtension>());
-
-        /// <summary>
         ///     Suppresses enforcement of foreign keys in the database.
         /// </summary>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual SqliteDbContextOptionsBuilder SuppressForeignKeyEnforcement()
-            => SetOption(e => e.EnforceForeignKeys = false);
+        public virtual SqliteDbContextOptionsBuilder SuppressForeignKeyEnforcement(bool suppressForeignKeyEnforcement = true)
+            => WithOption(e => e.WithEnforceForeignKeys(!suppressForeignKeyEnforcement));
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -20,37 +21,31 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class WarningsConfigurationBuilder
     {
+        private DbContextOptionsBuilder _optionsBuilder;
+
         /// <summary>
-        ///     <para>
         ///         Initializes a new instance of the <see cref="WarningsConfigurationBuilder" /> class.
-        ///     </para>
-        ///     <para>
-        ///         This class is used within the <see cref="DbContextOptionsBuilder.ConfigureWarnings(System.Action{WarningsConfigurationBuilder})" />
-        ///         API and it is not designed to be directly constructed in your application code.
-        ///     </para>
         /// </summary>
-        /// <param name="warningsConfiguration"> The internal object used to store configuration. </param>
-        public WarningsConfigurationBuilder([CanBeNull] WarningsConfiguration warningsConfiguration)
+        /// <param name="optionsBuilder"> The options builder to which the warnings configuration will be applied. </param>
+        public WarningsConfigurationBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
         {
-            Configuration = warningsConfiguration ?? new WarningsConfiguration();
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
+
+            _optionsBuilder = optionsBuilder;
         }
 
         /// <summary>
-        ///     Gets the internal object used to store configuration.
+        /// 
         /// </summary>
-        public virtual WarningsConfiguration Configuration { get; }
+        public virtual DbContextOptionsBuilder OptionsBuilder => _optionsBuilder;
 
         /// <summary>
         ///     Sets the default behavior when a warning is generated.
         /// </summary>
         /// <param name="warningBehavior"> The desired behavior. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual WarningsConfigurationBuilder Default(WarningBehavior warningBehavior)
-        {
-            Configuration.DefaultBehavior = warningBehavior;
-
-            return this;
-        }
+        public virtual WarningsConfigurationBuilder Default(WarningBehavior warningBehavior) 
+            => WithOption(e => e.WithDefaultBehavior(warningBehavior));
 
         /// <summary>
         ///     Causes an exception to be thrown when the specified core warnings are generated. Database providers (and other extensions)
@@ -65,9 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(coreEventIds, nameof(coreEventIds));
 
-            Configuration.AddExplicit(coreEventIds.Cast<object>(), WarningBehavior.Throw);
-
-            return this;
+            return WithOption(e => e.WithExplicit(coreEventIds.Cast<object>(), WarningBehavior.Throw));
         }
 
         /// <summary>
@@ -83,9 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(coreEventIds, nameof(coreEventIds));
 
-            Configuration.AddExplicit(coreEventIds.Cast<object>(), WarningBehavior.Log);
-
-            return this;
+            return WithOption(e => e.WithExplicit(coreEventIds.Cast<object>(), WarningBehavior.Log));
         }
 
         /// <summary>
@@ -101,7 +92,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(coreEventIds, nameof(coreEventIds));
 
-            Configuration.AddExplicit(coreEventIds.Cast<object>(), WarningBehavior.Ignore);
+            return WithOption(e => e.WithExplicit(coreEventIds.Cast<object>(), WarningBehavior.Ignore));
+        }
+
+        private WarningsConfigurationBuilder WithOption(Func<WarningsConfiguration, WarningsConfiguration> withFunc)
+        {
+            var coreOptionsExtension = _optionsBuilder.Options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension();
+
+            ((IDbContextOptionsBuilderInfrastructure)_optionsBuilder).AddOrUpdateExtension(
+                coreOptionsExtension.WithWarningsConfiguration(withFunc(coreOptionsExtension.WarningsConfiguration)));
 
             return this;
         }

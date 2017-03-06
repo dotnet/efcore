@@ -19,10 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
         {
         }
 
-        public FakeRelationalOptionsExtension(FakeRelationalOptionsExtension copyFrom)
+        protected FakeRelationalOptionsExtension(FakeRelationalOptionsExtension copyFrom)
             : base(copyFrom)
         {
         }
+
+        protected override RelationalOptionsExtension Clone()
+            => new FakeRelationalOptionsExtension(this);
 
         public override bool ApplyServices(IServiceCollection services)
         {

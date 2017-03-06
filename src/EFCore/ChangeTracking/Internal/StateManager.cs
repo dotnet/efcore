@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IDatabase database,
             [NotNull] IConcurrencyDetector concurrencyDetector,
             [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IDbContextOptions contextOptions)
+            [NotNull] ILoggingOptions loggingOptions)
         {
             _factory = factory;
             _subscriber = subscriber;
@@ -68,11 +68,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _concurrencyDetector = concurrencyDetector;
             Context = currentContext.Context;
 
-            if (contextOptions
-                .Extensions
-                .OfType<CoreOptionsExtension>()
-                .FirstOrDefault()
-                ?.IsSensitiveDataLoggingEnabled == true)
+            if (loggingOptions.SensitiveDataLoggingEnabled)
             {
                 _sensitiveLoggingEnabled = true;
             }

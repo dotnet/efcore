@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,25 +12,34 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     {
         public static readonly string DatabaseName = "DataAnnotations";
 
-        private readonly IServiceProvider _serviceProvider;
+        private readonly DbContextOptions _options;
 
         private readonly string _connectionString = SqliteTestStore.CreateConnectionString(DatabaseName);
 
         public DataAnnotationSqliteFixture()
         {
-            _serviceProvider = new ServiceCollection()
+            var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
+
+            _options = new DbContextOptionsBuilder()
+                .EnableSensitiveDataLogging()
+                .UseInternalServiceProvider(serviceProvider)
+                .ConfigureWarnings(w =>
+                    {
+                        w.Default(WarningBehavior.Throw);
+                        w.Ignore(CoreEventId.SensitiveDataLoggingEnabledWarning);
+                    })
+                .Options;
         }
 
         public override SqliteTestStore CreateTestStore()
             => SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseSqlite(_connectionString)
-                        .UseInternalServiceProvider(_serviceProvider);
+                    var optionsBuilder = new DbContextOptionsBuilder(_options)
+                        .UseSqlite(_connectionString);
 
                     using (var context = new DataAnnotationContext(optionsBuilder.Options))
                     {
@@ -44,17 +52,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override DataAnnotationContext CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .EnableSensitiveDataLogging()
+            var optionsBuilder = new DbContextOptionsBuilder(_options)
                 .UseSqlite(
                     testStore.Connection,
-                    b => b.SuppressForeignKeyEnforcement())
-                .UseInternalServiceProvider(_serviceProvider)
-                .ConfigureWarnings(w =>
-                    {
-                        w.Default(WarningBehavior.Throw);
-                        w.Ignore(CoreEventId.SensitiveDataLoggingEnabledWarning);
-                    });
+                    b => b.SuppressForeignKeyEnforcement());
 
             var context = new DataAnnotationContext(optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);

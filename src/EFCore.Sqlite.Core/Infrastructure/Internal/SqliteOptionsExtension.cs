@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqliteOptionsExtension([NotNull] SqliteOptionsExtension copyFrom)
+        protected SqliteOptionsExtension([NotNull] SqliteOptionsExtension copyFrom)
             : base(copyFrom)
         {
             _enforceForeignKeys = copyFrom._enforceForeignKeys;
@@ -39,10 +39,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool EnforceForeignKeys
+        protected override RelationalOptionsExtension Clone() 
+            => new SqliteOptionsExtension(this);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool EnforceForeignKeys => _enforceForeignKeys;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual SqliteOptionsExtension WithEnforceForeignKeys(bool enforceForeignKeys)
         {
-            get { return _enforceForeignKeys; }
-            set { _enforceForeignKeys = value; }
+            var clone = (SqliteOptionsExtension)Clone();
+
+            clone._enforceForeignKeys = enforceForeignKeys;
+
+            return clone;
         }
 
         /// <summary>

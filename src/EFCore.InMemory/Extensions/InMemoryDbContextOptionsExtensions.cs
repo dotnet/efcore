@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -52,15 +53,12 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(databaseName, nameof(databaseName));
 
-            var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>();
-
-            extension = extension != null
-                ? new InMemoryOptionsExtension(extension)
-                : new InMemoryOptionsExtension();
+            var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
+                ?? new InMemoryOptionsExtension();
 
             if (databaseName != null)
             {
-                extension.StoreName = databaseName;
+                extension = extension.WithStoreName(databaseName);
             }
 
             ConfigureWarnings(optionsBuilder);
@@ -114,11 +112,15 @@ namespace Microsoft.EntityFrameworkCore
         private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
         {
             // Set warnings defaults
-            optionsBuilder.ConfigureWarnings(w =>
-                {
-                    w.Configuration.TryAddExplicit(
-                        InMemoryEventId.TransactionIgnoredWarning, WarningBehavior.Throw);
-                });
+            var coreOptionsExtension
+                = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
+                  ?? new CoreOptionsExtension();
+
+            coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
+                coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
+                    InMemoryEventId.TransactionIgnoredWarning, WarningBehavior.Throw));
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(coreOptionsExtension);
         }
     }
 }

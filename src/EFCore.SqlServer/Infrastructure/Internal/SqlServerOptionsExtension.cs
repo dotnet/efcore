@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqlServerOptionsExtension([NotNull] SqlServerOptionsExtension copyFrom)
+        protected SqlServerOptionsExtension([NotNull] SqlServerOptionsExtension copyFrom)
             : base(copyFrom)
         {
             _rowNumberPaging = copyFrom._rowNumberPaging;
@@ -39,10 +39,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool? RowNumberPaging
+        protected override RelationalOptionsExtension Clone()
+            => new SqlServerOptionsExtension(this);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool? RowNumberPaging => _rowNumberPaging;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual SqlServerOptionsExtension WithRowNumberPaging(bool rowNumberPaging)
         {
-            get { return _rowNumberPaging; }
-            set { _rowNumberPaging = value; }
+            var clone = (SqlServerOptionsExtension)Clone();
+
+            clone._rowNumberPaging = rowNumberPaging;
+
+            return clone;
         }
 
         /// <summary>

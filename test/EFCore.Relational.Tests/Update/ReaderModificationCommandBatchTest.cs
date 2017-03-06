@@ -629,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                     executeReaderAsync: (c, b, ct) => Task.FromResult(dbDataReader),
                     executeReader: (c, b) => dbDataReader));
 
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
             var options = CreateOptions(optionsExtension);
 
@@ -639,12 +639,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
             => new FakeRelationalConnection(options ?? CreateOptions());
 
-        public static IDbContextOptions CreateOptions(FakeRelationalOptionsExtension optionsExtension = null)
+        public static IDbContextOptions CreateOptions(RelationalOptionsExtension optionsExtension = null)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
-                .AddOrUpdateExtension(optionsExtension ?? new FakeRelationalOptionsExtension { ConnectionString = ConnectionString });
+                .AddOrUpdateExtension(optionsExtension
+                                      ?? new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString));
 
             return optionsBuilder.Options;
         }

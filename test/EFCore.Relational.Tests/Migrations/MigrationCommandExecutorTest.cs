@@ -252,10 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             var fakeConnection =
                 CreateConnection(
                     CreateOptions(
-                        new FakeRelationalOptionsExtension
-                        {
-                            Connection = fakeDbConnection
-                        }));
+                        new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection)));
 
             var commandList = new List<MigrationCommand>
             {
@@ -289,12 +286,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
             => new FakeRelationalConnection(options ?? CreateOptions());
 
-        private static IDbContextOptions CreateOptions(FakeRelationalOptionsExtension optionsExtension = null)
+        private static IDbContextOptions CreateOptions(RelationalOptionsExtension optionsExtension = null)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
-                .AddOrUpdateExtension(optionsExtension ?? new FakeRelationalOptionsExtension { ConnectionString = ConnectionString });
+                .AddOrUpdateExtension(optionsExtension
+                                      ?? new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString));
 
             return optionsBuilder.Options;
         }

@@ -25,10 +25,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     required services when EF is creating an service provider.
         /// </summary>
         /// <param name="services"> The collection to add services to. </param>
-        /// <returns>
-        ///     True if core EF services were registered.
-        ///     False if no services or only non-core services were registered.
-        /// </returns>
+        /// <returns> True if a database provider and was registered; false otherwise. </returns>
         bool ApplyServices([NotNull] IServiceCollection services);
+
+        /// <summary>
+        ///     Returns a hash code created from any options that would cause a new <see cref="IServiceProvider" />
+        ///     to be needed. Most extensions do not have any such options and should return zero.
+        /// </summary>
+        /// <returns> A hash over options that require a new service provider when changed. </returns>
+        long GetServiceProviderHashCode();
+
+        /// <summary>
+        ///     Gives the extension a chance to validate that all options in the extension are valid.
+        ///     Most extensions do not have invalid combinations and so this will be a no-op.
+        ///     If options are invalid, then an exception should be thrown.
+        /// </summary>
+        /// <param name="options"> The options being validated. </param>
+        void Validate([NotNull] IDbContextOptions options);
     }
 }

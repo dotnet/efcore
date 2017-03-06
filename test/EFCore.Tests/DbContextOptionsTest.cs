@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var optionsBuilder = new DbContextOptionsBuilder().UseModel(model).EnableSensitiveDataLogging();
 
             Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
-            Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled);
+            Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>().SensitiveDataLoggingEnabled);
         }
 
         [Fact]
@@ -104,14 +103,24 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             public string Something { get; set; }
 
-            public virtual bool ApplyServices(IServiceCollection services)
-                => false;
+            public virtual bool ApplyServices(IServiceCollection services) => false;
+
+            public virtual long GetServiceProviderHashCode() => 0;
+
+            public virtual void Validate(IDbContextOptions options)
+            {
+            }
         }
 
         private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
         {
-            public virtual bool ApplyServices(IServiceCollection services)
-                => false;
+            public virtual bool ApplyServices(IServiceCollection services) => false;
+
+            public virtual long GetServiceProviderHashCode() => 0;
+
+            public virtual void Validate(IDbContextOptions options)
+            {
+            }
         }
 
         [Fact]

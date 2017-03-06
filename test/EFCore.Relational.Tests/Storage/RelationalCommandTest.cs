@@ -75,11 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         [Fact]
         public void Configures_DbCommand_with_timeout()
         {
-            var optionsExtension = new FakeRelationalOptionsExtension
-            {
-                ConnectionString = ConnectionString,
-                CommandTimeout = 42
-            };
+            var optionsExtension = new FakeRelationalOptionsExtension()
+                .WithConnectionString(ConnectionString)
+                .WithCommandTimeout(42);
 
             var fakeConnection = CreateConnection(CreateOptions(optionsExtension));
 
@@ -111,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                             return 1;
                         }));
 
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
             var options = CreateOptions(optionsExtension);
 
@@ -150,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                             return Task.FromResult(1);
                         }));
 
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
             var options = CreateOptions(optionsExtension);
 
@@ -189,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                             return "ExecuteScalar Result";
                         }));
 
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
             var options = CreateOptions(optionsExtension);
 
@@ -228,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                             return Task.FromResult<object>("ExecuteScalar Result");
                         }));
 
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
             var options = CreateOptions(optionsExtension);
 
@@ -269,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                             return dbDataReader;
                         }));
 
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
             var options = CreateOptions(optionsExtension);
 
@@ -317,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                             return Task.FromResult<DbDataReader>(dbDataReader);
                         }));
 
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
             var options = CreateOptions(optionsExtension);
 
@@ -753,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                     (c, ct) => { throw exception; },
                     (c, cb, ct) => { throw exception; }));
 
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
             var options = CreateOptions(optionsExtension);
 
@@ -795,7 +793,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                     (c, ct) => { throw exception; },
                     (c, cb, ct) => { throw exception; }));
 
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
             var options = CreateOptions(optionsExtension);
 
@@ -841,7 +839,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                     (c, ct) => { throw exception; },
                     (c, cb, ct) => { throw exception; }));
 
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
             var options = CreateOptions(optionsExtension);
 
@@ -885,7 +883,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 logger: new SensitiveDataLogger<RelationalCommand>(
                     new SensitiveDataLoggerDependencies<RelationalCommand>(
                         new ListLogger<RelationalCommand>(log),
-                        options)),
+                        new FakeLoggingOptions(false))),
                 commandText: "Logged Command",
                 parameters: new[]
                 {
@@ -921,9 +919,9 @@ Logged Command",
             string diagnosticName,
             bool async)
         {
-            var optionsExtension = new FakeRelationalOptionsExtension { ConnectionString = ConnectionString };
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString);
 
-            var options = CreateOptions(optionsExtension, logParameters: true);
+            var options = CreateOptions(optionsExtension);
 
             var log = new List<Tuple<LogLevel, string>>();
 
@@ -933,7 +931,7 @@ Logged Command",
                 logger: new SensitiveDataLogger<RelationalCommand>(
                     new SensitiveDataLoggerDependencies<RelationalCommand>(
                         new ListLogger<RelationalCommand>(log),
-                        options)),
+                        new FakeLoggingOptions(true))),
                 commandText: "Logged Command",
                 parameters: new[]
                 {
@@ -1035,7 +1033,7 @@ Logged Command",
                     (c, ct) => { throw exception; },
                     (c, cb, ct) => { throw exception; }));
 
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
             var options = CreateOptions(optionsExtension);
 
@@ -1092,21 +1090,37 @@ Logged Command",
             => new FakeRelationalConnection(options ?? CreateOptions());
 
         private static IDbContextOptions CreateOptions(
-            FakeRelationalOptionsExtension optionsExtension = null, bool logParameters = false)
+            RelationalOptionsExtension optionsExtension = null)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            if (logParameters)
-            {
-                optionsBuilder.EnableSensitiveDataLogging();
-            }
-
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
-                .AddOrUpdateExtension(optionsExtension ?? new FakeRelationalOptionsExtension { ConnectionString = ConnectionString });
+                .AddOrUpdateExtension(optionsExtension
+                                      ?? new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString));
 
             return optionsBuilder.Options;
         }
 
+        private class FakeLoggingOptions : ILoggingOptions
+        {
+            public FakeLoggingOptions(bool sensitiveDataLoggingEnabled)
+            {
+                SensitiveDataLoggingEnabled = sensitiveDataLoggingEnabled;
+            }
+
+            public void Initialize(IDbContextOptions options)
+            {
+            }
+
+            public void Validate(IDbContextOptions options)
+            {
+            }
+
+            public bool SensitiveDataLoggingEnabled { get; }
+            public bool SensitiveDataLoggingWarned { get; set; }
+            public WarningsConfiguration WarningsConfiguration => null;
+        }
+        
         private IRelationalCommand CreateRelationalCommand(
             ISensitiveDataLogger logger = null,
             DiagnosticSource diagnosticSource = null,

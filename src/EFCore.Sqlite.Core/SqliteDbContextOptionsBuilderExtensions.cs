@@ -6,6 +6,7 @@ using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
@@ -30,8 +31,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
-            var extension = GetOrCreateExtension(optionsBuilder);
-            extension.ConnectionString = connectionString;
+            var extension = (SqliteOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnectionString(connectionString);
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
             ConfigureWarnings(optionsBuilder);
@@ -60,8 +60,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(connection, nameof(connection));
 
-            var extension = GetOrCreateExtension(optionsBuilder);
-            extension.Connection = connection;
+            var extension = (SqliteOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnection(connection);
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
             ConfigureWarnings(optionsBuilder);
@@ -108,22 +107,20 @@ namespace Microsoft.EntityFrameworkCore
                 (DbContextOptionsBuilder)optionsBuilder, connection, sqliteOptionsAction);
 
         private static SqliteOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder options)
-        {
-            var existingExtension = options.Options.FindExtension<SqliteOptionsExtension>();
-
-            return existingExtension != null
-                ? new SqliteOptionsExtension(existingExtension)
-                : new SqliteOptionsExtension();
-        }
+            => options.Options.FindExtension<SqliteOptionsExtension>()
+               ?? new SqliteOptionsExtension();
 
         private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
         {
-            // Set warnings defaults
-            optionsBuilder.ConfigureWarnings(w =>
-                {
-                    w.Configuration.TryAddExplicit(
-                        RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw);
-                });
+            var coreOptionsExtension
+                = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
+                  ?? new CoreOptionsExtension();
+
+            coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
+                coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
+                    RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw));
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(coreOptionsExtension);
         }
     }
 }

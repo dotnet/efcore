@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public InMemoryOptionsExtension([NotNull] InMemoryOptionsExtension copyFrom)
+        protected InMemoryOptionsExtension([NotNull] InMemoryOptionsExtension copyFrom)
         {
             _storeName = copyFrom._storeName;
         }
@@ -36,10 +36,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string StoreName
+        protected virtual InMemoryOptionsExtension Clone() => new InMemoryOptionsExtension(this);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual string StoreName => _storeName;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InMemoryOptionsExtension WithStoreName([NotNull] string storeName)
         {
-            get { return _storeName; }
-            [param: NotNull] set { _storeName = value; }
+            var clone = Clone();
+
+            clone._storeName = storeName;
+
+            return clone;
         }
 
         /// <summary>
@@ -53,6 +68,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
             services.AddEntityFrameworkInMemoryDatabase();
 
             return true;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual long GetServiceProviderHashCode() => 0;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void Validate(IDbContextOptions options)
+        {
         }
     }
 }

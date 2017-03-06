@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.NullSemanticsModel;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
@@ -14,26 +13,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     {
         public static readonly string DatabaseName = "NullSemanticsQueryTest";
 
-        private readonly IServiceProvider _serviceProvider;
+        private readonly DbContextOptions _options;
 
         private readonly string _connectionString = SqlServerTestStore.CreateConnectionString(DatabaseName);
 
         public NullSemanticsQuerySqlServerFixture()
         {
-            _serviceProvider = new ServiceCollection()
+            var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
+
+            _options = new DbContextOptionsBuilder()
+                .EnableSensitiveDataLogging()
+                .UseInternalServiceProvider(serviceProvider)
+                .Options;
         }
 
         public override SqlServerTestStore CreateTestStore()
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    using (var context = new NullSemanticsContext(new DbContextOptionsBuilder()
-                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
-                        .UseInternalServiceProvider(_serviceProvider).Options))
+                    using (var context = new NullSemanticsContext(new DbContextOptionsBuilder(_options)
+                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration()).Options))
                     {
                         context.Database.EnsureCreated();
                         NullSemanticsModelInitializer.Seed(context);
@@ -45,9 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override NullSemanticsContext CreateContext(SqlServerTestStore testStore, bool useRelationalNulls)
         {
-            var context = new NullSemanticsContext(new DbContextOptionsBuilder()
-                .EnableSensitiveDataLogging()
-                .UseInternalServiceProvider(_serviceProvider)
+            var options = new DbContextOptionsBuilder(_options)
                 .UseSqlServer(
                     testStore.Connection,
                     b =>
@@ -57,7 +58,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                             {
                                 b.UseRelationalNulls();
                             }
-                        }).Options);
+                        }).Options;
+
+            var context = new NullSemanticsContext(options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

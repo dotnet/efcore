@@ -46,6 +46,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     A warning during model validation indicating a key is configured on shadow properties.
         /// </summary>
-        ModelValidationShadowKeyWarning
+        ModelValidationShadowKeyWarning,
+
+        /// <summary>
+        ///     An 'IServiceProvider' was created for internal use by Entity Framework.
+        /// </summary>
+        ServiceProviderCreated,
+
+        /// <summary>
+        ///     More than twenty 'IServiceProvider' instances have been created for internal use by Entity Framework.
+        ///     Consider reviewing calls on 'DbContextOptionsBuilder' that may require new service providers to be built.
+        /// </summary>
+        ManyServiceProvidersCreated
     }
 }

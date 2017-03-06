@@ -366,12 +366,40 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("NoEfServices");
 
         /// <summary>
-        ///     A call was made to {replaceService}, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to {useInternalServiceProvider}, or build replacement services into the service provider before passing it to {useInternalServiceProvider}.
+        ///     A call was made to '{replaceService}', but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or build replacement services into the service provider before passing it to '{useInternalServiceProvider}'.
         /// </summary>
         public static string InvalidReplaceService([CanBeNull] object replaceService, [CanBeNull] object useInternalServiceProvider)
             => string.Format(
                 GetString("InvalidReplaceService", nameof(replaceService), nameof(useInternalServiceProvider)),
                 replaceService, useInternalServiceProvider);
+
+        /// <summary>
+        ///     A call was made to '{useService}', but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or build the '{service}' services to use into the service provider before passing it to '{useInternalServiceProvider}'.
+        /// </summary>
+        public static string InvalidUseService([CanBeNull] object useService, [CanBeNull] object useInternalServiceProvider, [CanBeNull] object service)
+            => string.Format(
+                GetString("InvalidUseService", nameof(useService), nameof(useInternalServiceProvider), nameof(service)),
+                useService, useInternalServiceProvider, service);
+
+        /// <summary>
+        ///     A call was made to '{optionCall}' that changed an option that must be constant within a service provider, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or ensure that the configuration for '{optionCall}' does not change for all uses of a given service provider passed to '{useInternalServiceProvider}'.
+        /// </summary>
+        public static string SingletonOptionChanged([CanBeNull] object optionCall, [CanBeNull] object useInternalServiceProvider)
+            => string.Format(
+                GetString("SingletonOptionChanged", nameof(optionCall), nameof(useInternalServiceProvider)),
+                optionCall, useInternalServiceProvider);
+
+        /// <summary>
+        ///     An 'IServiceProvider' was created for internal use by Entity Framework.
+        /// </summary>
+        public static string ServiceProviderCreated
+            => GetString("ServiceProviderCreated");
+
+        /// <summary>
+        ///     More than twenty 'IServiceProvider' instances have been created for internal use by Entity Framework. Consider reviewing calls on 'DbContextOptionsBuilder' that may require new service providers to be built.
+        /// </summary>
+        public static string ManyServiceProvidersCreated
+            => GetString("ManyServiceProvidersCreated");
 
         /// <summary>
         ///     The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by EF and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.

@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             IDatabase database,
             IConcurrencyDetector concurrencyDetector,
             ICurrentDbContext currentContext,
-            IDbContextOptions contextOptions)
-            : base(factory, subscriber, notifier, valueGeneration, model, database, concurrencyDetector, currentContext, contextOptions)
+            ILoggingOptions loggingOptions)
+            : base(factory, subscriber, notifier, valueGeneration, model, database, concurrencyDetector, currentContext, loggingOptions)
         {
         }
 

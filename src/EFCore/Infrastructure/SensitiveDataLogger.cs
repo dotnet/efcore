@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -23,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public class SensitiveDataLogger<T> : ISensitiveDataLogger<T>
     {
         private readonly ILogger<T> _logger;
-        private readonly CoreOptionsExtension _coreOptionsExtension;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SensitiveDataLogger{T}" /> class.
@@ -35,11 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
+
             _logger = dependencies.Logger;
-            _coreOptionsExtension
-                = dependencies.ContextOptions?.Extensions
-                    .OfType<CoreOptionsExtension>()
-                    .FirstOrDefault();
         }
 
         /// <summary>
@@ -54,22 +49,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             get
             {
-                if (_coreOptionsExtension == null)
+                var options = Dependencies.LoggingOptions;
+                if (options == null)
                 {
                     return false;
                 }
 
-                if (_coreOptionsExtension.IsSensitiveDataLoggingEnabled
-                    && !_coreOptionsExtension.SensitiveDataLoggingWarned)
+                if (options.SensitiveDataLoggingEnabled
+                    && !options.SensitiveDataLoggingWarned)
                 {
                     _logger.LogWarning(
                         CoreEventId.SensitiveDataLoggingEnabledWarning,
                         () => CoreStrings.SensitiveDataLoggingEnabled);
 
-                    _coreOptionsExtension.SensitiveDataLoggingWarned = true;
+                    options.SensitiveDataLoggingWarned = true;
                 }
 
-                return _coreOptionsExtension.IsSensitiveDataLoggingEnabled;
+                return options.SensitiveDataLoggingEnabled;
             }
         }
 
