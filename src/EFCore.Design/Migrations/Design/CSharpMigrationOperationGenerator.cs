@@ -1441,6 +1441,68 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
+        protected virtual void Generate([NotNull] DeleteOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".Delete(");
+
+            using (builder.Indent())
+            {
+                if (operation.Schema != null)
+                {
+                    builder
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema))
+                        .AppendLine(",");
+                }
+
+                builder
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .AppendLine(",");
+
+                builder
+                    .Append("keyColumns: new[] { ")
+                    .Append(string.Join(", ", operation.KeyColumns.Select(_code.Literal)))
+                    .AppendLine(" },");
+
+                builder
+                    .AppendLine("keyValues: new object[,]")
+                    .AppendLine("{");
+                using (builder.Indent())
+                {
+                    var rowCount = operation.KeyValues.GetLength(0);
+                    var valueCount = operation.KeyValues.GetLength(1);
+                    for (var i = 0; i < rowCount; i++)
+                    {
+                        if (i != 0)
+                        {
+                            builder.AppendLine(",");
+                        }
+
+                        builder.Append("{ ");
+                        for (var j = 0; j < valueCount; j++)
+                        {
+                            if (j != 0)
+                            {
+                                builder.Append(", ");
+                            }
+
+                            builder.Append(_code.UnknownLiteral(operation.KeyValues[i, j]));
+                        }
+
+                        builder.Append(" }");
+                    }
+                }
+
+                builder
+                    .AppendLine()
+                    .Append("})");
+            }
+        }
+
         protected virtual void Annotations(
             [NotNull] IEnumerable<Annotation> annotations,
             [NotNull] IndentedStringBuilder builder)

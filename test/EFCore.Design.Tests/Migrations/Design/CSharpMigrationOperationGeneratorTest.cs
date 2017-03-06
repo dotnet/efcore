@@ -1938,7 +1938,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
         }
 
         [Fact]
-        public void InsertRowsOperation_all_args()
+        public void InsertOperation_all_args()
         {
             Test(
                 new InsertOperation
@@ -1974,6 +1974,46 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                     Assert.Equal(2, o.Columns.Length);
                     Assert.Equal(10, o.Values.Length);
                     Assert.Equal("John Snow", o.Values[2, 1]);
+                });
+        }
+
+        [Fact]
+        public void DeleteOperation_all_args()
+        {
+            Test(
+                new DeleteOperation
+                {
+                    Schema = "dbo",
+                    Table = "People",
+                    KeyColumns = new[] { "First Name", "Last Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "Hodor", null },
+                        { "Daenerys", "Targaryen" },
+                        { "John", "Snow" },
+                        { "Arya", "Stark" },
+                        { "Harry", "Strickland" },
+                    }
+                },
+                "mb.Delete(" + EOL +
+                "    schema: \"dbo\"," + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
+                "    keyValues: new object[,]" + EOL +
+                "    {" + EOL +
+                "        { \"Hodor\", null }," + EOL +
+                "        { \"Daenerys\", \"Targaryen\" }," + EOL +
+                "        { \"John\", \"Snow\" }," + EOL +
+                "        { \"Arya\", \"Stark\" }," + EOL +
+                "        { \"Harry\", \"Strickland\" }" + EOL +
+                "    });",
+                o =>
+                {
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(2, o.KeyColumns.Length);
+                    Assert.Equal(10, o.KeyValues.Length);
+                    Assert.Equal("Snow", o.KeyValues[2, 1]);
                 });
         }
 
