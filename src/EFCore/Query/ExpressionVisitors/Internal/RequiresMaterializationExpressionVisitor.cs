@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -253,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private void DemoteQuerySource(IQuerySource querySource)
         {
-            HandleUnderlyingQuerySources(querySource, DemoteQuerySource);
+            querySource.VisitUnderlyingQuerySources(DemoteQuerySource);
 
             if (_querySourceReferences.ContainsKey(querySource))
             {
@@ -263,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private void PromoteQuerySource(IQuerySource querySource)
         {
-            HandleUnderlyingQuerySources(querySource, PromoteQuerySource);
+            querySource.VisitUnderlyingQuerySources(PromoteQuerySource);
 
             if (!_querySourceReferences.ContainsKey(querySource))
             {
@@ -272,60 +273,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             else
             {
                 _querySourceReferences[querySource]++;
-            }
-        }
-
-        private void HandleUnderlyingQuerySources(IQuerySource querySource, Action<IQuerySource> action)
-        {
-            if (querySource is GroupResultOperator groupResultOperator)
-            {
-                var keySelectorExpression
-                    = groupResultOperator.KeySelector is SubQueryExpression keySelectorSubQuery
-                        ? keySelectorSubQuery.QueryModel.SelectClause.Selector
-                        : groupResultOperator.KeySelector;
-
-                if (keySelectorExpression is QuerySourceReferenceExpression keySelectorQsre)
-                {
-                    action(keySelectorQsre.ReferencedQuerySource);
-                }
-
-                var elementSelectorExpression
-                    = groupResultOperator.ElementSelector is SubQueryExpression elementSelectorSubQuery
-                        ? elementSelectorSubQuery.QueryModel.SelectClause.Selector
-                        : groupResultOperator.ElementSelector;
-
-                if (elementSelectorExpression is QuerySourceReferenceExpression elementSelectorQsre)
-                {
-                    action(elementSelectorQsre.ReferencedQuerySource);
-                }
-            }
-            else if (querySource is GroupJoinClause groupJoinClause)
-            {
-                action(groupJoinClause.JoinClause);
-            }
-            else
-            {
-                var underlyingExpression
-                    = ((querySource as FromClauseBase)?.FromExpression)
-                        ?? ((querySource as JoinClause)?.InnerSequence);
-
-                if (underlyingExpression is SubQueryExpression subQueryExpression)
-                {
-                    var finalResultOperator = subQueryExpression.QueryModel.ResultOperators.LastOrDefault();
-
-                    if (finalResultOperator is IQuerySource querySourceResultOperator)
-                    {
-                        action(querySourceResultOperator);
-                    }
-                    else if (subQueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression qsre)
-                    {
-                        action(qsre.ReferencedQuerySource);
-                    }
-                }
-                else if (underlyingExpression is QuerySourceReferenceExpression qsre)
-                {
-                    action(qsre.ReferencedQuerySource);
-                }
             }
         }
 
