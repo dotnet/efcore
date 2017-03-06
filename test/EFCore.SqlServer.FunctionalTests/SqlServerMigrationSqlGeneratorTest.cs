@@ -1155,6 +1155,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 "UPDATE [People]" + EOL +
                 "SET [Full Name] = N'Daenerys Stormborn'" + EOL +
                 "WHERE ([Id] = 1);" + EOL +
+                "GO" + EOL +
+                EOL +
                 "UPDATE [People]" + EOL +
                 "SET [Full Name] = N'Homeless Harry Strickland'" + EOL +
                 "WHERE ([Id] = 4);" + EOL,
@@ -1169,9 +1171,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 "UPDATE [People]" + EOL +
                 "SET [First Name] = N'Dany'" + EOL +
                 "WHERE ([Id] = 1 AND [Last Name] = N'Targaryen');" + EOL +
+                "GO" + EOL +
+                EOL +
                 "UPDATE [People]" + EOL +
                 "SET [First Name] = N'Homeless Harry'" + EOL +
                 "WHERE ([Id] = 4 AND [Last Name] = N'Strickland');" + EOL,
+                Sql);
+        }
+
+        public override void UpdateRowsOperation_multiple_columns()
+        {
+            base.UpdateRowsOperation_multiple_columns();
+
+            Assert.Equal(
+                "UPDATE [People]" + EOL +
+                "SET [First Name] = N'Daenerys'," + EOL +
+                "    [Nickname] = N'Dany'" + EOL +
+                "WHERE ([Id] = 1);" + EOL +
+                "GO" + EOL +
+                EOL +
+                "UPDATE [People]" + EOL +
+                "SET [First Name] = N'Harry'," + EOL +
+                "    [Nickname] = N'Homeless'" + EOL +
+                "WHERE ([Id] = 4);" + EOL,
                 Sql);
         }
 

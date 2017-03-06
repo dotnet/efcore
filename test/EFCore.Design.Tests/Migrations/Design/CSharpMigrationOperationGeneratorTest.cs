@@ -1941,7 +1941,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
         public void InsertRowsOperation_all_args()
         {
             Test(
-                new InsertRowsOperation
+                new InsertOperation
                 {
                     Schema = "dbo",
                     Table = "People",
@@ -1955,7 +1955,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                         { 4, "Harry Strickland" },
                     }
                 },
-                "mb.InsertRows(" + EOL +
+                "mb.Insert(" + EOL +
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"People\"," + EOL +
                 "    columns: new[] { \"Id\", \"Full Name\" }," + EOL +

@@ -680,7 +680,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             return new OperationBuilder<SqlOperation>(operation);
         }
 
-        public virtual OperationBuilder<InsertRowsOperation> InsertRows(
+        public virtual OperationBuilder<InsertOperation> Insert(
             [NotNull] string table,
             [CanBeNull] string schema = null,
             [CanBeNull] string[] columns = null,
@@ -688,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotEmpty(table, nameof(table));
 
-            var operation = new InsertRowsOperation
+            var operation = new InsertOperation
             {
                 Table = table,
                 Schema = schema,
@@ -697,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             };
             Operations.Add(operation);
 
-            return new OperationBuilder<InsertRowsOperation>(operation);
+            return new OperationBuilder<InsertOperation>(operation);
         }
     }
 }

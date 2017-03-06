@@ -1379,12 +1379,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
-        protected virtual void Generate([NotNull] InsertRowsOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate([NotNull] InsertOperation operation, [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.AppendLine(".InsertRows(");
+            builder.AppendLine(".Insert(");
 
             using (builder.Indent())
             {
@@ -1415,17 +1415,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     var valueCount = operation.Values.GetLength(1);
                     for (var i = 0; i < rowCount; i++)
                     {
-                        builder
-                            .Append("{ ")
-                            .Append(string.Join(
-                                ", ",
-                                Enumerable.Range(0, valueCount).Select(j => _code.UnknownLiteral(operation.Values[i, j]))))
-                            .Append(" }");
-
-                        if (i != rowCount - 1)
+                        if (i != 0)
                         {
                             builder.AppendLine(",");
                         }
+
+                        builder.Append("{ ");
+                        for (var j = 0; j < valueCount; j++)
+                        {
+                            if (j != 0)
+                            {
+                                builder.Append(", ");
+                            }
+
+                            builder.Append(_code.UnknownLiteral(operation.Values[i, j]));
+                        }
+
+                        builder.Append(" }");
                     }
                 }
 

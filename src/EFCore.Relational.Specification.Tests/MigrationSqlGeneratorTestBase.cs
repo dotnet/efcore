@@ -565,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
         [Fact]
         public virtual void InsertRowsOperation()
             => Generate(
-                new InsertRowsOperation
+                new InsertOperation
                 {
                     Table = "People",
                     Columns = new[] { "Id", "Full Name" },
@@ -582,11 +582,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
         [Fact]
         public virtual void DeleteRowsOperation_simple_key()
             => Generate(
-                new DeleteRowsOperation
+                new DeleteOperation
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id" },
-                    Keys = new object[,]
+                    KeyValues = new object[,]
                     {
                         { 2 },
                         { 4 }
@@ -596,11 +596,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
         [Fact]
         public virtual void DeleteRowsOperation_composite_key()
             => Generate(
-                new DeleteRowsOperation
+                new DeleteOperation
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id", "Full Name" },
-                    Keys = new object[,]
+                    KeyValues = new object[,]
                     {
                         { 1, "Daenerys Targaryen" },
                         { 2, "John Snow" }
@@ -610,30 +610,60 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
         [Fact]
         public virtual void UpdateRowsOperation_simple_key()
             => Generate(
-                new UpdateRowsOperation
+                new UpdateOperation
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id" },
-                    Columns = new[] { "Id", "Full Name" },
+                    KeyValues = new object[,]
+                    {
+                        { 1 },
+                        { 4 }
+                    },
+                    Columns = new[] { "Full Name" },
                     Values = new object[,]
                     {
-                        { 1, "Daenerys Stormborn" },
-                        { 4, "Homeless Harry Strickland" }
+                        { "Daenerys Stormborn" },
+                        { "Homeless Harry Strickland" }
                     }
                 });
 
         [Fact]
         public virtual void UpdateRowsOperation_composite_key()
             => Generate(
-                new UpdateRowsOperation
+                new UpdateOperation
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id", "Last Name" },
-                    Columns = new[] { "Id", "First Name", "Last Name" },
+                    KeyValues = new object[,]
+                    {
+                        { 1, "Targaryen" },
+                        { 4, "Strickland" }
+                    },
+                    Columns = new[] { "First Name" },
                     Values = new object[,]
                     {
-                        { 1, "Dany", "Targaryen" },
-                        { 4, "Homeless Harry", "Strickland" }
+                        { "Dany" },
+                        { "Homeless Harry" }
+                    }
+                });
+
+        [Fact]
+        public virtual void UpdateRowsOperation_multiple_columns()
+            => Generate(
+                new UpdateOperation
+                {
+                    Table = "People",
+                    KeyColumns = new[] { "Id" },
+                    KeyValues = new object[,]
+                    {
+                        { 1 },
+                        { 4 }
+                    },
+                    Columns = new[] { "First Name", "Nickname" },
+                    Values = new object[,]
+                    {
+                        { "Daenerys", "Dany" },
+                        { "Harry", "Homeless" }
                     }
                 });
 

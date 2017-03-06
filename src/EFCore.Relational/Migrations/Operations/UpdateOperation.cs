@@ -5,11 +5,13 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
-    public class DeleteRowsOperation : MigrationOperation
+    public class UpdateOperation : MigrationOperation
     {
         public virtual string Table { get; [param: NotNull] set; }
         public virtual string Schema { get; [param: CanBeNull] set; }
         public virtual string[] KeyColumns { get; [param: NotNull] set; }
-        public virtual object[,] Keys { get; [param: NotNull] set; }
+        public virtual object[,] KeyValues { get; [param: NotNull] set; }
+        public virtual string[] Columns { get; [param: NotNull] set; }
+        public virtual object[,] Values { get; [param: NotNull] set; }
     }
 }
