@@ -719,5 +719,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             return new OperationBuilder<DeleteOperation>(operation);
         }
+
+        public virtual OperationBuilder<UpdateOperation> Update(
+            [NotNull] string table,
+            [CanBeNull] string schema = null,
+            [CanBeNull] string[] keyColumns = null,
+            [CanBeNull] object[,] keyValues = null,
+            [CanBeNull] string[] columns = null,
+            [CanBeNull] object[,] values = null)
+        {
+            Check.NotEmpty(table, nameof(table));
+
+            var operation = new UpdateOperation
+            {
+                Table = table,
+                Schema = schema,
+                KeyColumns = keyColumns,
+                KeyValues = keyValues,
+                Columns = columns,
+                Values = values
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<UpdateOperation>(operation);
+        }
     }
 }

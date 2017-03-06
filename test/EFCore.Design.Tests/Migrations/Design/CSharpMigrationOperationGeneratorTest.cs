@@ -1952,7 +1952,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                         { 1, "Daenerys Targaryen" },
                         { 2, "John Snow" },
                         { 3, "Arya Stark" },
-                        { 4, "Harry Strickland" },
+                        { 4, "Harry Strickland" }
                     }
                 },
                 "mb.Insert(" + EOL +
@@ -1992,7 +1992,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                         { "Daenerys", "Targaryen" },
                         { "John", "Snow" },
                         { "Arya", "Stark" },
-                        { "Harry", "Strickland" },
+                        { "Harry", "Strickland" }
                     }
                 },
                 "mb.Delete(" + EOL +
@@ -2014,6 +2014,55 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                     Assert.Equal(2, o.KeyColumns.Length);
                     Assert.Equal(10, o.KeyValues.Length);
                     Assert.Equal("Snow", o.KeyValues[2, 1]);
+                });
+        }
+
+        [Fact]
+        public void UpdateOperation_all_args()
+        {
+            Test(
+                new UpdateOperation
+                {
+                    Schema = "dbo",
+                    Table = "People",
+                    KeyColumns = new[] { "First Name", "Last Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "Hodor", null },
+                        { "Daenerys", "Targaryen" }
+                    },
+                    Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
+                    Values = new object[,]
+                    {
+                        { "Winterfell", "Stark", "Northmen" },
+                        { "Dragonstone", "Targaryen", "Valyrian" }
+                    }
+                },
+                "mb.Update(" + EOL +
+                "    schema: \"dbo\"," + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
+                "    keyValues: new object[,]" + EOL +
+                "    {" + EOL +
+                "        { \"Hodor\", null }," + EOL +
+                "        { \"Daenerys\", \"Targaryen\" }" + EOL +
+                "    }," + EOL +
+                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + EOL +
+                "    values: new object[,]" + EOL +
+                "    {" + EOL +
+                "        { \"Winterfell\", \"Stark\", \"Northmen\" }," + EOL +
+                "        { \"Dragonstone\", \"Targaryen\", \"Valyrian\" }" + EOL +
+                "    });",
+                o =>
+                {
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(2, o.KeyColumns.Length);
+                    Assert.Equal(4, o.KeyValues.Length);
+                    Assert.Equal("Daenerys", o.KeyValues[1, 0]);
+                    Assert.Equal(3, o.Columns.Length);
+                    Assert.Equal(6, o.Values.Length);
+                    Assert.Equal("Targaryen", o.Values[1, 1]);
                 });
         }
 
