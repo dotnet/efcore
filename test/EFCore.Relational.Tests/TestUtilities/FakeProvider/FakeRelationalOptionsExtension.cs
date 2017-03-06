@@ -1,0 +1,57 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
+{
+    public class FakeRelationalOptionsExtension : RelationalOptionsExtension
+    {
+        public FakeRelationalOptionsExtension()
+        {
+        }
+
+        public FakeRelationalOptionsExtension(FakeRelationalOptionsExtension copyFrom)
+            : base(copyFrom)
+        {
+        }
+
+        public override bool ApplyServices(IServiceCollection services)
+        {
+            AddEntityFrameworkRelationalDatabase(services);
+
+            return true;
+        }
+
+        public static IServiceCollection AddEntityFrameworkRelationalDatabase(IServiceCollection serviceCollection)
+        {
+            var builder = new EntityFrameworkRelationalServicesBuilder(serviceCollection)
+                .TryAdd<IDatabaseProvider, DatabaseProvider<FakeRelationalOptionsExtension>>()
+                .TryAdd<ISqlGenerationHelper, RelationalSqlGenerationHelper>()
+                .TryAdd<IRelationalTypeMapper, TestRelationalTypeMapper>()
+                .TryAdd<IRelationalAnnotationProvider, TestAnnotationProvider>()
+                .TryAdd<IMigrationsSqlGenerator, TestRelationalMigrationSqlGenerator>()
+                .TryAdd<IConventionSetBuilder, TestRelationalConventionSetBuilder>()
+                .TryAdd<IMemberTranslator, TestRelationalCompositeMemberTranslator>()
+                .TryAdd<IMethodCallTranslator, TestRelationalCompositeMethodCallTranslator>()
+                .TryAdd<IQuerySqlGeneratorFactory, TestQuerySqlGeneratorFactory>()
+                .TryAdd<IRelationalConnection, FakeRelationalConnection>()
+                .TryAdd<IHistoryRepository>(_ => null)
+                .TryAdd<IUpdateSqlGenerator>(_ => null)
+                .TryAdd<IModificationCommandBatchFactory>(_ => null)
+                .TryAdd<IRelationalDatabaseCreator, FakeRelationalDatabaseCreator>();
+
+            builder.TryAddCoreServices();
+
+            return serviceCollection;
+        }
+    }
+}

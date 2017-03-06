@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\common.props" />
+  <PropertyGroup>
+    <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp1.1</TargetFrameworks>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="northwind.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Sqlite.Core\EFCore.Sqlite.Core.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Sqlite.Design\EFCore.Sqlite.Design.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-*" />
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="1.1.2" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,23 @@
+﻿<Project>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <Import Project="..\..\build\common.props" />
+  <PropertyGroup>
+    <Description>SQLite database provider for Entity Framework Core.</Description>
+    <TargetFrameworks>net451;netstandard1.3</TargetFrameworks>
+    <PackageId>Microsoft.EntityFrameworkCore.Sqlite</PackageId>
+    <PackageTags>$(PackageTags);SQLite</PackageTags>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EFCore.Sqlite.Core\EFCore.Sqlite.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="1.1.2">
+      <PrivateAssets>None</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+  <Target Name="Compile" />
+  <Target Name="CopyFilesToOutputDirectory" />
+</Project>

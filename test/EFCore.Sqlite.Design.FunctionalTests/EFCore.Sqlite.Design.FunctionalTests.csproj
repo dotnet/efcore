@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\common.props" />
+  <PropertyGroup>
+    <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp1.1</TargetFrameworks>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests</RootNamespace>
+    <!-- TODO: Remove when Microsoft/vstest#428 is fixed. -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="ReverseEngineering\**\*.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EFCore.Relational.Design.Specification.Tests\EFCore.Relational.Design.Specification.Tests.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Sqlite.Design\EFCore.Sqlite.Design.csproj" />
+    <ProjectReference Include="..\EFCore.Sqlite.FunctionalTests\EFCore.Sqlite.FunctionalTests.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-*" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+  </ItemGroup>
+</Project>
