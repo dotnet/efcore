@@ -782,28 +782,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 subSelectExpression)
                             .Visit(subQueryModelVisitor.Expression);
 
-                    if (newExpression is MethodCallExpression methodCallExpression
-                        && methodCallExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.Select))
-                    {
-                        var shapedQuery = (MethodCallExpression)methodCallExpression.Arguments[0];
-
-                        if (IsShapedQueryExpression(shapedQuery))
-                        {
-                            var newShaper = ProjectionShaper.Create(
-                                querySource,
-                                (Shaper)((ConstantExpression)shapedQuery.Arguments[2]).Value,
-                                ((LambdaExpression)methodCallExpression.Arguments[1]).Compile());
-
-                            return Expression.Call(
-                                shapedQuery.Method
-                                    .GetGenericMethodDefinition()
-                                    .MakeGenericMethod(newExpression.Type.GetSequenceType()),
-                                shapedQuery.Arguments[0],
-                                shapedQuery.Arguments[1],
-                                Expression.Constant(newShaper));
-                        }
-                    }
-
                     return newExpression;
                 }
             }
@@ -1029,6 +1007,72 @@ namespace Microsoft.EntityFrameworkCore.Query
                 WarnClientEval(orderByClause);
 
                 base.VisitOrderByClause(orderByClause, queryModel, index);
+            }
+        }
+
+        /// <summary>
+        ///     Visits <see cref="SelectClause" /> nodes.
+        /// </summary>
+        /// <param name="selectClause"> The node being visited. </param>
+        /// <param name="queryModel"> The query. </param>
+        public override void VisitSelectClause(
+            [NotNull] SelectClause selectClause, [NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(selectClause, nameof(selectClause));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            base.VisitSelectClause(selectClause, queryModel);
+
+            if (Expression is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.Select))
+            {
+                var shapedQuery = methodCallExpression.Arguments[0] as MethodCallExpression;
+
+                if (IsShapedQueryExpression(shapedQuery))
+                {
+                    shapedQuery = UnwrapShapedQueryExpression(shapedQuery);
+
+                    var oldShaper = ExtractShaper(shapedQuery, 0);
+
+                    var matchingIncludes
+                        = from i in QueryCompilationContext.QueryAnnotations.OfType<IncludeResultOperator>()
+                          where oldShaper.IsShaperForQuerySource(i.QuerySource)
+                          select i;
+
+                    if (!matchingIncludes.Any())
+                    {
+                        var materializer = (LambdaExpression)methodCallExpression.Arguments[1];
+                        var qsreFinder = new QuerySourceReferenceFindingExpressionVisitor();
+
+                        qsreFinder.Visit(materializer.Body);
+
+                        if (!qsreFinder.FoundAny)
+                        {
+                            var newShaper = ProjectionShaper.Create(oldShaper, materializer);
+
+                            Expression =
+                                Expression.Call(
+                                    shapedQuery.Method
+                                        .GetGenericMethodDefinition()
+                                        .MakeGenericMethod(Expression.Type.GetSequenceType()),
+                                    shapedQuery.Arguments[0],
+                                    shapedQuery.Arguments[1],
+                                    Expression.Constant(newShaper));
+                        }
+                    }
+                }
+            }
+        }
+
+        private class QuerySourceReferenceFindingExpressionVisitor : ExpressionVisitorBase
+        {
+            public bool FoundAny { get; private set; }
+
+            protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
+            {
+                FoundAny = true;
+
+                return base.VisitQuerySourceReference(expression);
             }
         }
 
