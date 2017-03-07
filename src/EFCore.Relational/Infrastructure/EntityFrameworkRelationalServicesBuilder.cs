@@ -69,7 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IConditionalRemovingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ICompositePredicateExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IIncludeExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IQueryFlattenerFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ISelectExpressionFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalResultOperatorHandler), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IExpressionFragmentTranslator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -142,7 +141,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IConditionalRemovingExpressionVisitorFactory, ConditionalRemovingExpressionVisitorFactory>();
             TryAdd<ICompositePredicateExpressionVisitorFactory, CompositePredicateExpressionVisitorFactory>();
             TryAdd<IIncludeExpressionVisitorFactory, IncludeExpressionVisitorFactory>();
-            TryAdd<IQueryFlattenerFactory, QueryFlattenerFactory>();
             TryAdd<ISelectExpressionFactory, SelectExpressionFactory>();
             TryAdd<IExpressionPrinter, RelationalExpressionPrinter>();
             TryAdd<IRelationalResultOperatorHandler, RelationalResultOperatorHandler>();
