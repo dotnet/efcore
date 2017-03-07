@@ -3563,7 +3563,7 @@ ORDER BY [c].[City]",
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE [o].[OrderID] IS NOT NULL AND (([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL)",
+WHERE [o].[OrderID] IS NOT NULL AND ([o].[CustomerID] = N'ALFKI')",
                 Sql);
         }
 
@@ -3576,7 +3576,7 @@ WHERE [o].[OrderID] IS NOT NULL AND (([o].[CustomerID] = N'ALFKI') AND [o].[Cust
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 LEFT JOIN [Orders] AS [o2] ON [c].[CustomerID] = [o2].[CustomerID]
-WHERE [o2].[OrderID] IS NOT NULL AND (([o2].[CustomerID] = N'ALFKI') AND [o2].[CustomerID] IS NOT NULL)",
+WHERE [o2].[OrderID] IS NOT NULL AND ([o2].[CustomerID] = N'ALFKI')",
                 Sql);
         }
 
@@ -6148,7 +6148,7 @@ FROM [Customers] AS [c]",
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], CASE
-    WHEN [c].[Region] IS NOT NULL AND (([c].[Region] <> N'') OR [c].[Region] IS NULL)
+    WHEN [c].[Region] IS NOT NULL AND ([c].[Region] <> N'')
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 FROM [Customers] AS [c]",
@@ -6942,7 +6942,7 @@ CROSS APPLY (
         WHERE [o0].[CustomerID] = [c].[CustomerID]
     ) AS [t1] ON 1 = 1
 ) AS [t2]
-WHERE (([c].[City] = N'Seattle') AND [c].[City] IS NOT NULL) AND ([t0].[OrderID] IS NOT NULL AND [t2].[OrderID] IS NOT NULL)",
+WHERE ([c].[City] = N'Seattle') AND ([t0].[OrderID] IS NOT NULL AND [t2].[OrderID] IS NOT NULL)",
                 Sql);
         }
 

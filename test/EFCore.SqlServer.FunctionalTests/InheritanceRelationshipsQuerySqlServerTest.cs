@@ -244,7 +244,7 @@ FROM [BaseCollectionOnBase] AS [b]
 WHERE [b].[Discriminator] IN (N'DerivedCollectionOnBase', N'BaseCollectionOnBase') AND EXISTS (
     SELECT 1
     FROM [BaseInheritanceRelationshipEntity] AS [e]
-    WHERE ([e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity') AND (([e].[Name] <> N'Bar') OR [e].[Name] IS NULL)) AND (([b].[BaseParentId] = [e].[Id]) AND [b].[BaseParentId] IS NOT NULL))
+    WHERE ([e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity') AND (([e].[Name] <> N'Bar') OR [e].[Name] IS NULL)) AND ([b].[BaseParentId] = [e].[Id]))
 ORDER BY [b].[BaseParentId]",
                 Sql);
         }
@@ -324,7 +324,7 @@ FROM [CollectionOnBase] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [BaseInheritanceRelationshipEntity] AS [e]
-    WHERE ([e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity') AND (([e].[Name] <> N'Bar') OR [e].[Name] IS NULL)) AND (([c].[ParentId] = [e].[Id]) AND [c].[ParentId] IS NOT NULL))
+    WHERE ([e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity') AND (([e].[Name] <> N'Bar') OR [e].[Name] IS NULL)) AND ([c].[ParentId] = [e].[Id]))
 ORDER BY [c].[ParentId]",
                 Sql);
         }

@@ -947,11 +947,11 @@ FROM [Weapon] AS [w]",
 
             Assert.Equal(
                 @"SELECT [w].[Id], CASE
-    WHEN [w].[AmmunitionType] IS NOT NULL AND (([w].[AmmunitionType] = 1) AND [w].[AmmunitionType] IS NOT NULL)
+    WHEN [w].[AmmunitionType] IS NOT NULL AND ([w].[AmmunitionType] = 1)
     THEN N'Yes' ELSE N'No'
 END
 FROM [Weapon] AS [w]
-WHERE [w].[AmmunitionType] IS NOT NULL AND (([w].[AmmunitionType] = 1) AND [w].[AmmunitionType] IS NOT NULL)",
+WHERE [w].[AmmunitionType] IS NOT NULL AND ([w].[AmmunitionType] = 1)",
                 Sql);
         }
 
@@ -974,7 +974,7 @@ FROM [Weapon] AS [w]",
 
             Assert.Equal(
                 @"SELECT [w].[Id], CASE
-    WHEN ([w].[IsAutomatic] = 0) AND (([w].[SynergyWithId] = 1) AND [w].[SynergyWithId] IS NOT NULL)
+    WHEN ([w].[IsAutomatic] = 0) AND ([w].[SynergyWithId] = 1)
     THEN N'Yes' ELSE N'No'
 END
 FROM [Weapon] AS [w]",
@@ -987,7 +987,7 @@ FROM [Weapon] AS [w]",
 
             Assert.Equal(
                 @"SELECT [w].[Id], CASE
-    WHEN ([w].[IsAutomatic] = 0) AND (([w].[SynergyWithId] = 1) AND [w].[SynergyWithId] IS NOT NULL)
+    WHEN ([w].[IsAutomatic] = 0) AND ([w].[SynergyWithId] = 1)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 FROM [Weapon] AS [w]",
@@ -1002,7 +1002,7 @@ FROM [Weapon] AS [w]",
                 @"SELECT [w].[Id], CASE
     WHEN [w].[IsAutomatic] = 0
     THEN CASE
-        WHEN ([w].[AmmunitionType] = 1) AND [w].[AmmunitionType] IS NOT NULL
+        WHEN [w].[AmmunitionType] = 1
         THEN N'ManualCartridge' ELSE N'Manual'
     END ELSE N'Auto'
 END
@@ -1142,7 +1142,7 @@ LEFT JOIN (
     FROM [Gear] AS [ct.Gear]
     WHERE [ct.Gear].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [t] ON ([ct].[GearNickName] = [t].[Nickname]) AND ([ct].[GearSquadId] = [t].[SquadId])
-WHERE (([t].[Nickname] = N'Marcus') AND [t].[Nickname] IS NOT NULL) AND (([t].[CityOrBirthName] <> N'Ephyra') OR [t].[CityOrBirthName] IS NULL)",
+WHERE ([t].[Nickname] = N'Marcus') AND (([t].[CityOrBirthName] <> N'Ephyra') OR [t].[CityOrBirthName] IS NULL)",
                 Sql);
         }
 
@@ -1282,7 +1282,7 @@ LEFT JOIN (
     FROM [Gear] AS [ct.Gear]
     WHERE [ct.Gear].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [t] ON ([ct].[GearNickName] = [t].[Nickname]) AND ([ct].[GearSquadId] = [t].[SquadId])
-WHERE (([t].[Nickname] = N'Marcus') AND [t].[Nickname] IS NOT NULL) AND (([t].[CityOrBirthName] <> N'Ephyra') OR [t].[CityOrBirthName] IS NULL)",
+WHERE ([t].[Nickname] = N'Marcus') AND (([t].[CityOrBirthName] <> N'Ephyra') OR [t].[CityOrBirthName] IS NULL)",
                 Sql);
         }
 
@@ -2037,13 +2037,13 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g].[CityOrBirthName] IN 
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapon] AS [w]
-WHERE (([w].[Name] <> N'Lancer') OR [w].[Name] IS NULL) AND ((@_outer_FullName = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL)
+WHERE (([w].[Name] <> N'Lancer') OR [w].[Name] IS NULL) AND (@_outer_FullName = [w].[OwnerFullName])
 
 @_outer_FullName: Dominic Santiago (Size = 450)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapon] AS [w]
-WHERE (([w].[Name] <> N'Lancer') OR [w].[Name] IS NULL) AND ((@_outer_FullName = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL)",
+WHERE (([w].[Name] <> N'Lancer') OR [w].[Name] IS NULL) AND (@_outer_FullName = [w].[OwnerFullName])",
                 Sql);
         }
 
