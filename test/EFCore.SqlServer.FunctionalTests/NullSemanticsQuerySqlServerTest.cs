@@ -526,7 +526,7 @@ WHERE CASE
     WHEN ([e].[NullableBoolA] <> [e].[BoolB]) OR [e].[NullableBoolA] IS NULL
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END = CASE
-    WHEN ([e].[IntA] = [e].[NullableIntB]) AND [e].[NullableIntB] IS NOT NULL
+    WHEN [e].[IntA] = [e].[NullableIntB]
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 
@@ -563,7 +563,7 @@ WHERE CASE
     WHEN ([e].[NullableBoolA] <> [e].[BoolB]) OR [e].[NullableBoolA] IS NULL
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END <> CASE
-    WHEN ([e].[IntA] = [e].[NullableIntB]) AND [e].[NullableIntB] IS NOT NULL
+    WHEN [e].[IntA] = [e].[NullableIntB]
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 
