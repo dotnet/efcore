@@ -37,3 +37,4 @@ config.test.json
 *.DotSettings
 .idea.*
 .cr/
+*.user.sln
