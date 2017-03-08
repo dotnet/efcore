@@ -1,5 +1,8 @@
 <Project>
   <ItemGroup>
+    <Solutions Condition="'$(OS)' != 'Windows_NT'" Update="..\EFCore.sln">
+      <AdditionalProperties>Configuration=$(Configuration)NonWindows</AdditionalProperties>
+    </Solutions>
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks.EF6\*.csproj" Condition="'$(OS)' != 'Windows_NT'" />
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks\*.csproj" />
   </ItemGroup>
