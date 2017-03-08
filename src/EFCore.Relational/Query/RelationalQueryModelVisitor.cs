@@ -1083,9 +1083,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="queryModel"> The query. </param>
         /// <param name="includeResultOperators">TODO: This parameter is to be removed.</param>
+        /// <param name="asyncQuery"></param>
         protected override void OptimizeQueryModel(
             QueryModel queryModel,
-            ICollection<IncludeResultOperator> includeResultOperators)
+            ICollection<IncludeResultOperator> includeResultOperators,
+            bool asyncQuery)
         {
             Check.NotNull(queryModel, nameof(queryModel));
             Check.NotNull(includeResultOperators, nameof(includeResultOperators));
@@ -1095,7 +1097,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
 
-            base.OptimizeQueryModel(queryModel, includeResultOperators);
+            base.OptimizeQueryModel(queryModel, includeResultOperators, asyncQuery);
         }
 
         /// <summary>
@@ -1270,8 +1272,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 outerSelectExpression.RemoveRangeFromProjection(previousProjectionCount);
             }
 
-            var outerProjectionCount = outerSelectExpression.Projection.Count;
-
             var joinExpression
                 = correlated
                     ? outerSelectExpression.AddCrossJoinLateral(
@@ -1346,7 +1346,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return false;
             }
 
-            var sqlTranslatingExpressionVisitor
+           var sqlTranslatingExpressionVisitor
                 = _sqlTranslatingExpressionVisitorFactory.Create(this);
 
             var predicate

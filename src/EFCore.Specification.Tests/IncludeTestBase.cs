@@ -240,6 +240,52 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
+        public virtual void Include_collection_with_last(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var customer
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .OrderBy(c => c.CompanyName)
+                            .Last()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .OrderBy(c => c.CompanyName)
+                            .Last();
+
+                Assert.NotNull(customer);
+                Assert.Equal(7, customer.Orders.Count);
+                Assert.Equal(8, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_with_last_no_orderby(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var customer
+                    = useString
+                        ? context.Set<Customer>()
+                            .Include("Orders")
+                            .Last()
+                        : context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .Last();
+
+                Assert.NotNull(customer);
+                Assert.Equal(7, customer.Orders.Count);
+                Assert.Equal(8, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public virtual void Include_collection_skip_no_order_by(bool useString)
         {
             using (var context = CreateContext())
@@ -1098,6 +1144,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(81, customers.Count);
                 Assert.Equal(714, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
                 Assert.True(customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(81, context.ChangeTracker.Entries().Count(e => e.Entity is Customer));
+                Assert.Equal(714, context.ChangeTracker.Entries().Count(e => e.Entity is Order));
                 Assert.Equal(81 + 714, context.ChangeTracker.Entries().Count());
 
                 foreach (var customer in customers)

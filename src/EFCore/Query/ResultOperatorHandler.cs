@@ -7,12 +7,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
+using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -234,16 +238,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                         groupResultOperator.ElementSelector,
                         queryModel.MainFromClause);
 
+            var taskLiftingExpressionVisitor = new TaskLiftingExpressionVisitor();
+            var asyncElementSelector = taskLiftingExpressionVisitor.LiftTasks(elementSelector);
+
             var expression
-                = Expression.Call(
-                    entityQueryModelVisitor.LinqOperatorProvider.GroupBy
-                        .MakeGenericMethod(
-                            entityQueryModelVisitor.Expression.Type.GetSequenceType(),
-                            keySelector.Type,
-                            elementSelector.Type),
-                    entityQueryModelVisitor.Expression,
-                    Expression.Lambda(keySelector, entityQueryModelVisitor.CurrentParameter),
-                    Expression.Lambda(elementSelector, entityQueryModelVisitor.CurrentParameter));
+                = asyncElementSelector == elementSelector
+                    ? Expression.Call(
+                        entityQueryModelVisitor.LinqOperatorProvider.GroupBy
+                            .MakeGenericMethod(
+                                entityQueryModelVisitor.Expression.Type.GetSequenceType(),
+                                keySelector.Type,
+                                elementSelector.Type),
+                        entityQueryModelVisitor.Expression,
+                        Expression.Lambda(keySelector, entityQueryModelVisitor.CurrentParameter),
+                        Expression.Lambda(elementSelector, entityQueryModelVisitor.CurrentParameter))
+                    : Expression.Call(
+                        _groupByAsync
+                            .MakeGenericMethod(
+                                entityQueryModelVisitor.Expression.Type.GetSequenceType(),
+                                keySelector.Type,
+                                elementSelector.Type),
+                        entityQueryModelVisitor.Expression,
+                        Expression.Lambda(keySelector, entityQueryModelVisitor.CurrentParameter),
+                        Expression.Lambda(
+                            asyncElementSelector,
+                            entityQueryModelVisitor.CurrentParameter,
+                            taskLiftingExpressionVisitor.CancellationTokenParameter));
 
             entityQueryModelVisitor.CurrentParameter
                 = Expression.Parameter(expression.Type.GetSequenceType(), groupResultOperator.ItemName);
@@ -252,6 +272,95 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .AddOrUpdateMapping(groupResultOperator, entityQueryModelVisitor.CurrentParameter);
 
             return expression;
+        }
+
+        private static readonly MethodInfo _groupByAsync
+            = typeof(ResultOperatorHandler)
+                .GetTypeInfo()
+                .GetDeclaredMethod(nameof(_GroupByAsync));
+
+        // ReSharper disable once InconsistentNaming
+        private static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupByAsync<TSource, TKey, TElement>(
+            IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, CancellationToken, Task<TElement>> elementSelector)
+            => new AsyncGroupByAsyncEnumerable<TSource, TKey, TElement>(source, keySelector, elementSelector);
+
+        private sealed class AsyncGroupByAsyncEnumerable<TSource, TKey, TElement> 
+            : IAsyncEnumerable<IGrouping<TKey, TElement>>
+        {
+            private readonly IAsyncEnumerable<TSource> _source;
+            private readonly Func<TSource, TKey> _keySelector;
+            private readonly Func<TSource, CancellationToken, Task<TElement>> _elementSelector;
+
+            public AsyncGroupByAsyncEnumerable(
+                IAsyncEnumerable<TSource> source,
+                Func<TSource, TKey> keySelector,
+                Func<TSource, CancellationToken, Task<TElement>> elementSelector)
+            {
+                _source = source;
+                _keySelector = keySelector;
+                _elementSelector = elementSelector;
+            }
+
+            public IAsyncEnumerator<IGrouping<TKey, TElement>> GetEnumerator()
+                => new GroupByAsyncEnumerator(this);
+
+            private sealed class GroupByAsyncEnumerator : IAsyncEnumerator<IGrouping<TKey, TElement>>
+            {
+                private readonly AsyncGroupByAsyncEnumerable<TSource, TKey, TElement> _groupByAsyncEnumerable;
+                private readonly IEqualityComparer<TKey> _comparer;
+
+                private IEnumerator<IGrouping<TKey, TSource>> _lookupEnumerator;
+                private bool _hasNext;
+
+                public GroupByAsyncEnumerator(
+                    AsyncGroupByAsyncEnumerable<TSource, TKey, TElement> groupByAsyncEnumerable)
+                {
+                    _groupByAsyncEnumerable = groupByAsyncEnumerable;
+                    _comparer = EqualityComparer<TKey>.Default;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (_lookupEnumerator == null)
+                    {
+                        _lookupEnumerator
+                            = (await _groupByAsyncEnumerable._source
+                                .ToLookup(
+                                    _groupByAsyncEnumerable._keySelector,
+                                    e => e,
+                                    _comparer,
+                                    cancellationToken)).GetEnumerator();
+
+                        _hasNext = _lookupEnumerator.MoveNext();
+                    }
+
+                    if (_hasNext)
+                    {
+                        var grouping = new Grouping<TKey, TElement>(_lookupEnumerator.Current.Key);
+
+                        foreach (var item in _lookupEnumerator.Current)
+                        {
+                            grouping.Add(await _groupByAsyncEnumerable._elementSelector(item, cancellationToken));
+                        }
+
+                        Current = grouping;
+
+                        _hasNext = _lookupEnumerator.MoveNext();
+
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                public IGrouping<TKey, TElement> Current { get; private set; }
+
+                public void Dispose() => _lookupEnumerator?.Dispose();
+            }
         }
 
         private static Expression HandleIntersect(
@@ -263,13 +372,40 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entityQueryModelVisitor.LinqOperatorProvider.Intersect);
 
         private static Expression HandleLast(
-            EntityQueryModelVisitor entityQueryModelVisitor, ChoiceResultOperatorBase choiceResultOperator)
-            => CallWithPossibleCancellationToken(
+            EntityQueryModelVisitor entityQueryModelVisitor,
+            ChoiceResultOperatorBase choiceResultOperator)
+        {
+            if (entityQueryModelVisitor.Expression is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method
+                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select))
+            {
+                // Push Last down below Select
+
+                return
+                    methodCallExpression.Update(
+                        methodCallExpression.Object,
+                        new[]
+                        {
+                            Expression.Call(
+                                entityQueryModelVisitor.LinqOperatorProvider.ToSequence
+                                    .MakeGenericMethod(methodCallExpression.Arguments[0].Type.GetSequenceType()),
+                                CallWithPossibleCancellationToken(
+                                    (choiceResultOperator.ReturnDefaultWhenEmpty
+                                        ? entityQueryModelVisitor.LinqOperatorProvider.LastOrDefault
+                                        : entityQueryModelVisitor.LinqOperatorProvider.Last)
+                                    .MakeGenericMethod(methodCallExpression.Arguments[0].Type.GetSequenceType()),
+                                    methodCallExpression.Arguments[0])),
+                            methodCallExpression.Arguments[1]
+                        });
+            }
+
+            return CallWithPossibleCancellationToken(
                 (choiceResultOperator.ReturnDefaultWhenEmpty
                     ? entityQueryModelVisitor.LinqOperatorProvider.LastOrDefault
                     : entityQueryModelVisitor.LinqOperatorProvider.Last)
                 .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
+        }
 
         private static Expression HandleLongCount(EntityQueryModelVisitor entityQueryModelVisitor)
             => CallWithPossibleCancellationToken(
@@ -301,25 +437,76 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleSkip(
-            EntityQueryModelVisitor entityQueryModelVisitor, SkipResultOperator skipResultOperator)
-            => Expression.Call(
+            EntityQueryModelVisitor entityQueryModelVisitor,
+            SkipResultOperator skipResultOperator)
+        {
+            var countExpression
+                = new DefaultQueryExpressionVisitor(entityQueryModelVisitor)
+                    .Visit(skipResultOperator.Count);
+
+            if (entityQueryModelVisitor.Expression is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method
+                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select))
+            {
+                // Push Skip down below Select
+
+                return
+                    methodCallExpression.Update(
+                        methodCallExpression.Object,
+                        new[]
+                        {
+                            Expression.Call(
+                                entityQueryModelVisitor.LinqOperatorProvider.Skip
+                                    .MakeGenericMethod(methodCallExpression.Arguments[0].Type.GetSequenceType()),
+                                methodCallExpression.Arguments[0],
+                                countExpression),
+                            methodCallExpression.Arguments[1]
+                        });
+            }
+
+            return Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.Skip
                     .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression,
-                new DefaultQueryExpressionVisitor(entityQueryModelVisitor)
-                    .Visit(skipResultOperator.Count));
+                countExpression);
+        }
 
         private static Expression HandleSum(EntityQueryModelVisitor entityQueryModelVisitor)
             => HandleAggregate(entityQueryModelVisitor, "Sum");
 
         private static Expression HandleTake(
             EntityQueryModelVisitor entityQueryModelVisitor, TakeResultOperator takeResultOperator)
-            => Expression.Call(
+        {
+            var countExpression
+                = new DefaultQueryExpressionVisitor(entityQueryModelVisitor)
+                    .Visit(takeResultOperator.Count);
+
+            if (entityQueryModelVisitor.Expression is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method
+                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select))
+            {
+                // Push Take down below Select
+
+                return
+                    methodCallExpression.Update(
+                        methodCallExpression.Object,
+                        new[]
+                        {
+                            Expression.Call(
+                                entityQueryModelVisitor.LinqOperatorProvider.Take
+                                    .MakeGenericMethod(methodCallExpression.Arguments[0].Type.GetSequenceType()),
+                                methodCallExpression.Arguments[0],
+                                countExpression),
+                            methodCallExpression.Arguments[1]
+                        });
+            }
+
+            return Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.Take
                     .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression,
-                new DefaultQueryExpressionVisitor(entityQueryModelVisitor)
-                    .Visit(takeResultOperator.Count));
+                countExpression);
+        }
 
         private static Expression HandleUnion(
             EntityQueryModelVisitor entityQueryModelVisitor,

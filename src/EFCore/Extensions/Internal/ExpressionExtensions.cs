@@ -24,6 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static bool IsNullConstantExpression([NotNull] this Expression expression)
+            => expression.RemoveConvert() is ConstantExpression constantExpression
+               && constantExpression.Value == null;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);

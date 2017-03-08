@@ -23,6 +23,7 @@ Microsoft.EntityFrameworkCore.DbSet</Description>
     <PackageReference Include="System.Collections.Immutable" Version="$(ImmutableCollectionsVersion)" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="$(CoreFxVersion)" />
     <PackageReference Include="System.Interactive.Async" Version="$(SystemInteractiveAsyncVersion)" />
+    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Properties\CoreStrings.Designer.tt">

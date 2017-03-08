@@ -260,12 +260,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(2, result.Count);
 
                 var marcusReports = result.Where(e => e.Nickname == "Marcus").Single().Reports.ToList();
+
                 Assert.Equal(3, marcusReports.Count);
                 Assert.Contains("Baird", marcusReports.Select(g => g.Nickname));
                 Assert.Contains("Cole Train", marcusReports.Select(g => g.Nickname));
                 Assert.Contains("Dom", marcusReports.Select(g => g.Nickname));
 
                 var bairdReports = result.Where(e => e.Nickname == "Baird").Single().Reports.ToList();
+
                 Assert.Equal(1, bairdReports.Count);
                 Assert.Contains("Paduk", bairdReports.Select(g => g.Nickname));
             }
@@ -1569,7 +1571,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 var result = query.ToList();
 
-                Assert.True(result.Count(r => r.Weapons.Count > 0) >= 4);
+                Assert.Equal("Marcus", result[0].Nickname);
+                Assert.Equal(2, result[0].Weapons.Count);
+                Assert.Equal("Marcus", result[1].Nickname);
+                Assert.Equal("Marcus", result[2].Nickname);
+                Assert.Equal("Baird", result[3].Nickname);
+                Assert.Equal(0, result[3].Weapons.Count);
+                Assert.Equal("Marcus", result[4].Nickname);
             }
         }
 
@@ -1585,8 +1593,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             select g2 ?? g1;
 
                 var result = query.ToList();
-
-                Assert.True(result.All(r => r.Weapons.Count > 0));
+                
+                Assert.Equal("Marcus", result[0].Nickname);
+                Assert.Equal(2, result[0].Weapons.Count);
+                Assert.Equal("Baird", result[1].Nickname);
+                Assert.Equal(2, result[1].Weapons.Count);
+                Assert.Equal("Marcus", result[2].Nickname);
+                Assert.Equal("Marcus", result[3].Nickname);
+                Assert.Equal("Marcus", result[4].Nickname);
             }
         }
 
@@ -1603,7 +1617,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 var result = query.ToList();
 
-                Assert.True(result.All(r => r.Weapons.Count > 0));
+                Assert.Equal("Marcus", result[0].Nickname);
+                Assert.Equal(2, result[0].Weapons.Count);
+                Assert.Equal("Marcus", result[1].Nickname);
+                Assert.Equal("Marcus", result[2].Nickname);
+                Assert.Equal("Baird", result[3].Nickname);
+                Assert.Equal(2, result[3].Weapons.Count);
+                Assert.Equal("Marcus", result[4].Nickname);
             }
         }
 
@@ -1633,11 +1653,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             join g2 in context.Gears.Include(g => g.Weapons)
                             on g1.LeaderNickname equals g2.Nickname into grouping
                             from g2 in grouping.DefaultIfEmpty()
+                            // ReSharper disable once MergeConditionalExpression
                             select g2 != null ? g2 : g1;
 
                 var result = query.ToList();
 
-                Assert.True(result.All(r => r.Weapons.Count > 0));
+                Assert.Equal("Marcus", result[0].Nickname);
+                Assert.Equal(2, result[0].Weapons.Count);
+                Assert.Equal("Marcus", result[1].Nickname);
+                Assert.Equal("Marcus", result[2].Nickname);
+                Assert.Equal("Baird", result[3].Nickname);
+                Assert.Equal(2, result[3].Weapons.Count);
+                Assert.Equal("Marcus", result[4].Nickname);
             }
         }
 

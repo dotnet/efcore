@@ -360,13 +360,10 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 FROM [Customer] AS [c]
 ORDER BY [c].[FirstName], [c].[LastName]
 
-SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name]
-FROM [Order] AS [o]
-WHERE EXISTS (
-    SELECT 1
-    FROM [Customer] AS [c]
-    WHERE ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName]))
-ORDER BY [o].[CustomerFirstName], [o].[CustomerLastName]";
+SELECT [c.Orders].[Id], [c.Orders].[CustomerFirstName], [c.Orders].[CustomerLastName], [c.Orders].[Name]
+FROM [Order] AS [c.Orders]
+INNER JOIN [Customer] AS [c0] ON ([c.Orders].[CustomerFirstName] = [c0].[FirstName]) AND ([c.Orders].[CustomerLastName] = [c0].[LastName])
+ORDER BY [c0].[FirstName], [c0].[LastName]";
 
                     Assert.Equal(expectedSql, Sql);
                 }
