@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -46,7 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 { typeof(RenameSequenceOperation), (g, o, m, b) => g.Generate((RenameSequenceOperation)o, m, b) },
                 { typeof(RenameTableOperation), (g, o, m, b) => g.Generate((RenameTableOperation)o, m, b) },
                 { typeof(RestartSequenceOperation), (g, o, m, b) => g.Generate((RestartSequenceOperation)o, m, b) },
-                { typeof(SqlOperation), (g, o, m, b) => g.Generate((SqlOperation)o, m, b) }
+                { typeof(SqlOperation), (g, o, m, b) => g.Generate((SqlOperation)o, m, b) },
+                { typeof(InsertOperation), (g, o, m, b) => g.Generate((InsertOperation)o, m, b) },
+                { typeof(DeleteOperation), (g, o, m, b) => g.Generate((DeleteOperation)o, m, b) },
+                { typeof(UpdateOperation), (g, o, m, b) => g.Generate((UpdateOperation)o, m, b) }
             };
 
         /// <summary>
@@ -622,6 +626,187 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             EndStatement(builder, operation.SuppressTransaction);
         }
 
+        protected virtual void Generate(
+            [NotNull] InsertOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            if (operation.Values.Length == 0)
+            {
+                return;
+            }
+
+            builder
+                .Append("INSERT INTO ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" (")
+                .Append(ColumnList(operation.Columns))
+                .AppendLine(")")
+                .Append("VALUES ");
+
+            var rowCount = operation.Values.GetLength(0);
+            var valueCount = operation.Values.GetLength(1);
+            for (var i = 0; i < rowCount; i++)
+            {
+                if (i != 0)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("       ");
+                }
+
+                builder.Append("(");
+                for (var j = 0; j < valueCount; j++)
+                {
+                    if (j != 0)
+                    {
+                        builder.Append(", ");
+                    }
+
+                    builder.Append(Dependencies.SqlGenerationHelper.GenerateLiteral(operation.Values[i, j]));
+                }
+
+                builder.Append(")");
+            }
+
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            EndStatement(builder);
+        }
+
+        protected virtual void Generate(
+            [NotNull] DeleteOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            if (operation.KeyValues.Length == 0)
+            {
+                return;
+            }
+
+            builder
+                .Append("DELETE FROM ")
+                .AppendLine(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
+
+            builder.Append("WHERE ");
+
+            var rowCount = operation.KeyValues.GetLength(0);
+            var valueCount = operation.KeyValues.GetLength(1);
+            for (var i = 0; i < rowCount; i++)
+            {
+                if (i != 0)
+                {
+                    builder
+                        .AppendLine(" OR")
+                        .Append("      ");
+                }
+
+                builder.Append("(");
+                for (var j = 0; j < valueCount; j++)
+                {
+                    if (j != 0)
+                    {
+                        builder.Append(" AND ");
+                    }
+
+                    builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.KeyColumns[j]));
+
+                    var value = operation.KeyValues[i, j];
+                    if (value == null)
+                    {
+                        builder.Append(" IS NULL");
+                    }
+                    else
+                    {
+                        builder
+                            .Append(" = ")
+                            .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(value));
+                    }
+                }
+
+                builder.Append(")");
+            }
+
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            EndStatement(builder);
+        }
+
+        protected virtual void Generate(
+            [NotNull] UpdateOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            if (operation.Values.Length == 0)
+            {
+                return;
+            }
+
+            var rowCount = operation.Values.GetLength(0);
+            var valueCount = operation.Values.GetLength(1);
+            var keyValueCount = operation.KeyValues.GetLength(1);
+            for (var i = 0; i < rowCount; i++)
+            {
+                builder
+                    .Append("UPDATE ")
+                    .AppendLine(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append("SET ");
+
+                for (var j = 0; j < valueCount; j++)
+                {
+                    if (j != 0)
+                    {
+                        builder
+                            .AppendLine(",")
+                            .Append("    ");
+                    }
+
+                    builder.Append(
+                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Columns[j]) +
+                        " = " +
+                        Dependencies.SqlGenerationHelper.GenerateLiteral(operation.Values[i, j]));
+                }
+
+                builder
+                    .AppendLine()
+                    .Append("WHERE (");
+                for (var j = 0; j < keyValueCount; j++)
+                {
+                    if (j != 0)
+                    {
+                        builder.Append(" AND ");
+                    }
+
+                    builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.KeyColumns[j]));
+
+                    var value = operation.KeyValues[i, j];
+                    if (value == null)
+                    {
+                        builder.Append(" IS NULL");
+                    }
+                    else
+                    {
+                        builder
+                            .Append(" = ")
+                            .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(value));
+                    }
+                }
+
+                builder
+                    .Append(")")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+                EndStatement(builder);
+            }
+        }
+
         protected virtual void SequenceOptions(
             [NotNull] AlterSequenceOperation operation,
             [CanBeNull] IModel model,
@@ -953,9 +1138,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string columnName
             // Any property that maps to the column will work because model validator has
             // checked that all properties result in the same column definition.
-        )
+            )
             => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
-                .FirstOrDefault(p => Dependencies.Annotations.For(p).ColumnName == columnName);
+                 .FirstOrDefault(p => Dependencies.Annotations.For(p).ColumnName == columnName);
 
         protected virtual void EndStatement(
             [NotNull] MigrationCommandListBuilder builder,
