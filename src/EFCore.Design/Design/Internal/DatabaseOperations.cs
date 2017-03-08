@@ -10,11 +10,13 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class DatabaseOperations
     {
+        private readonly IOperationReporter _reporter;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
@@ -27,11 +29,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] string contentRootPath,
             [NotNull] string rootNamespace)
         {
+            Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotEmpty(contentRootPath, nameof(contentRootPath));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
 
+            _reporter = reporter;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
 
@@ -56,6 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Check.NotNull(tables, nameof(tables));
 
             var services = _servicesBuilder.Build(provider);
+
+            var loggerFactory = context.GetService<ILoggerFactory>();
+            loggerFactory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, _reporter)));
 
             var generator = services.GetRequiredService<ReverseEngineeringGenerator>();
             var tableSelectionSet = new TableSelectionSet(tables, schemas);
