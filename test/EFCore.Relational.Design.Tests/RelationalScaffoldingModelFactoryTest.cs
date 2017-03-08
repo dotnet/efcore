@@ -798,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         }
 
         [Fact]
-        public void Pluralization()
+        public void Pluralization_of_entity_and_DbSet()
         {
             var info = new DatabaseModel
             {
@@ -832,6 +832,59 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     Assert.Equal("Posts", entity.Relational().TableName);
                     Assert.Equal("Post", entity.Name);
                     Assert.Equal("Posts", entity.Scaffolding().DbSetName);
+                }
+            );
+        }
+
+        [Fact]
+        public void Pluralization_of_collection_navigations()
+        {
+
+            var blogTable = new TableModel { Name = "Blog", Columns = { IdColumn } };
+            var postTable = new TableModel
+            {
+                Name = "Post",
+                Columns =
+                {
+                    IdColumn,
+                    new ColumnModel { Name = "BlogId", DataType = "long", IsNullable = true }
+                }
+            };
+
+            postTable.ForeignKeys.Add(new ForeignKeyModel
+            {
+                Table = postTable,
+                PrincipalTable = blogTable,
+                OnDelete = ReferentialAction.Cascade,
+                Columns =
+                {
+                    new ForeignKeyColumnModel
+                    {
+                        Ordinal = 1,
+                        Column = postTable.Columns.ElementAt(1),
+                        PrincipalColumn = blogTable.Columns.ElementAt(0)
+                    }
+                }
+            });
+
+            var info = new DatabaseModel
+            {
+                Tables = { blogTable, postTable }
+            };
+
+            var factory = new FakeScaffoldingModelFactory(new TestLoggerFactory(), new FakePluralizer());
+            var model = factory.Create(info);
+
+            Assert.Collection(model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+                entity =>
+                {
+                    Assert.Equal("Blog", entity.Name);
+                    Assert.Equal("Posts", entity.GetNavigations().Single().Name);
+                },
+                entity =>
+                {
+                    Assert.Equal("Post", entity.Name);
+                    Assert.Equal("Blog", entity.GetNavigations().Single().Name);
                 }
             );
         }
