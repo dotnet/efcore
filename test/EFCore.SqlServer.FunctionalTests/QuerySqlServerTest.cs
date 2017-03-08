@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Relational.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -22,7 +23,7 @@ using System.Threading;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>
+    public class QuerySqlServerTest : RelationalQueryTestBase<NorthwindQuerySqlServerFixture>
     {
         public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -4840,6 +4841,43 @@ WHERE (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0) OR ([c].[ContactName
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE (CHARINDEX(@__LocalMethod1_0, [c].[ContactName]) > 0) OR (@__LocalMethod1_0 = N'')",
+                Sql);
+        }
+
+        public override void String_Like_Literal()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, "%M%"));
+                Assert.Equal(34, count);  // case-insensitive
+            }
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE N'%M%'",
+                Sql);
+        }
+
+        public override void String_Like_Identity()
+        {
+            base.String_Like_Identity();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE [c].[ContactName]",
+                Sql);
+        }
+
+        public override void String_Like_Literal_With_Escape()
+        {
+            base.String_Like_Literal_With_Escape();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE N'!%' ESCAPE '!'",
                 Sql);
         }
 

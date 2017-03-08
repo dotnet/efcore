@@ -1243,6 +1243,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             Visit(likeExpression.Pattern);
 
+            if (likeExpression.EscapeChar != null)
+            {
+                _relationalCommandBuilder.Append(" ESCAPE ");
+                Visit(likeExpression.EscapeChar);
+            }
+
             _typeMapping = parentTypeMapping;
 
             return likeExpression;
