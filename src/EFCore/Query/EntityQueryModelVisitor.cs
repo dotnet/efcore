@@ -1083,10 +1083,29 @@ namespace Microsoft.EntityFrameworkCore.Query
             [UsedImplicitly]
             public TInner Inner;
         }
+        
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual Type CreateTransparentIdentifierType([NotNull] Type outerType, [NotNull] Type innerType)
+            => typeof(TransparentIdentifier<,>).MakeGenericType(
+                Check.NotNull(outerType, nameof(outerType)),
+                Check.NotNull(innerType, nameof(innerType)));
 
-        private static Expression CallCreateTransparentIdentifier(
-            Type transparentIdentifierType, Expression outerExpression, Expression innerExpression)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual Expression CallCreateTransparentIdentifier(
+            [NotNull] Type transparentIdentifierType,
+            [NotNull] Expression outerExpression,
+            [NotNull] Expression innerExpression)
         {
+            Check.NotNull(transparentIdentifierType, nameof(transparentIdentifierType));
+            Check.NotNull(outerExpression, nameof(outerExpression));
+            Check.NotNull(innerExpression, nameof(innerExpression));
+
             var createTransparentIdentifierMethodInfo
                 = transparentIdentifierType.GetTypeInfo().GetDeclaredMethod(CreateTransparentIdentifierMethodName);
 
@@ -1109,9 +1128,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Expression.Field(targetExpression, fieldInfo);
         }
 
-        private void IntroduceTransparentScope(
-            IQuerySource fromClause, QueryModel queryModel, int index, Type transparentIdentifierType)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void IntroduceTransparentScope(
+            [NotNull] IQuerySource querySource,
+            [NotNull] QueryModel queryModel,
+            int index,
+            [NotNull] Type transparentIdentifierType)
         {
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(transparentIdentifierType, nameof(transparentIdentifierType));
+
             CurrentParameter
                 = Expression.Parameter(
                     transparentIdentifierType,
@@ -1124,13 +1154,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             for (var i = 0; i < index; i++)
             {
-                var querySource = queryModel.BodyClauses[i] as IQuerySource;
+                var bodyClause = queryModel.BodyClauses[i] as IQuerySource;
 
-                if (querySource != null)
+                if (bodyClause != null)
                 {
-                    RescopeTransparentAccess(querySource, outerAccessExpression);
+                    RescopeTransparentAccess(bodyClause, outerAccessExpression);
 
-                    var groupJoinClause = querySource as GroupJoinClause;
+                    var groupJoinClause = bodyClause as GroupJoinClause;
 
                     if (groupJoinClause != null
                         && QueryCompilationContext.QuerySourceMapping
@@ -1141,7 +1171,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            AddOrUpdateMapping(fromClause, AccessInnerTransparentField(transparentIdentifierType, CurrentParameter));
+            AddOrUpdateMapping(querySource, AccessInnerTransparentField(transparentIdentifierType, CurrentParameter));
         }
 
         private void RescopeTransparentAccess(IQuerySource querySource, Expression targetExpression)

@@ -30,9 +30,9 @@ INNER JOIN [Products] AS [od.Product0] ON [od0].[ProductID] = [od.Product0].[Pro
                 Sql);
 
             Assert.Contains(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer0].[CustomerID], [o.Customer0].[Address], [o.Customer0].[City], [o.Customer0].[CompanyName], [o.Customer0].[ContactName], [o.Customer0].[ContactTitle], [o.Customer0].[Country], [o.Customer0].[Fax], [o.Customer0].[Phone], [o.Customer0].[PostalCode], [o.Customer0].[Region]
 FROM [Orders] AS [o0]
-LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]",
+LEFT JOIN [Customers] AS [o.Customer0] ON [o0].[CustomerID] = [o.Customer0].[CustomerID]",
                 Sql);
 
             Assert.Contains(
@@ -52,9 +52,9 @@ INNER JOIN [Products] AS [od.Product0] ON [od0].[ProductID] = [od.Product0].[Pro
                 Sql);
 
             Assert.Contains(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer0].[CustomerID], [o.Customer0].[Address], [o.Customer0].[City], [o.Customer0].[CompanyName], [o.Customer0].[ContactName], [o.Customer0].[ContactTitle], [o.Customer0].[Country], [o.Customer0].[Fax], [o.Customer0].[Phone], [o.Customer0].[PostalCode], [o.Customer0].[Region]
 FROM [Orders] AS [o0]
-LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]",
+LEFT JOIN [Customers] AS [o.Customer0] ON [o0].[CustomerID] = [o.Customer0].[CustomerID]",
                 Sql);
 
             Assert.Contains(
@@ -74,9 +74,9 @@ INNER JOIN [Products] AS [od.Product0] ON [od0].[ProductID] = [od.Product0].[Pro
                 Sql);
 
             Assert.Contains(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer0].[CustomerID], [o.Customer0].[Address], [o.Customer0].[City], [o.Customer0].[CompanyName], [o.Customer0].[ContactName], [o.Customer0].[ContactTitle], [o.Customer0].[Country], [o.Customer0].[Fax], [o.Customer0].[Phone], [o.Customer0].[PostalCode], [o.Customer0].[Region]
 FROM [Orders] AS [o0]
-LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]",
+LEFT JOIN [Customers] AS [o.Customer0] ON [o0].[CustomerID] = [o.Customer0].[CustomerID]",
                 Sql);
 
             Assert.Contains(
@@ -96,9 +96,9 @@ INNER JOIN [Products] AS [od.Product0] ON [od0].[ProductID] = [od.Product0].[Pro
                 Sql);
 
             Assert.Contains(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer0].[CustomerID], [o.Customer0].[Address], [o.Customer0].[City], [o.Customer0].[CompanyName], [o.Customer0].[ContactName], [o.Customer0].[ContactTitle], [o.Customer0].[Country], [o.Customer0].[Fax], [o.Customer0].[Phone], [o.Customer0].[PostalCode], [o.Customer0].[Region]
 FROM [Orders] AS [o0]
-LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]",
+LEFT JOIN [Customers] AS [o.Customer0] ON [o0].[CustomerID] = [o.Customer0].[CustomerID]",
                 Sql);
 
             Assert.Contains(
@@ -118,9 +118,9 @@ INNER JOIN [Products] AS [od.Product0] ON [od0].[ProductID] = [od.Product0].[Pro
                 Sql);
 
             Assert.Contains(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer0].[CustomerID], [o.Customer0].[Address], [o.Customer0].[City], [o.Customer0].[CompanyName], [o.Customer0].[ContactName], [o.Customer0].[ContactTitle], [o.Customer0].[Country], [o.Customer0].[Fax], [o.Customer0].[Phone], [o.Customer0].[PostalCode], [o.Customer0].[Region]
 FROM [Orders] AS [o0]
-LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]",
+LEFT JOIN [Customers] AS [o.Customer0] ON [o0].[CustomerID] = [o.Customer0].[CustomerID]",
                 Sql);
 
             Assert.Contains(
@@ -140,9 +140,9 @@ INNER JOIN [Products] AS [od.Product0] ON [od0].[ProductID] = [od.Product0].[Pro
                 Sql);
 
             Assert.Contains(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer0].[CustomerID], [o.Customer0].[Address], [o.Customer0].[City], [o.Customer0].[CompanyName], [o.Customer0].[ContactName], [o.Customer0].[ContactTitle], [o.Customer0].[Country], [o.Customer0].[Fax], [o.Customer0].[Phone], [o.Customer0].[PostalCode], [o.Customer0].[Region]
 FROM [Orders] AS [o0]
-LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]",
+LEFT JOIN [Customers] AS [o.Customer0] ON [o0].[CustomerID] = [o.Customer0].[CustomerID]",
                 Sql);
 
             Assert.Contains(
@@ -484,12 +484,12 @@ WHERE (([o.Customer].[City] = N'Seattle') AND [o.Customer].[City] IS NOT NULL) A
             base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar();
 
             Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o.Customer0].[CustomerID], [o.Customer0].[Address], [o.Customer0].[City], [o.Customer0].[CompanyName], [o.Customer0].[ContactName], [o.Customer0].[ContactTitle], [o.Customer0].[Country], [o.Customer0].[Fax], [o.Customer0].[Phone], [o.Customer0].[PostalCode], [o.Customer0].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 CROSS JOIN [Orders] AS [o0]
-LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]
-WHERE (([o].[OrderID] < 10300) AND ([o0].[OrderID] < 10400)) AND (([o.Customer].[City] = [o.Customer1].[City]) OR ([o.Customer].[City] IS NULL AND [o.Customer1].[City] IS NULL))",
+LEFT JOIN [Customers] AS [o.Customer0] ON [o0].[CustomerID] = [o.Customer0].[CustomerID]
+WHERE (([o].[OrderID] < 10300) AND ([o0].[OrderID] < 10400)) AND (([o.Customer].[City] = [o.Customer0].[City]) OR ([o.Customer].[City] IS NULL AND [o.Customer0].[City] IS NULL))",
                 Sql);
         }
 
@@ -498,12 +498,12 @@ WHERE (([o].[OrderID] < 10300) AND ([o0].[OrderID] < 10400)) AND (([o.Customer].
             base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected();
 
             Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region], [o.Customer1].[CustomerID], [o.Customer1].[Address], [o.Customer1].[City], [o.Customer1].[CompanyName], [o.Customer1].[ContactName], [o.Customer1].[ContactTitle], [o.Customer1].[Country], [o.Customer1].[Fax], [o.Customer1].[Phone], [o.Customer1].[PostalCode], [o.Customer1].[Region], [o0].[CustomerID]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region], [o.Customer0].[CustomerID], [o.Customer0].[Address], [o.Customer0].[City], [o.Customer0].[CompanyName], [o.Customer0].[ContactName], [o.Customer0].[ContactTitle], [o.Customer0].[Country], [o.Customer0].[Fax], [o.Customer0].[Phone], [o.Customer0].[PostalCode], [o.Customer0].[Region], [o0].[CustomerID]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 CROSS JOIN [Orders] AS [o0]
-LEFT JOIN [Customers] AS [o.Customer1] ON [o0].[CustomerID] = [o.Customer1].[CustomerID]
-WHERE (([o].[OrderID] < 10300) AND ([o0].[OrderID] < 10400)) AND (([o.Customer].[City] = [o.Customer1].[City]) OR ([o.Customer].[City] IS NULL AND [o.Customer1].[City] IS NULL))",
+LEFT JOIN [Customers] AS [o.Customer0] ON [o0].[CustomerID] = [o.Customer0].[CustomerID]
+WHERE (([o].[OrderID] < 10300) AND ([o0].[OrderID] < 10400)) AND (([o.Customer].[City] = [o.Customer0].[City]) OR ([o.Customer].[City] IS NULL AND [o.Customer0].[City] IS NULL))",
                 Sql);
         }
 
@@ -1322,23 +1322,19 @@ ORDER BY [od1].[OrderID], [od1].[ProductID]",
                 Sql);
         }
 
-        public override void GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened()
+        public override void GroupJoin_with_complex_subquery_and_LOJ_gets_flattened()
         {
-            base.GroupJoin_with_complex_subquery_and_LOJ_does_not_get_flattened();
+            base.GroupJoin_with_complex_subquery_and_LOJ_gets_flattened();
 
-            Assert.Contains(
-                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
-FROM (
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+FROM [Customers] AS [c]
+LEFT JOIN (
     SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
     FROM [Order Details] AS [od]
     INNER JOIN [Orders] AS [o] ON [od].[OrderID] = 10260
     INNER JOIN [Customers] AS [c2] ON [o].[CustomerID] = [c2].[CustomerID]
-) AS [t]",
-                Sql);
-
-            Assert.Contains(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]",
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]",
                 Sql);
         }
 
