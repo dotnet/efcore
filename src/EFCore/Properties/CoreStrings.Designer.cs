@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// AddDbContext was called with configuration, but the context type '{contextType}' only declares a parameterless constructor. This means that the configuration passed to AddDbContext will never be used. If configuration is passed to AddDbContext, then â€˜{contextType}â€™ should declare a constructor that accepts a DbContextOptions&lt;{contextType}&gt; and must pass it to the base constructor for DbContext.
+        /// AddDbContext was called with configuration, but the context type '{contextType}' only declares a parameterless constructor. This means that the configuration passed to AddDbContext will never be used. If configuration is passed to AddDbContext, then ‘{contextType}’ should declare a constructor that accepts a DbContextOptions&lt;{contextType}&gt; and must pass it to the base constructor for DbContext.
         /// </summary>
         public static string DbContextMissingConstructor([CanBeNull] object contextType)
         {
@@ -409,19 +409,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The service dependencies type '{dependenciesType}' has been registered innapropriately in the service collection. Service dependencies types must only be registered by Entity Framework, or in rare cases by database providers and then only to change the service lifetime.
-        /// </summary>
-        public static string BadDependencyRegistration([CanBeNull] object dependenciesType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("BadDependencyRegistration", "dependenciesType"), dependenciesType);
-        }
-
-        /// <summary>
         /// The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.
         /// </summary>
         public static string NoValueGenerator([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NoValueGenerator", "property", "entityType", "propertyType"), property, entityType, propertyType);
+        }
+
+        /// <summary>
+        /// The service dependencies type '{dependenciesType}' has been registered innapropriately in the service collection. Service dependencies types must only be registered by Entity Framework, or in rare cases by database providers and then only to change the service lifetime.
+        /// </summary>
+        public static string BadDependencyRegistration([CanBeNull] object dependenciesType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("BadDependencyRegistration", "dependenciesType"), dependenciesType);
         }
 
         /// <summary>

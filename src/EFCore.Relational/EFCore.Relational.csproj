@@ -22,4 +22,25 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net451'">
     <Reference Include="System.Transactions" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\RelationalStrings.resx">
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Properties\RelationalStrings.Designer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RelationalStrings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\RelationalStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>RelationalStrings.Designer.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>
