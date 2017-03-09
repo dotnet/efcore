@@ -1,3 +1,6 @@
+only_commits:
+  # Start a build if commit message contains 'appveyor'
+  message: /appveyor/
 init:
   - git config --global core.autocrlf true
 build_script:
