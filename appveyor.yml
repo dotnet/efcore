@@ -1,3 +1,6 @@
+only_commits:
+  # Start a build if commit message contains 'appveyor'
+  message: /appveyor/
 init:
   - git config --global core.autocrlf true
 build_script:
@@ -23,5 +26,4 @@ matrix:
   fast_finish: true
 artifacts:
   - path: 'artifacts\build\*.nupkg'
-# Required for dotnet-test to work
 os: Visual Studio 2017 RC
