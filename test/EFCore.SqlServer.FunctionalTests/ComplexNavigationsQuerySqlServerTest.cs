@@ -2659,6 +2659,28 @@ ORDER BY [t].[Level2_Required_Id]",
                 Sql);
         }
 
+        public override void Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property()
+        {
+            base.Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property();
+
+            Assert.Equal(
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1]
+INNER JOIN [Level2] AS [l2] ON ([l1].[OneToMany_Optional_Self_InverseId] = [l2].[Level1_Optional_Id]) OR ([l1].[OneToMany_Optional_Self_InverseId] IS NULL AND [l2].[Level1_Optional_Id] IS NULL)",
+                Sql);
+        }
+
+        public override void Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties()
+        {
+            base.Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties();
+
+            Assert.Equal(
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1]
+INNER JOIN [Level2] AS [l2] ON (([l1].[OneToMany_Optional_Self_InverseId] = [l2].[Level1_Optional_Id]) OR ([l1].[OneToMany_Optional_Self_InverseId] IS NULL AND [l2].[Level1_Optional_Id] IS NULL)) AND (([l1].[OneToOne_Optional_SelfId] = [l2].[OneToMany_Optional_Self_InverseId]) OR ([l1].[OneToOne_Optional_SelfId] IS NULL AND [l2].[OneToMany_Optional_Self_InverseId] IS NULL))",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 

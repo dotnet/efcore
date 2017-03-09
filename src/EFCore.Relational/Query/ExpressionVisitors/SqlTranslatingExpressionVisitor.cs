@@ -484,6 +484,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 && rightExpressions != null
                 && leftExpressions.Length == rightExpressions.Length)
             {
+                if (leftExpressions.Length == 1
+                    && expressionType == ExpressionType.Equal)
+                {
+                    var translatedExpression = TransformNullComparison(leftExpressions[0], rightExpressions[0], binaryExpression.NodeType)
+                                               ?? Expression.MakeBinary(expressionType, leftExpressions[0], rightExpressions[0]);
+                    return Expression.AndAlso(translatedExpression, Expression.Constant(true, translatedExpression.Type));
+                }
+
                 return leftExpressions
                     .Zip(rightExpressions, (l, r) =>
                         TransformNullComparison(l, r, binaryExpression.NodeType)

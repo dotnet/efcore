@@ -3143,7 +3143,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     select new { Id = l2.Id, Nane = l1 != null ? l1.Name : null },
                 (l1s, l2s) =>
                     from l2 in l2s
-                    join l1 in l1s.OrderBy(x => Maybe(x.OneToOne_Optional_FK, () => x.OneToOne_Optional_FK.Name)).Take(2) 
+                    join l1 in l1s.OrderBy(x => Maybe(x.OneToOne_Optional_FK, () => x.OneToOne_Optional_FK.Name)).Take(2)
                         on l2.Level1_Optional_Id equals l1.Id into grouping
                     from l1 in grouping.DefaultIfEmpty()
                     select new { Id = l2.Id, Nane = l1 != null ? l1.Name : null },
@@ -3790,6 +3790,56 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Skip(0)
                     .Take(10)
                     .Select(l3 => l3.Name));
+        }
+
+        [ConditionalFact]
+        public virtual void Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo
+                            on new
+                            {
+                                A = EF.Property<int?>(l1, "OneToMany_Optional_Self_InverseId"),
+                            }
+                            equals new
+                            {
+                                A = EF.Property<int?>(l2, "Level1_Optional_Id"),
+                            }
+                            select l1;
+
+                var result = query.ToList();
+
+                // This result is manually verified. Do not change.
+                Assert.Equal(53, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo
+                            on new
+                            {
+                                A = EF.Property<int?>(l1, "OneToMany_Optional_Self_InverseId"),
+                                B = EF.Property<int?>(l1, "OneToOne_Optional_SelfId")
+                            }
+                            equals new
+                            {
+                                A = EF.Property<int?>(l2, "Level1_Optional_Id"),
+                                B = EF.Property<int?>(l2, "OneToMany_Optional_Self_InverseId"),
+                            }
+                            select l1;
+
+                var result = query.ToList();
+
+                // This result is manually verified. Do not change.
+                Assert.Equal(39, result.Count);
+            }
         }
 
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
