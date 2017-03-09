@@ -5,9 +5,11 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using Remotion.Linq.Clauses.ExpressionVisitors;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -23,6 +25,52 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public static string Print([NotNull] this QueryModel queryModel, bool removeFormatting = false, int? characterLimit = null)
             => new QueryModelPrinter().Print(queryModel, removeFormatting, characterLimit);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void UpdateQuerySourceMapping(
+            [NotNull] this QueryModel queryModel,
+            [NotNull] IQuerySource oldQuerySource,
+            [NotNull] Expression newExpression,
+            [NotNull] IEnumerable<IQueryAnnotation> queryAnnotations)
+        {
+            var querySourceMapping = new QuerySourceMapping();
+            querySourceMapping.AddMapping(oldQuerySource, newExpression);
+
+            queryModel.TransformExpressions(expression =>
+                ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(
+                    expression,
+                    querySourceMapping,
+                    throwOnUnmappedReferences: false));
+
+            if (newExpression is QuerySourceReferenceExpression qsre)
+            {
+                foreach (var queryAnnotation in queryAnnotations)
+                {
+                    if (queryAnnotation.QuerySource == oldQuerySource)
+                    {
+                        queryAnnotation.QuerySource = qsre.ReferencedQuerySource;
+                        queryAnnotation.QueryModel = queryModel;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void UpdateQuerySourceMapping(
+            [NotNull] this QueryModel queryModel,
+            [NotNull] IQuerySource oldQuerySource,
+            [NotNull] IQuerySource newQuerySource,
+            [NotNull] IEnumerable<IQueryAnnotation> queryAnnotations)
+            => queryModel.UpdateQuerySourceMapping(
+                oldQuerySource,
+                new QuerySourceReferenceExpression(newQuerySource),
+                queryAnnotations);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
