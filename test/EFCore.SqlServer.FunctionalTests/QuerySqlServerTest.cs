@@ -3868,10 +3868,13 @@ END",
 SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
-        FROM [Customers] AS [c]
-        WHERE LEN([c].[CustomerID]) <> 5
-        ORDER BY [c].[ContactName]
-        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY)
+        FROM (
+            SELECT [c].*
+            FROM [Customers] AS [c]
+            ORDER BY [c].[ContactName]
+            OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+        ) AS [t]
+        WHERE [t].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [t].[CustomerID]) = 1))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);
@@ -7239,6 +7242,99 @@ LEFT JOIN (
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void Where_simple_shadow_subquery()
+        {
+            base.Where_simple_shadow_subquery();
+
+            Assert.Equal(
+                @"@__p_0: 5
+
+SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
+FROM (
+    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    ORDER BY [e].[EmployeeID]
+) AS [t]
+WHERE [t].[Title] = N'Sales Representative'
+ORDER BY [t].[EmployeeID]",
+                Sql);
+        }
+
+        public override void Where_simple_shadow_subquery2()
+        {
+            base.Where_simple_shadow_subquery2();
+
+            Assert.Equal(
+                @"@__p_0: 5
+
+SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
+FROM (
+    SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    ORDER BY [e].[EmployeeID]
+    OFFSET @__p_0 ROWS
+) AS [t]
+WHERE [t].[Title] = N'Sales Representative'
+ORDER BY [t].[EmployeeID]",
+                Sql);
+        }
+
+        public override void OrderBy_Take_OrderBy()
+        {
+            base.OrderBy_Take_OrderBy();
+
+            Assert.Equal(
+                @"@__p_0: 2
+
+SELECT [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice]
+FROM (
+    SELECT TOP(@__p_0) [d].[OrderID], [d].[ProductID], [d].[Discount], [d].[Quantity], [d].[UnitPrice]
+    FROM [Order Details] AS [d]
+    ORDER BY [d].[Quantity], [d].[OrderID]
+) AS [t]
+ORDER BY [t].[ProductID], [t].[Quantity], [t].[OrderID]",
+                Sql);
+        }
+
+        public override void OrderBy_Skip_OrderBy()
+        {
+            base.OrderBy_Skip_OrderBy();
+
+            Assert.Equal(
+                @"@__p_0: 2153
+
+SELECT [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice]
+FROM (
+    SELECT [d].[OrderID], [d].[ProductID], [d].[Discount], [d].[Quantity], [d].[UnitPrice]
+    FROM [Order Details] AS [d]
+    ORDER BY [d].[Quantity], [d].[OrderID]
+    OFFSET @__p_0 ROWS
+) AS [t]
+ORDER BY [t].[ProductID], [t].[Quantity], [t].[OrderID]",
+                Sql);
+        }
+
+        public override void Skip_Skip_Take()
+        {
+            base.Skip_Skip_Take();
+
+            Assert.Equal(
+                @"@__p_0: 23
+@__p_1: 19
+@__p_2: 11
+
+SELECT [t].*
+FROM (
+    SELECT [d].[OrderID], [d].[ProductID], [d].[Discount], [d].[Quantity], [d].[UnitPrice]
+    FROM [Order Details] AS [d]
+    ORDER BY [d].[OrderID], [d].[ProductID]
+    OFFSET @__p_0 ROWS
+) AS [t]
+ORDER BY [t].[OrderID], [t].[ProductID]
+OFFSET @__p_1 ROWS FETCH NEXT @__p_2 ROWS ONLY",
                 Sql);
         }
 

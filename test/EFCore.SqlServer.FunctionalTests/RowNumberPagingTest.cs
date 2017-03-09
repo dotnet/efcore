@@ -376,13 +376,16 @@ END",
 
 SELECT CASE
     WHEN NOT EXISTS (
-        SELECT [t].[c0]
+        SELECT 1
         FROM (
-            SELECT 1 AS [c0], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
-            FROM [Customers] AS [c]
-            WHERE LEN([c].[CustomerID]) <> 5
+            SELECT [t0].*
+            FROM (
+                SELECT [c].*, ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
+                FROM [Customers] AS [c]
+            ) AS [t0]
+            WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
         ) AS [t]
-        WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1)))
+        WHERE [t].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [t].[CustomerID]) = 1))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);
@@ -461,6 +464,49 @@ FROM (
     ) AS [t0]
     WHERE [t0].[__RowNumber__] > @__p_0
 ) AS [t]",
+                Sql);
+        }
+
+        public override void OrderBy_Skip_OrderBy()
+        {
+            base.OrderBy_Skip_OrderBy();
+
+            Assert.Equal(
+                @"@__p_0: 2153
+
+SELECT [t0].[OrderID], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice]
+FROM (
+    SELECT [d0].[OrderID], [d0].[ProductID], [d0].[Discount], [d0].[Quantity], [d0].[UnitPrice], ROW_NUMBER() OVER(ORDER BY [d0].[Quantity], [d0].[OrderID]) AS [__RowNumber__]
+    FROM [Order Details] AS [d0]
+) AS [t0]
+WHERE [t0].[__RowNumber__] > @__p_0
+ORDER BY [t0].[Quantity], [t0].[OrderID]",
+                Sql);
+        }
+
+        public override void Skip_Skip_Take()
+        {
+            base.Skip_Skip_Take();
+
+            Assert.Equal(
+                @"@__p_0: 23
+@__p_1: 19
+@__p_2: 11
+
+SELECT [t1].*
+FROM (
+    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[OrderID], [t].[ProductID]) AS [__RowNumber__]
+    FROM (
+        SELECT [t0].[OrderID], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice]
+        FROM (
+            SELECT [d].[OrderID], [d].[ProductID], [d].[Discount], [d].[Quantity], [d].[UnitPrice], ROW_NUMBER() OVER(ORDER BY [d].[OrderID], [d].[ProductID]) AS [__RowNumber__]
+            FROM [Order Details] AS [d]
+        ) AS [t0]
+        WHERE [t0].[__RowNumber__] > @__p_0
+    ) AS [t]
+) AS [t1]
+WHERE ([t1].[__RowNumber__] > @__p_1) AND ([t1].[__RowNumber__] <= (@__p_1 + @__p_2))
+ORDER BY [t1].[OrderID], [t1].[ProductID]",
                 Sql);
         }
 
