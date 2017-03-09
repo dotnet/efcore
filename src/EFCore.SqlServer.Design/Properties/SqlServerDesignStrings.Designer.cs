@@ -88,12 +88,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 schemaName, tableName);
 
         /// <summary>
-        ///     Found column with schema: {schema}, table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.
+        ///     Found column with schema: {schema}, table: {tableName}, column name: {columnName}, data type: {dataType}, data type schema: {dataTypeSchema}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.
         /// </summary>
-        public static string FoundColumn([CanBeNull] object schema, [CanBeNull] object tableName, [CanBeNull] object columnName, [CanBeNull] object dataType, [CanBeNull] object ordinal, [CanBeNull] object isNullable, [CanBeNull] object primaryKeyOrdinal, [CanBeNull] object defaultValue, [CanBeNull] object computedValue, [CanBeNull] object precision, [CanBeNull] object scale, [CanBeNull] object maxLength, [CanBeNull] object isIdentity, [CanBeNull] object isComputed)
+        public static string FoundColumn([CanBeNull] object schema, [CanBeNull] object tableName, [CanBeNull] object columnName, [CanBeNull] object dataType, [CanBeNull] object dataTypeSchema, [CanBeNull] object ordinal, [CanBeNull] object isNullable, [CanBeNull] object primaryKeyOrdinal, [CanBeNull] object defaultValue, [CanBeNull] object computedValue, [CanBeNull] object precision, [CanBeNull] object scale, [CanBeNull] object maxLength, [CanBeNull] object isIdentity, [CanBeNull] object isComputed)
             => string.Format(
-                GetString("FoundColumn", nameof(schema), nameof(tableName), nameof(columnName), nameof(dataType), nameof(ordinal), nameof(isNullable), nameof(primaryKeyOrdinal), nameof(defaultValue), nameof(computedValue), nameof(precision), nameof(scale), nameof(maxLength), nameof(isIdentity), nameof(isComputed)),
-                schema, tableName, columnName, dataType, ordinal, isNullable, primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, isIdentity, isComputed);
+                GetString("FoundColumn", nameof(schema), nameof(tableName), nameof(columnName), nameof(dataType), nameof(dataTypeSchema), nameof(ordinal), nameof(isNullable), nameof(primaryKeyOrdinal), nameof(defaultValue), nameof(computedValue), nameof(precision), nameof(scale), nameof(maxLength), nameof(isIdentity), nameof(isComputed)),
+                schema, tableName, columnName, dataType, dataTypeSchema, ordinal, isNullable, primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, isIdentity, isComputed);
 
         /// <summary>
         ///     Found default schema {defaultSchema}.
@@ -136,12 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 schema, name);
 
         /// <summary>
-        ///     Found type alias {alias} which maps to underlying data type {dataType}.
+        ///     Found type alias with schema: {schema} name: {alias} which maps to underlying data type {dataType}.
         /// </summary>
-        public static string FoundTypeAlias([CanBeNull] object alias, [CanBeNull] object dataType)
+        public static string FoundTypeAlias([CanBeNull] object schema, [CanBeNull] object alias, [CanBeNull] object dataType)
             => string.Format(
-                GetString("FoundTypeAlias", nameof(alias), nameof(dataType)),
-                alias, dataType);
+                GetString("FoundTypeAlias", nameof(schema), nameof(alias), nameof(dataType)),
+                schema, alias, dataType);
 
         /// <summary>
         ///     Index column {columnName} belongs to index {indexName} on table [{schema}].[{tableName}] which is not included in the selection set. Skipping.

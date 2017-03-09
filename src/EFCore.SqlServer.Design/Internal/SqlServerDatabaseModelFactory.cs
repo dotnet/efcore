@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private Dictionary<string, ColumnModel> _tableColumns;
 
         private static string TableKey(TableModel table) => TableKey(table.Name, table.SchemaName);
-        private static string TableKey(string name, string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
+        internal static string TableKey(string name, string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
         private static string ColumnKey(TableModel table, string columnName) => TableKey(table) + ".[" + columnName + "]";
 
         private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string> { "datetimeoffset", "datetime2", "time" };
@@ -160,10 +160,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var command = _connection.CreateCommand();
             command.CommandText = @"SELECT
+                        [schema_name],
                         [type_name],
                         [underlying_system_type]
                         FROM
                         (SELECT
+                          s1.[name] as [schema_name],
                           t1.[name] as [type_name],
                           ( CASE WHEN t1.[xusertype] = t1.[xtype] THEN NULL
                             ELSE
@@ -173,6 +175,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 AND t2.[xusertype] = t1.[xtype] )
                             END) as [underlying_system_type]
                           FROM [sys].[systypes] AS t1
+                          LEFT JOIN [sys].[types] AS t3
+                          ON t1.[xusertype] = t3.[user_type_id] AND t1.[xtype] = t3.[system_type_id]
+                          LEFT JOIN [sys].[schemas] AS s1
+                          ON t3.[schema_id] = s1.[schema_id]
                         ) AS t
                         WHERE [underlying_system_type] IS NOT NULL";
 
@@ -181,12 +187,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 while (reader.Read())
                 {
+                    var aliasSchema = reader.GetValueOrDefault<string>("schema_name");
                     var alias = reader.GetValueOrDefault<string>("type_name");
                     var underlyingSystemType = reader.GetValueOrDefault<string>("underlying_system_type");
                     Logger.LogDebug(
                         SqlServerDesignEventId.FoundTypeAlias,
-                        () => SqlServerDesignStrings.FoundTypeAlias(alias, underlyingSystemType));
-                    typeAliasMap.Add(alias, underlyingSystemType);
+                        () => SqlServerDesignStrings.FoundTypeAlias(aliasSchema, alias, underlyingSystemType));
+                    typeAliasMap.Add(TableKey(alias, aliasSchema), underlyingSystemType);
                 }
             }
 
@@ -312,6 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     schema_name(t.schema_id) AS [schema],
     t.name AS [table],
     type_name(c.user_type_id) AS [typename],
+    s.[name] as [datatype_schema_name],
     c.name AS [column_name],
     c.column_id AS [ordinal],
     c.is_nullable AS [nullable],
@@ -336,6 +344,7 @@ FROM sys.index_columns ic
     RIGHT JOIN (SELECT * FROM sys.indexes WHERE is_primary_key = 1) AS i ON i.object_id = ic.object_id AND i.index_id = ic.index_id
     RIGHT JOIN sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
     RIGHT JOIN sys.types tp ON tp.user_type_id = c.user_type_id
+    LEFT JOIN sys.schemas s ON s.[schema_id] = tp.[schema_id]
     LEFT JOIN sys.computed_columns cc ON cc.object_id = c.object_id AND cc.column_id = c.column_id
     JOIN sys.tables AS t ON t.object_id = c.object_id
 WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
@@ -349,6 +358,7 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                     var tableName = reader.GetValueOrDefault<string>("table");
                     var columnName = reader.GetValueOrDefault<string>("column_name");
                     var dataTypeName = reader.GetValueOrDefault<string>("typename");
+                    var dataTypeSchemaName = reader.GetValueOrDefault<string>("datatype_schema_name");
                     var ordinal = reader.GetValueOrDefault<int>("ordinal");
                     var nullable = reader.GetValueOrDefault<bool>("nullable");
                     var primaryKeyOrdinal = reader.GetValueOrDefault<int?>("primary_key_ordinal");
@@ -363,7 +373,7 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                     Logger.LogDebug(
                         RelationalDesignEventId.FoundColumn,
                         () => SqlServerDesignStrings.FoundColumn(
-                            schemaName, tableName, columnName, dataTypeName, ordinal, nullable,
+                            schemaName, tableName, columnName, dataTypeName, dataTypeSchemaName, ordinal, nullable,
                             primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, isIdentity, isComputed));
 
                     if (!_tableSelectionSet.Allows(schemaName, tableName))
@@ -432,6 +442,7 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                     };
                     column.SqlServer().IsIdentity = isIdentity;
                     column.SqlServer().DateTimePrecision = dateTimePrecision;
+                    column.SqlServer().DataTypeSchemaName = dataTypeSchemaName;
 
                     table.Columns.Add(column);
                     _tableColumns.Add(ColumnKey(table, column.Name), column);
