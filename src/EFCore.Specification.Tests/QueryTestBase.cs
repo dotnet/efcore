@@ -7047,6 +7047,46 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             .Contains(o.OrderID)));
         }
 
+        [ConditionalFact]
+        public virtual void GroupJoin_SelectMany_subquery_with_filter()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            join o in os on c.CustomerID equals o.CustomerID into lo
+                            from o in lo.Where(x => x.OrderID > 5)
+                            select new { c.ContactName, o.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_SelectMany_subquery_with_filter_orderby()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            join o in os on c.CustomerID equals o.CustomerID into lo
+                            from o in lo.Where(x => x.OrderID > 5).OrderBy(x => x.OrderDate)
+                            select new { c.ContactName, o.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_SelectMany_subquery_with_filter_and_DefaultIfEmpty()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            join o in os on c.CustomerID equals o.CustomerID into lo
+                            from o in lo.Where(x => x.OrderID > 5).DefaultIfEmpty()
+                            select new { c.ContactName, o });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            join o in os on c.CustomerID equals o.CustomerID into lo
+                            from o in lo.Where(x => x.OrderID > 5).OrderBy(x => x.OrderDate).DefaultIfEmpty()
+                            select new { c.ContactName, o });
+        }
+
         private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
         {
             return source?.Count() == 0 ? new[] { default(TElement) } : source;
