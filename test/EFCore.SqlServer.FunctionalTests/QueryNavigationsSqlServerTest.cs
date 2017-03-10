@@ -198,13 +198,9 @@ ORDER BY [od].[OrderID], [od].[ProductID]",
             Assert.Equal(
                 @"@__p_0: 2
 
-SELECT [t].[CustomerID]
-FROM (
-    SELECT TOP(@__p_0) [c].*
-    FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID]
+SELECT TOP(@__p_0) [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
 
 @_outer_CustomerID: ALFKI (Size = 450)
 
@@ -227,17 +223,13 @@ WHERE @_outer_CustomerID = [o].[CustomerID]",
             Assert.Equal(
                 @"@__p_0: 2
 
-SELECT (
+SELECT TOP(@__p_0) (
     SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
 )
-FROM (
-    SELECT TOP(@__p_0) [c].*
-    FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID]",
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
@@ -248,17 +240,13 @@ ORDER BY [t].[CustomerID]",
             Assert.Equal(
                 @"@__p_0: 2
 
-SELECT (
+SELECT TOP(@__p_0) (
     SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
 )
-FROM (
-    SELECT TOP(@__p_0) [c].*
-    FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID]",
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
@@ -269,13 +257,9 @@ ORDER BY [t].[CustomerID]",
             Assert.Equal(
                 @"@__p_0: 2
 
-SELECT [t].[CustomerID]
-FROM (
-    SELECT TOP(@__p_0) [c].*
-    FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID]
+SELECT TOP(@__p_0) [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
 
 @_outer_CustomerID: ALFKI (Size = 450)
 
@@ -298,13 +282,9 @@ WHERE @_outer_CustomerID = [o].[CustomerID]",
             Assert.Equal(
                 @"@__p_0: 2
 
-SELECT [t].[CustomerID]
-FROM (
-    SELECT TOP(@__p_0) [c].*
-    FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID]
+SELECT TOP(@__p_0) [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
 
 @_outer_CustomerID: ALFKI (Size = 450)
 
@@ -329,14 +309,10 @@ WHERE @_outer_CustomerID = [o].[CustomerID]",
                 Assert.StartsWith(
                     @"@__p_0: 20
 
-SELECT [t].[CustomerID]
-FROM (
-    SELECT [c].*
-    FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
-    OFFSET @__p_0 ROWS
-) AS [t]
-ORDER BY [t].[CustomerID]
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+OFFSET @__p_0 ROWS
 
 @_outer_CustomerID: FAMIA (Size = 450)
 

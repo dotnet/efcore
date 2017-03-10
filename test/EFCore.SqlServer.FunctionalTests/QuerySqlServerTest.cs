@@ -506,10 +506,11 @@ ORDER BY [t].[OrderID]
 
 SELECT [t1].[OrderID]
 FROM (
-    SELECT TOP(2) [o1].*
-    FROM [Order Details] AS [o1]
+    SELECT TOP(2) [od0].*
+    FROM [Order Details] AS [od0]
+    ORDER BY [od0].[OrderID]
 ) AS [t1]
-ORDER BY [t1].[ProductID], [t1].[OrderID]
+ORDER BY [t1].[OrderID]
 
 @_outer_CustomerID2: VINET (Size = 450)
 
@@ -518,7 +519,7 @@ FROM [Customers] AS [c3]
 WHERE [c3].[CustomerID] = @_outer_CustomerID2
 ORDER BY [c3].[CustomerID]
 
-@_outer_OrderID1: 10285
+@_outer_OrderID1: 10248
 
 SELECT TOP(1) [c4].[Country]
 FROM [Orders] AS [o20]
@@ -528,22 +529,22 @@ ORDER BY [o20].[OrderID], [c4].[CustomerID]",
                 Sql);
         }
 
+        // TODO: This query can be translated to Server but it does not due to the QueryParser's optimizations. See Issue#7844
         public override void Where_subquery_anon()
         {
             base.Where_subquery_anon();
 
-            Assert.Equal(
+            Assert.StartsWith(
                 @"@__p_0: 9
 
-SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
 FROM (
     SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
 ) AS [t]
-CROSS JOIN (
-    SELECT TOP(1000) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-    FROM [Orders] AS [o]
-) AS [t0]",
+
+SELECT TOP(1000) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]",
                 Sql);
         }
 
@@ -1745,11 +1746,8 @@ FROM [Customers] AS [c3]",
             Assert.Equal(
                 @"@__p_0: 91
 
-SELECT [t].[City]
-FROM (
-    SELECT TOP(@__p_0) [c].*
-    FROM [Customers] AS [c]
-) AS [t]",
+SELECT TOP(@__p_0) [c].[City]
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -1760,8 +1758,8 @@ FROM (
             Assert.Equal(
                 @"@__p_0: 91
 
-SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-FROM [Customers] AS [c0]",
+SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -1811,13 +1809,9 @@ ORDER BY [c].[CustomerID]",
             Assert.Equal(
                 @"@__p_0: 2
 
-SELECT [t].[City]
-FROM (
-    SELECT TOP(@__p_0) [c].*
-    FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID]",
+SELECT TOP(@__p_0) [c].[City]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
@@ -2141,11 +2135,8 @@ FROM [Products] AS [p]",
             Assert.Equal(
                 @"@__p_0: 9
 
-SELECT [t].[EmployeeID]
-FROM (
-    SELECT TOP(@__p_0) [e].*
-    FROM [Employees] AS [e]
-) AS [t]",
+SELECT TOP(@__p_0) [e].[EmployeeID]
+FROM [Employees] AS [e]",
                 Sql);
         }
 
@@ -5015,7 +5006,7 @@ FROM [Order Details] AS [od]
 WHERE CEILING([od].[UnitPrice]) > 10.0",
                 Sql);
         }
-        
+
         public override void Where_math_floor()
         {
             base.Where_math_floor();
@@ -5590,12 +5581,9 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) =
 
 @_outer_CustomerID: ALFKI (Size = 450)
 
-SELECT [t].[OrderDate]
-FROM (
-    SELECT TOP(3) [o].*
-    FROM [Orders] AS [o]
-    WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])
-) AS [t]",
+SELECT TOP(3) [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])",
                 Sql);
         }
 
@@ -5611,15 +5599,12 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) =
 @_outer_City: Berlin (Size = 6)
 @_outer_CustomerID: ALFKI (Size = 450)
 
-SELECT [t].[OrderDate]
-FROM (
-    SELECT TOP(3) [o].*
-    FROM [Orders] AS [o]
-    WHERE EXISTS (
-        SELECT 1
-        FROM [Order Details] AS [d]
-        WHERE ([d].[Discount] > LEN(@_outer_City)) AND ([o].[OrderID] = [d].[OrderID])) AND (@_outer_CustomerID = [o].[CustomerID])
-) AS [t]",
+SELECT TOP(3) [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Order Details] AS [d]
+    WHERE ([d].[Discount] > LEN(@_outer_City)) AND ([o].[OrderID] = [d].[OrderID])) AND (@_outer_CustomerID = [o].[CustomerID])",
                 Sql);
         }
 
@@ -5647,12 +5632,9 @@ ORDER BY (
 
 @_outer_CustomerID: ALFKI (Size = 450)
 
-SELECT [t].[OrderDate]
-FROM (
-    SELECT TOP(3) [o0].*
-    FROM [Orders] AS [o0]
-    WHERE @_outer_CustomerID = [o0].[CustomerID]
-) AS [t]",
+SELECT TOP(3) [o0].[OrderDate]
+FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]",
                 Sql);
         }
 

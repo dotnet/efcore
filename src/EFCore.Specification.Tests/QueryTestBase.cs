@@ -6191,7 +6191,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var orders
                     = (from o in context.Orders.Take(2)
                            // ReSharper disable once UseMethodAny.0
-                       where (from od in context.OrderDetails.Take(2)
+                       where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
                               where (from c in context.Set<Customer>()
                                      where c.CustomerID == o.CustomerID
                                      orderby c.CustomerID
