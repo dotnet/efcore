@@ -89,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (column.DataType != null)
             {
                 string underlyingDataType = null;
-                column.Table.Database.SqlServer().TypeAliases
-                    ?.TryGetValue(column.DataType, out underlyingDataType);
+                column.Table.Database.SqlServer().TypeAliases?.TryGetValue(
+                    SqlServerDatabaseModelFactory.TableKey(column.DataType, column.SqlServer().DataTypeSchemaName), out underlyingDataType);
 
                 mapping = TypeMapper.FindMapping(underlyingDataType ?? column.DataType);
             }
@@ -201,7 +201,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private static bool HasTypeAlias(ColumnModel column)
             => column.DataType != null
-               && column.Table.Database.SqlServer().TypeAliases?.ContainsKey(column.DataType) == true;
+               && column.Table.Database.SqlServer().TypeAliases?.ContainsKey(
+                   SqlServerDatabaseModelFactory.TableKey(column.DataType, column.SqlServer().DataTypeSchemaName)) == true;
 
         // Turns an unqualified SQL Server type name (e.g. varchar) and its
         // max length into a qualified SQL Server type name (e.g. varchar(max))
