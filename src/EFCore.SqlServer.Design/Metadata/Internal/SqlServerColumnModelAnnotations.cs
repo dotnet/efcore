@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
             {
                 return _column[SqlServerDatabaseModelAnnotationNames.DataTypeSchemaName] as string;
             }
-            set { _column[SqlServerDatabaseModelAnnotationNames.DataTypeSchemaName] = value; }
+            [param: CanBeNull] set { _column[SqlServerDatabaseModelAnnotationNames.DataTypeSchemaName] = value; }
         }
     }
 }

@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static string SchemaQualifiedKey(string name, string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
+        public static string SchemaQualifiedKey([NotNull] string name, [CanBeNull] string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
         private static string TableKey(TableModel table) => SchemaQualifiedKey(table.Name, table.SchemaName);
         private static string ColumnKey(TableModel table, string columnName) => TableKey(table) + ".[" + columnName + "]";
 
