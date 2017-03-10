@@ -340,13 +340,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             groupJoinCompensatingVisitor.VisitQueryModel(queryModel);
 
-            var optionalCollectionNavigationCompensatingVisitor = new OptionalCollectionNavigationCompensatingVisitor();
-            optionalCollectionNavigationCompensatingVisitor.VisitQueryModel(queryModel);
-
             _querySourcesRequiringMaterialization = new HashSet<IQuerySource>(
                 querySourcesRequiringMaterialization
-                    .Concat(groupJoinCompensatingVisitor.QuerySources)
-                    .Concat(optionalCollectionNavigationCompensatingVisitor.QuerySources));
+                    .Concat(groupJoinCompensatingVisitor.QuerySources));
         }
 
         private class GroupJoinMaterializationCompensatingVisitor : QueryModelVisitorBase
@@ -365,92 +361,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<GroupJoinMaterializationCompensatingVisitor>(this).Visit);
 
-                base.VisitQueryModel(queryModel);
-            }
+                var groupJoinClauses = queryModel.BodyClauses.OfType<GroupJoinClause>().ToArray();
 
-            public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
-            {
-                if (!IsLeftJoin(groupJoinClause, queryModel, index))
+                foreach (var groupJoinClause in groupJoinClauses)
                 {
-                    MarkForMaterialization(queryModel.MainFromClause);
                     MarkForMaterialization(groupJoinClause);
                 }
 
-                base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
+                if (groupJoinClauses.Any())
+                {
+                    MarkForMaterialization(queryModel.MainFromClause);
+                }
             }
-
-            // Left join (which we don't need to materialize) is when there is a SelectMany clause right after the GroupJoin clause
-            // and that the grouping is not referenced anywhere else in the query
-            private bool IsLeftJoin(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
-                => queryModel.CountQuerySourceReferences(groupJoinClause) == 1
-                    && queryModel.BodyClauses.ElementAtOrDefault(index + 1) is AdditionalFromClause additionalFromClause
-                    && additionalFromClause.TryGetFlattenedGroupJoinClause() == groupJoinClause;
 
             private void MarkForMaterialization(IQuerySource querySource)
             {
                 RequiresMaterializationExpressionVisitor.HandleUnderlyingQuerySources(querySource, MarkForMaterialization);
                 QuerySources.Add(querySource);
-            }
-        }
-
-        /// <summary>
-        /// Temporary measure for issue #7787
-        /// Problem is that for cases where collection navigation is chained after optional navigation we don't currently have robust null protection logic in place
-        /// Since those cases don't need to be materialized, we will now try to bind to a value buffer, which may result in null reference for InMemory scenarios
-        /// Workaround is to detect those cases and force materialization so that null protection is handled by GetValue() method based on entity
-        /// </summary>
-        private class OptionalCollectionNavigationCompensatingVisitor : QueryModelVisitorBase
-        {
-            public ISet<IQuerySource> QuerySources { get; } = new HashSet<IQuerySource>();
-
-            public override void VisitQueryModel(QueryModel queryModel)
-            {
-                queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<OptionalCollectionNavigationCompensatingVisitor>(this).Visit);
-
-                base.VisitQueryModel(queryModel);
-            }
-
-            public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
-            {
-                if (whereClause.Predicate is BinaryExpression binaryExpression
-                    && binaryExpression.NodeType == ExpressionType.Equal)
-                {
-                    var rightQsre = GetPropertyAccessQsre(binaryExpression.Right);
-                    if (rightQsre != null && rightQsre.ReferencedQuerySource is MainFromClause)
-                    {
-                        var leftQsre = GetPropertyAccessQsre(binaryExpression.Left);
-                        MaterializeOptionalNavigationSource(leftQsre);
-                    }
-                }
-
-                base.VisitWhereClause(whereClause, queryModel, index);
-            }
-
-            private QuerySourceReferenceExpression GetPropertyAccessQsre(Expression expression)
-            {
-                if (expression.RemoveConvert() is MemberExpression member)
-                {
-                    return member.Expression as QuerySourceReferenceExpression;
-                }
-
-                if (expression.RemoveConvert() is MethodCallExpression method && EntityQueryModelVisitor.IsPropertyMethod(method.Method))
-                {
-                    return method.Arguments[0] as QuerySourceReferenceExpression;
-                }
-
-                return null;
-            }
-
-            private void MaterializeOptionalNavigationSource(QuerySourceReferenceExpression sourceQsre)
-            {
-                if (sourceQsre?.ReferencedQuerySource is AdditionalFromClause additionalFromClause)
-                {
-                    var flattenedGroupJoin = additionalFromClause.TryGetFlattenedGroupJoinClause();
-                    if (flattenedGroupJoin != null)
-                    {
-                        QuerySources.Add(flattenedGroupJoin.JoinClause);
-                    }
-                }
             }
         }
 

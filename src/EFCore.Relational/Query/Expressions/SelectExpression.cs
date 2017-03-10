@@ -250,10 +250,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public override bool HandlesQuerySource(IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
-
-            var processedQuerySource = PreProcessQuerySource(querySource);
-
-            return _tables.Any(te => te.QuerySource == processedQuerySource || te.HandlesQuerySource(processedQuerySource))
+            
+            return _tables.Any(te => te.HandlesQuerySource(querySource))
                 || base.HandlesQuerySource(querySource);
         }
 
@@ -268,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            return _tables.FirstOrDefault(te => te.QuerySource == querySource || te.HandlesQuerySource(querySource)) 
+            return _tables.FirstOrDefault(te => te.HandlesQuerySource(querySource)) 
                 ?? ProjectStarTable;
         }
 

@@ -74,12 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var queryModelVisitor = (RelationalQueryModelVisitor)CreateQueryModelVisitor();
 
-            var queryModelMapping = new Dictionary<QueryModel, QueryModel>();
-            expression.QueryModel.PopulateQueryModelMapping(queryModelMapping);
-
             queryModelVisitor.VisitQueryModel(expression.QueryModel);
-
-            expression.QueryModel.RecreateQueryModelFromMapping(queryModelMapping);
 
             if (_querySource != null)
             {

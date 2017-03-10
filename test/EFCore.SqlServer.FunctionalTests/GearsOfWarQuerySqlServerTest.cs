@@ -1507,7 +1507,7 @@ LEFT JOIN (
     WHERE [g2].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g].[FullName], [t].[FullName]",
+ORDER BY [g].[FullName]",
                 Sql);
 
             Assert.Contains(
@@ -1554,7 +1554,7 @@ LEFT JOIN (
     WHERE [g2].[Discriminator] = N'Officer'
 ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g].[FullName], [t].[FullName]",
+ORDER BY [g].[FullName]",
                 Sql);
 
             Assert.Contains(
@@ -1601,7 +1601,7 @@ LEFT JOIN (
     WHERE [g2].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g].[FullName], [t].[FullName]",
+ORDER BY [g].[FullName]",
                 Sql);
 
             Assert.Contains(
@@ -1648,7 +1648,7 @@ LEFT JOIN (
     WHERE [g2].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g].[FullName], [t].[FullName]",
+ORDER BY [g].[FullName]",
                 Sql);
 
             Assert.Contains(
