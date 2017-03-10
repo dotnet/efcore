@@ -184,15 +184,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var innerSelectExpression = handlerContext.SelectExpression.Clone();
 
-                innerSelectExpression.ClearProjection();
-                innerSelectExpression.AddToProjection(Expression.Constant(1));
                 innerSelectExpression.AddToPredicate(Expression.Not(predicate));
-
-                if (innerSelectExpression.Limit == null
-                    && innerSelectExpression.Offset == null)
-                {
-                    innerSelectExpression.ClearOrderBy();
-                }
+                innerSelectExpression.SetProjectionExpression(Expression.Constant(1));
+                innerSelectExpression.ClearOrderBy();
 
                 SetProjectionConditionalExpression(
                     handlerContext,
