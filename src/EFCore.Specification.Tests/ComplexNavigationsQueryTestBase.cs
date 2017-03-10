@@ -3106,7 +3106,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_navigation_filter_paging_and_explicit_DefautltIfEmpty()
+        public virtual void SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty()
         {
             AssertQuery<Level1>(
                   l1s => from l1 in l1s

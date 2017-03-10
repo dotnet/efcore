@@ -299,6 +299,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModel, nameof(queryModel));
             Check.NotNull(includeResultOperators, nameof(includeResultOperators));
 
+            // First pass of optimizations
+
+            var additionalFromClauseOptimizer
+                = new AdditionalFromClauseOptimizingQueryModelVisitor();
+
+            additionalFromClauseOptimizer.VisitQueryModel(queryModel);
+
             _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
 
             var entityEqualityRewritingExpressionVisitor
@@ -307,6 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             entityEqualityRewritingExpressionVisitor.Rewrite(queryModel);
 
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
+
+            // Rewrite navigations
 
             new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger)
                 .VisitQueryModel(queryModel);
@@ -319,9 +328,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             _navigationRewritingExpressionVisitorFactory
                 .Create(this).Rewrite(queryModel, parentQueryModel: null);
 
+            // Second pass of optimizations
+
+            additionalFromClauseOptimizer.VisitQueryModel(queryModel);
+
             entityEqualityRewritingExpressionVisitor.Rewrite(queryModel);
 
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
+
+            // Log results
 
             QueryCompilationContext.Logger
                 .LogDebug(

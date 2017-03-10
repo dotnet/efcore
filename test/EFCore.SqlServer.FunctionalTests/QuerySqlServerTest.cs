@@ -7188,6 +7188,60 @@ WHERE ([o].[OrderID] > 11000) AND [o].[OrderID] IN (
                 Sql);
         }
 
+        public override void GroupJoin_SelectMany_subquery_with_filter()
+        {
+            base.GroupJoin_SelectMany_subquery_with_filter();
+
+            Assert.Equal(
+                @"SELECT [c].[ContactName], [t].[OrderID]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [o].*
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] > 5
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]",
+                Sql);
+        }
+
+        public override void GroupJoin_SelectMany_subquery_with_filter_orderby()
+        {
+            base.GroupJoin_SelectMany_subquery_with_filter_orderby();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void GroupJoin_SelectMany_subquery_with_filter_and_DefaultIfEmpty()
+        {
+            base.GroupJoin_SelectMany_subquery_with_filter_and_DefaultIfEmpty();
+
+            Assert.Equal(
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [c].[ContactName]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] > 5
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]",
+                Sql);
+        }
+
+        public override void GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty()
+        {
+            base.GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 
