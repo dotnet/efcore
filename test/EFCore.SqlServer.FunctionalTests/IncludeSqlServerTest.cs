@@ -937,15 +937,11 @@ ORDER BY [t].[CustomerID]",
 @__p_1: 2
 
 SELECT [od.Order].[CustomerID]
-FROM (
-    SELECT [od].*
-    FROM [Order Details] AS [od]
-    WHERE [od].[Quantity] = 10
-    ORDER BY [od].[OrderID], [od].[ProductID]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
-) AS [t]
-INNER JOIN [Orders] AS [od.Order] ON [t].[OrderID] = [od.Order].[OrderID]
-ORDER BY [t].[OrderID], [t].[ProductID]",
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
+WHERE [od].[Quantity] = 10
+ORDER BY [od].[OrderID], [od].[ProductID]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY",
                     Sql);
             }
         }

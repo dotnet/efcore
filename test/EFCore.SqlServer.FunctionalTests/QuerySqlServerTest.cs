@@ -1745,11 +1745,8 @@ FROM [Customers] AS [c3]",
             Assert.Equal(
                 @"@__p_0: 91
 
-SELECT [t].[City]
-FROM (
-    SELECT TOP(@__p_0) [c].*
-    FROM [Customers] AS [c]
-) AS [t]",
+SELECT TOP(@__p_0) [c].[City]
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -1811,13 +1808,9 @@ ORDER BY [c].[CustomerID]",
             Assert.Equal(
                 @"@__p_0: 2
 
-SELECT [t].[City]
-FROM (
-    SELECT TOP(@__p_0) [c].*
-    FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID]",
+SELECT TOP(@__p_0) [c].[City]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
@@ -2141,11 +2134,8 @@ FROM [Products] AS [p]",
             Assert.Equal(
                 @"@__p_0: 9
 
-SELECT [t].[EmployeeID]
-FROM (
-    SELECT TOP(@__p_0) [e].*
-    FROM [Employees] AS [e]
-) AS [t]",
+SELECT TOP(@__p_0) [e].[EmployeeID]
+FROM [Employees] AS [e]",
                 Sql);
         }
 
@@ -5590,12 +5580,9 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) =
 
 @_outer_CustomerID: ALFKI (Size = 450)
 
-SELECT [t].[OrderDate]
-FROM (
-    SELECT TOP(3) [o].*
-    FROM [Orders] AS [o]
-    WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])
-) AS [t]",
+SELECT TOP(3) [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])",
                 Sql);
         }
 
@@ -5611,15 +5598,12 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) =
 @_outer_City: Berlin (Size = 6)
 @_outer_CustomerID: ALFKI (Size = 450)
 
-SELECT [t].[OrderDate]
-FROM (
-    SELECT TOP(3) [o].*
-    FROM [Orders] AS [o]
-    WHERE EXISTS (
-        SELECT 1
-        FROM [Order Details] AS [d]
-        WHERE ([d].[Discount] > LEN(@_outer_City)) AND ([o].[OrderID] = [d].[OrderID])) AND (@_outer_CustomerID = [o].[CustomerID])
-) AS [t]",
+SELECT TOP(3) [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Order Details] AS [d]
+    WHERE ([d].[Discount] > LEN(@_outer_City)) AND ([o].[OrderID] = [d].[OrderID])) AND (@_outer_CustomerID = [o].[CustomerID])",
                 Sql);
         }
 
@@ -5647,12 +5631,9 @@ ORDER BY (
 
 @_outer_CustomerID: ALFKI (Size = 450)
 
-SELECT [t].[OrderDate]
-FROM (
-    SELECT TOP(3) [o0].*
-    FROM [Orders] AS [o0]
-    WHERE @_outer_CustomerID = [o0].[CustomerID]
-) AS [t]",
+SELECT TOP(3) [o0].[OrderDate]
+FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID = [o0].[CustomerID]",
                 Sql);
         }
 

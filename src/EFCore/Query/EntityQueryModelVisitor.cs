@@ -300,6 +300,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
 
+            new MainFromClauseFlatteningQueryModelVisitor(QueryCompilationContext.QueryAnnotations)
+                .VisitQueryModel(queryModel);
+
             var entityEqualityRewritingExpressionVisitor
                 = new EntityEqualityRewritingExpressionVisitor(QueryCompilationContext.Model);
 
