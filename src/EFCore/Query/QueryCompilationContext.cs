@@ -247,13 +247,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 return base.VisitMethodCall(methodCallExpression);
             }
-
-            protected override Expression VisitSubQuery(SubQueryExpression expression)
-            {
-                expression.QueryModel.TransformExpressions(Visit);
-
-                return expression;
-            }
         }
 
         /// <summary>
