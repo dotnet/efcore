@@ -10,16 +10,26 @@ addons:
     - libssl-dev
     - libunwind8
     - zlib1g
+services:
+  - docker
 env:
+  matrix:
+    - TestGroup: Unit
+    - TestGroup: Functional
+    # uses equals and quotes because the variable contains spaces
+    - TestGroup=SqlServer
+      MSSQL_PWD=DockerPassword123
+      Test__SqlServer__DefaultConnection='Server=localhost;User ID=sa;Password=DockerPassword123;Database=master;Connect Timeout=30'
   global:
-    - DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-    - DOTNET_CLI_TELEMETRY_OPTOUT: 1
-mono:
-  - 4.0.5
+    - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
+    - DOTNET_CLI_TELEMETRY_OPTOUT=1
+matrix:
+  fast_finish: true
+mono: none
 os:
   - linux
   # - osx CoreCLR tests time out too frequently on OSX to be useful.
-osx_image: xcode7.3
+# osx_image: xcode7.3
 branches:
   only:
     - master
@@ -28,11 +38,7 @@ branches:
     - /^(.*\/)?ci-.*$/
 before_install:
   - if test "$TRAVIS_OS_NAME" == "osx"; then brew update; brew install openssl; ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/; ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/; fi
+  - if [ "$TestGroup" = "SqlServer" ]; then ./tools/launch-mssql-in-docker.sh -p "$MSSQL_PWD"; fi
 script:
-  - ./build.sh
-notifications:
-  webhooks:
-    secure: "a2AoARlYhgHFj7Jec1TbcqNPi3oJziHVaVPScFGiBezfJvXu3+6c9amMAzK3ZSN0lxaYyBhmkIM8eE73VxLJo9T2Y28L0dwKQi1xaVuLXUf2XLMFjdP99MHPsFA32gFJNqSdvVCF637qkopkjz0xyxsFjf2vDe7PvQFX54/sYkk="
-  on_success: always
-  on_failure: always
-  on_start: always
+  - ./build.sh "/p:TestGroup=$TestGroup"
+
