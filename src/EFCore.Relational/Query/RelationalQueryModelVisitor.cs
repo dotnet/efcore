@@ -1230,22 +1230,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var outerQuerySource = FindPreviousQuerySource(queryModel, index);
             var outerSelectExpression = TryGetQuery(outerQuerySource);
-
-            if (outerSelectExpression == null)
-            {
-                return false;
-            }
-
             var innerSelectExpression = TryGetQuery(fromClause);
 
-            if (innerSelectExpression?.Tables.Count != 1)
+            if (outerSelectExpression == null || innerSelectExpression == null)
             {
                 return false;
             }
 
             var correlated = innerSelectExpression.IsCorrelated();
 
-            if (innerSelectExpression.IsCorrelated() && !QueryCompilationContext.IsLateralJoinSupported)
+            if (correlated && !QueryCompilationContext.IsLateralJoinSupported)
             {
                 return false;
             }
@@ -1272,16 +1266,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                 outerSelectExpression.RemoveRangeFromProjection(previousProjectionCount);
             }
 
-            var joinExpression
-                = correlated
-                    ? outerSelectExpression.AddCrossJoinLateral(
-                        innerSelectExpression.Tables.First(),
-                        innerSelectExpression.Projection)
-                    : outerSelectExpression.AddCrossJoin(
-                        innerSelectExpression.Tables.First(),
-                        innerSelectExpression.Projection);
+            if (correlated)
+            {
+                var finalResultOperator
+                    = ((SubQueryExpression)fromClause.FromExpression)
+                        .QueryModel.ResultOperators.LastOrDefault();
 
-            joinExpression.QuerySource = fromClause;
+                if (finalResultOperator is DefaultIfEmptyResultOperator)
+                {
+                    innerSelectExpression = (SelectExpression)innerSelectExpression.Tables[0];
+
+                    outerSelectExpression.AddLeftJoinLateral(
+                        ((LeftOuterJoinExpression)innerSelectExpression.Tables[1]).TableExpression,
+                        innerSelectExpression.Projection);
+                }
+                else
+                {
+                    outerSelectExpression.AddCrossJoinLateral(
+                        innerSelectExpression.Tables[0],
+                        innerSelectExpression.Projection);
+                }
+            }
+            else
+            {
+                outerSelectExpression.AddCrossJoin(
+                    innerSelectExpression.Tables[0],
+                    innerSelectExpression.Projection);
+            }
+
+            outerSelectExpression.Tables.Last().QuerySource = fromClause;
 
             QueriesBySource.Remove(fromClause);
 
