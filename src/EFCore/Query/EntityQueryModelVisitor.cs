@@ -301,6 +301,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // First pass of optimizations
 
+            var lateralJoinOptimizer
+                = new LateralJoinOptimizingQueryModelVisitor(QueryCompilationContext.QueryAnnotations);
+
+            lateralJoinOptimizer.VisitQueryModel(queryModel);
+
             var additionalFromClauseOptimizer
                 = new AdditionalFromClauseOptimizingQueryModelVisitor();
 
@@ -329,6 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Create(this).Rewrite(queryModel, parentQueryModel: null);
 
             // Second pass of optimizations
+
+            lateralJoinOptimizer.VisitQueryModel(queryModel);
 
             additionalFromClauseOptimizer.VisitQueryModel(queryModel);
 
