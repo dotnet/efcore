@@ -1,0 +1,41 @@
+﻿
+                     _/\__
+               ---==/    \\
+         ___  ___   |.    \|\
+        | __|| __|  |  )   \\\
+        | _| | _|   \_/ |  //|\\
+        |___||_|       /   \\\/\\
+
+TOPIC
+    about_EntityFrameworkCore
+
+SHORT DESCRIPTION
+    Provides information about the Entity Framework Core Package Manager Console Tools.
+
+LONG DESCRIPTION
+    This topic describes the Entity Framework Core Package Manager Console Tools. See https://docs.efproject.net for
+    information on Entity Framework Core.
+
+    The following Entity Framework Core commands are available.
+
+        Cmdlet                      Description
+        --------------------------  ---------------------------------------------------
+        Add-Migration               Adds a new migration.
+
+        Drop-Database               Drops the database.
+
+        Remove-Migration            Removes the last migration.
+
+        Scaffold-DbContext          Scaffolds a DbContext and entity types for a database.
+
+        Script-Migration            Generates a SQL script from migrations.
+
+        Update-Database             Updates the database to a specified migration.
+
+SEE ALSO
+    Add-Migration
+    Drop-Database
+    Remove-Migration
+    Scaffold-DbContext
+    Script-Migration
+    Update-Database
