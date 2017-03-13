@@ -768,7 +768,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(_testStore.ConnectionString, b => b.ApplyConfiguration())
+                    .UseSqlServer(_testStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(600))
                     .UseInternalServiceProvider(CreateServiceProvider());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

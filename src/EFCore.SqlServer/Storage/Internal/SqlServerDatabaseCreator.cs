@@ -35,6 +35,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual TimeSpan RetryDelay { get; set; } = TimeSpan.FromMilliseconds(500);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual TimeSpan RetryTimeout { get; set; } = TimeSpan.FromMinutes(1);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void Create()
         {
             using (var masterConnection = _connection.CreateMasterConnection())
@@ -105,7 +117,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => Dependencies.ExecutionStrategyFactory.Create().Execute(
                 giveUp =>
                     {
-                        var retryCount = 0;
                         while (true)
                         {
                             try
@@ -123,15 +134,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                                 }
 
                                 if (DateTime.UtcNow > giveUp
-                                    || !RetryOnExistsFailure(e, ref retryCount))
+                                    || !RetryOnExistsFailure(e))
                                 {
                                     throw;
                                 }
 
-                                Thread.Sleep(100);
+                                Thread.Sleep(RetryDelay);
                             }
                         }
-                    }, DateTime.UtcNow + TimeSpan.FromMinutes(1));
+                    }, DateTime.UtcNow + RetryTimeout);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -141,11 +152,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
 
         private Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
-        {
-            return Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
+            => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
                 async (giveUp, ct) =>
                     {
-                        var retryCount = 0;
                         while (true)
                         {
                             try
@@ -164,24 +173,24 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                                 }
 
                                 if (DateTime.UtcNow > giveUp
-                                    || !RetryOnExistsFailure(e, ref retryCount))
+                                    || !RetryOnExistsFailure(e))
                                 {
                                     throw;
                                 }
 
-                                await Task.Delay(100, ct);
+                                await Task.Delay(RetryDelay, ct);
                             }
                         }
-                    }, DateTime.UtcNow + TimeSpan.FromMinutes(1), cancellationToken);
-        }
+                    }, DateTime.UtcNow + RetryTimeout, cancellationToken);
 
         // Login failed is thrown when database does not exist (See Issue #776)
         // Unable to attach database file is thrown when file does not exist (See Issue #2810)
         // Unable to open the physical file is thrown when file does not exist (See Issue #2810)
-        private static bool IsDoesNotExist(SqlException exception) => exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120;
+        private static bool IsDoesNotExist(SqlException exception) =>
+            exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120;
 
         // See Issue #985
-        private bool RetryOnExistsFailure(SqlException exception, ref int retryCount)
+        private bool RetryOnExistsFailure(SqlException exception)
         {
             // This is to handle the case where Open throws (Number 233):
             //   System.Data.SqlClient.SqlException: A connection was successfully established with the
@@ -201,11 +210,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             //   System.Data.SqlClient.SqlException: Unable to Attach database file as database xxxxxxx.
             // And (Number 5120)
             //   System.Data.SqlClient.SqlException: Unable to open the physical file xxxxxxx.
-            if ((exception.Number == 233 || exception.Number == -2 || exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120)
-                && ++retryCount < 30)
+            if ((exception.Number == 233
+                 || exception.Number == -2
+                 || exception.Number == 4060
+                 || exception.Number == 1832
+                 || exception.Number == 5120))
             {
                 ClearPool();
-                Thread.Sleep(100);
                 return true;
             }
             return false;

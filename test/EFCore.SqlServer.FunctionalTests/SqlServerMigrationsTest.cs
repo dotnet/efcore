@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseSqlServer(testStore.ConnectionString, b => b.ApplyConfiguration())
+                .UseSqlServer(testStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(600))
                 .UseInternalServiceProvider(serviceProvider);
 
             return new BloggingContext(optionsBuilder.Options);
