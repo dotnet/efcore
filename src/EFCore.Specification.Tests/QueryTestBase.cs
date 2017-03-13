@@ -3386,24 +3386,26 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void OrderBy_correlated_subquery_lol()
+        public virtual void OrderBy_correlated_subquery1()
         {
             AssertQuery<Customer>(
                 cs => from c in cs
+                      where c.CustomerID.StartsWith("A")
                       orderby cs.Any(c2 => c2.CustomerID == c.CustomerID)
                       select c,
-                entryCount: 91);
+                entryCount: 4);
         }
 
         [ConditionalFact]
-        public virtual void OrderBy_correlated_subquery_lol2()
+        public virtual void OrderBy_correlated_subquery2()
         {
             AssertQuery<Order, Customer>(
                 (os, cs) => os.Where(
-                    o => cs.OrderBy(
-                                 c => cs.Any(
-                                     c2 => c2.CustomerID == "ALFKI"))
-                             .FirstOrDefault().City != "Nowhere"));
+                    o => o.OrderID <= 10250 
+                    && cs.OrderBy(
+                        c => cs.Any(
+                            c2 => c2.CustomerID == "ALFKI"))
+                        .FirstOrDefault().City != "Nowhere"));
         }
 
         [ConditionalFact]

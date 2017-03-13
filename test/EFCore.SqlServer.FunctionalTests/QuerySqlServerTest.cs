@@ -4069,13 +4069,14 @@ END",
                 Sql);
         }
 
-        public override void OrderBy_correlated_subquery_lol()
+        public override void OrderBy_correlated_subquery1()
         {
-            base.OrderBy_correlated_subquery_lol();
+            base.OrderBy_correlated_subquery1();
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
 ORDER BY (
     SELECT CASE
         WHEN EXISTS (
@@ -4088,14 +4089,14 @@ ORDER BY (
                 Sql);
         }
 
-        public override void OrderBy_correlated_subquery_lol2()
+        public override void OrderBy_correlated_subquery2()
         {
-            base.OrderBy_correlated_subquery_lol2();
+            base.OrderBy_correlated_subquery2();
 
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (
+WHERE ([o].[OrderID] <= 10250) AND ((
     SELECT TOP(1) [c].[City]
     FROM [Customers] AS [c]
     ORDER BY (
@@ -4107,7 +4108,7 @@ WHERE (
             THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
         END
     )
-) <> N'Nowhere'",
+) <> N'Nowhere')",
                 Sql);
         }
 
