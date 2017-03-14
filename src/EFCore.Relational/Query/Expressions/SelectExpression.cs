@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <returns>
         ///     true if the supplied query source is handled by this SelectExpression; otherwise false.
         /// </returns>
-        public override bool HandlesQuerySource([NotNull] IQuerySource querySource)
+        public override bool HandlesQuerySource(IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
 

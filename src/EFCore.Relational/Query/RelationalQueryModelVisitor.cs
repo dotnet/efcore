@@ -1015,8 +1015,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="selectClause"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
-        public override void VisitSelectClause(
-            [NotNull] SelectClause selectClause, [NotNull] QueryModel queryModel)
+        public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
         {
             Check.NotNull(selectClause, nameof(selectClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -1048,8 +1047,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (!qsreFinder.FoundAny)
                         {
-                            var newShaper = ProjectionShaper.Create(oldShaper, materializer);
+                            Shaper newShaper = null;
 
+                            if (selectClause.Selector is QuerySourceReferenceExpression querySourceReferenceExpression)
+                            {
+                                newShaper = oldShaper.Unwrap(querySourceReferenceExpression.ReferencedQuerySource);
+                            }
+                            
+                            newShaper = newShaper ?? ProjectionShaper.Create(oldShaper, materializer);
+                            
                             Expression =
                                 Expression.Call(
                                     shapedQuery.Method

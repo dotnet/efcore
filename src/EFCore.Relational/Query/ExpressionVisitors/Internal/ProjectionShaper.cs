@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ProjectionShaper
+    public static class ProjectionShaper
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -77,23 +77,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 _selector = selector;
             }
 
-            public override Expression GetAccessorExpression([NotNull] IQuerySource querySource)
+            public override Expression GetAccessorExpression(IQuerySource querySource)
                 => _shaper.GetAccessorExpression(querySource);
 
-            public override void UpdateQuerySource([NotNull] IQuerySource querySource)
+            public override void UpdateQuerySource(IQuerySource querySource)
                 => _shaper.UpdateQuerySource(querySource);
 
-            public override bool IsShaperForQuerySource([NotNull] IQuerySource querySource)
+            public override bool IsShaperForQuerySource(IQuerySource querySource)
                 => _shaper.IsShaperForQuerySource(querySource);
 
-            public override void SaveAccessorExpression([NotNull] QuerySourceMapping querySourceMapping)
+            public override void SaveAccessorExpression(QuerySourceMapping querySourceMapping)
                 => _shaper.SaveAccessorExpression(querySourceMapping);
 
             public override IQuerySource QuerySource => _shaper.QuerySource;
 
             public override Type Type => typeof(TOut);
 
-            public TOut Shape([NotNull] QueryContext queryContext, ValueBuffer valueBuffer)
+            public TOut Shape(QueryContext queryContext, ValueBuffer valueBuffer)
                 => _selector(queryContext, _shaper.Shape(queryContext, valueBuffer));
 
             public override Shaper WithOffset(int offset)

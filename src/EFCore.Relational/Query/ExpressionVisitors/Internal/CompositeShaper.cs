@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class CompositeShaper
+    public static class CompositeShaper
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -58,17 +58,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 .GetDeclaredMethod(nameof(CreateCompositeShaperMethod));
 
         [UsedImplicitly]
-        private static TypedCompositeShaper<TOuterShaper, TOuter, TInnerShaper, TInner, TResult> CreateCompositeShaperMethod<TOuterShaper, TOuter, TInnerShaper, TInner, TResult>(
-            IQuerySource querySource,
-            TOuterShaper outerShaper,
-            TInnerShaper innerShaper,
-            Func<TOuter, TInner, TResult> materializer)
+        private static TypedCompositeShaper<TOuterShaper, TOuter, TInnerShaper, TInner, TResult>
+            CreateCompositeShaperMethod<TOuterShaper, TOuter, TInnerShaper, TInner, TResult>(
+                IQuerySource querySource,
+                TOuterShaper outerShaper,
+                TInnerShaper innerShaper,
+                Func<TOuter, TInner, TResult> materializer)
             where TOuterShaper : Shaper, IShaper<TOuter>
             where TInnerShaper : Shaper, IShaper<TInner>
             => new TypedCompositeShaper<TOuterShaper, TOuter, TInnerShaper, TInner, TResult>(
                 querySource, outerShaper, innerShaper, materializer);
 
-        private class TypedCompositeShaper<TOuterShaper, TOuter, TInnerShaper, TInner, TResult> : Shaper, IShaper<TResult>
+        private class TypedCompositeShaper<TOuterShaper, TOuter, TInnerShaper, TInner, TResult>
+            : Shaper, IShaper<TResult>
             where TOuterShaper : Shaper, IShaper<TOuter>
             where TInnerShaper : Shaper, IShaper<TInner>
         {
@@ -101,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             public override bool IsShaperForQuerySource(IQuerySource querySource)
                 => base.IsShaperForQuerySource(querySource)
-                    || _outerShaper.IsShaperForQuerySource(querySource)
-                    || _innerShaper.IsShaperForQuerySource(querySource);
+                   || _outerShaper.IsShaperForQuerySource(querySource)
+                   || _innerShaper.IsShaperForQuerySource(querySource);
 
             public override void SaveAccessorExpression(QuerySourceMapping querySourceMapping)
             {
@@ -112,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             public override Expression GetAccessorExpression(IQuerySource querySource)
                 => _outerShaper.GetAccessorExpression(querySource)
-                    ?? _innerShaper.GetAccessorExpression(querySource);
+                   ?? _innerShaper.GetAccessorExpression(querySource);
 
             public override Shaper WithOffset(int offset)
                 => new TypedCompositeShaper<TOuterShaper, TOuter, TInnerShaper, TInner, TResult>(
@@ -125,7 +127,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 _outerShaper.AddOffset(offset);
                 _innerShaper.AddOffset(offset);
+
                 return base.AddOffset(offset);
+            }
+
+            public override Shaper Unwrap(IQuerySource querySource)
+            {
+                return _outerShaper.Unwrap(querySource) 
+                    ?? _innerShaper.Unwrap(querySource) 
+                    ?? base.Unwrap(querySource);
             }
         }
     }
