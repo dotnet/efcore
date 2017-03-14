@@ -89,6 +89,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             CreateShared(typeof(SqlServerTestStore).Name + Name,
                 () =>
                     {
+                        if (DatabaseExists(Name))
+                        {
+                            DeleteDatabase(Name);
+                        }
+
                         if (CreateDatabase())
                         {
                             initializeDatabase?.Invoke();
