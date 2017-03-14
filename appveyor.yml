@@ -1,16 +1,13 @@
-only_commits:
-  # Start a build if commit message contains 'appveyor'
-  message: /appveyor/
 init:
   - git config --global core.autocrlf true
 build_script:
-  - ps: .\build.ps1
+  - ps: .\build.ps1 /p:TestGroup=SqlServer
 clone_depth: 1
 test: off
 deploy: off
 # See http://www.appveyor.com/docs/services-databases
 services:
-  - mssql2014
+  - mssql2016
 branches:
   only:
     - master
@@ -21,7 +18,7 @@ environment:
   global:
     DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
     DOTNET_CLI_TELEMETRY_OPTOUT: 1
-    Test__SqlServer__DefaultConnection: Server=(local)\SQL2014;Database=master;User ID=sa;Password=Password12!
+    Test__SqlServer__DefaultConnection: Server=(local)\SQL2016;Database=master;User ID=sa;Password=Password12!
 matrix:
   fast_finish: true
 artifacts:

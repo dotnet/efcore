@@ -1,0 +1,40 @@
+<Project>
+  <ItemGroup>
+    <UnitTests Include="$(RepositoryRoot)test\*.Tests\*.csproj" />
+    <FunctionalTests Include="$(RepositoryRoot)test\*.FunctionalTests\*.csproj" />
+    <BenchmarkTests Include="$(RepositoryRoot)test\EFCore.Benchmarks.*\*.csproj" />
+    <!-- Tests projects that require a SQL Server connection -->
+    <SqlServerTests Include="$(RepositoryRoot)test\EFCore.SqlServer*FunctionalTests\*.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- assumes LocalDB is available on all Windows agents -->
+    <_SqlServerIsAvailable Condition="'$(OS)' == 'Windows_NT'">true</_SqlServerIsAvailable>
+    <_SqlServerIsAvailable Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">false</_SqlServerIsAvailable>
+  </PropertyGroup>
+
+  <Target Name="_FilterTestProjects" BeforeTargets="TestProjects">
+    <ItemGroup Condition="'$(TestGroup)' != ''">
+      <ProjectsToTest Remove="@(ProjectsToTest)" Condition="'$(TestGroup)' != 'All'" />
+      <ProjectsToTest Include="@(UnitTests)" Condition="'$(TestGroup)' == 'Unit'" />
+      <ProjectsToTest Include="@(FunctionalTests)" Condition="'$(TestGroup)' == 'Functional'" />
+      <ProjectsToTest Include="@(BenchmarkTests)" Condition="'$(TestGroup)' == 'Benchmarks'" />
+      <ProjectsToTest Include="@(SqlServerTests)" Condition="'$(TestGroup)' == 'SqlServer'" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectsToTest Remove="@(SqlServerTests)" Condition="'$(_SqlServerIsAvailable)' == 'false'" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <_WarningTxt>
+Could not detect SQL Server. Skipping these projects:
+  - @(SqlServerTests->'%(FileName)', '%0A  - ')}
+To run tests on Linux or macOS, set the environment variable 'Test__SqlServer__DefaultConnection' to a connection string to SQL Server
+    </_WarningTxt>
+    </PropertyGroup>
+
+    <Warning Text="$(_WarningTxt)" Condition="'$(_SqlServerIsAvailable)' == 'false'" />
+    <Error Text="Could not find test projects to run" Condition="@(ProjectsToTest->Count()) == 0" />
+  </Target>
+</Project>
