@@ -1,7 +1,6 @@
 <Project>
   <ItemGroup>
-    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks.EF6\*.csproj" Condition="'$(OS)' != 'Windows_NT' Or '$(TEAMCITY_PROJECT_NAME)' != ''" />
-    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks.EFCore\*.csproj" Condition="'$(TEAMCITY_PROJECT_NAME)' != ''" />
+    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks.EF6\*.csproj" Condition="'$(OS)' != 'Windows_NT'" />
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks\*.csproj" />
   </ItemGroup>
 </Project>
