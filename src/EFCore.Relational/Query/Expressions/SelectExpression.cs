@@ -418,6 +418,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             {
                 var expression = ordering.Expression;
 
+                if (expression is NullableExpression nullableExpression)
+                {
+                    expression = nullableExpression.Operand;
+                }
+
                 var aliasExpression = expression as AliasExpression;
                 if (aliasExpression != null)
                 {

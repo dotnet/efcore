@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     /// <summary>
     ///     Reducible annotation expression used to affect null expansion logic.
     /// </summary>
-    public class NotNullableExpression : Expression
+    public class NullableExpression : Expression
     {
         private readonly Expression _operand;
 
@@ -19,12 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Creates an instance of NotNullableExpression.
         /// </summary>
         /// <param name="operand"> The operand. </param>
-        public NotNullableExpression([NotNull] Expression operand)
+        public NullableExpression([NotNull] Expression operand)
         {
             Check.NotNull(operand, nameof(operand));
 
             _operand = operand;
-            Type = _operand.Type?.UnwrapNullableType();
+            Type = _operand.Type?.MakeNullable();
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var newExpression = visitor.Visit(_operand);
 
             return newExpression != _operand
-                ? new NotNullableExpression(newExpression)
+                ? new NullableExpression(newExpression)
                 : this;
         }
 

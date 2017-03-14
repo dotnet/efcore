@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             return valuesChanged || newOperand != Operand || newSubQuery != SubQuery
-                ? new InExpression(newOperand, newValues.AsReadOnly(), newSubQuery)
+                ? new InExpression(newOperand, Values == null ? null : newValues.AsReadOnly(), newSubQuery)
                 : this;
         }
 

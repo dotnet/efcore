@@ -1150,7 +1150,7 @@ SELECT COUNT(*)
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
 LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
-WHERE @_outer_Country = [od.Order.Customer].[Country]
+WHERE (@_outer_Country = [od.Order.Customer].[Country]) OR (@_outer_Country IS NULL AND [od.Order.Customer].[Country] IS NULL)
 
 @_outer_Country: Germany (Size = 4000)
 
@@ -1158,7 +1158,7 @@ SELECT COUNT(*)
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
 LEFT JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
-WHERE @_outer_Country = [od.Order.Customer].[Country]",
+WHERE (@_outer_Country = [od.Order.Customer].[Country]) OR (@_outer_Country IS NULL AND [od.Order.Customer].[Country] IS NULL)",
                 Sql);
         }
 

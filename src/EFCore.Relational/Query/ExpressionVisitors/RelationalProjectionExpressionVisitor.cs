@@ -162,6 +162,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                         if (!(node is QuerySourceReferenceExpression))
                         {
+                            if (sqlExpression is NullableExpression nullableExpression)
+                            {
+                                sqlExpression = nullableExpression.Operand;
+                            }
+
                             var columnExpression = sqlExpression.TryGetColumnExpression();
 
                             if (columnExpression != null)
