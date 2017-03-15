@@ -1208,7 +1208,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [Level1] AS [e]
     LEFT JOIN [Level2] AS [l2] ON [e].[Id] = [l2].[Level1_Optional_Id]
-    WHERE (([e].[Name] <> N'L1 03') OR [e].[Name] IS NULL) AND (([l].[OneToMany_Optional_InverseId] = [e].[Id]) AND [l].[OneToMany_Optional_InverseId] IS NOT NULL))
+    WHERE (([e].[Name] <> N'L1 03') OR [e].[Name] IS NULL) AND ([l].[OneToMany_Optional_InverseId] = [e].[Id]))
 ORDER BY [l].[OneToMany_Optional_InverseId]",
                     Sql);
             }
