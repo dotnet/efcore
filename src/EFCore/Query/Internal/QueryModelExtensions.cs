@@ -149,13 +149,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return expression;
             }
-
-            protected override Expression VisitSubQuery(SubQueryExpression expression)
-            {
-                expression.QueryModel.TransformExpressions(Visit);
-
-                return expression;
-            }
         }
     }
 }

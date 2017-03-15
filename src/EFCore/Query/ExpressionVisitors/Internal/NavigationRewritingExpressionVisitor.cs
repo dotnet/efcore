@@ -1444,9 +1444,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     _queryModelVisitor = queryModelVisitor;
                 }
 
-                protected override Expression VisitSubQuery(SubQueryExpression expression)
-                    => expression;
-
                 protected override Expression VisitMember(MemberExpression node)
                 {
                     Check.NotNull(node, nameof(node));
