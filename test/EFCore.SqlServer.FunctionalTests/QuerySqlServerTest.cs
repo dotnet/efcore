@@ -5609,6 +5609,36 @@ WHERE EXISTS (
                 Sql);
         }
 
+        public override void Select_nested_collection_count_using_anonymous_type()
+        {
+            base.Select_nested_collection_count_using_anonymous_type();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)",
+                Sql);
+        }
+
+        public override void Select_nested_collection_count_using_DTO()
+        {
+            base.Select_nested_collection_count_using_DTO();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)",
+                Sql);
+        }
+
         public override void Select_nested_collection_multi_level3()
         {
             base.Select_nested_collection_multi_level3();
