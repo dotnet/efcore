@@ -1,5 +1,8 @@
+version: 1.2.{build}
 init:
   - git config --global core.autocrlf true
+before_build:
+  - ps: .\tools\ShrinkLocalDBModel.cmd
 build_script:
   - ps: .\build.ps1 /p:TestGroup=SqlServer
 clone_depth: 1
