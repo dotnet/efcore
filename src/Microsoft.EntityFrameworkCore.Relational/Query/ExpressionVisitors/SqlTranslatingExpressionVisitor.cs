@@ -924,7 +924,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     if (queryModelVisitor.Queries.Count == 1
                         && !queryModelVisitor.RequiresClientFilter
                         && !queryModelVisitor.RequiresClientProjection
-                        && !queryModelVisitor.RequiresClientResultOperator)
+                        && !queryModelVisitor.RequiresClientResultOperator
+                        && !_queryModelVisitor.RequiresClientProjection)
                     {
                         var selectExpression = queryModelVisitor.Queries.First();
 

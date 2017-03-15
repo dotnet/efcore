@@ -5297,13 +5297,64 @@ ORDER BY [o].[OrderID]",
         {
             base.Select_nested_collection_multi_level();
 
-            Assert.StartsWith(@"SELECT [c].[CustomerID]
+            Assert.StartsWith(
+                @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
 
 SELECT [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10500",
+                Sql);
+        }
+
+        public override void Select_nested_collection_count_using_anonymous_type()
+        {
+            base.Select_nested_collection_count_using_anonymous_type();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)",
+                Sql);
+        }
+
+        public override void Select_nested_collection_count_using_DTO()
+        {
+            base.Select_nested_collection_count_using_DTO();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+
+@_outer_CustomerID1: ALFKI (Size = 450)
+
+SELECT COUNT(*)
+FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID1 = [o0].[CustomerID]
+
+@_outer_CustomerID1: ANATR (Size = 450)
+
+SELECT COUNT(*)
+FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID1 = [o0].[CustomerID]
+
+@_outer_CustomerID1: ANTON (Size = 450)
+
+SELECT COUNT(*)
+FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID1 = [o0].[CustomerID]
+
+@_outer_CustomerID1: AROUT (Size = 450)
+
+SELECT COUNT(*)
+FROM [Orders] AS [o0]
+WHERE @_outer_CustomerID1 = [o0].[CustomerID]",
                 Sql);
         }
 

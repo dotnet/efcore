@@ -2205,6 +2205,44 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Select_nested_collection_count_using_anonymous_type()
+        {
+            AssertQuery<Customer>(cs => cs
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new { c.Orders.Count }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_count_using_DTO()
+        {
+            using (var context = CreateContext())
+            {
+                var expected = context.Customers.Include(c => c.Orders)
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .ToList()
+                    .Select(c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
+                    .ToList();
+
+                ClearLog();
+
+                var query = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count });
+
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.All(result, t => Assert.True(expected.Where(e => e.Id == t.Id && e.Count == t.Count).Any()));
+            }
+        }
+
+        private class OrderCountDTO
+        {
+            public string Id { get; set; }
+            public int Count { get; set; }
+        }
+
+        [ConditionalFact]
         public virtual void Select_correlated_subquery_projection()
         {
             AssertQuery<Customer, Order>((cs, os) =>
