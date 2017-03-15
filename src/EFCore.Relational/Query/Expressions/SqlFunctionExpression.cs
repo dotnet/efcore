@@ -110,5 +110,49 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 ? new SqlFunctionExpression(FunctionName, Type, newArguments)
                 : this;
         }
+
+        /// <summary>
+        ///     Tests if this object is considered equal to another.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns>
+        ///     true if the objects are considered equal, false if they are not.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((SqlFunctionExpression)obj);
+        }
+
+        private bool Equals(SqlFunctionExpression other)
+            => Type == other.Type
+               && string.Equals(FunctionName, other.FunctionName)
+               && _arguments.SequenceEqual(other._arguments);
+
+        /// <summary>
+        ///     Returns a hash code for this object.
+        /// </summary>
+        /// <returns>
+        ///     A hash code for this object.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = _arguments.Aggregate(0, (current, argument) => current + ((current * 397) ^ argument.GetHashCode()));
+                hashCode = (hashCode * 397) ^ FunctionName.GetHashCode();
+                hashCode = (hashCode * 397) ^ Type.GetHashCode();
+                return hashCode;
+            }
+        }
     }
 }

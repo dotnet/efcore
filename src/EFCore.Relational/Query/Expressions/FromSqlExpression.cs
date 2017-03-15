@@ -68,6 +68,53 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
+        ///     Tests if this object is considered equal to another.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns>
+        ///     true if the objects are considered equal, false if they are not.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((FromSqlExpression)obj);
+        }
+
+        private bool Equals(FromSqlExpression other)
+            => string.Equals(Alias, other.Alias)
+               && Equals(QuerySource, other.QuerySource)
+               && string.Equals(Sql, other.Sql)
+               && Equals(Arguments, other.Arguments);
+
+        /// <summary>
+        ///     Returns a hash code for this object.
+        /// </summary>
+        /// <returns>
+        ///     A hash code for this object.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Alias?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ (QuerySource?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ Sql.GetHashCode();
+                hashCode = (hashCode * 397) ^ Arguments.GetHashCode();
+
+                return hashCode;
+            }
+        }
+
+        /// <summary>
         ///     Creates a <see cref="string" /> representation of the Expression.
         /// </summary>
         /// <returns>A <see cref="string" /> representation of the Expression.</returns>

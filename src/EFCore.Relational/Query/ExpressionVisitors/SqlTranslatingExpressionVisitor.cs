@@ -41,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 { ExpressionType.NotEqual, ExpressionType.Equal }
             };
 
-        private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly IExpressionFragmentTranslator _compositeExpressionFragmentTranslator;
         private readonly IMethodCallTranslator _methodCallTranslator;
         private readonly IMemberTranslator _memberTranslator;
@@ -70,7 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
-            _relationalAnnotationProvider = dependencies.RelationalAnnotationProvider;
             _compositeExpressionFragmentTranslator = dependencies.CompositeExpressionFragmentTranslator;
             _methodCallTranslator = dependencies.MethodCallTranslator;
             _memberTranslator = dependencies.MemberTranslator;
@@ -130,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var right = Visit(expression.Right);
 
                     return left != null && right != null
-                        ? new AliasExpression(expression.Update(left, expression.Conversion, right))
+                        ? expression.Update(left, expression.Conversion, right)
                         : null;
                 }
 
@@ -231,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
 
             var test = Visit(expression.Test);
-            if (test.IsSimpleExpression())
+            if (test?.IsSimpleExpression() == true)
             {
                 test = Expression.Equal(test, Expression.Constant(true, typeof(bool)));
             }
@@ -239,7 +237,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var ifTrue = Visit(expression.IfTrue);
             var ifFalse = Visit(expression.IfFalse);
 
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (test != null
                 && ifTrue != null
                 && ifFalse != null)
@@ -262,8 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             if (test.IsComparisonOperation())
             {
-                var binaryOperation = test as BinaryExpression;
-                if (binaryOperation != null)
+                if (test is BinaryExpression binaryOperation)
                 {
                     var nodeType = binaryOperation.NodeType;
 
@@ -360,8 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             private void AnalyzeTestExpression(Expression expression)
             {
-                var querySourceReferenceExpression = expression as QuerySourceReferenceExpression;
-                if (querySourceReferenceExpression != null)
+                if (expression is QuerySourceReferenceExpression querySourceReferenceExpression)
                 {
                     _querySource = querySourceReferenceExpression.ReferencedQuerySource;
                     _propertyName = null;
@@ -370,26 +365,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
 
                 var memberExpression = expression as MemberExpression;
-                var querySourceInstance = memberExpression?.Expression as QuerySourceReferenceExpression;
 
-                if (querySourceInstance != null)
+                if (memberExpression?.Expression is QuerySourceReferenceExpression querySourceInstance)
                 {
                     _querySource = querySourceInstance.ReferencedQuerySource;
+                    // ReSharper disable once PossibleNullReferenceException
                     _propertyName = memberExpression.Member.Name;
 
                     return;
                 }
 
-                var methodCallExpression = expression as MethodCallExpression;
 
-                if (methodCallExpression != null
-                    && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+                if (expression is MethodCallExpression methodCallExpression && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
                 {
-                    var querySourceCaller = methodCallExpression.Arguments[0] as QuerySourceReferenceExpression;
-                    if (querySourceCaller != null)
+                    if (methodCallExpression.Arguments[0] is QuerySourceReferenceExpression querySourceCaller)
                     {
-                        var propertyNameExpression = methodCallExpression.Arguments[1] as ConstantExpression;
-                        if (propertyNameExpression != null)
+                        if (methodCallExpression.Arguments[1] is ConstantExpression propertyNameExpression)
                         {
                             _querySource = querySourceCaller.ReferencedQuerySource;
                             _propertyName = (string)propertyNameExpression.Value;
@@ -415,8 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 if (node.Member.Name == _propertyName)
                 {
-                    var querySource = node.Expression as QuerySourceReferenceExpression;
-                    if (querySource != null)
+                    if (node.Expression is QuerySourceReferenceExpression querySource)
                     {
                         _canRemoveNullCheck = querySource.ReferencedQuerySource == _querySource;
 
@@ -431,12 +421,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
                 {
-                    var propertyNameExpression = node.Arguments[1] as ConstantExpression;
-                    if (propertyNameExpression != null
-                        && (string)propertyNameExpression.Value == _propertyName)
+                    if (node.Arguments[1] is ConstantExpression propertyNameExpression && (string)propertyNameExpression.Value == _propertyName)
                     {
-                        var querySource = node.Arguments[0] as QuerySourceReferenceExpression;
-                        if (querySource != null)
+                        if (node.Arguments[0] is QuerySourceReferenceExpression querySource)
                         {
                             _canRemoveNullCheck = querySource.ReferencedQuerySource == _querySource;
 
@@ -563,14 +550,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         nonNullExpression = nullableExpression.Operand.RemoveConvert();
                     }
 
-                    var columnExpression = nonNullExpression.TryGetColumnExpression();
-
-                    if (columnExpression != null)
-                    {
-                        return expressionType == ExpressionType.Equal
-                            ? (Expression)new IsNullExpression(columnExpression)
-                            : Expression.Not(new IsNullExpression(columnExpression));
-                    }
+                    return expressionType == ExpressionType.Equal
+                        ? (Expression)new IsNullExpression(nonNullExpression)
+                        : Expression.Not(new IsNullExpression(nonNullExpression));
                 }
             }
 
@@ -670,12 +652,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 var selectExpression = _queryModelVisitor.TryGetQuery(qsre.ReferencedQuerySource);
 
-                if (selectExpression != null)
-                {
-                    return selectExpression.Projection
-                        .OfType<AliasExpression>()
-                        .SingleOrDefault(ae => Equals(ae.SourceMember, memberExpression.Member));
-                }
+                return selectExpression?.GetProjectionForMemberInfo(memberExpression.Member);
             }
 
             return null;
@@ -685,17 +662,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             TExpression sourceExpression,
             Func<TExpression, RelationalQueryModelVisitor, Func<IProperty, IQuerySource, SelectExpression, Expression>, Expression> binder)
         {
-            AliasExpression CreateAliasExpression(
+            Expression BindPropertyToSelectExpression(
                 IProperty property, IQuerySource querySource, SelectExpression selectExpression)
-                => new AliasExpression(
-                    new ColumnExpression(
-                        _relationalAnnotationProvider.For(property).ColumnName,
+                => selectExpression.BindPropertyToSelectExpression(
                         property,
-                        selectExpression.GetTableForQuerySource(querySource)));
+                        querySource);
 
             var boundExpression = binder(sourceExpression, _queryModelVisitor, (property, querySource, selectExpression) =>
             {
-                var aliasExpression = CreateAliasExpression(property, querySource, selectExpression);
+                var aliasExpression = BindPropertyToSelectExpression(property, querySource, selectExpression);
 
                 if (_targetSelectExpression != null && selectExpression != _targetSelectExpression)
                 {
@@ -716,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             while (outerQueryModelVisitor != null && canBindToOuterQueryModelVisitor)
             {
-                boundExpression = binder(sourceExpression, outerQueryModelVisitor, CreateAliasExpression);
+                boundExpression = binder(sourceExpression, outerQueryModelVisitor, BindPropertyToSelectExpression);
 
                 if (boundExpression != null)
                 {
@@ -964,9 +939,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// </returns>
         protected override Expression VisitExtension(Expression expression)
         {
-            var stringCompare = expression as StringCompareExpression;
-
-            if (stringCompare != null)
+            if (expression is StringCompareExpression stringCompare)
             {
                 var newLeft = Visit(stringCompare.Left);
                 var newRight = Visit(stringCompare.Right);
@@ -983,9 +956,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     : expression;
             }
 
-            var explicitCast = expression as ExplicitCastExpression;
-
-            if (explicitCast != null)
+            if (expression is ExplicitCastExpression explicitCast)
             {
                 var newOperand = Visit(explicitCast.Operand);
 
@@ -994,10 +965,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     : expression;
             }
 
-            var nullConditionalExpression
-                = expression as NullConditionalExpression;
-
-            if (nullConditionalExpression != null)
+            if (expression is NullConditionalExpression nullConditionalExpression)
             {
                 var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
 
@@ -1028,10 +996,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             if (!_inProjection)
             {
-                var joinClause
-                    = expression.ReferencedQuerySource as JoinClause;
-
-                if (joinClause != null)
+                if (expression.ReferencedQuerySource is JoinClause joinClause)
                 {
                     var entityType
                         = _queryModelVisitor.QueryCompilationContext.Model
@@ -1058,22 +1023,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 {
                     var subquery = selectExpression.Tables.FirstOrDefault() as SelectExpression;
 
-                    var innerProjectionExpression = subquery?.Projection.FirstOrDefault() as AliasExpression;
+                    var innerProjectionExpression = subquery?.Projection.FirstOrDefault();
                     if (innerProjectionExpression != null)
                     {
-                        if (innerProjectionExpression.Alias != null)
-                        {
-                            return new ColumnExpression(
-                                innerProjectionExpression.Alias,
-                                innerProjectionExpression.Type,
-                                subquery);
-                        }
-
-                        var newExpression = selectExpression.UpdateColumnExpression(innerProjectionExpression.Expression, subquery);
-                        return new AliasExpression(newExpression)
-                        {
-                            SourceMember = innerProjectionExpression.SourceMember
-                        };
+                        return innerProjectionExpression.LiftExpressionFromSubquery(subquery);
                     }
                 }
             }

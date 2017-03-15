@@ -72,13 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 
             for (var i = 0; i < SelectExpression.Projection.Count; i++)
             {
-                var aliasExpression = SelectExpression.Projection[i] as AliasExpression;
-
-                if (aliasExpression != null)
+                if (SelectExpression.Projection[i] is ColumnExpression columnExpression)
                 {
-                    var columnName
-                        = aliasExpression.Alias
-                          ?? aliasExpression.TryGetColumnExpression()?.Name;
+                    var columnName = columnExpression.Name;
 
                     if (columnName != null)
                     {

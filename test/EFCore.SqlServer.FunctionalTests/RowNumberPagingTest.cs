@@ -103,9 +103,9 @@ ORDER BY [t].[OrderID]",
                 @"@__p_0: 10
 @__p_1: 5
 
-SELECT [t].[c0], [t].[OrderID]
+SELECT [t].[c], [t].[OrderID]
 FROM (
-    SELECT ([c].[ContactName] + N' ') + [c].[ContactTitle] AS [c0], [o].[OrderID], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+    SELECT ([c].[ContactName] + N' ') + [c].[ContactTitle] AS [c], [o].[OrderID], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
     FROM [Customers] AS [c]
     INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]
@@ -122,7 +122,7 @@ ORDER BY [t].[OrderID]",
                 @"@__p_0: 10
 @__p_1: 5
 
-SELECT [t].[OrderID], [t].[CustomerID], [t].[c0] AS [c0], [t].[ContactName], [t].[c1] AS [c1]
+SELECT [t].[OrderID], [t].[CustomerID], [t].[c0], [t].[ContactName], [t].[c1]
 FROM (
     SELECT [o].[OrderID], [ca].[CustomerID], [cb].[CustomerID] AS [c0], [ca].[ContactName], [cb].[ContactName] AS [c1], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
     FROM [Orders] AS [o]
@@ -190,11 +190,11 @@ SELECT DISTINCT [t0].*
 FROM (
     SELECT [t1].*
     FROM (
-        SELECT [t].*, ROW_NUMBER() OVER(ORDER BY COALESCE([t].[Region], N'ZZ')) AS [__RowNumber__]
+        SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[c]) AS [__RowNumber__]
         FROM (
-            SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
             FROM [Customers] AS [c]
-            ORDER BY COALESCE([c].[Region], N'ZZ')
+            ORDER BY [c]
         ) AS [t]
     ) AS [t1]
     WHERE [t1].[__RowNumber__] > @__p_1
@@ -211,15 +211,15 @@ FROM (
 
 SELECT [t0].*
 FROM (
-    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[Coalesce]) AS [__RowNumber__]
+    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[c]) AS [__RowNumber__]
     FROM (
-        SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Coalesce]
+        SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [c]
         FROM [Customers] AS [c]
-        ORDER BY [Coalesce]
+        ORDER BY [c]
     ) AS [t]
 ) AS [t0]
 WHERE [t0].[__RowNumber__] > @__p_1
-ORDER BY [t0].[Coalesce]",
+ORDER BY [t0].[c]",
                 Sql);
         }
 
@@ -355,9 +355,9 @@ ORDER BY [t1].[ContactTitle], [t1].[ContactName]",
 
 SELECT CASE
     WHEN EXISTS (
-        SELECT [t].[c0]
+        SELECT [t].[c]
         FROM (
-            SELECT 1 AS [c0], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
+            SELECT 1 AS [c], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
             FROM [Customers] AS [c]
         ) AS [t]
         WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1)))
@@ -376,9 +376,9 @@ END",
 
 SELECT CASE
     WHEN NOT EXISTS (
-        SELECT [t].[c0]
+        SELECT [t].[c]
         FROM (
-            SELECT 1 AS [c0], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
+            SELECT 1 AS [c], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
             FROM [Customers] AS [c]
             WHERE LEN([c].[CustomerID]) <> 5
         ) AS [t]

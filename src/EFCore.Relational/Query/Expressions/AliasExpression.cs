@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -17,30 +16,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     {
         private readonly Expression _expression;
 
-        private string _alias;
-
-        private Expression _sourceExpression;
-
-        /// <summary>
-        ///     Creates a new instance of an AliasExpression.
-        /// </summary>
-        /// <param name="expression"> The expression being aliased. </param>
-        public AliasExpression([NotNull] Expression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            _expression = expression;
-        }
-
-        // TODO: Revisit the design here, "alias" should really be required.
+        private readonly string _alias;
 
         /// <summary>
         ///     Creates a new instance of an AliasExpression.
         /// </summary>
         /// <param name="alias"> The alias. </param>
         /// <param name="expression"> The expression being aliased. </param>
-        public AliasExpression([CanBeNull] string alias, [NotNull] Expression expression)
+        public AliasExpression([NotNull] string alias, [NotNull] Expression expression)
         {
+            Check.NotEmpty(alias, nameof(alias));
             Check.NotNull(expression, nameof(expression));
 
             _alias = alias;
@@ -48,38 +33,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Gets or sets the alias.
+        ///     Gets the alias.
         /// </summary>
         /// <value>
         ///     The alias.
         /// </value>
-        public virtual string Alias
-        {
-            get { return _alias; }
-            [param: NotNull]
-            // TODO: Remove mutability here
-            set
-            {
-                Check.NotNull(value, nameof(value));
-
-                _alias = value;
-            }
-        }
+        public virtual string Alias => _alias;
 
         /// <summary>
         ///     The expression being aliased.
         /// </summary>
         public virtual Expression Expression => _expression;
-
-        // TODO: Revisit why we need this. Try and remove
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether the expression is being projected.
-        /// </summary>
-        /// <value>
-        ///     true if projected, false if not.
-        /// </value>
-        public virtual bool IsProjected { get; set; } = false;
 
         /// <summary>
         ///     Returns the node type of this <see cref="Expression" />. (Inherited from <see cref="Expression" />.)
@@ -92,32 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <returns> The <see cref="Type" /> that represents the static type of the expression. </returns>
         public override Type Type => _expression.Type;
-
-        /// <summary>
-        ///     Gets or sets the source expression.
-        /// </summary>
-        /// <value>
-        ///     The source expression.
-        /// </value>
-        public virtual Expression SourceExpression
-        {
-            get { return _sourceExpression; }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, nameof(value));
-
-                _sourceExpression = value;
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the source member.
-        /// </summary>
-        /// <value>
-        ///     The source member.
-        /// </value>
-        public virtual MemberInfo SourceMember { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Dispatches to the specific visit method for this node type.
@@ -156,13 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Creates a <see cref="String" /> representation of the Expression.
-        /// </summary>
-        /// <returns>A <see cref="String" /> representation of the Expression.</returns>
-        public override string ToString()
-            => Alias != null ? "(" + _expression + ") AS " + Alias : _expression.ToString();
-
-        /// <summary>
         ///     Tests if this object is considered equal to another.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
@@ -186,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         private bool Equals(AliasExpression other)
-            => Equals(_expression, other._expression)
-               && string.Equals(_alias, other._alias);
+            => string.Equals(_alias, other._alias)
+               && Equals(_expression, other._expression);
 
         /// <summary>
         ///     Returns a hash code for this object.
@@ -199,9 +130,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             unchecked
             {
-                // ReSharper disable once NonReadonlyMemberInGetHashCode
-                return (_expression.GetHashCode() * 397) ^ (_alias?.GetHashCode() ?? 0);
+                return (_expression.GetHashCode() * 397) ^ _alias.GetHashCode();
             }
         }
+
+        /// <summary>
+        ///     Creates a <see cref="String" /> representation of the Expression.
+        /// </summary>
+        /// <returns>A <see cref="String" /> representation of the Expression.</returns>
+        public override string ToString()
+            => Alias != null ? "(" + _expression + ") AS " + Alias : _expression.ToString();
     }
 }

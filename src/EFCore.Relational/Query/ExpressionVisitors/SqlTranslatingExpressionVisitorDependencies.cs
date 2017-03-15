@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -45,35 +44,26 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        /// <param name="relationalAnnotationProvider"> The relational annotation provider. </param>
         /// <param name="compositeExpressionFragmentTranslator"> The composite expression fragment translator. </param>
         /// <param name="methodCallTranslator"> The method call translator. </param>
         /// <param name="memberTranslator"> The member translator. </param>
         /// <param name="relationalTypeMapper"> The relational type mapper. </param>
         public SqlTranslatingExpressionVisitorDependencies(
-            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
             [NotNull] IMethodCallTranslator methodCallTranslator,
             [NotNull] IMemberTranslator memberTranslator,
             [NotNull] IRelationalTypeMapper relationalTypeMapper)
         {
-            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
             Check.NotNull(compositeExpressionFragmentTranslator, nameof(compositeExpressionFragmentTranslator));
             Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
             Check.NotNull(memberTranslator, nameof(memberTranslator));
             Check.NotNull(relationalTypeMapper, nameof(relationalTypeMapper));
 
-            RelationalAnnotationProvider = relationalAnnotationProvider;
             CompositeExpressionFragmentTranslator = compositeExpressionFragmentTranslator;
             MethodCallTranslator = methodCallTranslator;
             MemberTranslator = memberTranslator;
             RelationalTypeMapper = relationalTypeMapper;
         }
-
-        /// <summary>
-        ///     The relational annotation provider.
-        /// </summary>
-        public IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
 
         /// <summary>
         ///     The composite expression fragment translator.
@@ -98,24 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="relationalAnnotationProvider"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public SqlTranslatingExpressionVisitorDependencies With([NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
-            => new SqlTranslatingExpressionVisitorDependencies(
-                relationalAnnotationProvider,
-                CompositeExpressionFragmentTranslator,
-                MethodCallTranslator,
-                MemberTranslator,
-                RelationalTypeMapper);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
         /// <param name="compositeExpressionFragmentTranslator"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SqlTranslatingExpressionVisitorDependencies With([NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator)
             => new SqlTranslatingExpressionVisitorDependencies(
-                RelationalAnnotationProvider,
                 compositeExpressionFragmentTranslator,
                 MethodCallTranslator,
                 MemberTranslator,
@@ -128,7 +104,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SqlTranslatingExpressionVisitorDependencies With([NotNull] IMethodCallTranslator methodCallTranslator)
             => new SqlTranslatingExpressionVisitorDependencies(
-                RelationalAnnotationProvider,
                 CompositeExpressionFragmentTranslator,
                 methodCallTranslator,
                 MemberTranslator,
@@ -141,7 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SqlTranslatingExpressionVisitorDependencies With([NotNull] IMemberTranslator memberTranslator)
             => new SqlTranslatingExpressionVisitorDependencies(
-                RelationalAnnotationProvider,
                 CompositeExpressionFragmentTranslator,
                 MethodCallTranslator,
                 memberTranslator,
@@ -154,7 +128,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SqlTranslatingExpressionVisitorDependencies With([NotNull] IRelationalTypeMapper relationalTypeMapper)
             => new SqlTranslatingExpressionVisitorDependencies(
-                RelationalAnnotationProvider,
                 CompositeExpressionFragmentTranslator,
                 MethodCallTranslator,
                 MemberTranslator,

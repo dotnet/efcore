@@ -114,11 +114,56 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var newPatternExpression = visitor.Visit(Pattern);
             var newEscapeCharExpression = EscapeChar == null ? null : visitor.Visit(EscapeChar);
 
-            return (newMatchExpression != Match)
-                   || (newPatternExpression != Pattern)
-                   || (newEscapeCharExpression != EscapeChar)
+            return newMatchExpression != Match
+                   || newPatternExpression != Pattern
+                   || newEscapeCharExpression != EscapeChar
                 ? new LikeExpression(newMatchExpression, newPatternExpression, newEscapeCharExpression)
                 : this;
+        }
+
+        /// <summary>
+        ///     Tests if this object is considered equal to another.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns>
+        ///     true if the objects are considered equal, false if they are not.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((LikeExpression)obj);
+        }
+
+        private bool Equals(LikeExpression other)
+            => Equals(Match, other.Match)
+               && Equals(Pattern, other.Pattern)
+               && Equals(EscapeChar, other.EscapeChar);
+
+        /// <summary>
+        ///     Returns a hash code for this object.
+        /// </summary>
+        /// <returns>
+        ///     A hash code for this object.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Match.GetHashCode();
+                hashCode = (hashCode * 397) ^ Pattern.GetHashCode();
+                hashCode = (hashCode * 397) ^ (EscapeChar?.GetHashCode() ?? 0);
+
+                return hashCode;
+            }
         }
 
         /// <summary>

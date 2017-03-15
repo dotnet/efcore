@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -143,12 +144,68 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         }
 
         /// <summary>
+        ///     Tests if this object is considered equal to another.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns>
+        ///     true if the objects are considered equal, false if they are not.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((NullConditionalExpression)obj);
+        }
+
+        private bool Equals(NullConditionalExpression other)
+            => Equals(AccessOperation, other.AccessOperation);
+
+        /// <summary>
+        ///     Returns a hash code for this object.
+        /// </summary>
+        /// <returns>
+        ///     A hash code for this object.
+        /// </returns>
+        public override int GetHashCode() => AccessOperation.GetHashCode();
+
+        /// <summary>
         ///     Returns a textual representation of the <see cref="T:System.Linq.Expressions.Expression" />.
         /// </summary>
         /// <returns>
         ///     A textual representation of the <see cref="T:System.Linq.Expressions.Expression" />.
         /// </returns>
         public override string ToString()
-            => $"(?{AccessOperation}?)"; // TODO: Improve this
+        {
+            if (AccessOperation is MemberExpression memberExpression)
+            {
+                return NullableCaller + "?." + memberExpression.Member.Name;
+            }
+
+            if (AccessOperation is MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.Object != null)
+                {
+                    return NullableCaller
+                           + "?." + methodCallExpression.Method.Name
+                           + "(" + string.Join(",", methodCallExpression.Arguments) + ")";
+                }
+
+                var method = methodCallExpression.Method;
+
+                return method.DeclaringType?.Name + "." + method.Name
+                       + "(?" + NullableCaller + "?, "
+                       + string.Join(",", methodCallExpression.Arguments.Skip(1)) + ")";
+            }
+
+            return $"?{AccessOperation}?";
+        }
     }
 }

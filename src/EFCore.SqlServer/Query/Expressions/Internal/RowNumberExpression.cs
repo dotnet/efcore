@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Sql.Internal;
@@ -23,22 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public RowNumberExpression(
-            [NotNull] ColumnExpression columnExpression,
-            [NotNull] IReadOnlyList<Ordering> orderings)
+        public RowNumberExpression([NotNull] IReadOnlyList<Ordering> orderings)
         {
-            Check.NotNull(columnExpression, nameof(columnExpression));
             Check.NotNull(orderings, nameof(orderings));
 
-            ColumnExpression = columnExpression;
             _orderings.AddRange(orderings);
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ColumnExpression ColumnExpression { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -56,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Type Type => ColumnExpression.Type;
+        public override Type Type => typeof(int);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -85,8 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var newColumnExpression = visitor.Visit(ColumnExpression) as ColumnExpression;
-
             var newOrderings = new List<Ordering>();
             var recreate = false;
             foreach (var ordering in _orderings)
@@ -96,13 +85,35 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
                 recreate |= newOrdering.Expression != ordering.Expression;
             }
 
-            if (recreate ||
-                ((newColumnExpression != null) && (ColumnExpression != newColumnExpression)))
+            return recreate ? new RowNumberExpression(newOrderings) : this;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
             {
-                return new RowNumberExpression(newColumnExpression ?? ColumnExpression, newOrderings);
+                return false;
             }
 
-            return this;
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((RowNumberExpression)obj);
         }
+
+        private bool Equals([NotNull] RowNumberExpression other) => _orderings.SequenceEqual(other._orderings);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override int GetHashCode()
+            => _orderings.Aggregate(0, (current, ordering) => current + ((current * 397) ^ ordering.GetHashCode()));
     }
 }

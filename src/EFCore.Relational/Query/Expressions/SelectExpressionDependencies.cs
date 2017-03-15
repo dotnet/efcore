@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -40,11 +41,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     </para>
         /// </summary>
         /// <param name="querySqlGeneratorFactory"> The query SQL generator factory. </param>
-        public SelectExpressionDependencies([NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
+        /// <param name="relationalAnnotationProvider"></param>
+        public SelectExpressionDependencies([NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
         {
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
+            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
 
             QuerySqlGeneratorFactory = querySqlGeneratorFactory;
+            RelationalAnnotationProvider = relationalAnnotationProvider;
         }
 
         /// <summary>
@@ -53,11 +58,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public IQuerySqlGeneratorFactory QuerySqlGeneratorFactory { get; }
 
         /// <summary>
+        ///     The relational annotation provider.
+        /// </summary>
+        public IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="querySqlGeneratorFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SelectExpressionDependencies With([NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
-            => new SelectExpressionDependencies(Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory)));
+            => new SelectExpressionDependencies(Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory)), RelationalAnnotationProvider);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalAnnotationProvider"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public SelectExpressionDependencies With([NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
+            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider)));
     }
 }
