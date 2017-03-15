@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <Import Project="..\..\build\common.props" />
+
   <PropertyGroup>
     <Description>SQLite implementation of the System.Data.Common provider model.
 
@@ -15,15 +17,18 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <TargetFrameworks>net451;netstandard1.2</TargetFrameworks>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="1.1.2">
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="$(SQLitePCLRawVersion)">
       <PrivateAssets>None</PrivateAssets>
     </PackageReference>
     <PackageReference Update="NETStandard.Library">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj" />
   </ItemGroup>
+
 </Project>

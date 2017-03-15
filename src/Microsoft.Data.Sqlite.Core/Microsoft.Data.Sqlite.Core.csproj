@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <Import Project="..\..\build\common.props" />
+
   <PropertyGroup>
     <AssemblyName>Microsoft.Data.Sqlite</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
@@ -20,17 +22,20 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)$(MSBuildProjectName).ruleset</CodeAnalysisRuleSet>
     <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
+
   <ItemGroup>
     <None Include="stylecop.json" />
     <None Include="$(CodeAnalysisRuleSet)" />
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.core" Version="1.1.2" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.0.0">
+    <PackageReference Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawVersion)" />
+    <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersVersion)">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Data.Common" Version="$(CoreFxVersion)" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Update="SqliteCommand.cs">
       <SubType>Component</SubType>
@@ -39,4 +44,5 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>
+
 </Project>
