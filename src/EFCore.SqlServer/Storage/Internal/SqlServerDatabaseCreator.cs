@@ -141,8 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
 
         private Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
-        {
-            return Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
+            => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
                 async (giveUp, ct) =>
                     {
                         var retryCount = 0;
@@ -173,12 +172,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                             }
                         }
                     }, DateTime.UtcNow + TimeSpan.FromMinutes(1), cancellationToken);
-        }
 
         // Login failed is thrown when database does not exist (See Issue #776)
         // Unable to attach database file is thrown when file does not exist (See Issue #2810)
         // Unable to open the physical file is thrown when file does not exist (See Issue #2810)
-        private static bool IsDoesNotExist(SqlException exception) => exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120;
+        private static bool IsDoesNotExist(SqlException exception) =>
+            exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120;
 
         // See Issue #985
         private bool RetryOnExistsFailure(SqlException exception, ref int retryCount)
@@ -201,11 +200,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             //   System.Data.SqlClient.SqlException: Unable to Attach database file as database xxxxxxx.
             // And (Number 5120)
             //   System.Data.SqlClient.SqlException: Unable to open the physical file xxxxxxx.
-            if ((exception.Number == 233 || exception.Number == -2 || exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120)
-                && ++retryCount < 30)
+            if ((exception.Number == 233
+                 || exception.Number == -2
+                 || exception.Number == 4060
+                 || exception.Number == 1832
+                 || exception.Number == 5120)
+                && ++retryCount < 20)
             {
                 ClearPool();
-                Thread.Sleep(100);
+                Thread.Sleep(500);
                 return true;
             }
             return false;
