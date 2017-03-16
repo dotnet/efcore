@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     break;
                                 case MemberBindingType.ListBinding:
                                     var memberListBinding = (MemberListBinding)memberBinding;
-                                    for (var j = 0; i < memberListBinding.Initializers.Count; i++)
+                                    for (var j = 0; j < memberListBinding.Initializers.Count; j++)
                                     {
                                         hashCode += (hashCode * 397) ^ GetHashCode(memberListBinding.Initializers[j].Arguments);
                                     }

@@ -2392,7 +2392,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     var expectedInnerNames = expectedElement.OneToMany_Optional.Select(e => e.Name).ToList();
                     for (var j = 0; j < expectedInnerNames.Count; j++)
                     {
-                        Assert.True(result[i].OneToMany_Optional.Select(e => e.Name).Contains(expectedInnerNames[i]));
+                        Assert.True(result[i].OneToMany_Optional.Select(e => e.Name).Contains(expectedInnerNames[j]));
                     }
                 }
             }
