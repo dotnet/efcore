@@ -3,6 +3,8 @@ sudo: required
 dist: trusty
 addons:
   apt:
+    sources:
+    - debian-sid
     packages:
     - gettext
     - libcurl4-openssl-dev
