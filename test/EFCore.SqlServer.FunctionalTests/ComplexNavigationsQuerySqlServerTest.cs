@@ -2657,10 +2657,9 @@ LEFT JOIN [Level2] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]",
             base.GroupJoin_without_DefaultIfEmpty();
 
             AssertSql(
-                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId], [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
+                @"SELECT [l1].[Id]
 FROM [Level1] AS [l1]
-LEFT JOIN [Level2] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]
-ORDER BY [l1].[Id]",
+INNER JOIN [Level2] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]",
                 Sql);
         }
 

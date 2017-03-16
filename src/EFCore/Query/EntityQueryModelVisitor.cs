@@ -82,7 +82,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private readonly IQueryOptimizer _queryOptimizer;
         private readonly INavigationRewritingExpressionVisitorFactory _navigationRewritingExpressionVisitorFactory;
-        private readonly ISubQueryMemberPushDownExpressionVisitor _subQueryMemberPushDownExpressionVisitor;
         private readonly IQuerySourceTracingExpressionVisitorFactory _querySourceTracingExpressionVisitorFactory;
         private readonly IEntityResultFindingExpressionVisitorFactory _entityResultFindingExpressionVisitorFactory;
         private readonly ITaskBlockingExpressionVisitor _taskBlockingExpressionVisitor;
@@ -117,7 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _queryOptimizer = dependencies.QueryOptimizer;
             _navigationRewritingExpressionVisitorFactory = dependencies.NavigationRewritingExpressionVisitorFactory;
-            _subQueryMemberPushDownExpressionVisitor = dependencies.SubQueryMemberPushDownExpressionVisitor;
             _querySourceTracingExpressionVisitorFactory = dependencies.QuerySourceTracingExpressionVisitorFactory;
             _entityResultFindingExpressionVisitorFactory = dependencies.EntityResultFindingExpressionVisitorFactory;
             _taskBlockingExpressionVisitor = dependencies.TaskBlockingExpressionVisitor;
@@ -306,19 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // First pass of optimizations
 
-            var additionalFromClauseOptimizer
-                = new AdditionalFromClauseOptimizingQueryModelVisitor();
-
-            additionalFromClauseOptimizer.VisitQueryModel(queryModel);
-
             _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
-
-            var entityEqualityRewritingExpressionVisitor
-                = new EntityEqualityRewritingExpressionVisitor(QueryCompilationContext.Model);
-
-            entityEqualityRewritingExpressionVisitor.Rewrite(queryModel);
-
-            queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
 
             // Rewrite navigations
 
@@ -337,11 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // Second pass of optimizations
 
-            additionalFromClauseOptimizer.VisitQueryModel(queryModel);
-
-            entityEqualityRewritingExpressionVisitor.Rewrite(queryModel);
-
-            queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
+            _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
 
             // Log results
 

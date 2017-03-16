@@ -51,10 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The <see cref="INavigationRewritingExpressionVisitorFactory" /> to be used when
         ///     processing the query.
         /// </param>
-        /// <param name="subQueryMemberPushDownExpressionVisitor">
-        ///     The <see cref="ISubQueryMemberPushDownExpressionVisitor" /> to be used when
-        ///     processing the query.
-        /// </param>
         /// <param name="querySourceTracingExpressionVisitorFactory">
         ///     The <see cref="IQuerySourceTracingExpressionVisitorFactory" /> to be used when
         ///     processing the query.
@@ -83,7 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies(
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
-            [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
             [NotNull] IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory,
             [NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory,
             [NotNull] ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor,
@@ -97,7 +92,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryOptimizer, nameof(queryOptimizer));
             Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory));
-            Check.NotNull(subQueryMemberPushDownExpressionVisitor, nameof(subQueryMemberPushDownExpressionVisitor));
             Check.NotNull(querySourceTracingExpressionVisitorFactory, nameof(querySourceTracingExpressionVisitorFactory));
             Check.NotNull(entityResultFindingExpressionVisitorFactory, nameof(entityResultFindingExpressionVisitorFactory));
             Check.NotNull(taskBlockingExpressionVisitor, nameof(taskBlockingExpressionVisitor));
@@ -111,7 +105,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             QueryOptimizer = queryOptimizer;
             NavigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
-            SubQueryMemberPushDownExpressionVisitor = subQueryMemberPushDownExpressionVisitor;
             QuerySourceTracingExpressionVisitorFactory = querySourceTracingExpressionVisitorFactory;
             EntityResultFindingExpressionVisitorFactory = entityResultFindingExpressionVisitorFactory;
             TaskBlockingExpressionVisitor = taskBlockingExpressionVisitor;
@@ -133,11 +126,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Gets the <see cref="INavigationRewritingExpressionVisitorFactory" /> to be used when processing a query.
         /// </summary>
         public INavigationRewritingExpressionVisitorFactory NavigationRewritingExpressionVisitorFactory { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="ISubQueryMemberPushDownExpressionVisitor" /> to be used when processing a query.
-        /// </summary>
-        public ISubQueryMemberPushDownExpressionVisitor SubQueryMemberPushDownExpressionVisitor { get; }
 
         /// <summary>
         ///     Gets the <see cref="IQuerySourceTracingExpressionVisitorFactory" /> to be used when processing a query.
@@ -198,7 +186,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
@@ -219,7 +206,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new EntityQueryModelVisitorDependencies(
                 queryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
@@ -240,28 +226,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
                 navigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
-                QuerySourceTracingExpressionVisitorFactory,
-                EntityResultFindingExpressionVisitorFactory,
-                TaskBlockingExpressionVisitor,
-                MemberAccessBindingExpressionVisitorFactory,
-                ProjectionExpressionVisitorFactory,
-                EntityQueryableExpressionVisitorFactory,
-                QueryAnnotationExtractor,
-                ResultOperatorHandler,
-                EntityMaterializerSource,
-                ExpressionPrinter);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="subQueryMemberPushDownExpressionVisitor"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public EntityQueryModelVisitorDependencies With([NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor)
-            => new EntityQueryModelVisitorDependencies(
-                QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
-                subQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
@@ -282,7 +246,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
                 querySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
@@ -303,7 +266,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 entityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
@@ -324,7 +286,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 taskBlockingExpressionVisitor,
@@ -345,7 +306,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
@@ -366,7 +326,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
@@ -387,7 +346,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
@@ -408,7 +366,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
@@ -429,7 +386,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
@@ -450,7 +406,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,

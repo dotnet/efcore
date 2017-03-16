@@ -56,6 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
         private readonly IModel _model;
 
+        private readonly TransformingQueryModelExpressionVisitor<QueryOptimizer> _transformingExpressionVisitor;
+        private readonly EntityEqualityRewritingExpressionVisitor _entityEqualityRewritingExpressionVisitor;
+        private readonly SubQueryMemberPushDownExpressionVisitor _subQueryMemberPushDownExpressionVisitor;
+        private readonly AdditionalFromClauseOptimizingQueryModelVisitor _additionalFromClauseOptimizingQueryModelVisitor;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -65,6 +70,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(model, nameof(model));
 
             _model = model;
+            _transformingExpressionVisitor = new TransformingQueryModelExpressionVisitor<QueryOptimizer>(this);
+            _entityEqualityRewritingExpressionVisitor = new EntityEqualityRewritingExpressionVisitor(model);
+            _subQueryMemberPushDownExpressionVisitor = new SubQueryMemberPushDownExpressionVisitor();
+            _additionalFromClauseOptimizingQueryModelVisitor = new AdditionalFromClauseOptimizingQueryModelVisitor();
         }
 
         /// <summary>
@@ -77,8 +86,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             _queryAnnotations = queryAnnotations;
 
+            _additionalFromClauseOptimizingQueryModelVisitor.VisitQueryModel(queryModel);
+
             VisitQueryModel(queryModel);
-            queryModel.TransformExpressions(e => new TransformingQueryModelExpressionVisitor<QueryOptimizer>(this).Visit(e));
+
+            queryModel.TransformExpressions(_transformingExpressionVisitor.Visit);
+            queryModel.TransformExpressions(_entityEqualityRewritingExpressionVisitor.Visit);
+            queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
         }
 
         /// <summary>

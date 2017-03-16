@@ -407,23 +407,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             base.VisitAdditionalFromClause(fromClause, queryModel, index);
 
-            if (fromClause.FromExpression is QuerySourceReferenceExpression)
-            {
-                previousQuerySource = FindPreviousQuerySource(queryModel, index - 1);
-
-                if (previousQuerySource != null && !RequiresClientJoin)
-                {
-                    previousSelectExpression = TryGetQuery(previousQuerySource);
-
-                    if (previousSelectExpression != null)
-                    {
-                        AddQuery(fromClause, previousSelectExpression);
-                    }
-                }
-
-                return;
-            }
-
             if (!TryFlattenSelectMany(fromClause, queryModel, index, previousProjectionCount))
             {
                 RequiresClientSelectMany = true;

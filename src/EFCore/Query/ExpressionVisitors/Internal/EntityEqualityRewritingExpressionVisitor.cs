@@ -37,17 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Rewrite([NotNull] QueryModel queryModel)
-        {
-            Check.NotNull(queryModel, nameof(queryModel));
-
-            queryModel.TransformExpressions(Visit);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
