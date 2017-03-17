@@ -1,11 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -20,9 +22,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 using (var context = CreateContext(testDatabase))
                 {
+                    var creator = (SqlServerDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
+                    creator.RetryTimeout = TimeSpan.FromMinutes(10);
+
                     await context.Database.MigrateAsync();
 
-                    Assert.True(context.GetService<IRelationalDatabaseCreator>().Exists());
+                    Assert.True(creator.Exists());
                 }
             }
         }
