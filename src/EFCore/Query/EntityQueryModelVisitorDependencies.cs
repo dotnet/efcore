@@ -68,7 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The <see cref="IMemberAccessBindingExpressionVisitorFactory" /> to be used when
         ///     processing the query.
         /// </param>
-        /// <param name="orderingExpressionVisitorFactory"> The <see cref="IOrderingExpressionVisitorFactory" /> to be used when processing the query. </param>
         /// <param name="projectionExpressionVisitorFactory">
         ///     The <see cref="IProjectionExpressionVisitorFactory" /> to be used when processing the
         ///     query.
@@ -89,7 +88,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory,
             [NotNull] ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor,
             [NotNull] IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory,
-            [NotNull] IOrderingExpressionVisitorFactory orderingExpressionVisitorFactory,
             [NotNull] IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory,
             [NotNull] IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory,
             [NotNull] IQueryAnnotationExtractor queryAnnotationExtractor,
@@ -104,7 +102,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(entityResultFindingExpressionVisitorFactory, nameof(entityResultFindingExpressionVisitorFactory));
             Check.NotNull(taskBlockingExpressionVisitor, nameof(taskBlockingExpressionVisitor));
             Check.NotNull(memberAccessBindingExpressionVisitorFactory, nameof(memberAccessBindingExpressionVisitorFactory));
-            Check.NotNull(orderingExpressionVisitorFactory, nameof(orderingExpressionVisitorFactory));
             Check.NotNull(projectionExpressionVisitorFactory, nameof(projectionExpressionVisitorFactory));
             Check.NotNull(entityQueryableExpressionVisitorFactory, nameof(entityQueryableExpressionVisitorFactory));
             Check.NotNull(queryAnnotationExtractor, nameof(queryAnnotationExtractor));
@@ -119,7 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             EntityResultFindingExpressionVisitorFactory = entityResultFindingExpressionVisitorFactory;
             TaskBlockingExpressionVisitor = taskBlockingExpressionVisitor;
             MemberAccessBindingExpressionVisitorFactory = memberAccessBindingExpressionVisitorFactory;
-            OrderingExpressionVisitorFactory = orderingExpressionVisitorFactory;
             ProjectionExpressionVisitorFactory = projectionExpressionVisitorFactory;
             EntityQueryableExpressionVisitorFactory = entityQueryableExpressionVisitorFactory;
             QueryAnnotationExtractor = queryAnnotationExtractor;
@@ -162,11 +158,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Gets the <see cref="IMemberAccessBindingExpressionVisitorFactory" /> to be used when processing a query.
         /// </summary>
         public IMemberAccessBindingExpressionVisitorFactory MemberAccessBindingExpressionVisitorFactory { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="IOrderingExpressionVisitorFactory" /> to be used when processing a query.
-        /// </summary>
-        public IOrderingExpressionVisitorFactory OrderingExpressionVisitorFactory { get; }
 
         /// <summary>
         ///     Gets the <see cref="IProjectionExpressionVisitorFactory" /> to be used when processing a query.
@@ -212,7 +203,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,
@@ -234,7 +224,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,
@@ -256,7 +245,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,
@@ -278,7 +266,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,
@@ -300,7 +287,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,
@@ -322,7 +308,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,
@@ -344,7 +329,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityResultFindingExpressionVisitorFactory,
                 taskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,
@@ -366,29 +350,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 memberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
-                ProjectionExpressionVisitorFactory,
-                EntityQueryableExpressionVisitorFactory,
-                QueryAnnotationExtractor,
-                ResultOperatorHandler,
-                EntityMaterializerSource,
-                ExpressionPrinter);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="orderingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public EntityQueryModelVisitorDependencies With([NotNull] IOrderingExpressionVisitorFactory orderingExpressionVisitorFactory)
-            => new EntityQueryModelVisitorDependencies(
-                QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
-                SubQueryMemberPushDownExpressionVisitor,
-                QuerySourceTracingExpressionVisitorFactory,
-                EntityResultFindingExpressionVisitorFactory,
-                TaskBlockingExpressionVisitor,
-                MemberAccessBindingExpressionVisitorFactory,
-                orderingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,
@@ -410,7 +371,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
                 projectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,
@@ -432,7 +392,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
                 entityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,
@@ -454,7 +413,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 queryAnnotationExtractor,
@@ -476,7 +434,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,
@@ -498,7 +455,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EntityResultFindingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
-                OrderingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
                 EntityQueryableExpressionVisitorFactory,
                 QueryAnnotationExtractor,

@@ -91,7 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IEntityResultFindingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMemberAccessBindingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INavigationRewritingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IOrderingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQuerySourceTracingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRequiresMaterializationExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IExpressionPrinter), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -216,7 +215,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IEntityResultFindingExpressionVisitorFactory, EntityResultFindingExpressionVisitorFactory>();
             TryAdd<IMemberAccessBindingExpressionVisitorFactory, MemberAccessBindingExpressionVisitorFactory>();
             TryAdd<INavigationRewritingExpressionVisitorFactory, NavigationRewritingExpressionVisitorFactory>();
-            TryAdd<IOrderingExpressionVisitorFactory, OrderingExpressionVisitorFactory>();
             TryAdd<IQuerySourceTracingExpressionVisitorFactory, QuerySourceTracingExpressionVisitorFactory>();
             TryAdd<IRequiresMaterializationExpressionVisitorFactory, RequiresMaterializationExpressionVisitorFactory>();
             TryAdd<IExpressionPrinter, ExpressionPrinter>();
