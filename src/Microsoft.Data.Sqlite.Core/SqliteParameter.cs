@@ -5,6 +5,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -114,7 +115,7 @@ namespace Microsoft.Data.Sqlite
             {
                 if (value != ParameterDirection.Input)
                 {
-                    throw new ArgumentException(Strings.InvalidParameterDirection(value));
+                    throw new ArgumentException(Resources.InvalidParameterDirection(value));
                 }
             }
         }
@@ -136,7 +137,7 @@ namespace Microsoft.Data.Sqlite
             {
                 if (string.IsNullOrEmpty(value))
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
 
                 _parameterName = value;
@@ -196,7 +197,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_parameterName.Length == 0)
             {
-                throw new InvalidOperationException(Strings.RequiresSet("ParameterName"));
+                throw new InvalidOperationException(Resources.RequiresSet(nameof(ParameterName)));
             }
 
             var index = raw.sqlite3_bind_parameter_index(stmt, _parameterName);
@@ -208,7 +209,7 @@ namespace Microsoft.Data.Sqlite
 
             if (_value == null)
             {
-                throw new InvalidOperationException(Strings.RequiresSet("Value"));
+                throw new InvalidOperationException(Resources.RequiresSet(nameof(Value)));
             }
 
             if (!_bindActionValid)
@@ -315,7 +316,7 @@ namespace Microsoft.Data.Sqlite
                 }
                 else
                 {
-                    throw new InvalidOperationException(Strings.UnknownDataType(type));
+                    throw new InvalidOperationException(Resources.UnknownDataType(type));
                 }
 
                 _bindActionValid = true;
@@ -336,7 +337,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (double.IsNaN(value))
             {
-                throw new InvalidOperationException(Strings.CannotStoreNaN);
+                throw new InvalidOperationException(Resources.CannotStoreNaN);
             }
 
             raw.sqlite3_bind_double(stmt, index, value);
@@ -367,7 +368,7 @@ namespace Microsoft.Data.Sqlite
 
                 if (index != 0)
                 {
-                    throw new InvalidOperationException(Strings.AmbiguousParameterName(_parameterName));
+                    throw new InvalidOperationException(Resources.AmbiguousParameterName(_parameterName));
                 }
 
                 index = nextIndex;

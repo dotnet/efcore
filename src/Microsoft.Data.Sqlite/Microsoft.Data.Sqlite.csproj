@@ -16,14 +16,12 @@ Microsoft.Data.Sqlite.SqliteParameter
 Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <TargetFrameworks>net451;netstandard1.2</TargetFrameworks>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="SQLitePCLRaw.bundle_green" Version="$(SQLitePCLRawVersion)">
       <PrivateAssets>None</PrivateAssets>
-    </PackageReference>
-    <PackageReference Update="NETStandard.Library">
-      <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 

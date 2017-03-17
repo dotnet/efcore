@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -72,7 +73,7 @@ namespace Microsoft.Data.Sqlite
             {
                 if (value != CommandType.Text)
                 {
-                    throw new ArgumentException(Strings.InvalidCommandType(value));
+                    throw new ArgumentException(Resources.InvalidCommandType(value));
                 }
             }
         }
@@ -195,26 +196,26 @@ namespace Microsoft.Data.Sqlite
             if ((behavior & ~(CommandBehavior.Default | CommandBehavior.SequentialAccess | CommandBehavior.SingleResult
                 | CommandBehavior.SingleRow | CommandBehavior.CloseConnection)) != 0)
             {
-                throw new ArgumentException(Strings.InvalidCommandBehavior(behavior));
+                throw new ArgumentException(Resources.InvalidCommandBehavior(behavior));
             }
 
             if (Connection == null
                 || Connection.State != ConnectionState.Open)
             {
-                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("ExecuteReader"));
+                throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteReader)));
             }
 
             if (string.IsNullOrEmpty(CommandText))
             {
-                throw new InvalidOperationException(Strings.CallRequiresSetCommandText("ExecuteReader"));
+                throw new InvalidOperationException(Resources.CallRequiresSetCommandText(nameof(ExecuteReader)));
             }
 
             if (Transaction != Connection.Transaction)
             {
                 throw new InvalidOperationException(
                     Transaction == null
-                        ? Strings.TransactionRequired
-                        : Strings.TransactionConnectionMismatch);
+                        ? Resources.TransactionRequired
+                        : Resources.TransactionConnectionMismatch);
             }
 
             // This is not a guarantee. SQLITE_BUSY can still be thrown before the command timeout.
@@ -269,7 +270,7 @@ namespace Microsoft.Data.Sqlite
                         }
                     }
 
-                    throw new InvalidOperationException(Strings.MissingParameters(string.Join(", ", unboundParams)));
+                    throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
                 }
 
                 try
@@ -401,11 +402,11 @@ namespace Microsoft.Data.Sqlite
             if (Connection == null
                 || Connection.State != ConnectionState.Open)
             {
-                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("ExecuteNonQuery"));
+                throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteNonQuery)));
             }
             if (CommandText == null)
             {
-                throw new InvalidOperationException(Strings.CallRequiresSetCommandText("ExecuteNonQuery"));
+                throw new InvalidOperationException(Resources.CallRequiresSetCommandText(nameof(ExecuteNonQuery)));
             }
 
             var reader = ExecuteReader();
@@ -424,11 +425,11 @@ namespace Microsoft.Data.Sqlite
             if (Connection == null
                 || Connection.State != ConnectionState.Open)
             {
-                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("ExecuteScalar"));
+                throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteScalar)));
             }
             if (CommandText == null)
             {
-                throw new InvalidOperationException(Strings.CallRequiresSetCommandText("ExecuteScalar"));
+                throw new InvalidOperationException(Resources.CallRequiresSetCommandText(nameof(ExecuteScalar)));
             }
 
             using (var reader = ExecuteReader())

@@ -3,6 +3,7 @@
 
 using System;
 using System.Data.Common;
+using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -48,10 +49,10 @@ namespace Microsoft.Data.Sqlite
             }
 
             var message = db == null || db.ptr == IntPtr.Zero
-                ? raw.sqlite3_errstr(rc) + " " + Strings.DefaultNativeError
+                ? raw.sqlite3_errstr(rc) + " " + Resources.DefaultNativeError
                 : raw.sqlite3_errmsg(db);
 
-            throw new SqliteException(Strings.SqliteNativeError(rc, message), rc);
+            throw new SqliteException(Resources.SqliteNativeError(rc, message), rc);
         }
     }
 }

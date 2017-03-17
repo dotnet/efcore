@@ -3,6 +3,7 @@
 
 using System;
 using System.Data.Common;
+using Microsoft.Data.Sqlite.Properties;
 using Xunit;
 
 namespace Microsoft.Data.Sqlite
@@ -881,7 +882,7 @@ namespace Microsoft.Data.Sqlite
                 {
                     var ex = Assert.Throws<InvalidOperationException>(() => action(reader));
 
-                    Assert.Equal(Strings.NoData, ex.Message);
+                    Assert.Equal(Resources.NoData, ex.Message);
                 }
             }
         }
@@ -901,7 +902,7 @@ namespace Microsoft.Data.Sqlite
                     Assert.False(hasData);
 
                     var ex = Assert.Throws<InvalidOperationException>(() => action(reader));
-                    Assert.Equal(Strings.NoData, ex.Message);
+                    Assert.Equal(Resources.NoData, ex.Message);
                 }
             }
         }
@@ -916,7 +917,7 @@ namespace Microsoft.Data.Sqlite
                 ((IDisposable)reader).Dispose();
 
                 var ex = Assert.Throws<InvalidOperationException>(() => action(reader));
-                Assert.Equal(Strings.DataReaderClosed(operation), ex.Message);
+                Assert.Equal(Resources.DataReaderClosed(operation), ex.Message);
             }
         }
 

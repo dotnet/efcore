@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using Microsoft.Data.Sqlite.Properties;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -39,7 +40,7 @@ namespace Microsoft.Data.Sqlite
             }
             else if (isolationLevel != IsolationLevel.Unspecified)
             {
-                throw new ArgumentException(Strings.InvalidIsolationLevel(isolationLevel));
+                throw new ArgumentException(Resources.InvalidIsolationLevel(isolationLevel));
             }
 
             // TODO: Register transaction hooks to detect when a user manually completes a transaction created using
@@ -68,7 +69,7 @@ namespace Microsoft.Data.Sqlite
         /// <value>The isolation level for the transaction.</value>
         public override IsolationLevel IsolationLevel
             => _completed || _connection.State != ConnectionState.Open
-                ? throw new InvalidOperationException(Strings.TransactionCompleted)
+                ? throw new InvalidOperationException(Resources.TransactionCompleted)
                 : _isolationLevel != IsolationLevel.Unspecified
                     ? _isolationLevel
                     : (_connection.ConnectionStringBuilder.Cache == SqliteCacheMode.Shared
@@ -83,7 +84,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_completed || _connection.State != ConnectionState.Open)
             {
-                throw new InvalidOperationException(Strings.TransactionCompleted);
+                throw new InvalidOperationException(Resources.TransactionCompleted);
             }
 
             _connection.ExecuteNonQuery("COMMIT;");
@@ -97,7 +98,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_completed || _connection.State != ConnectionState.Open)
             {
-                throw new InvalidOperationException(Strings.TransactionCompleted);
+                throw new InvalidOperationException(Resources.TransactionCompleted);
             }
 
             RollbackInternal();

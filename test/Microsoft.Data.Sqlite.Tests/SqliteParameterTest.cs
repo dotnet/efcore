@@ -3,6 +3,7 @@
 
 using System;
 using System.Data;
+using Microsoft.Data.Sqlite.Properties;
 using Xunit;
 
 namespace Microsoft.Data.Sqlite
@@ -59,7 +60,7 @@ namespace Microsoft.Data.Sqlite
         public void Direction_validates_value()
         {
             var ex = Assert.Throws<ArgumentException>(() => new SqliteParameter().Direction = ParameterDirection.Output);
-            Assert.Equal(Strings.InvalidParameterDirection(ParameterDirection.Output), ex.Message);
+            Assert.Equal(Resources.InvalidParameterDirection(ParameterDirection.Output), ex.Message);
         }
 
         [Fact]
@@ -111,7 +112,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
 
-                Assert.Equal(Strings.RequiresSet("ParameterName"), ex.Message);
+                Assert.Equal(Resources.RequiresSet("ParameterName"), ex.Message);
             }
         }
 
@@ -127,7 +128,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
 
-                Assert.Equal(Strings.RequiresSet("Value"), ex.Message);
+                Assert.Equal(Resources.RequiresSet("Value"), ex.Message);
             }
         }
 
@@ -192,7 +193,7 @@ namespace Microsoft.Data.Sqlite
                 connection.Open();
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
-                Assert.Equal(Strings.CannotStoreNaN, ex.Message);
+                Assert.Equal(Resources.CannotStoreNaN, ex.Message);
             }
         }
 
@@ -249,7 +250,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
 
-                Assert.Equal(Strings.UnknownDataType(typeof(object)), ex.Message);
+                Assert.Equal(Resources.UnknownDataType(typeof(object)), ex.Message);
             }
         }
 
@@ -300,7 +301,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
 
-                Assert.Equal(Strings.AmbiguousParameterName("Param"), ex.Message);
+                Assert.Equal(Resources.AmbiguousParameterName("Param"), ex.Message);
             }
         }
 

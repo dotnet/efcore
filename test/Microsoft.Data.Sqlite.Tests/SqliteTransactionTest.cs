@@ -3,8 +3,7 @@
 
 using System;
 using System.Data;
-using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using Xunit;
 
@@ -51,7 +50,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(isolationLevel));
 
-                Assert.Equal(Strings.InvalidIsolationLevel(isolationLevel), ex.Message);
+                Assert.Equal(Resources.InvalidIsolationLevel(isolationLevel), ex.Message);
             }
         }
 
@@ -120,7 +119,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => transaction.IsolationLevel);
 
-                Assert.Equal(Strings.TransactionCompleted, ex.Message);
+                Assert.Equal(Resources.TransactionCompleted, ex.Message);
             }
         }
 
@@ -168,7 +167,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
 
-                Assert.Equal(Strings.TransactionCompleted, ex.Message);
+                Assert.Equal(Resources.TransactionCompleted, ex.Message);
             }
         }
 
@@ -185,7 +184,7 @@ namespace Microsoft.Data.Sqlite
 
                     var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
 
-                    Assert.Equal(Strings.TransactionCompleted, ex.Message);
+                    Assert.Equal(Resources.TransactionCompleted, ex.Message);
                 }
             }
         }
@@ -224,7 +223,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => transaction.Rollback());
 
-                Assert.Equal(Strings.TransactionCompleted, ex.Message);
+                Assert.Equal(Resources.TransactionCompleted, ex.Message);
             }
         }
 

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using Xunit;
 
@@ -43,7 +44,7 @@ namespace Microsoft.Data.Sqlite
         {
             var ex = Assert.Throws<ArgumentException>(() => new SqliteCommand().CommandType = CommandType.StoredProcedure);
 
-            Assert.Equal(Strings.InvalidCommandType(CommandType.StoredProcedure), ex.Message);
+            Assert.Equal(Resources.InvalidCommandType(CommandType.StoredProcedure), ex.Message);
         }
 
         [Fact]
@@ -74,7 +75,7 @@ namespace Microsoft.Data.Sqlite
         {
             var ex = Assert.Throws<InvalidOperationException>(() => new SqliteCommand().ExecuteReader());
 
-            Assert.Equal(Strings.CallRequiresOpenConnection("ExecuteReader"), ex.Message);
+            Assert.Equal(Resources.CallRequiresOpenConnection("ExecuteReader"), ex.Message);
         }
 
         [Fact]
@@ -84,7 +85,7 @@ namespace Microsoft.Data.Sqlite
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().ExecuteReader());
 
-                Assert.Equal(Strings.CallRequiresOpenConnection("ExecuteReader"), ex.Message);
+                Assert.Equal(Resources.CallRequiresOpenConnection("ExecuteReader"), ex.Message);
             }
         }
 
@@ -97,7 +98,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().ExecuteReader());
 
-                Assert.Equal(Strings.CallRequiresSetCommandText("ExecuteReader"), ex.Message);
+                Assert.Equal(Resources.CallRequiresSetCommandText("ExecuteReader"), ex.Message);
             }
         }
 
@@ -121,7 +122,7 @@ namespace Microsoft.Data.Sqlite
         {
             var ex = Assert.Throws<InvalidOperationException>(() => new SqliteCommand().ExecuteScalar());
 
-            Assert.Equal(Strings.CallRequiresOpenConnection("ExecuteScalar"), ex.Message);
+            Assert.Equal(Resources.CallRequiresOpenConnection("ExecuteScalar"), ex.Message);
         }
 
         [Fact]
@@ -131,7 +132,7 @@ namespace Microsoft.Data.Sqlite
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().ExecuteScalar());
 
-                Assert.Equal(Strings.CallRequiresOpenConnection("ExecuteScalar"), ex.Message);
+                Assert.Equal(Resources.CallRequiresOpenConnection("ExecuteScalar"), ex.Message);
             }
         }
 
@@ -148,7 +149,7 @@ namespace Microsoft.Data.Sqlite
                 {
                     var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
 
-                    Assert.Equal(Strings.TransactionRequired, ex.Message);
+                    Assert.Equal(Resources.TransactionRequired, ex.Message);
                 }
             }
         }
@@ -162,7 +163,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().ExecuteScalar());
 
-                Assert.Equal(Strings.CallRequiresSetCommandText("ExecuteScalar"), ex.Message);
+                Assert.Equal(Resources.CallRequiresSetCommandText("ExecuteScalar"), ex.Message);
             }
         }
 
@@ -268,7 +269,7 @@ namespace Microsoft.Data.Sqlite
                 connection.Open();
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
-                Assert.Equal(Strings.MissingParameters("@Parameter"), ex.Message);
+                Assert.Equal(Resources.MissingParameters("@Parameter"), ex.Message);
             }
         }
 
@@ -316,7 +317,7 @@ namespace Microsoft.Data.Sqlite
         {
             var ex = Assert.Throws<InvalidOperationException>(() => new SqliteCommand().ExecuteNonQuery());
 
-            Assert.Equal(Strings.CallRequiresOpenConnection("ExecuteNonQuery"), ex.Message);
+            Assert.Equal(Resources.CallRequiresOpenConnection("ExecuteNonQuery"), ex.Message);
         }
 
         [Fact]
@@ -326,7 +327,7 @@ namespace Microsoft.Data.Sqlite
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().ExecuteNonQuery());
 
-                Assert.Equal(Strings.CallRequiresOpenConnection("ExecuteNonQuery"), ex.Message);
+                Assert.Equal(Resources.CallRequiresOpenConnection("ExecuteNonQuery"), ex.Message);
             }
         }
 
@@ -339,7 +340,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().ExecuteNonQuery());
 
-                Assert.Equal(Strings.CallRequiresSetCommandText("ExecuteNonQuery"), ex.Message);
+                Assert.Equal(Resources.CallRequiresSetCommandText("ExecuteNonQuery"), ex.Message);
             }
         }
 
@@ -362,7 +363,7 @@ namespace Microsoft.Data.Sqlite
 
                         var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
 
-                        Assert.Equal(Strings.TransactionConnectionMismatch, ex.Message);
+                        Assert.Equal(Resources.TransactionConnectionMismatch, ex.Message);
                     }
                 }
             }
@@ -541,7 +542,7 @@ namespace Microsoft.Data.Sqlite
                 connection.Open();
 
                 var ex = Assert.Throws<ArgumentException>(() => command.ExecuteReader(behavior));
-                Assert.Equal(Strings.InvalidCommandBehavior(behavior), ex.Message);
+                Assert.Equal(Resources.InvalidCommandBehavior(behavior), ex.Message);
             }
         }
 

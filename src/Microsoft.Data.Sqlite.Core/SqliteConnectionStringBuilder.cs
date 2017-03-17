@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
+using Microsoft.Data.Sqlite.Properties;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -184,7 +185,7 @@ namespace Microsoft.Data.Sqlite
             }
             else if (value.GetType().GetTypeInfo().IsEnum)
             {
-                throw new ArgumentException(Strings.ConvertFailed(value.GetType(), typeof(TEnum)));
+                throw new ArgumentException(Resources.ConvertFailed(value.GetType(), typeof(TEnum)));
             }
             else
             {
@@ -196,7 +197,7 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentOutOfRangeException(
                     nameof(value),
                     value,
-                    Strings.InvalidEnumValue(typeof(TEnum), enumValue));
+                    Resources.InvalidEnumValue(typeof(TEnum), enumValue));
             }
 
             return enumValue;
@@ -290,7 +291,7 @@ namespace Microsoft.Data.Sqlite
 
         private Keywords GetIndex(string keyword)
             => !_keywords.TryGetValue(keyword, out var index)
-                ? throw new ArgumentException(Strings.KeywordNotSupported(keyword))
+                ? throw new ArgumentException(Resources.KeywordNotSupported(keyword))
                 : index;
 
         private void Reset(Keywords index)

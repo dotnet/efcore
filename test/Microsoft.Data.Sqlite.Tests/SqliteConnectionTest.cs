@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.IO;
+using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using Xunit;
 
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.ConnectionString = "Data Source=test.db");
 
-                Assert.Equal(Strings.ConnectionStringRequiresClosedConnection, ex.Message);
+                Assert.Equal(Resources.ConnectionStringRequiresClosedConnection, ex.Message);
             }
         }
 
@@ -100,7 +101,7 @@ namespace Microsoft.Data.Sqlite
 
             var ex = Assert.Throws<InvalidOperationException>(() => connection.Open());
 
-            Assert.Equal(Strings.OpenRequiresSetConnectionString, ex.Message);
+            Assert.Equal(Resources.OpenRequiresSetConnectionString, ex.Message);
         }
 
         [Fact]
@@ -316,7 +317,7 @@ namespace Microsoft.Data.Sqlite
 
             var ex = Assert.Throws<InvalidOperationException>(() => connection.BeginTransaction());
 
-            Assert.Equal(Strings.CallRequiresOpenConnection("BeginTransaction"), ex.Message);
+            Assert.Equal(Resources.CallRequiresOpenConnection("BeginTransaction"), ex.Message);
         }
 
         [Fact]
@@ -330,7 +331,7 @@ namespace Microsoft.Data.Sqlite
                 {
                     var ex = Assert.Throws<InvalidOperationException>(() => connection.BeginTransaction());
 
-                    Assert.Equal(Strings.ParallelTransactionsNotSupported, ex.Message);
+                    Assert.Equal(Resources.ParallelTransactionsNotSupported, ex.Message);
                 }
             }
         }
@@ -426,7 +427,7 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.EnableExtensions());
-                Assert.Equal(Strings.CallRequiresOpenConnection("EnableExtensions"), ex.Message);
+                Assert.Equal(Resources.CallRequiresOpenConnection("EnableExtensions"), ex.Message);
             }
         }
     }

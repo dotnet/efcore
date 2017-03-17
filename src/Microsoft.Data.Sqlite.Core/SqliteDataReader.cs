@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
+using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -59,7 +60,7 @@ namespace Microsoft.Data.Sqlite
         /// <value>The number of columns in the current row.</value>
         public override int FieldCount
             => _closed
-                ? throw new InvalidOperationException(Strings.DataReaderClosed("FieldCount"))
+                ? throw new InvalidOperationException(Resources.DataReaderClosed(nameof(FieldCount)))
                 : raw.sqlite3_column_count(_stmt);
 
         /// <summary>
@@ -121,7 +122,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_closed)
             {
-                throw new InvalidOperationException(Strings.DataReaderClosed("Read"));
+                throw new InvalidOperationException(Resources.DataReaderClosed(nameof(Read)));
             }
 
             if (!_stepped)
@@ -210,7 +211,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_closed)
             {
-                throw new InvalidOperationException(Strings.DataReaderClosed("GetName"));
+                throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetName)));
             }
 
             var name = raw.sqlite3_column_name(_stmt, ordinal);
@@ -255,7 +256,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_closed)
             {
-                throw new InvalidOperationException(Strings.DataReaderClosed("GetDataTypeName"));
+                throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetDataTypeName)));
             }
 
             var typeName = raw.sqlite3_column_decltype(_stmt, ordinal);
@@ -301,7 +302,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_closed)
             {
-                throw new InvalidOperationException(Strings.DataReaderClosed("GetFieldType"));
+                throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetFieldType)));
             }
 
             var sqliteType = GetSqliteType(ordinal);
@@ -348,9 +349,9 @@ namespace Microsoft.Data.Sqlite
         /// <returns>true if the specified column is <see cref="DBNull" />; otherwise, false.</returns>
         public override bool IsDBNull(int ordinal)
             => _closed
-                ? throw new InvalidOperationException(Strings.DataReaderClosed("IsDBNull"))
+                ? throw new InvalidOperationException(Resources.DataReaderClosed(nameof(IsDBNull)))
                 : !_stepped || _done
-                    ? throw new InvalidOperationException(Strings.NoData)
+                    ? throw new InvalidOperationException(Resources.NoData)
                     : GetSqliteType(ordinal) == raw.SQLITE_NULL;
 
         /// <summary>
@@ -516,7 +517,7 @@ namespace Microsoft.Data.Sqlite
             {
                 if (!_stepped || _done)
                 {
-                    throw new InvalidOperationException(Strings.NoData);
+                    throw new InvalidOperationException(Resources.NoData);
                 }
 
                 return (T)(object)DBNull.Value;
@@ -586,7 +587,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_closed)
             {
-                throw new InvalidOperationException(Strings.DataReaderClosed("GetValue"));
+                throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetValue)));
             }
 
             var sqliteType = GetSqliteType(ordinal);
@@ -607,7 +608,7 @@ namespace Microsoft.Data.Sqlite
                 case raw.SQLITE_NULL:
                     if (!_stepped || _done)
                     {
-                        throw new InvalidOperationException(Strings.NoData);
+                        throw new InvalidOperationException(Resources.NoData);
                     }
 
                     return DBNull.Value;

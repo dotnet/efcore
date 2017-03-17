@@ -5,6 +5,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
 
@@ -67,7 +68,7 @@ namespace Microsoft.Data.Sqlite
             {
                 if (State != ConnectionState.Closed)
                 {
-                    throw new InvalidOperationException(Strings.ConnectionStringRequiresClosedConnection);
+                    throw new InvalidOperationException(Resources.ConnectionStringRequiresClosedConnection);
                 }
 
                 _connectionString = value;
@@ -144,7 +145,7 @@ namespace Microsoft.Data.Sqlite
             }
             if (ConnectionString == null)
             {
-                throw new InvalidOperationException(Strings.OpenRequiresSetConnectionString);
+                throw new InvalidOperationException(Resources.OpenRequiresSetConnectionString);
             }
 
             var filename = ConnectionStringBuilder.DataSource;
@@ -291,11 +292,11 @@ namespace Microsoft.Data.Sqlite
         {
             if (State != ConnectionState.Open)
             {
-                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("BeginTransaction"));
+                throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(BeginTransaction)));
             }
             if (Transaction != null)
             {
-                throw new InvalidOperationException(Strings.ParallelTransactionsNotSupported);
+                throw new InvalidOperationException(Resources.ParallelTransactionsNotSupported);
             }
 
             return Transaction = new SqliteTransaction(this, isolationLevel);
@@ -319,7 +320,7 @@ namespace Microsoft.Data.Sqlite
             if (_db == null
                 || _db.ptr == IntPtr.Zero)
             {
-                throw new InvalidOperationException(Strings.CallRequiresOpenConnection(nameof(EnableExtensions)));
+                throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(EnableExtensions)));
             }
 
             var rc = raw.sqlite3_enable_load_extension(_db, enable ? 1 : 0);

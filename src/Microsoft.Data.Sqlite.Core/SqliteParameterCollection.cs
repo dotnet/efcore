@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -337,7 +338,7 @@ namespace Microsoft.Data.Sqlite
             var index = IndexOf(parameterName);
             if (index == -1)
             {
-                throw new IndexOutOfRangeException(Strings.ParameterNotFound(parameterName));
+                throw new IndexOutOfRangeException(Resources.ParameterNotFound(parameterName));
             }
 
             return index;
