@@ -15,12 +15,4 @@
     <PackageReference Include="xunit" Version="$(XunitVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Update="TestUtilities\FakeProvider\FakeDbCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="TestUtilities\FakeProvider\FakeDbConnection.cs">
-      <SubType>Component</SubType>
-    </Compile>
-  </ItemGroup>
 </Project>

@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Expression valueBuffer,
                 Type type,
                 int index,
-                IProperty property = null)
+                IProperty property)
             => Expression.Call(
                 TryReadValueMethod.MakeGenericMethod(type),
                 valueBuffer,
