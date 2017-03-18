@@ -25,6 +25,7 @@ using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ExpressionVisitors;
 using Remotion.Linq.Clauses.ResultOperators;
+using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -63,6 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         private bool _requiresClientSingleColumnResultOperator;
 
         private Dictionary<IncludeSpecification, List<int>> _navigationIndexMap = new Dictionary<IncludeSpecification, List<int>>();
+
+        internal IStreamedDataInfo QueryModelOutputDataInfo;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

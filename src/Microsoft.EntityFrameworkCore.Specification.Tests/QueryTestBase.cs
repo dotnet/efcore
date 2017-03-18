@@ -2192,7 +2192,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Where(c => c.CustomerID.StartsWith("A"))
                     .Select(c => new
                     {
-                        Orders = c.Orders
+                        OrderDates = c.Orders
                             .Where(o => o.OrderID < 10500)
                             .Take(3)
                             .Select(o => new { Date = o.OrderDate })
@@ -2200,7 +2200,149 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .ToList();
 
                 Assert.Equal(4, customers.Count);
-                Assert.All(customers, t => Assert.True(t.Orders.Count() <= 3));
+                Assert.All(customers, t => Assert.True(t.OrderDates.Count() <= 3));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level2()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        OrderDates = c.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Select(o => o.OrderDate)
+                            .FirstOrDefault()
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+                Assert.Equal(3, customers.Count(c => c.OrderDates != null));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level3()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        OrderDates = context.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Where(o => c.CustomerID == o.CustomerID)
+                            .Select(o => o.OrderDate)
+                            .FirstOrDefault()
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+                Assert.Equal(3, customers.Count(c => c.OrderDates != null));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level4()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        Order = (int?)c.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Select(o => o.OrderDetails
+                                .Where(od => od.OrderID > 10)
+                                .Select(od => od.ProductID)
+                                .Count())
+                            .FirstOrDefault()
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+                Assert.Equal(3, customers.Count(c => c.Order != null && c.Order != 0));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level5()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        Order = (int?)c.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Select(o => o.OrderDetails
+                                .Where(od => od.OrderID != c.Orders.Count)
+                                .Select(od => od.ProductID)
+                                .FirstOrDefault())
+                            .FirstOrDefault()
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+                Assert.Equal(3, customers.Count(c => c.Order != null && c.Order != 0));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_multi_level6()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        Order = (int?)c.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Select(o => o.OrderDetails
+                                .Where(od => od.OrderID != c.CustomerID.Length)
+                                .Select(od => od.ProductID)
+                                .FirstOrDefault())
+                            .FirstOrDefault()
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+                Assert.Equal(3, customers.Count(c => c.Order != null && c.Order != 0));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_with_groupby()
+        {
+            using (var context = CreateContext())
+            {
+                var expected = context.Customers
+                    .Include(c => c.Orders)
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .ToList()
+                    .Select(c => c.Orders.Any()
+                        ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
+                        : new int[0]).ToList();
+
+                ClearLog();
+
+                var query = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => c.Orders.Any()
+                        ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
+                        : new int[0]);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
             }
         }
 
@@ -3473,8 +3615,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
-                orderby c.CustomerID
                 let hasOrders = os.Any(o => o.CustomerID == c.CustomerID)
+                where c.CustomerID.StartsWith("A")
+                orderby c.CustomerID
                 select new { c, hasOrders });
         }
 

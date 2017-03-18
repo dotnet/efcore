@@ -53,6 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly bool _bindParentQueries;
         private readonly bool _inProjection;
 
+        internal static IStreamedDataInfo CurrentQueryModelStreamedDataInfo;
+
         /// <summary>
         ///     Creates a new instance of <see cref="SqlTranslatingExpressionVisitor" />.
         /// </summary>
@@ -632,10 +634,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             if (expression == null
                 && _bindParentQueries)
             {
+                var oldQueryModelStreamedDataInfo = CurrentQueryModelStreamedDataInfo;
+                CurrentQueryModelStreamedDataInfo = _queryModelVisitor.QueryModelOutputDataInfo;
+
                 expression
                     = TryBindParentExpression(
                         _queryModelVisitor.ParentQueryModelVisitor,
                         qmv => qmv.BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpressionCore));
+
+                CurrentQueryModelStreamedDataInfo = oldQueryModelStreamedDataInfo;
             }
 
             return expression
@@ -682,10 +689,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             if (aliasExpression == null
                 && _bindParentQueries)
             {
+                var oldQueryModelStreamedDataInfo = CurrentQueryModelStreamedDataInfo;
+                CurrentQueryModelStreamedDataInfo = _queryModelVisitor.QueryModelOutputDataInfo;
+
                 aliasExpression
                     = TryBindParentExpression(
                         _queryModelVisitor.ParentQueryModelVisitor,
                         qmv => qmv.BindMemberExpression(expression, CreateAliasedColumnExpressionCore));
+
+                CurrentQueryModelStreamedDataInfo = oldQueryModelStreamedDataInfo;
             }
 
             if (aliasExpression == null)
@@ -716,7 +728,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             RelationalQueryModelVisitor queryModelVisitor,
             Func<RelationalQueryModelVisitor, AliasExpression> binder)
         {
-            if (queryModelVisitor == null || queryModelVisitor.RequiresClientProjection)
+            if (queryModelVisitor == null 
+                || (queryModelVisitor.RequiresClientProjection
+                    && !(CurrentQueryModelStreamedDataInfo is StreamedSingleValueInfo) 
+                    && !(CurrentQueryModelStreamedDataInfo is StreamedScalarValueInfo)))
             {
                 return null;
             }
@@ -919,13 +934,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var queryModelMapping = new Dictionary<QueryModel, QueryModel>();
                     subQueryModel.PopulateQueryModelMapping(queryModelMapping);
 
+                    var oldQueryModelOutputDataInfo = queryModelVisitor.QueryModelOutputDataInfo;
+                    queryModelVisitor.QueryModelOutputDataInfo = subQueryOutputDataInfo;
                     queryModelVisitor.VisitSubQueryModel(subQueryModel);
+                    queryModelVisitor.QueryModelOutputDataInfo = oldQueryModelOutputDataInfo;
 
                     if (queryModelVisitor.Queries.Count == 1
                         && !queryModelVisitor.RequiresClientFilter
                         && !queryModelVisitor.RequiresClientProjection
-                        && !queryModelVisitor.RequiresClientResultOperator
-                        && !_queryModelVisitor.RequiresClientProjection)
+                        && !queryModelVisitor.RequiresClientResultOperator)
                     {
                         var selectExpression = queryModelVisitor.Queries.First();
 

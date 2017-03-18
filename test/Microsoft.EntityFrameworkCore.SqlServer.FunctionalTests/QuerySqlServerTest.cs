@@ -591,28 +591,49 @@ ORDER BY [o].[OrderID]",
         {
             base.Let_any_subquery_anonymous();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
 ORDER BY [c].[CustomerID]
 
-@_outer_CustomerID1: ALFKI (Size = 450)
+@_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o1]
-        WHERE [o1].[CustomerID] = @_outer_CustomerID1)
+        WHERE [o1].[CustomerID] = @_outer_CustomerID)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 
-@_outer_CustomerID1: ANATR (Size = 450)
+@_outer_CustomerID: ANATR (Size = 450)
 
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o1]
-        WHERE [o1].[CustomerID] = @_outer_CustomerID1)
+        WHERE [o1].[CustomerID] = @_outer_CustomerID)
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+
+@_outer_CustomerID: ANTON (Size = 450)
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o1]
+        WHERE [o1].[CustomerID] = @_outer_CustomerID)
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+
+@_outer_CustomerID: AROUT (Size = 450)
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o1]
+        WHERE [o1].[CustomerID] = @_outer_CustomerID)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);
@@ -5308,6 +5329,128 @@ WHERE [o].[OrderID] < 10500",
                 Sql);
         }
 
+        public override void Select_nested_collection_multi_level2()
+        {
+            base.Select_nested_collection_multi_level2();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT TOP(1) [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE ([o0].[OrderID] < 10500) AND ([c].[CustomerID] = [o0].[CustomerID])
+)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)",
+                Sql);
+        }
+
+        public override void Select_nested_collection_multi_level3()
+        {
+            base.Select_nested_collection_multi_level3();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT TOP(1) [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE ([o0].[OrderID] < 10500) AND ([c].[CustomerID] = [o0].[CustomerID])
+)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)",
+                Sql);
+        }
+
+        public override void Select_nested_collection_multi_level4()
+        {
+            base.Select_nested_collection_multi_level4();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT TOP(1) (
+        SELECT COUNT(*)
+        FROM [Order Details] AS [od0]
+        WHERE ([od0].[OrderID] > 10) AND ([o0].[OrderID] = [od0].[OrderID])
+    )
+    FROM [Orders] AS [o0]
+    WHERE ([o0].[OrderID] < 10500) AND ([c].[CustomerID] = [o0].[CustomerID])
+)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)",
+                Sql);
+        }
+
+        public override void Select_nested_collection_multi_level5()
+        {
+            base.Select_nested_collection_multi_level5();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT TOP(1) (
+        SELECT TOP(1) [od0].[ProductID]
+        FROM [Order Details] AS [od0]
+        WHERE ([od0].[OrderID] <> (
+            SELECT COUNT(*)
+            FROM [Orders] AS [o2]
+            WHERE [c].[CustomerID] = [o2].[CustomerID]
+        )) AND ([o1].[OrderID] = [od0].[OrderID])
+    )
+    FROM [Orders] AS [o1]
+    WHERE ([o1].[OrderID] < 10500) AND ([c].[CustomerID] = [o1].[CustomerID])
+)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)",
+                Sql);
+        }
+
+        public override void Select_nested_collection_multi_level6()
+        {
+            base.Select_nested_collection_multi_level6();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT TOP(1) (
+        SELECT TOP(1) [od0].[ProductID]
+        FROM [Order Details] AS [od0]
+        WHERE ([od0].[OrderID] <> LEN([c].[CustomerID])) AND ([o0].[OrderID] = [od0].[OrderID])
+    )
+    FROM [Orders] AS [o0]
+    WHERE ([o0].[OrderID] < 10500) AND ([c].[CustomerID] = [o0].[CustomerID])
+)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)",
+                Sql);
+        }
+
+        public override void Select_nested_collection_with_groupby()
+        {
+            base.Select_nested_collection_with_groupby();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o0]
+            WHERE [c].[CustomerID] = [o0].[CustomerID])
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+), [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]
+
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]
+
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]
+
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]",
+                Sql);
+        }
+
         public override void Select_nested_collection_count_using_anonymous_type()
         {
             base.Select_nested_collection_count_using_anonymous_type();
@@ -5328,33 +5471,13 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) =
             base.Select_nested_collection_count_using_DTO();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID]
+                @"SELECT [c].[CustomerID], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
-
-@_outer_CustomerID1: ALFKI (Size = 450)
-
-SELECT COUNT(*)
-FROM [Orders] AS [o0]
-WHERE @_outer_CustomerID1 = [o0].[CustomerID]
-
-@_outer_CustomerID1: ANATR (Size = 450)
-
-SELECT COUNT(*)
-FROM [Orders] AS [o0]
-WHERE @_outer_CustomerID1 = [o0].[CustomerID]
-
-@_outer_CustomerID1: ANTON (Size = 450)
-
-SELECT COUNT(*)
-FROM [Orders] AS [o0]
-WHERE @_outer_CustomerID1 = [o0].[CustomerID]
-
-@_outer_CustomerID1: AROUT (Size = 450)
-
-SELECT COUNT(*)
-FROM [Orders] AS [o0]
-WHERE @_outer_CustomerID1 = [o0].[CustomerID]",
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)",
                 Sql);
         }
 
