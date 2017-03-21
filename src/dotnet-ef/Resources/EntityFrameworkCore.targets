@@ -13,6 +13,7 @@
       <EFProjectMetadata Include="ProjectAssetsFile: $(ProjectAssetsFile)" />
       <EFProjectMetadata Include="ProjectDir: $(ProjectDir)" />
       <EFProjectMetadata Include="RootNamespace: $(RootNamespace)" />
+      <EFProjectMetadata Include="RuntimeFrameworkVersion: $(RuntimeFrameworkVersion)" />
       <EFProjectMetadata Include="TargetFileName: $(TargetFileName)" />
       <EFProjectMetadata Include="TargetFrameworkMoniker: $(TargetFrameworkMoniker)" />
     </ItemGroup>

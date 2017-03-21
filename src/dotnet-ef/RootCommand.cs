@@ -144,6 +144,11 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     args.Add("--runtimeconfig");
                     args.Add(runtimeConfig);
                 }
+                else if (startupProject.RuntimeFrameworkVersion.Length != 0)
+                {
+                    args.Add("--fx-version");
+                    args.Add(startupProject.RuntimeFrameworkVersion);
+                }
 
                 args.Add(Path.Combine(toolsPath, "netcoreapp1.0", "ef.dll"));
             }
