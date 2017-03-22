@@ -5677,6 +5677,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Contains_with_local_nullable_int_array_closure()
+        {
+            var ids = new int?[] { 0, 1 };
+
+            AssertQuery<Employee>(es =>
+                    es.Where(e => ids.Contains(e.EmployeeID)), entryCount: 1);
+
+            ids = new int?[] { 0 };
+
+            AssertQuery<Employee>(es =>
+                    es.Where(e => ids.Contains(e.EmployeeID)));
+        }
+
+        [ConditionalFact]
         public virtual void Contains_with_local_array_inline()
         {
             AssertQuery<Customer>(cs =>

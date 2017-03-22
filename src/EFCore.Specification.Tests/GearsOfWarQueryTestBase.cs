@@ -2282,6 +2282,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         private static bool ClientEquals(string first, string second)
             => first == second;
 
+        [ConditionalFact]
+        public virtual void Contains_with_local_nullable_guid_list_closure()
+        {
+            using (var context = CreateContext())
+            {
+                var ids = new List<Guid?>
+                {
+                    Guid.Parse("D2C26679-562B-44D1-AB96-23D1775E0926"),
+                    Guid.Parse("23CBCF9B-CE14-45CF-AAFA-2C2667EBFDD3"),
+                    Guid.Parse("AB1B82D7-88DB-42BD-A132-7EEF9AA68AF4")
+                };
+
+                var query = context.Tags.Where(e => ids.Contains(e.Id)).ToList();
+
+                // Guids generated are random on each iteration.
+                Assert.Equal(0, query.Count);
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

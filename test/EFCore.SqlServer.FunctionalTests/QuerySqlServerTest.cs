@@ -6000,6 +6000,36 @@ WHERE EXISTS (
                 Sql);
         }
 
+        public override void Contains_with_local_int_array_closure()
+        {
+            base.Contains_with_local_int_array_closure();
+
+            Assert.Equal(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[EmployeeID] IN (0, 1)
+
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[EmployeeID] IN (0)",
+                Sql);
+        }
+
+        public override void Contains_with_local_nullable_int_array_closure()
+        {
+            base.Contains_with_local_nullable_int_array_closure();
+
+            Assert.Equal(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[EmployeeID] IN (0, 1)
+
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[EmployeeID] IN (0)",
+                Sql);
+        }
+
         public override void Contains_with_local_array_inline()
         {
             base.Contains_with_local_array_inline();

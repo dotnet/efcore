@@ -2372,6 +2372,17 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
                 Sql);
         }
 
+        public override void Contains_with_local_nullable_guid_list_closure()
+        {
+            base.Contains_with_local_nullable_guid_list_closure();
+
+            Assert.Equal(
+                @"SELECT [e].[Id], [e].[GearNickName], [e].[GearSquadId], [e].[Note]
+FROM [CogTag] AS [e]
+WHERE [e].[Id] IN ('d2c26679-562b-44d1-ab96-23d1775e0926', '23cbcf9b-ce14-45cf-aafa-2c2667ebfdd3', 'ab1b82d7-88db-42bd-a132-7eef9aa68af4')",
+                Sql);
+        }
+
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private const string FileLineEnding = @"
