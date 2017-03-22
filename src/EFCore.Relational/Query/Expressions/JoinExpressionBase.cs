@@ -4,6 +4,7 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
@@ -30,6 +31,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The target table expression.
         /// </summary>
         public virtual TableExpressionBase TableExpression => _tableExpression;
+        
+        /// <summary>
+        ///     Determines whether or not this JoinExpressionBase handles the given query source.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <returns>
+        ///     true if the supplied query source is handled by this JoinExpressionBase; otherwise false.
+        /// </returns>
+        public override bool HandlesQuerySource(IQuerySource querySource)
+        {
+            Check.NotNull(querySource, nameof(querySource));
+
+            return _tableExpression.HandlesQuerySource(querySource)
+                || base.HandlesQuerySource(querySource);
+        }
 
         /// <summary>
         ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(System.Linq.Expressions.Expression)" /> method passing the

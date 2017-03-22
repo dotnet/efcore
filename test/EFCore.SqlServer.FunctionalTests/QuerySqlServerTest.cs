@@ -6920,7 +6920,7 @@ WHERE [t0].[OrderID] IS NOT NULL",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [t0].[OrderID], [t2].[OrderDate]
 FROM [Customers] AS [c]
-CROSS APPLY (
+CROSS JOIN (
     SELECT [t].*
     FROM (
         SELECT NULL AS [empty]

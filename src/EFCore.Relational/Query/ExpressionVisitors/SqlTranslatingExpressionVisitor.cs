@@ -601,8 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 var arguments
                     = methodCallExpression.Arguments
-                        .Where(e => !(e is QuerySourceReferenceExpression)
-                                    && !(e is SubQueryExpression))
+                        .Where(IsValidForMethodOrMemberTranslation)
                         .Select(e => (e as ConstantExpression)?.Value is Array ? e : Visit(e))
                         .Where(e => e != null)
                         .ToArray();
@@ -640,8 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
 
-            if (!(memberExpression.Expression is QuerySourceReferenceExpression)
-                && !(memberExpression.Expression is SubQueryExpression))
+            if (IsValidForMethodOrMemberTranslation(memberExpression.Expression))
             {
                 var newExpression = Visit(memberExpression.Expression);
 
@@ -667,6 +665,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 ?? TryBindQuerySourcePropertyExpression(memberExpression)
                 ?? _queryModelVisitor.BindMemberToOuterQueryParameter(memberExpression);
         }
+
+        private static bool IsValidForMethodOrMemberTranslation(Expression expression)
+            => !(expression is QuerySourceReferenceExpression)
+            && !(expression is SubQueryExpression)
+            && !(expression is NewExpression);
 
         private Expression TryBindQuerySourcePropertyExpression(MemberExpression memberExpression)
         {
@@ -885,9 +888,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         = _queryModelVisitor.Queries
                             .ToDictionary(k => k, s => s.Projection.Count);
 
-                    var queryModelMapping = new Dictionary<QueryModel, QueryModel>();
-                    subQueryModel.PopulateQueryModelMapping(queryModelMapping);
-
                     subQueryModelVisitor.VisitSubQueryModel(subQueryModel);
 
                     if (subQueryModelVisitor.IsLiftable)
@@ -905,8 +905,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                         return selectExpression;
                     }
-
-                    subQueryModel.RecreateQueryModelFromMapping(queryModelMapping);
                 }
             }
 
@@ -1032,23 +1030,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             if (!_inProjection)
             {
-                var joinClause
-                    = expression.ReferencedQuerySource as JoinClause;
+                var entityType
+                    = _queryModelVisitor.QueryCompilationContext.Model
+                        .FindEntityType(expression.ReferencedQuerySource.ItemType);
 
-                if (joinClause != null)
+                if (entityType != null)
                 {
-                    var entityType
-                        = _queryModelVisitor.QueryCompilationContext.Model
-                            .FindEntityType(joinClause.ItemType);
-
-                    if (entityType != null)
-                    {
-                        return Visit(
-                            EntityQueryModelVisitor.CreatePropertyExpression(
-                                expression, entityType.FindPrimaryKey().Properties[0]));
-                    }
-
-                    return null;
+                    return Visit(
+                        EntityQueryModelVisitor.CreatePropertyExpression(
+                            expression, entityType.FindPrimaryKey().Properties[0]));
                 }
             }
 

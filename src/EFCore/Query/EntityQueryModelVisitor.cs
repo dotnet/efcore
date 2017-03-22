@@ -200,6 +200,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 OptimizeQueryModel(queryModel, includeResultOperators);
 
+                QueryCompilationContext.Logger
+                    .LogDebug(
+                        CoreEventId.OptimizedQueryModel,
+                        () => CoreStrings.LogOptimizedQueryModel(Environment.NewLine, queryModel.Print()));
+
                 QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
                 QueryCompilationContext.DetermineQueryBufferRequirement(queryModel);
 
@@ -244,6 +249,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .ToList();
 
                 OptimizeQueryModel(queryModel, includeResultOperators);
+
+                QueryCompilationContext.Logger
+                    .LogDebug(
+                        CoreEventId.OptimizedQueryModel,
+                        () => CoreStrings.LogOptimizedQueryModel(Environment.NewLine, queryModel.Print()));
 
                 QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
                 QueryCompilationContext.DetermineQueryBufferRequirement(queryModel);
@@ -335,13 +345,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             entityEqualityRewritingExpressionVisitor.Rewrite(queryModel);
 
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
-
-            // Log results
-
-            QueryCompilationContext.Logger
-                .LogDebug(
-                    CoreEventId.OptimizedQueryModel,
-                    () => CoreStrings.LogOptimizedQueryModel(Environment.NewLine, queryModel.Print()));
         }
 
         private class NondeterministicResultCheckingVisitor : QueryModelVisitorBase
@@ -1162,36 +1165,49 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             RescopeTransparentAccess(queryModel.MainFromClause, outerAccessExpression);
 
-            for (var i = 0; i < index; i++)
+            foreach (var bodyClauseQuerySource in IterateBodyClauseQuerySources(queryModel.BodyClauses.Take(index)))
             {
-                var bodyClause = queryModel.BodyClauses[i] as IQuerySource;
-
-                if (bodyClause != null)
-                {
-                    RescopeTransparentAccess(bodyClause, outerAccessExpression);
-
-                    var groupJoinClause = bodyClause as GroupJoinClause;
-
-                    if (groupJoinClause != null
-                        && QueryCompilationContext.QuerySourceMapping
-                            .ContainsMapping(groupJoinClause.JoinClause))
-                    {
-                        RescopeTransparentAccess(groupJoinClause.JoinClause, outerAccessExpression);
-                    }
-                }
+                RescopeTransparentAccess(bodyClauseQuerySource, outerAccessExpression);
             }
 
             AddOrUpdateMapping(querySource, AccessInnerTransparentField(transparentIdentifierType, CurrentParameter));
         }
 
+        private IEnumerable<IQuerySource> IterateBodyClauseQuerySources(IEnumerable<IBodyClause> bodyClauses)
+        {
+            foreach (var bodyClause in bodyClauses)
+            {
+                switch (bodyClause)
+                {
+                    case ICompositeBodyClause compositeBodyClause:
+                        foreach (var querySource in IterateBodyClauseQuerySources(compositeBodyClause.BodyClauses))
+                        {
+                            yield return querySource;
+                        }
+                        break;
+                    case GroupJoinClause groupJoinClause:
+                        yield return groupJoinClause;
+                        yield return groupJoinClause.JoinClause;
+                        break;
+                    case IQuerySource querySourceBodyClause:
+                        yield return querySourceBodyClause;
+                        break;
+                }
+            }
+        }
+
         private void RescopeTransparentAccess(IQuerySource querySource, Expression targetExpression)
         {
-            var memberAccessExpression
-                = ShiftMemberAccess(
-                    targetExpression,
-                    _queryCompilationContext.QuerySourceMapping.GetExpression(querySource));
+            var querySourceMapping = _queryCompilationContext.QuerySourceMapping;
 
-            _queryCompilationContext.QuerySourceMapping.ReplaceMapping(querySource, memberAccessExpression);
+            if (querySourceMapping.ContainsMapping(querySource))
+            {
+                querySourceMapping.ReplaceMapping(
+                    querySource,
+                    ShiftMemberAccess(
+                        targetExpression,
+                        querySourceMapping.GetExpression(querySource)));
+            }
         }
 
         private static Expression ShiftMemberAccess(Expression targetExpression, Expression currentExpression)
