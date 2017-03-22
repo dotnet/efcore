@@ -308,6 +308,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
 
+            new SubQueryDeduplicatingQueryModelVisitor().VisitQueryModel(queryModel);
+
             var entityEqualityRewritingExpressionVisitor
                 = new EntityEqualityRewritingExpressionVisitor(QueryCompilationContext.Model);
 

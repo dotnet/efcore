@@ -7242,6 +7242,28 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
+        public override void Range_variable_subquery_with_FirstOrDefault_is_deduplicated()
+        {
+            base.Range_variable_subquery_with_FirstOrDefault_is_deduplicated();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [t0].[ProductID], [t0].[Quantity], [t0].[UnitPrice]
+FROM [Orders] AS [o]
+CROSS APPLY (
+    SELECT [t].*
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [empty]
+    LEFT JOIN (
+        SELECT TOP(1) [x].*
+        FROM [Order Details] AS [x]
+        WHERE [x].[OrderID] = [o].[OrderID]
+        ORDER BY [x].[ProductID] DESC
+    ) AS [t] ON 1 = 1
+) AS [t0]",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 

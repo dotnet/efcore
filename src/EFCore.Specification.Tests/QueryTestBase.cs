@@ -7087,6 +7087,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             select new { c.ContactName, o });
         }
 
+        [ConditionalFact]
+        public virtual void Range_variable_subquery_with_FirstOrDefault_is_deduplicated()
+        {
+            AssertQuery<Order, OrderDetail>(
+                (os, ods) =>
+                    from o in os
+                    let d = ods.OrderByDescending(x => x.ProductID).FirstOrDefault(x => x.OrderID == o.OrderID)
+                    select new
+                    {
+                        o.OrderID,
+                        d.ProductID,
+                        d.Quantity,
+                        d.UnitPrice
+                    });
+        }
+
         private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
         {
             return source?.Count() == 0 ? new[] { default(TElement) } : source;

@@ -374,6 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             selectExpression.PushDownSubquery();
             selectExpression.ExplodeStarProjection();
+            selectExpression.ClearOrderBy();
 
             var subquery = selectExpression.Tables.Single();
 
