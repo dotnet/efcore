@@ -2,7 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
@@ -11,6 +16,7 @@ using Xunit;
 using Xunit.Abstractions;
 
 #if !NET452
+using System.Reflection;
 using System.Threading;
 #endif
 
@@ -22,6 +28,74 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             : base(fixture)
         {
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+        }
+
+        [ConditionalFact]
+        public void Member_init_expressions_are_compared_correctly_in_query_cache()
+        {
+            using (var context = CreateContext())
+            {
+                var compiledQueryCacheKeyGenerator = context.GetService<ICompiledQueryCacheKeyGenerator>();
+                var compiledQueryCache = context.GetService<ICompiledQueryCache>();
+                var entryAdded = 0;
+
+                var addMethod = typeof(List<string>).GetMethod("Add");
+
+                var bindingMessages = Expression.ListBind(
+                    typeof(Node).GetProperty("Messages"),
+                    Expression.ElementInit(addMethod, Expression.Constant("Constant1"))
+                );
+
+                var bindingDescriptions = Expression.ListBind(
+                    typeof(Node).GetProperty("Descriptions"),
+                    Expression.ElementInit(addMethod, Expression.Constant("Constant2"))
+                );
+
+                Expression query1 = Expression.MemberInit(
+                    Expression.New(typeof(Node)),
+                    new List<MemberBinding>
+                    {
+                        bindingMessages
+                    }
+                );
+
+                Expression query2 = Expression.MemberInit(
+                    Expression.New(typeof(Node)),
+                    new List<MemberBinding>
+                    {
+                        bindingMessages,
+                        bindingDescriptions
+                    }
+                );
+
+                var key1 = compiledQueryCacheKeyGenerator.GenerateCacheKey(query1, async: false);
+                var key2 = compiledQueryCacheKeyGenerator.GenerateCacheKey(query2, async: false);
+
+                Assert.NotEqual(key1.GetHashCode(), key2.GetHashCode());
+                Assert.False(key1.Equals(key2));
+
+                compiledQueryCache.GetOrAddQuery<int>(key1, () =>
+                {
+                    entryAdded++;
+                    return null;
+                });
+
+                Assert.Equal(1, entryAdded);
+
+                compiledQueryCache.GetOrAddQuery<int>(key2, () =>
+                {
+                    entryAdded++;
+                    return null;
+                });
+
+                Assert.Equal(2, entryAdded);
+            }
+        }
+
+        private class Node
+        {
+            public List<string> Messages { set; get; }
+            public List<string> Descriptions { set; get; }
         }
 
         [ConditionalFact]
