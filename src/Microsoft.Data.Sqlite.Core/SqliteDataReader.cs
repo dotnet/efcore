@@ -384,7 +384,35 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override DateTime GetDateTime(int ordinal)
-            => DateTime.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+        {
+            var sqliteType = GetSqliteType(ordinal);
+            switch (sqliteType)
+            {
+                case raw.SQLITE_FLOAT:
+                case raw.SQLITE_INTEGER:
+                    return FromJulianDate(GetDouble(ordinal));
+                default:
+                    return DateTime.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+            }
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a <see cref="DateTimeOffset" />.
+        /// </summary>
+        /// <param name="ordinal">The zero-based column ordinal.</param>
+        /// <returns>The value of the column.</returns>
+        public DateTimeOffset GetDateTimeOffset(int ordinal)
+        {
+            var sqliteType = GetSqliteType(ordinal);
+            switch (sqliteType)
+            {
+                case raw.SQLITE_FLOAT:
+                case raw.SQLITE_INTEGER:
+                    return new DateTimeOffset(FromJulianDate(GetDouble(ordinal)));
+                default:
+                    return DateTimeOffset.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+            }
+        }
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="decimal" />.
@@ -511,7 +539,7 @@ namespace Microsoft.Data.Sqlite
             }
             if (type == typeof(DateTimeOffset))
             {
-                return (T)(object)DateTimeOffset.Parse(GetString(ordinal));
+                return (T)(object)GetDateTimeOffset(ordinal);
             }
             if (type == typeof(DBNull))
             {
@@ -639,5 +667,44 @@ namespace Microsoft.Data.Sqlite
             => IsDBNull(ordinal)
                 ? throw new InvalidCastException()
                 : raw.sqlite3_column_blob(_stmt, ordinal) ?? _emptyByteArray;
+
+        /// <summary>
+        /// Computes DateTime from julian date. This function is a port of the
+        /// computeYMD and computeHMS functions from the original Sqlite core
+        /// source code in 'date.c'.
+        /// </summary>
+        /// <param name="julianDate">Real value containing the julian date</param>
+        /// <returns>The converted DateTime.</returns>
+        private static DateTime FromJulianDate(double julianDate)
+        {
+            // computeYMD
+            var iJD = (long)(julianDate * 86400000.0 + 0.5);
+            var Z = (int)((iJD + 43200000) / 86400000);
+            var A = (int)((Z - 1867216.25) / 36524.25);
+            A = Z + 1 + A - (A / 4);
+            var B = A + 1524;
+            var C = (int)((B - 122.1) / 365.25);
+            var D = (36525 * (C & 32767)) / 100;
+            var E = (int)((B - D) / 30.6001);
+            var X1 = (int)(30.6001 * E);
+            var day = B - D - X1;
+            var month = E < 14 ? E - 1 : E - 13;
+            var year = month > 2 ? C - 4716 : C - 4715;
+
+            // computeHMS
+            var s = (int)((iJD + 43200000) % 86400000);
+            var fracSecond = s / 1000.0;
+            s = (int)fracSecond;
+            fracSecond -= s;
+            var hour = s / 3600;
+            s -= hour * 3600;
+            var minute = s / 60;
+            fracSecond += s - minute * 60;
+
+            var second = (int)fracSecond;
+            var millisecond = (int)Math.Round((fracSecond - second) * 1000.0);
+
+            return new DateTime(year, month, day, hour, minute, second, millisecond);
+        }
     }
 }
