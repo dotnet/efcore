@@ -36,5 +36,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             : base(internalEntry, navigation)
         {
         }
+
+        /// <summary>
+        ///     The <see cref="EntityEntry" /> of the entity this navigation targets.
+        /// </summary>
+        /// <value> An entry for the entity that owns this navigation targets. </value>
+        public virtual EntityEntry TargetEntry
+        {
+            get
+            {
+                var target = GetTargetEntry();
+                return target == null ? null : new EntityEntry(target);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual InternalEntityEntry GetTargetEntry()
+            => CurrentValue == null
+                ? null
+                : InternalEntry.StateManager.GetOrCreateEntry(CurrentValue, Metadata.GetTargetType());
     }
 }

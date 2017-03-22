@@ -203,7 +203,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     stateManager.Notify.NavigationCollectionChanged(entry, navigation, added, removed);
                 }
             }
-            else if (!ReferenceEquals(currentValue, snapshotValue))
+            else if (!ReferenceEquals(currentValue, snapshotValue)
+                && (!navigation.ForeignKey.IsOwnership
+                || !navigation.IsDependentToPrincipal()))
             {
                 stateManager.Notify.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
             }

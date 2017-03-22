@@ -70,7 +70,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (PrepareForAdd(entityState))
             {
+                StateManager.ValueGeneration.Propagate(this);
                 StateManager.ValueGeneration.Generate(this);
+            }
+            else if (EntityType.IsOwned()
+                     && oldState == EntityState.Detached)
+            {
+                StateManager.ValueGeneration.Propagate(this);
             }
 
             SetEntityState(oldState, entityState, acceptChanges);
@@ -89,7 +95,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (PrepareForAdd(entityState))
             {
+                StateManager.ValueGeneration.Propagate(this);
                 await StateManager.ValueGeneration.GenerateAsync(this, cancellationToken);
+            }
+            else if (EntityType.IsOwned()
+                     && oldState == EntityState.Detached)
+            {
+                StateManager.ValueGeneration.Propagate(this);
             }
 
             SetEntityState(oldState, entityState, acceptChanges);
@@ -299,8 +311,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            if (currentState == EntityState.Added
-                || currentState == EntityState.Deleted)
+            if (currentState == EntityState.Added)
             {
                 return;
             }
@@ -311,6 +322,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && property.IsKey())
             {
                 throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, EntityType.DisplayName()));
+            }
+
+            if (currentState == EntityState.Deleted)
+            {
+                return;
             }
 
             if (changeState)

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
@@ -78,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 Assert.Same(chunky, cherry.Monkeys.Single());
                 Assert.Equal(cherry.Id, chunky.GarciaId);
                 Assert.Same(cherry, reference.CurrentValue);
+                Assert.Same(reference.TargetEntry.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
 
                 reference.CurrentValue = null;
 
@@ -85,6 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 Assert.Empty(cherry.Monkeys);
                 Assert.Null(chunky.GarciaId);
                 Assert.Null(reference.CurrentValue);
+                Assert.Null(reference.TargetEntry);
             }
         }
 
@@ -107,6 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 Assert.Same(chunky, cherry.Monkeys.Single());
                 Assert.Equal(cherry.Id, chunky.GarciaId);
                 Assert.Same(cherry, reference.CurrentValue);
+                Assert.Same(reference.TargetEntry.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
 
                 reference.CurrentValue = null;
 
@@ -114,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 Assert.Empty(cherry.Monkeys);
                 Assert.Null(chunky.GarciaId);
                 Assert.Null(reference.CurrentValue);
+                Assert.Null(reference.TargetEntry);
             }
         }
 
@@ -193,6 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 Assert.Equal(cherry.Id, chunky.GarciaId);
                 Assert.Same(cherry, reference.CurrentValue);
 
+                Assert.Same(reference.TargetEntry.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
                 Assert.Equal(EntityState.Added, context.Entry(cherry).State);
                 Assert.Equal(EntityState.Added, context.Entry(chunky).State);
 
@@ -203,6 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 Assert.Null(chunky.GarciaId);
                 Assert.Null(reference.CurrentValue);
 
+                Assert.Null(reference.TargetEntry);
                 Assert.Equal(EntityState.Added, context.Entry(cherry).State);
                 Assert.Equal(EntityState.Added, context.Entry(chunky).State);
             }
@@ -228,6 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 Assert.Equal(cherry.Id, chunky.GarciaId);
                 Assert.Same(cherry, reference.CurrentValue);
 
+                Assert.Same(reference.TargetEntry.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
                 Assert.Equal(EntityState.Added, context.Entry(cherry).State);
                 Assert.Equal(EntityState.Added, context.Entry(chunky).State);
 
@@ -238,6 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 Assert.Null(chunky.GarciaId);
                 Assert.Null(reference.CurrentValue);
 
+                Assert.Null(reference.TargetEntry);
                 Assert.Equal(EntityState.Added, context.Entry(cherry).State);
                 Assert.Equal(EntityState.Added, context.Entry(chunky).State);
             }

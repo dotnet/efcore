@@ -25,6 +25,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly Dictionary<object, InternalEntityEntry> _entityReferenceMap
             = new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
 
+        private readonly Dictionary<IEntityType, Dictionary<object, InternalEntityEntry>> _dietReferenceMap
+            = new Dictionary<IEntityType, Dictionary<object, InternalEntityEntry>>();
+
         private readonly LazyRef<IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>> _referencedUntrackedEntities
             = new LazyRef<IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>>(
                 () => new Dictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>(ReferenceEqualityComparer.Instance));
@@ -129,12 +132,50 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (entityType == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().ShortDisplayName()));
+                    if (_model.IsDelegatedIdentityEntityType(entity.GetType()))
+                    {
+                        throw new InvalidOperationException(CoreStrings.UntrackedDelegatedIdentityEntity(
+                            entity.GetType().ShortDisplayName(),
+                            "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().ShortDisplayName()));
+                    }
                 }
 
                 entry = _factory.Create(this, entityType, entity);
 
                 _entityReferenceMap[entity] = entry;
+            }
+            return entry;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalEntityEntry GetOrCreateEntry(object entity, IEntityType entityType)
+        {
+            var entry = TryGetEntry(entity, entityType);
+            if (entry == null)
+            {
+                entry = _factory.Create(this, entityType, entity);
+
+                if (entityType.HasDelegatedIdentity())
+                {
+                    if (!_dietReferenceMap.TryGetValue(entityType, out var entries))
+                    {
+                        entries = new Dictionary<object, InternalEntityEntry>();
+                        _dietReferenceMap[entityType] = entries;
+                    }
+
+                    entries[entity] = entry;
+                }
+                else
+                {
+                    _entityReferenceMap[entity] = entry;
+                }
             }
             return entry;
         }
@@ -216,9 +257,43 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry TryGetEntry(object entity)
         {
-            InternalEntityEntry entry;
-            return !_entityReferenceMap.TryGetValue(entity, out entry) ? null : entry;
+            if (_entityReferenceMap.TryGetValue(entity, out InternalEntityEntry entry))
+            {
+                return entry;
+            }
+
+            var type = entity.GetType();
+            var found = false;
+            foreach (var keyValue in _dietReferenceMap)
+            {
+                // ReSharper disable once CheckForReferenceEqualityInstead.2
+                if (Equals(keyValue.Key.ClrType, type)
+                    && keyValue.Value.TryGetValue(entity, out entry))
+                {
+                    if (found)
+                    {
+                        throw new InvalidOperationException(CoreStrings.AmbiguousDelegatedIdentityEntity(
+                            entity.GetType().ShortDisplayName(),
+                            "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
+                    }
+                    found = true;
+                }
+            }
+
+            return entry;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalEntityEntry TryGetEntry(object entity, IEntityType entityType)
+            => _entityReferenceMap.TryGetValue(entity, out InternalEntityEntry entry)
+                ? entry
+                : _dietReferenceMap.TryGetValue(entityType, out var entries)
+                  && entries.TryGetValue(entity, out entry)
+                    ? entry
+                    : null;
 
         private IIdentityMap GetOrCreateIdentityMap(IKey key)
         {
@@ -293,7 +368,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> Entries => _entityReferenceMap.Values;
+        public virtual IEnumerable<InternalEntityEntry> Entries => _entityReferenceMap.Values
+            .Concat(_dietReferenceMap.Values.SelectMany(e => e.Values));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -309,12 +385,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var mapKey = entry.Entity ?? entry;
-            var existingEntry = TryGetEntry(mapKey);
+            var existingEntry = TryGetEntry(mapKey, entityType);
 
             if (existingEntry == null
                 || existingEntry == entry)
             {
-                _entityReferenceMap[mapKey] = entry;
+                if (entityType.HasDelegatedIdentity())
+                {
+                    _dietReferenceMap[entityType][mapKey] = entry;
+                }
+                else
+                {
+                    _entityReferenceMap[mapKey] = entry;
+                }
             }
             else
             {
@@ -345,23 +428,37 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _subscriber.Unsubscribe(entry);
             }
 
+            var entityType = entry.EntityType;
             var mapKey = entry.Entity ?? entry;
-            _entityReferenceMap.Remove(mapKey);
 
-            foreach (var key in entry.EntityType.GetKeys())
+            if (entityType.HasDelegatedIdentity())
+            {
+                var entries = _dietReferenceMap[entityType];
+                entries.Remove(mapKey);
+                if (entries.Count == 0)
+                {
+                    _dietReferenceMap.Remove(entityType);
+                }
+            }
+            else
+            {
+                _entityReferenceMap.Remove(mapKey);
+            }
+
+            foreach (var key in entityType.GetKeys())
             {
                 FindIdentityMap(key)?.Remove(entry);
             }
 
             if (_referencedUntrackedEntities.HasValue)
             {
-                var navigations = entry.EntityType.GetNavigations().ToList();
+                var navigations = entityType.GetNavigations().ToList();
 
                 foreach (var keyValuePair in _referencedUntrackedEntities.Value.ToList())
                 {
-                    var entityType = _model.FindEntityType(keyValuePair.Key.GetType());
-                    if (navigations.Any(n => n.GetTargetType().IsAssignableFrom(entityType))
-                        || entityType.GetNavigations().Any(n => n.GetTargetType().IsAssignableFrom(entry.EntityType)))
+                    var untrackedEntityType = _model.FindEntityType(keyValuePair.Key.GetType());
+                    if (navigations.Any(n => n.GetTargetType().IsAssignableFrom(untrackedEntityType))
+                        || untrackedEntityType.GetNavigations().Any(n => n.GetTargetType().IsAssignableFrom(entityType)))
                     {
                         _referencedUntrackedEntities.Value.Remove(keyValuePair.Key);
 
@@ -399,6 +496,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             Unsubscribe();
             _entityReferenceMap.Clear();
+            _dietReferenceMap.Clear();
 
             if (_referencedUntrackedEntities.HasValue)
             {

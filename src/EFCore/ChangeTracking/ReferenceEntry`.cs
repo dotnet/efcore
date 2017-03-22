@@ -51,6 +51,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual EntityEntry<TEntity> EntityEntry => new EntityEntry<TEntity>(InternalEntry);
 
         /// <summary>
+        ///     The <see cref="EntityEntry{TEntity}" /> of the entity this navigation targets.
+        /// </summary>
+        /// <value> An entry for the entity that owns this navigation targets. </value>
+        public new virtual EntityEntry<TProperty> TargetEntry
+        {
+            get
+            {
+                var target = GetTargetEntry();
+                return target == null ? null : new EntityEntry<TProperty>(target);
+            }
+        }
+
+        /// <summary>
         ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
         ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
         ///     for the context to detect the change.

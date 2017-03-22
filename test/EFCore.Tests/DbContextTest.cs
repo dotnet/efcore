@@ -214,6 +214,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 throw new NotImplementedException();
             }
 
+            public InternalEntityEntry GetOrCreateEntry(object entity, IEntityType entityType)
+            {
+                throw new NotImplementedException();
+            }
+
             public InternalEntityEntry StartTrackingFromQuery(
                 IEntityType baseEntityType,
                 object entity,
@@ -239,6 +244,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             public InternalEntityEntry TryGetEntry(object entity)
+            {
+                throw new NotImplementedException();
+            }
+
+            public InternalEntityEntry TryGetEntry(object entity, IEntityType type)
             {
                 throw new NotImplementedException();
             }
@@ -4278,8 +4288,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 Assert.Equal(
                     CoreStrings.InvalidUseService(
-                        nameof(DbContextOptionsBuilder.UseLoggerFactory), 
-                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider), 
+                        nameof(DbContextOptionsBuilder.UseLoggerFactory),
+                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider),
                         nameof(ILoggerFactory)),
                     Assert.Throws<InvalidOperationException>(() => context.Model).Message);
             }
@@ -4437,7 +4447,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var _ = context.Model;
             }
-            
+
             using (var context = new ChangeSdlCacheContext(true))
             {
                 Assert.Equal(
@@ -4485,7 +4495,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var _ = context.Model;
             }
-            
+
             using (var context = new ConstructorTestContextWithOC3A(
                 new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
                     .UseTransientInMemoryDatabase()
@@ -4540,7 +4550,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     Assert.Throws<InvalidOperationException>(() => context.Model).Message);
             }
         }
-        
+
         [Fact]
         public void Throws_changing_warnings_default_in_OnConfiguring_when_UseInternalServiceProvider()
         {

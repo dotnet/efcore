@@ -47,14 +47,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var foreignKey = navigation.ForeignKey;
             var stateManager = entry.StateManager;
             var inverse = navigation.FindInverse();
+            var targetEntityType = navigation.GetTargetType();
 
-            var oldTargetEntry = oldValue == null ? null : stateManager.TryGetEntry(oldValue);
+            var oldTargetEntry = oldValue == null ? null : stateManager.TryGetEntry(oldValue, targetEntityType);
             if (oldTargetEntry?.EntityState == EntityState.Detached)
             {
                 oldTargetEntry = null;
             }
 
-            var newTargetEntry = newValue == null ? null : stateManager.TryGetEntry(newValue);
+            var newTargetEntry = newValue == null ? null : stateManager.TryGetEntry(newValue, targetEntityType);
             if (newTargetEntry?.EntityState == EntityState.Detached)
             {
                 newTargetEntry = null;
@@ -153,7 +154,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         // Clear the inverse reference, unless it has already been changed
                         if (inverse != null
-                            && ReferenceEquals(oldTargetEntry[inverse], entry.Entity))
+                            && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
+                            && (!oldTargetEntry.EntityType.HasDelegatedIdentity()
+                                || entry.EntityType.GetNavigations().All(n =>
+                                    n == navigation || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
                         {
                             SetNavigation(oldTargetEntry, inverse, null);
                         }
@@ -175,7 +179,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 stateManager.RecordReferencedUntrackedEntity(newValue, navigation, entry);
                 entry.SetRelationshipSnapshotValue(navigation, newValue);
-                _attacher.AttachGraph(stateManager.GetOrCreateEntry(newValue), EntityState.Added);
+                var targetEntry = targetEntityType.HasDelegatedIdentity()
+                    ? stateManager.GetOrCreateEntry(newValue, targetEntityType)
+                    : stateManager.GetOrCreateEntry(newValue);
+                _attacher.AttachGraph(targetEntry, EntityState.Added);
             }
         }
 
@@ -332,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             if (foreignKey.IsUnique)
                             {
                                 // Dependent has been changed to point to a new principal.
-                                // Find the dependent that previously pointed to the new principal and null out its FKs 
+                                // Find the dependent that previously pointed to the new principal and null out its FKs
                                 // and navigation property. A.k.a. reference stealing.
                                 // However, if the FK has already been changed or the reference is already set to point
                                 // to something else, then don't change it.
@@ -579,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            // If the new state is from a query then we are going to assume that the FK value is the source of 
+            // If the new state is from a query then we are going to assume that the FK value is the source of
             // truth and not attempt to ascertain relationships from navigation properties
             if (!fromQuery)
             {
@@ -594,7 +601,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var navigationValue = entry[principalToDependent];
                         if (navigationValue != null)
                         {
-
                             if (principalToDependent.IsCollection())
                             {
                                 var dependents = ((IEnumerable)navigationValue).Cast<object>();
@@ -616,7 +622,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             }
                             else
                             {
-                                var dependentEntry = stateManager.TryGetEntry(navigationValue);
+                                var targetEntityType = principalToDependent.GetTargetType();
+                                var dependentEntry = stateManager.TryGetEntry(navigationValue, targetEntityType);
                                 if (dependentEntry == null
                                     || dependentEntry.EntityState == EntityState.Detached)
                                 {
@@ -641,7 +648,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var navigationValue = entry[dependentToPrincipal];
                         if (navigationValue != null)
                         {
-                            var principalEntry = stateManager.TryGetEntry(navigationValue);
+                            var targetEntityType = dependentToPrincipal.GetTargetType();
+                            var principalEntry = stateManager.TryGetEntry(navigationValue, targetEntityType);
                             if (principalEntry == null
                                 || principalEntry.EntityState == EntityState.Detached)
                             {
@@ -789,6 +797,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     dependentEntry[dependentProperties[i]] = null;
                     dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
                     dependentEntry.SetRelationshipSnapshotValue(dependentProperties[i], null);
+                }
+            }
+
+            if (foreignKey.IsRequired
+                && !hasNonKeyProperties
+                && dependentEntry.EntityState != EntityState.Detached)
+            {
+                switch (dependentEntry.EntityState)
+                {
+                    case EntityState.Added:
+                        dependentEntry.SetEntityState(EntityState.Detached);
+                        break;
+                    case EntityState.Unchanged:
+                    case EntityState.Modified:
+                        dependentEntry.SetEntityState(EntityState.Deleted);
+                        break;
                 }
             }
         }

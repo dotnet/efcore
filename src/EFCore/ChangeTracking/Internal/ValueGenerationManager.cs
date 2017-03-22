@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -38,28 +39,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual void Propagate(InternalEntityEntry entry)
+        {
+            foreach (var property in FindPropagatingProperties(entry))
+            {
+                _keyPropagator.PropagateValue(entry, property);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Generate(InternalEntityEntry entry)
         {
             var entityEntry = new EntityEntry(entry);
 
-            foreach (var propertyTuple in FindProperties(entry))
+            foreach (var property in FindGeneratingProperties(entry))
             {
-                var property = propertyTuple.Item1;
-
-                if (propertyTuple.Item2)
-                {
-                    _keyPropagator.PropagateValue(entry, property);
-                }
-                else
-                {
-                    var valueGenerator = GetValueGenerator(entry, property);
-
-                    SetGeneratedValue(
-                        entry,
-                        property,
-                        valueGenerator.Next(entityEntry),
-                        valueGenerator.GeneratesTemporaryValues);
-                }
+                var valueGenerator = GetValueGenerator(entry, property);
+                SetGeneratedValue(
+                    entry,
+                    property,
+                    valueGenerator.Next(entityEntry),
+                    valueGenerator.GeneratesTemporaryValues);
             }
         }
 
@@ -73,39 +76,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var entityEntry = new EntityEntry(entry);
 
-            foreach (var propertyTuple in FindProperties(entry))
+            foreach (var property in FindGeneratingProperties(entry))
             {
-                var property = propertyTuple.Item1;
-
-                if (propertyTuple.Item2)
-                {
-                    _keyPropagator.PropagateValue(entry, property);
-                }
-                else
-                {
-                    var valueGenerator = GetValueGenerator(entry, property);
-
-                    SetGeneratedValue(
-                        entry,
-                        property,
-                        await valueGenerator.NextAsync(entityEntry, cancellationToken),
-                        valueGenerator.GeneratesTemporaryValues);
-                }
+                var valueGenerator = GetValueGenerator(entry, property);
+                SetGeneratedValue(
+                    entry,
+                    property,
+                    await valueGenerator.NextAsync(entityEntry, cancellationToken),
+                    valueGenerator.GeneratesTemporaryValues);
             }
         }
 
-        private IEnumerable<Tuple<IProperty, bool>> FindProperties(InternalEntityEntry entry)
-        {
-            foreach (var property in entry.EntityType.GetProperties())
-            {
-                var isForeignKey = property.IsForeignKey();
-                if ((property.RequiresValueGenerator() || isForeignKey)
-                    && property.ClrType.IsDefaultValue(entry[property]))
-                {
-                    yield return Tuple.Create(property, isForeignKey);
-                }
-            }
-        }
+        private IEnumerable<IProperty>  FindPropagatingProperties(InternalEntityEntry entry)
+            => entry.EntityType.GetProperties().Where(
+                property => property.IsForeignKey()
+                            && property.ClrType.IsDefaultValue(entry[property]));
+
+        private IEnumerable<IProperty> FindGeneratingProperties(InternalEntityEntry entry)
+            => entry.EntityType.GetProperties().Where(
+                property => property.RequiresValueGenerator()
+                            && property.ClrType.IsDefaultValue(entry[property]));
 
         private ValueGenerator GetValueGenerator(InternalEntityEntry entry, IProperty property)
             => _valueGeneratorSelector.Select(property, property.IsKey()

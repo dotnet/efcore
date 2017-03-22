@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private bool AnyFkPropertiesModified(object relatedEntity)
         {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity);
+            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
 
             return relatedEntry != null
                    && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private void SetFkPropertiesModified(object relatedEntity, bool modified)
         {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity);
+            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
             if (relatedEntry != null)
             {
                 SetFkPropertiesModified(relatedEntry, modified);

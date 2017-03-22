@@ -346,7 +346,7 @@
     <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.</value>
   </data>
   <data name="KeyReadOnly" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' is part of a key and so cannot be modified or marked as modified.</value>
+    <value>The property '{property}' on entity type '{entityType}' is part of a key and so cannot be modified or marked as modified. To change the principal of an existing entity with an identifying foreign key first delete the dependent and invoke 'SaveChanges' then associate the dependent with the new principal.</value>
   </data>
   <data name="PropertyReadOnlyAfterSave" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is defined to be read-only after it has been saved, but its value has been modified or marked as modified.</value>
@@ -743,5 +743,11 @@
   </data>
   <data name="NonDefiningOwnership" xml:space="preserve">
     <value>The ownership navigation '{ownershipNavigation}' should be the same as the defining navigation '{definingNavigation}' for entity type '{entityType}'</value>
+  </data>
+  <data name="AmbiguousDelegatedIdentityEntity" xml:space="preserve">
+    <value>The entity type '{entityType}' has delegated identity and the given entity is currently referenced from several owner entities. To access the entry for a particular reference to this entity call '{targetEntryCall}' on the owner entry.</value>
+  </data>
+  <data name="UntrackedDelegatedIdentityEntity" xml:space="preserve">
+    <value>The entity type '{entityType}' has delegated identity and the given entity is currently not being tracked. To start tracking this entity call '{targetEntryCall}' on the owner entry.</value>
   </data>
 </root>

@@ -1462,9 +1462,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var principal = new ParentDN { Id = 77 };
                 var dependent = new ChildDN { Id = 78 };
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
-
                 context.Entry(principal).State = entityState;
+                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
                 context.Entry(dependent).State = entityState;
 
                 AssertFixup(
@@ -1490,9 +1489,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var principal = new ParentDN { Id = 77 };
                 var dependent = new ChildDN { Id = 78, Parent = principal };
 
-                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
-
                 context.Entry(principal).State = entityState;
+                context.Entry(dependent).Property("ParentId").CurrentValue = principal.Id;
                 context.Entry(dependent).State = entityState;
 
                 AssertFixup(

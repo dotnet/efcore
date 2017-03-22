@@ -608,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 navigation, entityType, foundType);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is part of a key and so cannot be modified or marked as modified.
+        ///     The property '{property}' on entity type '{entityType}' is part of a key and so cannot be modified or marked as modified. To change the principal of an existing entity with an identifying foreign key first delete the dependent and invoke 'SaveChanges' then associate the dependent with the new principal.
         /// </summary>
         public static string KeyReadOnly([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
@@ -1636,6 +1636,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("NonDefiningOwnership", nameof(ownershipNavigation), nameof(definingNavigation), nameof(entityType)),
                 ownershipNavigation, definingNavigation, entityType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' has delegated identity and the given entity is currently referenced from several owner entities. To access the entry for a particular reference to this entity call '{targetEntryCall}' on the owner entry.
+        /// </summary>
+        public static string AmbiguousDelegatedIdentityEntity([CanBeNull] object entityType, [CanBeNull] object targetEntryCall)
+            => string.Format(
+                GetString("AmbiguousDelegatedIdentityEntity", nameof(entityType), nameof(targetEntryCall)),
+                entityType, targetEntryCall);
+
+        /// <summary>
+        ///     The entity type '{entityType}' has delegated identity and the given entity is currently not being tracked. To start tracking this entity call '{targetEntryCall}' on the owner entry.
+        /// </summary>
+        public static string UntrackedDelegatedIdentityEntity([CanBeNull] object entityType, [CanBeNull] object targetEntryCall)
+            => string.Format(
+                GetString("UntrackedDelegatedIdentityEntity", nameof(entityType), nameof(targetEntryCall)),
+                entityType, targetEntryCall);
 
         private static string GetString(string name, params string[] formatterNames)
         {

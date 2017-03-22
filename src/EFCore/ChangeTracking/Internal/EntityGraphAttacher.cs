@@ -62,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             internalEntityEntry.SetEntityState(
-                internalEntityEntry.IsKeySet ? (EntityState)node.NodeState : EntityState.Added,
+                internalEntityEntry.IsKeySet || internalEntityEntry.EntityType.IsOwned()
+                    ? (EntityState)node.NodeState : EntityState.Added,
                 acceptChanges: true);
 
             return true;
@@ -77,7 +78,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             await internalEntityEntry.SetEntityStateAsync(
-                internalEntityEntry.IsKeySet ? (EntityState)node.NodeState : EntityState.Added,
+                internalEntityEntry.IsKeySet || internalEntityEntry.EntityType.IsOwned()
+                    ? (EntityState)node.NodeState : EntityState.Added,
                 acceptChanges: true,
                 cancellationToken: cancellationToken);
 

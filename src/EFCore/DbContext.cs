@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore
                 contextServices.Initialize(scopedServiceProvider, options, this);
 
                 _logger = scopedServiceProvider.GetRequiredService<ILogger<DbContext>>();
-                
+
                 return contextServices;
             }
             finally
@@ -1067,7 +1067,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entities, nameof(entities));
             CheckDisposed();
-            
+
             var stateManager = StateManager;
 
             // An Added entity does not yet exist in the database. If it is then marked as deleted there is

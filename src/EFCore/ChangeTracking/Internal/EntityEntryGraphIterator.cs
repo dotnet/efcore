@@ -48,9 +48,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                     else
                     {
-                        TraverseGraph(
-                            node.CreateNode(node, stateManager.GetOrCreateEntry(navigationValue), navigation),
-                            handleNode);
+                        var targetEntityType = navigation.GetTargetType();
+                        var targetEntry = targetEntityType.HasDelegatedIdentity()
+                            ? stateManager.GetOrCreateEntry(navigationValue, targetEntityType)
+                            : stateManager.GetOrCreateEntry(navigationValue);
+                        TraverseGraph(node.CreateNode(node, targetEntry, navigation), handleNode);
                     }
                 }
             }
@@ -92,8 +94,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                     else
                     {
+                        var targetType = navigation.GetTargetType();
+                        var entry = targetType.HasDelegatedIdentity()
+                            ? stateManager.GetOrCreateEntry(navigationValue, targetType)
+                            : stateManager.GetOrCreateEntry(navigationValue);
                         await TraverseGraphAsync(
-                            node.CreateNode(node, stateManager.GetOrCreateEntry(navigationValue), navigation),
+                            node.CreateNode(node, entry, navigation),
                             handleNode,
                             cancellationToken);
                     }
