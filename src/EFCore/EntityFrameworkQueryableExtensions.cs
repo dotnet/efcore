@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, bool>(_any, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _anyPredicate = GetMethod(nameof(Queryable.Any), 1);
+        private static readonly MethodInfo _anyPredicate = GetMethod(nameof(Queryable.Any), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously determines whether any element of a sequence satisfies a condition.
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, bool>(_anyPredicate, source, predicate, cancellationToken);
         }
 
-        private static readonly MethodInfo _allPredicate = GetMethod(nameof(Queryable.All), 1);
+        private static readonly MethodInfo _allPredicate = GetMethod(nameof(Queryable.All), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously determines whether all the elements of a sequence satisfy a condition.
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, int>(_count, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _countPredicate = GetMethod(nameof(Queryable.Count), 1);
+        private static readonly MethodInfo _countPredicate = GetMethod(nameof(Queryable.Count), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously returns the number of elements in a sequence that satisfy a condition.
@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, long>(_longCount, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _longCountPredicate = GetMethod(nameof(Queryable.LongCount), 1);
+        private static readonly MethodInfo _longCountPredicate = GetMethod(nameof(Queryable.LongCount), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously returns an <see cref="Int64" /> that represents the number of elements in a sequence
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, TSource>(_first, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _firstPredicate = GetMethod(nameof(Queryable.First), 1);
+        private static readonly MethodInfo _firstPredicate = GetMethod(nameof(Queryable.First), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously returns the first element of a sequence that satisfies a specified condition.
@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, TSource>(_firstOrDefault, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _firstOrDefaultPredicate = GetMethod(nameof(Queryable.FirstOrDefault), 1);
+        private static readonly MethodInfo _firstOrDefaultPredicate = GetMethod(nameof(Queryable.FirstOrDefault), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously returns the first element of a sequence that satisfies a specified condition
@@ -439,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, TSource>(_last, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _lastPredicate = GetMethod(nameof(Queryable.Last), 1);
+        private static readonly MethodInfo _lastPredicate = GetMethod(nameof(Queryable.Last), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously returns the last element of a sequence that satisfies a specified condition.
@@ -506,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, TSource>(_lastOrDefault, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _lastOrDefaultPredicate = GetMethod(nameof(Queryable.LastOrDefault), 1);
+        private static readonly MethodInfo _lastOrDefaultPredicate = GetMethod(nameof(Queryable.LastOrDefault), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously returns the last element of a sequence that satisfies a specified condition
@@ -579,7 +579,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, TSource>(_single, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _singlePredicate = GetMethod(nameof(Queryable.Single), 1);
+        private static readonly MethodInfo _singlePredicate = GetMethod(nameof(Queryable.Single), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously returns the only element of a sequence that satisfies a specified condition,
@@ -649,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, TSource>(_singleOrDefault, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _singleOrDefaultPredicate = GetMethod(nameof(Queryable.SingleOrDefault), 1);
+        private static readonly MethodInfo _singleOrDefaultPredicate = GetMethod(nameof(Queryable.SingleOrDefault), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously returns the only element of a sequence that satisfies a specified condition or
@@ -721,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, TSource>(_min, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _minSelector = GetMethod(nameof(Queryable.Min), 1, mi => mi.IsGenericMethod);
+        private static readonly MethodInfo _minSelector = GetMethod(nameof(Queryable.Min), parameterCount: 1, predicate: mi => mi.IsGenericMethod);
 
         /// <summary>
         ///     Asynchronously invokes a projection function on each element of a sequence and returns the minimum resulting value.
@@ -793,7 +793,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, TSource>(_max, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _maxSelector = GetMethod(nameof(Queryable.Max), 1, mi => mi.IsGenericMethod);
+        private static readonly MethodInfo _maxSelector = GetMethod(nameof(Queryable.Max), parameterCount: 1, predicate: mi => mi.IsGenericMethod);
 
         /// <summary>
         ///     Asynchronously invokes a projection function on each element of a sequence and returns the maximum resulting value.
@@ -890,7 +890,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<decimal?, decimal?>(_sumNullableDecimal, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumDecimalSelector = GetMethod<decimal>(nameof(Queryable.Sum), 1);
+        private static readonly MethodInfo _sumDecimalSelector = GetMethod<decimal>(nameof(Queryable.Sum), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -922,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, decimal>(_sumDecimalSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableDecimalSelector = GetMethod<decimal?>(nameof(Queryable.Sum), 1);
+        private static readonly MethodInfo _sumNullableDecimalSelector = GetMethod<decimal?>(nameof(Queryable.Sum), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1010,7 +1010,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<int?, int?>(_sumNullableInt, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumIntSelector = GetMethod<int>(nameof(Queryable.Sum), 1);
+        private static readonly MethodInfo _sumIntSelector = GetMethod<int>(nameof(Queryable.Sum), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1042,7 +1042,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, int>(_sumIntSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableIntSelector = GetMethod<int?>(nameof(Queryable.Sum), 1);
+        private static readonly MethodInfo _sumNullableIntSelector = GetMethod<int?>(nameof(Queryable.Sum), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1130,7 +1130,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<long?, long?>(_sumNullableLong, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumLongSelector = GetMethod<long>(nameof(Queryable.Sum), 1);
+        private static readonly MethodInfo _sumLongSelector = GetMethod<long>(nameof(Queryable.Sum), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1162,7 +1162,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, long>(_sumLongSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableLongSelector = GetMethod<long?>(nameof(Queryable.Sum), 1);
+        private static readonly MethodInfo _sumNullableLongSelector = GetMethod<long?>(nameof(Queryable.Sum), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1250,7 +1250,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<double?, double?>(_sumNullableDouble, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumDoubleSelector = GetMethod<double>(nameof(Queryable.Sum), 1);
+        private static readonly MethodInfo _sumDoubleSelector = GetMethod<double>(nameof(Queryable.Sum), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1282,7 +1282,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, double>(_sumDoubleSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableDoubleSelector = GetMethod<double?>(nameof(Queryable.Sum), 1);
+        private static readonly MethodInfo _sumNullableDoubleSelector = GetMethod<double?>(nameof(Queryable.Sum), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1370,7 +1370,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<float?, float?>(_sumNullableFloat, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumFloatSelector = GetMethod<float>(nameof(Queryable.Sum), 1);
+        private static readonly MethodInfo _sumFloatSelector = GetMethod<float>(nameof(Queryable.Sum), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1402,7 +1402,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, float>(_sumFloatSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableFloatSelector = GetMethod<float?>(nameof(Queryable.Sum), 1);
+        private static readonly MethodInfo _sumNullableFloatSelector = GetMethod<float?>(nameof(Queryable.Sum), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1439,17 +1439,15 @@ namespace Microsoft.EntityFrameworkCore
         #region Average
 
         private static MethodInfo GetAverageMethod<TOperand, TResult>(int parameterCount = 0)
-        {
-            return GetMethod<TResult>(
+            => GetMethod<TResult>(
                 nameof(Queryable.Average),
                 parameterCount,
-                mi => ((parameterCount == 0)
-                       && (mi.GetParameters()[0].ParameterType == typeof(IQueryable<TOperand>)))
-                      || ((mi.GetParameters().Length == 2)
-                          && (mi.GetParameters()[1]
-                              .ParameterType.GenericTypeArguments[0]
-                              .GenericTypeArguments[1] == typeof(TOperand))));
-        }
+                mi => parameterCount == 0
+                      && mi.GetParameters()[0].ParameterType == typeof(IQueryable<TOperand>)
+                      || mi.GetParameters().Length == 2
+                      && mi.GetParameters()[1]
+                          .ParameterType.GenericTypeArguments[0]
+                          .GenericTypeArguments[1] == typeof(TOperand));
 
         private static readonly MethodInfo _averageDecimal = GetAverageMethod<decimal, decimal>();
 
@@ -1507,7 +1505,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<decimal?, decimal?>(_averageNullableDecimal, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _averageDecimalSelector = GetAverageMethod<decimal, decimal>(1);
+        private static readonly MethodInfo _averageDecimalSelector = GetAverageMethod<decimal, decimal>(parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the average of a sequence of values that is obtained
@@ -1540,7 +1538,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, decimal>(_averageDecimalSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _averageNullableDecimalSelector = GetAverageMethod<decimal?, decimal?>(1);
+        private static readonly MethodInfo _averageNullableDecimalSelector = GetAverageMethod<decimal?, decimal?>(parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the average of a sequence of values that is obtained
@@ -1629,7 +1627,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<int?, double?>(_averageNullableInt, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _averageIntSelector = GetAverageMethod<int, double>(1);
+        private static readonly MethodInfo _averageIntSelector = GetAverageMethod<int, double>(parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the average of a sequence of values that is obtained
@@ -1662,7 +1660,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, double>(_averageIntSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _averageNullableIntSelector = GetAverageMethod<int?, double?>(1);
+        private static readonly MethodInfo _averageNullableIntSelector = GetAverageMethod<int?, double?>(parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the average of a sequence of values that is obtained
@@ -1751,7 +1749,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<long?, double?>(_averageNullableLong, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _averageLongSelector = GetAverageMethod<long, double>(1);
+        private static readonly MethodInfo _averageLongSelector = GetAverageMethod<long, double>(parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the average of a sequence of values that is obtained
@@ -1784,7 +1782,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, double>(_averageLongSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _averageNullableLongSelector = GetAverageMethod<long?, double?>(1);
+        private static readonly MethodInfo _averageNullableLongSelector = GetAverageMethod<long?, double?>(parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the average of a sequence of values that is obtained
@@ -1873,7 +1871,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<double?, double?>(_averageNullableDouble, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _averageDoubleSelector = GetAverageMethod<double, double>(1);
+        private static readonly MethodInfo _averageDoubleSelector = GetAverageMethod<double, double>(parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the average of a sequence of values that is obtained
@@ -1906,7 +1904,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, double>(_averageDoubleSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _averageNullableDoubleSelector = GetAverageMethod<double?, double?>(1);
+        private static readonly MethodInfo _averageNullableDoubleSelector = GetAverageMethod<double?, double?>(parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the average of a sequence of values that is obtained
@@ -1995,7 +1993,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<float?, float?>(_averageNullableFloat, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _averageFloatSelector = GetAverageMethod<float, float>(1);
+        private static readonly MethodInfo _averageFloatSelector = GetAverageMethod<float, float>(parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the average of a sequence of values that is obtained
@@ -2028,7 +2026,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteAsync<TSource, float>(_averageFloatSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _averageNullableFloatSelector = GetAverageMethod<float?, float?>(1);
+        private static readonly MethodInfo _averageNullableFloatSelector = GetAverageMethod<float?, float?>(parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously computes the average of a sequence of values that is obtained
@@ -2065,7 +2063,7 @@ namespace Microsoft.EntityFrameworkCore
 
         #region Contains
 
-        private static readonly MethodInfo _contains = GetMethod(nameof(Queryable.Contains), 1);
+        private static readonly MethodInfo _contains = GetMethod(nameof(Queryable.Contains), parameterCount: 1);
 
         /// <summary>
         ///     Asynchronously determines whether a sequence contains a specified element by using the default equality comparer.
@@ -2219,9 +2217,9 @@ namespace Microsoft.EntityFrameworkCore
                 source.Provider is EntityQueryProvider
                     ? source.Provider.CreateQuery<TEntity>(
                         Expression.Call(
-                            null,
-                            IncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
-                            new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                            instance: null,
+                            method: IncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
+                            arguments: new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
                     : source);
         }
 
@@ -2290,9 +2288,9 @@ namespace Microsoft.EntityFrameworkCore
                 source.Provider is EntityQueryProvider
                     ? source.Provider.CreateQuery<TEntity>(
                         Expression.Call(
-                            null,
-                            ThenIncludeAfterEnumerableMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
-                            new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                            instance: null,
+                            method: ThenIncludeAfterEnumerableMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
+                            arguments: new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
                     : source);
 
         /// <summary>
@@ -2311,7 +2309,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A new query with the related data included.
         /// </returns>
-        [Obsolete("Use overload that takes an IEnumerable<> navigation property instead.")]
+        [Obsolete(message: "Use overload that takes an IEnumerable<> navigation property instead.")]
         public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
             [NotNull] IIncludableQueryable<TEntity, ICollection<TPreviousProperty>> source,
             [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
@@ -2362,9 +2360,9 @@ namespace Microsoft.EntityFrameworkCore
                 source.Provider is EntityQueryProvider
                     ? source.Provider.CreateQuery<TEntity>(
                         Expression.Call(
-                            null,
-                            ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
-                            new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                            instance: null,
+                            method: ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
+                            arguments: new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
                     : source);
 
         private class IncludableQueryable<TEntity, TProperty> : IIncludableQueryable<TEntity, TProperty>, IAsyncEnumerable<TEntity>
@@ -2437,10 +2435,10 @@ namespace Microsoft.EntityFrameworkCore
                 source.Provider is EntityQueryProvider
                     ? source.Provider.CreateQuery<TEntity>(
                         Expression.Call(
-                            null,
-                            StringIncludeMethodInfo.MakeGenericMethod(typeof(TEntity)),
-                            source.Expression,
-                            Expression.Constant(navigationPropertyPath)))
+                            instance: null,
+                            method: StringIncludeMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                            arg0: source.Expression,
+                            arg1: Expression.Constant(navigationPropertyPath)))
                     : source;
         }
 
@@ -2480,11 +2478,18 @@ namespace Microsoft.EntityFrameworkCore
         public static IQueryable<TEntity> AsNoTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
-            => source.Provider.CreateQuery<TEntity>(
-                Expression.Call(
-                    null,
-                    AsNoTrackingMethodInfo
-                        .MakeGenericMethod(typeof(TEntity)), source.Expression));
+        {
+            Check.NotNull(source, nameof(source));
+
+            return
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TEntity>(
+                        Expression.Call(
+                            instance: null,
+                            method: AsNoTrackingMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                            arguments: source.Expression))
+                    : source;
+        }
 
         internal static readonly MethodInfo AsTrackingMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
@@ -2508,11 +2513,18 @@ namespace Microsoft.EntityFrameworkCore
         public static IQueryable<TEntity> AsTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
-            => source.Provider.CreateQuery<TEntity>(
-                Expression.Call(
-                    null,
-                    AsTrackingMethodInfo
-                        .MakeGenericMethod(typeof(TEntity)), source.Expression));
+        {
+            Check.NotNull(source, nameof(source));
+
+            return
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TEntity>(
+                        Expression.Call(
+                            instance: null,
+                            method: AsTrackingMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                            arguments: source.Expression))
+                    : source;
+        }
 
         #endregion
 
@@ -2774,9 +2786,7 @@ namespace Microsoft.EntityFrameworkCore
             IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var provider = source.Provider as IAsyncQueryProvider;
-
-            if (provider != null)
+            if (source.Provider is IAsyncQueryProvider provider)
             {
                 if (operatorMethodInfo.IsGenericMethod)
                 {
@@ -2784,7 +2794,10 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 return provider.ExecuteAsync<TResult>(
-                    Expression.Call(null, operatorMethodInfo, source.Expression),
+                    Expression.Call(
+                        instance: null,
+                        method: operatorMethodInfo,
+                        arguments: source.Expression),
                     cancellationToken);
             }
 
@@ -2805,9 +2818,7 @@ namespace Microsoft.EntityFrameworkCore
             Expression expression,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var provider = source.Provider as IAsyncQueryProvider;
-
-            if (provider != null)
+            if (source.Provider is IAsyncQueryProvider provider)
             {
                 operatorMethodInfo
                     = operatorMethodInfo.GetGenericArguments().Length == 2
@@ -2816,9 +2827,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 return provider.ExecuteAsync<TResult>(
                     Expression.Call(
-                        null,
-                        operatorMethodInfo,
-                        new[] { source.Expression, expression }),
+                        instance: null,
+                        method: operatorMethodInfo,
+                        arguments: new[] { source.Expression, expression }),
                     cancellationToken);
             }
 
@@ -2830,14 +2841,14 @@ namespace Microsoft.EntityFrameworkCore
             => GetMethod(
                 name,
                 parameterCount,
-                mi => (mi.ReturnType == typeof(TResult))
-                      && ((predicate == null) || predicate(mi)));
+                mi => mi.ReturnType == typeof(TResult)
+                      && (predicate == null || predicate(mi)));
 
         private static MethodInfo GetMethod(
             string name, int parameterCount = 0, Func<MethodInfo, bool> predicate = null)
             => typeof(Queryable).GetTypeInfo().GetDeclaredMethods(name)
-                .Single(mi => (mi.GetParameters().Length == parameterCount + 1)
-                              && ((predicate == null) || predicate(mi)));
+                .Single(mi => mi.GetParameters().Length == parameterCount + 1
+                              && (predicate == null || predicate(mi)));
 
         #endregion
     }
