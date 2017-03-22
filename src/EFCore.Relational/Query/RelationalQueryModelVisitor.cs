@@ -1461,9 +1461,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 subSelectExpression.IsProjectStar = true;
                 subSelectExpression.QuerySource = joinClause;
 
-                predicate 
-                    = sqlTranslatingExpressionVisitor.Visit(
-                        Expression.Equal(joinClause.OuterKeySelector, joinClause.InnerKeySelector));
+                predicate = subSelectExpression.LiftTableReferences(predicate);
             }
 
             QueriesBySource.Remove(joinClause);

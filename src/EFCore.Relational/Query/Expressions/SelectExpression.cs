@@ -305,9 +305,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [param: CanBeNull]
             set
             {
-                if (value != null)
+                if (value != null && _limit != null)
                 {
-                    PushDownIfLimit();
+                    PushDownSubquery();
                 }
 
                 _limit = value;
@@ -326,29 +326,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [param: CanBeNull]
             set
             {
-                if (_limit != null
-                    && value != null)
+                if (value != null && (_limit != null || _offset != null))
                 {
-                    var subquery = PushDownSubquery();
+                    PushDownSubquery();
                 }
 
                 _offset = value;
-            }
-        }
-
-        private void PushDownIfLimit()
-        {
-            if (_limit != null)
-            {
-                PushDownSubquery();
-            }
-        }
-
-        private void PushDownIfDistinct()
-        {
-            if (_isDistinct)
-            {
-                PushDownSubquery();
             }
         }
 
@@ -467,6 +450,40 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             return subquery;
+        }
+
+        /// <summary>
+        ///     Updates a translated expression so that any references to this 
+        ///     SelectExpression's tables are replaced with references to this 
+        ///     SelectExpression.
+        /// </summary>
+        /// <param name="expression"> The expression to update. </param>
+        /// <returns>
+        ///     The updated expression.
+        /// </returns>
+        public virtual Expression LiftTableReferences([NotNull] Expression expression)
+            => new TableReferenceLiftingExpressionVisitor(this)
+                .Visit(Check.NotNull(expression, nameof(expression)));
+
+        private class TableReferenceLiftingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly SelectExpression _selectExpression;
+
+            public TableReferenceLiftingExpressionVisitor(SelectExpression selectExpression)
+            {
+                _selectExpression = selectExpression;
+            }
+
+            protected override Expression VisitExtension(Expression node)
+            {
+                if (node is ColumnExpression columnExpression
+                    && _selectExpression.Tables.Contains(columnExpression.Table))
+                {
+                    return _selectExpression.UpdateColumnExpression(columnExpression, _selectExpression);
+                }
+
+                return base.VisitExtension(node);
+            }
         }
 
         /// <summary>
@@ -724,8 +741,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(expression, nameof(expression));
 
-            PushDownIfLimit();
-            PushDownIfDistinct();
+            if (_isDistinct || _limit != null)
+            {
+                PushDownSubquery();
+            }
 
             ClearProjection();
             AddToProjection(expression);

@@ -171,9 +171,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var innerSelectExpression = handlerContext.SelectExpression.Clone();
 
-                innerSelectExpression.ClearProjection();
-                innerSelectExpression.AddToProjection(Expression.Constant(1));
+                if (innerSelectExpression.Limit != null
+                    || innerSelectExpression.Offset != null)
+                {
+                    predicate = innerSelectExpression.PushDownSubquery().LiftTableReferences(predicate);
+                }
+
                 innerSelectExpression.AddToPredicate(Expression.Not(predicate));
+                innerSelectExpression.SetProjectionExpression(Expression.Constant(1));
 
                 if (innerSelectExpression.Limit == null
                     && innerSelectExpression.Offset == null)
