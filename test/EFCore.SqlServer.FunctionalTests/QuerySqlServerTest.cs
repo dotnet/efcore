@@ -608,17 +608,18 @@ ORDER BY [o20].[OrderID], [c4].[CustomerID]",
         {
             base.Where_subquery_anon();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"@__p_0: 9
 
-SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
+SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
 FROM (
     SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
 ) AS [t]
-
-SELECT TOP(1000) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]",
+CROSS JOIN (
+    SELECT TOP(1000) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+) AS [t0]",
                 Sql);
         }
 
@@ -688,8 +689,8 @@ ORDER BY [c].[CustomerID]
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
-        FROM [Orders] AS [o1]
-        WHERE [o1].[CustomerID] = @_outer_CustomerID)
+        FROM [Orders] AS [o0]
+        WHERE [o0].[CustomerID] = @_outer_CustomerID)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END
 
@@ -698,8 +699,8 @@ END
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
-        FROM [Orders] AS [o1]
-        WHERE [o1].[CustomerID] = @_outer_CustomerID)
+        FROM [Orders] AS [o0]
+        WHERE [o0].[CustomerID] = @_outer_CustomerID)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);
@@ -3289,9 +3290,13 @@ FROM [Customers] AS [c]",
             Assert.Contains(
                 @"@__p_0: 5
 
-SELECT TOP(@__p_0) [o20].[OrderID], [o20].[CustomerID], [o20].[EmployeeID], [o20].[OrderDate]
-FROM [Orders] AS [o20]
-ORDER BY [o20].[OrderID]",
+SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM (
+    SELECT TOP(@__p_0) [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+    FROM [Orders] AS [o2]
+    ORDER BY [o2].[OrderID]
+) AS [t]
+ORDER BY [t].[OrderID]",
                 Sql);
 
             Assert.Contains(
@@ -5690,8 +5695,8 @@ WHERE EXISTS (
             Assert.Equal(
                 @"SELECT (
     SELECT COUNT(*)
-    FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] = [o0].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
 )
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)",
@@ -6467,8 +6472,8 @@ ORDER BY COALESCE([c].[Region], N'ZZ')",
             Assert.Equal(
                 @"SELECT [e].[CustomerID], (
     SELECT COUNT(*)
-    FROM [Orders] AS [o1]
-    WHERE [e].[CustomerID] = [o1].[CustomerID]
+    FROM [Orders] AS [o0]
+    WHERE [e].[CustomerID] = [o0].[CustomerID]
 )
 FROM [Customers] AS [e]
 WHERE ([e].[ContactTitle] = N'Owner') AND ((
