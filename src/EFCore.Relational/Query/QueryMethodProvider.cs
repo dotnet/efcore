@@ -81,9 +81,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var empty = true;
 
-                    for (var i = 0; i < valueBuffer.Count; i++)
+                    if (!valueBuffer.IsEmpty)
                     {
-                        empty &= valueBuffer[i] == null;
+                        for (var i = 0; i < valueBuffer.Count; i++)
+                        {
+                            empty &= valueBuffer[i] == null;
+                        }
                     }
 
                     if (empty)

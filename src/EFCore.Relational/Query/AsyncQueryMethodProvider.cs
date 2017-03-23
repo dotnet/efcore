@@ -101,9 +101,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var empty = true;
 
-                        for (var i = 0; i < _enumerator.Current.Count; i++)
+                        if (!_enumerator.Current.IsEmpty)
                         {
-                            empty &= _enumerator.Current[i] == null;
+                            for (var i = 0; i < _enumerator.Current.Count; i++)
+                            {
+                                empty &= _enumerator.Current[i] == null;
+                            }
                         }
 
                         if (empty)
