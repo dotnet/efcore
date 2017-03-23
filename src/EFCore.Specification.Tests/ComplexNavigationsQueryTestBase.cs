@@ -4064,6 +4064,30 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Navigation_filter_navigation_grouping_ordering_by_group_key()
+        {
+            var level1Id = 1;
+            AssertQuery<Level2>(
+                l2s => l2s
+                    .Where(l2 => l2.OneToMany_Required_Inverse.Id == level1Id)
+                    .GroupBy(l2 => l2.OneToMany_Required_Self_Inverse.Name)
+                    .OrderBy(g => g.Key),
+                elementAsserter: (l2oResults, efResults) =>
+                {
+                    var efGrouping = efResults as IGrouping<string, dynamic>;
+                    var l2oGrouping = l2oResults as IGrouping<string, dynamic>;
+
+                    Assert.Equal(l2oGrouping?.Key, efGrouping?.Key);
+
+                    // Since l2o query has all navigations loaded in memory.
+                    Assert.Equal(
+                        l2oGrouping?.OrderBy(o => o.Id).Select(o => o.Id),
+                        efGrouping?.OrderBy(o => o.Id).Select(o => o.Id));
+                },
+                verifyOrdered: true);
+        }
+
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
         {
             if (caller == null)

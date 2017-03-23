@@ -2798,6 +2798,22 @@ INNER JOIN [Level2] AS [l2] ON (([l1].[OneToMany_Optional_Self_InverseId] = [l2]
                 Sql);
         }
 
+        public override void Navigation_filter_navigation_grouping_ordering_by_group_key()
+        {
+            base.Navigation_filter_navigation_grouping_ordering_by_group_key();
+
+            Assert.Equal(
+                @"@__level1Id_0: 1
+
+SELECT [l20].[Id], [l20].[Date], [l20].[Level1_Optional_Id], [l20].[Level1_Required_Id], [l20].[Name], [l20].[OneToMany_Optional_InverseId], [l20].[OneToMany_Optional_Self_InverseId], [l20].[OneToMany_Required_InverseId], [l20].[OneToMany_Required_Self_InverseId], [l20].[OneToOne_Optional_PK_InverseId], [l20].[OneToOne_Optional_SelfId], [l2.OneToMany_Required_Self_Inverse0].[Name]
+FROM [Level2] AS [l20]
+INNER JOIN [Level2] AS [l2.OneToMany_Required_Self_Inverse0] ON [l20].[OneToMany_Required_Self_InverseId] = [l2.OneToMany_Required_Self_Inverse0].[Id]
+INNER JOIN [Level1] AS [l2.OneToMany_Required_Inverse0] ON [l20].[OneToMany_Required_InverseId] = [l2.OneToMany_Required_Inverse0].[Id]
+WHERE [l2.OneToMany_Required_Inverse0].[Id] = @__level1Id_0
+ORDER BY [l2.OneToMany_Required_Self_Inverse0].[Name]",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 
