@@ -66,14 +66,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             : ExpandNegatedNullableEqualNullable(leftOperand, rightOperand, leftIsNull, rightIsNull);
                     }
 
-                    if (leftNullable)
+                    if (leftNullable && (leftNegated || rightNegated))
                     {
                         return leftNegated == rightNegated
                             ? ExpandNullableEqualNonNullable(leftOperand, rightOperand, leftIsNull)
                             : ExpandNegatedNullableEqualNonNullable(leftOperand, rightOperand, leftIsNull);
                     }
 
-                    if (rightNullable)
+                    if (rightNullable && (leftNegated || rightNegated))
                     {
                         return leftNegated == rightNegated
                             ? ExpandNonNullableEqualNullable(leftOperand, rightOperand, rightIsNull)

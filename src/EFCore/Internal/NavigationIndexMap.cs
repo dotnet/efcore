@@ -20,10 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// 
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return string.Join("|", _indexMap.Select(i => $"{i.Value.Index}-{i.Key.ToString()}::{i.Value.ReferencedMap}"));
-        }
+        public override string ToString() => string.Join("|", _indexMap.Select(i => $"{i.Value.Index}-{i.Key.ToString()}::{i.Value.ReferencedMap}"));
 
         /// <summary>
         /// 
@@ -39,19 +36,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         /// <param name="includeSpecification"></param>
         /// <param name="index"></param>
-        public virtual void Add([NotNull]IncludeSpecification includeSpecification, [NotNull]NavigationIndex index)
-        {
-            _indexMap.Add(includeSpecification, index);
-        }
+        public virtual void Add([NotNull]IncludeSpecification includeSpecification, [NotNull]NavigationIndex index) => _indexMap.Add(includeSpecification, index);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="includeSpecification"></param>
         /// <returns></returns>
-        public virtual bool Exist([NotNull]IncludeSpecification includeSpecification)
-        {
-            return _indexMap.ContainsKey(includeSpecification);
-        }
+        public virtual bool Exist([NotNull]IncludeSpecification includeSpecification) => _indexMap.ContainsKey(includeSpecification);
     }
 }

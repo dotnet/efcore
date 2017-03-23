@@ -28,6 +28,24 @@ namespace Microsoft.EntityFrameworkCore.Tests.Extensions
             Assert.Equal(0, q2.Count);
         }
 
+        [Fact]
+        public void AsTracking_on_non_ef_queryable_is_no_op()
+        {
+            var q = new List<Customer>().AsQueryable();
+            var q2 = q.AsTracking().ToList();
+
+            Assert.Equal(0, q2.Count);
+        }
+
+        [Fact]
+        public void AsNoTracking_on_non_ef_queryable_is_no_op()
+        {
+            var q = new List<Customer>().AsQueryable();
+            var q2 = q.AsNoTracking().ToList();
+
+            Assert.Equal(0, q2.Count);
+        }
+
         // ReSharper disable MethodSupportsCancellation
 
         [Fact]

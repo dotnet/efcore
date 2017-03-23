@@ -29,6 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private IReadOnlyDictionary<string, object> _parametersValues;
         private ParameterNameGenerator _parameterNameGenerator;
         private RelationalTypeMapping _typeMapping;
+        private RelationalNullsExpandingVisitor _relationalNullsExpandingVisitor;
+        private PredicateReductionExpressionOptimizer _predicateReductionExpressionOptimizer;
+        private PredicateNegationExpressionOptimizer _predicateNegationExpressionOptimizer;
+        private ReducingExpressionVisitor _reducingExpressionVisitor;
+        private BooleanExpressionTranslatingVisitor _booleanExpressionTranslatingVisitor;
 
         private static readonly Dictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
         {
@@ -148,11 +153,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual IRelationalCommandBuilder Sql => _relationalCommandBuilder;
 
         /// <summary>
-        ///     The default string concatenation operator SQL.
-        /// </summary>
-        protected virtual string ConcatOperator => "+";
-
-        /// <summary>
         ///     The default true literal SQL.
         /// </summary>
         protected virtual string TypedTrueLiteral => "CAST(1 AS BIT)";
@@ -266,46 +266,61 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 = new NullComparisonTransformingVisitor(_parametersValues)
                     .Visit(expression);
 
-            var binaryExpression = newExpression as BinaryExpression;
-            var relationalNullsOptimizedExpandingVisitor = new RelationalNullsOptimizedExpandingVisitor();
-            var relationalNullsExpandingVisitor = new RelationalNullsExpandingVisitor();
+            if (_relationalNullsExpandingVisitor == null)
+            {
+                _relationalNullsExpandingVisitor = new RelationalNullsExpandingVisitor();
+            }
+
+            if (_predicateReductionExpressionOptimizer == null)
+            {
+                _predicateReductionExpressionOptimizer = new PredicateReductionExpressionOptimizer();
+            }
+
+            if (_predicateNegationExpressionOptimizer == null)
+            {
+                _predicateNegationExpressionOptimizer = new PredicateNegationExpressionOptimizer();
+            }
+
+            if (_reducingExpressionVisitor == null)
+            {
+                _reducingExpressionVisitor = new ReducingExpressionVisitor();
+            }
+
+            if (_booleanExpressionTranslatingVisitor == null)
+            {
+                _booleanExpressionTranslatingVisitor = new BooleanExpressionTranslatingVisitor();
+            }
 
             if (joinCondition
-                && binaryExpression != null)
+                && newExpression is BinaryExpression binaryExpression
+                    && binaryExpression.NodeType == ExpressionType.Equal)
             {
-                var optimizedLeftExpression = relationalNullsOptimizedExpandingVisitor.Visit(binaryExpression.Left);
-
-                optimizedLeftExpression
-                    = relationalNullsOptimizedExpandingVisitor.IsOptimalExpansion
-                        ? optimizedLeftExpression
-                        : relationalNullsExpandingVisitor.Visit(binaryExpression.Left);
-
-                relationalNullsOptimizedExpandingVisitor = new RelationalNullsOptimizedExpandingVisitor();
-                var optimizedRightExpression = relationalNullsOptimizedExpandingVisitor.Visit(binaryExpression.Right);
-
-                optimizedRightExpression
-                    = relationalNullsOptimizedExpandingVisitor.IsOptimalExpansion
-                        ? optimizedRightExpression
-                        : relationalNullsExpandingVisitor.Visit(binaryExpression.Right);
-
-                newExpression = Expression.MakeBinary(binaryExpression.NodeType, optimizedLeftExpression, optimizedRightExpression);
+                newExpression = Expression.MakeBinary(
+                    binaryExpression.NodeType,
+                    ApplyNullSemantics(binaryExpression.Left),
+                    ApplyNullSemantics(binaryExpression.Right));
             }
             else
             {
-                var optimizedExpression = relationalNullsOptimizedExpandingVisitor.Visit(newExpression);
-
-                newExpression
-                    = relationalNullsOptimizedExpandingVisitor.IsOptimalExpansion
-                        ? optimizedExpression
-                        : relationalNullsExpandingVisitor.Visit(newExpression);
+                newExpression = ApplyNullSemantics(newExpression);
             }
 
-            newExpression = new PredicateReductionExpressionOptimizer().Visit(newExpression);
-            newExpression = new PredicateNegationExpressionOptimizer().Visit(newExpression);
-            newExpression = new ReducingExpressionVisitor().Visit(newExpression);
-            newExpression = new BooleanExpressionTranslatingVisitor().Translate(newExpression, searchCondition: searchCondition);
+            newExpression = _predicateReductionExpressionOptimizer.Visit(newExpression);
+            newExpression = _predicateNegationExpressionOptimizer.Visit(newExpression);
+            newExpression = _reducingExpressionVisitor.Visit(newExpression);
+            newExpression = _booleanExpressionTranslatingVisitor.Translate(newExpression, searchCondition: searchCondition);
 
             return newExpression;
+        }
+
+        private Expression ApplyNullSemantics(Expression expression)
+        {
+            var relationalNullsOptimizedExpandingVisitor = new RelationalNullsOptimizedExpandingVisitor();
+            var optimizedRightExpression = relationalNullsOptimizedExpandingVisitor.Visit(expression);
+
+            return relationalNullsOptimizedExpandingVisitor.IsOptimalExpansion
+                    ? optimizedRightExpression
+                    : _relationalNullsExpandingVisitor.Visit(expression);
         }
 
         /// <summary>
@@ -1486,8 +1501,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             switch (expression.NodeType)
             {
-                case ExpressionType.Add:
-                    return expression.Type == typeof(string) ? " " + ConcatOperator + " " : " + ";
                 case ExpressionType.Extension:
                 {
                     var asStringCompareExpression = expression as StringCompareExpression;

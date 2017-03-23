@@ -10,11 +10,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         /// 
         /// </summary>
-        public virtual int Index { get; set; }
+        /// <param name="index"></param>
+        /// <param name="referencedMap"></param>
+        public NavigationIndex(int index, NavigationIndexMap referencedMap)
+        {
+            ReferencedMap = referencedMap;
+            Index = index;
+        }
 
         /// <summary>
         /// 
         /// </summary>
-        public virtual NavigationIndexMap ReferencedMap { [NotNull] get; [param: NotNull] set; }
+        public virtual int Index { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual NavigationIndexMap ReferencedMap { [NotNull] get; }
     }
 }

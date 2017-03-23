@@ -1,9 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
@@ -28,10 +30,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(warningsConfigurationBuilder, nameof(warningsConfigurationBuilder));
             Check.NotNull(inMemoryEventIds, nameof(inMemoryEventIds));
 
-            warningsConfigurationBuilder.Configuration
-                .AddExplicit(inMemoryEventIds.Cast<object>(), WarningBehavior.Throw);
-
-            return warningsConfigurationBuilder;
+            return warningsConfigurationBuilder.WithOption(
+                e => e.WithExplicit(inMemoryEventIds.Cast<object>(), WarningBehavior.Throw));
         }
 
         /// <summary>
@@ -49,10 +49,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(warningsConfigurationBuilder, nameof(warningsConfigurationBuilder));
             Check.NotNull(inMemoryEventIds, nameof(inMemoryEventIds));
 
-            warningsConfigurationBuilder.Configuration
-                .AddExplicit(inMemoryEventIds.Cast<object>(), WarningBehavior.Log);
-
-            return warningsConfigurationBuilder;
+            return warningsConfigurationBuilder.WithOption(
+                e => e.WithExplicit(inMemoryEventIds.Cast<object>(), WarningBehavior.Log));
         }
 
         /// <summary>
@@ -70,8 +68,20 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(warningsConfigurationBuilder, nameof(warningsConfigurationBuilder));
             Check.NotNull(inMemoryEventIds, nameof(inMemoryEventIds));
 
-            warningsConfigurationBuilder.Configuration
-                .AddExplicit(inMemoryEventIds.Cast<object>(), WarningBehavior.Ignore);
+            return warningsConfigurationBuilder.WithOption(
+                e => e.WithExplicit(inMemoryEventIds.Cast<object>(), WarningBehavior.Ignore));
+        }
+
+        private static WarningsConfigurationBuilder WithOption(
+            this WarningsConfigurationBuilder warningsConfigurationBuilder,
+            Func<WarningsConfiguration, WarningsConfiguration> withFunc)
+        {
+            var optionsBuilder = warningsConfigurationBuilder.OptionsBuilder;
+
+            var coreOptionsExtension = optionsBuilder.Options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension();
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(
+                coreOptionsExtension.WithWarningsConfiguration(withFunc(coreOptionsExtension.WarningsConfiguration)));
 
             return warningsConfigurationBuilder;
         }

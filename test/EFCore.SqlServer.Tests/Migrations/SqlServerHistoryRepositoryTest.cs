@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         {
                             {
                                 typeof(SqlServerOptionsExtension),
-                                new SqlServerOptionsExtension { MigrationsHistoryTableSchema = schema }
+                                new SqlServerOptionsExtension().WithMigrationsHistoryTableSchema(schema)
                             }
                         }),
                     new MigrationsModelDiffer(

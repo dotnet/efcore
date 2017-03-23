@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
@@ -76,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _queryAnnotations = queryAnnotations;
 
             VisitQueryModel(queryModel);
+            queryModel.TransformExpressions(e => new TransformingQueryModelExpressionVisitor<QueryOptimizer>(this).Visit(e));
         }
 
         /// <summary>
@@ -175,11 +177,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             VisitQueryModel(subQueryModel);
 
-            if (subQueryModel.ResultOperators
-                    .All(ro => ro is CastResultOperator)
+            if ((subQueryModel.ResultOperators.All(ro => ro is CastResultOperator)
                 && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause)
                 || queryModel.IsIdentityQuery()
                 && !queryModel.ResultOperators.Any())
+                || (!queryModel.BodyClauses.Any()
+                && !subQueryModel.ResultOperators.Any(ro => ro is GroupResultOperator)))
             {
                 string itemName;
 
@@ -257,14 +260,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         var oldQuerySource = queryModel.MainFromClause;
 
-                        var entityQueryProvider 
+                        var entityQueryProvider
                             = ((oldQuerySource.FromExpression as ConstantExpression)?.Value as IQueryable)?.Provider as IAsyncQueryProvider;
 
                         if (entityQueryProvider != null)
                         {
                             queryModel.ResultOperators.RemoveAt(index);
 
-                            var newMainFromClause 
+                            var newMainFromClause
                                 = new MainFromClause(
                                     oldQuerySource.ItemName,
                                     entityType.ClrType,

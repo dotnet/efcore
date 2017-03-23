@@ -679,5 +679,69 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             return new OperationBuilder<SqlOperation>(operation);
         }
+
+        public virtual OperationBuilder<InsertOperation> Insert(
+            [NotNull] string table,
+            [CanBeNull] string schema = null,
+            [CanBeNull] string[] columns = null,
+            [CanBeNull] object[,] values = null)
+        {
+            Check.NotEmpty(table, nameof(table));
+
+            var operation = new InsertOperation
+            {
+                Table = table,
+                Schema = schema,
+                Columns = columns,
+                Values = values
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<InsertOperation>(operation);
+        }
+
+        public virtual OperationBuilder<DeleteOperation> Delete(
+            [NotNull] string table,
+            [CanBeNull] string schema = null,
+            [CanBeNull] string[] keyColumns = null,
+            [CanBeNull] object[,] keyValues = null)
+        {
+            Check.NotEmpty(table, nameof(table));
+
+            var operation = new DeleteOperation
+            {
+                Table = table,
+                Schema = schema,
+                KeyColumns = keyColumns,
+                KeyValues = keyValues
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<DeleteOperation>(operation);
+        }
+
+        public virtual OperationBuilder<UpdateOperation> Update(
+            [NotNull] string table,
+            [CanBeNull] string schema = null,
+            [CanBeNull] string[] keyColumns = null,
+            [CanBeNull] object[,] keyValues = null,
+            [CanBeNull] string[] columns = null,
+            [CanBeNull] object[,] values = null)
+        {
+            Check.NotEmpty(table, nameof(table));
+
+            var operation = new UpdateOperation
+            {
+                Table = table,
+                Schema = schema,
+                KeyColumns = keyColumns,
+                KeyValues = keyValues,
+                Columns = columns,
+                Values = values
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<UpdateOperation>(operation);
+        }
     }
 }

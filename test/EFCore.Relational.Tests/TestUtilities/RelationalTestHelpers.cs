@@ -21,14 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
         {
-            var extension = optionsBuilder.Options.FindExtension<FakeRelationalOptionsExtension>();
-            extension = extension != null
-                ? new FakeRelationalOptionsExtension(extension)
-                : new FakeRelationalOptionsExtension();
+            var extension = optionsBuilder.Options.FindExtension<FakeRelationalOptionsExtension>()
+                            ?? new FakeRelationalOptionsExtension();
 
-            extension.Connection = new FakeDbConnection("Database=Fake");
-
-            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(
+                extension.WithConnection(new FakeDbConnection("Database=Fake")));
         }
     }
 }

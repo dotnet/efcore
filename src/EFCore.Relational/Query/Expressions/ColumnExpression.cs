@@ -31,7 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             : this(name, Check.NotNull(property, nameof(property)).ClrType, tableExpression)
         {
             _property = property;
-            IsNullable = _property.IsNullable;
         }
 
         /// <summary>
@@ -91,11 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <returns> The <see cref="Type" /> that represents the static type of the expression. </returns>
         public override Type Type { get; }
-
-        /// <summary>
-        ///     Gets a value indicating whether this column expression can contain null.
-        /// </summary>
-        public virtual bool IsNullable { get; set; }
 
         /// <summary>
         ///     Dispatches to the specific visit method for this node type.

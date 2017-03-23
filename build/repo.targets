@@ -1,0 +1,15 @@
+<Project>
+  <ItemGroup>
+    <!-- SQL Server functional tests which needs SQL connection but no exsting database. -->
+    <SqlServerTests Include="$(RepositoryRoot)test\EFCore.SqlServer*FunctionalTests\*.csproj" />
+  </ItemGroup>
+
+  <Target Name="_FilterTestProjects" BeforeTargets="TestProjects">
+    <ItemGroup Condition="'$(TestGroup)' != ''">
+      <ProjectsToTest Remove="@(ProjectsToTest)" Condition="'$(TestGroup)' != 'All'" />
+      <ProjectsToTest Include="@(SqlServerTests)" Condition="'$(TestGroup)' == 'SqlServer'" />
+    </ItemGroup>
+
+    <Error Text="Could not find test projects to run" Condition="@(ProjectsToTest->Count()) == 0" />
+  </Target>
+</Project>

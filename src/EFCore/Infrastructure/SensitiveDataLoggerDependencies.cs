@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -46,17 +47,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="logger">
         ///     The underlying logger to which logging information should be written.
         /// </param>
-        /// <param name="contextOptions">
-        ///     The options for the context that this logger is being used with.
+        /// <param name="loggingOptions">
+        ///     The options that this logger is being used with.
         /// </param>
         public SensitiveDataLoggerDependencies(
             [NotNull] ILogger<T> logger,
-            [CanBeNull] IDbContextOptions contextOptions)
+            [CanBeNull] ILoggingOptions loggingOptions)
         {
             Check.NotNull(logger, nameof(logger));
 
             Logger = logger;
-            ContextOptions = contextOptions;
+            LoggingOptions = loggingOptions;
         }
 
         /// <summary>
@@ -65,9 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public ILogger<T> Logger { get; }
 
         /// <summary>
-        ///     The options for the context that this logger is being used with.
+        ///     The options that this logger is being used with.
         /// </summary>
-        public IDbContextOptions ContextOptions { get; }
+        public ILoggingOptions LoggingOptions { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -75,14 +76,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SensitiveDataLoggerDependencies<T> With([NotNull] ILogger<T> logger)
-            => new SensitiveDataLoggerDependencies<T>(logger, ContextOptions);
+            => new SensitiveDataLoggerDependencies<T>(logger, LoggingOptions);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="contextOptions"> A replacement for the current dependency of this type. </param>
+        /// <param name="loggingOptions"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public SensitiveDataLoggerDependencies<T> With([CanBeNull] IDbContextOptions contextOptions)
-            => new SensitiveDataLoggerDependencies<T>(Logger, contextOptions);
+        public SensitiveDataLoggerDependencies<T> With([CanBeNull] ILoggingOptions loggingOptions)
+            => new SensitiveDataLoggerDependencies<T>(Logger, loggingOptions);
     }
 }

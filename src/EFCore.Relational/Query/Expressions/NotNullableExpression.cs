@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
@@ -20,7 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="operand"> The operand. </param>
         public NotNullableExpression([NotNull] Expression operand)
         {
+            Check.NotNull(operand, nameof(operand));
+
             _operand = operand;
+            Type = _operand.Type?.UnwrapNullableType();
         }
 
         /// <summary>
@@ -36,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <summary>
         ///     The type.
         /// </summary>
-        public override Type Type => typeof(bool);
+        public override Type Type { get; }
 
         /// <summary>
         ///     Reduces the node and then calls the visitor delegate on the reduced expression. The method throws an exception if the node is not

@@ -484,9 +484,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 && rightExpressions != null
                 && leftExpressions.Length == rightExpressions.Length)
             {
+                if (leftExpressions.Length == 1
+                    && expressionType == ExpressionType.Equal)
+                {
+                    var translatedExpression = TransformNullComparison(leftExpressions[0], rightExpressions[0], expressionType)
+                                               ?? Expression.Equal(leftExpressions[0], rightExpressions[0]);
+                    return Expression.AndAlso(translatedExpression, Expression.Constant(true, typeof(bool)));
+                }
+
                 return leftExpressions
                     .Zip(rightExpressions, (l, r) =>
-                        TransformNullComparison(l, r, binaryExpression.NodeType)
+                        TransformNullComparison(l, r, expressionType)
                         ?? Expression.MakeBinary(expressionType, l, r))
                     .Aggregate((e1, e2) =>
                         expressionType == ExpressionType.Equal
@@ -545,16 +553,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             if (expressionType == ExpressionType.Equal
                 || expressionType == ExpressionType.NotEqual)
             {
-                var constantExpression
-                    = right.RemoveConvert() as ConstantExpression
-                      ?? left.RemoveConvert() as ConstantExpression;
 
-                if (constantExpression != null
-                    && constantExpression.Value == null)
+                var leftConstant = left.RemoveConvert() as ConstantExpression;
+                var isLeftNullConstant = leftConstant != null && leftConstant.Value == null;
+
+                var rightConstant = right.RemoveConvert() as ConstantExpression;
+                var isRightNullConstant = rightConstant != null && rightConstant.Value == null;
+
+                if (isLeftNullConstant || isRightNullConstant)
                 {
-                    var columnExpression
-                        = left.RemoveConvert().TryGetColumnExpression()
-                          ?? right.RemoveConvert().TryGetColumnExpression();
+                    var nonNullExpression = (isLeftNullConstant ? right : left).RemoveConvert();
+
+                    if (nonNullExpression is NullableExpression nullableExpression)
+                    {
+                        nonNullExpression = nullableExpression.Operand.RemoveConvert();
+                    }
+
+                    var columnExpression = nonNullExpression.TryGetColumnExpression();
 
                     if (columnExpression != null)
                     {
@@ -989,21 +1004,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             if (nullConditionalExpression != null)
             {
                 var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
-                var columnExpression = newAccessOperation.TryGetColumnExpression();
 
-                if (columnExpression != null)
+                if (newAccessOperation != null)
                 {
-                    columnExpression.IsNullable = true;
-                }
+                    if (newAccessOperation.Type != nullConditionalExpression.Type)
+                    {
+                        newAccessOperation = Expression.Convert(newAccessOperation, nullConditionalExpression.Type);
+                    }
 
-                if (newAccessOperation != null
-                    && newAccessOperation.Type != nullConditionalExpression.Type)
-                {
-                    newAccessOperation
-                        = Expression.Convert(newAccessOperation, nullConditionalExpression.Type);
+                    return new NullableExpression(newAccessOperation);
                 }
-
-                return newAccessOperation;
             }
 
             return base.VisitExtension(expression);

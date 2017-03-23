@@ -8,6 +8,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -30,53 +31,90 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IServiceProvider GetOrAdd([NotNull] IDbContextOptions options)
+        public virtual IServiceProvider GetOrAdd([NotNull] IDbContextOptions options, bool providerRequired)
         {
-            // Decided that this hashing algorithm is robust enough. See issue #762.
-            unchecked
+            foreach (var extension in options.Extensions)
             {
-                var key = options.Extensions.Aggregate(0, (t, e) => (t * 397) ^ e.GetType().GetHashCode());
+                extension.Validate(options);
+            }
 
-                var replacedServices = options.FindExtension<CoreOptionsExtension>()?.ReplacedServices;
-                if (replacedServices != null)
+            var key = options.Extensions
+                .OrderBy(e => e.GetType().Name)
+                .Aggregate(0L, (t, e) => (t * 397) ^ ((long)e.GetType().GetHashCode() * 397) ^ e.GetServiceProviderHashCode());
+
+            var internalServiceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider;
+            if (internalServiceProvider != null)
+            {
+                var optionsInitialzer = internalServiceProvider.GetService<ISingletonOptionsInitialzer>();
+                if (optionsInitialzer == null)
                 {
-                    key = replacedServices.Aggregate(key, (t, e) => (t * 397) ^ e.Value.GetHashCode());
+                    throw new InvalidOperationException(CoreStrings.NoEfServices);
                 }
 
-                return _configurations.GetOrAdd(
-                    key,
-                    k =>
+                if (providerRequired)
+                {
+                    optionsInitialzer.EnsureInitialized(internalServiceProvider, options);
+                }
+
+                return internalServiceProvider;
+            }
+
+            return _configurations.GetOrAdd(
+                key,
+                k =>
+                    {
+                        var services = new ServiceCollection();
+                        var hasProvider = ApplyServices(options, services);
+
+                        var replacedServices = options.FindExtension<CoreOptionsExtension>()?.ReplacedServices;
+                        if (replacedServices != null)
                         {
-                            var services = new ServiceCollection();
-                            ApplyServices(options, services);
-
-                            if (replacedServices != null)
+                            // For replaced services we use the service collection to obtain the lifetime of
+                            // the service to replace. The replaced services are added to a new collection, after
+                            // which provider and core services are applied. This ensures that any patching happens
+                            // to the replaced service.
+                            var updatedServices = new ServiceCollection();
+                            foreach (var descriptor in services)
                             {
-                                // For replaced services we use the service collection to obtain the lifetime of
-                                // the service to replace. The replaced services are added to a new collection, after
-                                // which provider and core services are applied. This ensures that any patching happens
-                                // to the replaced service.
-                                var updatedServices = new ServiceCollection();
-                                foreach (var descriptor in services)
+                                Type replacementType;
+                                if (replacedServices.TryGetValue(descriptor.ServiceType, out replacementType))
                                 {
-                                    Type replacementType;
-                                    if (replacedServices.TryGetValue(descriptor.ServiceType, out replacementType))
-                                    {
-                                        ((IList<ServiceDescriptor>)updatedServices).Add(
-                                            new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
-                                    }
+                                    ((IList<ServiceDescriptor>)updatedServices).Add(
+                                        new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
                                 }
-
-                                ApplyServices(options, updatedServices);
-                                services = updatedServices;
                             }
 
-                            return services.BuildServiceProvider();
-                        });
-            }
+                            ApplyServices(options, updatedServices);
+                            services = updatedServices;
+                        }
+
+                        var serviceProvider = services.BuildServiceProvider();
+
+                        if (hasProvider)
+                        {
+                            serviceProvider
+                                .GetRequiredService<ISingletonOptionsInitialzer>()
+                                .EnsureInitialized(serviceProvider, options);
+                        }
+
+                        var logger = serviceProvider.GetRequiredService<ILogger<ServiceProviderCache>>();
+
+                        logger.LogDebug(
+                            CoreEventId.ServiceProviderCreated, 
+                            () => CoreStrings.ServiceProviderCreated);
+
+                        if (_configurations.Count >= 20)
+                        {
+                            logger.LogWarning(
+                                CoreEventId.ManyServiceProvidersCreated,
+                                () => CoreStrings.ManyServiceProvidersCreated);
+                        }
+
+                        return serviceProvider;
+                    });
         }
 
-        private static void ApplyServices(IDbContextOptions options, ServiceCollection services)
+        private static bool ApplyServices(IDbContextOptions options, ServiceCollection services)
         {
             var coreServicesAdded = false;
 
@@ -88,10 +126,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             }
 
-            if (!coreServicesAdded)
+            if (coreServicesAdded)
             {
-                new EntityFrameworkServicesBuilder(services).TryAddCoreServices();
+                return true;
             }
+
+            new EntityFrameworkServicesBuilder(services).TryAddCoreServices();
+
+            return false;
         }
     }
 }

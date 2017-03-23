@@ -48,5 +48,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
             }
             [param: NotNull] set { _column[SqlServerDatabaseModelAnnotationNames.IsIdentity] = value; }
         }
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual string DataTypeSchemaName
+        {
+            get
+            {
+                return _column[SqlServerDatabaseModelAnnotationNames.DataTypeSchemaName] as string;
+            }
+            [param: CanBeNull] set { _column[SqlServerDatabaseModelAnnotationNames.DataTypeSchemaName] = value; }
+        }
     }
 }

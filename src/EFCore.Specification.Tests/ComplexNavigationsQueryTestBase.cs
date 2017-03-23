@@ -1451,7 +1451,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Result_operator_nav_prop_reference_optional()
+        public virtual void Result_operator_nav_prop_reference_optional_Sum()
         {
             int expected;
             using (var context = CreateContext())
@@ -1467,6 +1467,75 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var result = context.LevelOne.Sum(e => (int?)e.OneToOne_Optional_FK.Level1_Required_Id);
+
+                Assert.Equal(expected, result);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Result_operator_nav_prop_reference_optional_Min()
+        {
+            int expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK)
+                    .ToList()
+                    .Where(e => e.OneToOne_Optional_FK != null)
+                    .Min(e => e.OneToOne_Optional_FK.Level1_Required_Id);
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var result = context.LevelOne.Min(e => (int?)e.OneToOne_Optional_FK.Level1_Required_Id);
+
+                Assert.Equal(expected, result);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Result_operator_nav_prop_reference_optional_Max()
+        {
+            int expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK)
+                    .ToList()
+                    .Where(e => e.OneToOne_Optional_FK != null)
+                    .Max(e => e.OneToOne_Optional_FK.Level1_Required_Id);
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var result = context.LevelOne.Max(e => (int?)e.OneToOne_Optional_FK.Level1_Required_Id);
+
+                Assert.Equal(expected, result);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Result_operator_nav_prop_reference_optional_Average()
+        {
+            double expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK)
+                    .ToList()
+                    .Where(e => e.OneToOne_Optional_FK != null)
+                    .Average(e => e.OneToOne_Optional_FK.Level1_Required_Id);
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var result = context.LevelOne.Average(e => (int?)e.OneToOne_Optional_FK.Level1_Required_Id);
 
                 Assert.Equal(expected, result);
             }
@@ -3037,7 +3106,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_navigation_filter_paging_and_explicit_DefautltIfEmpty()
+        public virtual void SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty()
         {
             AssertQuery<Level1>(
                   l1s => from l1 in l1s
@@ -3120,13 +3189,166 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Required_navigation_on_a_subquery_with_First_in_projection()
+        {
+            AssertQuery<Level2>(
+                l2s => l2s
+                    .Where(l2o => l2o.Id == 7)
+                    .Select(l2o => l2s.OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse.Name));
+        }
+
+        [ConditionalFact]
+        public virtual void Required_navigation_on_a_subquery_with_complex_projection_and_First()
+        {
+            AssertQuery<Level1, Level2>(
+                (l1s, l2s) =>
+                    from l2o in l2s
+                    where l2o.Id == 7
+                    select
+                        (from l2i in l2s
+                         join l1i in l1s
+                         on l2i.Level1_Required_Id equals l1i.Id
+                         orderby l2i.Id ascending
+                         select new { Navigation = l2i.OneToOne_Required_FK_Inverse, Contant = 7 }).First().Navigation.Name);
+        }
+
+        [ConditionalFact]
+        public virtual void Required_navigation_on_a_subquery_with_First_in_predicate()
+        {
+            AssertQuery<Level2>(
+                l2s => l2s
+                    .Where(l2o => l2o.Id == 7)
+                    .Where(l1 => EF.Property<string>(l2s.OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse, "Name") == "L1 02"),
+                l2s => l2s
+                    .Where(l2o => l2o.Id == 7)
+                    .Where(l1 => l2s.OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse.Name == "L1 02"));
+        }
+
+        ////[ConditionalFact] issue #7761
+        public virtual void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from l1_outer in ctx.LevelOne
+                            join subquery in
+                                (
+                                    from l2_inner in ctx.LevelTwo
+                                    join l1_inner in ctx.LevelOne on l2_inner.Level1_Required_Id equals l1_inner.Id
+                                    select l2_inner
+                                )
+                            on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
+                            from subquery in grouping.DefaultIfEmpty()
+                            select (int?)subquery.Id;
+
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping1()
+        {
+            AssertQueryScalar<Level1, Level2, int>(
+                (l1s, l2s) =>
+                    from l1_outer in l1s
+                    join subquery in
+                        (
+                            from l2_inner in l2s
+                            join l1_inner in l1s on l2_inner.Level1_Required_Id equals l1_inner.Id
+                            select l2_inner
+                        )
+                    on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
+                    where grouping.Any()
+                    from subquery in grouping.DefaultIfEmpty()
+                    select subquery.Id);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping2()
+        {
+            AssertQueryScalar<Level1, Level2, int>(
+                (l1s, l2s) =>
+                    from l1_outer in l1s
+                    join subquery in
+                        (
+                            from l2_inner in l2s
+                            join l1_inner in l1s on l2_inner.Level1_Required_Id equals l1_inner.Id
+                            select l2_inner
+                        )
+                    on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
+                    from subquery in grouping.DefaultIfEmpty()
+                    where grouping.Any()
+                    select subquery.Id);
+        }
+
+        ////[ConditionalFact] issue #7770
+        public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from x in
+                                (from l1 in ctx.LevelOne
+                                 join l2 in ctx.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
+                                 from l2 in grouping.DefaultIfEmpty()
+                                 select l1).Take(2)
+                            join l2_outer in ctx.LevelTwo on x.Id equals l2_outer.Level1_Optional_Id into grouping_outer
+                            from l2_outer in grouping_outer.DefaultIfEmpty()
+                            select l2_outer.Name;
+
+                var result = query.ToList();
+            }
+        }
+
+        ////[ConditionalFact] issue #7770
+        public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer_with_client_method()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from x in
+                                (from l1 in ctx.LevelOne
+                                 join l2 in ctx.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
+                                 from l2 in grouping.DefaultIfEmpty()
+                                 select ClientLevel1(l1)).Take(2)
+                            join l2_outer in ctx.LevelTwo on x.Id equals l2_outer.Level1_Optional_Id into grouping_outer
+                            from l2_outer in grouping_outer.DefaultIfEmpty()
+                            select l2_outer.Name;
+
+                var result = query.ToList();
+            }
+        }
+
+        private Level1 ClientLevel1(Level1 arg)
+        {
+            return arg;
+        }
+
+        ////[ConditionalFact] issue #7770
+        public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from x in
+                                (from l1 in ctx.LevelOne
+                                 join l2 in ctx.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
+                                 from l2 in grouping.DefaultIfEmpty()
+                                 select l2).Take(2)
+                            join l1_outer in ctx.LevelOne on x.Level1_Optional_Id equals l1_outer.Id into grouping_outer
+                            from l1_outer in grouping_outer.DefaultIfEmpty()
+                            select l1_outer.Name;
+
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact]
         public virtual void GroupJoin_on_left_side_being_a_subquery()
         {
             AssertQuery<Level1>(
                 l1s => l1s.OrderBy(l1 => l1.OneToOne_Optional_FK.Name)
+                    .ThenBy(l1 => l1.Id)
                     .Take(2)
                     .Select(x => new { Id = x.Id, Brand = x.OneToOne_Optional_FK.Name }),
                 l1s => l1s.OrderBy(l1 => Maybe(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.Name))
+                    .ThenBy(l1 => l1.Id)
                     .Take(2)
                     .Select(x => new { Id = x.Id, Brand = Maybe(x.OneToOne_Optional_FK, () => x.OneToOne_Optional_FK.Name) }),
                 e => e.Id);
@@ -3140,13 +3362,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     from l2 in l2s
                     join l1 in l1s.OrderBy(x => x.OneToOne_Optional_FK.Name).Take(2) on l2.Level1_Optional_Id equals l1.Id into grouping
                     from l1 in grouping.DefaultIfEmpty()
-                    select new { Id = l2.Id, Nane = l1 != null ? l1.Name : null },
+                    select new { Id = l2.Id, Name = l1 != null ? l1.Name : null },
                 (l1s, l2s) =>
                     from l2 in l2s
-                    join l1 in l1s.OrderBy(x => Maybe(x.OneToOne_Optional_FK, () => x.OneToOne_Optional_FK.Name)).Take(2) 
+                    join l1 in l1s.OrderBy(x => Maybe(x.OneToOne_Optional_FK, () => x.OneToOne_Optional_FK.Name)).Take(2)
                         on l2.Level1_Optional_Id equals l1.Id into grouping
                     from l1 in grouping.DefaultIfEmpty()
-                    select new { Id = l2.Id, Nane = l1 != null ? l1.Name : null },
+                    select new { Id = l2.Id, Name = l1 != null ? l1.Name : null },
                 e => e.Id);
         }
 
@@ -3790,6 +4012,56 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Skip(0)
                     .Take(10)
                     .Select(l3 => l3.Name));
+        }
+
+        [ConditionalFact]
+        public virtual void Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo
+                            on new
+                            {
+                                A = EF.Property<int?>(l1, "OneToMany_Optional_Self_InverseId"),
+                            }
+                            equals new
+                            {
+                                A = EF.Property<int?>(l2, "Level1_Optional_Id"),
+                            }
+                            select l1;
+
+                var result = query.ToList();
+
+                // This result is manually verified. Do not change.
+                Assert.Equal(53, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo
+                            on new
+                            {
+                                A = EF.Property<int?>(l1, "OneToMany_Optional_Self_InverseId"),
+                                B = EF.Property<int?>(l1, "OneToOne_Optional_SelfId")
+                            }
+                            equals new
+                            {
+                                A = EF.Property<int?>(l2, "Level1_Optional_Id"),
+                                B = EF.Property<int?>(l2, "OneToMany_Optional_Self_InverseId"),
+                            }
+                            select l1;
+
+                var result = query.ToList();
+
+                // This result is manually verified. Do not change.
+                Assert.Equal(39, result.Count);
+            }
         }
 
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class

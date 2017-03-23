@@ -121,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             .CreateReadValueExpression(
                                 valueBufferParameter,
                                 discriminatorProperty.ClrType,
-                                discriminatorProperty.GetIndex())),
+                                discriminatorProperty.GetIndex(),
+                                discriminatorProperty)),
                     Expression.IfThenElse(
                         Expression.Equal(discriminatorValueVariable, firstDiscriminatorValue),
                         Expression.Return(returnLabelTarget, materializer),

@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingValueInvalidCast(typeof(string), typeof(int)),
+                    CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductName", typeof(string), typeof(int)),
                     Assert.Throws<InvalidOperationException>(() =>
                         context.Set<Product>()
                             .FromSql(@"SELECT ""ProductID"", ""ProductName"" AS ""SupplierID"", ""SupplierID"" AS ""ProductName"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingValueNullReference(typeof(bool)),
+                    CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
                     Assert.Throws<InvalidOperationException>(() =>
                         context.Set<Product>()
                             .FromSql(@"SELECT ""ProductID"", ""ProductName"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", NULL AS ""Discontinued""

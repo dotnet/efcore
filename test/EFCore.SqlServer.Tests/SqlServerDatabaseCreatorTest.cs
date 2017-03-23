@@ -97,9 +97,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var connection = (FakeSqlServerConnection)contextServices.GetRequiredService<ISqlServerConnection>();
 
             connection.ErrorNumber = errorNumber;
-            connection.FailAfter = 5;
+            connection.FailureCount = 5;
 
-            var creator = contextServices.GetRequiredService<IRelationalDatabaseCreator>();
+            var creator = (SqlServerDatabaseCreator)contextServices.GetRequiredService<IRelationalDatabaseCreator>();
+
+            creator.RetryDelay = TimeSpan.FromMilliseconds(1);
 
             if (async)
             {
@@ -137,9 +139,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var connection = (FakeSqlServerConnection)contextServices.GetRequiredService<ISqlServerConnection>();
 
             connection.ErrorNumber = 233;
-            connection.FailAfter = 100;
+            connection.FailureCount = 100;
+            connection.FailDelay = 50;
 
-            var creator = contextServices.GetRequiredService<IRelationalDatabaseCreator>();
+            var creator = (SqlServerDatabaseCreator)contextServices.GetRequiredService<IRelationalDatabaseCreator>();
+
+            creator.RetryDelay = TimeSpan.FromMilliseconds(5);
+            creator.RetryTimeout = TimeSpan.FromMilliseconds(100);
 
             if (async)
             {
@@ -164,27 +170,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             }
 
             public int ErrorNumber { get; set; }
-            public int FailAfter { get; set; }
+            public int FailureCount { get; set; }
+            public int FailDelay { get; set; }
             public int OpenCount { get; set; }
 
             public override bool Open()
             {
-                if (++OpenCount < FailAfter)
+                if (++OpenCount < FailureCount)
                 {
+                    Thread.Sleep(FailDelay);
                     throw SqlExceptionFactory.CreateSqlException(ErrorNumber);
                 }
 
                 return true;
             }
 
-            public override Task<bool> OpenAsync(CancellationToken cancellationToken = new CancellationToken())
+            public override async Task<bool> OpenAsync(CancellationToken cancellationToken = new CancellationToken())
             {
-                if (++OpenCount < FailAfter)
+                if (++OpenCount < FailureCount)
                 {
+                    await Task.Delay(FailDelay, cancellationToken);
                     throw SqlExceptionFactory.CreateSqlException(ErrorNumber);
                 }
 
-                return Task.FromResult(true);
+                return await Task.FromResult(true);
             }
 
             public override ISqlServerConnection CreateMasterConnection() => new FakeSqlServerConnection(_options, _loggerFactory, Dependencies.DiagnosticSource);

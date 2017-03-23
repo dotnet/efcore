@@ -53,7 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory,
-            [NotNull] IQueryFlattenerFactory queryFlattenerFactory,
             [NotNull] IDbContextOptions contextOptions)
         {
             Check.NotNull(relationalResultOperatorHandler, nameof(relationalResultOperatorHandler));
@@ -62,7 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(conditionalRemovingExpressionVisitorFactory, nameof(conditionalRemovingExpressionVisitorFactory));
-            Check.NotNull(queryFlattenerFactory, nameof(queryFlattenerFactory));
             Check.NotNull(contextOptions, nameof(contextOptions));
 
             RelationalResultOperatorHandler = relationalResultOperatorHandler;
@@ -71,7 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
             CompositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
             ConditionalRemovingExpressionVisitorFactory = conditionalRemovingExpressionVisitorFactory;
-            QueryFlattenerFactory = queryFlattenerFactory;
             ContextOptions = contextOptions;
         }
 
@@ -106,11 +103,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public IConditionalRemovingExpressionVisitorFactory ConditionalRemovingExpressionVisitorFactory { get; }
 
         /// <summary>
-        ///     Gets the query flattener factory.
-        /// </summary>
-        public IQueryFlattenerFactory QueryFlattenerFactory { get; }
-
-        /// <summary>
         ///     Gets options for controlling the context.
         /// </summary>
         public IDbContextOptions ContextOptions { get; }
@@ -128,7 +120,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                QueryFlattenerFactory,
                 ContextOptions);
 
         /// <summary>
@@ -144,7 +135,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                QueryFlattenerFactory,
                 ContextOptions);
 
         /// <summary>
@@ -160,7 +150,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                QueryFlattenerFactory,
                 ContextOptions);
 
         /// <summary>
@@ -176,7 +165,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 sqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                QueryFlattenerFactory,
                 ContextOptions);
 
         /// <summary>
@@ -192,7 +180,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 compositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                QueryFlattenerFactory,
                 ContextOptions);
 
         /// <summary>
@@ -208,23 +195,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 conditionalRemovingExpressionVisitorFactory,
-                QueryFlattenerFactory,
-                ContextOptions);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="queryFlattenerFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalQueryModelVisitorDependencies With([NotNull] IQueryFlattenerFactory queryFlattenerFactory)
-            => new RelationalQueryModelVisitorDependencies(
-                RelationalResultOperatorHandler,
-                RelationalAnnotationProvider,
-                IncludeExpressionVisitorFactory,
-                SqlTranslatingExpressionVisitorFactory,
-                CompositePredicateExpressionVisitorFactory,
-                ConditionalRemovingExpressionVisitorFactory,
-                queryFlattenerFactory,
                 ContextOptions);
 
         /// <summary>
@@ -240,7 +210,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                QueryFlattenerFactory,
                 contextOptions);
     }
 }

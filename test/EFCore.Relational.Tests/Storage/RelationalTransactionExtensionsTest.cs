@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             var dbTransaction = new FakeDbTransaction(dbConnection);
 
             var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension { Connection = dbConnection }));
+                CreateOptions((FakeRelationalOptionsExtension)new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
 
             var transaction = new RelationalTransaction(
                 connection,
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             var optionsBuilder = new DbContextOptionsBuilder();
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
-                .AddOrUpdateExtension(optionsExtension ?? new FakeRelationalOptionsExtension { ConnectionString = ConnectionString });
+                .AddOrUpdateExtension(optionsExtension ?? new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString));
 
             return optionsBuilder.Options;
         }

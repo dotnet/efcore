@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             Assert.Null(optionsExtension.Connection);
 
             var connection = Mock.Of<DbConnection>();
-            optionsExtension.Connection = connection;
+            optionsExtension = (FakeRelationalOptionsExtension)optionsExtension.WithConnection(connection);
 
             Assert.Same(connection, optionsExtension.Connection);
         }
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public void Throws_when_setting_Connection_to_null()
         {
-            Assert.Throws<ArgumentNullException>(() => { new FakeRelationalOptionsExtension().Connection = null; });
+            Assert.Throws<ArgumentNullException>(() => new FakeRelationalOptionsExtension().WithConnection(null));
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
             Assert.Null(optionsExtension.ConnectionString);
 
-            optionsExtension.ConnectionString = ConnectionString;
+            optionsExtension = (FakeRelationalOptionsExtension)optionsExtension.WithConnectionString(ConnectionString);
 
             Assert.Equal(ConnectionString, optionsExtension.ConnectionString);
         }
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         [Fact]
         public void Throws_when_setting_ConnectionString_to_null()
         {
-            Assert.Throws<ArgumentNullException>(() => { new FakeRelationalOptionsExtension().ConnectionString = null; });
+            Assert.Throws<ArgumentNullException>(() => new FakeRelationalOptionsExtension().WithConnectionString(null));
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
             Assert.Null(optionsExtension.CommandTimeout);
 
-            optionsExtension.CommandTimeout = 1;
+            optionsExtension = (FakeRelationalOptionsExtension)optionsExtension.WithCommandTimeout(1);
 
             Assert.Equal(1, optionsExtension.CommandTimeout);
         }
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             Assert.Equal(
                 RelationalStrings.InvalidCommandTimeout,
                 Assert.Throws<InvalidOperationException>(
-                    () => { new FakeRelationalOptionsExtension().CommandTimeout = -1; }).Message);
+                    () => new FakeRelationalOptionsExtension().WithCommandTimeout(-1)).Message);
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
             Assert.Null(optionsExtension.MaxBatchSize);
 
-            optionsExtension.MaxBatchSize = 1;
+            optionsExtension = (FakeRelationalOptionsExtension)optionsExtension.WithMaxBatchSize(1);
 
             Assert.Equal(1, optionsExtension.MaxBatchSize);
         }
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             Assert.Equal(
                 RelationalStrings.InvalidMaxBatchSize,
                 Assert.Throws<InvalidOperationException>(
-                    () => { new FakeRelationalOptionsExtension().MaxBatchSize = -1; }).Message);
+                    () => new FakeRelationalOptionsExtension().WithMaxBatchSize(-1)).Message);
         }
     }
 }

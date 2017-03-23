@@ -3,8 +3,8 @@
 
 using System.Diagnostics;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
@@ -16,33 +16,34 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
     public abstract class ExpressionVisitorBase : RelinqExpressionVisitor
     {
         /// <summary>
-        ///     Visits the given node.
-        /// </summary>
-        /// <param name="node"> The expression to visit. </param>
-        /// <returns>
-        ///     An Expression.
-        /// </returns>
-        public override Expression Visit([CanBeNull] Expression node)
-            => node == null
-               || node.NodeType == ExpressionType.Block
-                ? node
-                : base.Visit(node);
-
-        /// <summary>
         ///     Visits the children of the extension expression.
         /// </summary>
         /// <returns>
         ///     The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.
         /// </returns>
-        /// <param name="node">The expression to visit.</param>
-        protected override Expression VisitExtension(Expression node)
+        /// <param name="extensionExpression">The expression to visit.</param>
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (node is NullConditionalExpression)
+            if (extensionExpression is NullConditionalExpression)
             {
-                return node;
+                return extensionExpression;
             }
 
-            return base.VisitExtension(node);
+            return base.VisitExtension(extensionExpression);
+        }
+
+        /// <summary>
+        ///     Visits the children of the subquery expression.
+        /// </summary>
+        /// <returns>
+        ///     The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.
+        /// </returns>
+        /// <param name="subQueryExpression">The expression to visit.</param>
+        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        {
+            subQueryExpression.QueryModel.TransformExpressions(Visit);
+
+            return base.VisitSubQuery(subQueryExpression);
         }
     }
 }

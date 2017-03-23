@@ -310,6 +310,92 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 Sql);
         }
 
+        public override void InsertRowsOperation()
+        {
+            base.InsertRowsOperation();
+
+            Assert.Equal(
+                "INSERT INTO \"People\" (\"Id\", \"Full Name\")" + EOL +
+                "VALUES (0, NULL)," + EOL +
+                "       (1, 'Daenerys Targaryen')," + EOL +
+                "       (2, 'John Snow')," + EOL +
+                "       (3, 'Arya Stark')," + EOL +
+                "       (4, 'Harry Strickland');" + EOL,
+                Sql);
+        }
+
+        public override void DeleteRowsOperation_simple_key()
+        {
+            base.DeleteRowsOperation_simple_key();
+
+            Assert.Equal(
+                "DELETE FROM \"People\"" + EOL +
+                "WHERE (\"Id\" = 2) OR" + EOL +
+                "      (\"Id\" = 4);" + EOL,
+                Sql);
+        }
+
+        public override void DeleteRowsOperation_composite_key()
+        {
+            base.DeleteRowsOperation_composite_key();
+
+            Assert.Equal(
+                "DELETE FROM \"People\"" + EOL +
+                "WHERE (\"First Name\" = 'Hodor' AND \"Last Name\" IS NULL) OR" + EOL +
+                "      (\"First Name\" = 'Daenerys' AND \"Last Name\" = 'Targaryen');" + EOL,
+                Sql);
+        }
+
+        public override void UpdateRowsOperation_simple_key()
+        {
+            base.UpdateRowsOperation_simple_key();
+
+            Assert.Equal(
+                "UPDATE \"People\"" + EOL +
+                "SET \"Full Name\" = 'Daenerys Stormborn'" + EOL +
+                "WHERE (\"Id\" = 1);" + EOL +
+                "GO" + EOL +
+                EOL +
+                "UPDATE \"People\"" + EOL +
+                "SET \"Full Name\" = 'Homeless Harry Strickland'" + EOL +
+                "WHERE (\"Id\" = 4);" + EOL,
+                Sql);
+        }
+
+        public override void UpdateRowsOperation_composite_key()
+        {
+            base.UpdateRowsOperation_composite_key();
+
+            Assert.Equal(
+                "UPDATE \"People\"" + EOL +
+                "SET \"First Name\" = 'Hodor'" + EOL +
+                "WHERE (\"Id\" = 0 AND \"Last Name\" IS NULL);" + EOL +
+                "GO" + EOL +
+                EOL +
+                "UPDATE \"People\"" + EOL +
+                "SET \"First Name\" = 'Homeless Harry'" + EOL +
+                "WHERE (\"Id\" = 4 AND \"Last Name\" = 'Strickland');" + EOL,
+                Sql);
+        }
+
+        public override void UpdateRowsOperation_multiple_columns()
+        {
+            base.UpdateRowsOperation_multiple_columns();
+
+            Assert.Equal(
+                "UPDATE \"People\"" + EOL +
+                "SET \"First Name\" = 'Daenerys'," + EOL +
+                "    \"Nickname\" = 'Dany'" + EOL +
+                "WHERE (\"Id\" = 1);" + EOL +
+                "GO" + EOL +
+                EOL +
+                "UPDATE \"People\"" + EOL +
+                "SET \"First Name\" = 'Harry'," + EOL +
+                "    \"Nickname\" = 'Homeless'" + EOL +
+                "WHERE (\"Id\" = 4);" + EOL,
+                Sql);
+        }
+
         public MigrationSqlGeneratorTest()
             : base(RelationalTestHelpers.Instance)
         {

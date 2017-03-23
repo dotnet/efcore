@@ -14,9 +14,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="$(CoreFxVersion)" />
-    <PackageReference Include="Microsoft.Extensions.RuntimeEnvironment.Sources" Version="1.2.0-*">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="xunit" Version="2.2.0-*" />
+    <PackageReference Include="xunit" Version="$(XunitVersion)" />
   </ItemGroup>
 </Project>

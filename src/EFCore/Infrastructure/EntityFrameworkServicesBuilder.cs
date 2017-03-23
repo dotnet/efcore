@@ -62,6 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IEntityGraphAttacher), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IValueGeneratorCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(INodeTypeProviderFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ISingletonOptionsInitialzer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ILoggingOptions), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ISensitiveDataLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ILogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IKeyPropagator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INavigationFixer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ILocalViewListener), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -87,7 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IEntityResultFindingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMemberAccessBindingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INavigationRewritingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IOrderingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQuerySourceTracingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRequiresMaterializationExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IExpressionPrinter), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -95,8 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ICompiledQueryCacheKeyGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IResultOperatorHandler), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IProjectionExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(ISensitiveDataLogger<>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(ILogger<>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModel), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ICurrentDbContext), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDbContextOptions), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -111,7 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IKeyListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IQueryTrackingListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IPropertyListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
-                { typeof(IResettableService), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) }
+                { typeof(IResettableService), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
+                { typeof(ISingletonOptions), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) }
             };
 
         /// <summary>
@@ -213,7 +215,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IEntityResultFindingExpressionVisitorFactory, EntityResultFindingExpressionVisitorFactory>();
             TryAdd<IMemberAccessBindingExpressionVisitorFactory, MemberAccessBindingExpressionVisitorFactory>();
             TryAdd<INavigationRewritingExpressionVisitorFactory, NavigationRewritingExpressionVisitorFactory>();
-            TryAdd<IOrderingExpressionVisitorFactory, OrderingExpressionVisitorFactory>();
             TryAdd<IQuerySourceTracingExpressionVisitorFactory, QuerySourceTracingExpressionVisitorFactory>();
             TryAdd<IRequiresMaterializationExpressionVisitorFactory, RequiresMaterializationExpressionVisitorFactory>();
             TryAdd<IExpressionPrinter, ExpressionPrinter>();
@@ -221,6 +222,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ICompiledQueryCacheKeyGenerator, CompiledQueryCacheKeyGenerator>();
             TryAdd<IResultOperatorHandler, ResultOperatorHandler>();
             TryAdd<IProjectionExpressionVisitorFactory, ProjectionExpressionVisitorFactory>();
+            TryAdd<ISingletonOptionsInitialzer, SingletonOptionsInitialzer>();
+            TryAdd<ILoggingOptions, LoggingOptions>();
+            TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetService<ILoggingOptions>());
             TryAdd(typeof(ISensitiveDataLogger<>), typeof(SensitiveDataLogger<>));
             TryAdd(typeof(ILogger<>), typeof(InterceptingLogger<>));
             TryAdd(p => GetContextServices(p).Model);
@@ -240,6 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<ResultOperatorHandlerDependencies>()
                 .AddDependencySingleton<ModelSourceDependencies>()
                 .AddDependencySingleton<ValueGeneratorCacheDependencies>()
+                .AddDependency(typeof(SensitiveDataLoggerDependencies<>), ServiceLifetime.Singleton)
                 .AddDependencyScoped<ExecutionStrategyContextDependencies>()
                 .AddDependencyScoped<CompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<QueryContextDependencies>()
@@ -250,7 +255,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<ModelCustomizerDependencies>()
                 .AddDependencyScoped<ModelCacheKeyFactoryDependencies>()
                 .AddDependencyScoped<QueryCompilationContextDependencies>()
-                .AddDependency(typeof(SensitiveDataLoggerDependencies<>), ServiceLifetime.Scoped)
                 .ServiceCollection.AddMemoryCache();
 
             return this;

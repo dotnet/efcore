@@ -636,6 +636,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     dependentEndNavigationPropertyName)
                 : CandidateNamingService.GetPrincipalEndCandidateNavigationPropertyName(
                     foreignKey, dependentEndNavigationPropertyName);
+
+            if (!foreignKey.IsUnique && !foreignKey.IsSelfReferencing())
+            {
+                principalEndNavigationPropertyCandidateName = _pluralizer.Pluralize(principalEndNavigationPropertyCandidateName);
+            }
+
             var principalEndNavigationPropertyName =
                 CSharpUtilities.Instance.GenerateCSharpIdentifier(
                     principalEndNavigationPropertyCandidateName,

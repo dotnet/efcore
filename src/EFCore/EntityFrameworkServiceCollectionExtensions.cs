@@ -10,9 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -156,7 +154,10 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         optionsAction(sp, ob);
 
-                        ob.Options.GetExtension<CoreOptionsExtension>().MaxPoolSize = poolSize;
+                        var extension = (ob.Options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension())
+                            .WithMaxPoolSize(poolSize);
+
+                        ((IDbContextOptionsBuilderInfrastructure)ob).AddOrUpdateExtension(extension);
                     });
 
             serviceCollection.TryAdd(
@@ -291,9 +292,9 @@ namespace Microsoft.Extensions.DependencyInjection
             where TContext : DbContext
         {
             var builder = new DbContextOptionsBuilder<TContext>(
-                new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>()))
-                .UseMemoryCache(applicationServiceProvider.GetService<IMemoryCache>())
-                .UseLoggerFactory(applicationServiceProvider.GetService<ILoggerFactory>());
+                new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>()));
+
+            builder.UseApplicationServiceProvider(applicationServiceProvider);
 
             optionsAction?.Invoke(applicationServiceProvider, builder);
 

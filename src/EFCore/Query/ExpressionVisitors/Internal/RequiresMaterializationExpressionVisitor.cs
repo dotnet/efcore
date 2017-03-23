@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -275,8 +276,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
-        private void HandleUnderlyingQuerySources(IQuerySource querySource, Action<IQuerySource> action)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void HandleUnderlyingQuerySources([NotNull] IQuerySource querySource, [NotNull] Action<IQuerySource> action)
         {
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(action, nameof(action));
+
             if (querySource is GroupResultOperator groupResultOperator)
             {
                 var keySelectorExpression

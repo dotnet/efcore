@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
             DisplayName = $"{name} [Variation: {variation}]";
             Variation = variation;
 
-            var methodArguments = new List<object> { MetricCollector };
+            var methodArguments = new List<object> { CreateMetricCollector() };
             if (testMethodArguments != null)
             {
                 methodArguments.AddRange(testMethodArguments);
@@ -42,9 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
             TestMethodArguments = methodArguments.ToArray();
         }
 
-        public abstract IMetricCollector MetricCollector { get; }
+
         public string TestMethodName { get; protected set; }
         public string Variation { get; protected set; }
+        public IMetricCollector MetricCollector => TestMethodArguments.OfType<IMetricCollector>().Single();
+
+        protected abstract IMetricCollector CreateMetricCollector();
 
         protected override string GetSkipReason(IAttributeInfo factAttribute) => EvaluateSkipConditions(TestMethod) ?? base.GetSkipReason(factAttribute);
 

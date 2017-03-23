@@ -9,18 +9,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
 {
     public class ConditionalTheoryDiscoverer : TheoryDiscoverer
     {
-        private readonly IMessageSink _diagnosticMessageSink;
-
         public ConditionalTheoryDiscoverer(IMessageSink diagnosticMessageSink)
             : base(diagnosticMessageSink)
         {
-            _diagnosticMessageSink = diagnosticMessageSink;
+        }
+
+        protected override IEnumerable<IXunitTestCase> CreateTestCasesForTheory(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute)
+        {
+            var skipReason = testMethod.EvaluateSkipConditions();
+            return skipReason != null
+               ? new[] { new SkippedTestCase(skipReason, DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod) }
+               : base.CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
         }
 
         protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[] dataRow)
-            => new[] { new SkipXunitTestCase(_diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, dataRow) };
-
-        protected override IEnumerable<IXunitTestCase> CreateTestCasesForTheory(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute)
-            => new[] { new SkipXunitTheoryTestCase(_diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod) };
+        {
+            var skipReason = testMethod.EvaluateSkipConditions();
+            return skipReason != null
+                ? base.CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, skipReason)
+                : base.CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow);
+        }
     }
 }

@@ -1,0 +1,4 @@
+<#
+    Session["ResourceFile"] = "SqlServerStrings.resx";
+#>
+<#@ include file="..\..\..\tools\Resources.tt" #>

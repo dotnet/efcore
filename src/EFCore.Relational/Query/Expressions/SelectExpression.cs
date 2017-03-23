@@ -247,11 +247,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <returns>
         ///     true if the supplied query source is handled by this SelectExpression; otherwise false.
         /// </returns>
-        public override bool HandlesQuerySource([NotNull] IQuerySource querySource)
+        public override bool HandlesQuerySource(IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            return _tables.Any(te => te.QuerySource == querySource || te.HandlesQuerySource(querySource));
+            var processedQuerySource = PreProcessQuerySource(querySource);
+
+            return _tables.Any(te => te.QuerySource == processedQuerySource || te.HandlesQuerySource(processedQuerySource))
+                || base.HandlesQuerySource(querySource);
         }
 
         /// <summary>
@@ -417,6 +420,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             foreach (var ordering in subquery.OrderBy)
             {
                 var expression = ordering.Expression;
+
+                if (expression is NullableExpression nullableExpression)
+                {
+                    expression = nullableExpression.Operand;
+                }
 
                 var aliasExpression = expression as AliasExpression;
                 if (aliasExpression != null)
@@ -958,15 +966,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>
         /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
-        public virtual void AddCrossJoin(
+        public virtual JoinExpressionBase AddCrossJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
 
-            _tables.Add(new CrossJoinExpression(tableExpression));
+            var crossJoinExpression = new CrossJoinExpression(tableExpression);
+
+            _tables.Add(crossJoinExpression);
             _projection.AddRange(projection);
+
+            return crossJoinExpression;
         }
 
         /// <summary>
@@ -974,15 +986,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>
         /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
-        public virtual void AddCrossJoinLateral(
+        public virtual JoinExpressionBase AddCrossJoinLateral(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
 
-            _tables.Add(new CrossJoinLateralExpression(tableExpression));
+            var crossJoinLateralExpression = new CrossJoinLateralExpression(tableExpression);
+
+            _tables.Add(crossJoinLateralExpression);
             _projection.AddRange(projection);
+
+            return crossJoinLateralExpression;
         }
 
         /// <summary>

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
@@ -14,27 +13,35 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     {
         public static readonly string DatabaseName = "DataAnnotations";
 
-        private readonly IServiceProvider _serviceProvider;
-
         private readonly string _connectionString = SqlServerTestStore.CreateConnectionString(DatabaseName);
+        private readonly DbContextOptions _options;
 
         public DataAnnotationSqlServerFixture()
         {
-            _serviceProvider = new ServiceCollection()
+            var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
+
+            _options = new DbContextOptionsBuilder()
+                .EnableSensitiveDataLogging()
+                .UseInternalServiceProvider(serviceProvider)
+                .ConfigureWarnings(w =>
+                {
+                    w.Default(WarningBehavior.Throw);
+                    w.Ignore(CoreEventId.SensitiveDataLoggingEnabledWarning);
+                }).Options;
         }
 
         public override SqlServerTestStore CreateTestStore()
             => SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder()
+                    var options = new DbContextOptionsBuilder(_options)
                         .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
-                        .UseInternalServiceProvider(_serviceProvider);
+                        .Options;
 
-                    using (var context = new DataAnnotationContext(optionsBuilder.Options))
+                    using (var context = new DataAnnotationContext(options))
                     {
                         context.Database.EnsureCreated();
                         DataAnnotationModelInitializer.Seed(context);
@@ -45,17 +52,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override DataAnnotationContext CreateContext(SqlServerTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .EnableSensitiveDataLogging()
+            var options = new DbContextOptionsBuilder(_options)
                 .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
-                .UseInternalServiceProvider(_serviceProvider)
-                .ConfigureWarnings(w =>
-                    {
-                        w.Default(WarningBehavior.Throw);
-                        w.Ignore(CoreEventId.SensitiveDataLoggingEnabledWarning);
-                    });
+                .Options;
 
-            var context = new DataAnnotationContext(optionsBuilder.Options);
+            var context = new DataAnnotationContext(options);
             context.Database.UseTransaction(testStore.Transaction);
             return context;
         }

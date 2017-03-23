@@ -3,6 +3,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
@@ -14,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
     {
         private IDbContextTransaction _currentTransaction;
 
-        public TestInMemoryTransactionManager(ILogger<InMemoryTransactionManager> logger)
+        public TestInMemoryTransactionManager(
+            ILogger<InMemoryTransactionManager> logger)
             : base(logger)
         {
         }

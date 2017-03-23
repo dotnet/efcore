@@ -19,6 +19,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests
     public class SqlServerDatabaseModelFactoryTest : IClassFixture<SqlServerDatabaseModelFixture>
     {
         [Fact]
+        public void It_reads_type_aliases_differing_only_by_schema()
+        {
+            _fixture.TestStore.ExecuteNonQuery("CREATE SCHEMA Schema1;");
+            _fixture.TestStore.ExecuteNonQuery("CREATE SCHEMA Schema2;");
+
+            var sql = @"
+CREATE TYPE [Schema1].[TestTypeAlias] FROM int NOT NULL;
+CREATE TYPE [Schema2].[TestTypeAlias] FROM datetime NOT NULL;";
+            var dbModel = CreateModel(sql);
+
+            var testTypeAlias1 = dbModel.SqlServer().TypeAliases.Where(kvp => kvp.Key.Contains("Schema1")).SingleOrDefault();
+            Assert.NotNull(testTypeAlias1);
+            Assert.Equal("[Schema1].[TestTypeAlias]", testTypeAlias1.Key);
+            Assert.Equal("int", testTypeAlias1.Value);
+
+            var testTypeAlias2 = dbModel.SqlServer().TypeAliases.Where(kvp => kvp.Key.Contains("Schema2")).SingleOrDefault();
+            Assert.NotNull(testTypeAlias2);
+            Assert.Equal("[Schema2].[TestTypeAlias]", testTypeAlias2.Key);
+            Assert.Equal("datetime", testTypeAlias2.Value);
+        }
+
+        [Fact]
         public void It_reads_tables()
         {
             var sql = @"

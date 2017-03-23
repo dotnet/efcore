@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -298,6 +299,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModel, nameof(queryModel));
             Check.NotNull(includeResultOperators, nameof(includeResultOperators));
 
+            // First pass of optimizations
+
+            var additionalFromClauseOptimizer
+                = new AdditionalFromClauseOptimizingQueryModelVisitor();
+
+            additionalFromClauseOptimizer.VisitQueryModel(queryModel);
+
             _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
 
             var entityEqualityRewritingExpressionVisitor
@@ -306,6 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             entityEqualityRewritingExpressionVisitor.Rewrite(queryModel);
 
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
+
+            // Rewrite navigations
 
             new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger)
                 .VisitQueryModel(queryModel);
@@ -317,6 +327,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _navigationRewritingExpressionVisitorFactory
                 .Create(this).Rewrite(queryModel, parentQueryModel: null);
+
+            // Second pass of optimizations
+
+            additionalFromClauseOptimizer.VisitQueryModel(queryModel);
+
+            entityEqualityRewritingExpressionVisitor.Rewrite(queryModel);
+
+            queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
+
+            // Log results
 
             QueryCompilationContext.Logger
                 .LogDebug(
@@ -336,7 +356,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public override void VisitQueryModel(QueryModel queryModel)
             {
-                if (queryModel.ResultOperators.Any(o => o is SkipResultOperator || o is TakeResultOperator)
+                queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<NondeterministicResultCheckingVisitor>(this).Visit);
+
+                base.VisitQueryModel(queryModel);
+            }
+
+            protected override void VisitResultOperators(ObservableCollection<ResultOperatorBase> resultOperators, QueryModel queryModel)
+            {
+                if (resultOperators.Any(o => o is SkipResultOperator || o is TakeResultOperator)
                     && !queryModel.BodyClauses.OfType<OrderByClause>().Any())
                 {
                     _logger.LogWarning(
@@ -345,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit)));
                 }
 
-                if (queryModel.ResultOperators.Any(o => o is FirstResultOperator)
+                if (resultOperators.Any(o => o is FirstResultOperator)
                     && !queryModel.BodyClauses.OfType<OrderByClause>().Any()
                     && !queryModel.BodyClauses.OfType<WhereClause>().Any())
                 {
@@ -355,24 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit)));
                 }
 
-                queryModel.TransformExpressions(new RecursiveQueryModelExpressionVisitor(this).Visit);
-            }
-
-            private class RecursiveQueryModelExpressionVisitor : ExpressionVisitorBase
-            {
-                private readonly NondeterministicResultCheckingVisitor _parentVisitor;
-
-                public RecursiveQueryModelExpressionVisitor(NondeterministicResultCheckingVisitor parentVisitor)
-                {
-                    _parentVisitor = parentVisitor;
-                }
-
-                protected override Expression VisitSubQuery(SubQueryExpression expression)
-                {
-                    _parentVisitor.VisitQueryModel(expression.QueryModel);
-
-                    return base.VisitSubQuery(expression);
-                }
+                base.VisitResultOperators(resultOperators, queryModel);
             }
         }
 
@@ -1129,10 +1139,29 @@ namespace Microsoft.EntityFrameworkCore.Query
             [UsedImplicitly]
             public TInner Inner;
         }
+        
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual Type CreateTransparentIdentifierType([NotNull] Type outerType, [NotNull] Type innerType)
+            => typeof(TransparentIdentifier<,>).MakeGenericType(
+                Check.NotNull(outerType, nameof(outerType)),
+                Check.NotNull(innerType, nameof(innerType)));
 
-        private static Expression CallCreateTransparentIdentifier(
-            Type transparentIdentifierType, Expression outerExpression, Expression innerExpression)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual Expression CallCreateTransparentIdentifier(
+            [NotNull] Type transparentIdentifierType,
+            [NotNull] Expression outerExpression,
+            [NotNull] Expression innerExpression)
         {
+            Check.NotNull(transparentIdentifierType, nameof(transparentIdentifierType));
+            Check.NotNull(outerExpression, nameof(outerExpression));
+            Check.NotNull(innerExpression, nameof(innerExpression));
+
             var createTransparentIdentifierMethodInfo
                 = transparentIdentifierType.GetTypeInfo().GetDeclaredMethod(CreateTransparentIdentifierMethodName);
 
@@ -1155,9 +1184,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Expression.Field(targetExpression, fieldInfo);
         }
 
-        private void IntroduceTransparentScope(
-            IQuerySource fromClause, QueryModel queryModel, int index, Type transparentIdentifierType)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void IntroduceTransparentScope(
+            [NotNull] IQuerySource querySource,
+            [NotNull] QueryModel queryModel,
+            int index,
+            [NotNull] Type transparentIdentifierType)
         {
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(transparentIdentifierType, nameof(transparentIdentifierType));
+
             CurrentParameter
                 = Expression.Parameter(
                     transparentIdentifierType,
@@ -1170,13 +1210,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             for (var i = 0; i < index; i++)
             {
-                var querySource = queryModel.BodyClauses[i] as IQuerySource;
+                var bodyClause = queryModel.BodyClauses[i] as IQuerySource;
 
-                if (querySource != null)
+                if (bodyClause != null)
                 {
-                    RescopeTransparentAccess(querySource, outerAccessExpression);
+                    RescopeTransparentAccess(bodyClause, outerAccessExpression);
 
-                    var groupJoinClause = querySource as GroupJoinClause;
+                    var groupJoinClause = bodyClause as GroupJoinClause;
 
                     if (groupJoinClause != null
                         && QueryCompilationContext.QuerySourceMapping
@@ -1187,7 +1227,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            AddOrUpdateMapping(fromClause, AccessInnerTransparentField(transparentIdentifierType, CurrentParameter));
+            AddOrUpdateMapping(querySource, AccessInnerTransparentField(transparentIdentifierType, CurrentParameter));
         }
 
         private void RescopeTransparentAccess(IQuerySource querySource, Expression targetExpression)
@@ -1312,7 +1352,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindMethodCallExpression(
                 methodCallExpression,
                 (property, querySource)
-                    => BindReadValueMethod(methodCallExpression.Type, expression, property.GetIndex()));
+                    => BindReadValueMethod(methodCallExpression.Type, expression, property.GetIndex(), property));
         }
 
         /// <summary>
@@ -1334,7 +1374,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 memberExpression,
                 null,
                 (property, querySource)
-                    => BindReadValueMethod(memberExpression.Type, expression, property.GetIndex()));
+                    => BindReadValueMethod(memberExpression.Type, expression, property.GetIndex(), property));
         }
 
         /// <summary>
@@ -1343,19 +1383,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="memberType"> Type of the member. </param>
         /// <param name="expression"> The target expression. </param>
         /// <param name="index"> A value buffer index. </param>
+        /// <param name="property">The property being bound.</param>
         /// <returns>
         ///     A value buffer read expression.
         /// </returns>
         public virtual Expression BindReadValueMethod(
             [NotNull] Type memberType,
             [NotNull] Expression expression,
-            int index)
+            int index,
+            [CanBeNull] IProperty property = null)
         {
             Check.NotNull(memberType, nameof(memberType));
             Check.NotNull(expression, nameof(expression));
 
             return _entityMaterializerSource
-                .CreateReadValueExpression(expression, memberType, index);
+                .CreateReadValueExpression(expression, memberType, index, property);
         }
 
         /// <summary>

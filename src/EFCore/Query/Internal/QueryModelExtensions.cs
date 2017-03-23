@@ -51,12 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var queryModel = expression.QueryModel;
 
-                var newQueryModel = new QueryModel(queryModel.MainFromClause, queryModel.SelectClause);
-                ShallowCopy(queryModel, newQueryModel);
+                if (!_mapping.ContainsKey(queryModel))
+                {
+                    var newQueryModel = new QueryModel(queryModel.MainFromClause, queryModel.SelectClause);
+                    ShallowCopy(queryModel, newQueryModel);
 
-                _mapping.Add(queryModel, newQueryModel);
-
-                queryModel.TransformExpressions(Visit);
+                    _mapping.Add(queryModel, newQueryModel);
+                    queryModel.TransformExpressions(Visit);
+                }
 
                 return expression;
             }
@@ -146,13 +148,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     Count++;
                 }
-
-                return expression;
-            }
-
-            protected override Expression VisitSubQuery(SubQueryExpression expression)
-            {
-                expression.QueryModel.TransformExpressions(Visit);
 
                 return expression;
             }

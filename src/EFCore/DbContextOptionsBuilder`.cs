@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore
@@ -61,40 +62,106 @@ namespace Microsoft.EntityFrameworkCore
             => (DbContextOptionsBuilder<TContext>)base.UseModel(model);
 
         /// <summary>
-        ///     Sets the <see cref="ILoggerFactory" /> used for logging information from the context.
+        ///     <para>
+        ///         Sets the <see cref="ILoggerFactory" /> that will be used to create <see cref="ILogger" /> instances
+        ///         for logging done by this context. It is never necessary to call this method since EF can obtain
+        ///         or create a logger factory automatically.
+        ///     </para>
+        ///     <para>
+        ///         There is no need to call this method when using one of the 'AddDbContext' methods.
+        ///         'AddDbContext' will ensure that the <see cref="ILoggerFactory" /> used by EF is obtained from the
+        ///         application service provider.
+        ///     </para>
+        ///     <para>
+        ///         Note that changing the logger factory can cause EF to build a new internal service provider, which
+        ///         may cause issues with performance. Generally it is expected that no more than one or two different
+        ///         instances will be used for a given application.
+        ///     </para>
+        ///     <para>
+        ///         This method cannot be used if the application is setting the internal service provider
+        ///         through a call to <see cref="UseInternalServiceProvider" />. In this case, the <see cref="ILoggerFactory" />
+        ///         should be configured directly in that service provider.
+        ///     </para>
         /// </summary>
-        /// <param name="loggerFactory"> The <see cref="ILoggerFactory" /> to be used. </param>
+        /// <param name="loggerFactory"> The logger factory to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
             => (DbContextOptionsBuilder<TContext>)base.UseLoggerFactory(loggerFactory);
 
         /// <summary>
-        ///     Sets the <see cref="IMemoryCache" /> used to cache information such as query translations. If none is specified, then
-        ///     Entity Framework will maintain its own internal <see cref="IMemoryCache" />.
+        ///     <para>
+        ///         Sets the <see cref="IMemoryCache" /> to be used for query caching by this context. It is never
+        ///         necessary to call this method since EF can obtain or create a memory cache automatically.
+        ///     </para>
+        ///     <para>
+        ///         There is no need to call this method when using one of the 'AddDbContext' methods.
+        ///         'AddDbContext' will ensure that the <see cref="IMemoryCache" /> used by EF is obtained from the
+        ///         application service provider.
+        ///     </para>
+        ///     <para>
+        ///         Note that changing the memory cache can cause EF to build a new internal service provider, which
+        ///         may cause issues with performance. Generally it is expected that no more than one or two different
+        ///         instances will be used for a given application.
+        ///     </para>
+        ///     <para>
+        ///         This method cannot be used if the application is setting the internal service provider
+        ///         through a call to <see cref="UseInternalServiceProvider" />. In this case, the <see cref="IMemoryCache" />
+        ///         should be configured directly in that service provider.
+        ///     </para>
         /// </summary>
-        /// <param name="memoryCache"> The <see cref="IMemoryCache" /> to be used. </param>
+        /// <param name="memoryCache"> The memory cache to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> UseMemoryCache([CanBeNull] IMemoryCache memoryCache)
             => (DbContextOptionsBuilder<TContext>)base.UseMemoryCache(memoryCache);
 
         /// <summary>
-        ///     Sets the <see cref="IServiceProvider" /> that the context will resolve its internal services from. If none is specified, then
-        ///     Entity Framework will maintain its own internal <see cref="IServiceProvider" />. By default, we recommend allowing Entity Framework
-        ///     to create and maintain its own <see cref="IServiceProvider" /> for internal services.
+        ///     <para>
+        ///         Sets the <see cref="IServiceProvider" /> that the context should resolve all of its services from. EF will
+        ///         create and manage a service provider if none is specified.
+        ///     </para>
+        ///     <para>
+        ///         The service provider must contain all the services required by Entity Framework (and the database being
+        ///         used). The Entity Framework services can be registered using an extension method on <see cref="IServiceCollection" />.
+        ///         For example, the Microsoft SQL Server provider includes an AddEntityFrameworkSqlServer() method to add
+        ///         the required services.
+        ///     </para>
+        ///     <para>
+        ///         If the <see cref="IServiceProvider" /> has a <see cref="DbContextOptions" /> or
+        ///         <see cref="DbContextOptions{TContext}" /> registered, then this will be used as the options for
+        ///         this context instance.
+        ///     </para>
         /// </summary>
-        /// <param name="serviceProvider"> The <see cref="IServiceProvider" /> to be used. </param>
+        /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> UseInternalServiceProvider([CanBeNull] IServiceProvider serviceProvider)
             => (DbContextOptionsBuilder<TContext>)base.UseInternalServiceProvider(serviceProvider);
 
         /// <summary>
-        ///     Enables application data to be included in exception messages, logging, etc. This can include the values assigned to properties
-        ///     of your entity instances, parameter values for commands being sent to the database, and other such data. You should only enable
-        ///     this flag if you have the appropriate security measures in place based on the sensitivity of this data.
+        ///     Sets the <see cref="IServiceProvider" /> from which application services will be obtained. This
+        ///     is done automatically when using 'AddDbContext', so it is rare that this method needs to be called.
+        /// </summary>
+        /// <param name="serviceProvider"> The service provider to be used. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> UseApplicationServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+            => (DbContextOptionsBuilder<TContext>)base.UseApplicationServiceProvider(serviceProvider);
+
+        /// <summary>
+        ///     <para>
+        ///         Enables application data to be included in exception messages, logging, etc. This can include the
+        ///         values assigned to properties of your entity instances, parameter values for commands being sent
+        ///         to the database, and other such data. You should only enable this flag if you have the appropriate
+        ///         security measures in place based on the sensitivity of this data.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then this option must configured the same way
+        ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
+        ///         so that EF will manage the service providers and can create new instances as required.
+        ///     </para>
         /// </summary>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> EnableSensitiveDataLogging()
-            => (DbContextOptionsBuilder<TContext>)base.EnableSensitiveDataLogging();
+        public new virtual DbContextOptionsBuilder<TContext> EnableSensitiveDataLogging(bool sensitiveDataLoggingEnabled = true)
+            => (DbContextOptionsBuilder<TContext>)base.EnableSensitiveDataLogging(sensitiveDataLoggingEnabled);
 
         /// <summary>
         ///     <para>
@@ -110,16 +177,29 @@ namespace Microsoft.EntityFrameworkCore
         ///         and <see cref="EntityFrameworkQueryableExtensions.AsTracking{TEntity}(IQueryable{TEntity})" /> methods.
         ///     </para>
         ///     <para>
-        ///         The default value is <see cref="EntityFrameworkCore.QueryTrackingBehavior.TrackAll" />. This means the change tracker will
-        ///         keep track of changes for all entities that are returned from a LINQ query.
+        ///         The default value is <see cref="EntityFrameworkCore.QueryTrackingBehavior.TrackAll" />. This means the 
+        ///         change tracker will keep track of changes for all entities that are returned from a LINQ query.
         ///     </para>
         /// </summary>
         public new virtual DbContextOptionsBuilder<TContext> UseQueryTrackingBehavior(QueryTrackingBehavior queryTrackingBehavior)
             => (DbContextOptionsBuilder<TContext>)base.UseQueryTrackingBehavior(queryTrackingBehavior);
 
         /// <summary>
-        ///     Configures the runtime behavior of warnings generated by Entity Framework. You can set a default behavior and behaviors for
-        ///     each warning type.
+        ///     <para>
+        ///         Configures the runtime behavior of warnings generated by Entity Framework. You can set a default
+        ///         behavior and behaviors for each warning type.
+        ///     </para>
+        ///     <para>
+        ///         Note that changing this configuration can cause EF to build a new internal service provider, which
+        ///         may cause issues with performance. Generally it is expected that no more than one or two different
+        ///         configurations will be used for a given application.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then this option must configured the same way
+        ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
+        ///         so that EF will manage the service providers and can create new instances as required.
+        ///     </para>
         /// </summary>
         /// <example>
         ///     <code>

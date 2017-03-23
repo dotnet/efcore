@@ -80,38 +80,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression node)
         {
-            var aliasExpression = node as AliasExpression;
-            if (aliasExpression != null)
+            if (node is AliasExpression aliasExpression)
             {
                 return Visit(aliasExpression.Expression);
             }
 
-            var notNullableExpression = node as NotNullableExpression;
-            if (notNullableExpression != null)
-            {
-                return node;
-            }
-
-            var columnExpression = node as ColumnExpression
-                                   ?? node.TryGetColumnExpression();
+            var columnExpression = node.TryGetColumnExpression();
 
             if (columnExpression != null
-                && columnExpression.IsNullable)
+                && columnExpression.Property.IsNullable)
             {
                 AddToResult(new IsNullExpression(node));
 
                 return node;
             }
 
-            var isNullExpression = node as IsNullExpression;
-            if (isNullExpression != null)
+            if (node is NullableExpression nullableExpression)
             {
-                return node;
-            }
+                AddToResult(new IsNullExpression(nullableExpression.Operand));
 
-            var inExpression = node as InExpression;
-            if (inExpression != null)
-            {
                 return node;
             }
 

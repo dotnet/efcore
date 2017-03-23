@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
     public class SqlServerTestStore : RelationalTestStore
     {
-        public const int CommandTimeout = 90;
+        public const int CommandTimeout = 600;
 
 #if NET452
         private static string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;

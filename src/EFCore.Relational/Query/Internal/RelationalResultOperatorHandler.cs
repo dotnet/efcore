@@ -155,19 +155,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return handlerContext.EvalOnClient();
             }
 
-            if (relationalQueryModelVisitor.RequiresClientSingleColumnResultOperator
-                && !(resultOperator is SkipResultOperator
-                    || resultOperator is TakeResultOperator
-                    || resultOperator is FirstResultOperator
-                    || resultOperator is SingleResultOperator
-                    || resultOperator is CountResultOperator
-                    || resultOperator is AllResultOperator
-                    || resultOperator is AnyResultOperator
-                    || resultOperator is GroupResultOperator))
-            {
-                return handlerContext.EvalOnClient();
-            }
-
             return resultHandler(handlerContext);
         }
 
@@ -241,9 +228,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
-
-                    var inputType = expression.Type;
-                    var outputType = expression.Type;
+                    var inputType = handlerContext.QueryModel.SelectClause.Selector.Type;
+                    var outputType = inputType;
 
                     var nonNullableInputType = inputType.UnwrapNullableType();
                     if (nonNullableInputType == typeof(int)
@@ -253,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     expression = new ExplicitCastExpression(expression, outputType);
-                    var averageExpression = new SqlFunctionExpression("AVG", expression.Type, new [] { expression });
+                    var averageExpression = new SqlFunctionExpression("AVG", outputType, new [] { expression });
 
                     handlerContext.SelectExpression.SetProjectionExpression(averageExpression);
 
@@ -589,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
-                    var minExpression = new SqlFunctionExpression("MIN", expression.Type, new [] { expression });
+                    var minExpression = new SqlFunctionExpression("MIN", handlerContext.QueryModel.SelectClause.Selector.Type, new [] { expression });
 
                     handlerContext.SelectExpression.SetProjectionExpression(minExpression);
 
@@ -611,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
-                    var maxExpression = new SqlFunctionExpression("MAX", expression.Type, new [] { expression });
+                    var maxExpression = new SqlFunctionExpression("MAX", handlerContext.QueryModel.SelectClause.Selector.Type, new [] { expression });
 
                     handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
 
@@ -666,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
-                    var sumExpression = new SqlFunctionExpression("SUM", expression.Type, new [] { expression });
+                    var sumExpression = new SqlFunctionExpression("SUM", handlerContext.QueryModel.SelectClause.Selector.Type, new [] { expression });
 
                     handlerContext.SelectExpression.SetProjectionExpression(sumExpression);
 

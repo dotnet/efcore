@@ -1,7 +1,7 @@
 Entity Framework Core
 =====================
 
-Documentation on using EF Core is available at <https://docs.efproject.net>.
+Documentation on using EF Core is available at <https://docs.microsoft.com/ef/>.
 
 [![Travis build status](https://img.shields.io/travis/aspnet/EntityFramework.svg?label=travis-ci&branch=dev&style=flat-square)](https://travis-ci.org/aspnet/EntityFramework/branches)
 [![AppVeyor build status](https://img.shields.io/appveyor/ci/aspnetci/EntityFramework/dev.svg?label=appveyor&style=flat-square)](https://ci.appveyor.com/project/aspnetci/entityframework/branch/dev)
@@ -19,7 +19,7 @@ EF Core is an object-relational mapper (O/RM) that enables .NET developers to wo
 ## Database Providers
 
 The source for SQL Server, SQLite, and InMemory providers are included in this project. Additional providers are available.
-For a complete list, see https://docs.efproject.net/en/latest/providers/.
+For a complete list, see https://docs.microsoft.com/ef/core/providers/.
 
 Provider               | Package name                              | Stable (`master` branch)    | Nightly (`dev` branch)
 -----------------------|-------------------------------------------|-----------------------------|-------------------------

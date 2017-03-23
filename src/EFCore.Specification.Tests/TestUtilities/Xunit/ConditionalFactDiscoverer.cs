@@ -16,7 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
             _diagnosticMessageSink = diagnosticMessageSink;
         }
 
-        protected override IXunitTestCase CreateTestCase(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute)
-            => new SkipXunitTestCase(_diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod);
+        protected override IXunitTestCase CreateTestCase(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
+        {
+            var skipReason = testMethod.EvaluateSkipConditions();
+            return skipReason != null
+                ? new SkippedTestCase(skipReason, _diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod)
+                : base.CreateTestCase(discoveryOptions, testMethod, factAttribute);
+        }
     }
 }

@@ -21,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
         {
         }
 
-        public override IMetricCollector MetricCollector { get; } = new NullMetricCollector();
+        protected override IMetricCollector CreateMetricCollector()
+        {
+            return new NullMetricCollector();
+        }
     }
 }

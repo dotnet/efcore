@@ -33,16 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Clones the configuration in this builder.
-        /// </summary>
-        /// <returns> The cloned configuration. </returns>
-        protected override SqlServerOptionsExtension CloneExtension()
-            => new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>());
-
-        /// <summary>
         ///     Use a ROW_NUMBER() in queries instead of OFFSET/FETCH. This method is backwards-compatible to SQL Server 2005.
         /// </summary>
-        public virtual void UseRowNumberForPaging() => SetOption(e => e.RowNumberPaging = true);
+        public virtual void UseRowNumberForPaging(bool useRowNumberForPaging = true) 
+            => WithOption(e => e.WithRowNumberPaging(useRowNumberForPaging));
 
         /// <summary>
         ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.

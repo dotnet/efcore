@@ -145,7 +145,7 @@
     <value>Found a foreign key on table [{schemaName}].[{tableName}] with an empty or null name. Skipping foreign key.</value>
   </data>
   <data name="FoundColumn" xml:space="preserve">
-    <value>Found column with schema: {schema}, table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.</value>
+    <value>Found column with schema: {schema}, table: {tableName}, column name: {columnName}, data type: {dataType}, data type schema: {dataTypeSchema}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.</value>
   </data>
   <data name="FoundDefaultSchema" xml:space="preserve">
     <value>Found default schema {defaultSchema}.</value>
@@ -163,7 +163,7 @@
     <value>Found table with schema: {schema}, name: {name}.</value>
   </data>
   <data name="FoundTypeAlias" xml:space="preserve">
-    <value>Found type alias {alias} which maps to underlying data type {dataType}.</value>
+    <value>Found type alias with schema: {schema} name: {alias} which maps to underlying data type {dataType}.</value>
   </data>
   <data name="IndexColumnNotInSelectionSet" xml:space="preserve">
     <value>Index column {columnName} belongs to index {indexName} on table [{schema}].[{tableName}] which is not included in the selection set. Skipping.</value>

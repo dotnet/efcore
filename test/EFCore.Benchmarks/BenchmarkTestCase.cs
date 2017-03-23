@@ -28,10 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
             WarmupIterations = warmupIterations;
         }
 
-        public override IMetricCollector MetricCollector { get; } = new MetricCollector();
-
         public int Iterations { get; protected set; }
         public int WarmupIterations { get; protected set; }
+
+        protected override IMetricCollector CreateMetricCollector()
+        {
+            return new MetricCollector();
+        }
 
         public override Task<RunSummary> RunAsync(
             IMessageSink diagnosticMessageSink,

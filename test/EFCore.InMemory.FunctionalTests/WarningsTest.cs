@@ -10,15 +10,14 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
-    public class WarningsTest : IClassFixture<InMemoryFixture>
+    public class WarningsTest
     {
         [Fact]
         public void Should_throw_by_default_when_transaction()
         {
             var optionsBuilder
                 = new DbContextOptionsBuilder()
-                    .UseTransientInMemoryDatabase()
-                    .UseInternalServiceProvider(_fixture.ServiceProvider);
+                    .UseTransientInMemoryDatabase();
 
             using (var context = new DbContext(optionsBuilder.Options))
             {
@@ -37,8 +36,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var optionsBuilder
                 = new DbContextOptionsBuilder()
                     .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-                    .UseTransientInMemoryDatabase()
-                    .UseInternalServiceProvider(_fixture.ServiceProvider);
+                    .UseTransientInMemoryDatabase();
 
             using (var context = new DbContext(optionsBuilder.Options))
             {
@@ -150,13 +148,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public void AddProvider(ILoggerProvider provider)
             {
             }
-        }
-
-        private readonly InMemoryFixture _fixture;
-
-        public WarningsTest(InMemoryFixture fixture)
-        {
-            _fixture = fixture;
         }
     }
 }
