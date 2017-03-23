@@ -393,9 +393,23 @@ namespace Microsoft.Data.Sqlite
                 result);
 
         [Fact]
-        public void GetGuid_works()
+        public void GetGuid_works_when_blob()
             => GetX_works(
                 "SELECT X'0E7E0DDC5D364849AB9B8CA8056BF93A';",
+                r => r.GetGuid(0),
+                new Guid("dc0d7e0e-365d-4948-ab9b-8ca8056bf93a"));
+
+        [Fact]
+        public void GetGuid_works_when_text_blob()
+            => GetX_works(
+                "SELECT CAST('dc0d7e0e-365d-4948-ab9b-8ca8056bf93a' AS BLOB);",
+                r => r.GetGuid(0),
+                new Guid("dc0d7e0e-365d-4948-ab9b-8ca8056bf93a"));
+
+        [Fact]
+        public void GetGuid_works_when_text()
+            => GetX_works(
+                "SELECT 'dc0d7e0e-365d-4948-ab9b-8ca8056bf93a';",
                 r => r.GetGuid(0),
                 new Guid("dc0d7e0e-365d-4948-ab9b-8ca8056bf93a"));
 
