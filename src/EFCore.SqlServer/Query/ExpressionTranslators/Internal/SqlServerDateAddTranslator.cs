@@ -27,13 +27,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             if (methodCallExpression.Method.DeclaringType == typeof(DateTime)
                 && (datePart = GetDatePart(methodCallExpression.Method.Name)) != null)
             {
+                var amountToAdd = methodCallExpression.Arguments.First();
+
+                if (!datePart.Equals("year")
+                    && !datePart.Equals("month")
+                    && amountToAdd is ConstantExpression constantExpression
+                    && ((double)constantExpression.Value >= int.MaxValue
+                        || (double)constantExpression.Value <= int.MinValue))
+                {
+                    return null;
+                }
+
                 return new SqlFunctionExpression(
                     functionName: "DATEADD",
                     returnType: methodCallExpression.Type,
                     arguments: new[]
                     {
                         new SqlFragmentExpression(datePart),
-                        methodCallExpression.Arguments.First(),
+                        amountToAdd,
                         methodCallExpression.Object
                     });
             }

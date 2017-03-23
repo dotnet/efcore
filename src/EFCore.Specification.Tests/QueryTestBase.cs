@@ -6940,6 +6940,42 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Select_expression_date_add_milliseconds_above_the_range()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        OrderDate = o.OrderDate.Value.AddMilliseconds(1000000000000)
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_date_add_milliseconds_below_the_range()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        OrderDate = o.OrderDate.Value.AddMilliseconds(-1000000000000)
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_date_add_milliseconds_large_number_divided()
+        {
+            var millisecondsPerDay = 86400000L;
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        OrderDate = o.OrderDate.Value
+                            .AddDays(o.OrderDate.Value.Millisecond / millisecondsPerDay)
+                            .AddMilliseconds(o.OrderDate.Value.Millisecond % millisecondsPerDay)
+                    }));
+        }
+
+        [ConditionalFact]
         public virtual void Select_expression_references_are_updated_correctly_with_subquery()
         {
             var nextYear = 2017;

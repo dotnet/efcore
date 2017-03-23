@@ -7052,6 +7052,42 @@ WHERE [o].[OrderDate] IS NOT NULL",
                 Sql);
         }
 
+        public override void Select_expression_date_add_milliseconds_above_the_range()
+        {
+            base.Select_expression_date_add_milliseconds_above_the_range();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL",
+                Sql);
+        }
+
+        public override void Select_expression_date_add_milliseconds_below_the_range()
+        {
+            base.Select_expression_date_add_milliseconds_below_the_range();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL",
+                Sql);
+        }
+
+        public override void Select_expression_date_add_milliseconds_large_number_divided()
+        {
+            base.Select_expression_date_add_milliseconds_large_number_divided();
+
+            Assert.Equal(
+                @"@__millisecondsPerDay_1: 86400000
+@__millisecondsPerDay_0: 86400000
+
+SELECT DATEADD(millisecond, DATEPART(millisecond, [o].[OrderDate]) % @__millisecondsPerDay_1, DATEADD(day, DATEPART(millisecond, [o].[OrderDate]) / @__millisecondsPerDay_0, [o].[OrderDate]))
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL",
+                Sql);
+        }
+
         public override void Select_expression_references_are_updated_correctly_with_subquery()
         {
             base.Select_expression_references_are_updated_correctly_with_subquery();
