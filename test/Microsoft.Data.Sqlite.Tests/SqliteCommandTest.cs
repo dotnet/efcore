@@ -45,8 +45,7 @@ namespace Microsoft.Data.Sqlite
                 command.Prepare();
 
                 command.Connection = null;
-                Assert.Equal(null, command.Connection);
-                Assert.Equal(0, connection.Commands.Count);
+                Assert.Null(command.Connection);
             }
         }
 
@@ -56,16 +55,14 @@ namespace Microsoft.Data.Sqlite
             Assert.Equal(CommandType.Text, new SqliteCommand().CommandType);
         }
 
-        [Fact]
-        public void CommandType_validates_value()
+        [Theory]
+        [InlineData(CommandType.StoredProcedure)]
+        [InlineData(CommandType.TableDirect)]
+        public void CommandType_validates_value(CommandType commandType)
         {
-            var ex = Assert.Throws<ArgumentException>(() => new SqliteCommand().CommandType = CommandType.StoredProcedure);
+            var ex = Assert.Throws<ArgumentException>(() => new SqliteCommand().CommandType = commandType);
 
-            Assert.Equal(Resources.InvalidCommandType(CommandType.StoredProcedure), ex.Message);
-
-            ex = Assert.Throws<ArgumentException>(() => new SqliteCommand().CommandType = CommandType.TableDirect);
-
-            Assert.Equal(Resources.InvalidCommandType(CommandType.TableDirect), ex.Message);
+            Assert.Equal(Resources.InvalidCommandType(commandType), ex.Message);
         }
 
         [Fact]
@@ -127,7 +124,7 @@ namespace Microsoft.Data.Sqlite
                 command.CommandText = "CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);";
                 var ex = Assert.Throws<SqliteException>(() => command.Prepare());
 
-                Assert.Equal("SQLite Error 1: 'no such table: Data'.", ex.Message);
+                Assert.Equal(1, ex.SqliteErrorCode);
             }
         }
 
@@ -229,15 +226,15 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void ExecuteScalar_processes_dependent_commands()
+        public void ExecuteNonQuery_processes_dependent_commands()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
                 var command = connection.CreateCommand();
-                command.CommandText = "CREATE TABLE Data (Value); INSERT INTO Data VALUES (42); SELECT Value FROM Data LIMIT 1;";
+                command.CommandText = "CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);";
 
-                Assert.Equal(42L, command.ExecuteScalar());
+                command.ExecuteNonQuery();
             }
         }
 

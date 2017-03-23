@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
+using System.Text;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -21,7 +22,7 @@ namespace Microsoft.Data.Sqlite
 
         private readonly SqliteCommand _command;
         private readonly bool _closeConnection;
-        private readonly Queue<Tuple<sqlite3_stmt, bool>> _stmtQueue;
+        private readonly Queue<(sqlite3_stmt, bool)> _stmtQueue;
         private sqlite3_stmt _stmt;
         private bool _hasRows;
         private bool _stepped;
@@ -30,15 +31,13 @@ namespace Microsoft.Data.Sqlite
 
         internal SqliteDataReader(
             SqliteCommand command,
-            Queue<Tuple<sqlite3_stmt, bool>> stmtQueue,
+            Queue<(sqlite3_stmt, bool)> stmtQueue,
             int recordsAffected,
             bool closeConnection)
         {
             if (stmtQueue.Count != 0)
             {
-                var tuple = stmtQueue.Dequeue();
-                _stmt = tuple.Item1;
-                _hasRows = tuple.Item2;
+                (_stmt, _hasRows) = stmtQueue.Dequeue();
             }
 
             _command = command;
@@ -151,9 +150,7 @@ namespace Microsoft.Data.Sqlite
                 return false;
             }
 
-            var tuple = _stmtQueue.Dequeue();
-            _stmt = tuple.Item1;
-            _hasRows = tuple.Item2;
+            (_stmt, _hasRows) = _stmtQueue.Dequeue();
             _stepped = false;
             _done = false;
 
@@ -445,12 +442,12 @@ namespace Microsoft.Data.Sqlite
                     }
                     else
                     {
-                        return new Guid(System.Text.Encoding.UTF8.GetString(bytes, 0, bytes.Length));
+                        return new Guid(Encoding.UTF8.GetString(bytes, 0, bytes.Length));
                     }
                 default:
                     return new Guid(GetString(ordinal));
             }
-        }  
+        }
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="short" />.

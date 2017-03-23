@@ -23,6 +23,8 @@ namespace Microsoft.Data.Sqlite
     {
         private const string MainDatabaseName = "main";
 
+        private readonly IList<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
+
         private string _connectionString;
         private ConnectionState _state;
         private sqlite3 _db;
@@ -76,8 +78,6 @@ namespace Microsoft.Data.Sqlite
                 ConnectionStringBuilder = new SqliteConnectionStringBuilder(value);
             }
         }
-
-        internal List<WeakReference<SqliteCommand>> Commands { get; } = new List<WeakReference<SqliteCommand>>();
 
         internal SqliteConnectionStringBuilder ConnectionStringBuilder { get; set; }
 
@@ -232,7 +232,8 @@ namespace Microsoft.Data.Sqlite
             }
 
             Transaction?.Dispose();
-            foreach (var reference in Commands)
+
+            foreach (var reference in _commands)
             {
                 if (reference.TryGetTarget(out var command))
                 {
@@ -240,7 +241,8 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            Commands.Clear();
+            _commands.Clear();
+
             _db.Dispose();
             _db = null;
             SetState(ConnectionState.Closed);
@@ -279,6 +281,20 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The new command.</returns>
         protected override DbCommand CreateDbCommand()
             => CreateCommand();
+
+        internal void AddCommand(SqliteCommand command)
+            => _commands.Add(new WeakReference<SqliteCommand>(command));
+
+        internal void RemoveCommand(SqliteCommand command)
+        {
+            for (int i = _commands.Count - 1; i >= 0; i--)
+            {
+                if (!_commands[i].TryGetTarget(out var item) || item == command)
+                {
+                    _commands.RemoveAt(i);
+                }
+            }
+        }
 
         /// <summary>
         /// Begins a transaction on the connection.
