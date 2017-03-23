@@ -7242,6 +7242,51 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
+        public override void Complex_query_with_repeated_query_model_compiles_correctly()
+        {
+            base.Complex_query_with_repeated_query_model_compiles_correctly();
+
+            Assert.Equal(
+                @"SELECT [outer].[CustomerID], [outer].[Address], [outer].[City], [outer].[CompanyName], [outer].[ContactName], [outer].[ContactTitle], [outer].[Country], [outer].[Fax], [outer].[Phone], [outer].[PostalCode], [outer].[Region]
+FROM [Customers] AS [outer]
+WHERE [outer].[CustomerID] = N'ALFKI'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c0]
+        WHERE EXISTS (
+            SELECT 1
+            FROM [Customers] AS [cc1]))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                Sql);
+        }
+
+        public override void Complex_query_with_repeated_nested_query_model_compiles_correctly()
+        {
+            base.Complex_query_with_repeated_nested_query_model_compiles_correctly();
+
+            Assert.Equal(
+                @"SELECT [outer].[CustomerID], [outer].[Address], [outer].[City], [outer].[CompanyName], [outer].[ContactName], [outer].[ContactTitle], [outer].[Country], [outer].[Fax], [outer].[Phone], [outer].[PostalCode], [outer].[Region]
+FROM [Customers] AS [outer]
+WHERE [outer].[CustomerID] = N'ALFKI'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c0]
+        WHERE EXISTS (
+            SELECT 1
+            FROM [Customers] AS [cc1]
+            WHERE EXISTS (
+                SELECT DISTINCT TOP(10) 1
+                FROM [Customers] AS [inner1])))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 

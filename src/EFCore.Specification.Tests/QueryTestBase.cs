@@ -7092,6 +7092,32 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             return source?.Count() == 0 ? new[] { default(TElement) } : source;
         }
 
+        [ConditionalFact]
+        public virtual void Complex_query_with_repeated_query_model_compiles_correctly()
+        {
+            AssertQuery<Customer>(cs => cs
+                .Where(outer => outer.CustomerID == "ALFKI")
+                .Where(outer =>
+                    (from c in cs
+                     let customers = cs.Select(cc => cc.CustomerID)
+                     where customers.Any()
+                     select customers).Any()),
+                     entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_query_with_repeated_nested_query_model_compiles_correctly()
+        {
+            AssertQuery<Customer>(cs => cs
+                .Where(outer => outer.CustomerID == "ALFKI")
+                .Where(outer =>
+                    (from c in cs
+                     let customers = cs.Where(cc => cs.OrderBy(inner => inner.CustomerID).Take(10).Distinct().Any()).Select(cc => cc.CustomerID)
+                     where customers.Any()
+                     select customers).Any()),
+                     entryCount: 1);
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected QueryTestBase(TFixture fixture)
