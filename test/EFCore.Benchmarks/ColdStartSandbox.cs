@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET452
+#if NET46
 
 using System;
 
@@ -61,5 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
         }
     }
 }
-
+#elif NETSTANDARD1_6
+#else
+#error target frameworks need to be updated.
 #endif

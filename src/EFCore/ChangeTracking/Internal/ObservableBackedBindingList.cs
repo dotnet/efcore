@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET451
+#if NET46
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -256,4 +256,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
     }
 }
+#elif NETSTANDARD1_3
+#else
+#error target frameworks need to be updated.
 #endif

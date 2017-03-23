@@ -3,7 +3,7 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp1.0;net451</TargetFrameworks>
+    <TargetFrameworks>netcoreapp1.0;net46</TargetFrameworks>
     <Description>Entity Framework Core Command Line Tools</Description>
     <OutputType>Exe</OutputType>
     <AssemblyName Condition="'$(Platform)' == 'x86'">ef.x86</AssemblyName>
@@ -39,7 +39,7 @@
     </Compile>
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 

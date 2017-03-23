@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         protected IOperationExecutor CreateExecutor()
         {
             // TODO: Re-throw TypeLoadException and FileNotFoundException?
-#if NET451
+#if NET46
             if (!_noAppDomain.HasValue())
             {
                 return new AppDomainOperationExecutor(
@@ -54,6 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     _rootNamespace.Value(),
                     Environment.Value());
             }
+#elif NETCOREAPP1_0
+#else
+#error target frameworks need to be updated.
 #endif
             return new ReflectionOperationExecutor(
                 _assembly.Value(),

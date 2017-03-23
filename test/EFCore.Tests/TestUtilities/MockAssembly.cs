@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-#if !NET452
+#if NETCOREAPP1_1
 using Moq;
 #endif
 namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
@@ -17,24 +17,29 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
         {
             var definedTypeInfos = definedTypes.Select(t => t.GetTypeInfo()).ToArray();
 
-#if NET452
+#if NET46
             return new MockAssembly(definedTypeInfos);
-#else
+#elif NETCOREAPP1_1
             var assembly = new Mock<Assembly>();
             assembly.SetupGet(a => a.DefinedTypes).Returns(definedTypeInfos);
             assembly.Setup(a => a.GetName()).Returns(new AssemblyName(nameof(MockAssembly)));
 
             return assembly.Object;
+#else
+#error target frameworks need to be updated.
 #endif
         }
 
-#if !NET452
+#if NETCOREAPP1_1
         public AssemblyName GetName()
             => new AssemblyName(nameof(MockAssembly));
+#elif NET46
+#else
+#error target frameworks need to be updated.
 #endif
     }
 
-#if NET452
+#if NET46
     public partial class MockAssembly : Assembly
     {
         public MockAssembly(IEnumerable<TypeInfo> definedTypes)
@@ -47,5 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
         public override AssemblyName GetName()
             => new AssemblyName(nameof(MockAssembly));
     }
+#elif NETCOREAPP1_1
+#else
+#error target frameworks need to be updated.
 #endif
 }

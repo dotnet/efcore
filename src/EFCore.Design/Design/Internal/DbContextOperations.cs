@@ -248,11 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private DbContextFactoryOptions CreateFactoryOptions()
             => new DbContextFactoryOptions
             {
-#if NET451
-                ApplicationBasePath = AppDomain.CurrentDomain.GetData("APP_CONTEXT_BASE_DIRECTORY") as string ?? AppDomain.CurrentDomain.BaseDirectory,
-#else
                 ApplicationBasePath = AppContext.BaseDirectory,
-#endif
                 ContentRootPath = _contentRootPath,
                 EnvironmentName = !string.IsNullOrEmpty(_environment)
                     ? _environment

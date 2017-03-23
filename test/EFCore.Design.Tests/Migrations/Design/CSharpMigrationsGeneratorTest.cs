@@ -133,11 +133,13 @@ namespace MyNamespace
             {
                 References =
                 {
-#if NET452
+#if NET46
                     BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-#else
+#elif NETCOREAPP1_1
                     BuildReference.ByName("System.Text.RegularExpressions"),
+#else
+#error target frameworks need to be updated.
 #endif
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Tests"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
@@ -338,11 +340,13 @@ namespace MyNamespace
             {
                 References =
                 {
-#if NET452
+#if NET46
                     BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Runtime, Version=4.0.20.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-#else
+#elif NETCOREAPP1_1
                     BuildReference.ByName("System.Text.RegularExpressions"),
+#else
+#error target frameworks need to be updated.
 #endif
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Tests"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),

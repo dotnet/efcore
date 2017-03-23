@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-#if !NET452
+#if NETCOREAPP1_1
 using System.Reflection;
 #endif
 
@@ -393,17 +393,20 @@ CREATE TABLE IF NOT EXISTS Comment (
 
         protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
-#if NET452
+#if NET46
             BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
             BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
             BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+            BuildReference.ByName("System.Data.Common, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
             BuildReference.ByName("System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"),
-#else
+#elif NETCOREAPP1_1
             BuildReference.ByName("System.Collections"),
             BuildReference.ByName("System.Data.Common"),
             BuildReference.ByName("System.Linq.Expressions"),
             BuildReference.ByName("System.Reflection"),
             BuildReference.ByName("System.ComponentModel.Annotations"),
+#else
+#error target frameworks need to be updated.
 #endif
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Sqlite"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore"),

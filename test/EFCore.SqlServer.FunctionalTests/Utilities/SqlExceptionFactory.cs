@@ -16,13 +16,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 .GetTypeInfo()
                 .DeclaredConstructors;
 
-#if NET452
+#if NET46
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
                 .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
-#else
+#elif NETCOREAPP1_1
 // CoreCLR internal constructor has an additional parameter
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 8)
                 .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
+#else
+#error target frameworks need to be updated.
 #endif
             var errors = (SqlErrorCollection)typeof(SqlErrorCollection)
                 .GetTypeInfo()

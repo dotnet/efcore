@@ -39,9 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
     }
 
-#if NET451
+#if NET46
     public partial class OperationResultHandler : MarshalByRefObject
     {
     }
+#elif NETSTANDARD1_3 || NETCOREAPP1_0
+#else
+#error target frameworks need to be updated.
 #endif
 }
