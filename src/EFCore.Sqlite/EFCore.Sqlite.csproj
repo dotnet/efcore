@@ -3,7 +3,7 @@
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
     <Description>SQLite database provider for Entity Framework Core.</Description>
-    <TargetFrameworks>net451;netstandard1.3</TargetFrameworks>
+    <TargetFramework>netstandard1.3</TargetFramework>
     <PackageId>Microsoft.EntityFrameworkCore.Sqlite</PackageId>
     <PackageTags>$(PackageTags);SQLite</PackageTags>
     <IncludeBuildOutput>false</IncludeBuildOutput>

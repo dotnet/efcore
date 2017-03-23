@@ -2081,14 +2081,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
             {
                 References =
                 {
-#if NET452
+#if NET46
                     BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Linq.Expressions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-#else
+#elif NETCOREAPP1_1
                     BuildReference.ByName("System.Collections"),
                     BuildReference.ByName("System.Linq.Expressions"),
                     BuildReference.ByName("System.Reflection"),
+#else
+#error target frameworks need to be updated.
 #endif
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design")

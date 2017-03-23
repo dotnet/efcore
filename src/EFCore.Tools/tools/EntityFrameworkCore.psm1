@@ -756,11 +756,11 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
         $platformTarget = GetPlatformTarget $startupProject
         if ($platformTarget -eq 'x86')
         {
-            $exePath = Join-Path $PSScriptRoot 'net451\ef.x86.exe'
+            $exePath = Join-Path $PSScriptRoot 'net46\ef.x86.exe'
         }
         elseif ($platformTarget -in 'AnyCPU', 'x64')
         {
-            $exePath = Join-Path $PSScriptRoot 'net451\ef.exe'
+            $exePath = Join-Path $PSScriptRoot 'net46\ef.exe'
         }
         else
         {

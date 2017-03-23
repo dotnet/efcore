@@ -9,10 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
-#if NET451
-using System.Runtime.Remoting.Messaging;
 
-#endif
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -101,19 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual ILogger<IExecutionStrategy> Logger { get; }
 
-#if NET451
-        private const string ContextName = "ExecutionStrategySuspended";
-
-        /// <summary>
-        ///     Indicates whether the strategy is suspended. The strategy is typically suspending while executing to avoid
-        ///     recursive execution from nested operations.
-        /// </summary>
-        protected static bool Suspended
-        {
-            get { return (bool?)CallContext.LogicalGetData(ContextName) ?? false; }
-            set { CallContext.LogicalSetData(ContextName, value); }
-        }
-#else
         private readonly static AsyncLocal<bool?> _suspended = new AsyncLocal<bool?>();
 
         /// <summary>
@@ -125,7 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             get { return _suspended.Value ?? false; }
             set { _suspended.Value = value; }
         }
-#endif
 
         /// <summary>
         ///     Indicates whether this <see cref="IExecutionStrategy" /> might retry the execution after a failure.

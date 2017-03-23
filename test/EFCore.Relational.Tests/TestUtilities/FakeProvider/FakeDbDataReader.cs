@@ -49,11 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 
         public int CloseCount { get; private set; }
 
-#if NET452
+#if NET46
         public override void Close()
         {
             CloseCount++;
         }
+#elif NETCOREAPP1_1
+#else
+#error target frameworks need to be updated.
 #endif
         public int DisposeCount { get; private set; }
 
@@ -63,8 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             {
                 DisposeCount++;
 
-#if !NET452
+#if NETCOREAPP1_1
                 CloseCount++;
+#elif NET46
+#else
+#error target frameworks need to be updated.
 #endif
                 base.Dispose(true);
             }
@@ -164,11 +170,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             throw new NotImplementedException();
         }
 
-#if NET452
+#if NET46
         public override DataTable GetSchemaTable()
         {
             throw new NotImplementedException();
         }
+#elif NETCOREAPP1_1
+#else
+#error target frameworks need to be updated.
 #endif
         public override string GetString(int ordinal) => (string)_currentRow[ordinal];
 

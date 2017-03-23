@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 using IsolationLevel = System.Data.IsolationLevel;
-#if NET451
+#if NET46
 using System.Transactions;
 
 #endif
@@ -427,13 +427,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private void CheckForAmbientTransactions()
         {
-#if NET451
+#if NET46
             if (Transaction.Current != null)
             {
                 Logger.LogWarning(
                     RelationalEventId.AmbientTransactionWarning,
                     () => RelationalStrings.AmbientTransaction);
             }
+#elif NETSTANDARD1_3
+#else
+#error target frameworks need to be updated.
 #endif
         }
 

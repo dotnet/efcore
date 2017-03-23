@@ -12,7 +12,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-#if NET451
+#if NET46
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -505,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-#if NET451
+#if NET46
 
     public abstract partial class DbSet<TEntity> : IListSource
         where TEntity : class
@@ -534,5 +534,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         bool IListSource.ContainsListCollection => false;
     }
+#elif NETSTANDARD1_3
+#else
+#error target frameworks need to be updated.
 #endif
 }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-#if !NET452
+#if !NET46
 using Microsoft.Extensions.DependencyModel;
 using System.Linq;
 using IOPath = System.IO.Path;
@@ -29,13 +29,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
 
         public static BuildReference ByName(string name, bool copyLocal = false)
         {
-#if NET452
+#if NET46
             var assembly = Assembly.Load(name);
             return new BuildReference(
                 new[] { MetadataReference.CreateFromFile(assembly.Location) },
                 copyLocal,
                 new Uri(assembly.CodeBase).LocalPath);
-#else
+#elif NETSTANDARD1_6 || NETCOREAPP1_1
             var references = Enumerable.ToList(
                 from l in DependencyContext.Default.CompileLibraries
                 from r in l.ResolveReferencePaths()
@@ -50,6 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
             return new BuildReference(
                 references,
                 copyLocal);
+#else
+#error target frameworks need to be updated.
 #endif
         }
 

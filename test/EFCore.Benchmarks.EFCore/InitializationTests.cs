@@ -15,8 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
     {
         [Benchmark]
         [BenchmarkVariation("Warm (10000 instances)", false, 10000)]
-#if NET452
+#if NET46
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
+#elif NETCOREAPP1_1
+#else
+#error target frameworks need to be updated.
 #endif
         public void CreateAndDisposeUnusedContext(IMetricCollector collector, bool cold, int count)
         {
@@ -26,8 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
         [Benchmark]
         [AdventureWorksDatabaseRequired]
         [BenchmarkVariation("Warm (1000 instances)", false, 1000)]
-#if NET452
+#if NET46
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
+#elif NETCOREAPP1_1
+#else
+#error target frameworks need to be updated.
 #endif
         public void InitializeAndQuery_AdventureWorks(IMetricCollector collector, bool cold, int count)
         {
@@ -37,8 +43,11 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
         [Benchmark]
         [AdventureWorksDatabaseRequired]
         [BenchmarkVariation("Warm (100 instances)", false, 100)]
-#if NET452
+#if NET46
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
+#elif NETCOREAPP1_1
+#else
+#error target frameworks need to be updated.
 #endif
         public void InitializeAndSaveChanges_AdventureWorks(IMetricCollector collector, bool cold, int count)
         {
@@ -64,14 +73,16 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
         {
             if (cold)
             {
-#if NET452
+#if NET46
                 using (var sandbox = new ColdStartSandbox())
                 {
                     var testClass = sandbox.CreateInstance<ColdStartEnabledTests>();
                     test(testClass);
                 }
-#else
+#elif NETCOREAPP1_1
                 throw new NotSupportedException("ColdStartSandbox can not be used on CoreCLR.");
+#else
+#error target frameworks need to be updated.
 #endif
             }
             else
@@ -80,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
             }
         }
 
-#if NET452
+#if NET46
         private partial class ColdStartEnabledTests : MarshalByRefObject
         {
         }

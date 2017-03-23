@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
-#if NET451
+#if NET46
 using System.IO;
 #endif
 
@@ -30,8 +30,11 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string environment)
             : base(assembly, startupAssembly, projectDir, contentRootPath, dataDirectory, rootNamespace, environment)
         {
-#if NET451
+#if NET46
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
+#elif NETCOREAPP1_0
+#else
+#error target frameworks need to be updated.
 #endif
 
             _commandsAssembly = Assembly.Load(new AssemblyName { Name = DesignAssemblyName });
@@ -70,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 resultHandler,
                 arguments);
 
-#if NET451
+#if NET46
         private Assembly ResolveAssembly(object sender, ResolveEventArgs args)
         {
             var assemblyName = new AssemblyName(args.Name);
@@ -95,6 +98,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         public override void Dispose()
             => AppDomain.CurrentDomain.AssemblyResolve -= ResolveAssembly;
+#elif NETCOREAPP1_0
+#else
+#error target frameworks need to be updated.
 #endif
     }
 }

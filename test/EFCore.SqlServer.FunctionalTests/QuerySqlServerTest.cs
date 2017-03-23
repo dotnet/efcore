@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
-#if !NET452
+#if NETCOREAPP1_1
 using System.Reflection;
 using System.Threading;
 #endif

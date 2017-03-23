@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             {
                 executable = Path.Combine(
                     toolsPath,
-                    "net451",
+                    "net46",
                     startupProject.PlatformTarget == "x86"
                         ? "ef.x86.exe"
                         : "ef.exe");
