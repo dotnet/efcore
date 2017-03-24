@@ -111,14 +111,14 @@ namespace Microsoft.Data.Sqlite
             => GetX_works(
                 "SELECT julianday('2013-10-07 08:23:19.120');",
                 r => r.GetDateTime(0),
-                new DateTime(2013, 10, 7, 8, 23, 19, 120));
+                new DateTime(2013,10,7,8,23,19,120));
 
         [Fact]
         public void GetDateTime_works_with_integer()
             => GetX_works(
                 "SELECT CAST(julianday('2013-10-07 12:00') AS INTEGER);",
                 r => r.GetDateTime(0),
-                new DateTime(2013, 10, 7, 12, 0, 0));
+                new DateTime(2013,10,7,12,0,0));
 
         [Fact]
         public void GetDateTimeOffset_works_with_text()
