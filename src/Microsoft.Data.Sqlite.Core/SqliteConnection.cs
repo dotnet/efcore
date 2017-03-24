@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
@@ -75,6 +76,8 @@ namespace Microsoft.Data.Sqlite
                 ConnectionStringBuilder = new SqliteConnectionStringBuilder(value);
             }
         }
+
+        internal List<WeakReference<SqliteCommand>> Commands { get; } = new List<WeakReference<SqliteCommand>>();
 
         internal SqliteConnectionStringBuilder ConnectionStringBuilder { get; set; }
 
@@ -229,6 +232,15 @@ namespace Microsoft.Data.Sqlite
             }
 
             Transaction?.Dispose();
+            foreach (var reference in Commands)
+            {
+                if (reference.TryGetTarget(out var command))
+                {
+                    command.Dispose();
+                }
+            }
+
+            Commands.Clear();
             _db.Dispose();
             _db = null;
             SetState(ConnectionState.Closed);

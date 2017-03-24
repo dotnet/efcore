@@ -19,7 +19,7 @@ namespace Microsoft.Data.Sqlite
     {
         private static readonly byte[] _emptyByteArray = new byte[0];
 
-        private readonly SqliteConnection _connection;
+        private readonly SqliteCommand _command;
         private readonly bool _closeConnection;
         private readonly Queue<Tuple<sqlite3_stmt, bool>> _stmtQueue;
         private sqlite3_stmt _stmt;
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Sqlite
         private bool _closed;
 
         internal SqliteDataReader(
-            SqliteConnection connection,
+            SqliteCommand command,
             Queue<Tuple<sqlite3_stmt, bool>> stmtQueue,
             int recordsAffected,
             bool closeConnection)
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Sqlite
                 _hasRows = tuple.Item2;
             }
 
-            _connection = connection;
+            _command = command;
             _stmtQueue = stmtQueue;
             RecordsAffected = recordsAffected;
             _closeConnection = closeConnection;
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             var rc = raw.sqlite3_step(_stmt);
-            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
+            SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
 
             _done = rc == raw.SQLITE_DONE;
 
@@ -150,8 +150,6 @@ namespace Microsoft.Data.Sqlite
             {
                 return false;
             }
-
-            _stmt.Dispose();
 
             var tuple = _stmtQueue.Dequeue();
             _stmt = tuple.Item1;
@@ -183,22 +181,11 @@ namespace Microsoft.Data.Sqlite
                 return;
             }
 
-            if (_stmt != null)
-            {
-                _stmt.Dispose();
-                _stmt = null;
-            }
-
-            while (_stmtQueue.Count != 0)
-            {
-                _stmtQueue.Dequeue().Item1.Dispose();
-            }
-
             _closed = true;
 
             if (_closeConnection)
             {
-                _connection.Close();
+                _command.Connection.Close();
             }
         }
 

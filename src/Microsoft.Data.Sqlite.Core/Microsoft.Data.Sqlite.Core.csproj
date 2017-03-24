@@ -39,6 +39,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Data.Common" Version="$(CoreFxVersion)" />
+    <PackageReference Include="System.ValueTuple" Version="$(CoreFxVersion)" />
   </ItemGroup>
 
   <ItemGroup>
