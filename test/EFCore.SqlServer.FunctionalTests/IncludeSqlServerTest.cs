@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -827,7 +828,7 @@ INNER JOIN (
 
             if (SupportsOffset)
             {
-                AssertSql(
+                Assert.Contains(
                     @"@__p_1: 1
 @__p_0: 2
 
@@ -864,9 +865,11 @@ INNER JOIN (
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t2]
 ) AS [t3] ON [c1.Orders].[CustomerID] = [t3].[CustomerID]
-ORDER BY [t3].[CustomerID]
+ORDER BY [t3].[CustomerID]",
+                    Sql);
 
-@__p_0: 2
+                Assert.Contains(
+                    @"@__p_0: 2
 
 SELECT [t7].[CustomerID]
 FROM (
@@ -880,9 +883,11 @@ CROSS JOIN (
     ORDER BY [c6].[CustomerID]
     OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
 ) AS [t7]
-ORDER BY [t6].[CustomerID]
+ORDER BY [t6].[CustomerID]",
+                    Sql);
 
-SELECT [c2.Orders].[OrderID], [c2.Orders].[CustomerID], [c2.Orders].[EmployeeID], [c2.Orders].[OrderDate]
+                Assert.Contains(
+                    @"SELECT [c2.Orders].[OrderID], [c2.Orders].[CustomerID], [c2.Orders].[EmployeeID], [c2.Orders].[OrderDate]
 FROM [Orders] AS [c2.Orders]",
                     Sql);
             }
