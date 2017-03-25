@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
@@ -57,11 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (binaryExpression.NodeType == ExpressionType.Equal
                 || binaryExpression.NodeType == ExpressionType.NotEqual)
             {
-                var constantExpression = newBinaryExpression.Left.RemoveConvert() as ConstantExpression;
-                var isLeftNullConstant = constantExpression != null && constantExpression.Value == null;
-
-                constantExpression = newBinaryExpression.Right.RemoveConvert() as ConstantExpression;
-                var isRightNullConstant = constantExpression != null && constantExpression.Value == null;
+                var isLeftNullConstant = newBinaryExpression.Left.IsNullConstantExpression();
+                var isRightNullConstant = newBinaryExpression.Right.IsNullConstantExpression();
 
                 if (isLeftNullConstant && isRightNullConstant)
                 {
@@ -70,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var isNullComparison = isLeftNullConstant || isRightNullConstant;
                 var nonNullExpression = isLeftNullConstant ? newBinaryExpression.Right : newBinaryExpression.Left;
+
                 // If a navigation being compared to null then don't rewrite
                 if (isNullComparison
                     && !(nonNullExpression is QuerySourceReferenceExpression))
@@ -98,7 +95,62 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return newBinaryExpression;
         }
 
-        private static Expression CreateKeyAccessExpression(Expression target, IReadOnlyList<IProperty> properties, bool nullComparison)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+        {
+            if (conditionalExpression.Test is BinaryExpression binaryExpression)
+            {
+                // Converts '[q] != null ? [q] : [s]' into '[q] ?? [s]'
+
+                if (binaryExpression.NodeType == ExpressionType.NotEqual
+                    && binaryExpression.Left is QuerySourceReferenceExpression querySourceReferenceExpression1
+                    && binaryExpression.Right.IsNullConstantExpression()
+                    && ReferenceEquals(conditionalExpression.IfTrue, querySourceReferenceExpression1))
+                {
+                    return Expression.Coalesce(conditionalExpression.IfTrue, conditionalExpression.IfFalse);
+                }
+
+                // Converts 'null != [q] ? [q] : [s]' into '[q] ?? [s]'
+
+                if (binaryExpression.NodeType == ExpressionType.NotEqual
+                    && binaryExpression.Right is QuerySourceReferenceExpression querySourceReferenceExpression2
+                    && binaryExpression.Left.IsNullConstantExpression()
+                    && ReferenceEquals(conditionalExpression.IfTrue, querySourceReferenceExpression2))
+                {
+                    return Expression.Coalesce(conditionalExpression.IfTrue, conditionalExpression.IfFalse);
+                }
+
+                // Converts '[q] == null ? [s] : [q]' into '[s] ?? [q]'
+
+                if (binaryExpression.NodeType == ExpressionType.Equal
+                    && binaryExpression.Left is QuerySourceReferenceExpression querySourceReferenceExpression3
+                    && binaryExpression.Right.IsNullConstantExpression()
+                    && ReferenceEquals(conditionalExpression.IfFalse, querySourceReferenceExpression3))
+                {
+                    return Expression.Coalesce(conditionalExpression.IfTrue, conditionalExpression.IfFalse);
+                }
+                
+                // Converts 'null == [q] ? [s] : [q]' into '[s] ?? [q]'
+
+                if (binaryExpression.NodeType == ExpressionType.Equal
+                    && binaryExpression.Right is QuerySourceReferenceExpression querySourceReferenceExpression4
+                    && binaryExpression.Left.IsNullConstantExpression()
+                    && ReferenceEquals(conditionalExpression.IfFalse, querySourceReferenceExpression4))
+                {
+                    return Expression.Coalesce(conditionalExpression.IfTrue, conditionalExpression.IfFalse);
+                }
+            }
+
+            return base.VisitConditional(conditionalExpression);
+        }
+
+        private static Expression CreateKeyAccessExpression(
+            Expression target,
+            IReadOnlyList<IProperty> properties,
+            bool nullComparison)
         {
             // If comparing with null then we need only first PK property
             return (properties.Count == 1) || nullComparison
@@ -108,7 +160,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     Expression.NewArrayInit(
                         typeof(object),
                         properties
-                            .Select(p => Expression.Convert(EntityQueryModelVisitor.CreatePropertyExpression(target, p), typeof(object)))
+                            .Select(
+                                p => Expression.Convert(
+                                    EntityQueryModelVisitor
+                                        .CreatePropertyExpression(target, p), typeof(object)))
                             .Cast<Expression>()
                             .ToArray()));
         }

@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
@@ -269,10 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 if (leftNavigationJoin != null)
                 {
-                    var constantExpression = newRight as ConstantExpression;
-
-                    if (constantExpression != null
-                        && constantExpression.Value == null)
+                    if (newRight.IsNullConstantExpression())
                     {
                         if (leftNavigationJoin.DependentToPrincipal)
                         {
@@ -295,10 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (rightNavigationJoin != null)
                 {
-                    var constantExpression = newLeft as ConstantExpression;
-
-                    if (constantExpression != null
-                        && constantExpression.Value == null)
+                    if (newLeft.IsNullConstantExpression())
                     {
                         if (rightNavigationJoin.DependentToPrincipal)
                         {

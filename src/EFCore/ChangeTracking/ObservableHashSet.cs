@@ -21,8 +21,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         : ISet<T>, IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
     {
         private HashSet<T> _set;
-#if NET451
+#if NET46
         private ObservableBackedBindingList<T> _bindingList;
+#elif NETSTANDARD1_3
+#else
+#error target frameworks need to be updated.
 #endif
 
         /// <summary>
@@ -463,13 +466,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         protected virtual void OnCollectionChanged([NotNull] NotifyCollectionChangedEventArgs e)
             => CollectionChanged?.Invoke(this, e);
 
-#if NET451
+#if NET46
         /// <summary>
         ///     Returns an <see cref="BindingList{T}" /> implementation that stays in sync with this collection.
         /// </summary>
         /// <returns> The binding list. </returns>
         public virtual BindingList<T> ToBindingList()
             => _bindingList ?? (_bindingList = new ObservableBackedBindingList<T>(this));
+#elif NETSTANDARD1_3
+#else
+#error target frameworks need to be updated.
 #endif
     }
 

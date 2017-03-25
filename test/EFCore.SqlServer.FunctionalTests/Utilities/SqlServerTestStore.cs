@@ -22,11 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
     {
         public const int CommandTimeout = 600;
 
-#if NET452
-        private static string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;
-#else
         private static string BaseDirectory => AppContext.BaseDirectory;
-#endif
 
         public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase, bool cleanDatabase = true)
             => new SqlServerTestStore(name, cleanDatabase: cleanDatabase).CreateShared(initializeDatabase);
@@ -52,17 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
             if (useFileName)
             {
-#if NET452
-
-                var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-
-#else
-
-                var baseDirectory = AppContext.BaseDirectory;
-
-                #endif
-
-                _fileName = Path.Combine(baseDirectory, name + ".mdf");
+                _fileName = Path.Combine(BaseDirectory, name + ".mdf");
             }
 
             _cleanDatabase = cleanDatabase;

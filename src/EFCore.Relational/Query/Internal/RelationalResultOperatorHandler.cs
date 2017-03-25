@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -494,32 +496,123 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (sqlExpression != null)
             {
-                handlerContext.SelectExpression.ClearOrderBy();
+                var columns = (sqlExpression as ConstantExpression)?.Value as Expression[] ?? new[] { sqlExpression };
 
-                var columns = (sqlExpression as ConstantExpression)?.Value as Expression[];
-
-                if (columns != null)
-                {
-                    foreach (var column in columns)
-                    {
-                        handlerContext.SelectExpression
-                            .AddToOrderBy(new Ordering(column, OrderingDirection.Asc));
-                    }
-                }
-                else
-                {
-                    handlerContext.SelectExpression
-                        .AddToOrderBy(new Ordering(sqlExpression, OrderingDirection.Asc));
-                }
+                handlerContext.SelectExpression
+                    .PrependToOrderBy(columns.Select(c => new Ordering(c, OrderingDirection.Asc)));
             }
 
             var oldGroupByCall = (MethodCallExpression)handlerContext.EvalOnClient();
 
+            var newGroupByCall
+                = handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.GroupByMethod;
+
+            if (oldGroupByCall.Method.Name == "_GroupByAsync")
+            {
+                newGroupByCall = _groupByAsync;
+            }
+
             return sqlExpression != null
-                ? Expression.Call(handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.GroupByMethod
+                ? Expression.Call(newGroupByCall
                         .MakeGenericMethod(oldGroupByCall.Method.GetGenericArguments()),
                     oldGroupByCall.Arguments)
                 : oldGroupByCall;
+        }
+
+        private static readonly MethodInfo _groupByAsync
+            = typeof(RelationalResultOperatorHandler)
+                .GetTypeInfo()
+                .GetDeclaredMethod(nameof(_GroupByAsync));
+
+        // ReSharper disable once InconsistentNaming
+        private static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupByAsync<TSource, TKey, TElement>(
+            IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, CancellationToken, Task<TElement>> elementSelector)
+            => new AsyncGroupByAsyncEnumerable<TSource, TKey, TElement>(source, keySelector, elementSelector);
+
+        private sealed class AsyncGroupByAsyncEnumerable<TSource, TKey, TElement>
+            : IAsyncEnumerable<IGrouping<TKey, TElement>>
+        {
+            private readonly IAsyncEnumerable<TSource> _source;
+            private readonly Func<TSource, TKey> _keySelector;
+            private readonly Func<TSource, CancellationToken, Task<TElement>> _elementSelector;
+
+            public AsyncGroupByAsyncEnumerable(
+                IAsyncEnumerable<TSource> source,
+                Func<TSource, TKey> keySelector,
+                Func<TSource, CancellationToken, Task<TElement>> elementSelector)
+            {
+                _source = source;
+                _keySelector = keySelector;
+                _elementSelector = elementSelector;
+            }
+
+            public IAsyncEnumerator<IGrouping<TKey, TElement>> GetEnumerator()
+                => new GroupByAsyncEnumerator(this);
+
+            private sealed class GroupByAsyncEnumerator : IAsyncEnumerator<IGrouping<TKey, TElement>>
+            {
+                private readonly AsyncGroupByAsyncEnumerable<TSource, TKey, TElement> _groupByAsyncEnumerable;
+                private readonly IEqualityComparer<TKey> _comparer;
+
+                private IAsyncEnumerator<TSource> _sourceEnumerator;
+                private bool _hasNext;
+
+                public GroupByAsyncEnumerator(
+                    AsyncGroupByAsyncEnumerable<TSource, TKey, TElement> groupByAsyncEnumerable)
+                {
+                    _groupByAsyncEnumerable = groupByAsyncEnumerable;
+                    _comparer = EqualityComparer<TKey>.Default;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (_sourceEnumerator == null)
+                    {
+                        _sourceEnumerator = _groupByAsyncEnumerable._source.GetEnumerator();
+                        _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
+                    }
+
+                    if (_hasNext)
+                    {
+                        var currentKey = _groupByAsyncEnumerable._keySelector(_sourceEnumerator.Current);
+                        var element = await _groupByAsyncEnumerable._elementSelector(_sourceEnumerator.Current, cancellationToken);
+                        var grouping = new Grouping<TKey, TElement>(currentKey) { element };
+
+                        while (true)
+                        {
+                            _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
+
+                            if (!_hasNext)
+                            {
+                                break;
+                            }
+
+                            if (!_comparer.Equals(
+                                currentKey,
+                                _groupByAsyncEnumerable._keySelector(_sourceEnumerator.Current)))
+                            {
+                                break;
+                            }
+
+                            grouping.Add(await _groupByAsyncEnumerable._elementSelector(_sourceEnumerator.Current, cancellationToken));
+                        }
+
+                        Current = grouping;
+
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                public IGrouping<TKey, TElement> Current { get; private set; }
+
+                public void Dispose() => _sourceEnumerator?.Dispose();
+            }
         }
 
         private static Expression HandleLast(HandlerContext handlerContext)

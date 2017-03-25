@@ -10,10 +10,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
-#if NET452
-using System.Runtime.Remoting.Messaging;
-
-#endif
 
 #pragma warning disable 618
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
@@ -57,33 +53,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         public static IReadOnlyList<DbCommandLogData> CommandLogData => Logger.SqlLoggerData._logData;
 
-#if NET452
-        [Serializable]
-#endif
         private class SqlLoggerData
         {
             public string LogText => _log.ToString();
 
             // ReSharper disable InconsistentNaming
-#if NET452
-            [NonSerialized]
-#endif
             public readonly IndentedStringBuilder _log = new IndentedStringBuilder();
-
             public readonly List<string> _sqlStatements = new List<string>();
-#if NET452
-            [NonSerialized]
-#endif
             public readonly List<DbCommandLogData> _logData = new List<DbCommandLogData>();
 
-#if NET452
-            [NonSerialized]
-#endif
             public ITestOutputHelper _testOutputHelper;
 
-#if NET452
-            [NonSerialized]
-#endif
             public CancellationTokenSource _cancellationTokenSource;
 
             // ReSharper restore InconsistentNaming
@@ -92,22 +72,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         // ReSharper disable once ClassNeverInstantiated.Local
         private class SqlLogger : ILogger
         {
-#if NET452
-            private const string ContextName = "__SQL";
-#else
             private readonly static AsyncLocal<SqlLoggerData> _loggerData = new AsyncLocal<SqlLoggerData>();
-#endif
 
             // ReSharper disable once MemberCanBeMadeStatic.Local
             public SqlLoggerData SqlLoggerData
             {
                 get
                 {
-#if NET452
-                    var loggerData = (SqlLoggerData)CallContext.LogicalGetData(ContextName);
-#else
                     var loggerData = _loggerData.Value;
-#endif
                     return loggerData ?? CreateLoggerData();
                 }
             }
@@ -115,11 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             private static SqlLoggerData CreateLoggerData()
             {
                 var loggerData = new SqlLoggerData();
-#if NET452
-                CallContext.LogicalSetData(ContextName, loggerData);
-#else
                 _loggerData.Value = loggerData;
-#endif
                 return loggerData;
             }
 
@@ -181,11 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             // ReSharper disable once MemberCanBeMadeStatic.Local
             public void ResetLoggerData() =>
-#if NET452
-                CallContext.LogicalSetData(ContextName, null);
-#else
                 _loggerData.Value = null;
-#endif
         }
     }
 }

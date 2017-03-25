@@ -129,10 +129,12 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
 
         private static string GetFramework()
         {
-#if NET452
+#if NET46
             return ".NET Framework";
-#else
+#elif NETSTANDARD1_6
             return ".NET Core";
+#else
+#error target frameworks need to be updated.
 #endif
         }
     }

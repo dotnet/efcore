@@ -521,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
         }
 
-#if NET452
+#if NET46
         [Fact]
         public void Throws_when_using_with_IListSource()
         {
@@ -531,6 +531,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus).GetList()).Message);
             }
         }
+#elif NETCOREAPP1_1
+#else
+#error target frameworks need to be updated.
 #endif
 
         private class Category

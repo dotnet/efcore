@@ -8,6 +8,8 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -71,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="property"> The property to be accessed. </param>
         /// <returns> The newly created expression. </returns>
         public static Expression CreatePropertyExpression(
-            [NotNull] Expression target, [NotNull] IPropertyBase property)
+            [NotNull] Expression target,
+            [NotNull] IPropertyBase property)
             => Expression.Call(
                 null,
                 EF.PropertyMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
@@ -198,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .OfType<IncludeResultOperator>()
                         .ToList();
 
-                OptimizeQueryModel(queryModel, includeResultOperators);
+                OptimizeQueryModel(queryModel, includeResultOperators, asyncQuery: false);
 
                 QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
                 QueryCompilationContext.DetermineQueryBufferRequirement(queryModel);
@@ -223,7 +226,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <typeparam name="TResult"> The type of results that the query returns. </typeparam>
         /// <param name="queryModel"> The query. </param>
         /// <returns> An action that asynchronously returns the results of the query. </returns>
-        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CreateAsyncQueryExecutor<TResult>([NotNull] QueryModel queryModel)
+        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CreateAsyncQueryExecutor<TResult>(
+            [NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
@@ -243,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .OfType<IncludeResultOperator>()
                         .ToList();
 
-                OptimizeQueryModel(queryModel, includeResultOperators);
+                OptimizeQueryModel(queryModel, includeResultOperators, asyncQuery: true);
 
                 QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
                 QueryCompilationContext.DetermineQueryBufferRequirement(queryModel);
@@ -292,9 +296,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="queryModel"> The query. </param>
         /// <param name="includeResultOperators">TODO: This parameter is to be removed.</param>
+        /// <param name="asyncQuery">True if we are compiling an async query; otherwise false.</param>
         protected virtual void OptimizeQueryModel(
             [NotNull] QueryModel queryModel,
-            [NotNull] ICollection<IncludeResultOperator> includeResultOperators)
+            [NotNull] ICollection<IncludeResultOperator> includeResultOperators,
+            bool asyncQuery)
         {
             Check.NotNull(queryModel, nameof(queryModel));
             Check.NotNull(includeResultOperators, nameof(includeResultOperators));
@@ -323,10 +329,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             new IncludeCompiler(
                     QueryCompilationContext,
                     _querySourceTracingExpressionVisitorFactory)
-                .CompileIncludes(queryModel, includeResultOperators, TrackResults(queryModel));
+                .CompileIncludes(queryModel, includeResultOperators, TrackResults(queryModel), asyncQuery);
 
             _navigationRewritingExpressionVisitorFactory
-                .Create(this).Rewrite(queryModel, parentQueryModel: null);
+                .Create(this)
+                .Rewrite(queryModel, parentQueryModel: null);
 
             // Second pass of optimizations
 
@@ -349,10 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             private const int QueryModelStringLengthLimit = 100;
             private readonly ILogger _logger;
 
-            public NondeterministicResultCheckingVisitor([NotNull] ILogger logger)
-            {
-                _logger = logger;
-            }
+            public NondeterministicResultCheckingVisitor([NotNull] ILogger logger) => _logger = logger;
 
             public override void VisitQueryModel(QueryModel queryModel)
             {
@@ -395,7 +399,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            if (!(queryModel.GetOutputDataInfo() is StreamedSequenceInfo))
+            var streamedDataInfo = queryModel.GetOutputDataInfo();
+
+            if (!(streamedDataInfo is StreamedSequenceInfo)
+                && _expression.Type.TryGetSequenceType() != streamedDataInfo.DataType)
             {
                 _expression
                     = Expression.Call(
@@ -423,32 +430,33 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var includeSpecifications
                 = includeResultOperators
-                    .Select(includeResultOperator =>
-                        {
-                            var entityType = QueryCompilationContext.Model.FindEntityType(
-                                includeResultOperator.PathFromQuerySource.Type);
-
-                            var parts = includeResultOperator.NavigationPropertyPaths.ToArray();
-                            var navigationPath = new INavigation[parts.Length];
-                            for (var i = 0; i < parts.Length; i++)
+                    .Select(
+                        includeResultOperator =>
                             {
-                                navigationPath[i] = entityType.FindNavigation(parts[i]);
+                                var entityType = QueryCompilationContext.Model.FindEntityType(
+                                    includeResultOperator.PathFromQuerySource.Type);
 
-                                if (navigationPath[i] == null)
+                                var parts = includeResultOperator.NavigationPropertyPaths.ToArray();
+                                var navigationPath = new INavigation[parts.Length];
+                                for (var i = 0; i < parts.Length; i++)
                                 {
-                                    throw new InvalidOperationException(
-                                        CoreStrings.IncludeBadNavigation(parts[i], entityType.DisplayName()));
+                                    navigationPath[i] = entityType.FindNavigation(parts[i]);
+
+                                    if (navigationPath[i] == null)
+                                    {
+                                        throw new InvalidOperationException(
+                                            CoreStrings.IncludeBadNavigation(parts[i], entityType.DisplayName()));
+                                    }
+
+                                    entityType = navigationPath[i].GetTargetType();
                                 }
 
-                                entityType = navigationPath[i].GetTargetType();
-                            }
-
-                            return new
-                            {
-                                specification = new IncludeSet { QuerySource = includeResultOperator.QuerySource, Navigations = navigationPath },
-                                order = string.Concat(navigationPath.Select(n => n.IsCollection() ? "1" : "0"))
-                            };
-                        })
+                                return new
+                                {
+                                    specification = new IncludeSet { QuerySource = includeResultOperator.QuerySource, Navigations = navigationPath },
+                                    order = string.Concat(navigationPath.Select(n => n.IsCollection() ? "1" : "0"))
+                                };
+                            })
                     .OrderByDescending(e => e.order)
                     .ThenBy(e => e.specification.Navigations.First().IsDependentToPrincipal())
                     .Select(e => e.specification);
@@ -676,14 +684,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         private class IncludeRemovingExpressionVisitor : RelinqExpressionVisitor
         {
             protected override Expression VisitMethodCall(MethodCallExpression node)
-            {
-                if (node.Method.IsGenericMethod
-                    && Equals(node.Method.GetGenericMethodDefinition(), IncludeCompiler.IncludeMethodInfo))
-                {
-                    return node.Arguments[0];
-                }
+                => IncludeCompiler.IsIncludeMethod(node)
+                    ? node.Arguments[0]
+                    : base.VisitMethodCall(node);
 
-                return base.VisitMethodCall(node);
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                var newExpression = Visit(node.Expression);
+
+                return newExpression != node.Expression ? newExpression : node;
             }
         }
 
@@ -704,7 +713,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static readonly MethodInfo _getEntityAccessors
             = typeof(EntityQueryModelVisitor)
-                .GetTypeInfo().GetDeclaredMethod(nameof(GetEntityAccessors));
+                .GetTypeInfo()
+                .GetDeclaredMethod(nameof(GetEntityAccessors));
 
         [UsedImplicitly]
         private static ICollection<Func<TResult, object>> GetEntityAccessors<TResult>(
@@ -770,7 +780,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="fromClause"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
         public override void VisitMainFromClause(
-            [NotNull] MainFromClause fromClause, [NotNull] QueryModel queryModel)
+            [NotNull] MainFromClause fromClause,
+            [NotNull] QueryModel queryModel)
         {
             Check.NotNull(fromClause, nameof(fromClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -798,7 +809,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <returns> The compiled result. </returns>
         protected virtual Expression CompileMainFromClauseExpression(
-            [NotNull] MainFromClause mainFromClause, [NotNull] QueryModel queryModel)
+            [NotNull] MainFromClause mainFromClause,
+            [NotNull] QueryModel queryModel)
         {
             Check.NotNull(mainFromClause, nameof(mainFromClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -813,7 +825,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <param name="index"> Index of the node being visited. </param>
         public override void VisitAdditionalFromClause(
-            [NotNull] AdditionalFromClause fromClause, [NotNull] QueryModel queryModel, int index)
+            [NotNull] AdditionalFromClause fromClause,
+            [NotNull] QueryModel queryModel,
+            int index)
         {
             Check.NotNull(fromClause, nameof(fromClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -854,7 +868,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <returns> The compiled result. </returns>
         protected virtual Expression CompileAdditionalFromClauseExpression(
-            [NotNull] AdditionalFromClause additionalFromClause, [NotNull] QueryModel queryModel)
+            [NotNull] AdditionalFromClause additionalFromClause,
+            [NotNull] QueryModel queryModel)
         {
             Check.NotNull(additionalFromClause, nameof(additionalFromClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -869,7 +884,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <param name="index"> Index of the node being visited. </param>
         public override void VisitJoinClause(
-            [NotNull] JoinClause joinClause, [NotNull] QueryModel queryModel, int index)
+            [NotNull] JoinClause joinClause,
+            [NotNull] QueryModel queryModel,
+            int index)
         {
             Check.NotNull(joinClause, nameof(joinClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -923,7 +940,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <returns> The compiled result. </returns>
         protected virtual Expression CompileJoinClauseInnerSequenceExpression(
-            [NotNull] JoinClause joinClause, [NotNull] QueryModel queryModel)
+            [NotNull] JoinClause joinClause,
+            [NotNull] QueryModel queryModel)
         {
             Check.NotNull(joinClause, nameof(joinClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -938,7 +956,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <param name="index"> Index of the node being visited. </param>
         public override void VisitGroupJoinClause(
-            [NotNull] GroupJoinClause groupJoinClause, [NotNull] QueryModel queryModel, int index)
+            [NotNull] GroupJoinClause groupJoinClause,
+            [NotNull] QueryModel queryModel,
+            int index)
         {
             Check.NotNull(groupJoinClause, nameof(groupJoinClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -998,7 +1018,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <returns> The compiled result. </returns>
         protected virtual Expression CompileGroupJoinInnerSequenceExpression(
-            [NotNull] GroupJoinClause groupJoinClause, [NotNull] QueryModel queryModel)
+            [NotNull] GroupJoinClause groupJoinClause,
+            [NotNull] QueryModel queryModel)
         {
             Check.NotNull(groupJoinClause, nameof(groupJoinClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -1013,7 +1034,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <param name="index"> Index of the node being visited. </param>
         public override void VisitWhereClause(
-            [NotNull] WhereClause whereClause, [NotNull] QueryModel queryModel, int index)
+            [NotNull] WhereClause whereClause,
+            [NotNull] QueryModel queryModel,
+            int index)
         {
             Check.NotNull(whereClause, nameof(whereClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -1063,7 +1086,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="selectClause"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
         public override void VisitSelectClause(
-            [NotNull] SelectClause selectClause, [NotNull] QueryModel queryModel)
+            [NotNull] SelectClause selectClause,
+            [NotNull] QueryModel queryModel)
         {
             Check.NotNull(selectClause, nameof(selectClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -1087,16 +1111,83 @@ namespace Microsoft.EntityFrameworkCore.Query
                  || !(selectClause.Selector is QuerySourceReferenceExpression))
                 && !queryModel.ResultOperators
                     .Select(ro => ro.GetType())
-                    .Any(t =>
-                        t == typeof(GroupResultOperator)
-                        || t == typeof(AllResultOperator)))
+                    .Any(
+                        t => t == typeof(GroupResultOperator)
+                             || t == typeof(AllResultOperator)))
             {
+                var taskLiftingExpressionVisitor = new TaskLiftingExpressionVisitor();
+                var asyncSelector = taskLiftingExpressionVisitor.LiftTasks(selector);
+
                 _expression
-                    = Expression.Call(
-                        LinqOperatorProvider.Select
-                            .MakeGenericMethod(CurrentParameter.Type, selector.Type),
-                        _expression,
-                        Expression.Lambda(selector, CurrentParameter));
+                    = asyncSelector == selector
+                        ? Expression.Call(
+                            LinqOperatorProvider.Select
+                                .MakeGenericMethod(CurrentParameter.Type, selector.Type),
+                            _expression,
+                            Expression.Lambda(selector, CurrentParameter))
+                        : Expression.Call(
+                            _selectAsync
+                                .MakeGenericMethod(CurrentParameter.Type, selector.Type),
+                            _expression,
+                            Expression.Lambda(
+                                asyncSelector,
+                                CurrentParameter,
+                                taskLiftingExpressionVisitor.CancellationTokenParameter));
+            }
+        }
+
+        private static readonly MethodInfo _selectAsync
+            = typeof(EntityQueryModelVisitor)
+                .GetTypeInfo()
+                .GetDeclaredMethod(nameof(_SelectAsync));
+
+        // ReSharper disable once InconsistentNaming
+        private static IAsyncEnumerable<TResult> _SelectAsync<TSource, TResult>(
+            IAsyncEnumerable<TSource> source,
+            Func<TSource, CancellationToken, Task<TResult>> selector)
+            => new AsyncSelectEnumerable<TSource, TResult>(source, selector);
+
+        private class AsyncSelectEnumerable<TSource, TResult> : IAsyncEnumerable<TResult>
+        {
+            private readonly IAsyncEnumerable<TSource> _source;
+            private readonly Func<TSource, CancellationToken, Task<TResult>> _selector;
+
+            public AsyncSelectEnumerable(
+                IAsyncEnumerable<TSource> source,
+                Func<TSource, CancellationToken, Task<TResult>> selector)
+            {
+                _source = source;
+                _selector = selector;
+            }
+
+            public IAsyncEnumerator<TResult> GetEnumerator() => new AsyncSelectEnumerator(this);
+
+            private class AsyncSelectEnumerator : IAsyncEnumerator<TResult>
+            {
+                private readonly IAsyncEnumerator<TSource> _enumerator;
+                private readonly Func<TSource, CancellationToken, Task<TResult>> _selector;
+
+                public AsyncSelectEnumerator(AsyncSelectEnumerable<TSource, TResult> enumerable)
+                {
+                    _enumerator = enumerable._source.GetEnumerator();
+                    _selector = enumerable._selector;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    if (!await _enumerator.MoveNext(cancellationToken))
+                    {
+                        return false;
+                    }
+
+                    Current = await _selector(_enumerator.Current, cancellationToken);
+
+                    return true;
+                }
+
+                public TResult Current { get; private set; }
+
+                public void Dispose() => _enumerator.Dispose();
             }
         }
 
@@ -1107,7 +1198,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <param name="index"> Index of the node being visited. </param>
         public override void VisitResultOperator(
-            [NotNull] ResultOperatorBase resultOperator, [NotNull] QueryModel queryModel, int index)
+            [NotNull] ResultOperatorBase resultOperator,
+            [NotNull] QueryModel queryModel,
+            int index)
         {
             Check.NotNull(resultOperator, nameof(resultOperator));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -1139,7 +1232,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [UsedImplicitly]
             public TInner Inner;
         }
-        
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -1169,7 +1262,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static Expression AccessOuterTransparentField(
-            Type transparentIdentifierType, Expression targetExpression)
+            Type transparentIdentifierType,
+            Expression targetExpression)
         {
             var fieldInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
 
@@ -1177,7 +1271,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static Expression AccessInnerTransparentField(
-            Type transparentIdentifierType, Expression targetExpression)
+            Type transparentIdentifierType,
+            Expression targetExpression)
         {
             var fieldInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
 
@@ -1324,7 +1419,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="querySource"> The query source. </param>
         /// <param name="expression"> The expression mapped to the query source. </param>
         public virtual void AddOrUpdateMapping(
-            [NotNull] IQuerySource querySource, [NotNull] Expression expression)
+            [NotNull] IQuerySource querySource,
+            [NotNull] Expression expression)
         {
             Check.NotNull(querySource, nameof(querySource));
             Check.NotNull(expression, nameof(expression));
@@ -1431,7 +1527,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(memberExpression, nameof(memberExpression));
             Check.NotNull(memberBinder, nameof(memberBinder));
 
-            BindMemberExpression(memberExpression, null,
+            BindMemberExpression(
+                memberExpression, null,
                 (property, querySource) =>
                     {
                         memberBinder(property, querySource);
@@ -1458,7 +1555,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(memberExpression, nameof(memberExpression));
             Check.NotNull(memberBinder, nameof(memberBinder));
 
-            return BindPropertyExpressionCore(memberExpression, querySource,
+            return BindPropertyExpressionCore(
+                memberExpression, querySource,
                 (ps, qs) =>
                     {
                         var property = ps.Count == 1 ? ps[0] as IProperty : null;
@@ -1487,7 +1585,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
             Check.NotNull(methodCallBinder, nameof(methodCallBinder));
 
-            return BindPropertyExpressionCore(methodCallExpression, querySource,
+            return BindPropertyExpressionCore(
+                methodCallExpression, querySource,
                 (ps, qs) =>
                     {
                         var property = ps.Count == 1 ? ps[0] as IProperty : null;
@@ -1528,7 +1627,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private IReadOnlyList<IPropertyBase> IterateCompositePropertyExpression(
-            Expression expression, out QuerySourceReferenceExpression querySourceReferenceExpression)
+            Expression expression,
+            out QuerySourceReferenceExpression querySourceReferenceExpression)
         {
             var properties = new List<IPropertyBase>();
             var memberExpression = expression as MemberExpression;
@@ -1615,7 +1715,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
             Check.NotNull(methodCallBinder, nameof(methodCallBinder));
 
-            BindMethodCallExpression(methodCallExpression, null,
+            BindMethodCallExpression(
+                methodCallExpression, null,
                 (property, querySource) =>
                     {
                         methodCallBinder(property, querySource);

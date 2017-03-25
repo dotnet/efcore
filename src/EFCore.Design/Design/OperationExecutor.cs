@@ -433,12 +433,15 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
     }
 
-#if NET451
+#if NET46
     public partial class OperationExecutor : MarshalByRefObject
     {
         public partial class OperationBase : MarshalByRefObject
         {
         }
     }
+#elif NETSTANDARD1_3
+#else
+#error target frameworks need to be updated.
 #endif
 }

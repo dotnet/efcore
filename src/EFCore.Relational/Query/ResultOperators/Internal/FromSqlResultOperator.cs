@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class FromSqlResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
+    public class FromSqlResultOperator : SequenceTypePreservingResultOperatorBase, ICloneableQueryAnnotation
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -26,6 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             Sql = sql;
             Arguments = arguments;
         }
+
+        ICloneableQueryAnnotation ICloneableQueryAnnotation.Clone(IQuerySource querySource, QueryModel queryModel)
+            => new FromSqlResultOperator(Sql, Arguments) { QuerySource = querySource, QueryModel = queryModel };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -55,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override string ToString() => $"FromSql('{Sql}')"; // Interpolation okay; strings
+        public override string ToString() => $"FromSql('{Sql}')";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

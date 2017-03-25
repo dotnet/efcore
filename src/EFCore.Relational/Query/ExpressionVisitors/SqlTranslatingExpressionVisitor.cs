@@ -293,11 +293,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return null;
             }
 
-            var leftConstant = binaryTest.Left as ConstantExpression;
-            var isLeftNullConstant = leftConstant != null && leftConstant.Value == null;
-
-            var rightConstant = binaryTest.Right as ConstantExpression;
-            var isRightNullConstant = rightConstant != null && rightConstant.Value == null;
+            var isLeftNullConstant = binaryTest.Left.IsNullConstantExpression();
+            var isRightNullConstant = binaryTest.Right.IsNullConstantExpression();
 
             if (isLeftNullConstant == isRightNullConstant)
             {
@@ -554,11 +551,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 || expressionType == ExpressionType.NotEqual)
             {
 
-                var leftConstant = left.RemoveConvert() as ConstantExpression;
-                var isLeftNullConstant = leftConstant != null && leftConstant.Value == null;
-
-                var rightConstant = right.RemoveConvert() as ConstantExpression;
-                var isRightNullConstant = rightConstant != null && rightConstant.Value == null;
+                var isLeftNullConstant = left.IsNullConstantExpression();
+                var isRightNullConstant = right.IsNullConstantExpression();
 
                 if (isLeftNullConstant || isRightNullConstant)
                 {

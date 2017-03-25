@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWarModel;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
@@ -13,11 +14,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         private readonly DbContextOptions _options;
 
+        private readonly TestLoggerFactory _testLoggerFactory = new TestLoggerFactory();
+
         public GearsOfWarQueryInMemoryFixture()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
+                .AddSingleton<ILoggerFactory>(_testLoggerFactory)
                 .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder()

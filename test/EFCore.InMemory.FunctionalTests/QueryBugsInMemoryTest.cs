@@ -147,6 +147,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                                 select eRootJoined ?? eVersion;
 
                     var result = query.ToList();
+
                     Assert.True(result.All(e => e.Children.Count > 0));
                 }
             }

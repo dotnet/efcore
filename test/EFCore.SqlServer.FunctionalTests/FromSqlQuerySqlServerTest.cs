@@ -12,11 +12,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<NorthwindQuerySqlServerFixture>
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
         public override void From_sql_queryable_simple()
         {
             base.From_sql_queryable_simple();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT * FROM ""Customers"" WHERE ""ContactName"" LIKE '%z%'",
                 Sql);
         }
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             base.From_sql_queryable_simple_columns_out_of_order();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT ""Region"", ""PostalCode"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""",
                 Sql);
         }
@@ -34,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             base.From_sql_queryable_simple_columns_out_of_order_and_extra_columns();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT ""Region"", ""PostalCode"", ""PostalCode"" AS ""Foo"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""",
                 Sql);
         }
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             base.From_sql_queryable_composed();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT * FROM ""Customers""
@@ -56,7 +58,7 @@ WHERE CHARINDEX(N'z', [c].[ContactName]) > 0",
         {
             base.From_sql_queryable_composed_after_removing_whitespaces();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
 
@@ -74,7 +76,7 @@ WHERE CHARINDEX(N'z', [c].[ContactName]) > 0",
         {
             base.From_sql_queryable_composed_compiled();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT * FROM ""Customers""
@@ -87,7 +89,7 @@ WHERE CHARINDEX(N'z', [c].[ContactName]) > 0",
         {
             base.From_sql_composed_contains();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (
@@ -103,7 +105,7 @@ WHERE [c].[CustomerID] IN (
         {
             base.From_sql_composed_contains2();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE ([c].[CustomerID] = N'ALFKI') AND [c].[CustomerID] IN (
@@ -119,7 +121,7 @@ WHERE ([c].[CustomerID] = N'ALFKI') AND [c].[CustomerID] IN (
         {
             base.From_sql_queryable_multiple_composed();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers""
@@ -135,7 +137,7 @@ WHERE [c].[CustomerID] = [o].[CustomerID]",
         {
             base.From_sql_queryable_multiple_composed_with_closure_parameters();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__8__locals1_startDate_1: 01/01/1997 00:00:00
 @__8__locals1_endDate_2: 01/01/1998 00:00:00
 
@@ -154,7 +156,7 @@ WHERE [c].[CustomerID] = [o].[CustomerID]",
         {
             base.From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters();
 
-            Assert.Equal(
+            AssertSql(
                 @"@p0: London (Size = 4000)
 @__8__locals1_startDate_1: 01/01/1997 00:00:00
 @__8__locals1_endDate_2: 01/01/1998 00:00:00
@@ -174,7 +176,7 @@ WHERE [c].[CustomerID] = [o].[CustomerID]",
         {
             base.From_sql_queryable_multiple_line_query();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT *
 FROM ""Customers""
 WHERE ""City"" = 'London'",
@@ -185,7 +187,7 @@ WHERE ""City"" = 'London'",
         {
             base.From_sql_queryable_composed_multiple_line_query();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT *
@@ -199,7 +201,7 @@ WHERE [c].[City] = N'London'",
         {
             base.From_sql_queryable_with_parameters();
 
-            Assert.Equal(
+            AssertSql(
                 @"@p0: London (Size = 4000)
 @p1: Sales Representative (Size = 4000)
 
@@ -211,7 +213,7 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
         {
             base.From_sql_queryable_with_parameters_inline();
 
-            Assert.Equal(
+            AssertSql(
                 @"@p0: London (Size = 4000)
 @p1: Sales Representative (Size = 4000)
 
@@ -223,7 +225,7 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
         {
             base.From_sql_queryable_with_null_parameter();
 
-            Assert.Equal(
+            AssertSql(
                 @"@p0:  (Nullable = false) (DbType = String)
 
 SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL AND @p0 IS NULL)",
@@ -234,7 +236,7 @@ SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL 
         {
             base.From_sql_queryable_with_parameters_and_closure();
 
-            Assert.Equal(
+            AssertSql(
                 @"@p0: London (Size = 4000)
 @__contactTitle_1: Sales Representative (Size = 4000)
 
@@ -250,7 +252,7 @@ WHERE [c].[ContactTitle] = @__contactTitle_1",
         {
             base.From_sql_queryable_simple_cache_key_includes_query_string();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT * FROM ""Customers"" WHERE ""City"" = 'London'
 
 SELECT * FROM ""Customers"" WHERE ""City"" = 'Seattle'",
@@ -261,7 +263,7 @@ SELECT * FROM ""Customers"" WHERE ""City"" = 'Seattle'",
         {
             base.From_sql_queryable_with_parameters_cache_key_includes_parameters();
 
-            Assert.Equal(
+            AssertSql(
                 @"@p0: London (Size = 4000)
 @p1: Sales Representative (Size = 4000)
 
@@ -278,7 +280,7 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
         {
             base.From_sql_queryable_simple_as_no_tracking_not_composed();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT * FROM ""Customers""",
                 Sql);
         }
@@ -287,7 +289,7 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
         {
             base.From_sql_queryable_simple_projection_composed();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [p].[ProductName]
 FROM (
     SELECT *
@@ -302,22 +304,19 @@ FROM (
         {
             base.From_sql_queryable_simple_include();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
 ORDER BY [c].[CustomerID]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
-    FROM (
-        SELECT * FROM ""Customers""
-    ) AS [c]
-    WHERE [o].[CustomerID] = [c].[CustomerID])
-ORDER BY [o].[CustomerID]",
+SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
+INNER JOIN (
+    SELECT * FROM ""Customers""
+) AS [c0] ON [c.Orders].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0].[CustomerID]",
                 Sql);
         }
 
@@ -325,23 +324,24 @@ ORDER BY [o].[CustomerID]",
         {
             base.From_sql_queryable_simple_composed_include();
 
-            Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            AssertSql(
+              @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
 WHERE [c].[City] = N'London'
 ORDER BY [c].[CustomerID]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
+SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
+INNER JOIN (
+    SELECT [c0].*
     FROM (
         SELECT * FROM ""Customers""
-    ) AS [c]
-    WHERE ([c].[City] = N'London') AND ([o].[CustomerID] = [c].[CustomerID]))
-ORDER BY [o].[CustomerID]",
+    ) AS [c0]
+    WHERE [c0].[City] = N'London'
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[CustomerID]",
                 Sql);
         }
 
@@ -349,7 +349,7 @@ ORDER BY [o].[CustomerID]",
         {
             base.From_sql_annotations_do_not_affect_successive_calls();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT * FROM ""Customers"" WHERE ""ContactName"" LIKE '%z%'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -361,7 +361,7 @@ FROM [Customers] AS [c]",
         {
             base.From_sql_composed_with_nullable_predicate();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT * FROM ""Customers""
@@ -374,7 +374,7 @@ WHERE ([c].[ContactName] = [c].[CompanyName]) OR ([c].[ContactName] IS NULL AND 
         {
             base.From_sql_with_dbParameter();
 
-            Assert.Equal(
+            AssertSql(
                 @"@city: London (Nullable = false) (Size = 6)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @city",
@@ -385,7 +385,7 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @city",
         {
             base.From_sql_with_dbParameter_mixed();
 
-            Assert.Equal(
+            AssertSql(
                 @"@p0: London (Size = 4000)
 @title: Sales Representative (Nullable = false) (Size = 20)
 
@@ -402,7 +402,7 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1",
         {
             base.From_sql_with_db_parameters_called_multiple_times();
 
-            Assert.Equal(
+            AssertSql(
                 @"@id: ALFKI (Nullable = false) (Size = 5)
 
 SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id
@@ -417,8 +417,8 @@ SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id",
         {
             base.From_sql_with_SelectMany_and_include();
 
-            Assert.Equal(
-                @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region], [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
+            AssertSql(
+              @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region], [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
 ) AS [c1]
@@ -427,18 +427,18 @@ CROSS JOIN (
 ) AS [c2]
 ORDER BY [c2].[CustomerID]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
+SELECT [c2.Orders].[OrderID], [c2.Orders].[CustomerID], [c2.Orders].[EmployeeID], [c2.Orders].[OrderDate]
+FROM [Orders] AS [c2.Orders]
+INNER JOIN (
+    SELECT DISTINCT [c20].*
     FROM (
         SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
-    ) AS [c1]
+    ) AS [c10]
     CROSS JOIN (
         SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'AROUT'
-    ) AS [c2]
-    WHERE [o].[CustomerID] = [c2].[CustomerID])
-ORDER BY [o].[CustomerID]",
+    ) AS [c20]
+) AS [t] ON [c2.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[CustomerID]",
                 Sql);
         }
 
@@ -446,8 +446,8 @@ ORDER BY [o].[CustomerID]",
         {
             base.From_sql_with_join_and_include();
 
-            Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+            AssertSql(
+              @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
 ) AS [c]
@@ -456,24 +456,26 @@ INNER JOIN (
 ) AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [o].[OrderID]
 
-SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
-FROM [Order Details] AS [o0]
-WHERE EXISTS (
-    SELECT 1
+SELECT [o.OrderDetails].[OrderID], [o.OrderDetails].[ProductID], [o.OrderDetails].[Discount], [o.OrderDetails].[Quantity], [o.OrderDetails].[UnitPrice]
+FROM [Order Details] AS [o.OrderDetails]
+INNER JOIN (
+    SELECT DISTINCT [o0].*
     FROM (
         SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
-    ) AS [c]
+    ) AS [c0]
     INNER JOIN (
         SELECT * FROM ""Orders"" WHERE ""OrderID"" <> 1
-    ) AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-    WHERE [o0].[OrderID] = [o].[OrderID])
-ORDER BY [o0].[OrderID]",
+    ) AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
+) AS [t] ON [o.OrderDetails].[OrderID] = [t].[OrderID]
+ORDER BY [t].[OrderID]",
                 Sql);
         }
 
         public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            _testOutputHelper = testOutputHelper;
+
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
@@ -488,5 +490,10 @@ ORDER BY [o0].[OrderID]",
 ";
 
         private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+
+        private void AssertSql(string expected, string actual)
+        {
+            TestHelpers.AssertBaseline(expected, actual, _testOutputHelper);
+        }
     }
 }

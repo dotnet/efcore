@@ -40,9 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Design
             => _verboseHandler?.Invoke(message);
     }
 
-#if NET451
+#if NET46
     public partial class OperationReportHandler : MarshalByRefObject
     {
     }
+#elif NETSTANDARD1_3 || NETCOREAPP1_0
+#else
+#error target frameworks need to be updated.
 #endif
 }

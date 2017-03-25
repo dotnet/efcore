@@ -2,7 +2,7 @@
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
     <Description>Shared design-time test suite for Entity Framework Core relational database providers.</Description>
-    <TargetFrameworks>net452;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard1.6</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Relational.Design.Specification</RootNamespace>

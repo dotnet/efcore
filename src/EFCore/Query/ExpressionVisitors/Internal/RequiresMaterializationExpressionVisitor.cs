@@ -1,6 +1,3 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly EntityQueryModelVisitor _queryModelVisitor;
         private readonly Stack<QueryModel> _queryModelStack = new Stack<QueryModel>();
         private readonly Dictionary<IQuerySource, int> _querySourceReferences = new Dictionary<IQuerySource, int>();
+
         private readonly QuerySourceTracingExpressionVisitor _querySourceTracingExpressionVisitor
             = new QuerySourceTracingExpressionVisitor();
 
@@ -110,7 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (node.Expression != null)
             {
-                if (node.Expression.Type.IsGrouping() && node.Member.Name == "Key")
+                if (node.Expression.Type.IsGrouping()
+                    && node.Member.Name == "Key")
                 {
                     if (node.Expression is QuerySourceReferenceExpression qsre)
                     {
@@ -168,16 +167,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
-        {
-            return node.Update(
-                left: VisitBinaryOperand(node.Left, node.NodeType),
-                conversion: node.Conversion,
-                right: VisitBinaryOperand(node.Right, node.NodeType));
-        }
+            => node.Update(
+                VisitBinaryOperand(node.Left, node.NodeType),
+                node.Conversion,
+                VisitBinaryOperand(node.Right, node.NodeType));
 
         private Expression VisitBinaryOperand(Expression operand, ExpressionType comparison)
         {
-            if (comparison == ExpressionType.Equal || comparison == ExpressionType.NotEqual)
+            if (comparison == ExpressionType.Equal
+                || comparison == ExpressionType.NotEqual)
             {
                 var isEntityTypeExpression = _model.FindEntityType(operand.Type) != null;
 
@@ -229,13 +227,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var referencedQuerySource
                 = (expression.QueryModel.SelectClause.Selector
                     as QuerySourceReferenceExpression)?
-                        .ReferencedQuerySource;
+                .ReferencedQuerySource;
 
             if (referencedQuerySource != null)
             {
                 var parentQuerySource =
                     (parentQueryModel.SelectClause.Selector as QuerySourceReferenceExpression)
-                        ?.ReferencedQuerySource;
+                    ?.ReferencedQuerySource;
 
                 if (referencedQuerySource.ItemType == parentQuerySource?.ItemType)
                 {
@@ -314,8 +312,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             else
             {
                 var underlyingExpression
-                    = ((querySource as FromClauseBase)?.FromExpression)
-                        ?? ((querySource as JoinClause)?.InnerSequence);
+                    = (querySource as FromClauseBase)?.FromExpression
+                      ?? (querySource as JoinClause)?.InnerSequence;
 
                 if (underlyingExpression is SubQueryExpression subQueryExpression)
                 {
@@ -340,9 +338,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private void AdjustForResultOperators(QueryModel queryModel)
         {
             var referencedQuerySource
-               = (queryModel.SelectClause.Selector
-                   as QuerySourceReferenceExpression)?
-                       .ReferencedQuerySource;
+                = (queryModel.SelectClause.Selector as QuerySourceReferenceExpression)?.ReferencedQuerySource
+                  ?? (queryModel.MainFromClause.FromExpression as QuerySourceReferenceExpression)?.ReferencedQuerySource;
 
             // The selector may not have been a QSRE but this query model may still have something that needs adjusted.
             // Example:
@@ -351,21 +348,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             // In that case we need to ensure that the referenced query source [g] is demoted.
             if (referencedQuerySource == null)
             {
-                referencedQuerySource
-                    = (queryModel.MainFromClause.FromExpression
-                        as QuerySourceReferenceExpression)?
-                            .ReferencedQuerySource;
-            }
-
-            if (referencedQuerySource == null)
-            {
                 return;
             }
 
             var isSubQuery = _queryModelStack.Count > 0;
             var finalResultOperator = queryModel.ResultOperators.LastOrDefault();
 
-            if (isSubQuery && finalResultOperator is GroupResultOperator groupResultOperator)
+            if (isSubQuery && finalResultOperator is GroupResultOperator)
             {
                 // These two lines should be uncommented to implement GROUP BY translation.
                 //DemoteQuerySource(referencedQuerySource);
@@ -374,10 +363,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             var unreachableFromParentSelector =
-                 isSubQuery && _querySourceTracingExpressionVisitor
-                     .FindResultQuerySourceReferenceExpression(
-                         _queryModelStack.Peek().SelectClause.Selector,
-                         referencedQuerySource) == null;
+                isSubQuery && _querySourceTracingExpressionVisitor
+                    .FindResultQuerySourceReferenceExpression(
+                        _queryModelStack.Peek().SelectClause.Selector,
+                        referencedQuerySource) == null;
 
             if (finalResultOperator is SingleResultOperator
                 || finalResultOperator is FirstResultOperator
@@ -407,7 +396,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (isSubQuery && (unreachableFromParentSelector || finalResultOperator is DefaultIfEmptyResultOperator))
             {
                 DemoteQuerySourceAndUnderlyingFromClause(referencedQuerySource);
-                return;
             }
         }
 
@@ -415,7 +403,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var outputInfo = queryModel.GetOutputDataInfo();
 
-            if (outputInfo is StreamedSingleValueInfo || outputInfo is StreamedScalarValueInfo)
+            if (outputInfo is StreamedSingleValueInfo
+                || outputInfo is StreamedScalarValueInfo)
             {
                 return true;
             }
@@ -424,7 +413,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 outputInfo = ancestorQueryModel.GetOutputDataInfo();
 
-                if (outputInfo is StreamedSingleValueInfo || outputInfo is StreamedScalarValueInfo)
+                if (outputInfo is StreamedSingleValueInfo
+                    || outputInfo is StreamedScalarValueInfo)
                 {
                     return true;
                 }
@@ -440,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var underlyingQuerySource
                 = ((querySource as FromClauseBase)
                     ?.FromExpression as QuerySourceReferenceExpression)
-                        ?.ReferencedQuerySource;
+                ?.ReferencedQuerySource;
 
             if (underlyingQuerySource != null)
             {

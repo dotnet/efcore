@@ -436,7 +436,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var parameter in node.Parameters)
             {
-                _parametersInScope.Add(parameter, parameter.Name);
+                if (!_parametersInScope.ContainsKey(parameter))
+                {
+                    _parametersInScope.Add(parameter, parameter.Name);
+                }
+
                 _stringBuilder.Append(parameter.Type.ShortDisplayName() + " " + parameter.Name);
 
                 if (parameter != node.Parameters.Last())

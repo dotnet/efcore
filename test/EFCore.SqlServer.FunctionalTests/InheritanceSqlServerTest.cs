@@ -268,16 +268,16 @@ FROM [Animal] AS [e]
 WHERE [e].[Discriminator] = N'Eagle'
 ORDER BY [e].[Species]
 
-SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
-FROM [Animal] AS [a]
+SELECT [e.Prey].[Species], [e.Prey].[CountryId], [e.Prey].[Discriminator], [e.Prey].[Name], [e.Prey].[EagleId], [e.Prey].[IsFlightless], [e.Prey].[Group], [e.Prey].[FoundOn]
+FROM [Animal] AS [e.Prey]
 INNER JOIN (
-    SELECT DISTINCT TOP(2) [e].[Species]
-    FROM [Animal] AS [e]
-    WHERE [e].[Discriminator] = N'Eagle'
-    ORDER BY [e].[Species]
-) AS [e0] ON [a].[EagleId] = [e0].[Species]
-WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')
-ORDER BY [e0].[Species]",
+    SELECT TOP(1) [e0].*
+    FROM [Animal] AS [e0]
+    WHERE [e0].[Discriminator] = N'Eagle'
+    ORDER BY [e0].[Species]
+) AS [t] ON [e.Prey].[EagleId] = [t].[Species]
+WHERE [e.Prey].[Discriminator] IN (N'Kiwi', N'Eagle')
+ORDER BY [t].[Species]",
                 Sql);
         }
 
@@ -290,13 +290,10 @@ ORDER BY [e0].[Species]",
 FROM [Country] AS [c]
 ORDER BY [c].[Name], [c].[Id]
 
-SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
-FROM [Animal] AS [a]
-INNER JOIN (
-    SELECT DISTINCT [c].[Name], [c].[Id]
-    FROM [Country] AS [c]
-) AS [c0] ON [a].[CountryId] = [c0].[Id]
-WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')
+SELECT [c.Animals].[Species], [c.Animals].[CountryId], [c.Animals].[Discriminator], [c.Animals].[Name], [c.Animals].[EagleId], [c.Animals].[IsFlightless], [c.Animals].[Group], [c.Animals].[FoundOn]
+FROM [Animal] AS [c.Animals]
+INNER JOIN [Country] AS [c0] ON [c.Animals].[CountryId] = [c0].[Id]
+WHERE [c.Animals].[Discriminator] IN (N'Kiwi', N'Eagle')
 ORDER BY [c0].[Name], [c0].[Id]",
                 Sql);
         }

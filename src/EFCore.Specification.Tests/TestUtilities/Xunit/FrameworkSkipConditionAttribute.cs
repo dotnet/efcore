@@ -26,16 +26,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
                 return true;
             }
 
-#if NET452
+#if NET46
             if (excludedFrameworks.HasFlag(RuntimeFrameworks.CLR))
             {
                 return false;
             }
-#else
+#elif NETSTANDARD1_3
             if (excludedFrameworks.HasFlag(RuntimeFrameworks.CoreCLR))
             {
                 return false;
             }
+#else
+#error target frameworks need to be updated.
 #endif
             return true;
         }

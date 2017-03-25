@@ -15,10 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
     {
         public ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
-#if NET452
-            BuildReference.ByName("mscorlib")
+#if NET46
+            BuildReference.ByName("mscorlib"),
+            BuildReference.ByName("System.Runtime, Version=4.0.20.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+#elif NETSTANDARD1_6 || NETCOREAPP1_1
+            BuildReference.ByName("System.Runtime")
 #else
-                BuildReference.ByName("System.Runtime")
+#error target frameworks need to be updated.
 #endif
         };
 
@@ -96,9 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
                         $"Build failed. Diagnostics: {string.Join(Environment.NewLine, result.Diagnostics)}");
                 }
 
-#if NET452
+#if NET46
                 assembly = Assembly.Load(stream.ToArray());
-#else
+#elif NETSTANDARD1_6 || NETCOREAPP1_1
                 assembly = (Assembly)typeof(Assembly).GetTypeInfo().GetDeclaredMethods("Load")
                     .First(
                         m =>
@@ -108,6 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
                             return parameters.Length == 1 && parameters[0].ParameterType == typeof(byte[]);
                         })
                     .Invoke(null, new[] { stream.ToArray() });
+#else
+#error target frameworks need to be updated.
 #endif
             }
 

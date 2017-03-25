@@ -37,13 +37,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             set { throw new NotImplementedException(); }
         }
 
-#if NET452
+#if NET46
         public override DataRowVersion SourceVersion
         {
             get { throw new NotImplementedException(); }
 
             set { throw new NotImplementedException(); }
         }
+#elif NETCOREAPP1_1
+#else
+#error target frameworks need to be updated.
 #endif
 
         public override void ResetDbType()

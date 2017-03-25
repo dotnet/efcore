@@ -535,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Check.NotNull(fileName, nameof(fileName));
 
-#if NET451
+#if NET46
 
             if (fileName.StartsWith("|DataDirectory|", StringComparison.OrdinalIgnoreCase))
             {
@@ -544,7 +544,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     dataDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 fileName = Path.Combine(dataDirectory, fileName.Substring("|DataDirectory|".Length));
             }
-
+#elif NETSTANDARD1_3
+#else
+#error target frameworks need to be updated.
 #endif
 
             return Path.GetFullPath(fileName);

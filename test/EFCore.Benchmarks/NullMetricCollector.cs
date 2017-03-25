@@ -6,13 +6,16 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks
 {
-#if NET452
+#if NET46
     public partial class NullMetricCollector : MarshalByRefObject
     {
         private partial class Scope : MarshalByRefObject
         {
         }
     }
+#elif NETSTANDARD1_6
+#else
+#error target frameworks need to be updated.
 #endif
 
     public partial class NullMetricCollector : IMetricCollector
