@@ -54,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
         private readonly IModel _model;
+        private static int _setOperatorCount;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -104,9 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private void TryFlattenJoin(JoinClause joinClause, QueryModel queryModel)
         {
-            var subQueryExpression = joinClause.InnerSequence as SubQueryExpression;
-
-            if (subQueryExpression != null)
+            if (joinClause.InnerSequence is SubQueryExpression subQueryExpression)
             {
                 VisitQueryModel(subQueryExpression.QueryModel);
 
@@ -141,10 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 = queryModel.BodyClauses.ElementAtOrDefault(index + 1)
                     as AdditionalFromClause;
 
-            var querySourceReferenceExpression
-                = additionalFromClause?.FromExpression as QuerySourceReferenceExpression;
-
-            if (querySourceReferenceExpression != null
+            if (additionalFromClause?.FromExpression is QuerySourceReferenceExpression querySourceReferenceExpression
                 && querySourceReferenceExpression.ReferencedQuerySource == groupJoinClause)
             {
                 if (queryModel.CountQuerySourceReferences(groupJoinClause) == 1)
@@ -177,12 +173,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             VisitQueryModel(subQueryModel);
 
-            if ((subQueryModel.ResultOperators.All(ro => ro is CastResultOperator)
+            if (subQueryModel.ResultOperators.All(ro => ro is CastResultOperator)
                 && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause)
                 || queryModel.IsIdentityQuery()
-                && !queryModel.ResultOperators.Any())
-                || (!queryModel.BodyClauses.Any()
-                && !subQueryModel.ResultOperators.Any(ro => ro is GroupResultOperator)))
+                && !queryModel.ResultOperators.Any()
+                || !queryModel.BodyClauses.Any()
+                && !subQueryModel.ResultOperators.Any(ro => ro is GroupResultOperator))
             {
                 string itemName;
 
@@ -244,8 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            var ofTypeOperator = resultOperator as OfTypeResultOperator;
-            if (ofTypeOperator != null)
+            if (resultOperator is OfTypeResultOperator ofTypeOperator)
             {
                 var searchedItemType = ofTypeOperator.SearchedItemType;
                 if (searchedItemType == queryModel.MainFromClause.ItemType)
@@ -260,10 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         var oldQuerySource = queryModel.MainFromClause;
 
-                        var entityQueryProvider
-                            = ((oldQuerySource.FromExpression as ConstantExpression)?.Value as IQueryable)?.Provider as IAsyncQueryProvider;
-
-                        if (entityQueryProvider != null)
+                        if (((oldQuerySource.FromExpression as ConstantExpression)?.Value as IQueryable)?.Provider
+                            is IAsyncQueryProvider entityQueryProvider)
                         {
                             queryModel.ResultOperators.RemoveAt(index);
 
@@ -283,6 +276,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
+            ProcessSetResultOperator(resultOperator);
+
             base.VisitResultOperator(resultOperator, queryModel, index);
         }
 
@@ -298,8 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 ReferenceReplacingExpressionVisitor
                     .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
 
-            var qsre = newExpression as QuerySourceReferenceExpression;
-            if (qsre != null)
+            if (newExpression is QuerySourceReferenceExpression qsre)
             {
                 var newQuerySource = qsre.ReferencedQuerySource;
                 foreach (var queryAnnotation in _queryAnnotations.Where(qa => qa.QuerySource == oldQuerySource))
@@ -308,6 +302,53 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     queryAnnotation.QueryModel = queryModel;
                 }
             }
+        }
+
+        private static void ProcessSetResultOperator(ResultOperatorBase resultOperator)
+        {
+            switch (resultOperator)
+            {
+                case ExceptResultOperator exceptResultOperator
+                when IsEntityQueryable(exceptResultOperator.Source2):
+                    exceptResultOperator.Source2 = ConvertEntityQueryableToSubQuery(exceptResultOperator.Source2);
+                    break;
+
+                case ConcatResultOperator concatResultOperator
+                when IsEntityQueryable(concatResultOperator.Source2):
+                    concatResultOperator.Source2 = ConvertEntityQueryableToSubQuery(concatResultOperator.Source2);
+                    break;
+
+                case IntersectResultOperator intersectResultOperator
+                when IsEntityQueryable(intersectResultOperator.Source2):
+                    intersectResultOperator.Source2 = ConvertEntityQueryableToSubQuery(intersectResultOperator.Source2);
+                    break;
+
+                case UnionResultOperator unionResultOperator
+                when IsEntityQueryable(unionResultOperator.Source2):
+                    unionResultOperator.Source2 = ConvertEntityQueryableToSubQuery(unionResultOperator.Source2);
+                    break;
+            }
+        }
+
+        private static bool IsEntityQueryable(Expression expression)
+        {
+            return expression is ConstantExpression constantExpression
+                   && constantExpression.Type.IsConstructedGenericType
+                   && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
+        }
+
+        private static SubQueryExpression ConvertEntityQueryableToSubQuery(Expression expression)
+        {
+            var mainFromClause = new MainFromClause(
+                $"<set>_{_setOperatorCount++}",
+                expression.Type.GenericTypeArguments[0],
+                expression);
+
+            var queryModel = new QueryModel(
+                mainFromClause,
+                new SelectClause(new QuerySourceReferenceExpression(mainFromClause)));
+
+            return new SubQueryExpression(queryModel);
         }
     }
 }

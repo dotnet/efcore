@@ -3348,19 +3348,33 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         // Set Operations
 
         [ConditionalFact]
+        public virtual async Task Concat_dbset()
+        {
+            using (var context = CreateContext())
+            {
+                var query = await context.Set<Customer>()
+                    .Where(c => c.City == "México D.F.")
+                    .Concat(
+                        context.Set<Customer>())
+                    .ToListAsync();
+
+                Assert.Equal(96, query.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual async Task Concat_simple()
         {
             using (var context = CreateContext())
             {
-                var query1 = context.Set<Customer>()
-                    .Where(c => c.City == "México D.F.");
+                var query = await context.Set<Customer>()
+                    .Where(c => c.City == "México D.F.")
+                    .Concat(
+                        context.Set<Customer>()
+                            .Where(s => s.ContactTitle == "Owner"))
+                    .ToListAsync();
 
-                var query2 = context.Set<Customer>()
-                    .Where(s => s.ContactTitle == "Owner");
-
-                var query3 = await query1.Concat(query2).ToListAsync();
-
-                Assert.Equal(22, query3.Count);
+                Assert.Equal(22, query.Count);
             }
         }
 
@@ -3368,7 +3382,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual async Task Concat_nested()
         {
             await AssertQuery<Customer>(
-                cs => cs.Where(c => c.City == "México D.F.").Concat(cs.Where(s => s.City == "Berlin")).Concat(cs.Where(e => e.City == "London")),
+                cs => cs.Where(c => c.City == "México D.F.")
+                    .Concat(cs.Where(s => s.City == "Berlin"))
+                    .Concat(cs.Where(e => e.City == "London")),
                 entryCount: 12);
         }
 
@@ -3391,10 +3407,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Except_dbset()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs));
+        }
+
+        [ConditionalFact]
         public virtual async Task Except_simple()
         {
             await AssertQuery<Customer>(
-                cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(c => c.City == "México D.F.")),
+                cs => cs.Where(s => s.ContactTitle == "Owner")
+                    .Except(cs.Where(c => c.City == "México D.F.")),
                 entryCount: 14);
         }
 
@@ -3402,7 +3426,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual async Task Except_nested()
         {
             await AssertQuery<Customer>(
-                cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(s => s.City == "México D.F.")).Except(cs.Where(e => e.City == "Seattle")),
+                cs => cs.Where(s => s.ContactTitle == "Owner")
+                    .Except(cs.Where(s => s.City == "México D.F."))
+                    .Except(cs.Where(e => e.City == "Seattle")),
                 entryCount: 13);
         }
 
@@ -3425,10 +3451,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Intersect_dbset()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == "México D.F.").Intersect(cs),
+                entryCount: 5);
+        }
+
+        [ConditionalFact]
         public virtual async Task Intersect_simple()
         {
             await AssertQuery<Customer>(
-                cs => cs.Where(c => c.City == "México D.F.").Intersect(cs.Where(s => s.ContactTitle == "Owner")),
+                cs => cs.Where(c => c.City == "México D.F.")
+                    .Intersect(cs.Where(s => s.ContactTitle == "Owner")),
                 entryCount: 3);
         }
 
@@ -3436,7 +3471,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual async Task Intersect_nested()
         {
             await AssertQuery<Customer>(
-                cs => cs.Where(c => c.City == "México D.F.").Intersect(cs.Where(s => s.ContactTitle == "Owner")).Intersect(cs.Where(e => e.Fax != null)),
+                cs => cs.Where(c => c.City == "México D.F.")
+                    .Intersect(cs.Where(s => s.ContactTitle == "Owner"))
+                    .Intersect(cs.Where(e => e.Fax != null)),
                 entryCount: 1);
         }
 
@@ -3459,10 +3496,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Union_dbset()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.Where(s => s.ContactTitle == "Owner")
+                    .Union(cs.Where(c => c.City == "México D.F.")),
+                entryCount: 19);
+        }
+
+        [ConditionalFact]
         public virtual async Task Union_simple()
         {
             await AssertQuery<Customer>(
-                cs => cs.Where(s => s.ContactTitle == "Owner").Union(cs.Where(c => c.City == "México D.F.")),
+                cs => cs.Where(s => s.ContactTitle == "Owner")
+                    .Union(cs.Where(c => c.City == "México D.F.")),
                 entryCount: 19);
         }
 
@@ -3470,7 +3517,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual async Task Union_nested()
         {
             await AssertQuery<Customer>(
-                cs => cs.Where(s => s.ContactTitle == "Owner").Union(cs.Where(s => s.City == "México D.F.")).Union(cs.Where(e => e.City == "London")),
+                cs => cs.Where(s => s.ContactTitle == "Owner")
+                    .Union(cs.Where(s => s.City == "México D.F."))
+                    .Union(cs.Where(e => e.City == "London")),
                 entryCount: 25);
         }
 

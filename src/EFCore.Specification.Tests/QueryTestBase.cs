@@ -35,18 +35,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var results
                     = (from c1_Orders in context.Orders
-                        join _c1 in
-                        (from c1 in
-                            (from c in context.Customers
-                                orderby c.CustomerID
-                                select c)
-                            .Take(2)
-                            from c2 in context.Customers
-                            select EF.Property<string>(c1, "CustomerID"))
-                        .Distinct()
-                        on EF.Property<string>(c1_Orders, "CustomerID") equals _c1
-                        orderby _c1
-                        select c1_Orders).ToList();
+                       join _c1 in
+                       (from c1 in
+                           (from c in context.Customers
+                            orderby c.CustomerID
+                            select c)
+                           .Take(2)
+                        from c2 in context.Customers
+                        select EF.Property<string>(c1, "CustomerID"))
+                       .Distinct()
+                       on EF.Property<string>(c1_Orders, "CustomerID") equals _c1
+                       orderby _c1
+                       select c1_Orders).ToList();
 
                 Assert.Equal(10, results.Count);
             }
@@ -59,18 +59,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var results
                     = (from c1_Orders in context.Orders
-                        join _c1 in
-                        (from c1 in
-                            (from c in context.Customers
-                                orderby c.CustomerID
-                                select c)
-                            .Take(2)
-                            from c2 in context.Customers
-                            select new { CustomerID = EF.Property<string>(c1, "CustomerID")})
-                        .Distinct()
-                        on EF.Property<string>(c1_Orders, "CustomerID") equals _c1.CustomerID
-                        orderby _c1.CustomerID
-                        select c1_Orders).ToList();
+                       join _c1 in
+                       (from c1 in
+                           (from c in context.Customers
+                            orderby c.CustomerID
+                            select c)
+                           .Take(2)
+                        from c2 in context.Customers
+                        select new { CustomerID = EF.Property<string>(c1, "CustomerID") })
+                       .Distinct()
+                       on EF.Property<string>(c1_Orders, "CustomerID") equals _c1.CustomerID
+                       orderby _c1.CustomerID
+                       select c1_Orders).ToList();
 
                 Assert.Equal(10, results.Count);
             }
@@ -6443,19 +6443,32 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         // Set Operations
 
         [ConditionalFact]
+        public virtual void Concat_dbset()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Customer>()
+                    .Where(c => c.City == "México D.F.")
+                    .Concat(context.Set<Customer>())
+                    .ToList();
+
+                Assert.Equal(96, query.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Concat_simple()
         {
             using (var context = CreateContext())
             {
-                var query1 = context.Set<Customer>()
-                    .Where(c => c.City == "México D.F.");
+                var query = context.Set<Customer>()
+                    .Where(c => c.City == "México D.F.")
+                    .Concat(
+                        context.Set<Customer>()
+                            .Where(s => s.ContactTitle == "Owner"))
+                    .ToList();
 
-                var query2 = context.Set<Customer>()
-                    .Where(s => s.ContactTitle == "Owner");
-
-                var query3 = query1.Concat(query2).ToList();
-
-                Assert.Equal(22, query3.Count);
+                Assert.Equal(22, query.Count);
             }
         }
 
@@ -6463,7 +6476,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Concat_nested()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.City == "México D.F.").Concat(cs.Where(s => s.City == "Berlin")).Concat(cs.Where(e => e.City == "London")),
+                cs => cs.Where(c => c.City == "México D.F.")
+                    .Concat(cs.Where(s => s.City == "Berlin"))
+                    .Concat(cs.Where(e => e.City == "London")),
                 entryCount: 12);
         }
 
@@ -6486,10 +6501,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Except_dbset()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs));
+        }
+
+        [ConditionalFact]
         public virtual void Except_simple()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(c => c.City == "México D.F.")),
+                cs => cs.Where(s => s.ContactTitle == "Owner")
+                    .Except(cs.Where(c => c.City == "México D.F.")),
                 entryCount: 14);
         }
 
@@ -6497,7 +6520,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Except_nested()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(s => s.City == "México D.F.")).Except(cs.Where(e => e.City == "Seattle")),
+                cs => cs.Where(s => s.ContactTitle == "Owner")
+                    .Except(cs.Where(s => s.City == "México D.F."))
+                    .Except(cs.Where(e => e.City == "Seattle")),
                 entryCount: 13);
         }
 
@@ -6520,10 +6545,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Intersect_dbset()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == "México D.F.").Intersect(cs),
+                entryCount: 5);
+        }
+
+        [ConditionalFact]
         public virtual void Intersect_simple()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.City == "México D.F.").Intersect(cs.Where(s => s.ContactTitle == "Owner")),
+                cs => cs.Where(c => c.City == "México D.F.")
+                    .Intersect(cs.Where(s => s.ContactTitle == "Owner")),
                 entryCount: 3);
         }
 
@@ -6531,7 +6565,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Intersect_nested()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.City == "México D.F.").Intersect(cs.Where(s => s.ContactTitle == "Owner")).Intersect(cs.Where(e => e.Fax != null)),
+                cs => cs.Where(c => c.City == "México D.F.")
+                    .Intersect(cs.Where(s => s.ContactTitle == "Owner"))
+                    .Intersect(cs.Where(e => e.Fax != null)),
                 entryCount: 1);
         }
 
@@ -6554,10 +6590,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Union_dbset()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(s => s.ContactTitle == "Owner").Union(cs),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
         public virtual void Union_simple()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(s => s.ContactTitle == "Owner").Union(cs.Where(c => c.City == "México D.F.")),
+                cs => cs.Where(s => s.ContactTitle == "Owner")
+                    .Union(cs.Where(c => c.City == "México D.F.")),
                 entryCount: 19);
         }
 
@@ -6565,7 +6610,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Union_nested()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(s => s.ContactTitle == "Owner").Union(cs.Where(s => s.City == "México D.F.")).Union(cs.Where(e => e.City == "London")),
+                cs => cs.Where(s => s.ContactTitle == "Owner")
+                    .Union(cs.Where(s => s.City == "México D.F."))
+                    .Union(cs.Where(e => e.City == "London")),
                 entryCount: 25);
         }
 
