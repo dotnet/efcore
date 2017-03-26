@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
         [Benchmark]
         [BenchmarkVariation("Warm (10000 instances)", false, 10000)]
 #if NET46
-        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+        //[BenchmarkVariation("Cold (1 instance)", true, 1)]
 #elif NETCOREAPP1_1
 #else
 #error target frameworks need to be updated.
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
         [AdventureWorksDatabaseRequired]
         [BenchmarkVariation("Warm (1000 instances)", false, 1000)]
 #if NET46
-        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+        //[BenchmarkVariation("Cold (1 instance)", true, 1)]
 #elif NETCOREAPP1_1
 #else
 #error target frameworks need to be updated.
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
         [AdventureWorksDatabaseRequired]
         [BenchmarkVariation("Warm (100 instances)", false, 100)]
 #if NET46
-        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+        //[BenchmarkVariation("Cold (1 instance)", true, 1)]
 #elif NETCOREAPP1_1
 #else
 #error target frameworks need to be updated.

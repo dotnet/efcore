@@ -4,6 +4,9 @@
     <TargetFramework>net46</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Benchmarks.EF6</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks.EF6</RootNamespace>
+    <!-- TODO: Remove when Microsoft/vstest#428 is fixed. -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
