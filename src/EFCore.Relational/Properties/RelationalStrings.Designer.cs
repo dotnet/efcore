@@ -483,6 +483,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("UnsupportedPropertyType", nameof(entity), nameof(property), nameof(clrType)),
                 entity, property, clrType);
 
+        /// <summary>
+        /// This function can only be invoked from LINQ to Entities.
+        /// </summary>
+        public static string DbFunctionsDirectCall
+        {
+            get { return GetString("DbFunctionsDirectCall"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

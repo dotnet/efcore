@@ -307,4 +307,7 @@
   <data name="UnsupportedPropertyType" xml:space="preserve">
     <value>No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.</value>
   </data>
+  <data name="DbFunctionsDirectCall" xml:space="preserve">
+    <value>This function can only be invoked from LINQ to Entities.</value>
+  </data>
 </root>

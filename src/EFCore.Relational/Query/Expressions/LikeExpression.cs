@@ -29,6 +29,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
+        ///     Creates a new instance of LikeExpression.
+        /// </summary>
+        /// <param name="match"> The expression to match. </param>
+        /// <param name="pattern"> The pattern to match. </param>
+        /// <param name="escapeChar"> The escape character to use in <paramref name="pattern"/>. </param>
+        public LikeExpression([NotNull] Expression match, [NotNull] Expression pattern, [CanBeNull] Expression escapeChar)
+        {
+            Check.NotNull(match, nameof(match));
+            Check.NotNull(pattern, nameof(pattern));
+
+            Match = match;
+            Pattern = pattern;
+            EscapeChar = escapeChar;
+        }
+
+        /// <summary>
         ///     Gets the match expression.
         /// </summary>
         /// <value>
@@ -43,6 +59,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The pattern to match.
         /// </value>
         public virtual Expression Pattern { get; }
+
+        /// <summary>
+        ///     Gets the escape character to use in <see cref="Pattern"/>.
+        /// </summary>
+        /// <value>
+        ///     The escape character to use. If null, no escape character is used.
+        /// </value>
+        [CanBeNull]
+        public virtual Expression EscapeChar { get; }
 
         /// <summary>
         ///     Returns the node type of this <see cref="Expression" />. (Inherited from <see cref="Expression" />.)
@@ -87,10 +112,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             var newMatchExpression = visitor.Visit(Match);
             var newPatternExpression = visitor.Visit(Pattern);
+            var newEscapeCharExpression = EscapeChar == null ? null : visitor.Visit(EscapeChar);
 
             return (newMatchExpression != Match)
                    || (newPatternExpression != Pattern)
-                ? new LikeExpression(newMatchExpression, newPatternExpression)
+                   || (newEscapeCharExpression != EscapeChar)
+                ? new LikeExpression(newMatchExpression, newPatternExpression, newEscapeCharExpression)
                 : this;
         }
 
@@ -98,6 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Creates a <see cref="string" /> representation of the Expression.
         /// </summary>
         /// <returns>A <see cref="string" /> representation of the Expression.</returns>
-        public override string ToString() => Match + " LIKE " + Pattern;
+        public override string ToString() => $"{Match} LIKE {Pattern}{(EscapeChar == null ? "" : $" ESCAPE {EscapeChar}")}";
     }
 }
