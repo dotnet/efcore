@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6
     {
         [Benchmark]
         [BenchmarkVariation("Warm (10000 instances)", false, 10000)]
-        //[BenchmarkVariation("Cold (1 instance)", true, 1)]
+        [BenchmarkVariation("Cold (1 instance)", true, 1)]
         public void CreateAndDisposeUnusedContext(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, c => c.CreateAndDisposeUnusedContext(collector, count));
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6
         [Benchmark]
         [AdventureWorksDatabaseRequired]
         [BenchmarkVariation("Warm (1000 instances)", false, 1000)]
-        //[BenchmarkVariation("Cold (1 instance)", true, 1)]
+        [BenchmarkVariation("Cold (1 instance)", true, 1)]
         public void InitializeAndQuery_AdventureWorks(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, c => c.InitializeAndQuery_AdventureWorks(collector, count));
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6
         [Benchmark]
         [AdventureWorksDatabaseRequired]
         [BenchmarkVariation("Warm (100 instances)", false, 100)]
-        //[BenchmarkVariation("Cold (1 instance)", true, 1)]
+        [BenchmarkVariation("Cold (1 instance)", true, 1)]
         public void InitializeAndSaveChanges_AdventureWorks(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, t => t.InitializeAndSaveChanges_AdventureWorks(collector, count));

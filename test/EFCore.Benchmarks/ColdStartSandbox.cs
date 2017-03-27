@@ -12,7 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
         private AppDomain _domain = AppDomain.CreateDomain(
             "Cold Start Sandbox",
             null,
-            new AppDomainSetup { ApplicationBase = AppDomain.CurrentDomain.BaseDirectory });
+            new AppDomainSetup
+            {
+                ApplicationBase = AppDomain.CurrentDomain.BaseDirectory,
+                ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile
+            });
 
         ~ColdStartSandbox()
         {
