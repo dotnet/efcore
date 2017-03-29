@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
     <CoreFxVersion>4.3.0</CoreFxVersion>
+    <InternalAspNetCoreSdkVersion>2.0.0-*</InternalAspNetCoreSdkVersion>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
     <SQLitePCLRawVersion>1.1.2</SQLitePCLRawVersion>
     <StyleCopAnalyzersVersion>1.0.0</StyleCopAnalyzersVersion>

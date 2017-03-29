@@ -25,3 +25,4 @@ launchSettings.json
 *.nuget.props
 *.nuget.targets
 sqlite3.dll
+global.json
