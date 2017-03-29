@@ -16,9 +16,7 @@
     <EmbeddedResource Include="**\*.rd.xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Internal.AspNetCore.Sdk" Version="1.0.1-*">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(InternalAspNetCoreSdkVersion)" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' And '$(OutputType)' == 'library' And '$(DisableImplicitFrameworkReferences)' != 'true'">
     <PackageReference Include="NETStandard.Library" Version="$(NetStandardImplicitPackageVersion)" />
