@@ -17,7 +17,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public class SqlServerDatabaseCreatorTest
+    public class SqlServerDatabaseCreatorExistsTest
     {
         [Fact]
         public async Task Exists_returns_false_when_database_doesnt_exist()
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: file))
             {
-                using (var context = new BloggingContext(testDatabase))
+                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
                     var creator = context.GetService<IRelationalDatabaseCreator>();
 
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true, useFileName: file))
             {
-                using (var context = new BloggingContext(testDatabase))
+                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
                     var creator = context.GetService<IRelationalDatabaseCreator>();
 
@@ -100,7 +100,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 }
             }
         }
+    }
 
+    public class SqlServerDatabaseCreatorEnsureDeletedTest
+    {
         [Fact]
         public async Task EnsureDeleted_will_delete_database()
         {
@@ -162,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     testDatabase.Connection.Close();
                 }
 
-                using (var context = new BloggingContext(testDatabase))
+                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
                     var creator = context.GetService<IRelationalDatabaseCreator>();
 
@@ -216,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: file))
             {
-                using (var context = new BloggingContext(testDatabase))
+                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
                     var creator = context.GetService<IRelationalDatabaseCreator>();
 
@@ -239,7 +242,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 }
             }
         }
+    }
 
+    public class SqlServerDatabaseCreatorEnsureCreatedTest
+    {
         [Fact]
         public async Task EnsureCreated_can_create_schema_in_existing_database()
         {
@@ -304,18 +310,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static Task EnsureCreated_can_create_physical_database_and_schema_test(bool async, bool file)
         {
-            return SqlServerTestStore.GetExecutionStrategy().ExecuteAsync(async state =>
-            {
-                using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: state.file))
-                {
-                    await RunDatabaseCreationTest(testDatabase, state.async);
-                }
-            }, new { async, file });
+            return SqlServerTestStore.GetExecutionStrategy()
+                .ExecuteAsync(
+                    async state =>
+                        {
+                            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: state.file))
+                            {
+                                await RunDatabaseCreationTest(testDatabase, state.async);
+                            }
+                        }, new { async, file });
         }
 
         private static async Task RunDatabaseCreationTest(SqlServerTestStore testStore, bool async)
         {
-            using (var context = new BloggingContext(testStore))
+            using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testStore))
             {
                 var creator = context.GetService<IRelationalDatabaseCreator>();
 
@@ -348,21 +356,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Assert.Equal(
                     new[]
                     {
-                        "Blogs.AndChew (varbinary)",
-                        "Blogs.AndRow (timestamp)",
-                        "Blogs.Cheese (nvarchar)",
-                        "Blogs.CupOfChar (int)",
-                        "Blogs.ErMilan (int)",
-                        "Blogs.Fuse (smallint)",
-                        "Blogs.George (bit)",
-                        "Blogs.Key1 (nvarchar)",
-                        "Blogs.Key2 (varbinary)",
-                        "Blogs.NotFigTime (datetime2)",
-                        "Blogs.On (real)",
-                        "Blogs.OrNothing (float)",
-                        "Blogs.TheGu (uniqueidentifier)",
-                        "Blogs.ToEat (tinyint)",
-                        "Blogs.WayRound (bigint)"
+                            "Blogs.AndChew (varbinary)",
+                            "Blogs.AndRow (timestamp)",
+                            "Blogs.Cheese (nvarchar)",
+                            "Blogs.CupOfChar (int)",
+                            "Blogs.ErMilan (int)",
+                            "Blogs.Fuse (smallint)",
+                            "Blogs.George (bit)",
+                            "Blogs.Key1 (nvarchar)",
+                            "Blogs.Key2 (varbinary)",
+                            "Blogs.NotFigTime (datetime2)",
+                            "Blogs.On (real)",
+                            "Blogs.OrNothing (float)",
+                            "Blogs.TheGu (uniqueidentifier)",
+                            "Blogs.ToEat (tinyint)",
+                            "Blogs.WayRound (bigint)"
                     },
                     columns);
             }
@@ -398,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: file))
             {
-                using (var context = new BloggingContext(testDatabase))
+                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
                     context.Database.EnsureCreated();
 
@@ -415,7 +423,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 }
             }
         }
+    }
 
+    public class SqlServerDatabaseCreatorHasTablesTest
+    {
         [Fact]
         public async Task HasTables_throws_when_database_doesnt_exist()
         {
@@ -432,20 +443,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
             {
-                await ((TestDatabaseCreator)GetDatabaseCreator(testDatabase)).ExecutionStrategyFactory.Create()
-                    .ExecuteAsync(async creator =>
-                        {
-                            var errorNumber = async
-                                ? (await Assert.ThrowsAsync<SqlException>(() => creator.HasTablesAsyncBase())).Number
-                                : Assert.Throws<SqlException>(() => creator.HasTablesBase()).Number;
-
-                            if (errorNumber != 233) // skip if no-process transient failure
+                await ((SqlServerDatabaseCreatorTest.TestDatabaseCreator)SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase)).ExecutionStrategyFactory.Create()
+                    .ExecuteAsync(
+                        async creator =>
                             {
-                                Assert.Equal(
-                                    4060, // Login failed error number
-                                    errorNumber);
-                            }
-                        }, (TestDatabaseCreator)GetDatabaseCreator(testDatabase));
+                                var errorNumber = async
+                                    ? (await Assert.ThrowsAsync<SqlException>(() => creator.HasTablesAsyncBase())).Number
+                                    : Assert.Throws<SqlException>(() => creator.HasTablesBase()).Number;
+
+                                if (errorNumber != 233) // skip if no-process transient failure
+                                {
+                                    Assert.Equal(
+                                        4060, // Login failed error number
+                                        errorNumber);
+                                }
+                            }, (SqlServerDatabaseCreatorTest.TestDatabaseCreator)SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase));
             }
         }
 
@@ -465,11 +477,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true))
             {
-                var creator = GetDatabaseCreator(testDatabase);
+                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
 
-                Assert.False(async
-                    ? await ((TestDatabaseCreator)creator).HasTablesAsyncBase()
-                    : ((TestDatabaseCreator)creator).HasTablesBase());
+                Assert.False(
+                    async
+                        ? await ((SqlServerDatabaseCreatorTest.TestDatabaseCreator)creator).HasTablesAsyncBase()
+                        : ((SqlServerDatabaseCreatorTest.TestDatabaseCreator)creator).HasTablesBase());
             }
         }
 
@@ -491,12 +504,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 await testDatabase.ExecuteNonQueryAsync("CREATE TABLE SomeTable (Id uniqueidentifier)");
 
-                var creator = GetDatabaseCreator(testDatabase);
+                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
 
-                Assert.True(async ? await ((TestDatabaseCreator)creator).HasTablesAsyncBase() : ((TestDatabaseCreator)creator).HasTablesBase());
+                Assert.True(async ? await ((SqlServerDatabaseCreatorTest.TestDatabaseCreator)creator).HasTablesAsyncBase() : ((SqlServerDatabaseCreatorTest.TestDatabaseCreator)creator).HasTablesBase());
             }
         }
+    }
 
+    public class SqlServerDatabaseCreatorDeleteTest
+    {
         [Fact]
         public async Task Delete_will_delete_database()
         {
@@ -515,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 testDatabase.Connection.Close();
 
-                var creator = GetDatabaseCreator(testDatabase);
+                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
 
                 Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
 
@@ -548,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
             {
-                var creator = GetDatabaseCreator(testDatabase);
+                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
 
                 if (async)
                 {
@@ -560,7 +576,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 }
             }
         }
+    }
 
+    public class SqlServerDatabaseCreatorCreateTablesTest
+    {
         [Fact]
         public async Task CreateTables_creates_schema_in_existing_database()
         {
@@ -585,7 +604,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .UseInternalServiceProvider(serviceProvider)
                     .UseSqlServer(testDatabase.ConnectionString, b => b.ApplyConfiguration());
 
-                using (var context = new BloggingContext(testDatabase))
+                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
                     var creator = (RelationalDatabaseCreator)context.GetService<IDatabaseCreator>();
 
@@ -644,7 +663,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
             {
-                var creator = GetDatabaseCreator(testDatabase);
+                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
 
                 var errorNumber
                     = async
@@ -659,7 +678,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 }
             }
         }
+    }
 
+    public class SqlServerDatabaseCreatorCreateTest
+    {
         [Fact]
         public async Task Create_creates_physical_database_but_not_tables()
         {
@@ -676,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
             {
-                var creator = GetDatabaseCreator(testDatabase);
+                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
 
                 Assert.False(creator.Exists());
 
@@ -698,11 +720,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                 Assert.Equal(0, (await testDatabase.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")).Count());
 
-                Assert.True(await testDatabase.ExecuteScalarAsync<bool>(
-                    string.Concat(
-                        "SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name='",
-                        testDatabase.Connection.Database,
-                        "'")));
+                Assert.True(
+                    await testDatabase.ExecuteScalarAsync<bool>(
+                        string.Concat(
+                            "SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name='",
+                            testDatabase.Connection.Database,
+                            "'")));
             }
         }
 
@@ -722,7 +745,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true))
             {
-                var creator = GetDatabaseCreator(testDatabase);
+                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
 
                 var ex = async
                     ? await Assert.ThrowsAsync<SqlException>(() => creator.CreateAsync())
@@ -732,12 +755,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     ex.Number);
             }
         }
+    }
 
-        private static IServiceProvider CreateContextServices(SqlServerTestStore testStore)
-            => new BloggingContext(testStore).GetInfrastructure();
-
-        private static IRelationalDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
-            => CreateContextServices(testStore).GetRequiredService<IRelationalDatabaseCreator>();
+    public class SqlServerDatabaseCreatorTest
+    {
+        public static IRelationalDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
+            => new BloggingContext(testStore).GetInfrastructure().GetRequiredService<IRelationalDatabaseCreator>();
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class TestSqlServerExecutionStrategyFactory : SqlServerExecutionStrategyFactory
@@ -757,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             .AddScoped<IRelationalDatabaseCreator, TestDatabaseCreator>()
             .BuildServiceProvider();
 
-        private class BloggingContext : DbContext
+        public class BloggingContext : DbContext
         {
             private readonly SqlServerTestStore _testStore;
 
@@ -801,6 +824,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public byte[] AndChew { get; set; }
             public byte[] AndRow { get; set; }
         }
+
         public class TestDatabaseCreator : SqlServerDatabaseCreator
         {
             public TestDatabaseCreator(
