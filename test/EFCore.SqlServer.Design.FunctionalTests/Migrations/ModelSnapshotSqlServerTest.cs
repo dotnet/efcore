@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Xunit;
 
-#if NETCOREAPP1_1
+#if NETCOREAPP2_0
 using System.Reflection;
 #endif
 

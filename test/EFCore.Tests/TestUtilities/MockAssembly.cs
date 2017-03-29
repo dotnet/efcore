@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-#if NETCOREAPP1_1
+#if NETCOREAPP2_0
 using Moq;
 #endif
 namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
 
 #if NET46
             return new MockAssembly(definedTypeInfos);
-#elif NETCOREAPP1_1
+#elif NETCOREAPP2_0
             var assembly = new Mock<Assembly>();
             assembly.SetupGet(a => a.DefinedTypes).Returns(definedTypeInfos);
             assembly.Setup(a => a.GetName()).Returns(new AssemblyName(nameof(MockAssembly)));
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
 #endif
         }
 
-#if NETCOREAPP1_1
+#if NETCOREAPP2_0
         public AssemblyName GetName()
             => new AssemblyName(nameof(MockAssembly));
 #elif NET46
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
         public override AssemblyName GetName()
             => new AssemblyName(nameof(MockAssembly));
     }
-#elif NETCOREAPP1_1
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif

@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         }
     }
 }
-#elif NETCOREAPP1_1
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif

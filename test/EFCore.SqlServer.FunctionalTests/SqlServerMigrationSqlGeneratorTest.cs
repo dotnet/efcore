@@ -700,7 +700,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;');" + EOL,
                 Sql);
         }
-#elif NETCOREAPP1_1
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif

@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-#if NETCOREAPP1_1
+#if NETCOREAPP2_0
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 #endif
@@ -358,7 +358,7 @@ CREATE INDEX Unicorn_Filtered_Index
             BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
             BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
             BuildReference.ByName("System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"),
-#elif NETCOREAPP1_1
+#elif NETCOREAPP2_0
             BuildReference.ByName("System.Collections"),
             BuildReference.ByName("System.Data.Common"),
             BuildReference.ByName("System.Linq.Expressions"),

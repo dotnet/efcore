@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
         [BenchmarkVariation("Warm (10000 instances)", false, 10000)]
 #if NET46
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
-#elif NETCOREAPP1_1
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
         [BenchmarkVariation("Warm (1000 instances)", false, 1000)]
 #if NET46
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
-#elif NETCOREAPP1_1
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
         [BenchmarkVariation("Warm (100 instances)", false, 100)]
 #if NET46
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
-#elif NETCOREAPP1_1
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
                     var testClass = sandbox.CreateInstance<ColdStartEnabledTests>();
                     test(testClass);
                 }
-#elif NETCOREAPP1_1
+#elif NETCOREAPP2_0
                 throw new NotSupportedException("ColdStartSandbox can not be used on CoreCLR.");
 #else
 #error target frameworks need to be updated.

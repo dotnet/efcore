@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         };
 #if NET46
                     connection.Disposed += (_, __) => disposeCount++;
-#elif NETCOREAPP1_1
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif

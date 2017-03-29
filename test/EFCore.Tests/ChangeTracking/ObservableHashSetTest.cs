@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             Assert.NotNull(bindingListAgain);
             Assert.NotSame(bindingList, bindingListAgain);
         }
-#elif NETCOREAPP1_1
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif

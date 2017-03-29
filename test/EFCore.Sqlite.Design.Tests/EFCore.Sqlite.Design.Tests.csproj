@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
-    <TargetFrameworks>net46;netcoreapp1.1</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp1.1</TargetFrameworks>
+    <TargetFrameworks>net46;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.0</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.Design.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <!-- TODO: Remove when Microsoft/vstest#428 is fixed. -->
