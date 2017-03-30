@@ -338,7 +338,7 @@ WHERE [e2].[Id] > 5", Sql);
                 @"SELECT [e1].[Id], [e1].[Date], [e1].[Name], [e1].[OneToMany_Optional_Self_InverseId], [e1].[OneToMany_Required_Self_InverseId], [e1].[OneToOne_Optional_SelfId]
 FROM [Level1] AS [e1]
 LEFT JOIN [Level2] AS [e1.OneToOne_Required_FK] ON [e1].[Id] = [e1.OneToOne_Required_FK].[Level1_Required_Id]
-WHERE [e1.OneToOne_Required_FK].[Name] LIKE N'L' + N'%' AND (CHARINDEX(N'L', [e1.OneToOne_Required_FK].[Name]) = 1)",
+WHERE [e1.OneToOne_Required_FK].[Name] LIKE N'L' + N'%' AND (LEFT([e1.OneToOne_Required_FK].[Name], LEN(N'L')) = N'L')",
                 Sql);
         }
 
@@ -350,7 +350,7 @@ WHERE [e1.OneToOne_Required_FK].[Name] LIKE N'L' + N'%' AND (CHARINDEX(N'L', [e1
                 @"SELECT [e3].[Id], [e3].[Level2_Optional_Id], [e3].[Level2_Required_Id], [e3].[Name], [e3].[OneToMany_Optional_InverseId], [e3].[OneToMany_Optional_Self_InverseId], [e3].[OneToMany_Required_InverseId], [e3].[OneToMany_Required_Self_InverseId], [e3].[OneToOne_Optional_PK_InverseId], [e3].[OneToOne_Optional_SelfId]
 FROM [Level3] AS [e3]
 INNER JOIN [Level2] AS [e3.OneToOne_Required_FK_Inverse] ON [e3].[Level2_Required_Id] = [e3.OneToOne_Required_FK_Inverse].[Id]
-WHERE [e3.OneToOne_Required_FK_Inverse].[Name] LIKE N'L' + N'%' AND (CHARINDEX(N'L', [e3.OneToOne_Required_FK_Inverse].[Name]) = 1)",
+WHERE [e3.OneToOne_Required_FK_Inverse].[Name] LIKE N'L' + N'%' AND (LEFT([e3.OneToOne_Required_FK_Inverse].[Name], LEN(N'L')) = N'L')",
                 Sql);
         }
 
@@ -362,7 +362,7 @@ WHERE [e3.OneToOne_Required_FK_Inverse].[Name] LIKE N'L' + N'%' AND (CHARINDEX(N
                 @"SELECT [e1].[Id], [e1].[Date], [e1].[Name], [e1].[OneToMany_Optional_Self_InverseId], [e1].[OneToMany_Required_Self_InverseId], [e1].[OneToOne_Optional_SelfId]
 FROM [Level1] AS [e1]
 LEFT JOIN [Level2] AS [e1.OneToOne_Optional_FK] ON [e1].[Id] = [e1.OneToOne_Optional_FK].[Level1_Optional_Id]
-WHERE [e1.OneToOne_Optional_FK].[Name] LIKE N'L' + N'%' AND (CHARINDEX(N'L', [e1.OneToOne_Optional_FK].[Name]) = 1)",
+WHERE [e1.OneToOne_Optional_FK].[Name] LIKE N'L' + N'%' AND (LEFT([e1.OneToOne_Optional_FK].[Name], LEN(N'L')) = N'L')",
                 Sql);
         }
 
@@ -386,7 +386,7 @@ WHERE [e1.OneToOne_Optional_FK].[Name] = N'L2 01'",
                 @"SELECT [e1].[Id], [e1].[Date], [e1].[Name], [e1].[OneToMany_Optional_Self_InverseId], [e1].[OneToMany_Required_Self_InverseId], [e1].[OneToOne_Optional_SelfId]
 FROM [Level1] AS [e1]
 LEFT JOIN [Level2] AS [e1.OneToOne_Optional_FK] ON [e1].[Id] = [e1.OneToOne_Optional_FK].[Level1_Optional_Id]
-WHERE UPPER([e1.OneToOne_Optional_FK].[Name]) LIKE N'L' + N'%' AND (CHARINDEX(N'L', UPPER([e1.OneToOne_Optional_FK].[Name])) = 1)",
+WHERE UPPER([e1.OneToOne_Optional_FK].[Name]) LIKE N'L' + N'%' AND (LEFT(UPPER([e1.OneToOne_Optional_FK].[Name]), LEN(N'L')) = N'L')",
                 Sql);
         }
 
@@ -398,7 +398,7 @@ WHERE UPPER([e1.OneToOne_Optional_FK].[Name]) LIKE N'L' + N'%' AND (CHARINDEX(N'
                 @"SELECT [e1].[Id], [e1].[Date], [e1].[Name], [e1].[OneToMany_Optional_Self_InverseId], [e1].[OneToMany_Required_Self_InverseId], [e1].[OneToOne_Optional_SelfId]
 FROM [Level1] AS [e1]
 LEFT JOIN [Level2] AS [e1.OneToOne_Optional_FK] ON [e1].[Id] = [e1.OneToOne_Optional_FK].[Level1_Optional_Id]
-WHERE ([e1.OneToOne_Optional_FK].[Name] LIKE [e1.OneToOne_Optional_FK].[Name] + N'%' AND (CHARINDEX([e1.OneToOne_Optional_FK].[Name], [e1.OneToOne_Optional_FK].[Name]) = 1)) OR ([e1.OneToOne_Optional_FK].[Name] = N'')",
+WHERE ([e1.OneToOne_Optional_FK].[Name] LIKE [e1.OneToOne_Optional_FK].[Name] + N'%' AND (LEFT([e1.OneToOne_Optional_FK].[Name], LEN([e1.OneToOne_Optional_FK].[Name])) = [e1.OneToOne_Optional_FK].[Name])) OR ([e1.OneToOne_Optional_FK].[Name] = N'')",
                 Sql);
         }
 

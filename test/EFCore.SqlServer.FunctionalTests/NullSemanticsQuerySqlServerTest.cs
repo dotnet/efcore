@@ -943,7 +943,7 @@ FROM [NullSemanticsEntity1] AS [e]
 WHERE CASE
     WHEN @__prm_0 = 0
     THEN CAST(1 AS BIT) ELSE CASE
-        WHEN [e].[StringA] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[StringA]) = 1)
+        WHEN [e].[StringA] LIKE N'A' + N'%' AND (LEFT([e].[StringA], LEN(N'A')) = N'A')
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 END = 1",
@@ -967,7 +967,7 @@ WHERE CASE
         THEN CASE
             WHEN [e].[BoolA] = 1
             THEN CASE
-                WHEN [e].[StringA] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[StringA]) = 1)
+                WHEN [e].[StringA] LIKE N'A' + N'%' AND (LEFT([e].[StringA], LEN(N'A')) = N'A')
                 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
             END ELSE CAST(0 AS BIT)
         END ELSE CAST(1 AS BIT)
@@ -1034,9 +1034,11 @@ WHERE [e].[NullableBoolA] IS NOT NULL AND ([e].[NullableBoolA] = 1)",
             base.Where_equal_using_relational_null_semantics_with_parameter();
 
             Assert.Equal(
-                @"SELECT [e].[Id]
+                @"@__prm_0:  (DbType = String)
+
+SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableBoolA] IS NULL",
+WHERE [e].[NullableBoolA] = @__prm_0",
                 Sql);
         }
 
@@ -1067,9 +1069,11 @@ WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]",
             base.Where_not_equal_using_relational_null_semantics_with_parameter();
 
             Assert.Equal(
-                @"SELECT [e].[Id]
+                @"@__prm_0:  (DbType = String)
+
+SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableBoolA] IS NOT NULL",
+WHERE [e].[NullableBoolA] <> @__prm_0",
                 Sql);
         }
 

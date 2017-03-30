@@ -99,8 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     return Visit(innerUnary.Operand);
                 }
 
-                var notNullableExpression = node.Operand as NotNullableExpression;
-                var innerBinary = (notNullableExpression?.Operand ?? node.Operand) as BinaryExpression;
+                var nullCompensatedExpression = node.Operand as NullCompensatedExpression;
+                var innerBinary = (nullCompensatedExpression?.Operand ?? node.Operand) as BinaryExpression;
                 if (innerBinary != null)
                 {
                     Expression result = null;
@@ -148,8 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     if (result != null)
                     {
-                        return notNullableExpression != null
-                            ? new NotNullableExpression(result)
+                        return nullCompensatedExpression != null
+                            ? new NullCompensatedExpression(result)
                             : result;
                     }
                 }

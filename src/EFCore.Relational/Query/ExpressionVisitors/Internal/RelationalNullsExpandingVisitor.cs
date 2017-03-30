@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitExtension(Expression node)
-            => node is NotNullableExpression
+            => node is NullCompensatedExpression
                 ? node
                 : base.VisitExtension(node);
 
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // N | 1 | 0                             | 0 OR 0 = 0       |
         // N | N | 1                             | 0 OR 1 = 1       |
         private static Expression ExpandNullableEqualNullable(Expression left, Expression right, Expression leftIsNull, Expression rightIsNull)
-            => new NotNullableExpression(
+            => new NullCompensatedExpression(
                 Expression.OrElse(
                     Expression.AndAlso(
                         Expression.Equal(left, right),
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // N | N | 1                             | 0 OR 1 = 1       |
         private static Expression ExpandNegatedNullableEqualNullable(
             Expression left, Expression right, Expression leftIsNull, Expression rightIsNull)
-            => new NotNullableExpression(
+            => new NullCompensatedExpression(
                 Expression.OrElse(
                     Expression.AndAlso(
                         Expression.NotEqual(left, right),
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // N | 1 | N           | 0                | 0                |
         private static Expression ExpandNullableEqualNonNullable(
             Expression left, Expression right, Expression leftIsNull)
-            => new NotNullableExpression(
+            => new NullCompensatedExpression(
                 Expression.AndAlso(
                     Expression.Equal(left, right),
                     Expression.Not(leftIsNull)));
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // N | 1 | N           | 0                | 0                |
         private static Expression ExpandNegatedNullableEqualNonNullable(
             Expression left, Expression right, Expression leftIsNull)
-            => new NotNullableExpression(
+            => new NullCompensatedExpression(
                 Expression.AndAlso(
                     Expression.NotEqual(left, right),
                     Expression.Not(leftIsNull)));
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // 1 | N | N           | 0                | 0                |
         private static Expression ExpandNonNullableEqualNullable(
             Expression left, Expression right, Expression rightIsNull)
-            => new NotNullableExpression(
+            => new NullCompensatedExpression(
                 Expression.AndAlso(
                     Expression.Equal(left, right),
                     Expression.Not(rightIsNull)));
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // 1 | N | N           | 0                | 0                |
         private static Expression ExpandNegatedNonNullableEqualNullable(
             Expression left, Expression right, Expression rightIsNull)
-            => new NotNullableExpression(
+            => new NullCompensatedExpression(
                 Expression.AndAlso(
                     Expression.NotEqual(left, right),
                     Expression.Not(rightIsNull)));
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // N | N | 0                             | 1 && 0 = 0       |
         private static Expression ExpandNullableNotEqualNullable(
             Expression left, Expression right, Expression leftIsNull, Expression rightIsNull)
-            => new NotNullableExpression(
+            => new NullCompensatedExpression(
                 Expression.AndAlso(
                     Expression.OrElse(
                         Expression.NotEqual(left, right),
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // N | N | 0                             | 1 && 0 = 0       |
         private static Expression ExpandNegatedNullableNotEqualNullable(
             Expression left, Expression right, Expression leftIsNull, Expression rightIsNull)
-            => new NotNullableExpression(
+            => new NullCompensatedExpression(
                 Expression.AndAlso(
                     Expression.OrElse(
                         Expression.Equal(left, right),
@@ -366,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // N | 1 | N           | 1                | 1                |
         private static Expression ExpandNullableNotEqualNonNullable(
             Expression left, Expression right, Expression leftIsNull)
-            => new NotNullableExpression(
+            => new NullCompensatedExpression(
                 Expression.OrElse(
                     Expression.NotEqual(left, right),
                     leftIsNull));
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // N | 1 | N           | 1                | 1             |
         private static Expression ExpandNegatedNullableNotEqualNonNullable(
             Expression left, Expression right, Expression leftIsNull)
-            => new NotNullableExpression(
+            => new NullCompensatedExpression(
                 Expression.OrElse(
                     Expression.Equal(left, right),
                     leftIsNull));
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // 1 | N | N           | 1                | 1             |
         private static Expression ExpandNonNullableNotEqualNullable(
             Expression left, Expression right, Expression rightIsNull)
-            => new NotNullableExpression(
+            => new NullCompensatedExpression(
                 Expression.OrElse(
                     Expression.NotEqual(left, right),
                     rightIsNull));
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         // 1 | N | N           | 1                | 1             |
         private static Expression ExpandNegatedNonNullableNotEqualNullable(
             Expression left, Expression right, Expression rightIsNull)
-            => new NotNullableExpression(
+            => new NullCompensatedExpression(
                 Expression.OrElse(
                     Expression.Equal(left, right),
                     rightIsNull));

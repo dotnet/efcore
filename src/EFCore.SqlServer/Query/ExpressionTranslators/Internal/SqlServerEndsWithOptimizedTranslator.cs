@@ -23,26 +23,26 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 var patternExpression = methodCallExpression.Arguments[0];
                 var patternConstantExpression = patternExpression as ConstantExpression;
 
-                var endsWithExpression = Expression.Equal(
-                    new SqlFunctionExpression(
-                        "RIGHT",
-                        // ReSharper disable once PossibleNullReferenceException
-                        methodCallExpression.Object.Type,
-                        new[]
-                        {
-                            methodCallExpression.Object,
-                            new SqlFunctionExpression("LEN", typeof(int), new[] { patternExpression })
-                        }),
-                    patternExpression);
+                var endsWithExpression = new NullCompensatedExpression(
+                    Expression.Equal(
+                        new SqlFunctionExpression(
+                            "RIGHT",
+                            // ReSharper disable once PossibleNullReferenceException
+                            methodCallExpression.Object.Type,
+                            new[]
+                            {
+                                methodCallExpression.Object,
+                                new SqlFunctionExpression("LEN", typeof(int), new[] { patternExpression })
+                            }),
+                        patternExpression));
 
-                return new NotNullableExpression(
-                    patternConstantExpression != null
-                        ? (string)patternConstantExpression.Value == string.Empty
-                            ? (Expression)Expression.Constant(true)
-                            : endsWithExpression
-                        : Expression.OrElse(
-                            endsWithExpression,
-                            Expression.Equal(patternExpression, Expression.Constant(string.Empty))));
+                return patternConstantExpression != null
+                    ? (string)patternConstantExpression.Value == string.Empty
+                        ? (Expression)Expression.Constant(true)
+                        : endsWithExpression
+                    : Expression.OrElse(
+                        endsWithExpression,
+                        Expression.Equal(patternExpression, Expression.Constant(string.Empty)));
             }
 
             return null;

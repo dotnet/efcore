@@ -31,9 +31,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                         // ReSharper disable once AssignNullToNotNullAttribute
                         methodCallExpression.Object,
                         Expression.Add(methodCallExpression.Arguments[0], Expression.Constant("%", typeof(string)), _concat)),
-                    Expression.Equal(
-                        new SqlFunctionExpression("instr", typeof(int), new[] { methodCallExpression.Object, patternExpression }),
-                        Expression.Constant(1)));
+                    new NullCompensatedExpression(
+                        Expression.Equal(
+                            new SqlFunctionExpression(
+                                "substr",
+                                // ReSharper disable once PossibleNullReferenceException
+                                methodCallExpression.Object.Type,
+                                new[]
+                                {
+                                    methodCallExpression.Object,
+                                    Expression.Constant(1),
+                                    new SqlFunctionExpression("length", typeof(int), new[] { patternExpression })
+                                }),
+                            patternExpression)));
 
                 return patternConstantExpression != null
                     ? (string)patternConstantExpression.Value == string.Empty

@@ -536,7 +536,7 @@ WHERE [e].[ReportsTo] IS NULL",
             Assert.Equal(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
 ORDER BY [c].[CustomerID]
 
 @_outer_CustomerID: ALFKI (Size = 450)
@@ -861,7 +861,7 @@ END, [o].[OrderID], (
     WHERE [o].[OrderID] = [o1].[OrderID]
 )
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [o].[CustomerID]) = 1)",
+WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A')",
                 Sql);
         }
 
@@ -924,7 +924,7 @@ WHERE @_outer_CustomerID = [o].[CustomerID]",
             Assert.StartsWith(
                 @"SELECT [e].[CustomerID]
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[CustomerID]) = 1)
+WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) = N'A')
 ORDER BY [e].[CustomerID]
 
 @_outer_CustomerID: ALFKI (Size = 450)
@@ -955,7 +955,7 @@ WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011) AND (@_outer_
     WHERE [o].[CustomerID] = N'ALFKI'
 )
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[CustomerID]) = 1)",
+WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) = N'A')",
                 Sql);
         }
 
@@ -966,7 +966,7 @@ WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[CustomerID]) =
             Assert.StartsWith(
                 @"SELECT 1
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[CustomerID]) = 1)
+WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) = N'A')
 
 SELECT TOP(2) [o.Customer0].[City]
 FROM [Orders] AS [o0]
@@ -987,7 +987,7 @@ WHERE [o0].[OrderID] = 10643",
     WHERE [oo].[CustomerID] = N'ALFKI'
 )
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[CustomerID]) = 1)",
+WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) = N'A')",
                 Sql);
         }
 
@@ -1004,7 +1004,7 @@ WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[CustomerID]) =
     ORDER BY [o].[CustomerID]
 )
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [e].[CustomerID]) = 1)",
+WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) = N'A')",
                 Sql);
         }
 
@@ -1211,7 +1211,7 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
 ORDER BY [c].[CustomerID]
 
 @_outer_CustomerID: ALFKI (Size = 450)

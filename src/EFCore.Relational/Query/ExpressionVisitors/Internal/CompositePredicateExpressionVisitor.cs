@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (_useRelationalNulls)
                 {
-                    predicate = new NotNullableExpression(predicate);
+                    predicate = new NullCompensatedExpression(predicate);
                 }
 
                 selectExpression.Predicate = predicate;

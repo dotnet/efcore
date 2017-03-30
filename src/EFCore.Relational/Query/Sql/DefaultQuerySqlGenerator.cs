@@ -1585,6 +1585,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 return base.VisitBinary(expression);
             }
+
+            protected override Expression VisitExtension(Expression node)
+                => node is NullCompensatedExpression
+                    ? node
+                    : base.VisitExtension(node);
         }
 
         private class BooleanExpressionTranslatingVisitor : RelinqExpressionVisitor

@@ -379,7 +379,7 @@ ORDER BY [t].[OrderID]",
             AssertSql(
                 @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c].[CustomerID]) = 1)
+WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c].[CustomerID], LEN(N'W')) = N'W')
 ORDER BY (
     SELECT TOP(1) [oo].[OrderDate]
     FROM [Orders] AS [oo]
@@ -397,7 +397,7 @@ INNER JOIN (
         ORDER BY [oo1].[OrderDate] DESC
     ) AS [c]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c0].[CustomerID]) = 1)
+    WHERE [c0].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'W')) = N'W')
     ORDER BY (
         SELECT TOP(1) [oo0].[OrderDate]
         FROM [Orders] AS [oo0]
@@ -1381,7 +1381,7 @@ ORDER BY [t].[ContactName], [t].[CustomerID]",
             AssertSql(
                 @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c].[CustomerID]) = 1)
+WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c].[CustomerID], LEN(N'W')) = N'W')
 ORDER BY (
     SELECT TOP(1) [oo].[OrderDate]
     FROM [Orders] AS [oo]
@@ -1399,7 +1399,7 @@ INNER JOIN (
         ORDER BY [oo].[OrderDate] DESC
     ) AS [c], [c].[CustomerID]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c].[CustomerID]) = 1)
+    WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c].[CustomerID], LEN(N'W')) = N'W')
     ORDER BY [c] DESC, [c].[CustomerID]
 ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
 ORDER BY [c0].[c] DESC, [c0].[CustomerID], [o].[OrderID]
@@ -1417,7 +1417,7 @@ INNER JOIN (
             ORDER BY [oo].[OrderDate] DESC
         ) AS [c], [c].[CustomerID]
         FROM [Customers] AS [c]
-        WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c].[CustomerID]) = 1)
+        WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c].[CustomerID], LEN(N'W')) = N'W')
         ORDER BY [c] DESC, [c].[CustomerID]
     ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
 ) AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
@@ -1433,7 +1433,7 @@ ORDER BY [o1].[c] DESC, [o1].[CustomerID], [o1].[OrderID]",
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY CASE
-    WHEN [c].[CustomerID] LIKE N'S' + N'%' AND (CHARINDEX(N'S', [c].[CustomerID]) = 1)
+    WHEN [c].[CustomerID] LIKE N'S' + N'%' AND (LEFT([c].[CustomerID], LEN(N'S')) = N'S')
     THEN 1 ELSE 2
 END, [c].[CustomerID]
 
@@ -1441,7 +1441,7 @@ SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [
 FROM [Orders] AS [c.Orders]
 INNER JOIN (
     SELECT [c0].[CustomerID], CASE
-        WHEN [c0].[CustomerID] LIKE N'S' + N'%' AND (CHARINDEX(N'S', [c0].[CustomerID]) = 1)
+        WHEN [c0].[CustomerID] LIKE N'S' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'S')) = N'S')
         THEN 1 ELSE 2
     END AS [c]
     FROM [Customers] AS [c0]

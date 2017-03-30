@@ -9,9 +9,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
     /// <summary>
-    ///     Reducible annotation expression used to affect null expansion logic.
+    ///     Reducible annotation expression indicating that the following expression fragment has been compensated for null semantics.
+    ///     No additional null semantics related processing is needed for this fragment.
     /// </summary>
-    public class NotNullableExpression : Expression
+    public class NullCompensatedExpression : Expression
     {
         private readonly Expression _operand;
 
@@ -19,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Creates an instance of NotNullableExpression.
         /// </summary>
         /// <param name="operand"> The operand. </param>
-        public NotNullableExpression([NotNull] Expression operand)
+        public NullCompensatedExpression([NotNull] Expression operand)
         {
             Check.NotNull(operand, nameof(operand));
 
@@ -53,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var newExpression = visitor.Visit(_operand);
 
             return newExpression != _operand
-                ? new NotNullableExpression(newExpression)
+                ? new NullCompensatedExpression(newExpression)
                 : this;
         }
 
@@ -90,10 +91,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return true;
             }
 
-            return obj.GetType() == GetType() && Equals((NotNullableExpression)obj);
+            return obj.GetType() == GetType() && Equals((NullCompensatedExpression)obj);
         }
 
-        private bool Equals([NotNull] NotNullableExpression other) => Equals(_operand, other._operand);
+        private bool Equals([NotNull] NullCompensatedExpression other) => Equals(_operand, other._operand);
 
         /// <summary>
         ///     Returns a hash code for this object.
