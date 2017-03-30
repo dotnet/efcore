@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Sql;
@@ -151,10 +152,56 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
+        ///     Tests if this object is considered equal to another.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns>
+        ///     true if the objects are considered equal, false if they are not.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((InExpression)obj);
+        }
+
+        private bool Equals(InExpression other)
+            => Operand.Equals(other.Operand)
+               && Values.SequenceEqual(other.Values)
+               && SubQuery.Equals(other.SubQuery);
+
+        /// <summary>
+        ///     Returns a hash code for this object.
+        /// </summary>
+        /// <returns>
+        ///     A hash code for this object.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Operand.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Values != null
+                               ? Values.Aggregate(0, (current, value) => current + ((current * 397) ^ value.GetHashCode()))
+                               : 0);
+                hashCode = (hashCode * 397) ^ (SubQuery?.GetHashCode() ?? 0);
+                return hashCode;
+            }
+        }
+
+        /// <summary>
         ///     Creates a <see cref="String" /> representation of the Expression.
         /// </summary>
         /// <returns>A <see cref="String" /> representation of the Expression.</returns>
         public override string ToString()
-            => Operand + " IN (" + string.Join(", ", Values) + ")";
+            => Operand + " IN (" + (Values != null ? string.Join(", ", Values) : SubQuery.ToString()) + ")";
     }
 }

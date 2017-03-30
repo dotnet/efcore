@@ -79,6 +79,38 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
+        ///     Tests if this object is considered equal to another.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns>
+        ///     true if the objects are considered equal, false if they are not.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((IsNullExpression)obj);
+        }
+
+        private bool Equals(IsNullExpression other) => Equals(_operand, other._operand);
+
+        /// <summary>
+        ///     Returns a hash code for this object.
+        /// </summary>
+        /// <returns>
+        ///     A hash code for this object.
+        /// </returns>
+        public override int GetHashCode() => _operand.GetHashCode();
+
+        /// <summary>
         ///     Creates a <see cref="String" /> representation of the Expression.
         /// </summary>
         /// <returns>A <see cref="String" /> representation of the Expression.</returns>

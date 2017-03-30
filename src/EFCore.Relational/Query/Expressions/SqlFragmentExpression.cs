@@ -70,5 +70,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     itself with the modified children.
         /// </remarks>
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+
+        /// <summary>
+        ///     Tests if this object is considered equal to another.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns>
+        ///     true if the objects are considered equal, false if they are not.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((SqlFragmentExpression)obj);
+        }
+
+        private bool Equals(SqlFragmentExpression other) => string.Equals(Sql, other.Sql);
+
+        /// <summary>
+        ///     Returns a hash code for this object.
+        /// </summary>
+        /// <returns>
+        ///     A hash code for this object.
+        /// </returns>
+        public override int GetHashCode() => Sql.GetHashCode();
     }
 }

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
@@ -105,7 +103,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     node,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
-                            _relationalAnnotationProvider.For(property).ColumnName,
                             property,
                             querySource),
                     bindSubQueries: true);
@@ -129,7 +126,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     node,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
-                            _relationalAnnotationProvider.For(property).ColumnName,
                             property,
                             querySource),
                     bindSubQueries: true);
@@ -246,8 +242,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     .QuerySourceRequiresMaterialization(_querySource)
                 || QueryModelVisitor.RequiresClientEval)
             {
-                Dictionary<Type, int[]> typeIndexMap;
-
                 var materializer
                     = _materializerFactory
                         .CreateMaterializer(
@@ -255,11 +249,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             selectExpression,
                             (p, se) =>
                                 se.AddToProjection(
-                                    _relationalAnnotationProvider.For(p).ColumnName,
                                     p,
                                     _querySource),
                             _querySource,
-                            out typeIndexMap).Compile();
+                            out var typeIndexMap).Compile();
 
                 shaper
                     = (Shaper)_createEntityShaperMethodInfo.MakeGenericMethod(elementType)
@@ -301,10 +294,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     .For(concreteEntityTypes[0]).DiscriminatorProperty;
 
             var discriminatorColumn
-                = new ColumnExpression(
-                    _relationalAnnotationProvider.For(discriminatorProperty).ColumnName,
+                = selectExpression.BindPropertyToSelectExpression(
                     discriminatorProperty,
-                    selectExpression.GetTableForQuerySource(querySource));
+                    querySource);
 
             var firstDiscriminatorValue
                 = Expression.Constant(

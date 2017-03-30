@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Remotion.Linq.Parsing;
 
@@ -26,34 +25,34 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitConstant(ConstantExpression node)
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
-            if (node.Value == null
+            if (constantExpression.Value == null
                 && !_nullConstantAdded)
             {
-                AddToResult(new IsNullExpression(node));
+                AddToResult(new IsNullExpression(constantExpression));
                 _nullConstantAdded = true;
             }
 
-            return node;
+            return constantExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitBinary(BinaryExpression node)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             // a ?? b == null <-> a == null && b == null
-            if (node.NodeType == ExpressionType.Coalesce)
+            if (binaryExpression.NodeType == ExpressionType.Coalesce)
             {
                 var current = ResultExpression;
                 ResultExpression = null;
-                Visit(node.Left);
+                Visit(binaryExpression.Left);
                 var left = ResultExpression;
 
                 ResultExpression = null;
-                Visit(node.Right);
+                Visit(binaryExpression.Right);
                 var right = ResultExpression;
 
                 var coalesce = CombineExpressions(left, right, ExpressionType.AndAlso);
@@ -65,60 +64,58 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             // a && b == null <-> a == null && b != false || a != false && b == null
             // this transformation would produce a query that is too complex
             // so we just wrap the whole expression into IsNullExpression instead.
-            if ((node.NodeType == ExpressionType.AndAlso)
-                || (node.NodeType == ExpressionType.OrElse))
+            if (binaryExpression.NodeType == ExpressionType.AndAlso
+                || binaryExpression.NodeType == ExpressionType.OrElse)
             {
-                AddToResult(new IsNullExpression(node));
+                AddToResult(new IsNullExpression(binaryExpression));
             }
 
-            return node;
+            return binaryExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitExtension(Expression node)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (node is AliasExpression aliasExpression)
+            if (extensionExpression is AliasExpression aliasExpression)
             {
                 return Visit(aliasExpression.Expression);
             }
 
-            var columnExpression = node.TryGetColumnExpression();
-
-            if (columnExpression != null
+            if (extensionExpression is ColumnExpression columnExpression
                 && columnExpression.Property.IsNullable)
             {
-                AddToResult(new IsNullExpression(node));
+                AddToResult(new IsNullExpression(extensionExpression));
 
-                return node;
+                return extensionExpression;
             }
 
-            if (node is NullableExpression nullableExpression)
+            if (extensionExpression is NullableExpression nullableExpression)
             {
                 AddToResult(new IsNullExpression(nullableExpression.Operand));
 
-                return node;
+                return extensionExpression;
             }
 
-            return node;
+            return extensionExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitConditional(ConditionalExpression node)
+        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
             var current = ResultExpression;
 
             ResultExpression = null;
-            Visit(node.IfTrue);
+            Visit(conditionalExpression.IfTrue);
             var ifTrue = ResultExpression;
 
             ResultExpression = null;
-            Visit(node.IfTrue);
+            Visit(conditionalExpression.IfTrue);
             var ifFalse = ResultExpression;
 
             ResultExpression = current;
@@ -128,30 +125,28 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             // so we just wrap the whole expression into IsNullExpression instead.
             //
             // small optimization: expression can only be nullable if either (or both) of the possible results (ifTrue, ifFalse) can be nullable
-            if ((ifTrue != null)
-                || (ifFalse != null))
+            if (ifTrue != null
+                || ifFalse != null)
             {
-                AddToResult(new IsNullExpression(node));
+                AddToResult(new IsNullExpression(conditionalExpression));
             }
 
-            return node;
+            return conditionalExpression;
         }
 
         private static Expression CombineExpressions(
             Expression left, Expression right, ExpressionType expressionType)
         {
-            if ((left == null)
-                && (right == null))
+            if (left == null
+                && right == null)
             {
                 return null;
             }
 
-            if ((left != null)
-                && (right != null))
+            if (left != null
+                && right != null)
             {
-                return expressionType == ExpressionType.AndAlso
-                    ? Expression.AndAlso(left, right)
-                    : Expression.OrElse(left, right);
+                return Expression.MakeBinary(expressionType, left, right);
             }
 
             return left ?? right;

@@ -99,5 +99,44 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 ? specificVisitor.VisitPropertyParameter(this)
                 : base.Accept(visitor);
         }
+
+        /// <summary>
+        ///     Tests if this object is considered equal to another.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns>
+        ///     true if the objects are considered equal, false if they are not.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((PropertyParameterExpression)obj);
+        }
+
+        private bool Equals(PropertyParameterExpression other)
+            => string.Equals(Name, other.Name) && Equals(Property, other.Property);
+
+        /// <summary>
+        ///     Returns a hash code for this object.
+        /// </summary>
+        /// <returns>
+        ///     A hash code for this object.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Name.GetHashCode() * 397) ^ Property.GetHashCode();
+            }
+        }
     }
 }

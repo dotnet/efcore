@@ -17,12 +17,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <summary>
         ///     Creates a new instance of a ExistsExpression..
         /// </summary>
-        /// <param name="expression"> The subquery operand of the EXISTS expression. </param>
-        public ExistsExpression([NotNull] Expression expression)
+        /// <param name="subquery"> The subquery operand of the EXISTS expression. </param>
+        public ExistsExpression([NotNull] SelectExpression subquery)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(subquery, nameof(subquery));
 
-            Expression = expression;
+            Subquery = subquery;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <value>
         ///     The subquery operand of the EXISTS expression.
         /// </value>
-        public virtual Expression Expression { get; }
+        public virtual SelectExpression Subquery { get; }
 
         /// <summary>
         ///     Returns the node type of this <see cref="Expression" />. (Inherited from <see cref="Expression" />.)
@@ -74,11 +74,43 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </remarks>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var expression = visitor.Visit(Expression);
+            var subquery = (SelectExpression)visitor.Visit(Subquery);
 
-            return expression != Expression
-                ? new ExistsExpression(expression)
+            return subquery != Subquery
+                ? new ExistsExpression(subquery)
                 : this;
         }
+
+        /// <summary>
+        ///     Tests if this object is considered equal to another.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns>
+        ///     true if the objects are considered equal, false if they are not.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((ExistsExpression)obj);
+        }
+
+        private bool Equals(ExistsExpression other) => Equals(Subquery, other.Subquery);
+
+        /// <summary>
+        ///     Returns a hash code for this object.
+        /// </summary>
+        /// <returns>
+        ///     A hash code for this object.
+        /// </returns>
+        public override int GetHashCode() => Subquery.GetHashCode();
     }
 }

@@ -1,14 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
@@ -38,6 +34,51 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return specificVisitor != null
                 ? specificVisitor.VisitLeftOuterJoin(this)
                 : base.Accept(visitor);
+        }
+
+        /// <summary>
+        ///     Tests if this object is considered equal to another.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns>
+        ///     true if the objects are considered equal, false if they are not.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((LeftOuterJoinExpression)obj);
+        }
+
+        private bool Equals(LeftOuterJoinExpression other)
+            => string.Equals(Alias, other.Alias)
+               && Equals(QuerySource, other.QuerySource)
+               && Equals(Predicate, other.Predicate);
+
+        /// <summary>
+        ///     Returns a hash code for this object.
+        /// </summary>
+        /// <returns>
+        ///     A hash code for this object.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Alias?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ (QuerySource?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (Predicate?.GetHashCode() ?? 0);
+
+                return hashCode;
+            }
         }
 
         /// <summary>

@@ -956,7 +956,6 @@ FROM [Weapon] AS [w]",
 
         public override void Select_ternary_operation_with_has_value_not_null()
         {
-            // TODO: Optimize this query (See #4267)
             base.Select_ternary_operation_with_has_value_not_null();
 
             AssertSql(
@@ -2360,7 +2359,8 @@ LEFT JOIN (
     SELECT [g].*
     FROM [Gear] AS [g]
     WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])",
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+ORDER BY [t].[GearNickName], [t].[GearSquadId]",
                 Sql);
         }
 

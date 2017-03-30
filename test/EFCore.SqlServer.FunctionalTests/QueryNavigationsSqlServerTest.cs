@@ -1121,15 +1121,6 @@ FROM [Orders] AS [o2]
 WHERE @_outer_CustomerID = [o2].[CustomerID]
 
 SELECT [o4].[OrderID]
-FROM [Orders] AS [o4]
-
-@_outer_CustomerID: ANATR (Size = 450)
-
-SELECT [o2].[OrderID]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID = [o2].[CustomerID]
-
-SELECT [o4].[OrderID]
 FROM [Orders] AS [o4]",
                 Sql);
         }

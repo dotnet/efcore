@@ -366,15 +366,15 @@ ORDER BY (
 SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
 FROM [Orders] AS [c.Orders]
 INNER JOIN (
-    SELECT TOP(1) [c0].*
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c0].[CustomerID]) = 1)
-    ORDER BY (
+    SELECT TOP(1) [c0].*, (
         SELECT TOP(1) [oo0].[OrderDate]
         FROM [Orders] AS [oo0]
         WHERE [c0].[CustomerID] = [oo0].[CustomerID]
         ORDER BY [oo0].[OrderDate] DESC
-    ) DESC, [c0].[CustomerID]
+    ) AS [c]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c0].[CustomerID]) = 1)
+    ORDER BY [c] DESC, [c0].[CustomerID]
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
 ORDER BY (
     SELECT TOP(1) [oo1].[OrderDate]
@@ -508,15 +508,15 @@ ORDER BY (
 SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
 FROM [Orders] AS [c.Orders]
 INNER JOIN (
-    SELECT TOP(1) [c0].*
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] = N'ALFKI'
-    ORDER BY (
+    SELECT TOP(1) [c0].*, (
         SELECT TOP(1) [o0].[OrderDate]
         FROM [Orders] AS [o0]
         WHERE [c0].[CustomerID] = [o0].[CustomerID]
         ORDER BY [o0].[EmployeeID]
-    ), [c0].[CustomerID]
+    ) AS [c]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] = N'ALFKI'
+    ORDER BY [c], [c0].[CustomerID]
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
 ORDER BY (
     SELECT TOP(1) [o1].[OrderDate]
@@ -524,7 +524,7 @@ ORDER BY (
     WHERE [t].[CustomerID] = [o1].[CustomerID]
     ORDER BY [o1].[EmployeeID]
 ), [t].[CustomerID]",
-                Sql);
+                    Sql);
         }
 
         public override void Include_collection_as_no_tracking(bool useString)
@@ -1376,17 +1376,17 @@ INNER JOIN (
         FROM [Orders] AS [oo]
         WHERE [c].[CustomerID] = [oo].[CustomerID]
         ORDER BY [oo].[OrderDate] DESC
-    ) AS [c0_0], [c].[CustomerID]
+    ) AS [c], [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c].[CustomerID]) = 1)
-    ORDER BY [c0_0] DESC, [c].[CustomerID]
+    ORDER BY [c] DESC, [c].[CustomerID]
 ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[c0_0] DESC, [c0].[CustomerID], [o].[OrderID]
+ORDER BY [c0].[c] DESC, [c0].[CustomerID], [o].[OrderID]
 
 SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
 FROM [Order Details] AS [o0]
 INNER JOIN (
-    SELECT DISTINCT [c0].[c0_0], [c0].[CustomerID], [o].[OrderID]
+    SELECT DISTINCT [c0].[c], [c0].[CustomerID], [o].[OrderID]
     FROM [Orders] AS [o]
     INNER JOIN (
         SELECT DISTINCT TOP(1) (
@@ -1394,13 +1394,13 @@ INNER JOIN (
             FROM [Orders] AS [oo]
             WHERE [c].[CustomerID] = [oo].[CustomerID]
             ORDER BY [oo].[OrderDate] DESC
-        ) AS [c0_0], [c].[CustomerID]
+        ) AS [c], [c].[CustomerID]
         FROM [Customers] AS [c]
         WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c].[CustomerID]) = 1)
-        ORDER BY [c0_0] DESC, [c].[CustomerID]
+        ORDER BY [c] DESC, [c].[CustomerID]
     ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
 ) AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-ORDER BY [o1].[c0_0] DESC, [o1].[CustomerID], [o1].[OrderID]",
+ORDER BY [o1].[c] DESC, [o1].[CustomerID], [o1].[OrderID]",
                 Sql);
         }
 

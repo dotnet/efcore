@@ -1089,12 +1089,17 @@ WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]",
             base.Where_comparison_null_constant_and_null_parameter();
 
             Assert.Equal(
-                @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+                @"@__prm_0:  (Size = 4000) (DbType = String)
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE 0 = 1",
+WHERE @__prm_0 IS NULL
+
+@__prm_0:  (Size = 4000) (DbType = String)
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE @__prm_0 IS NOT NULL",
                 Sql);
         }
 
@@ -1103,12 +1108,17 @@ WHERE 0 = 1",
             base.Where_comparison_null_constant_and_nonnull_parameter();
 
             Assert.Equal(
-                @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
-WHERE 0 = 1
+                @"@__prm_0: Foo (Size = 4000)
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]",
+FROM [NullSemanticsEntity1] AS [e]
+WHERE @__prm_0 IS NULL
+
+@__prm_0: Foo (Size = 4000)
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE @__prm_0 IS NOT NULL",
                 Sql);
         }
 

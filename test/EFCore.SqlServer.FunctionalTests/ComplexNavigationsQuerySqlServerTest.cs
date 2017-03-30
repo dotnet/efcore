@@ -2494,7 +2494,7 @@ ORDER BY [l1.OneToOne_Optional_FK].[Name], [l1].[Id]",
             AssertSql(
                 @"@__p_0: 2
 
-SELECT [l2].[Id], [t].[Name], [t].[Id]
+SELECT [l2].[Id], [t].[Name]
 FROM [Level2] AS [l2]
 LEFT JOIN (
     SELECT TOP(@__p_0) [x].*

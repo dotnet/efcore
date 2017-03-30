@@ -95,9 +95,53 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var newLeft = visitor.Visit(Left);
             var newRight = visitor.Visit(Right);
 
-            return (newLeft != Left) || (newRight != Right)
+            return newLeft != Left || newRight != Right
                 ? new StringCompareExpression(Operator, newLeft, newRight)
                 : this;
+        }
+
+        /// <summary>
+        ///     Tests if this object is considered equal to another.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns>
+        ///     true if the objects are considered equal, false if they are not.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((StringCompareExpression)obj);
+        }
+
+        private bool Equals(StringCompareExpression other)
+            => Operator == other.Operator
+               && Equals(Left, other.Left)
+               && Equals(Right, other.Right);
+
+        /// <summary>
+        ///     Returns a hash code for this object.
+        /// </summary>
+        /// <returns>
+        ///     A hash code for this object.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (int)Operator;
+                hashCode = (hashCode * 397) ^ Left.GetHashCode();
+                hashCode = (hashCode * 397) ^ Right.GetHashCode();
+                return hashCode;
+            }
         }
     }
 }

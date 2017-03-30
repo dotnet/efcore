@@ -87,9 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var discriminatorProperty = _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorProperty;
 
             var discriminatorColumn
-                = selectExpression.Projection
-                    .OfType<AliasExpression>()
-                    .Last(c => c.TryGetColumnExpression()?.Property == discriminatorProperty);
+                = selectExpression.Projection.Last(c => (c as ColumnExpression)?.Property == discriminatorProperty);
 
             var firstDiscriminatorValue
                 = Expression.Constant(

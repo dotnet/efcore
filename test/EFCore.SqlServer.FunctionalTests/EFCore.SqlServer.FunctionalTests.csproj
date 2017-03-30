@@ -5,6 +5,9 @@
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp1.1</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests</RootNamespace>
+    <!-- TODO: Remove when Microsoft/vstest#428 is fixed. -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="**\*.sql" Exclude="obj\**;bin\**">

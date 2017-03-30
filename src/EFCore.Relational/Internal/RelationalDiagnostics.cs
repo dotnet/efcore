@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public const string ConnectionOpened = NamePrefix + nameof(ConnectionOpened);
         public const string ConnectionClosing = NamePrefix + nameof(ConnectionClosing);
         public const string ConnectionClosed = NamePrefix + nameof(ConnectionClosed);
-        public const string ConnectionError = NamePrefix + nameof(ConnectionClosed);
+        public const string ConnectionError = NamePrefix + nameof(ConnectionError);
 
         public const string TransactionStarted = NamePrefix + nameof(TransactionStarted);
         public const string TransactionCommitted = NamePrefix + nameof(TransactionCommitted);

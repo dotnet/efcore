@@ -5,7 +5,8 @@
     <DependencyModelVersion>1.1.0</DependencyModelVersion>
     <EF6Version>6.1.3</EF6Version>
     <ImmutableCollectionsVersion>1.3.1</ImmutableCollectionsVersion>
-    <JsonNetVersion>9.0.1</JsonNetVersion>
+    <InternalAspNetCoreSdkVersion>2.0.0-*</InternalAspNetCoreSdkVersion>
+    <JsonNetVersion>10.0.1</JsonNetVersion>
     <MoqVersion>4.6.38-alpha</MoqVersion>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
     <RelinqVersion>2.1.1</RelinqVersion>

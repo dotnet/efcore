@@ -50,11 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         /// </summary>
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
-            if (selectExpression.Projection.OfType<RowNumberExpression>().Any())
-            {
-                return;
-            }
-
             if (selectExpression.Offset != null
                 && !selectExpression.OrderBy.Any())
             {
@@ -74,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 
             Sql.Append("ROW_NUMBER() OVER(");
             GenerateOrderBy(rowNumberExpression.Orderings);
-            Sql.Append(") AS ").Append(SqlGenerator.DelimitIdentifier(rowNumberExpression.ColumnExpression.Name));
+            Sql.Append(")");
 
             return rowNumberExpression;
         }
@@ -103,9 +98,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             return base.VisitSqlFunction(sqlFunctionExpression);
         }
 
-        protected override void GenerateProjection([NotNull] Expression projection)
+        protected override void GenerateProjection(Expression projection)
         {
-            var newProjection = (projection as AliasExpression)?.Expression?.NodeType == ExpressionType.Coalesce
+            var newProjection = (projection as BinaryExpression)?.NodeType == ExpressionType.Coalesce
                 && projection.Type.UnwrapNullableType() == typeof(bool)
                     ? new ExplicitCastExpression(projection, projection.Type)
                     : projection;

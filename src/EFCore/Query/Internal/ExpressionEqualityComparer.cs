@@ -253,14 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                     case ExpressionType.Extension:
                     {
-                        var nullConditionalExpression = obj as NullConditionalExpression;
-
-                        if (nullConditionalExpression == null)
-                        {
-                            goto default;
-                        }
-
-                        hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalExpression.AccessOperation);
+                        hashCode += (hashCode * 397) ^ obj.GetHashCode();
 
                         break;
                     }
@@ -380,6 +373,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return CompareMemberInit((MemberInitExpression)a, (MemberInitExpression)b);
                     case ExpressionType.ListInit:
                         return CompareListInit((ListInitExpression)a, (ListInitExpression)b);
+                    case ExpressionType.Extension:
+                        return CompareExtension(a, b);
                     default:
                         throw new NotImplementedException();
                 }
@@ -440,8 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (_parameterScope != null)
                 {
-                    ParameterExpression mapped;
-                    if (_parameterScope.TryGetValue(a, out mapped))
+                    if (_parameterScope.TryGetValue(a, out ParameterExpression mapped))
                     {
                         return mapped.Name == b.Name
                                && mapped.Type == b.Type;
@@ -563,6 +557,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private bool CompareNewArray(NewArrayExpression a, NewArrayExpression b)
                 => CompareExpressionList(a.Expressions, b.Expressions);
+
+            private bool CompareExtension(Expression a, Expression b)
+                => a.Equals(b);
 
             private bool CompareInvocation(InvocationExpression a, InvocationExpression b)
                 => Compare(a.Expression, b.Expression)

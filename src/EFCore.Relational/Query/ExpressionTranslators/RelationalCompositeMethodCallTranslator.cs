@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
                 {
                     new EnumHasFlagTranslator(),
                     new EqualsTranslator(dependencies.Logger),
-                    new IsNullOrEmptyTranslator()
+                    new IsNullOrEmptyTranslator(),
+                    new LikeTranslator()
                 };
         }
 

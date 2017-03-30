@@ -541,7 +541,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory") as string;
                 if (string.IsNullOrEmpty(dataDirectory))
+                {
                     dataDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                }
+
                 fileName = Path.Combine(dataDirectory, fileName.Substring("|DataDirectory|".Length));
             }
 #elif NETSTANDARD1_3

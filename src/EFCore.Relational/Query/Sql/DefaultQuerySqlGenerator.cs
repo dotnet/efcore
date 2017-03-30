@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private IReadOnlyDictionary<string, object> _parametersValues;
         private ParameterNameGenerator _parameterNameGenerator;
         private RelationalTypeMapping _typeMapping;
+        private NullComparisonTransformingVisitor _nullComparisonTransformingVisitor;
         private RelationalNullsExpandingVisitor _relationalNullsExpandingVisitor;
         private PredicateReductionExpressionOptimizer _predicateReductionExpressionOptimizer;
         private PredicateNegationExpressionOptimizer _predicateNegationExpressionOptimizer;
@@ -123,6 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _parameterNameGenerator = Dependencies.ParameterNameGeneratorFactory.Create();
 
             _parametersValues = parameterValues;
+            _nullComparisonTransformingVisitor = new NullComparisonTransformingVisitor(parameterValues);
             IsCacheable = true;
 
             Visit(SelectExpression);
@@ -262,9 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
         private Expression ApplyOptimizations(Expression expression, bool searchCondition, bool joinCondition = false)
         {
-            var newExpression
-                = new NullComparisonTransformingVisitor(_parametersValues)
-                    .Visit(expression);
+            var newExpression = _nullComparisonTransformingVisitor.Visit(expression);
 
             if (_relationalNullsExpandingVisitor == null)
             {
@@ -365,27 +365,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Check.NotNull(ordering, nameof(ordering));
 
             var orderingExpression = ordering.Expression;
-            var aliasExpression = orderingExpression as AliasExpression;
 
-            if (aliasExpression != null)
+            if (orderingExpression is AliasExpression aliasExpression)
             {
-                if (aliasExpression.Alias != null)
-                {
-                    var columnExpression = aliasExpression.TryGetColumnExpression();
-
-                    if (columnExpression != null)
-                    {
-                        _relationalCommandBuilder
-                            .Append(SqlGenerator.DelimitIdentifier(columnExpression.TableAlias))
-                            .Append(".");
-                    }
-
-                    _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(aliasExpression.Alias));
-                }
-                else
-                {
-                    Visit(aliasExpression.Expression);
-                }
+                _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(aliasExpression.Alias));
             }
             else if (orderingExpression is ConstantExpression
                      || orderingExpression is ParameterExpression)
@@ -471,8 +454,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 {
                     var parameterExpression = (ParameterExpression)arguments;
 
-                    object parameterValue;
-                    if (parameters.TryGetValue(parameterExpression.Name, out parameterValue))
+                    if (parameters.TryGetValue(parameterExpression.Name, out object parameterValue))
                     {
                         var argumentValues = (object[])parameterValue;
 
@@ -791,20 +773,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             foreach (var inValue in inExpressionValues)
             {
-                var inConstant = inValue as ConstantExpression;
-
-                if (inConstant != null)
+                if (inValue is ConstantExpression inConstant)
                 {
                     AddInExpressionValues(inConstant.Value, inConstants, inConstant);
                 }
                 else
                 {
-                    var inParameter = inValue as ParameterExpression;
-
-                    if (inParameter != null)
+                    if (inValue is ParameterExpression inParameter)
                     {
-                        object parameterValue;
-                        if (_parametersValues.TryGetValue(inParameter.Name, out parameterValue))
+                        if (_parametersValues.TryGetValue(inParameter.Name, out object parameterValue))
                         {
                             AddInExpressionValues(parameterValue, inConstants, inParameter);
 
@@ -813,18 +790,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     }
                     else
                     {
-                        var inListInit = inValue as ListInitExpression;
-
-                        if (inListInit != null)
+                        if (inValue is ListInitExpression inListInit)
                         {
                             inConstants.AddRange(ProcessInExpressionValues(
                                 inListInit.Initializers.SelectMany(i => i.Arguments)));
                         }
                         else
                         {
-                            var newArray = inValue as NewArrayExpression;
-
-                            if (newArray != null)
+                            if (inValue is NewArrayExpression newArray)
                             {
                                 inConstants.AddRange(ProcessInExpressionValues(newArray.Expressions));
                             }
@@ -839,10 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private static void AddInExpressionValues(
             object value, List<Expression> inConstants, Expression expression)
         {
-            var valuesEnumerable = value as IEnumerable;
-
-            if (valuesEnumerable != null
-                && value.GetType() != typeof(string)
+            if (value is IEnumerable valuesEnumerable && value.GetType() != typeof(string)
                 && value.GetType() != typeof(byte[]))
             {
                 inConstants.AddRange(valuesEnumerable.Cast<object>().Select(Expression.Constant));
@@ -876,13 +846,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     continue;
                 }
 
-                var inParameter = inValue as ParameterExpression;
-
-                if (inParameter != null)
+                if (inValue is ParameterExpression inParameter)
                 {
-                    object parameterValue;
-
-                    if (_parametersValues.TryGetValue(inParameter.Name, out parameterValue))
+                    if (_parametersValues.TryGetValue(inParameter.Name, out object parameterValue))
                     {
                         if (parameterValue != null)
                         {
@@ -1008,10 +974,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.AppendLine();
                 _relationalCommandBuilder.Append("THEN ");
 
-                var constantIfTrue = conditionalExpression.IfTrue as ConstantExpression;
-
-                if (constantIfTrue != null
-                    && constantIfTrue.Type == typeof(bool))
+                if (conditionalExpression.IfTrue is ConstantExpression constantIfTrue && constantIfTrue.Type == typeof(bool))
                 {
                     _relationalCommandBuilder.Append((bool)constantIfTrue.Value ? TypedTrueLiteral : TypedFalseLiteral);
                 }
@@ -1022,10 +985,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 _relationalCommandBuilder.Append(" ELSE ");
 
-                var constantIfFalse = conditionalExpression.IfFalse as ConstantExpression;
-
-                if (constantIfFalse != null
-                    && constantIfFalse.Type == typeof(bool))
+                if (conditionalExpression.IfFalse is ConstantExpression constantIfFalse && constantIfFalse.Type == typeof(bool))
                 {
                     _relationalCommandBuilder.Append((bool)constantIfFalse.Value ? TypedTrueLiteral : TypedFalseLiteral);
                 }
@@ -1057,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             using (_relationalCommandBuilder.Indent())
             {
-                Visit(existsExpression.Expression);
+                Visit(existsExpression.Subquery);
             }
 
             _relationalCommandBuilder.Append(")");
@@ -1097,11 +1057,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     {
                         _typeMapping
                             = InferTypeMappingFromColumn(binaryExpression.Left)
-                              ?? InferTypeMappingFromColumn(binaryExpression.Right)
-                              ?? parentTypeMapping;
+                                ?? InferTypeMappingFromColumn(binaryExpression.Right)
+                                ?? parentTypeMapping;
                     }
 
-                    var needParens = binaryExpression.Left.RemoveConvert() is BinaryExpression;
+                    var needParens = binaryExpression.Left.RemoveConvert() is BinaryExpression leftBinaryExpression
+                                     && leftBinaryExpression.NodeType != ExpressionType.Coalesce;
 
                     if (needParens)
                     {
@@ -1117,7 +1078,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     _relationalCommandBuilder.Append(GenerateOperator(binaryExpression));
 
-                    needParens = binaryExpression.Right.RemoveConvert() is BinaryExpression;
+                    needParens = binaryExpression.Right.RemoveConvert() is BinaryExpression rightBinaryExpression
+                                 && rightBinaryExpression.NodeType != ExpressionType.Coalesce;
 
                     if (needParens)
                     {
@@ -1151,11 +1113,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(columnExpression, nameof(columnExpression));
 
-            _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(columnExpression.TableAlias))
+            _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(columnExpression.Table.Alias))
                 .Append(".")
                 .Append(SqlGenerator.DelimitIdentifier(columnExpression.Name));
 
             return columnExpression;
+        }
+
+        /// <summary>
+        ///     Visits a ColumnReferenceExpression.
+        /// </summary>
+        /// <param name="columnReferenceExpression"> The column reference expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        public virtual Expression VisitColumnReference(ColumnReferenceExpression columnReferenceExpression)
+        {
+            Check.NotNull(columnReferenceExpression, nameof(columnReferenceExpression));
+
+            _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(columnReferenceExpression.Table.Alias))
+                .Append(".")
+                .Append(SqlGenerator.DelimitIdentifier(columnReferenceExpression.Name));
+
+            return columnReferenceExpression;
         }
 
         /// <summary>
@@ -1169,14 +1149,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(aliasExpression, nameof(aliasExpression));
 
-            if (!aliasExpression.IsProjected)
-            {
-                Visit(aliasExpression.Expression);
+            Visit(aliasExpression.Expression);
 
-                if (aliasExpression.Alias != null)
-                {
-                    _relationalCommandBuilder.Append(" AS ");
-                }
+            if (aliasExpression.Alias != null)
+            {
+                _relationalCommandBuilder.Append(" AS ");
             }
 
             if (aliasExpression.Alias != null)
@@ -1242,6 +1219,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalCommandBuilder.Append(" LIKE ");
 
             Visit(likeExpression.Pattern);
+
+            if (likeExpression.EscapeChar != null)
+            {
+                _relationalCommandBuilder.Append(" ESCAPE ");
+                Visit(likeExpression.EscapeChar);
+            }
 
             _typeMapping = parentTypeMapping;
 
@@ -1331,16 +1314,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 case ExpressionType.Not:
                 {
-                    var inExpression = expression.Operand as InExpression;
-
-                    if (inExpression != null)
+                    if (expression.Operand is InExpression inExpression)
                     {
                         return GenerateNotIn(inExpression);
                     }
 
-                    var isNullExpression = expression.Operand as IsNullExpression;
-
-                    if (isNullExpression != null)
+                    if (expression.Operand is IsNullExpression isNullExpression)
                     {
                         return GenerateIsNotNull(isNullExpression);
                     }
@@ -1464,10 +1443,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </returns>
         protected virtual RelationalTypeMapping InferTypeMappingFromColumn([NotNull] Expression expression)
         {
-            var column = expression.TryGetColumnExpression();
-            return column?.Property != null
-                ? Dependencies.RelationalTypeMapper.FindMapping(column.Property)
-                : null;
+            switch (expression)
+            {
+                case ColumnExpression columnExpression:
+                    return Dependencies.RelationalTypeMapper.FindMapping(columnExpression.Property);
+                case ColumnReferenceExpression columnReferenceExpression:
+                    return InferTypeMappingFromColumn(columnReferenceExpression.Expression);
+                case AliasExpression aliasExpression:
+                    return InferTypeMappingFromColumn(aliasExpression.Expression);
+                default:
+                    return null;
+            }
         }
 
         /// <summary>
@@ -1503,8 +1489,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 case ExpressionType.Extension:
                 {
-                    var asStringCompareExpression = expression as StringCompareExpression;
-                    if (asStringCompareExpression != null)
+                    if (expression is StringCompareExpression asStringCompareExpression)
                     {
                         return GenerateBinaryOperator(asStringCompareExpression.Operator);
                     }
@@ -1559,34 +1544,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     var leftExpression = expression.Left.RemoveConvert();
                     var rightExpression = expression.Right.RemoveConvert();
 
-                    var parameter
-                        = rightExpression as ParameterExpression
-                          ?? leftExpression as ParameterExpression;
+                    var parameterExpression = leftExpression as ParameterExpression
+                                              ?? rightExpression as ParameterExpression;
 
-                    object parameterValue;
-                    if (parameter != null
-                        && _parameterValues.TryGetValue(parameter.Name, out parameterValue))
+                    if (parameterExpression != null
+                        && _parameterValues.TryGetValue(parameterExpression.Name, out object parameterValue))
                     {
-                        if (parameterValue == null)
-                        {
-                            var columnExpression
-                                = leftExpression.TryGetColumnExpression()
-                                  ?? rightExpression.TryGetColumnExpression();
+                        var nonParameterExpression = leftExpression is ParameterExpression ? rightExpression : leftExpression;
 
-                            if (columnExpression != null)
-                            {
-                                return
-                                    expression.NodeType == ExpressionType.Equal
-                                        ? (Expression)new IsNullExpression(columnExpression)
-                                        : Expression.Not(new IsNullExpression(columnExpression));
-                            }
-                        }
-
-                        var constantExpression
-                            = leftExpression as ConstantExpression
-                              ?? rightExpression as ConstantExpression;
-
-                        if (constantExpression != null)
+                        if (nonParameterExpression is ConstantExpression constantExpression)
                         {
                             if (parameterValue == null
                                 && constantExpression.Value == null)
@@ -1605,6 +1571,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                                         ? Expression.Constant(false)
                                         : Expression.Constant(true);
                             }
+                        }
+
+                        if (parameterValue == null)
+                        {
+                            return
+                                expression.NodeType == ExpressionType.Equal
+                                    ? (Expression)new IsNullExpression(nonParameterExpression)
+                                    : Expression.Not(new IsNullExpression(nonParameterExpression));
                         }
                     }
                 }
@@ -1638,10 +1612,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 // Top-level check for condition/value
                 if (_isSearchCondition && !IsSearchCondition(newExpression))
                 {
-                    var constantExpression = newExpression as ConstantExpression;
-
-                    if (constantExpression != null
-                        && (bool)constantExpression.Value)
+                    if (newExpression is ConstantExpression constantExpression && (bool)constantExpression.Value)
                     {
                         // Absorb top level True node
                         return null;
