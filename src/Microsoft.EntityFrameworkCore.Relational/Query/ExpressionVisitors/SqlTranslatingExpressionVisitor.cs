@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly bool _bindParentQueries;
         private readonly bool _inProjection;
 
-        internal static IStreamedDataInfo CurrentQueryModelStreamedDataInfo;
+        internal IStreamedDataInfo CurrentQueryModelStreamedDataInfo;
 
         /// <summary>
         ///     Creates a new instance of <see cref="SqlTranslatingExpressionVisitor" />.
@@ -724,7 +724,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                    ?? _queryModelVisitor.BindMemberToOuterQueryParameter(expression);
         }
 
-        private static AliasExpression TryBindParentExpression(
+        private AliasExpression TryBindParentExpression(
             RelationalQueryModelVisitor queryModelVisitor,
             Func<RelationalQueryModelVisitor, AliasExpression> binder)
         {
