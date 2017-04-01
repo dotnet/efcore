@@ -612,6 +612,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
+        ///     Visit a LeftJoinLateralExpression expression.
+        /// </summary>
+        /// <param name="leftJoinLateralExpression"> The left lateral join expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        public virtual Expression VisitLeftJoinLateral(LeftJoinLateralExpression leftJoinLateralExpression)
+        {
+            Check.NotNull(leftJoinLateralExpression, nameof(leftJoinLateralExpression));
+
+            _relationalCommandBuilder.Append("LEFT JOIN LATERAL ");
+
+            Visit(leftJoinLateralExpression.TableExpression);
+
+            return leftJoinLateralExpression;
+        }
+
+        /// <summary>
         ///     Visit a SqlFragmentExpression.
         /// </summary>
         /// <param name="sqlFragmentExpression"> The SqlFragmentExpression expression. </param>

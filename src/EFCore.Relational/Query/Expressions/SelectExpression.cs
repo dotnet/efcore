@@ -862,6 +862,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
+        ///     Adds a SQL LEFT JOIN LATERAL to this SelectExpression.
+        /// </summary>
+        /// <param name="tableExpression"> The target table expression. </param>
+        /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
+        public virtual JoinExpressionBase AddLeftJoinLateral(
+            [NotNull] TableExpressionBase tableExpression,
+            [NotNull] IEnumerable<Expression> projection)
+        {
+            Check.NotNull(tableExpression, nameof(tableExpression));
+            Check.NotNull(projection, nameof(projection));
+
+            var leftJoinLateralExpression = new LeftJoinLateralExpression(tableExpression);
+
+            _tables.Add(leftJoinLateralExpression);
+            _projection.AddRange(projection);
+
+            return leftJoinLateralExpression;
+        }
+
+        /// <summary>
         ///     Adds a SQL INNER JOIN to this SelectExpression.
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>

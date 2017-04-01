@@ -3724,19 +3724,13 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
             base.SelectMany_Joined_DefaultIfEmpty();
 
             Assert.Equal(
-                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [c].[ContactName]
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [c].[ContactName]
 FROM [Customers] AS [c]
-CROSS APPLY (
-    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
-    FROM (
-        SELECT NULL AS [empty]
-    ) AS [empty]
-    LEFT JOIN (
-        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [o].[CustomerID] = [c].[CustomerID]
-    ) AS [t] ON 1 = 1
-) AS [t0]",
+OUTER APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = [c].[CustomerID]
+) AS [t]",
                 Sql);
         }
 
@@ -3745,19 +3739,13 @@ CROSS APPLY (
             base.SelectMany_Joined_DefaultIfEmpty2();
 
             Assert.Equal(
-                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
-CROSS APPLY (
-    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
-    FROM (
-        SELECT NULL AS [empty]
-    ) AS [empty]
-    LEFT JOIN (
-        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [o].[CustomerID] = [c].[CustomerID]
-    ) AS [t] ON 1 = 1
-) AS [t0]",
+OUTER APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = [c].[CustomerID]
+) AS [t]",
                 Sql);
         }
 
@@ -7040,20 +7028,14 @@ WHERE [t0].[CustomerID] IS NOT NULL",
             base.DefaultIfEmpty_in_subquery();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [t0].[OrderID]
+                @"SELECT [c].[CustomerID], [t].[OrderID]
 FROM [Customers] AS [c]
-CROSS APPLY (
-    SELECT [t].*
-    FROM (
-        SELECT NULL AS [empty]
-    ) AS [empty]
-    LEFT JOIN (
-        SELECT [o].*
-        FROM [Orders] AS [o]
-        WHERE [o].[CustomerID] = [c].[CustomerID]
-    ) AS [t] ON 1 = 1
-) AS [t0]
-WHERE [t0].[OrderID] IS NOT NULL",
+OUTER APPLY (
+    SELECT [o].*
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = [c].[CustomerID]
+) AS [t]
+WHERE [t].[OrderID] IS NOT NULL",
                 Sql);
         }
 
@@ -7062,31 +7044,19 @@ WHERE [t0].[OrderID] IS NOT NULL",
             base.DefaultIfEmpty_in_subquery_nested();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [t0].[OrderID], [t2].[OrderDate]
+                @"SELECT [c].[CustomerID], [t].[OrderID], [t1].[OrderDate]
 FROM [Customers] AS [c]
-CROSS APPLY (
-    SELECT [t].*
-    FROM (
-        SELECT NULL AS [empty]
-    ) AS [empty]
-    LEFT JOIN (
-        SELECT [o].*
-        FROM [Orders] AS [o]
-        WHERE [o].[OrderID] > 11000
-    ) AS [t] ON 1 = 1
-) AS [t0]
-CROSS APPLY (
-    SELECT [t1].*
-    FROM (
-        SELECT NULL AS [empty]
-    ) AS [empty0]
-    LEFT JOIN (
-        SELECT [o0].*
-        FROM [Orders] AS [o0]
-        WHERE [o0].[CustomerID] = [c].[CustomerID]
-    ) AS [t1] ON 1 = 1
-) AS [t2]
-WHERE ([c].[City] = N'Seattle') AND ([t0].[OrderID] IS NOT NULL AND [t2].[OrderID] IS NOT NULL)",
+OUTER APPLY (
+    SELECT [o].*
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] > 11000
+) AS [t]
+OUTER APPLY (
+    SELECT [o0].*
+    FROM [Orders] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID]
+) AS [t1]
+WHERE ([c].[City] = N'Seattle') AND ([t].[OrderID] IS NOT NULL AND [t1].[OrderID] IS NOT NULL)",
                 Sql);
         }
 
