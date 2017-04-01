@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Relational.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 using Xunit.Abstractions;
@@ -13,7 +11,7 @@ using System.Threading;
 #endif
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
-    public class QuerySqliteTest : RelationalQueryTestBase<NorthwindQuerySqliteFixture>
+    public class QuerySqliteTest : QueryTestBase<NorthwindQuerySqliteFixture>
     {
         public QuerySqliteTest(NorthwindQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -125,16 +123,6 @@ FROM ""Products"" AS ""p""
 WHERE ""p"".""ProductID"" < 40",
                 Sql);
         }
-
-        public override void String_Like_Literal()
-        {
-            using (var context = CreateContext())
-            {
-                var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, "%M%"));
-                Assert.Equal(34, count);
-            }
-        }
-
 
         private const string FileLineEnding = @"
 ";

@@ -1,11 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
@@ -13,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
 {
-    public abstract class RelationalQueryTestBase<TFixture> : QueryTestBase<TFixture>
+    public abstract class RelationalEfFunctionsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [ConditionalFact]
@@ -45,7 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                 Assert.Equal(0, count);
             }
         }
+        
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
-        protected RelationalQueryTestBase(TFixture fixture) : base(fixture) {}
+        protected RelationalEfFunctionsTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+        }
+
+        protected TFixture Fixture { get; }
     }
 }

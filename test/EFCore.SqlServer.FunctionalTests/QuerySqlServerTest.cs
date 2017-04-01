@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.Relational.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -23,7 +22,7 @@ using System.Threading;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public class QuerySqlServerTest : RelationalQueryTestBase<NorthwindQuerySqlServerFixture>
+    public class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>
     {
         public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -4845,43 +4844,6 @@ WHERE (CHARINDEX(@__LocalMethod1_0, [c].[ContactName]) > 0) OR (@__LocalMethod1_
                 Sql);
         }
 
-        public override void String_Like_Literal()
-        {
-            using (var context = CreateContext())
-            {
-                var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, "%M%"));
-                Assert.Equal(34, count);  // case-insensitive
-            }
-
-            Assert.Equal(
-                @"SELECT COUNT(*)
-FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'%M%'",
-                Sql);
-        }
-
-        public override void String_Like_Identity()
-        {
-            base.String_Like_Identity();
-
-            Assert.Equal(
-                @"SELECT COUNT(*)
-FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE [c].[ContactName]",
-                Sql);
-        }
-
-        public override void String_Like_Literal_With_Escape()
-        {
-            base.String_Like_Literal_With_Escape();
-
-            Assert.Equal(
-                @"SELECT COUNT(*)
-FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'!%' ESCAPE '!'",
-                Sql);
-        }
-
         public override void String_Compare_simple_zero()
         {
             base.String_Compare_simple_zero();
@@ -5815,17 +5777,33 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) =
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
 
-SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
-FROM [Orders] AS [o1]
+@_outer_CustomerID1: ALFKI (Size = 450)
 
-SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
-FROM [Orders] AS [o1]
+SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o2]
+WHERE @_outer_CustomerID1 = [o2].[CustomerID]
+ORDER BY [o2].[OrderID]
 
-SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
-FROM [Orders] AS [o1]
+@_outer_CustomerID1: ANATR (Size = 450)
 
-SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
-FROM [Orders] AS [o1]",
+SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o2]
+WHERE @_outer_CustomerID1 = [o2].[CustomerID]
+ORDER BY [o2].[OrderID]
+
+@_outer_CustomerID1: ANTON (Size = 450)
+
+SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o2]
+WHERE @_outer_CustomerID1 = [o2].[CustomerID]
+ORDER BY [o2].[OrderID]
+
+@_outer_CustomerID1: AROUT (Size = 450)
+
+SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o2]
+WHERE @_outer_CustomerID1 = [o2].[CustomerID]
+ORDER BY [o2].[OrderID]",
                 Sql);
         }
 
@@ -6445,7 +6423,7 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (COALESCE([c].[CompanyName], [c].[ContactName])) = N'The Big Cheese'",
+WHERE COALESCE([c].[CompanyName], [c].[ContactName]) = N'The Big Cheese'",
                 Sql);
         }
 
