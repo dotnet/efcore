@@ -28,6 +28,54 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
+        [ConditionalFact]
+        public virtual void Lifting_when_subquery_nested_order_by_simple()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = (from c1_Orders in context.Orders
+                        join _c1 in
+                        (from c1 in
+                            (from c in context.Customers
+                                orderby c.CustomerID
+                                select c)
+                            .Take(2)
+                            from c2 in context.Customers
+                            select EF.Property<string>(c1, "CustomerID"))
+                        .Distinct()
+                        on EF.Property<string>(c1_Orders, "CustomerID") equals _c1
+                        orderby _c1
+                        select c1_Orders).ToList();
+
+                Assert.Equal(10, results.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Lifting_when_subquery_nested_order_by_anonymous()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = (from c1_Orders in context.Orders
+                        join _c1 in
+                        (from c1 in
+                            (from c in context.Customers
+                                orderby c.CustomerID
+                                select c)
+                            .Take(2)
+                            from c2 in context.Customers
+                            select new { CustomerID = EF.Property<string>(c1, "CustomerID")})
+                        .Distinct()
+                        on EF.Property<string>(c1_Orders, "CustomerID") equals _c1.CustomerID
+                        orderby _c1.CustomerID
+                        select c1_Orders).ToList();
+
+                Assert.Equal(10, results.Count);
+            }
+        }
+
         private class Context
         {
             public readonly Dictionary<string, object> Arguments = new Dictionary<string, object>();
