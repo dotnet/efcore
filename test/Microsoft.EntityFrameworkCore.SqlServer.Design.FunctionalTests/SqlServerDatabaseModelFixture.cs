@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests
     {
         public SqlServerDatabaseModelFixture()
         {
-            TestStore = SqlServerTestStore.Create("SqlServerDatabaseModelTest");
+            TestStore = SqlServerTestStore.CreateScratch();
         }
 
         public DatabaseModel CreateModel(string createSql, TableSelectionSet selection = null, ILogger logger = null)
