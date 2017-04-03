@@ -1650,6 +1650,46 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void InversePropertyAttribute_is_noop_in_unambiguous_models()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Entity<Blog7698>();
+
+            Validate(modelBuilder);
+
+            Assert.Equal(nameof(Post7698.BlogNav),
+                model.FindEntityType(typeof(Blog7698)).FindNavigation(nameof(Blog7698.PostNav)).FindInverse().Name);
+            Assert.Equal(nameof(SpecialPost7698.BlogInverseNav),
+                model.FindEntityType(typeof(Blog7698)).FindNavigation(nameof(Blog7698.ASpecialPostNav)).FindInverse().Name);
+        }
+
+        private class Blog7698
+        {
+            public int Id { get; set; }
+
+            [InverseProperty(nameof(Post7698.BlogNav))]
+            public List<Post7698> PostNav { get; set; }
+
+            [InverseProperty(nameof(SpecialPost7698.BlogInverseNav))]
+            public List<SpecialPost7698> ASpecialPostNav { get; set; }
+        }
+
+        private class Post7698
+        {
+            public int Id { get; set; }
+
+            [InverseProperty(nameof(Blog7698.PostNav))]
+            public Blog7698 BlogNav { get; set; }
+        }
+
+        private class SpecialPost7698 : Post7698
+        {
+            [InverseProperty(nameof(Blog7698.ASpecialPostNav))]
+            public Blog7698 BlogInverseNav { get; set; }
+        }
+
+        [Fact]
         public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_property_on_both_side()
         {
             var modelBuilder = CreateModelBuilder();
