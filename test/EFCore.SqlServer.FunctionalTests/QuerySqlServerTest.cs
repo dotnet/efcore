@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             base.Lifting_when_subquery_nested_order_by_anonymous();
 
-            AssertSql(
+            Assert.Contains(
                 @"@__p_0: 2
 
 SELECT DISTINCT [t0].[CustomerID]
@@ -48,9 +48,11 @@ FROM (
     ORDER BY [c0].[CustomerID]
 ) AS [t0]
 CROSS JOIN [Customers] AS [c20]
-ORDER BY [t0].[CustomerID]
+ORDER BY [t0].[CustomerID]",
+                Sql);
 
-SELECT [c1_Orders].[OrderID], [c1_Orders].[CustomerID], [c1_Orders].[EmployeeID], [c1_Orders].[OrderDate]
+            Assert.Contains(
+                @"SELECT [c1_Orders].[OrderID], [c1_Orders].[CustomerID], [c1_Orders].[EmployeeID], [c1_Orders].[OrderDate]
 FROM [Orders] AS [c1_Orders]",
                 Sql);
         }
@@ -59,7 +61,7 @@ FROM [Orders] AS [c1_Orders]",
         {
             base.Lifting_when_subquery_nested_order_by_simple();
 
-            AssertSql(
+            Assert.Contains(
                 @"@__p_0: 2
 
 SELECT DISTINCT [t0].[CustomerID]
@@ -69,9 +71,11 @@ FROM (
     ORDER BY [c0].[CustomerID]
 ) AS [t0]
 CROSS JOIN [Customers] AS [c20]
-ORDER BY [t0].[CustomerID]
+ORDER BY [t0].[CustomerID]",
+                Sql);
 
-SELECT [c1_Orders].[OrderID], [c1_Orders].[CustomerID], [c1_Orders].[EmployeeID], [c1_Orders].[OrderDate]
+            Assert.Contains(
+                @"SELECT [c1_Orders].[OrderID], [c1_Orders].[CustomerID], [c1_Orders].[EmployeeID], [c1_Orders].[OrderDate]
 FROM [Orders] AS [c1_Orders]",
                 Sql);
         }
