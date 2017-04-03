@@ -149,16 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression node)
-        {
-            var referenceSource = node.Arguments.FirstOrDefault() as QuerySourceReferenceExpression;
-
-            if (EntityQueryModelVisitor.IsPropertyMethod(node.Method)
-                && referenceSource?.ReferencedQuerySource.Equals(_targetQuerySource) == true)
-            {
-                return node;
-            }
-
-            return base.VisitMethodCall(node);
-        }
+            => EntityQueryModelVisitor.IsPropertyMethod(node.Method)
+                ? node
+                : base.VisitMethodCall(node);
     }
 }

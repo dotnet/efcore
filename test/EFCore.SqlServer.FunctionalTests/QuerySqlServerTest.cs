@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
 SELECT DISTINCT [t0].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
     ORDER BY [c0].[CustomerID]
 ) AS [t0]
@@ -66,7 +66,7 @@ FROM [Orders] AS [c1_Orders]",
 
 SELECT DISTINCT [t0].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT TOP(@__p_0) [c0].*
     FROM [Customers] AS [c0]
     ORDER BY [c0].[CustomerID]
 ) AS [t0]

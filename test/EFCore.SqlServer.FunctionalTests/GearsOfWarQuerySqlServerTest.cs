@@ -2387,6 +2387,18 @@ WHERE [e].[Id] IN ('d2c26679-562b-44d1-ab96-23d1775e0926', '23cbcf9b-ce14-45cf-a
                 Sql);
         }
 
+        public override void Unnecessary_include_doesnt_get_added_complex_when_projecting_EF_Property()
+        {
+            base.Unnecessary_include_doesnt_get_added_complex_when_projecting_EF_Property();
+
+            Assert.Equal(
+                @"SELECT [g0].[HasSoulPatch], [g0].[FullName]
+FROM [Gear] AS [g0]
+WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g0].[Rank]",
+                Sql);
+        }
+
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private const string FileLineEnding = @"

@@ -2328,6 +2328,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Unnecessary_include_doesnt_get_added_complex_when_projecting_EF_Property()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears
+                    .OrderBy(g => g.Rank)
+                    .Include(g => g.Tag)
+                    .Where(g => g.HasSoulPatch)
+                    .Select(g => new { FullName = EF.Property<string>(g, "FullName") });
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+
+                var names = result.Select(r => r.FullName).ToList();
+
+                Assert.True(names.Contains("Damon Baird"));
+                Assert.True(names.Contains("Marcus Fenix"));
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)
