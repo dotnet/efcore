@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     {
         private static readonly MethodInfo _methodInfo = typeof(string).GetTypeInfo()
             .GetDeclaredMethods(nameof(string.Replace))
-            .Single(m => m.GetParameters()[0].ParameterType == typeof(string));
+            .Single(m => m.GetParameters().Length == 2 && m.GetParameters()[0].ParameterType == typeof(string));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
