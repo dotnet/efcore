@@ -52,35 +52,35 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IMigrationsIdGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ISqlGenerationHelper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalAnnotationProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IMigrationsAnnotationProvider), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IMigrationsAnnotationProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IMigrationCommandExecutor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRelationalCommandBuilderFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRawSqlCommandBuilder), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IMigrationsModelDiffer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IMigrationsSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRelationalTypeMapper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRelationalValueBufferFactoryFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IMaterializerFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IShaperCommandContextFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IConditionalRemovingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ISelectExpressionFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IExpressionFragmentTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ISqlTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IUpdateSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IMemberTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IMethodCallTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IQuerySqlGeneratorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IIncludeExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IMigrationCommandExecutor), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsAssembly), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IBatchExecutor), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IRelationalCommandBuilderFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IRawSqlCommandBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IMigrationsModelDiffer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IMigrationsSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IRelationalTypeMapper), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IRelationalValueBufferFactoryFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IMaterializerFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IShaperCommandContextFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IConditionalRemovingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ICompositePredicateExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IIncludeExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(ISelectExpressionFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalResultOperatorHandler), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IExpressionFragmentTranslator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(ISqlTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IUpdateSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalConnection), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalDatabaseCreator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IHistoryRepository), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IMemberTranslator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IMethodCallTranslator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IQuerySqlGeneratorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) }
+                { typeof(IHistoryRepository), new ServiceCharacteristics(ServiceLifetime.Scoped) }
             };
 
         /// <summary>
@@ -162,25 +162,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
                 .AddDependencySingleton<RelationalTypeMapperDependencies>()
                 .AddDependencySingleton<RelationalCompositeExpressionFragmentTranslatorDependencies>()
+                .AddDependencySingleton<RelationalModelValidatorDependencies>()
+                .AddDependencySingleton<UpdateSqlGeneratorDependencies>()
+                .AddDependencySingleton<QuerySqlGeneratorDependencies>()
+                .AddDependencySingleton<RelationalCompositeMethodCallTranslatorDependencies>()
+                .AddDependencySingleton<MigrationsSqlGeneratorDependencies>()
+                .AddDependencySingleton<MigrationsAnnotationProviderDependencies>()
+                .AddDependencySingleton<SqlTranslatingExpressionVisitorDependencies>()
+                .AddDependencySingleton<ParameterNameGeneratorDependencies>()
+                .AddDependencySingleton<SelectExpressionDependencies>()
+                .AddDependencySingleton<RelationalValueBufferFactoryDependencies>()
+                .AddDependencySingleton<RelationalProjectionExpressionVisitorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
-                .AddDependencyScoped<UpdateSqlGeneratorDependencies>()
-                .AddDependencyScoped<QuerySqlGeneratorDependencies>()
                 .AddDependencyScoped<RelationalDatabaseCreatorDependencies>()
-                .AddDependencyScoped<RelationalCompositeMethodCallTranslatorDependencies>()
-                .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
                 .AddDependencyScoped<HistoryRepositoryDependencies>()
-                .AddDependencyScoped<MigrationsAnnotationProviderDependencies>()
                 .AddDependencyScoped<RelationalCompiledQueryCacheKeyGeneratorDependencies>()
-                .AddDependencyScoped<RelationalModelValidatorDependencies>()
-                .AddDependencyScoped<SqlTranslatingExpressionVisitorDependencies>()
-                .AddDependencyScoped<RelationalProjectionExpressionVisitorDependencies>()
-                .AddDependencyScoped<ParameterNameGeneratorDependencies>()
                 .AddDependencyScoped<RelationalQueryModelVisitorDependencies>()
                 .AddDependencyScoped<RelationalEntityQueryableExpressionVisitorDependencies>()
                 .AddDependencyScoped<RelationalConnectionDependencies>()
                 .AddDependencyScoped<RelationalDatabaseDependencies>()
-                .AddDependencyScoped<SelectExpressionDependencies>()
-                .AddDependencyScoped<RelationalValueBufferFactoryDependencies>()
                 .AddDependencyScoped<RelationalQueryCompilationContextDependencies>();
 
             return base.TryAddCoreServices();

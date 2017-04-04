@@ -65,7 +65,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ISingletonOptionsInitialzer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ILoggingOptions), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ISensitiveDataLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IModelValidator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ILogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ICompiledQueryCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IQueryAnnotationExtractor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IEntityTrackingInfoFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ISubQueryMemberPushDownExpressionVisitor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ITaskBlockingExpressionVisitor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IMemberAccessBindingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(INavigationRewritingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IQuerySourceTracingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IExpressionPrinter), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IProjectionExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IKeyPropagator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INavigationFixer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ILocalViewListener), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -78,26 +89,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IDbContextServices), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IValueGeneratorSelector), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IModelValidator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IExecutionStrategyFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(ICompiledQueryCache), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IAsyncQueryProvider), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQueryCompiler), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IQueryAnnotationExtractor), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQueryOptimizer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IEntityTrackingInfoFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(ISubQueryMemberPushDownExpressionVisitor), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(ITaskBlockingExpressionVisitor), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IEntityResultFindingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IMemberAccessBindingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(INavigationRewritingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IQuerySourceTracingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRequiresMaterializationExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IExpressionPrinter), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQueryCompilationContextFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ICompiledQueryCacheKeyGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IResultOperatorHandler), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IProjectionExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModel), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ICurrentDbContext), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDbContextOptions), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -244,11 +244,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<ResultOperatorHandlerDependencies>()
                 .AddDependencySingleton<ModelSourceDependencies>()
                 .AddDependencySingleton<ValueGeneratorCacheDependencies>()
+                .AddDependencySingleton<ModelValidatorDependencies>()
                 .AddDependency(typeof(SensitiveDataLoggerDependencies<>), ServiceLifetime.Singleton)
                 .AddDependencyScoped<ExecutionStrategyContextDependencies>()
                 .AddDependencyScoped<CompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<QueryContextDependencies>()
-                .AddDependencyScoped<ModelValidatorDependencies>()
                 .AddDependencyScoped<ValueGeneratorSelectorDependencies>()
                 .AddDependencyScoped<EntityQueryModelVisitorDependencies>()
                 .AddDependencyScoped<DatabaseDependencies>()

@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             var context = new NorthwindContext(
                 _fixture.BuildOptions(
                     new ServiceCollection()
-                        .AddScoped<IRelationalCommandBuilderFactory, BadDataCommandBuilderFactory>()));
+                        .AddSingleton<IRelationalCommandBuilderFactory, BadDataCommandBuilderFactory>()));
 
             var badDataCommandBuilderFactory
                 = (BadDataCommandBuilderFactory)context.GetService<IRelationalCommandBuilderFactory>();
