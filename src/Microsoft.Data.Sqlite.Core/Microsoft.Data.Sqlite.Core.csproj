@@ -21,7 +21,6 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)$(MSBuildProjectName).ruleset</CodeAnalysisRuleSet>
     <IncludeSymbols>true</IncludeSymbols>
-    <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
 
   <ItemGroup>
