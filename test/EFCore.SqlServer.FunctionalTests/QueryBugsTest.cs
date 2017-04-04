@@ -355,17 +355,19 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                     Assert.Equal(2, result[0].Orders.Count);
                     Assert.Equal(3, result[1].Orders.Count);
 
-                    var expectedSql =
+                    Assert.Equal(
                         @"SELECT [c].[FirstName], [c].[LastName]
 FROM [Customer] AS [c]
 ORDER BY [c].[FirstName], [c].[LastName]
 
 SELECT [c.Orders].[Id], [c.Orders].[CustomerFirstName], [c.Orders].[CustomerLastName], [c.Orders].[Name]
 FROM [Order] AS [c.Orders]
-INNER JOIN [Customer] AS [c0] ON ([c.Orders].[CustomerFirstName] = [c0].[FirstName]) AND ([c.Orders].[CustomerLastName] = [c0].[LastName])
-ORDER BY [c0].[FirstName], [c0].[LastName]";
-
-                    Assert.Equal(expectedSql, Sql);
+INNER JOIN (
+    SELECT [c0].[FirstName], [c0].[LastName]
+    FROM [Customer] AS [c0]
+) AS [t] ON ([c.Orders].[CustomerFirstName] = [t].[FirstName]) AND ([c.Orders].[CustomerLastName] = [t].[LastName])
+ORDER BY [t].[FirstName], [t].[LastName]", 
+                        Sql);
                 }
             }
         }

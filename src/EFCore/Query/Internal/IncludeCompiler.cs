@@ -35,6 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class IncludeCompiler
     {
+        private static readonly ExpressionEqualityComparer _expressionEqualityComparer
+            = new ExpressionEqualityComparer();
+
         private static readonly MethodInfo _referenceEqualsMethodInfo
             = typeof(object).GetTypeInfo()
                 .GetDeclaredMethod(nameof(ReferenceEquals));
@@ -171,18 +174,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _queryCompilationContext.AddQuerySourceRequiringMaterialization(
                             ((QuerySourceReferenceExpression)collectionIncludeQueryModel.SelectClause.Selector).ReferencedQuerySource);
 
-                        propertyExpressions.Add(
-                            Expression.Lambda<Func<IEnumerable<object>>>(
-                                new SubQueryExpression(collectionIncludeQueryModel)));
+                        Expression collectionLambdaExpression 
+                            = Expression.Lambda<Func<IEnumerable<object>>>(
+                                new SubQueryExpression(collectionIncludeQueryModel));
 
-                        var collectionType = typeof(Func<IEnumerable<object>>);
                         var includeCollectionMethodInfo = _queryBufferIncludeCollectionMethodInfo;
 
                         Expression cancellationTokenExpression = null;
 
                         if (asyncQuery)
                         {
-                            collectionType = typeof(Func<IAsyncEnumerable<object>>);
+                            collectionLambdaExpression
+                                = Expression.Convert(
+                                    collectionLambdaExpression,
+                                    typeof(Func<IAsyncEnumerable<object>>));
+
                             includeCollectionMethodInfo = _queryBufferIncludeCollectionAsyncMethodInfo;
                             cancellationTokenExpression = _cancellationTokenParameter;
                         }
@@ -192,8 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 navigation,
                                 entityParameter,
                                 trackingQuery,
-                                ref includedIndex,
-                                collectionType,
+                                collectionLambdaExpression,
                                 includeCollectionMethodInfo,
                                 cancellationTokenExpression));
                     }
@@ -250,10 +255,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             = Expression.Property(
                                 Expression.Call(
                                     _includeAsyncMethodInfo.MakeGenericMethod(includeGrouping.Key.Type),
+                                    EntityQueryModelVisitor.QueryContextParameter,
                                     includeGrouping.Key,
                                     Expression.NewArrayInit(typeof(object), propertyExpressions),
                                     Expression.Lambda(
                                         Expression.Block(blockExpressions),
+                                        EntityQueryModelVisitor.QueryContextParameter,
                                         entityParameter,
                                         _includedParameter,
                                         _cancellationTokenParameter),
@@ -267,10 +274,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     includeExpression
                         = Expression.Call(
                             _includeMethodInfo.MakeGenericMethod(includeGrouping.Key.Type),
+                            EntityQueryModelVisitor.QueryContextParameter,
                             includeGrouping.Key,
                             Expression.NewArrayInit(typeof(object), propertyExpressions),
                             Expression.Lambda(
                                 Expression.Block(typeof(void), blockExpressions),
+                                EntityQueryModelVisitor.QueryContextParameter,
                                 entityParameter,
                                 _includedParameter));
                 }
@@ -282,7 +291,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ApplyIncludeExpressionsToQueryModel(queryModel, compiledIncludes);
         }
 
-        private static void ApplyParentOrderings(QueryModel queryModel, List<Ordering> parentOrderings)
+        private static void ApplyParentOrderings(
+            QueryModel queryModel, IReadOnlyCollection<Ordering> parentOrderings)
         {
             if (parentOrderings.Any())
             {
@@ -382,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QuerySourceReferenceExpression parentQuerySourceReferenceExpression,
             ICollection<Ordering> parentOrderings)
         {
-            CollectParentOrderings(
+            BuildParentOrderings(
                 parentQueryModel,
                 navigation,
                 parentQuerySourceReferenceExpression,
@@ -427,35 +437,78 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 clonedParentQuerySourceReferenceExpression);
 
             clonedParentQueryModel.SelectClause
-                = new SelectClause(clonedParentQuerySourceReferenceExpression);
+                = new SelectClause(Expression.Default(typeof(AnonymousObject)));
+
+            var subQueryProjection = new List<Expression>();
 
             var lastResultOperator = ProcessResultOperators(clonedParentQueryModel);
 
             clonedParentQueryModel.ResultTypeOverride
-                = typeof(IQueryable<>).MakeGenericType(clonedParentQuerySourceReferenceExpression.Type);
+                = typeof(IQueryable<>).MakeGenericType(clonedParentQueryModel.SelectClause.Selector.Type);
 
             var joinQuerySourceReferenceExpression
                 = CreateJoinToParentQuery(
                     clonedParentQueryModel,
-                    clonedParentQuerySource,
+                    clonedParentQuerySourceReferenceExpression,
                     collectionQuerySourceReferenceExpression,
                     navigation.ForeignKey,
-                    collectionQueryModel);
+                    collectionQueryModel,
+                    subQueryProjection);
 
             ApplyParentOrderings(
                 parentOrderings,
                 clonedParentQueryModel,
-                parentQuerySource,
-                clonedParentQuerySourceReferenceExpression,
+                querySourceMapping,
                 lastResultOperator);
 
             LiftOrderBy(
                 clonedParentQuerySource,
                 joinQuerySourceReferenceExpression,
                 clonedParentQueryModel,
-                collectionQueryModel);
+                collectionQueryModel,
+                subQueryProjection);
+            
+            clonedParentQueryModel.SelectClause.Selector
+                = Expression.New(
+                    AnonymousObject.AnonymousObjectCtor,
+                    Expression.NewArrayInit(
+                        typeof(object),
+                        subQueryProjection));
 
             return collectionQueryModel;
+        }
+
+        private static void BuildParentOrderings(
+            QueryModel queryModel,
+            INavigation navigation,
+            Expression querySourceReferenceExpression,
+            ICollection<Ordering> parentOrderings)
+        {
+            var orderings = parentOrderings;
+
+            var orderByClause
+                = queryModel.BodyClauses.OfType<OrderByClause>().LastOrDefault();
+
+            if (orderByClause != null)
+            {
+                orderings = orderings.Concat(orderByClause.Orderings).ToArray();
+            }
+
+            foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
+            {
+                var propertyExpression
+                    = EntityQueryModelVisitor
+                        .CreatePropertyExpression(querySourceReferenceExpression, property);
+
+                if (!orderings.Any(o =>
+                    _expressionEqualityComparer.Equals(o.Expression, propertyExpression)
+                    || o.Expression is MemberExpression memberExpression
+                    && memberExpression.Expression == querySourceReferenceExpression
+                    && memberExpression.Member.Equals(property.PropertyInfo)))
+                {
+                    parentOrderings.Add(new Ordering(propertyExpression, OrderingDirection.Asc));
+                }
+            }
         }
 
         private void CloneAnnotations(QuerySourceMapping querySourceMapping, QueryModel queryModel)
@@ -560,11 +613,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 IQuerySource querySource;
 
                 if (node.NodeType == ExpressionType.Coalesce
-                    && (querySource = (node.Left as QuerySourceReferenceExpression)?.ReferencedQuerySource) != null)
+                    && (querySource = ExtractQuerySource(node.Left)) != null)
                 {
                     _querySources.Add(querySource);
 
-                    if ((querySource = (node.Right as QuerySourceReferenceExpression)?.ReferencedQuerySource) != null)
+                    if ((querySource = ExtractQuerySource(node.Right)) != null)
                     {
                         _querySources.Add(querySource);
                     }
@@ -577,6 +630,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 return base.VisitBinary(node);
+            }
+
+            private static IQuerySource ExtractQuerySource(Expression expression)
+            {
+                switch (expression)
+                {
+                    case QuerySourceReferenceExpression querySourceReferenceExpression:
+                        return querySourceReferenceExpression.ReferencedQuerySource;
+                    case MethodCallExpression methodCallExpression
+                    when IsIncludeMethod(methodCallExpression):
+                        return ((QuerySourceReferenceExpression)methodCallExpression.Arguments[1]).ReferencedQuerySource;
+                }
+
+                return null;
             }
         }
 
@@ -625,17 +692,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static QuerySourceReferenceExpression CreateJoinToParentQuery(
             QueryModel parentQueryModel,
-            IQuerySource querySource,
+            QuerySourceReferenceExpression parentQuerySourceReferenceExpression,
             Expression outerTargetExpression,
             IForeignKey foreignKey,
-            QueryModel targetQueryModel)
+            QueryModel targetQueryModel,
+            ICollection<Expression> subQueryProjection)
         {
             var subQueryExpression = new SubQueryExpression(parentQueryModel);
+            var parentQuerySource = parentQuerySourceReferenceExpression.ReferencedQuerySource;
 
             var joinClause
                 = new JoinClause(
-                    "_" + querySource.ItemName,
-                    querySource.ItemType,
+                    "_" + parentQuerySource.ItemName,
+                    typeof(AnonymousObject),
                     subQueryExpression,
                     CreateKeyAccessExpression(
                         outerTargetExpression,
@@ -643,11 +712,35 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     Expression.Constant(null));
 
             var joinQuerySourceReferenceExpression = new QuerySourceReferenceExpression(joinClause);
+            var innerKeyExpressions = new List<Expression>();
+
+            foreach (var principalKeyProperty in foreignKey.PrincipalKey.Properties)
+            {
+                innerKeyExpressions.Add(
+                    Expression.Convert(
+                        Expression.Call(
+                            joinQuerySourceReferenceExpression,
+                            AnonymousObject.GetValueMethodInfo,
+                            Expression.Constant(subQueryProjection.Count)),
+                        principalKeyProperty.ClrType.MakeNullable()));
+
+                subQueryProjection.Add(
+                    Expression.Convert(
+                        EntityQueryModelVisitor
+                            .CreatePropertyExpression(
+                                parentQuerySourceReferenceExpression,
+                                principalKeyProperty),
+                        typeof(object)));
+            }
 
             joinClause.InnerKeySelector
-                = CreateKeyAccessExpression(
-                    joinQuerySourceReferenceExpression,
-                    foreignKey.PrincipalKey.Properties);
+                = innerKeyExpressions.Count == 1
+                    ? innerKeyExpressions[0]
+                    : Expression.New(
+                        AnonymousObject.AnonymousObjectCtor,
+                        Expression.NewArrayInit(
+                            typeof(object),
+                            innerKeyExpressions.Select(e => Expression.Convert(e, typeof(object)))));
 
             targetQueryModel.BodyClauses.Add(joinClause);
 
@@ -660,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 ? EntityQueryModelVisitor
                     .CreatePropertyExpression(target, properties[0])
                 : Expression.New(
-                    CompositeKey.CompositeKeyCtor,
+                    AnonymousObject.AnonymousObjectCtor,
                     Expression.NewArrayInit(
                         typeof(object),
                         properties
@@ -673,10 +766,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             .ToArray()));
 
         private static void ApplyParentOrderings(
-            IEnumerable<Ordering> orderings,
+            IEnumerable<Ordering> parentOrderings,
             QueryModel queryModel,
-            IQuerySource querySource,
-            Expression targetExpression,
+            QuerySourceMapping querySourceMapping,
             bool reverseOrdering)
         {
             var orderByClause = queryModel.BodyClauses.OfType<OrderByClause>().LastOrDefault();
@@ -686,18 +778,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 queryModel.BodyClauses.Add(orderByClause = new OrderByClause());
             }
 
-            var querySourceMapping = new QuerySourceMapping();
-
-            querySourceMapping.AddMapping(querySource, targetExpression);
-
-            foreach (var ordering in orderings)
+            foreach (var ordering in parentOrderings)
             {
+                var newExpression
+                    = CloningExpressionVisitor
+                        .AdjustExpressionAfterCloning(ordering.Expression, querySourceMapping);
+
                 orderByClause.Orderings
-                    .Add(
-                        new Ordering(
-                            CloningExpressionVisitor
-                                .AdjustExpressionAfterCloning(ordering.Expression, querySourceMapping),
-                            ordering.OrderingDirection));
+                    .Add(new Ordering(newExpression, ordering.OrderingDirection));
             }
 
             if (reverseOrdering)
@@ -716,28 +804,61 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IQuerySource querySource,
             Expression targetExpression,
             QueryModel fromQueryModel,
-            QueryModel toQueryModel)
+            QueryModel toQueryModel,
+            List<Expression> subQueryProjection)
         {
             var canRemove
                 = !fromQueryModel.ResultOperators
                     .Any(r => r is SkipResultOperator || r is TakeResultOperator);
 
-            var querySourceMapping = new QuerySourceMapping();
-
-            querySourceMapping.AddMapping(querySource, targetExpression);
-
-            foreach (var orderByClause in fromQueryModel.BodyClauses.OfType<OrderByClause>().ToArray())
+            foreach (var orderByClause
+                in fromQueryModel.BodyClauses.OfType<OrderByClause>().ToArray())
             {
                 var outerOrderByClause = new OrderByClause();
-
+                
                 foreach (var ordering in orderByClause.Orderings)
                 {
+                    int projectionIndex;
+
+                    if (ordering.Expression is MemberExpression memberExpression
+                        && memberExpression.Expression is QuerySourceReferenceExpression memberQsre
+                        && memberQsre.ReferencedQuerySource == querySource)
+                    {
+                        projectionIndex
+                            = subQueryProjection
+                                .FindIndex(
+                                    e =>
+                                        {
+                                            var propertyExpression = (MethodCallExpression)e.RemoveConvert();
+                                            var properyQsre = (QuerySourceReferenceExpression)propertyExpression.Arguments[0];
+                                            var propertyName = (string)((ConstantExpression)propertyExpression.Arguments[1]).Value;
+
+                                            return properyQsre.ReferencedQuerySource == memberQsre.ReferencedQuerySource
+                                                   && propertyName == memberExpression.Member.Name;
+                                        });
+                    }
+                    else 
+                    {
+                        projectionIndex
+                            = subQueryProjection
+                                .FindIndex(e => _expressionEqualityComparer.Equals(e.RemoveConvert(), ordering.Expression));
+                    }
+
+                    if (projectionIndex == -1)
+                    {
+                        projectionIndex = subQueryProjection.Count;
+
+                        subQueryProjection.Add(Expression.Convert(ordering.Expression, typeof(object)));
+                    }
+                    
+                    var newExpression
+                        = Expression.Call(
+                            targetExpression,
+                            AnonymousObject.GetValueMethodInfo,
+                            Expression.Constant(projectionIndex));
+
                     outerOrderByClause.Orderings
-                        .Add(
-                            new Ordering(
-                                CloningExpressionVisitor
-                                    .AdjustExpressionAfterCloning(ordering.Expression, querySourceMapping),
-                                ordering.OrderingDirection));
+                        .Add(new Ordering(newExpression, ordering.OrderingDirection));
                 }
 
                 toQueryModel.BodyClauses.Add(outerOrderByClause);
@@ -749,74 +870,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private static void CollectParentOrderings(
-            QueryModel queryModel,
-            INavigation navigation,
-            Expression expression,
-            ICollection<Ordering> parentOrderings)
-        {
-            var orderings = parentOrderings;
-
-            var orderByClause = queryModel.BodyClauses.OfType<OrderByClause>().LastOrDefault();
-
-            if (orderByClause != null)
-            {
-                orderings = orderings.Concat(orderByClause.Orderings).ToArray();
-            }
-
-            foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
-            {
-                if (!ContainsOrdering(orderings, expression, property))
-                {
-                    parentOrderings.Add(
-                        new Ordering(
-                            EntityQueryModelVisitor.CreatePropertyExpression(expression, property),
-                            OrderingDirection.Asc));
-                }
-            }
-        }
-
-        private static bool ContainsOrdering(
-            IEnumerable<Ordering> orderings,
-            Expression expression,
-            IPropertyBase property)
-        {
-            foreach (var ordering in orderings)
-            {
-                switch (ordering.Expression)
-                {
-                    case MemberExpression memberExpression
-                    when memberExpression.Expression.Equals(expression)
-                         && memberExpression.Member.Equals(property.PropertyInfo):
-                        return true;
-                    case MethodCallExpression methodCallExpression
-                    when EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method)
-                         && methodCallExpression.Arguments[0].Equals(expression)
-                         && ((ConstantExpression)methodCallExpression.Arguments[1]).Value.Equals(property.Name):
-                        return true;
-                }
-            }
-
-            return false;
-        }
-
         private Expression BuildCollectionIncludeExpressions(
             INavigation navigation,
             Expression targetEntityExpression,
             bool trackingQuery,
-            ref int includedIndex,
-            Type collectionType,
+            Expression relatedCollectionFuncExpression,
             MethodInfo includeCollectionMethodInfo,
             Expression cancellationTokenExpression)
         {
-            var collectionFuncArrayAccessExpression
-                = Expression.ArrayAccess(_includedParameter, Expression.Constant(includedIndex++));
-
-            var relatedCollectionFuncExpression
-                = Expression.Convert(
-                    collectionFuncArrayAccessExpression,
-                    collectionType);
-
             var inverseNavigation = navigation.FindInverse();
 
             var arguments = new List<Expression>
@@ -1042,13 +1103,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         // ReSharper disable once InconsistentNaming
         private static TEntity _Include<TEntity>(
+            QueryContext queryContext,
             TEntity entity,
             object[] included,
-            Action<TEntity, object[]> fixup)
+            Action<QueryContext, TEntity, object[]> fixup)
         {
             if (entity != null)
             {
-                fixup(entity, included);
+                fixup(queryContext, entity, included);
             }
 
             return entity;
@@ -1060,14 +1122,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         // ReSharper disable once InconsistentNaming
         private static async Task<TEntity> _IncludeAsync<TEntity>(
+            QueryContext queryContext,
             TEntity entity,
             object[] included,
-            Func<TEntity, object[], CancellationToken, Task> fixup,
+            Func<QueryContext, TEntity, object[], CancellationToken, Task> fixup,
             CancellationToken cancellationToken)
         {
             if (entity != null)
             {
-                await fixup(entity, included, cancellationToken);
+                await fixup(queryContext, entity, included, cancellationToken);
             }
 
             return entity;

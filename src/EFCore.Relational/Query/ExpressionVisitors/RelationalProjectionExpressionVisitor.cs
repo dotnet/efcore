@@ -2,10 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -93,6 +96,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         protected override Expression VisitNew(NewExpression newExpression)
         {
             Check.NotNull(newExpression, nameof(newExpression));
+
+            if (newExpression.Type == typeof(AnonymousObject))
+            {
+                var propertyCallExpressions
+                    = ((NewArrayExpression)newExpression.Arguments.Single()).Expressions;
+
+                foreach (var propertyCallExpression in propertyCallExpressions)
+                {
+                    Visit(propertyCallExpression.RemoveConvert());
+                }
+
+                return newExpression;
+            }
 
             var newNewExpression = base.VisitNew(newExpression);
 

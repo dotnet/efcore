@@ -314,9 +314,12 @@ ORDER BY [c].[CustomerID]
 SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
 FROM [Orders] AS [c.Orders]
 INNER JOIN (
-    SELECT * FROM ""Customers""
-) AS [c0] ON [c.Orders].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    SELECT [c0].[CustomerID]
+    FROM (
+        SELECT * FROM ""Customers""
+    ) AS [c0]
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[CustomerID]",
                 Sql);
         }
 
@@ -325,7 +328,7 @@ ORDER BY [c0].[CustomerID]",
             base.From_sql_queryable_simple_composed_include();
 
             AssertSql(
-              @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
@@ -335,7 +338,7 @@ ORDER BY [c].[CustomerID]
 SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
 FROM [Orders] AS [c.Orders]
 INNER JOIN (
-    SELECT [c0].*
+    SELECT [c0].[CustomerID]
     FROM (
         SELECT * FROM ""Customers""
     ) AS [c0]
@@ -418,7 +421,7 @@ SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id",
             base.From_sql_with_SelectMany_and_include();
 
             AssertSql(
-              @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region], [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
+                @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region], [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
 ) AS [c1]
@@ -430,7 +433,7 @@ ORDER BY [c2].[CustomerID]
 SELECT [c2.Orders].[OrderID], [c2.Orders].[CustomerID], [c2.Orders].[EmployeeID], [c2.Orders].[OrderDate]
 FROM [Orders] AS [c2.Orders]
 INNER JOIN (
-    SELECT DISTINCT [c20].*
+    SELECT DISTINCT [c20].[CustomerID]
     FROM (
         SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
     ) AS [c10]
@@ -440,6 +443,7 @@ INNER JOIN (
 ) AS [t] ON [c2.Orders].[CustomerID] = [t].[CustomerID]
 ORDER BY [t].[CustomerID]",
                 Sql);
+
         }
 
         public override void From_sql_with_join_and_include()
@@ -447,7 +451,7 @@ ORDER BY [t].[CustomerID]",
             base.From_sql_with_join_and_include();
 
             AssertSql(
-              @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
 ) AS [c]
@@ -459,7 +463,7 @@ ORDER BY [o].[OrderID]
 SELECT [o.OrderDetails].[OrderID], [o.OrderDetails].[ProductID], [o.OrderDetails].[Discount], [o.OrderDetails].[Quantity], [o.OrderDetails].[UnitPrice]
 FROM [Order Details] AS [o.OrderDetails]
 INNER JOIN (
-    SELECT DISTINCT [o0].*
+    SELECT DISTINCT [o0].[OrderID]
     FROM (
         SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'
     ) AS [c0]

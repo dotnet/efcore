@@ -11,9 +11,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class InheritanceSqlServerTest : InheritanceTestBase<InheritanceSqlServerFixture>
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
         public InheritanceSqlServerTest(InheritanceSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            _testOutputHelper = testOutputHelper;
+
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
@@ -43,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             base.Can_query_when_shared_column();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams]
 FROM [Drink] AS [d]
 WHERE [d].[Discriminator] = N'Coke'
@@ -63,7 +67,7 @@ WHERE [d].[Discriminator] = N'Tea'",
         {
             base.Can_query_all_types_when_shared_column();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk]
 FROM [Drink] AS [d]
 WHERE [d].[Discriminator] IN (N'Tea', N'Lilt', N'Coke', N'Drink')",
@@ -74,7 +78,7 @@ WHERE [d].[Discriminator] IN (N'Tea', N'Lilt', N'Coke', N'Drink')",
         {
             base.Can_use_of_type_animal();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')
@@ -86,7 +90,7 @@ ORDER BY [a].[Species]",
         {
             base.Can_use_is_kiwi();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND ([a].[Discriminator] = N'Kiwi')",
@@ -97,7 +101,7 @@ WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND ([a].[Discriminator] = N'Ki
         {
             base.Can_use_is_kiwi_with_other_predicate();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND (([a].[Discriminator] = N'Kiwi') AND ([a].[CountryId] = 1))",
@@ -108,7 +112,7 @@ WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND (([a].[Discriminator] = N'K
         {
             base.Can_use_is_kiwi_in_projection();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT CASE
     WHEN [a].[Discriminator] = N'Kiwi'
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -122,7 +126,7 @@ WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')",
         {
             base.Can_use_of_type_bird();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')
@@ -134,7 +138,7 @@ ORDER BY [a].[Species]",
         {
             base.Can_use_of_type_bird_predicate();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND ([a].[CountryId] = 1)
@@ -146,7 +150,7 @@ ORDER BY [a].[Species]",
         {
             base.Can_use_of_type_bird_with_projection();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [b].[EagleId]
 FROM [Animal] AS [b]
 WHERE [b].[Discriminator] IN (N'Kiwi', N'Eagle')",
@@ -157,7 +161,7 @@ WHERE [b].[Discriminator] IN (N'Kiwi', N'Eagle')",
         {
             base.Can_use_of_type_bird_first();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT TOP(1) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')
@@ -169,7 +173,7 @@ ORDER BY [a].[Species]",
         {
             base.Can_use_of_type_kiwi();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'",
@@ -180,7 +184,7 @@ WHERE [a].[Discriminator] = N'Kiwi'",
         {
             base.Can_use_of_type_rose();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [p].[HasThorns]
 FROM [Plant] AS [p]
 WHERE [p].[Genus] = 0",
@@ -191,7 +195,7 @@ WHERE [p].[Genus] = 0",
         {
             base.Can_query_all_animals();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')
@@ -203,7 +207,7 @@ ORDER BY [a].[Species]",
         {
             base.Can_query_all_plants();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Genus], [a].[Name], [a].[HasThorns]
 FROM [Plant] AS [a]
 WHERE [a].[Genus] IN (0, 1)
@@ -215,7 +219,7 @@ ORDER BY [a].[Species]",
         {
             base.Can_filter_all_animals();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND ([a].[Name] = N'Great spotted kiwi')
@@ -227,7 +231,7 @@ ORDER BY [a].[Species]",
         {
             base.Can_query_all_birds();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')
@@ -239,7 +243,7 @@ ORDER BY [a].[Species]",
         {
             base.Can_query_just_kiwis();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'",
@@ -250,7 +254,7 @@ WHERE [a].[Discriminator] = N'Kiwi'",
         {
             base.Can_query_just_roses();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT TOP(2) [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [p].[HasThorns]
 FROM [Plant] AS [p]
 WHERE [p].[Genus] = 0",
@@ -262,7 +266,7 @@ WHERE [p].[Genus] = 0",
         {
             base.Can_include_prey();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT TOP(2) [e].[Species], [e].[CountryId], [e].[Discriminator], [e].[Name], [e].[EagleId], [e].[IsFlightless], [e].[Group]
 FROM [Animal] AS [e]
 WHERE [e].[Discriminator] = N'Eagle'
@@ -271,7 +275,7 @@ ORDER BY [e].[Species]
 SELECT [e.Prey].[Species], [e.Prey].[CountryId], [e.Prey].[Discriminator], [e.Prey].[Name], [e.Prey].[EagleId], [e.Prey].[IsFlightless], [e.Prey].[Group], [e.Prey].[FoundOn]
 FROM [Animal] AS [e.Prey]
 INNER JOIN (
-    SELECT TOP(1) [e0].*
+    SELECT TOP(1) [e0].[Species]
     FROM [Animal] AS [e0]
     WHERE [e0].[Discriminator] = N'Eagle'
     ORDER BY [e0].[Species]
@@ -285,16 +289,19 @@ ORDER BY [t].[Species]",
         {
             base.Can_include_animals();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [c].[Id], [c].[Name]
 FROM [Country] AS [c]
 ORDER BY [c].[Name], [c].[Id]
 
 SELECT [c.Animals].[Species], [c.Animals].[CountryId], [c.Animals].[Discriminator], [c.Animals].[Name], [c.Animals].[EagleId], [c.Animals].[IsFlightless], [c.Animals].[Group], [c.Animals].[FoundOn]
 FROM [Animal] AS [c.Animals]
-INNER JOIN [Country] AS [c0] ON [c.Animals].[CountryId] = [c0].[Id]
+INNER JOIN (
+    SELECT [c0].[Id], [c0].[Name]
+    FROM [Country] AS [c0]
+) AS [t] ON [c.Animals].[CountryId] = [t].[Id]
 WHERE [c.Animals].[Discriminator] IN (N'Kiwi', N'Eagle')
-ORDER BY [c0].[Name], [c0].[Id]",
+ORDER BY [t].[Name], [t].[Id]",
                 Sql);
         }
 
@@ -302,7 +309,7 @@ ORDER BY [c0].[Name], [c0].[Id]",
         {
             base.Can_use_of_type_kiwi_where_north_on_derived_property();
 
-            Assert.Equal(@"SELECT [x].[Species], [x].[CountryId], [x].[Discriminator], [x].[Name], [x].[EagleId], [x].[IsFlightless], [x].[FoundOn]
+            AssertSql(@"SELECT [x].[Species], [x].[CountryId], [x].[Discriminator], [x].[Name], [x].[EagleId], [x].[IsFlightless], [x].[FoundOn]
 FROM [Animal] AS [x]
 WHERE ([x].[Discriminator] = N'Kiwi') AND ([x].[FoundOn] = 0)",
                 Sql);
@@ -312,7 +319,7 @@ WHERE ([x].[Discriminator] = N'Kiwi') AND ([x].[FoundOn] = 0)",
         {
             base.Can_use_of_type_kiwi_where_south_on_derived_property();
 
-            Assert.Equal(@"SELECT [x].[Species], [x].[CountryId], [x].[Discriminator], [x].[Name], [x].[EagleId], [x].[IsFlightless], [x].[FoundOn]
+            AssertSql(@"SELECT [x].[Species], [x].[CountryId], [x].[Discriminator], [x].[Name], [x].[EagleId], [x].[IsFlightless], [x].[FoundOn]
 FROM [Animal] AS [x]
 WHERE ([x].[Discriminator] = N'Kiwi') AND ([x].[FoundOn] = 1)",
                 Sql);
@@ -322,7 +329,7 @@ WHERE ([x].[Discriminator] = N'Kiwi') AND ([x].[FoundOn] = 1)",
         {
             base.Discriminator_used_when_projection_over_derived_type();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [k].[FoundOn]
 FROM [Animal] AS [k]
 WHERE [k].[Discriminator] = N'Kiwi'",
@@ -333,7 +340,7 @@ WHERE [k].[Discriminator] = N'Kiwi'",
         {
             base.Discriminator_used_when_projection_over_derived_type2();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [b].[IsFlightless], [b].[Discriminator]
 FROM [Animal] AS [b]
 WHERE [b].[Discriminator] IN (N'Kiwi', N'Eagle')",
@@ -344,7 +351,7 @@ WHERE [b].[Discriminator] IN (N'Kiwi', N'Eagle')",
         {
             base.Discriminator_used_when_projection_over_of_type();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [k].[FoundOn]
 FROM [Animal] AS [k]
 WHERE [k].[Discriminator] = N'Kiwi'",
@@ -355,7 +362,7 @@ WHERE [k].[Discriminator] = N'Kiwi'",
         {
             base.Can_insert_update_delete();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT TOP(2) [c].[Id], [c].[Name]
 FROM [Country] AS [c]
 WHERE [c].[Id] = 1
@@ -405,5 +412,10 @@ WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) 
 ";
 
         private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+
+        private void AssertSql(string expected, string actual)
+        {
+            TestHelpers.AssertBaseline(expected, actual, _testOutputHelper);
+        }
     }
 }

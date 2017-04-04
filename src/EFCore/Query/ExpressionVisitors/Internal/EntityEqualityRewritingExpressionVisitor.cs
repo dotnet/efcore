@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
@@ -156,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return (properties.Count == 1) || nullComparison
                 ? EntityQueryModelVisitor.CreatePropertyExpression(target, properties[0])
                 : Expression.New(
-                    CompositeKey.CompositeKeyCtor,
+                    AnonymousObject.AnonymousObjectCtor,
                     Expression.NewArrayInit(
                         typeof(object),
                         properties

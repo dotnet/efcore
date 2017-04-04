@@ -67,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                    where type.GetTypeInfo().IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
                    where !events.Any(e => (e.AddMethod == method) || (e.RemoveMethod == method))
                    from parameter in method.GetParameters()
+                   where !parameter.IsOut
                    let parameterType = parameter.ParameterType.IsByRef
                        ? parameter.ParameterType.GetElementType()
                        : parameter.ParameterType

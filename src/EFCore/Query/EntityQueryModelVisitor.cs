@@ -76,7 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Expression target,
             [NotNull] IPropertyBase property)
             => Expression.Call(
-                null,
                 EF.PropertyMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
                 target,
                 Expression.Constant(property.Name));
@@ -639,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             protected override Expression VisitMethodCall(MethodCallExpression node)
                 => IncludeCompiler.IsIncludeMethod(node)
-                    ? node.Arguments[0]
+                    ? node.Arguments[1]
                     : base.VisitMethodCall(node);
 
             protected override Expression VisitMember(MemberExpression node)

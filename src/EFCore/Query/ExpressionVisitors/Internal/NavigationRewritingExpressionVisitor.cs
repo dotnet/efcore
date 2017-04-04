@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private static NewExpression CreateNullCompositeKey(Expression otherExpression)
             => Expression.New(
-                CompositeKey.CompositeKeyCtor,
+                AnonymousObject.AnonymousObjectCtor,
                 Expression.NewArrayInit(
                     typeof(object),
                     Enumerable.Repeat(
@@ -1180,7 +1180,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             => properties.Count == 1
                 ? CreatePropertyExpression(target, properties[0], addNullCheck)
                 : Expression.New(
-                    CompositeKey.CompositeKeyCtor,
+                    AnonymousObject.AnonymousObjectCtor,
                     Expression.NewArrayInit(
                         typeof(object),
                         properties
@@ -1208,7 +1208,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(type, nameof(type));
 
-            return type == typeof(CompositeKey);
+            return type == typeof(AnonymousObject);
         }
 
         private static Expression CompensateForNullabilityDifference(Expression expression, Type originalType)

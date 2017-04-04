@@ -601,6 +601,35 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
+            if (AnonymousObject.IsGetValueExpression(methodCallExpression, out QuerySourceReferenceExpression querySourceReferenceExpression))
+            {
+                var selectExpression
+                    = _queryModelVisitor.TryGetQuery(querySourceReferenceExpression.ReferencedQuerySource);
+
+                if (selectExpression != null)
+                {
+                    var projectionIndex
+                        = (int)((ConstantExpression)methodCallExpression.Arguments.Single()).Value;
+
+                    var tableExpression
+                        = selectExpression
+                            .GetTableForQuerySource(
+                                querySourceReferenceExpression.ReferencedQuerySource);
+
+                    if (tableExpression is SelectExpression)
+                    {
+                        return selectExpression.Projection[projectionIndex];
+                    }
+
+                    var subSelectExpression
+                        = (SelectExpression)((JoinExpressionBase)tableExpression)
+                        .TableExpression;
+
+                    return subSelectExpression.Projection[projectionIndex]
+                        .LiftExpressionFromSubquery(tableExpression);
+                }
+            }
+
             return TryBindMemberOrMethodToAliasExpression(methodCallExpression, (expression, visitor, binder)
                     => visitor.BindMethodCallExpression(expression, binder))
                 ?? _queryModelVisitor.BindLocalMethodCallExpression(methodCallExpression)
@@ -769,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     return Expression.Constant(memberBindings);
                 }
             }
-            else if (expression.Type == typeof(CompositeKey))
+            else if (expression.Type == typeof(AnonymousObject))
             {
                 var propertyCallExpressions
                     = ((NewArrayExpression)expression.Arguments.Single()).Expressions;

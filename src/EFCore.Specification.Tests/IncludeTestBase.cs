@@ -42,6 +42,52 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     });
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_and_collection_order_by(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var orderDetails
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("Customer.Orders")
+                            .OrderBy(o => o.OrderID)
+                            .ToList()
+                        : context.Set<Order>()
+                            .Include(o => o.Customer.Orders)
+                            .OrderBy(o => o.OrderID)
+                            .ToList();
+
+                Assert.True(orderDetails.Count > 0);
+                Assert.True(orderDetails.All(o => o.Customer != null));
+                Assert.True(orderDetails.All(o => o.Customer.Orders != null));
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_references_then_include_collection(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = useString
+                        ? context.Set<Order>()
+                            .Include("Customer.Orders")
+                            .ToList()
+                        : context.Set<Order>()
+                            .Include(o => o.Customer).ThenInclude(c => c.Orders)
+                            .ToList();
+
+                Assert.True(orders.Count > 0);
+                Assert.True(orders.All(od => od.Customer != null));
+                Assert.True(orders.All(od => od.Customer.Orders != null));
+            }
+        }
+
         [Fact]
         public virtual void Include_bad_navigation_property()
         {

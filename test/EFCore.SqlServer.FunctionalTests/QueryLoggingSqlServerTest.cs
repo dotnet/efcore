@@ -33,17 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 'from Customer <generated>_0 in DbSet<Customer>
 select <generated>_0'
     Optimized query model: 
-'from Customer <generated>_0 in DbSet<Customer>
-select <generated>_0'
-    TRACKED: True
-(QueryContext queryContext) => IEnumerable<Customer> _ShapedQuery(
-    queryContext: queryContext, 
-    shaperCommandContext: SelectExpression: 
-        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-        FROM [Customers] AS [c]
-    , 
-    shaper: UnbufferedEntityShaper<Customer>
-)",
+'from Customer <generated>_0 in DbSet<Customer>",
                     TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
             }
         }
@@ -99,67 +89,8 @@ select c)
 .Include(""Orders"")'
     Including navigation: '[c].Orders'
     Optimized query model: 
-'from Customer c in DbSet<Customer>
-order by Property(c, ""CustomerID"") asc
-select Customer _Include(
-    entity: c, 
-    included: new object[]{ () => 
-            from Order c.Orders in DbSet<Order>
-            join Customer _c in 
-                from Customer c in DbSet<Customer>
-                select c
-            on Property(c.Orders, ""CustomerID"") equals Property(_c, ""CustomerID"")
-            order by Property(_c, ""CustomerID"") asc
-            select c.Orders }
-    , 
-    fixup: (Customer entity | Object[] included) => 
-    {
-        Void queryContext.QueryBuffer.StartTracking(
-            entity: entity, 
-            entityType: EntityType: Customer
-        )
-
-        return queryContext.QueryBuffer.IncludeCollection(0, Navigation: Customer.Orders (<Orders>k__BackingField, ICollection<Order>) Collection ToDependent Order Inverse: Customer 0 -1 1 -1 -1, Navigation: Order.Customer (<Customer>k__BackingField, Customer) ToPrincipal Customer Inverse: Orders 0 -1 2 -1 -1, EntityType: Order, value(Microsoft.EntityFrameworkCore.Metadata.Internal.ClrICollectionAccessor`3[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer,System.Collections.Generic.ICollection`1[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Order],Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Order]), value(Microsoft.EntityFrameworkCore.Metadata.Internal.ClrPropertySetter`2[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Order,Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer]), True, entity, Convert(included[0]))
-    }
-
-)
-'
-    TRACKED: True
-(QueryContext queryContext) => IEnumerable<Customer> _Select(
-    source: IEnumerable<Customer> _ShapedQuery(
-        queryContext: queryContext, 
-        shaperCommandContext: SelectExpression: 
-            SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-            FROM [Customers] AS [c]
-            ORDER BY [c].[CustomerID]
-        , 
-        shaper: BufferedEntityShaper<Customer>
-    )
-    , 
-    selector: (Customer c) => Customer _Include(
-        entity: c, 
-        included: new object[]{ () => IEnumerable<Order> _ShapedQuery(
-                queryContext: queryContext, 
-                shaperCommandContext: SelectExpression: 
-                    SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
-                    FROM [Orders] AS [c.Orders]
-                    INNER JOIN [Customers] AS [c0] ON [c.Orders].[CustomerID] = [c0].[CustomerID]
-                    ORDER BY [c0].[CustomerID]
-                , 
-                shaper: BufferedOffsetEntityShaper<Order>
-            )
-             }
-        , 
-        fixup: (Customer entity | Object[] included) => 
-        {
-            Void queryContext.QueryBuffer.StartTracking(
-                entity: entity, 
-                entityType: EntityType: Customer
-            )
-            return queryContext.QueryBuffer.IncludeCollection(0, Navigation: Customer.Orders (<Orders>k__BackingField, ICollection<Order>) Collection ToDependent Order Inverse: Customer 0 -1 1 -1 -1, Navigation: Order.Customer (<Customer>k__BackingField, Customer) ToPrincipal Customer Inverse: Orders 0 -1 2 -1 -1, EntityType: Order, value(Metadata.Internal.ClrICollectionAccessor`3[Specification.Tests.TestModels.Northwind.Customer,System.Collections.Generic.ICollection`1[Specification.Tests.TestModels.Northwind.Order],Specification.Tests.TestModels.Northwind.Order]), value(Metadata.Internal.ClrPropertySetter`2[Specification.Tests.TestModels.Northwind.Order,Specification.Tests.TestModels.Northwind.Customer]), True, entity, Convert(included[0]))
-        }
-    )
-)",
+'from Customer c in DbSet<Customer>"
+,
                     TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
             }
         }
