@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests
         protected abstract Type GetDesignTimeServicesType();
 
         [Fact]
-        public void EnsureAssemblyIdentityMatches()
+        public void Ensure_assmebly_identity_matches()
         {
             var runtimeAssembly = GetRuntimeAssembly();
             var dtAttribute = runtimeAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>();
