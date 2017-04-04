@@ -173,12 +173,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             VisitQueryModel(subQueryModel);
 
+            var subqueryInMainClauseWithoutResultOperatorsProjectingItsMainClause
+                = fromClause is MainFromClause
+                    && !subQueryModel.ResultOperators.Any()
+                    && subQueryModel.SelectClause.Selector is QuerySourceReferenceExpression subquerySelectorsQsre
+                    && subquerySelectorsQsre.ReferencedQuerySource == subQueryModel.MainFromClause;
+
             if (subQueryModel.ResultOperators.All(ro => ro is CastResultOperator)
                 && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause)
                 || queryModel.IsIdentityQuery()
                 && !queryModel.ResultOperators.Any()
                 || !queryModel.BodyClauses.Any()
-                && !subQueryModel.ResultOperators.Any(ro => ro is GroupResultOperator))
+                && !subQueryModel.ResultOperators.Any(ro => ro is GroupResultOperator)
+                || subqueryInMainClauseWithoutResultOperatorsProjectingItsMainClause)
             {
                 string itemName;
 

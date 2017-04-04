@@ -2342,11 +2342,309 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(2, result.Count);
+                Assert.Equal("Damon Baird", result[0].FullName);
+                Assert.Equal("Marcus Fenix", result[1].FullName);
+            }
+        }
 
-                var names = result.Select(r => r.FullName).ToList();
+        [ConditionalFact]
+        public virtual void Order_by_is_properly_lifted_from_subquery_created_by_include()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears
+                    .OrderBy(g => g.Rank)
+                    .Include(g => g.Tag)
+                    .OrderBy(g => g.FullName)
+                    .Where(g => !g.HasSoulPatch)
+                    .Select(g => g.FullName);
 
-                Assert.True(names.Contains("Damon Baird"));
-                Assert.True(names.Contains("Marcus Fenix"));
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal("Augustus Cole", result[0]);
+                Assert.Equal("Dominic Santiago", result[1]);
+                Assert.Equal("Garron Paduk", result[2]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Order_by_then_by_is_properly_lifted_from_subquery_created_by_include()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears
+                    .OrderBy(g => g.Rank).ThenByDescending(g => g.Nickname)
+                    .Include(g => g.Tag)
+                    .OrderBy(g => g.FullName)
+                    .Where(g => !g.HasSoulPatch)
+                    .Select(g => g.FullName);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal("Augustus Cole", result[0]);
+                Assert.Equal("Dominic Santiago", result[1]);
+                Assert.Equal("Garron Paduk", result[2]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Multiple_order_bys_are_properly_lifted_from_subquery_created_by_include()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears
+                    .OrderBy(g => g.Rank)
+                    .Include(g => g.Tag)
+                    .OrderByDescending(g => g.Nickname)
+                    .Include(g => g.CityOfBirth)
+                    .OrderBy(g => g.FullName)
+                    .Where(g => !g.HasSoulPatch)
+                    .Select(g => g.FullName);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal("Augustus Cole", result[0]);
+                Assert.Equal("Dominic Santiago", result[1]);
+                Assert.Equal("Garron Paduk", result[2]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Order_by_is_properly_lifted_from_subquery_with_same_order_by_in_the_outer_query()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears
+                    .OrderBy(g => g.FullName)
+                    .Include(g => g.CityOfBirth)
+                    .OrderBy(g => g.FullName)
+                    .Where(g => !g.HasSoulPatch)
+                    .Select(g => g.FullName);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal("Augustus Cole", result[0]);
+                Assert.Equal("Dominic Santiago", result[1]);
+                Assert.Equal("Garron Paduk", result[2]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_is_properly_lifted_from_subquery_created_by_include()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears
+                    .Where(g => g.FullName != "Augustus Cole")
+                    .Include(g => g.Tag)
+                    .OrderBy(g => g.FullName)
+                    .Where(g => !g.HasSoulPatch)
+                    .Select(g => g);
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Dominic Santiago", result[0].FullName);
+                Assert.Equal("Dom's Tag", result[0].Tag.Note);
+                Assert.Equal("Garron Paduk", result[1].FullName);
+                Assert.Equal("Paduk's Tag", result[1].Tag.Note);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_and_order_by_are_properly_lifted_from_subquery_created_by_tracking()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears
+                    .Where(g => g.FullName != "Augustus Cole")
+                    .AsNoTracking()
+                    .OrderBy(g => g.Rank)
+                    .AsTracking()
+                    .OrderBy(g => g.FullName)
+                    .Where(g => !g.HasSoulPatch)
+                    .Select(g => g.FullName);
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Dominic Santiago", result[0]);
+                Assert.Equal("Garron Paduk", result[1]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_is_lifted_from_main_from_clause_of_SelectMany()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g1 in ctx.Gears.OrderBy(g => g.Rank).Include(g => g.Tag)
+                            from g2 in ctx.Gears
+                            orderby g1.FullName
+                            where g1.HasSoulPatch && !g2.HasSoulPatch
+                            select new { Name1 = g1.FullName, Name2 = g2.FullName };
+
+                var result = query.ToList();
+
+                Assert.Equal(6, result.Count);
+                Assert.True(result.All(r => r.Name1 == "Damon Baird" || r.Name1 == "Marcus Fenix"));
+                Assert.True(result.All(r => r.Name2 == "Augustus Cole" || r.Name2 == "Garron Paduk" || r.Name2 == "Dominic Santiago"));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_containing_SelectMany_projecting_main_from_clause_gets_lifted()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g in (from gear in ctx.Gears
+                                       from tag in ctx.Tags
+                                       where gear.HasSoulPatch
+                                       orderby tag.Note
+                                       select gear).AsTracking()
+                            orderby g.FullName
+                            select g.FullName;
+
+                var result = query.ToList();
+
+                Assert.Equal(12, result.Count);
+                Assert.Equal(6, result.Count(r => r == "Damon Baird"));
+                Assert.Equal(6, result.Count(r => r == "Marcus Fenix"));
+                Assert.Equal("Damon Baird", result.First());
+                Assert.Equal("Marcus Fenix", result.Last());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_containing_join_projecting_main_from_clause_gets_lifted()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g in (from gear in ctx.Gears
+                                       join tag in ctx.Tags on gear.Nickname equals tag.GearNickName
+                                       orderby tag.Note
+                                       select gear).AsTracking()
+                            orderby g.Nickname
+                            select g.Nickname;
+
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+                Assert.Equal("Baird", result[0]);
+                Assert.Equal("Cole Train", result[1]);
+                Assert.Equal("Dom", result[2]);
+                Assert.Equal("Marcus", result[3]);
+                Assert.Equal("Paduk", result[4]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_containing_left_join_projecting_main_from_clause_gets_lifted()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g in (from gear in ctx.Gears
+                                       join tag in ctx.Tags on gear.Nickname equals tag.GearNickName into grouping
+                                       from tag in grouping.DefaultIfEmpty()
+                                       orderby gear.Rank
+                                       select gear).AsTracking()
+                            orderby g.Nickname
+                            select g.Nickname;
+
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+                Assert.Equal("Baird", result[0]);
+                Assert.Equal("Cole Train", result[1]);
+                Assert.Equal("Dom", result[2]);
+                Assert.Equal("Marcus", result[3]);
+                Assert.Equal("Paduk", result[4]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_containing_join_gets_lifted_clashing_names()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from gear in (from gear in ctx.Gears
+                                       join tag in ctx.Tags on gear.Nickname equals tag.GearNickName
+                                       orderby tag.Note
+                                       where tag.GearNickName != "Cole Train"
+                                       select gear).AsTracking()
+                            join tag in ctx.Tags on gear.Nickname equals tag.GearNickName
+                            orderby gear.Nickname, tag.Id
+                            select gear.Nickname;
+
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.Equal("Baird", result[0]);
+                Assert.Equal("Dom", result[1]);
+                Assert.Equal("Marcus", result[2]);
+                Assert.Equal("Paduk", result[3]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_created_by_include_gets_lifted_nested()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from gear in ctx.Gears.OrderBy(g => g.Rank).Where(g => g.Weapons.Any()).Include(g => g.CityOfBirth)
+                            where !gear.HasSoulPatch
+                            orderby gear.Nickname
+                            select gear;
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal("Augustus Cole", result[0].FullName);
+                Assert.Equal("Hanover", result[0].CityOfBirth.Name);
+                Assert.Equal("Dominic Santiago", result[1].FullName);
+                Assert.Equal("Ephyra", result[1].CityOfBirth.Name);
+                Assert.Equal("Garron Paduk", result[2].FullName);
+                Assert.Equal("Unknown", result[2].CityOfBirth.Name);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_is_not_lifted_from_additional_from_clause()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g1 in ctx.Gears
+                            from g2 in ctx.Gears.OrderBy(g => g.Rank).Include(g => g.Tag)
+                            orderby g1.FullName
+                            where g1.HasSoulPatch && !g2.HasSoulPatch
+                            select new { Name1 = g1.FullName, Name2 = g2.FullName };
+
+                var result = query.ToList();
+
+                Assert.Equal(6, result.Count);
+                Assert.True(result.All(r => r.Name1 == "Damon Baird" || r.Name1 == "Marcus Fenix"));
+                Assert.True(result.All(r => r.Name2 == "Augustus Cole" || r.Name2 == "Garron Paduk" || r.Name2 == "Dominic Santiago"));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_with_result_operator_is_not_lifted()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g in ctx.Gears.Where(g => !g.HasSoulPatch).OrderBy(g => g.FullName).Take(2).AsTracking()
+                            orderby g.Rank
+                            select g.FullName;
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Augustus Cole", result[0]);
+                Assert.Equal("Dominic Santiago", result[1]);
             }
         }
 

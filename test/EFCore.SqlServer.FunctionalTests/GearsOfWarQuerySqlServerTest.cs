@@ -2391,11 +2391,206 @@ WHERE [e].[Id] IN ('d2c26679-562b-44d1-ab96-23d1775e0926', '23cbcf9b-ce14-45cf-a
         {
             base.Unnecessary_include_doesnt_get_added_complex_when_projecting_EF_Property();
 
-            Assert.Equal(
-                @"SELECT [g0].[HasSoulPatch], [g0].[FullName]
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)
+ORDER BY [g].[Rank]",
+                Sql);
+        }
+
+        public override void Order_by_is_properly_lifted_from_subquery_created_by_include()
+        {
+            base.Order_by_is_properly_lifted_from_subquery_created_by_include();
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 0)
+ORDER BY [g].[FullName], [g].[Rank]",
+                Sql);
+        }
+
+        public override void Order_by_then_by_is_properly_lifted_from_subquery_created_by_include()
+        {
+            base.Order_by_then_by_is_properly_lifted_from_subquery_created_by_include();
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 0)
+ORDER BY [g].[FullName], [g].[Rank], [g].[Nickname] DESC",
+                Sql);
+        }
+
+        public override void Multiple_order_bys_are_properly_lifted_from_subquery_created_by_include()
+        {
+            base.Multiple_order_bys_are_properly_lifted_from_subquery_created_by_include();
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 0)
+ORDER BY [g].[FullName], [g].[Nickname] DESC, [g].[Rank]",
+                Sql);
+        }
+
+        public override void Order_by_is_properly_lifted_from_subquery_with_same_order_by_in_the_outer_query()
+        {
+            base.Order_by_is_properly_lifted_from_subquery_with_same_order_by_in_the_outer_query();
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 0)
+ORDER BY [g].[FullName]",
+                Sql);
+        }
+
+        public override void Where_is_properly_lifted_from_subquery_created_by_include()
+        {
+            base.Where_is_properly_lifted_from_subquery_created_by_include();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]
+FROM [Gear] AS [g]
+LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
+WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[FullName] <> N'Augustus Cole')) AND ([g].[HasSoulPatch] = 0)
+ORDER BY [g].[FullName]",
+                Sql);
+        }
+
+        public override void Where_and_order_by_are_properly_lifted_from_subquery_created_by_tracking()
+        {
+            base.Where_and_order_by_are_properly_lifted_from_subquery_created_by_tracking();
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gear] AS [g]
+WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[FullName] <> N'Augustus Cole')) AND ([g].[HasSoulPatch] = 0)
+ORDER BY [g].[FullName], [g].[Rank]",
+                Sql);
+        }
+
+        public override void Subquery_is_lifted_from_main_from_clause_of_SelectMany()
+        {
+            base.Subquery_is_lifted_from_main_from_clause_of_SelectMany();
+
+            AssertSql(
+                @"SELECT [g].[FullName], [g2].[FullName]
+FROM [Gear] AS [g]
+CROSS JOIN [Gear] AS [g2]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1) AND ([g2].[HasSoulPatch] = 0))
+ORDER BY [g].[FullName], [g].[Rank]",
+                Sql);
+        }
+
+        public override void Subquery_containing_SelectMany_projecting_main_from_clause_gets_lifted()
+        {
+            base.Subquery_containing_SelectMany_projecting_main_from_clause_gets_lifted();
+
+            AssertSql(
+                @"SELECT [gear].[FullName]
+FROM [Gear] AS [gear]
+CROSS JOIN [CogTag] AS [tag]
+WHERE [gear].[Discriminator] IN (N'Officer', N'Gear') AND ([gear].[HasSoulPatch] = 1)
+ORDER BY [gear].[FullName], [tag].[Note]",
+                Sql);
+        }
+
+        public override void Subquery_containing_join_projecting_main_from_clause_gets_lifted()
+        {
+            base.Subquery_containing_join_projecting_main_from_clause_gets_lifted();
+
+            AssertSql(
+                @"SELECT [gear].[Nickname]
+FROM [Gear] AS [gear]
+INNER JOIN [CogTag] AS [tag] ON [gear].[Nickname] = [tag].[GearNickName]
+WHERE [gear].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [gear].[Nickname], [tag].[Note]",
+                Sql);
+        }
+
+        public override void Subquery_containing_left_join_projecting_main_from_clause_gets_lifted()
+        {
+            base.Subquery_containing_left_join_projecting_main_from_clause_gets_lifted();
+
+            AssertSql(
+                @"SELECT [gear].[Nickname]
+FROM [Gear] AS [gear]
+LEFT JOIN [CogTag] AS [tag] ON [gear].[Nickname] = [tag].[GearNickName]
+WHERE [gear].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [gear].[Nickname], [gear].[Rank]",
+                Sql);
+        }
+
+        public override void Subquery_containing_join_gets_lifted_clashing_names()
+        {
+            base.Subquery_containing_join_gets_lifted_clashing_names();
+
+            AssertSql(
+                @"SELECT [gear].[Nickname]
+FROM [Gear] AS [gear]
+INNER JOIN [CogTag] AS [tag] ON [gear].[Nickname] = [tag].[GearNickName]
+INNER JOIN [CogTag] AS [tag0] ON [gear].[Nickname] = [tag0].[GearNickName]
+WHERE [gear].[Discriminator] IN (N'Officer', N'Gear') AND (([tag].[GearNickName] <> N'Cole Train') OR [tag].[GearNickName] IS NULL)
+ORDER BY [gear].[Nickname], [tag0].[Id], [tag].[Note]",
+                Sql);
+        }
+
+        public override void Subquery_created_by_include_gets_lifted_nested()
+        {
+            base.Subquery_created_by_include_gets_lifted_nested();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.CityOfBirth].[Name], [g.CityOfBirth].[Location]
+FROM [Gear] AS [g]
+INNER JOIN [City] AS [g.CityOfBirth] ON [g].[CityOrBirthName] = [g.CityOfBirth].[Name]
+WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND EXISTS (
+    SELECT 1
+    FROM [Weapon] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName])) AND ([g].[HasSoulPatch] = 0)
+ORDER BY [g].[Nickname], [g].[Rank]",
+                Sql);
+        }
+
+        public override void Subquery_is_not_lifted_from_additional_from_clause()
+        {
+            base.Subquery_is_not_lifted_from_additional_from_clause();
+
+            AssertSql(
+                @"SELECT [g1].[FullName]
+FROM [Gear] AS [g1]
+WHERE [g1].[Discriminator] IN (N'Officer', N'Gear') AND ([g1].[HasSoulPatch] = 1)
+ORDER BY [g1].[FullName]
+
+SELECT [g0].[HasSoulPatch], [g0].[FullName]
+FROM [Gear] AS [g0]
+WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g0].[Rank]
+
+SELECT [g0].[HasSoulPatch], [g0].[FullName]
 FROM [Gear] AS [g0]
 WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [g0].[Rank]",
+                Sql);
+        }
+
+        public override void Subquery_with_result_operator_is_not_lifted()
+        {
+            base.Subquery_with_result_operator_is_not_lifted();
+
+            AssertSql(
+                @"@__p_0: 2
+
+SELECT [t].[FullName]
+FROM (
+    SELECT TOP(@__p_0) [g].*
+    FROM [Gear] AS [g]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 0)
+    ORDER BY [g].[FullName]
+) AS [t]
+ORDER BY [t].[Rank], [t].[FullName]",
                 Sql);
         }
 
