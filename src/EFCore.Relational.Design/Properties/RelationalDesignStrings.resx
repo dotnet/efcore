@@ -168,4 +168,7 @@
   <data name="MissingTable" xml:space="preserve">
     <value>Unable to find a table in the database matching the selected table {table}.</value>
   </data>
+  <data name="ForeignKeyPrincipalEndContainsNullableColumns" xml:space="preserve">
+    <value>The principal end of the foreign key '{foreignKeyName}' is supported by the unique index '{indexName}' and contains the following nullable columns '{columnNames}'. Entity Framework requires the properties representing those columns to be non-nullable.</value>
+  </data>
 </root>

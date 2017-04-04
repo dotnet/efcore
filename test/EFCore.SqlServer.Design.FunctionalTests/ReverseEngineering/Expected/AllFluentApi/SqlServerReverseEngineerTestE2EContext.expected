@@ -373,13 +373,9 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.OneToOneFktoUniqueKeyDependentId2).HasColumnName("OneToOneFKToUniqueKeyDependentID2");
 
-                entity.Property(e => e.OneToOneFktoUniqueKeyDependentFk1)
-                    .IsRequired()
-                    .HasColumnName("OneToOneFKToUniqueKeyDependentFK1");
+                entity.Property(e => e.OneToOneFktoUniqueKeyDependentFk1).HasColumnName("OneToOneFKToUniqueKeyDependentFK1");
 
-                entity.Property(e => e.OneToOneFktoUniqueKeyDependentFk2)
-                    .IsRequired()
-                    .HasColumnName("OneToOneFKToUniqueKeyDependentFK2");
+                entity.Property(e => e.OneToOneFktoUniqueKeyDependentFk2).HasColumnName("OneToOneFKToUniqueKeyDependentFK2");
 
                 entity.Property(e => e.SomeColumn)
                     .IsRequired()
@@ -389,7 +385,6 @@ namespace E2ETest.Namespace
                     .WithOne(p => p.OneToOneFktoUniqueKeyDependent)
                     .HasPrincipalKey<OneToOneFktoUniqueKeyPrincipal>(p => new { p.OneToOneFktoUniqueKeyPrincipalUniqueKey1, p.OneToOneFktoUniqueKeyPrincipalUniqueKey2 })
                     .HasForeignKey<OneToOneFktoUniqueKeyDependent>(d => new { d.OneToOneFktoUniqueKeyDependentFk1, d.OneToOneFktoUniqueKeyDependentFk2 })
-                    .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK_OneToOneFKToUniqueKeyDependent");
             });
 
@@ -446,13 +441,9 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.OneToOneSeparateFkdependentId2).HasColumnName("OneToOneSeparateFKDependentID2");
 
-                entity.Property(e => e.OneToOneSeparateFkdependentFk1)
-                    .IsRequired()
-                    .HasColumnName("OneToOneSeparateFKDependentFK1");
+                entity.Property(e => e.OneToOneSeparateFkdependentFk1).HasColumnName("OneToOneSeparateFKDependentFK1");
 
-                entity.Property(e => e.OneToOneSeparateFkdependentFk2)
-                    .IsRequired()
-                    .HasColumnName("OneToOneSeparateFKDependentFK2");
+                entity.Property(e => e.OneToOneSeparateFkdependentFk2).HasColumnName("OneToOneSeparateFKDependentFK2");
 
                 entity.Property(e => e.SomeDependentEndColumn)
                     .IsRequired()
@@ -461,7 +452,6 @@ namespace E2ETest.Namespace
                 entity.HasOne(d => d.OneToOneSeparateFkdependentFk)
                     .WithOne(p => p.OneToOneSeparateFkdependent)
                     .HasForeignKey<OneToOneSeparateFkdependent>(d => new { d.OneToOneSeparateFkdependentFk1, d.OneToOneSeparateFkdependentFk2 })
-                    .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK_OneToOneSeparateFKDependent");
             });
 

@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         IndexColumnSkipped,
         FoundForeignKeyColumn,
         FoundSequence,
-        ForeignKeyReferencesMissingTable
+        ForeignKeyReferencesMissingTable,
+        ForeignKeyPrincipalEndContainsNullableColumns
     }
 }
