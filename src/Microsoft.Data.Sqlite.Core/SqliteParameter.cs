@@ -71,9 +71,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="size">The maximum size, in bytes, of the parameter.</param>
         public SqliteParameter(string name, SqliteType type, int size)
             : this(name, type)
-        {
-            Size = size;
-        }
+            => Size = size;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
@@ -84,9 +82,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="sourceColumn">The source column used for loading the value. Can be null.</param>
         public SqliteParameter(string name, SqliteType type, int size, string sourceColumn)
             : this(name, type, size)
-        {
-            SourceColumn = sourceColumn;
-        }
+            => SourceColumn = sourceColumn;
 
         /// <summary>
         /// Gets or sets the type of the parameter.

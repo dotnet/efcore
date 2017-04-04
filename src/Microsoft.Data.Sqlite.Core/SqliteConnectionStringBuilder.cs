@@ -73,9 +73,7 @@ namespace Microsoft.Data.Sqlite
         /// The initial connection string the builder will represent. Can be null.
         /// </param>
         public SqliteConnectionStringBuilder(string connectionString)
-        {
-            ConnectionString = connectionString;
-        }
+            => ConnectionString = connectionString;
 
         /// <summary>
         /// Gets or sets the database file.

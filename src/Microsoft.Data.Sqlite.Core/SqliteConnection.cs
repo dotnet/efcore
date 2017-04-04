@@ -27,9 +27,7 @@ namespace Microsoft.Data.Sqlite
         private sqlite3 _db;
 
         static SqliteConnection()
-        {
-            BundleInitializer.Initialize();
-        }
+            => BundleInitializer.Initialize();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteConnection" /> class.
@@ -44,9 +42,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="connectionString">The string used to open the connection.</param>
         /// <seealso cref="SqliteConnectionStringBuilder" />
         public SqliteConnection(string connectionString)
-        {
-            ConnectionString = connectionString;
-        }
+            => ConnectionString = connectionString;
 
         /// <summary>
         /// Gets a handle to underlying database connection.

@@ -20,9 +20,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="errorCode">The SQLite error code.</param>
         public SqliteException(string message, int errorCode)
             : base(message)
-        {
-            SqliteErrorCode = errorCode;
-        }
+            => SqliteErrorCode = errorCode;
 
         /// <summary>
         /// Gets the SQLite error code.

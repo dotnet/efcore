@@ -34,9 +34,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="commandText">The SQL to execute against the database.</param>
         public SqliteCommand(string commandText)
-        {
-            CommandText = commandText;
-        }
+            => CommandText = commandText;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteCommand" /> class.
@@ -45,9 +43,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="connection">The connection used by the command.</param>
         public SqliteCommand(string commandText, SqliteConnection connection)
             : this(commandText)
-        {
-            Connection = connection;
-        }
+            => Connection = connection;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteCommand" /> class.
@@ -57,9 +53,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="transaction">The transaction within which the command executes.</param>
         public SqliteCommand(string commandText, SqliteConnection connection, SqliteTransaction transaction)
             : this(commandText, connection)
-        {
-            Transaction = transaction;
-        }
+            => Transaction = transaction;
 
         /// <summary>
         /// Gets or sets a value indicating how <see cref="CommandText" /> is interpreted. Only
@@ -199,8 +193,7 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentException(Resources.InvalidCommandBehavior(behavior));
             }
 
-            if (Connection == null
-                || Connection.State != ConnectionState.Open)
+            if (Connection?.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteReader)));
             }
@@ -224,7 +217,7 @@ namespace Microsoft.Data.Sqlite
 
             var hasChanges = false;
             var changes = 0;
-            var stmts = new Queue<Tuple<sqlite3_stmt, bool>>();
+            var stmts = new Queue<(sqlite3_stmt, bool)>();
             var tail = CommandText;
 
             do
@@ -303,7 +296,7 @@ namespace Microsoft.Data.Sqlite
                 //     will result in unexpected corner cases, but it's the best we can do without re-parsing SQL
                 if (raw.sqlite3_stmt_readonly(stmt) != 0)
                 {
-                    stmts.Enqueue(Tuple.Create(stmt, rc != raw.SQLITE_DONE));
+                    stmts.Enqueue((stmt, rc != raw.SQLITE_DONE));
                 }
                 else
                 {
@@ -399,8 +392,7 @@ namespace Microsoft.Data.Sqlite
         /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
         public override int ExecuteNonQuery()
         {
-            if (Connection == null
-                || Connection.State != ConnectionState.Open)
+            if (Connection?.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteNonQuery)));
             }
@@ -422,8 +414,7 @@ namespace Microsoft.Data.Sqlite
         /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
         public override object ExecuteScalar()
         {
-            if (Connection == null
-                || Connection.State != ConnectionState.Open)
+            if (Connection?.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteScalar)));
             }
