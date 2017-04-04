@@ -5,7 +5,6 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
-using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
 

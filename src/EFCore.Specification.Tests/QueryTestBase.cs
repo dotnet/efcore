@@ -1678,10 +1678,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Where_subquery_anon()
         {
             AssertQuery<Employee, Order>((es, os) =>
-                from e in es.Take(9).Select(e => new { e })
-                from o in os.Take(1000).Select(o => new { o })
+                from e in es.Take(3).Select(e => new { e })
+                from o in os.Take(5).Select(o => new { o })
                 where e.e.EmployeeID == o.o.EmployeeID
                 select new { e, o });
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_anon_nested()
+        {
+            AssertQuery<Employee, Order, Customer>(
+                (es, os, cs) =>
+                    from t in (
+                        from e in es.Take(3).Select(e => new { e }).Where(e => e.e.City == "London")
+                        from o in os.Take(5).Select(o => new { o })
+                        select new { e, o })
+                    from c in cs.Take(2).Select(c => new { c })
+                    select new { t.e, t.o, c });
         }
 
         [ConditionalFact]
