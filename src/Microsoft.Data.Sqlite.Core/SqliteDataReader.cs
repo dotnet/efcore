@@ -175,11 +175,6 @@ namespace Microsoft.Data.Sqlite
         /// </param>
         protected override void Dispose(bool disposing)
         {
-            if (!disposing)
-            {
-                return;
-            }
-
             if (_stmt != null)
             {
                 _stmt.Dispose();
@@ -189,6 +184,11 @@ namespace Microsoft.Data.Sqlite
             while (_stmtQueue.Count != 0)
             {
                 _stmtQueue.Dequeue().stmt.Dispose();
+            }
+
+            if (!disposing)
+            {
+                return;
             }
 
             _closed = true;
