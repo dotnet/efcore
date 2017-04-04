@@ -662,5 +662,18 @@ namespace Microsoft.Data.Sqlite
                 }
             }
         }
+
+        [Fact]
+        public void Can_get_results_from_nonreadonly_statements()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                var result = connection.ExecuteScalar<string>("PRAGMA journal_mode;");
+
+                Assert.NotNull(result);
+            }
+        }
     }
 }

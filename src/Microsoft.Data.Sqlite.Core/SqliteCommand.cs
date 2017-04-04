@@ -292,9 +292,10 @@ namespace Microsoft.Data.Sqlite
                     throw;
                 }
 
-                // NB: This is only a heuristic to separate SELECT statements from INSERT/UPDATE/DELETE statements. It
-                //     will result in unexpected corner cases, but it's the best we can do without re-parsing SQL
-                if (raw.sqlite3_stmt_readonly(stmt) != 0)
+                if (rc == raw.SQLITE_ROW
+                    // NB: This is only a heuristic to separate SELECT statements from INSERT/UPDATE/DELETE statements.
+                    //     It will result in false positives, but it's the best we can do without re-parsing SQL
+                    || raw.sqlite3_stmt_readonly(stmt) != 0)
                 {
                     stmts.Enqueue((stmt, rc != raw.SQLITE_DONE));
                 }
