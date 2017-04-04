@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -31,10 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private class CommandBuilderPrinter : ConstantPrinterBase
         {
-            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
+            public override bool TryPrintConstant(
+                ConstantExpression constantExpression,
+                IndentedStringBuilder stringBuilder,
+                bool removeFormatting)
             {
-                var shaperCommandContext = value as ShaperCommandContext;
-                if (shaperCommandContext != null)
+                if (constantExpression.Value is ShaperCommandContext shaperCommandContext)
                 {
                     var appendAction = !removeFormatting ? AppendLine : Append;
 
@@ -61,10 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private class EntityTrackingInfoListPrinter : ConstantPrinterBase
         {
-            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
+            public override bool TryPrintConstant(
+                ConstantExpression constantExpression,
+                IndentedStringBuilder stringBuilder,
+                bool removeFormatting)
             {
-                var trackingInfoList = value as List<EntityTrackingInfo>;
-                if (trackingInfoList != null)
+                if (constantExpression.Value is List<EntityTrackingInfo> trackingInfoList)
                 {
                     var appendAction = trackingInfoList.Count > 2 && !removeFormatting ? AppendLine : Append;
 
@@ -91,15 +96,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private class MetadataPropertyCollectionPrinter : ConstantPrinterBase
         {
-            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
+            public override bool TryPrintConstant(
+                ConstantExpression constantExpression,
+                IndentedStringBuilder stringBuilder,
+                bool removeFormatting)
             {
-                var properties = value as IEnumerable<IPropertyBase>;
-                if (properties != null)
+                if (constantExpression.Value is IEnumerable<IPropertyBase> properties)
                 {
                     var propertiesList = properties.ToList();
                     var appendAction = propertiesList.Count > 2 && !removeFormatting ? AppendLine : Append;
 
-                    appendAction(stringBuilder, value.GetType().ShortDisplayName() + " ");
+                    appendAction(stringBuilder, constantExpression.Value.GetType().ShortDisplayName() + " ");
                     appendAction(stringBuilder, "{ ");
 
                     stringBuilder.IncrementIndent();

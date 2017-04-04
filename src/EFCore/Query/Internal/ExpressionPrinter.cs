@@ -134,16 +134,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual string PrintDebug(Expression expression, bool highlightNonreducibleNodes = true)
         {
             return PrintInternal(
-                expression, 
-                removeFormatting: false, 
-                characterLimit: null, 
+                expression,
+                removeFormatting: false,
+                characterLimit: null,
                 highlightNonreducibleNodes: highlightNonreducibleNodes);
         }
 
         private string PrintInternal(
-            Expression expression, 
-            bool removeFormatting, 
-            int? characterLimit, 
+            Expression expression,
+            bool removeFormatting,
+            int? characterLimit,
             bool highlightNonreducibleNodes)
         {
             _stringBuilder.Clear();
@@ -180,19 +180,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Expression Visit(Expression node)
+        public override Expression Visit(Expression expression)
         {
-            if (node == null)
+            if (expression == null)
             {
                 return null;
             }
 
             if (CharacterLimit != null && _stringBuilder.Length > CharacterLimit.Value)
             {
-                return node;
+                return expression;
             }
 
-            switch (node.NodeType)
+            switch (expression.NodeType)
             {
                 case ExpressionType.AndAlso:
                 case ExpressionType.ArrayIndex:
@@ -212,128 +212,127 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 case ExpressionType.Modulo:
                 case ExpressionType.And:
                 case ExpressionType.Or:
-                    VisitBinary((BinaryExpression)node);
+                    VisitBinary((BinaryExpression)expression);
                     break;
 
                 case ExpressionType.Block:
-                    VisitBlock((BlockExpression)node);
+                    VisitBlock((BlockExpression)expression);
                     break;
 
                 case ExpressionType.Conditional:
-                    VisitConditional((ConditionalExpression)node);
+                    VisitConditional((ConditionalExpression)expression);
                     break;
 
                 case ExpressionType.Constant:
-                    VisitConstant((ConstantExpression)node);
+                    VisitConstant((ConstantExpression)expression);
                     break;
 
                 case ExpressionType.Lambda:
-                    base.Visit(node);
+                    base.Visit(expression);
                     break;
 
                 case ExpressionType.Goto:
-                    VisitGoto((GotoExpression)node);
+                    VisitGoto((GotoExpression)expression);
                     break;
 
                 case ExpressionType.Label:
-                    VisitLabel((LabelExpression)node);
+                    VisitLabel((LabelExpression)expression);
                     break;
 
                 case ExpressionType.MemberAccess:
-                    VisitMember((MemberExpression)node);
+                    VisitMember((MemberExpression)expression);
                     break;
 
                 case ExpressionType.MemberInit:
-                    VisitMemberInit((MemberInitExpression)node);
+                    VisitMemberInit((MemberInitExpression)expression);
                     break;
 
                 case ExpressionType.Call:
-                    VisitMethodCall((MethodCallExpression)node);
+                    VisitMethodCall((MethodCallExpression)expression);
                     break;
 
                 case ExpressionType.New:
-                    VisitNew((NewExpression)node);
+                    VisitNew((NewExpression)expression);
                     break;
 
                 case ExpressionType.NewArrayInit:
-                    VisitNewArray((NewArrayExpression)node);
+                    VisitNewArray((NewArrayExpression)expression);
                     break;
 
                 case ExpressionType.Parameter:
-                    VisitParameter((ParameterExpression)node);
+                    VisitParameter((ParameterExpression)expression);
                     break;
 
                 case ExpressionType.Convert:
                 case ExpressionType.Throw:
                 case ExpressionType.Not:
-                    VisitUnary((UnaryExpression)node);
+                    VisitUnary((UnaryExpression)expression);
                     break;
 
                 case ExpressionType.Default:
-                    VisitDefault((DefaultExpression)node);
+                    VisitDefault((DefaultExpression)expression);
                     break;
 
                 case ExpressionType.Try:
-                    VisitTry((TryExpression)node);
+                    VisitTry((TryExpression)expression);
                     break;
 
                 case ExpressionType.Extension:
-                    VisitExtension(node);
+                    VisitExtension(expression);
                     break;
 
                 default:
-                    UnhandledExpressionType(node);
+                    UnhandledExpressionType(expression);
                     break;
             }
 
-            return node;
+            return expression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitBinary(BinaryExpression node)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            Visit(node.Left);
+            Visit(binaryExpression.Left);
 
-            if (node.NodeType == ExpressionType.ArrayIndex)
+            if (binaryExpression.NodeType == ExpressionType.ArrayIndex)
             {
                 _stringBuilder.Append("[");
 
-                Visit(node.Right);
+                Visit(binaryExpression.Right);
 
                 _stringBuilder.Append("]");
             }
             else
             {
-                string operand;
-                if (!_binaryOperandMap.TryGetValue(node.NodeType, out operand))
+                if (!_binaryOperandMap.TryGetValue(binaryExpression.NodeType, out string operand))
                 {
-                    UnhandledExpressionType(node);
+                    UnhandledExpressionType(binaryExpression);
                 }
                 else
                 {
                     _stringBuilder.Append(operand);
                 }
 
-                Visit(node.Right);
+                Visit(binaryExpression.Right);
             }
 
-            return node;
+            return binaryExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitBlock(BlockExpression node)
+        protected override Expression VisitBlock(BlockExpression blockExpression)
         {
             AppendLine();
             AppendLine("{");
             _stringBuilder.IncrementIndent();
 
-            foreach (var variable in node.Variables)
+            foreach (var variable in blockExpression.Variables)
             {
                 if (!_parametersInScope.ContainsKey(variable))
                 {
@@ -341,9 +340,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            var expressions = node.Result != null
-                ? node.Expressions.Except(new[] { node.Result })
-                : node.Expressions;
+            var expressions = blockExpression.Result != null
+                ? blockExpression.Expressions.Except(new[] { blockExpression.Result })
+                : blockExpression.Expressions;
 
             foreach (var expression in expressions)
             {
@@ -351,90 +350,90 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 AppendLine();
             }
 
-            if (node.Result != null)
+            if (blockExpression.Result != null)
             {
-                AppendLine("return " + node.Result);
+                AppendLine("return " + blockExpression.Result);
             }
 
             _stringBuilder.DecrementIndent();
             AppendLine("}");
 
-            return node;
+            return blockExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitConditional(ConditionalExpression node)
+        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
-            Visit(node.Test);
+            Visit(conditionalExpression.Test);
 
             _stringBuilder.Append(" ? ");
 
-            Visit(node.IfTrue);
+            Visit(conditionalExpression.IfTrue);
 
             _stringBuilder.Append(" : ");
 
-            Visit(node.IfFalse);
+            Visit(conditionalExpression.IfFalse);
 
-            return node;
+            return conditionalExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitConstant(ConstantExpression node)
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             foreach (var constantPrinter in _constantPrinters)
             {
-                if (constantPrinter.TryPrintConstant(node.Value, _stringBuilder, RemoveFormatting))
+                if (constantPrinter.TryPrintConstant(constantExpression, _stringBuilder, RemoveFormatting))
                 {
                     break;
                 }
             }
 
-            return node;
+            return constantExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitGoto(GotoExpression node)
+        protected override Expression VisitGoto(GotoExpression gotoExpression)
         {
-            AppendLine("return (" + node.Target.Type.ShortDisplayName() + ")" + node.Target + " {");
+            AppendLine("return (" + gotoExpression.Target.Type.ShortDisplayName() + ")" + gotoExpression.Target + " {");
             _stringBuilder.IncrementIndent();
 
-            Visit(node.Value);
+            Visit(gotoExpression.Value);
 
             _stringBuilder.DecrementIndent();
             _stringBuilder.Append("}");
 
-            return node;
+            return gotoExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitLabel(LabelExpression node)
+        protected override Expression VisitLabel(LabelExpression labelExpression)
         {
-            _stringBuilder.Append(node.Target.ToString());
+            _stringBuilder.Append(labelExpression.Target.ToString());
 
-            return node;
+            return labelExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitLambda<T>(Expression<T> node)
+        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
         {
             _stringBuilder.Append("(");
 
-            foreach (var parameter in node.Parameters)
+            foreach (var parameter in lambdaExpression.Parameters)
             {
                 if (!_parametersInScope.ContainsKey(parameter))
                 {
@@ -443,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 _stringBuilder.Append(parameter.Type.ShortDisplayName() + " " + parameter.Name);
 
-                if (parameter != node.Parameters.Last())
+                if (parameter != lambdaExpression.Parameters.Last())
                 {
                     _stringBuilder.Append(" | ");
                 }
@@ -451,57 +450,56 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             _stringBuilder.Append(") => ");
 
-            Visit(node.Body);
+            Visit(lambdaExpression.Body);
 
-            foreach (var parameter in node.Parameters)
+            foreach (var parameter in lambdaExpression.Parameters)
             {
                 _parametersInScope.Remove(parameter);
             }
 
-            return node;
+            return lambdaExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitMember(MemberExpression node)
+        protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            if (node.Expression != null)
+            if (memberExpression.Expression != null)
             {
-                Visit(node.Expression);
+                Visit(memberExpression.Expression);
             }
             else
             {
                 // ReSharper disable once PossibleNullReferenceException
-                _stringBuilder.Append(node.Member.DeclaringType.Name);
+                _stringBuilder.Append(memberExpression.Member.DeclaringType.Name);
             }
 
-            _stringBuilder.Append("." + node.Member.Name);
+            _stringBuilder.Append("." + memberExpression.Member.Name);
 
-            return node;
+            return memberExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitMemberInit(MemberInitExpression node)
+        protected override Expression VisitMemberInit(MemberInitExpression memeberInitExpression)
         {
-            _stringBuilder.Append("new " + node.Type.ShortDisplayName());
+            _stringBuilder.Append("new " + memeberInitExpression.Type.ShortDisplayName());
 
-            var appendAction = node.Bindings.Count > 1 ? (Action<string>)AppendLine : Append;
+            var appendAction = memeberInitExpression.Bindings.Count > 1 ? (Action<string>)AppendLine : Append;
             appendAction("{ ");
             _stringBuilder.IncrementIndent();
 
-            for (var i = 0; i < node.Bindings.Count; i++)
+            for (var i = 0; i < memeberInitExpression.Bindings.Count; i++)
             {
-                var assignment = node.Bindings[i] as MemberAssignment;
-                if (assignment != null)
+                if (memeberInitExpression.Bindings[i] is MemberAssignment assignment)
                 {
                     _stringBuilder.Append(assignment.Member.Name + " = ");
                     Visit(assignment.Expression);
-                    appendAction(i == node.Bindings.Count - 1 ? " " : ", ");
+                    appendAction(i == memeberInitExpression.Bindings.Count - 1 ? " " : ", ");
                 }
                 else
                 {
@@ -513,14 +511,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _stringBuilder.DecrementIndent();
             AppendLine("}");
 
-            return node;
+            return memeberInitExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitMethodCall(MethodCallExpression node)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             var simpleMethods = new List<string>
             {
@@ -528,47 +526,54 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 "TryReadValue"
             };
 
-            switch (node.Method.Name)
+            switch (methodCallExpression.Method.Name)
             {
                 case "_InterceptExceptions":
-                    Visit(node.Arguments[0]);
+                    Visit(methodCallExpression.Arguments[0]);
 
-                    return node;
+                    return methodCallExpression;
                 case "_TrackEntities":
                     TrackedQuery = true;
-                    Visit(node.Arguments[0]);
+                    Visit(methodCallExpression.Arguments[0]);
 
-                    return node;
+                    return methodCallExpression;
             }
 
-            if (!EntityQueryModelVisitor.IsPropertyMethod(node.Method))
+            if (!EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
             {
-                _stringBuilder.Append(node.Method.ReturnType.ShortDisplayName() + " ");
+                _stringBuilder.Append(methodCallExpression.Method.ReturnType.ShortDisplayName() + " ");
             }
 
-            if (node.Object != null)
+            if (methodCallExpression.Object != null)
             {
-                Visit(node.Object);
+                Visit(methodCallExpression.Object);
                 _stringBuilder.Append(".");
             }
 
-            _stringBuilder.Append(node.Method.Name + "(");
+            _stringBuilder.Append(methodCallExpression.Method.Name + "(");
 
-            var appendAction = simpleMethods.Contains(node.Method.Name) || EntityQueryModelVisitor.IsPropertyMethod(node.Method)
-                ? (Action<string>)Append
-                : AppendLine;
+            var appendAction
+                = simpleMethods.Contains(methodCallExpression.Method.Name)
+                  || EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method)
+                    ? (Action<string>)Append
+                    : AppendLine;
 
-            if (node.Arguments.Count > 0)
+            if (methodCallExpression.Arguments.Count > 0)
             {
                 appendAction("");
 
-                var showArgumentNames = !simpleMethods.Contains(node.Method.Name) && !EntityQueryModelVisitor.IsPropertyMethod(node.Method);
-                var argumentNames = showArgumentNames ? node.Method.GetParameters().Select(p => p.Name).ToList() : new List<string>();
+                var showArgumentNames
+                    = !simpleMethods.Contains(methodCallExpression.Method.Name)
+                      && !EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method);
+                var argumentNames
+                    = showArgumentNames
+                        ? methodCallExpression.Method.GetParameters().Select(p => p.Name).ToList()
+                        : new List<string>();
 
                 _stringBuilder.IncrementIndent();
-                for (var i = 0; i < node.Arguments.Count; i++)
+                for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
                 {
-                    var argument = node.Arguments[i];
+                    var argument = methodCallExpression.Arguments[i];
 
                     if (showArgumentNames)
                     {
@@ -577,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     Visit(argument);
 
-                    appendAction(i == node.Arguments.Count - 1 ? "" : ", ");
+                    appendAction(i == methodCallExpression.Arguments.Count - 1 ? "" : ", ");
                 }
 
                 _stringBuilder.DecrementIndent();
@@ -585,166 +590,169 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             appendAction(")");
 
-            return node;
+            return methodCallExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitNew(NewExpression node)
+        protected override Expression VisitNew(NewExpression newExpression)
         {
             _stringBuilder.Append("new ");
-            _stringBuilder.Append(node.Type.ShortDisplayName());
+            _stringBuilder.Append(newExpression.Type.ShortDisplayName());
 
-            var appendAction = node.Arguments.Count > 1 ? (Action<string>)AppendLine : Append;
+            var appendAction = newExpression.Arguments.Count > 1 ? (Action<string>)AppendLine : Append;
             appendAction("(");
             _stringBuilder.IncrementIndent();
 
-            for (var i = 0; i < node.Arguments.Count; i++)
+            for (var i = 0; i < newExpression.Arguments.Count; i++)
             {
-                Visit(node.Arguments[i]);
-                appendAction(i == node.Arguments.Count - 1 ? "" : ", ");
+                Visit(newExpression.Arguments[i]);
+                appendAction(i == newExpression.Arguments.Count - 1 ? "" : ", ");
             }
 
             _stringBuilder.DecrementIndent();
             _stringBuilder.Append(")");
 
-            return node;
+            return newExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitNewArray(NewArrayExpression node)
+        protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
         {
-            var appendAction = node.Expressions.Count > 1 ? (Action<string>)AppendLine : Append;
-            appendAction("new " + node.Type.GetElementType().ShortDisplayName() + "[]");
+            var appendAction = newArrayExpression.Expressions.Count > 1 ? (Action<string>)AppendLine : Append;
+            appendAction("new " + newArrayExpression.Type.GetElementType().ShortDisplayName() + "[]");
             appendAction("{ ");
             _stringBuilder.IncrementIndent();
 
-            for (var i = 0; i < node.Expressions.Count; i++)
+            for (var i = 0; i < newArrayExpression.Expressions.Count; i++)
             {
-                Visit(node.Expressions[i]);
-                appendAction(i == node.Expressions.Count - 1 ? " " : ", ");
+                Visit(newArrayExpression.Expressions[i]);
+                appendAction(i == newArrayExpression.Expressions.Count - 1 ? " " : ", ");
             }
 
             _stringBuilder.DecrementIndent();
             AppendLine("}");
 
-            return node;
+            return newArrayExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitParameter(ParameterExpression node)
+        protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            if (_parametersInScope.ContainsKey(node))
+            if (_parametersInScope.ContainsKey(parameterExpression))
             {
-                _stringBuilder.Append(_parametersInScope[node]);
+                _stringBuilder.Append(_parametersInScope[parameterExpression]);
             }
             else
             {
-                _stringBuilder.Append("Unhandled parameter: " + node);
+                _stringBuilder.Append("Unhandled parameter: " + parameterExpression);
             }
 
-            return node;
+            return parameterExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitUnary(UnaryExpression node)
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             // ReSharper disable once SwitchStatementMissingSomeCases
-            switch (node.NodeType)
+            switch (unaryExpression.NodeType)
             {
                 case ExpressionType.Convert:
-                    _stringBuilder.Append("(" + node.Type.ShortDisplayName() + ") ");
+                    _stringBuilder.Append("(" + unaryExpression.Type.ShortDisplayName() + ") ");
+                    Visit(unaryExpression.Operand);
+                    break;
 
-                    Visit(node.Operand);
-
-                    return node;
                 case ExpressionType.Throw:
                     _stringBuilder.Append("throw ");
-                    Visit(node.Operand);
+                    Visit(unaryExpression.Operand);
+                    break;
 
-                    return node;
                 case ExpressionType.Not:
                     _stringBuilder.Append("!(");
-                    Visit(node.Operand);
+                    Visit(unaryExpression.Operand);
                     _stringBuilder.Append(")");
+                    break;
 
-                    return node;
+                default:
+                    UnhandledExpressionType(unaryExpression);
+                    break;
             }
 
-            UnhandledExpressionType(node);
-
-            return node;
+            return unaryExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitDefault(DefaultExpression node)
+        protected override Expression VisitDefault(DefaultExpression defaultExpression)
         {
-            _stringBuilder.Append("default(" + node.Type + ")");
+            _stringBuilder.Append("default(" + defaultExpression.Type + ")");
 
-            return node;
+            return defaultExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitTry(TryExpression node)
+        protected override Expression VisitTry(TryExpression tryExpression)
         {
             _stringBuilder.Append("try { ");
-            Visit(node.Body);
+            Visit(tryExpression.Body);
             _stringBuilder.Append(" } ");
-            foreach (var handler in node.Handlers)
+
+            foreach (var handler in tryExpression.Handlers)
             {
                 _stringBuilder.Append("catch (" + handler.Test.Name + ") { ... } ");
             }
 
-            return node;
+            return tryExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitExtension(Expression node)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (_highlightNonreducibleNodes && !node.CanReduce)
+            if (_highlightNonreducibleNodes && !extensionExpression.CanReduce)
             {
                 StringBuilder.Append(HighlightLeft);
             }
 
-            if (node is QuerySourceReferenceExpression qsre)
+            switch (extensionExpression)
             {
-                StringBuilder.Append(qsre.ReferencedQuerySource.ItemName);
-            }
-            else if (node is NullConditionalExpression nullConditional)
-            {
-                StringBuilder.Append(nullConditional.ToString());
-            }
-            else
-            {
-                UnhandledExpressionType(node);
+                case QuerySourceReferenceExpression qsre:
+                    StringBuilder.Append(qsre.ReferencedQuerySource.ItemName);
+                    break;
+
+                case NullConditionalExpression nullConditional:
+                    StringBuilder.Append(nullConditional.ToString());
+                    break;
+
+                default:
+                    UnhandledExpressionType(extensionExpression);
+                    break;
             }
 
-            if (_highlightNonreducibleNodes && !node.CanReduce)
+            if (_highlightNonreducibleNodes && !extensionExpression.CanReduce)
             {
                 StringBuilder.Append(HighlightRight);
             }
 
-            return node;
+            return extensionExpression;
         }
 
         /// <summary>
@@ -761,8 +769,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return processedPlan;
         }
 
-        private void UnhandledExpressionType(Expression e)
-            => AppendLine(e.ToString());
+        private void UnhandledExpressionType(Expression expression)
+            => AppendLine(expression.ToString());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -774,7 +782,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            public abstract bool TryPrintConstant([CanBeNull] object value, [NotNull] IndentedStringBuilder stringBuilder, bool removeFormatting);
+            public abstract bool TryPrintConstant(
+                [NotNull] ConstantExpression constantExpression,
+                [NotNull] IndentedStringBuilder stringBuilder,
+                bool removeFormatting);
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -791,13 +802,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private class EntityQueryableConstantPrinter : ConstantPrinterBase
         {
-            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
+            public override bool TryPrintConstant(
+                ConstantExpression constantExpression,
+                IndentedStringBuilder stringBuilder,
+                bool removeFormatting)
             {
-                if (value != null
-                    && value.GetType().GetTypeInfo().IsGenericType
-                    && value.GetType().GetTypeInfo().GetGenericTypeDefinition() == typeof(EntityQueryable<>))
+                if (constantExpression.IsEntityQueryable())
                 {
-                    stringBuilder.Append($"DbSet<{value.GetType().GetTypeInfo().GenericTypeArguments.First().ShortDisplayName()}>");
+                    stringBuilder.Append($"DbSet<{constantExpression.Type.GetTypeInfo().GenericTypeArguments.First().ShortDisplayName()}>");
                     return true;
                 }
 
@@ -807,10 +819,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private class CollectionConstantPrinter : ConstantPrinterBase
         {
-            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
+            public override bool TryPrintConstant(
+                ConstantExpression constantExpression,
+                IndentedStringBuilder stringBuilder,
+                bool removeFormatting)
             {
-                var enumerable = value as IEnumerable;
-                if ((enumerable != null)
+                var value = constantExpression.Value;
+                if (value is IEnumerable enumerable
                     && !(value is string))
                 {
                     var appendAction = value is byte[] || removeFormatting ? Append : AppendLine;
@@ -835,10 +850,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private class MetadataPropertyPrinter : ConstantPrinterBase
         {
-            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
+            public override bool TryPrintConstant(
+                ConstantExpression constantExpression,
+                IndentedStringBuilder stringBuilder,
+                bool removeFormatting)
             {
-                var property = value as Property;
-                if (property != null)
+                if (constantExpression.Value is Property property)
                 {
                     stringBuilder.Append(property.Name);
 
@@ -851,9 +868,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private class DefaultConstantPrinter : ConstantPrinterBase
         {
-            public override bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder, bool removeFormatting)
+            public override bool TryPrintConstant(
+                ConstantExpression constantExpression,
+                IndentedStringBuilder stringBuilder,
+                bool removeFormatting)
             {
                 var stringValue = "null";
+                var value = constantExpression.Value;
 
                 if (value != null)
                 {

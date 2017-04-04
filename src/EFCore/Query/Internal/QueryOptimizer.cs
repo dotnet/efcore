@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators;
@@ -54,7 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
         private readonly IModel _model;
-        private static int _setOperatorCount;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -315,47 +315,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             switch (resultOperator)
             {
-                case ExceptResultOperator exceptResultOperator
-                when IsEntityQueryable(exceptResultOperator.Source2):
-                    exceptResultOperator.Source2 = ConvertEntityQueryableToSubQuery(exceptResultOperator.Source2);
-                    break;
-
-                case ConcatResultOperator concatResultOperator
-                when IsEntityQueryable(concatResultOperator.Source2):
-                    concatResultOperator.Source2 = ConvertEntityQueryableToSubQuery(concatResultOperator.Source2);
-                    break;
-
-                case IntersectResultOperator intersectResultOperator
-                when IsEntityQueryable(intersectResultOperator.Source2):
-                    intersectResultOperator.Source2 = ConvertEntityQueryableToSubQuery(intersectResultOperator.Source2);
-                    break;
-
-                case UnionResultOperator unionResultOperator
-                when IsEntityQueryable(unionResultOperator.Source2):
-                    unionResultOperator.Source2 = ConvertEntityQueryableToSubQuery(unionResultOperator.Source2);
+                case ExceptResultOperator _:
+                case ConcatResultOperator _:
+                case IntersectResultOperator _:
+                case UnionResultOperator _:
+                    resultOperator.TransformExpressions(ConvertEntityQueryableToSubQuery);
                     break;
             }
         }
 
-        private static bool IsEntityQueryable(Expression expression)
+        private static Expression ConvertEntityQueryableToSubQuery(Expression expression)
         {
-            return expression is ConstantExpression constantExpression
-                   && constantExpression.Type.IsConstructedGenericType
-                   && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
-        }
+            if ((expression as ConstantExpression)?.IsEntityQueryable() ?? false)
+            {
+                var mainFromClause = new MainFromClause(
+                    "<generated>_",
+                    expression.Type.GenericTypeArguments[0],
+                    expression);
 
-        private static SubQueryExpression ConvertEntityQueryableToSubQuery(Expression expression)
-        {
-            var mainFromClause = new MainFromClause(
-                $"<set>_{_setOperatorCount++}",
-                expression.Type.GenericTypeArguments[0],
-                expression);
+                var queryModel = new QueryModel(
+                    mainFromClause,
+                    new SelectClause(new QuerySourceReferenceExpression(mainFromClause)));
 
-            var queryModel = new QueryModel(
-                mainFromClause,
-                new SelectClause(new QuerySourceReferenceExpression(mainFromClause)));
+                mainFromClause.ItemName = queryModel.GetNewName(mainFromClause.ItemName);
 
-            return new SubQueryExpression(queryModel);
+                return new SubQueryExpression(queryModel);
+            }
+
+            return expression;
         }
     }
 }

@@ -4,10 +4,9 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
@@ -32,8 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="constantExpression"> The node being visited. </param>
         /// <returns> An expression to use in place of the node. </returns>
         protected override Expression VisitConstant(ConstantExpression constantExpression)
-            => constantExpression.Type.GetTypeInfo().IsGenericType
-               && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>)
+            => constantExpression.IsEntityQueryable()
                 ? VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType)
                 : constantExpression;
 

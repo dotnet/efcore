@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -219,8 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitConstant(ConstantExpression constantExpression)
             {
-                if (constantExpression.Type.GetTypeInfo().IsGenericType
-                    && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>))
+                if (constantExpression.IsEntityQueryable())
                 {
                     var entityType = _model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
 
@@ -338,8 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var querySourcesRequiringMaterialization = requiresMaterializationExpressionVisitor
                 .FindQuerySourcesRequiringMaterialization(queryModel);
 
-            var groupJoinCompensatingVisitor = new GroupJoinMaterializationCompensatingVisitor(
-                requiresMaterializationExpressionVisitor);
+            var groupJoinCompensatingVisitor = new GroupJoinMaterializationCompensatingVisitor();
 
             groupJoinCompensatingVisitor.VisitQueryModel(queryModel);
 
@@ -354,14 +351,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class GroupJoinMaterializationCompensatingVisitor : QueryModelVisitorBase
         {
-            private RequiresMaterializationExpressionVisitor _requiresMaterializationExpressionVisitor;
-
-            public GroupJoinMaterializationCompensatingVisitor(
-                RequiresMaterializationExpressionVisitor requiresMaterializationExpressionVisitor)
-            {
-                _requiresMaterializationExpressionVisitor = requiresMaterializationExpressionVisitor;
-            }
-
             public ISet<IQuerySource> QuerySources { get; } = new HashSet<IQuerySource>();
 
             public override void VisitQueryModel(QueryModel queryModel)

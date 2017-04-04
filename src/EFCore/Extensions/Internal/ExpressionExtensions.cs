@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -245,6 +246,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
                    || (expression.NodeType == ExpressionType.GreaterThan)
                    || (expression.NodeType == ExpressionType.GreaterThanOrEqual)
                    || (expression.NodeType == ExpressionType.Not);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsEntityQueryable([NotNull] this ConstantExpression constantExpression)
+        {
+            return constantExpression.Type.GetTypeInfo().IsGenericType
+                   && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
         }
     }
 }
