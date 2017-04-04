@@ -147,6 +147,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("MissingTable", nameof(table)),
                 table);
 
+        /// <summary>
+        ///     The principal end of the foreign key '{foreignKeyName}' contains the following nullable columns '{columnNames}'. Entity Framework requires the properties representing those columns to be non-nullable.
+        /// </summary>
+        public static string ForeignKeyPrincipalEndContainsNullableColumns([CanBeNull] object foreignKeyName, [CanBeNull] object columnNames)
+            => string.Format(
+                GetString("ForeignKeyPrincipalEndContainsNullableColumns", nameof(foreignKeyName), nameof(columnNames)),
+                foreignKeyName, columnNames);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
