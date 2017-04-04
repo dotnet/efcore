@@ -5,5 +5,5 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 [assembly: DesignTimeProviderServices(
                typeName: "Microsoft.EntityFrameworkCore.Scaffolding.Internal.SqliteDesignTimeServices",
-               assemblyName: "Microsoft.EntityFrameworkCore.Sqlite.Design, Version=1.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+               assemblyName: "Microsoft.EntityFrameworkCore.Sqlite.Design, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
                packageName: "Microsoft.EntityFrameworkCore.Sqlite.Design")]
