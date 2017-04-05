@@ -2329,7 +2329,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                   );
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#6782
+        [ConditionalFact]
         public virtual void Where_predicate_on_optional_reference_navigation()
         {
             List<string> expected;

@@ -1911,6 +1911,20 @@ WHERE ([l1].[Name] = N'L1 03') AND ([l3].[Name] = N'L3 08')",
                 Sql);
         }
 
+        public override void Where_predicate_on_optional_reference_navigation()
+        {
+            base.Where_predicate_on_optional_reference_navigation();
+
+            AssertSql(
+                @"@__p_0: 3
+
+SELECT TOP(@__p_0) [l1].[Name]
+FROM [Level1] AS [l1]
+LEFT JOIN [Level2] AS [l1.OneToOne_Required_FK] ON [l1].[Id] = [l1.OneToOne_Required_FK].[Level1_Required_Id]
+WHERE [l1.OneToOne_Required_FK].[Name] = N'L2 03'",
+                Sql);
+        }
+
         public override void SelectMany_with_Include1()
         {
             base.SelectMany_with_Include1();
