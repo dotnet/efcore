@@ -3174,12 +3174,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#6997
+        [ConditionalFact]
         public virtual void Complex_query_with_optional_navigations_and_client_side_evaluation()
         {
             AssertQuery<Level1>(
-                l1s => l1s.Where(l1 => !l1.OneToMany_Optional.Select(l2 => l2.OneToOne_Optional_FK.OneToOne_Optional_FK.Id).All(l4 => ClientMethod(l4))),
-                l1s => l1s.Where(l1 => l1.OneToMany_Optional.Select(l2 => MaybeScalar(
+                l1s => l1s.Where(l1 => l1.Id < 3 && !l1.OneToMany_Optional.Select(l2 => l2.OneToOne_Optional_FK.OneToOne_Optional_FK.Id).All(l4 => ClientMethod(l4))),
+                l1s => l1s.Where(l1 => l1.Id < 3 && !l1.OneToMany_Optional.Select(l2 => MaybeScalar(
                     l2.OneToOne_Optional_FK,
                     () => MaybeScalar<int>(
                         l2.OneToOne_Optional_FK.OneToOne_Optional_FK,
