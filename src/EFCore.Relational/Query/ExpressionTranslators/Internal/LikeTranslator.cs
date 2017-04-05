@@ -1,13 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -20,11 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     public class LikeTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _methodInfo
-            = typeof(RelationalDbFunctionsExtensions).GetRuntimeMethod(nameof(RelationalDbFunctionsExtensions.Like),
+            = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                nameof(DbFunctionsExtensions.Like),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string) });
 
         private static readonly MethodInfo _methodInfoWithEscape
-            = typeof(RelationalDbFunctionsExtensions).GetRuntimeMethod(nameof(RelationalDbFunctionsExtensions.Like),
+            = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                nameof(DbFunctionsExtensions.Like),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(char) });
 
         /// <summary>
@@ -40,12 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 return new LikeExpression(methodCallExpression.Arguments[1], methodCallExpression.Arguments[2]);
             }
 
-            if (Equals(methodCallExpression.Method, _methodInfoWithEscape))
-            {
-                return new LikeExpression(methodCallExpression.Arguments[1], methodCallExpression.Arguments[2], methodCallExpression.Arguments[3]);
-            }
-
-            return null;
+            return Equals(methodCallExpression.Method, _methodInfoWithEscape)
+                ? new LikeExpression(methodCallExpression.Arguments[1], methodCallExpression.Arguments[2], methodCallExpression.Arguments[3])
+                : null;
         }
     }
 }

@@ -2,14 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
-    public abstract class RelationalEfFunctionsTestBase<TFixture> : IClassFixture<TFixture>
+    public abstract class DbFunctionsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [ConditionalFact]
@@ -18,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
             using (var context = CreateContext())
             {
                 var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, "%M%"));
-                Assert.Equal(19, count);
+
+                Assert.Equal(34, count);
             }
         }
 
@@ -41,10 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                 Assert.Equal(0, count);
             }
         }
-        
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
-        protected RelationalEfFunctionsTestBase(TFixture fixture)
+        protected DbFunctionsTestBase(TFixture fixture)
         {
             Fixture = fixture;
         }

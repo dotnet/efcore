@@ -37,10 +37,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The value assigned to the property. </returns>
         public static TProperty Property<TProperty>(
             [NotNull] object entity,
-            [NotNull] [NotParameterized] string propertyName)
-        {
-            throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
-        }
+            [NotNull] [NotParameterized] string propertyName) 
+            => throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
 
         /// <summary>
         ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
