@@ -352,7 +352,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (blockExpression.Result != null)
             {
-                AppendLine("return " + blockExpression.Result);
+                Append("return ");
+                Visit(blockExpression.Result);
             }
 
             _stringBuilder.DecrementIndent();
@@ -735,7 +736,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             switch (extensionExpression)
             {
                 case QuerySourceReferenceExpression qsre:
-                    StringBuilder.Append(qsre.ReferencedQuerySource.ItemName);
+                    StringBuilder.Append(qsre);
                     break;
 
                 case NullConditionalExpression nullConditional:

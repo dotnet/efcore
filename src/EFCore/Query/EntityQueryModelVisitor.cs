@@ -325,14 +325,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger)
                 .VisitQueryModel(queryModel);
 
-            new IncludeCompiler(
-                    QueryCompilationContext,
-                    _querySourceTracingExpressionVisitorFactory)
-                .CompileIncludes(queryModel, includeResultOperators, TrackResults(queryModel), asyncQuery);
+            var includeCompiler = new IncludeCompiler(QueryCompilationContext, _querySourceTracingExpressionVisitorFactory);
+
+            includeCompiler.CompileIncludes(queryModel, includeResultOperators, TrackResults(queryModel), asyncQuery);
 
             _navigationRewritingExpressionVisitorFactory
                 .Create(this)
                 .Rewrite(queryModel, parentQueryModel: null);
+
+            includeCompiler.RewriteCollectionQueries(queryModel);
 
             // Second pass of optimizations
 

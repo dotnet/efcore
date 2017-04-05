@@ -1522,26 +1522,12 @@ LEFT JOIN (
     WHERE [g2].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g].[FullName], [t].[FullName]
-
-SELECT [g2.Weapons].[Id], [g2.Weapons].[AmmunitionType], [g2.Weapons].[IsAutomatic], [g2.Weapons].[Name], [g2.Weapons].[OwnerFullName], [g2.Weapons].[SynergyWithId]
-FROM [Weapon] AS [g2.Weapons]
-INNER JOIN (
-    SELECT DISTINCT [t0].[FullName], [g0].[FullName] AS [c0]
-    FROM [Gear] AS [g0]
-    LEFT JOIN (
-        SELECT [g20].*
-        FROM [Gear] AS [g20]
-        WHERE [g20].[Discriminator] IN (N'Officer', N'Gear')
-    ) AS [t0] ON [g0].[LeaderNickname] = [t0].[Nickname]
-    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND [t0].[Nickname] IS NOT NULL
-) AS [t1] ON [g2.Weapons].[OwnerFullName] = [t1].[FullName]
-ORDER BY [t1].[c0], [t1].[FullName]
+ORDER BY [t].[FullName], [g].[FullName]
 
 SELECT [g.Weapons].[Id], [g.Weapons].[AmmunitionType], [g.Weapons].[IsAutomatic], [g.Weapons].[Name], [g.Weapons].[OwnerFullName], [g.Weapons].[SynergyWithId]
 FROM [Weapon] AS [g.Weapons]
 INNER JOIN (
-    SELECT DISTINCT [g1].[FullName]
+    SELECT DISTINCT [g1].[FullName], [t2].[FullName] AS [c0]
     FROM [Gear] AS [g1]
     LEFT JOIN (
         SELECT [g21].*
@@ -1550,7 +1536,21 @@ INNER JOIN (
     ) AS [t2] ON [g1].[LeaderNickname] = [t2].[Nickname]
     WHERE [g1].[Discriminator] IN (N'Officer', N'Gear') AND [t2].[Nickname] IS NULL
 ) AS [t3] ON [g.Weapons].[OwnerFullName] = [t3].[FullName]
-ORDER BY [t3].[FullName]",
+ORDER BY [t3].[c0], [t3].[FullName]
+
+SELECT [g2.Weapons].[Id], [g2.Weapons].[AmmunitionType], [g2.Weapons].[IsAutomatic], [g2.Weapons].[Name], [g2.Weapons].[OwnerFullName], [g2.Weapons].[SynergyWithId]
+FROM [Weapon] AS [g2.Weapons]
+INNER JOIN (
+    SELECT DISTINCT [t0].[FullName]
+    FROM [Gear] AS [g0]
+    LEFT JOIN (
+        SELECT [g20].*
+        FROM [Gear] AS [g20]
+        WHERE [g20].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t0] ON [g0].[LeaderNickname] = [t0].[Nickname]
+    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND [t0].[Nickname] IS NOT NULL
+) AS [t1] ON [g2.Weapons].[OwnerFullName] = [t1].[FullName]
+ORDER BY [t1].[FullName]",
                 Sql);
         }
 
@@ -1567,26 +1567,12 @@ LEFT JOIN (
     WHERE [g2].[Discriminator] = N'Officer'
 ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g].[FullName], [t].[FullName]
-
-SELECT [g2.Weapons].[Id], [g2.Weapons].[AmmunitionType], [g2.Weapons].[IsAutomatic], [g2.Weapons].[Name], [g2.Weapons].[OwnerFullName], [g2.Weapons].[SynergyWithId]
-FROM [Weapon] AS [g2.Weapons]
-INNER JOIN (
-    SELECT DISTINCT [t0].[FullName], [g0].[FullName] AS [c0]
-    FROM [Gear] AS [g0]
-    LEFT JOIN (
-        SELECT [g20].*
-        FROM [Gear] AS [g20]
-        WHERE [g20].[Discriminator] = N'Officer'
-    ) AS [t0] ON [g0].[LeaderNickname] = [t0].[Nickname]
-    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND [t0].[Nickname] IS NOT NULL
-) AS [t1] ON [g2.Weapons].[OwnerFullName] = [t1].[FullName]
-ORDER BY [t1].[c0], [t1].[FullName]
+ORDER BY [t].[FullName], [g].[FullName]
 
 SELECT [g.Weapons].[Id], [g.Weapons].[AmmunitionType], [g.Weapons].[IsAutomatic], [g.Weapons].[Name], [g.Weapons].[OwnerFullName], [g.Weapons].[SynergyWithId]
 FROM [Weapon] AS [g.Weapons]
 INNER JOIN (
-    SELECT DISTINCT [g1].[FullName]
+    SELECT DISTINCT [g1].[FullName], [t2].[FullName] AS [c0]
     FROM [Gear] AS [g1]
     LEFT JOIN (
         SELECT [g21].*
@@ -1595,7 +1581,21 @@ INNER JOIN (
     ) AS [t2] ON [g1].[LeaderNickname] = [t2].[Nickname]
     WHERE [g1].[Discriminator] IN (N'Officer', N'Gear') AND [t2].[Nickname] IS NULL
 ) AS [t3] ON [g.Weapons].[OwnerFullName] = [t3].[FullName]
-ORDER BY [t3].[FullName]",
+ORDER BY [t3].[c0], [t3].[FullName]
+
+SELECT [g2.Weapons].[Id], [g2.Weapons].[AmmunitionType], [g2.Weapons].[IsAutomatic], [g2.Weapons].[Name], [g2.Weapons].[OwnerFullName], [g2.Weapons].[SynergyWithId]
+FROM [Weapon] AS [g2.Weapons]
+INNER JOIN (
+    SELECT DISTINCT [t0].[FullName]
+    FROM [Gear] AS [g0]
+    LEFT JOIN (
+        SELECT [g20].*
+        FROM [Gear] AS [g20]
+        WHERE [g20].[Discriminator] = N'Officer'
+    ) AS [t0] ON [g0].[LeaderNickname] = [t0].[Nickname]
+    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND [t0].[Nickname] IS NOT NULL
+) AS [t1] ON [g2.Weapons].[OwnerFullName] = [t1].[FullName]
+ORDER BY [t1].[FullName]",
                 Sql);
         }
 
@@ -1612,26 +1612,12 @@ LEFT JOIN (
     WHERE [g2].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g].[FullName], [t].[FullName]
-
-SELECT [g2.Weapons].[Id], [g2.Weapons].[AmmunitionType], [g2.Weapons].[IsAutomatic], [g2.Weapons].[Name], [g2.Weapons].[OwnerFullName], [g2.Weapons].[SynergyWithId]
-FROM [Weapon] AS [g2.Weapons]
-INNER JOIN (
-    SELECT DISTINCT [t0].[FullName], [g0].[FullName] AS [c0]
-    FROM [Gear] AS [g0]
-    LEFT JOIN (
-        SELECT [g20].*
-        FROM [Gear] AS [g20]
-        WHERE [g20].[Discriminator] IN (N'Officer', N'Gear')
-    ) AS [t0] ON [g0].[LeaderNickname] = [t0].[Nickname]
-    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND [t0].[Nickname] IS NOT NULL
-) AS [t1] ON [g2.Weapons].[OwnerFullName] = [t1].[FullName]
-ORDER BY [t1].[c0], [t1].[FullName]
+ORDER BY [t].[FullName], [g].[FullName]
 
 SELECT [g.Weapons].[Id], [g.Weapons].[AmmunitionType], [g.Weapons].[IsAutomatic], [g.Weapons].[Name], [g.Weapons].[OwnerFullName], [g.Weapons].[SynergyWithId]
 FROM [Weapon] AS [g.Weapons]
 INNER JOIN (
-    SELECT DISTINCT [g1].[FullName]
+    SELECT DISTINCT [g1].[FullName], [t2].[FullName] AS [c0]
     FROM [Gear] AS [g1]
     LEFT JOIN (
         SELECT [g21].*
@@ -1640,7 +1626,21 @@ INNER JOIN (
     ) AS [t2] ON [g1].[LeaderNickname] = [t2].[Nickname]
     WHERE [g1].[Discriminator] IN (N'Officer', N'Gear') AND [t2].[Nickname] IS NULL
 ) AS [t3] ON [g.Weapons].[OwnerFullName] = [t3].[FullName]
-ORDER BY [t3].[FullName]",
+ORDER BY [t3].[c0], [t3].[FullName]
+
+SELECT [g2.Weapons].[Id], [g2.Weapons].[AmmunitionType], [g2.Weapons].[IsAutomatic], [g2.Weapons].[Name], [g2.Weapons].[OwnerFullName], [g2.Weapons].[SynergyWithId]
+FROM [Weapon] AS [g2.Weapons]
+INNER JOIN (
+    SELECT DISTINCT [t0].[FullName]
+    FROM [Gear] AS [g0]
+    LEFT JOIN (
+        SELECT [g20].*
+        FROM [Gear] AS [g20]
+        WHERE [g20].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t0] ON [g0].[LeaderNickname] = [t0].[Nickname]
+    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND [t0].[Nickname] IS NOT NULL
+) AS [t1] ON [g2.Weapons].[OwnerFullName] = [t1].[FullName]
+ORDER BY [t1].[FullName]",
                 Sql);
         }
 

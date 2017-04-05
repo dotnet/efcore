@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Assert.StartsWith(
                     @"    Compiling query model: 
 'from Customer <generated>_0 in DbSet<Customer>
-select <generated>_0'
+select [<generated>_0]'
     Optimized query model: 
 'from Customer <generated>_0 in DbSet<Customer>",
                     TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
@@ -85,7 +85,7 @@ select <generated>_0'
                 Assert.NotNull(customers);
                 Assert.StartsWith(@"    Compiling query model: 
 '(from Customer c in DbSet<Customer>
-select c)
+select [c])
 .Include(""Orders"")'
     Including navigation: '[c].Orders'
     Optimized query model: 

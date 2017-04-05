@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public virtual bool RetriesOnFailure => false;
 
         public virtual TResult Execute<TState, TResult>(
-            Func<TState, TResult> operation, Func<TState, ExecutionResult<TResult>> verifySucceeded, TState state)
+            Func<TState, TResult> operation,
+            Func<TState, ExecutionResult<TResult>> verifySucceeded,
+            TState state)
         {
             try
             {

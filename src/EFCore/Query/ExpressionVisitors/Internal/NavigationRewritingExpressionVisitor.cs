@@ -1378,6 +1378,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var groupResultOperator = resultOperator as GroupResultOperator;
                 if (groupResultOperator != null)
                 {
+                    groupResultOperator.ElementSelector 
+                        = _subqueryInjector.Visit(groupResultOperator.ElementSelector);
+
                     var originalKeySelectorType = groupResultOperator.KeySelector.Type;
                     var originalElementSelectorType = groupResultOperator.ElementSelector.Type;
 

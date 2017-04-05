@@ -1619,10 +1619,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.Equal("Marcus", result[0].Nickname);
                 Assert.Equal(2, result[0].Weapons.Count);
-                Assert.Equal("Marcus", result[1].Nickname);
+                Assert.Equal("Baird", result[1].Nickname);
+                Assert.Equal(2, result[1].Weapons.Count);
                 Assert.Equal("Marcus", result[2].Nickname);
-                Assert.Equal("Baird", result[3].Nickname);
-                Assert.Equal(2, result[3].Weapons.Count);
+                Assert.Equal("Marcus", result[3].Nickname);
                 Assert.Equal("Marcus", result[4].Nickname);
             }
         }
@@ -1660,10 +1660,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.Equal("Marcus", result[0].Nickname);
                 Assert.Equal(2, result[0].Weapons.Count);
-                Assert.Equal("Marcus", result[1].Nickname);
+                Assert.Equal("Baird", result[1].Nickname);
+                Assert.Equal(2, result[1].Weapons.Count);
                 Assert.Equal("Marcus", result[2].Nickname);
-                Assert.Equal("Baird", result[3].Nickname);
-                Assert.Equal(2, result[3].Weapons.Count);
+                Assert.Equal("Marcus", result[3].Nickname);
                 Assert.Equal("Marcus", result[4].Nickname);
             }
         }

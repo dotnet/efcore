@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return base.VisitExtension(node);
         }
 
-        private Expression TryCreateNullableAccessOperation(Expression accessOperation)
+        private static Expression TryCreateNullableAccessOperation(Expression accessOperation)
         {
             if (accessOperation is MethodCallExpression methodCallExpression
                 && methodCallExpression.Method.MethodIsClosedFormOf(EntityMaterializerSource.TryReadValueMethod))
@@ -348,8 +348,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                        && maybeMethodCallExpression.Method.IsGenericMethod
                                        && maybeMethodCallExpression.Method.GetGenericMethodDefinition()
                                            .Equals(DefaultQueryExpressionVisitor.GetParameterValueMethodInfo)
-                                       || (newExpression.Arguments[0].NodeType == ExpressionType.Parameter
-                                           && !property.IsShadowProperty))
+                                       || newExpression.Arguments[0].NodeType == ExpressionType.Parameter
+                                       && !property.IsShadowProperty)
                                    {
                                        // The target is a parameter, try and get the value from it directly.
                                        return Expression.Call(

@@ -43,6 +43,20 @@ ORDER BY [o].[ProductID]",
                 Sql);
         }
 
+        public override void Include_reference(bool useString)
+        {
+            base.Include_reference(useString);
+
+            if (!useString)
+            {
+                AssertSql(
+                    @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]",
+                    Sql);
+            }
+        }
+
         public override void Include_collection(bool useString)
         {
             base.Include_collection(useString);
@@ -204,8 +218,9 @@ ORDER BY [o].[OrderID]
 SELECT [o.OrderDetails].[OrderID], [o.OrderDetails].[ProductID], [o.OrderDetails].[Discount], [o.OrderDetails].[Quantity], [o.OrderDetails].[UnitPrice]
 FROM [Order Details] AS [o.OrderDetails]
 INNER JOIN (
-    SELECT [o0].[OrderID]
+    SELECT DISTINCT [o0].[OrderID]
     FROM [Orders] AS [o0]
+    LEFT JOIN [Customers] AS [o.Customer0] ON [o0].[CustomerID] = [o.Customer0].[CustomerID]
 ) AS [t] ON [o.OrderDetails].[OrderID] = [t].[OrderID]
 ORDER BY [t].[OrderID]",
                     Sql);
@@ -1040,20 +1055,6 @@ INNER JOIN (
     ORDER BY [t1].[CustomerID]
 ) AS [t3] ON [c1.Orders].[CustomerID] = [t3].[CustomerID]
 ORDER BY [t3].[CustomerID]",
-                    Sql);
-            }
-        }
-
-        public override void Include_reference(bool useString)
-        {
-            base.Include_reference(useString);
-
-            if (!useString)
-            {
-                AssertSql(
-                    @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
-FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]",
                     Sql);
             }
         }
