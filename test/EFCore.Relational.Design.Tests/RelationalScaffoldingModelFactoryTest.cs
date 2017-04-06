@@ -365,13 +365,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     }
             );
 
-            Assert.Collection(entityType.GetKeys().Where(k => !k.IsPrimaryKey()),
-                single =>
-                    {
-                        Assert.Equal("UNQ_C2", single.Relational().Name);
-                        Assert.Same(entityType.FindProperty("C2"), single.Properties.Single());
-                    },
-                composite => { Assert.Equal(new[] { "C3", "C1" }, composite.Properties.Select(c => c.Name).ToArray()); });
+            // unique indexes should not cause alternate keys if not used by foreign keys
+            Assert.Equal(0, entityType.GetKeys().Count(k => !k.IsPrimaryKey()));
         }
 
         [Fact]
@@ -600,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         }
 
         [Fact]
-        public void Unique_index_foreign_key()
+        public void Unique_nullable_index_unused_by_foreign_key()
         {
             var table = new TableModel
             {
@@ -608,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 Columns =
                 {
                     IdColumn,
-                    new ColumnModel { Name = "BuddyId", DataType = "long", IsNullable = false }
+                    new ColumnModel { Name = "BuddyId", DataType = "long", IsNullable = true }
                 }
             };
             table.Indexes.Add(new IndexModel
@@ -633,10 +628,65 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
             var model = _factory.Create(new DatabaseModel { Tables = { table } }).FindEntityType("Friends");
 
+            var buddyIdProperty = model.FindProperty("BuddyId");
+            Assert.NotNull(buddyIdProperty);
+            Assert.True(buddyIdProperty.IsNullable);
+
             var fk = Assert.Single(model.GetForeignKeys());
 
             Assert.True(fk.IsUnique);
+            Assert.Empty(model.GetKeys().Where(k => !k.IsPrimaryKey()));
             Assert.Equal(model.FindPrimaryKey(), fk.PrincipalKey);
+        }
+
+        [Fact]
+        public void Unique_nullable_index_used_by_foreign_key()
+        {
+            var table = new TableModel
+            {
+                Name = "Friends",
+                Columns =
+                {
+                    IdColumn,
+                    new ColumnModel { Name = "BuddyId", DataType = "long", IsNullable = true }
+                }
+            };
+            table.Indexes.Add(new IndexModel
+            {
+                IndexColumns = { new IndexColumnModel { Column = table.Columns.ElementAt(1) } },
+                IsUnique = true
+            });
+            table.ForeignKeys.Add(new ForeignKeyModel
+            {
+                Table = table,
+                PrincipalTable = table,
+                Columns =
+                {
+                    new ForeignKeyColumnModel
+                    {
+                        Ordinal = 1,
+                        Column = table.Columns.ElementAt(1),
+                        PrincipalColumn = table.Columns.ElementAt(1)
+                    }
+                }
+            });
+
+            var model = _factory.Create(new DatabaseModel { Tables = { table } }).FindEntityType("Friends");
+
+            var buddyIdProperty = model.FindProperty("BuddyId");
+            Assert.NotNull(buddyIdProperty);
+            Assert.False(buddyIdProperty.IsNullable);
+
+            var fk = Assert.Single(model.GetForeignKeys());
+
+            Assert.True(fk.IsUnique);
+            var alternateKey = model.GetKeys().Single(k => !k.IsPrimaryKey());
+            Assert.Equal(alternateKey, fk.PrincipalKey);
+
+            Assert.Contains("Warning: " +
+                RelationalDesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
+                    table.ForeignKeys.ElementAt(0).DisplayName, "BuddyId"),
+                _logger.FullLog);
         }
 
         [Fact]
@@ -684,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     },
                     new ForeignKeyColumnModel
                     {
-                        Ordinal = 1,
+                        Ordinal = 2,
                         Column = childrenTable.Columns.ElementAt(2),
                         PrincipalColumn = parentTable.Columns.ElementAt(1)
                     }

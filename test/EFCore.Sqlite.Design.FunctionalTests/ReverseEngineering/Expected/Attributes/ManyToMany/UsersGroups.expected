@@ -9,9 +9,7 @@ namespace E2E.Sqlite
     public partial class UsersGroups
     {
         public string Id { get; set; }
-        [Required]
         public string UserId { get; set; }
-        [Required]
         public string GroupId { get; set; }
 
         [ForeignKey("GroupId")]

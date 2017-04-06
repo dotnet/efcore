@@ -467,15 +467,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 indexBuilder.HasName(index.Name);
             }
 
-            if (index.IsUnique)
-            {
-                var keyBuilder = builder.HasAlternateKey(propertyNames);
-                if (!string.IsNullOrEmpty(index.Name))
-                {
-                    keyBuilder.HasName(index.Name);
-                }
-            }
-
             return indexBuilder;
         }
 
@@ -572,19 +563,36 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 return null;
             }
 
-            var principalProperties = foreignKeyColumns
-                .Select(fc => GetPropertyName(fc.PrincipalColumn))
-                .Select(name => principalEntityType.FindProperty(name))
-                .ToList()
-                .AsReadOnly();
+            var principalPropertiesMap = foreignKeyColumns
+                .Select(fc => new Tuple<IMutableProperty, ColumnModel>(
+                    principalEntityType.FindProperty(GetPropertyName(fc.PrincipalColumn)),
+                    fc.PrincipalColumn));
+            var principalProperties = principalPropertiesMap
+                .Select(tuple => tuple.Item1).ToList();
 
             var principalKey = principalEntityType.FindKey(principalProperties);
             if (principalKey == null)
             {
-                var index = principalEntityType.FindIndex(principalProperties);
+                var index = principalEntityType.FindIndex(principalProperties.AsReadOnly());
                 if (index != null
                     && index.IsUnique)
                 {
+                    // ensure all principal properties are non-nullable even if the columns
+                    // are nullable on the database. EF's concept of a key requires this.
+                    var nullablePrincipalProperties =
+                        principalPropertiesMap.Where(tuple => tuple.Item1.IsNullable);
+                    if (nullablePrincipalProperties.Any())
+                    {
+                        Logger.LogWarning(
+                            RelationalDesignEventId.ForeignKeyPrincipalEndContainsNullableColumns,
+                            () => RelationalDesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
+                                foreignKey.DisplayName,
+                                nullablePrincipalProperties
+                                    .Select(tuple => tuple.Item2.DisplayName)
+                                    .Aggregate((a, b) => a + "," + b)));
+                        nullablePrincipalProperties
+                            .ToList().ForEach(tuple => tuple.Item1.IsNullable = false);
+                    }
                     principalKey = principalEntityType.AddKey(principalProperties);
                 }
                 else
@@ -604,7 +612,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             var key = dependentEntityType.GetOrAddForeignKey(
                 dependentProperties, principalKey, principalEntityType);
 
-            key.IsUnique = dependentEntityType.FindKey(dependentProperties) != null;
+            var dependentKey = dependentEntityType.FindKey(dependentProperties);
+            var dependentIndex = dependentEntityType.FindIndex(dependentProperties);
+            key.IsUnique = dependentKey != null
+                || (dependentIndex != null && dependentIndex.IsUnique);
 
             key.Relational().Name = foreignKey.Name;
 
