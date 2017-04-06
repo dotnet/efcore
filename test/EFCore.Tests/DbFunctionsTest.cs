@@ -126,9 +126,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             Assert.True(_functions.Like("abc\r\ndef", "abc%"));
             Assert.True(_functions.Like("abc\r\ndef", "abc__def"));
+            Assert.True(_functions.Like("abc\ndef", "abc_def"));
+            Assert.True(_functions.Like("abc\rdef", "abc_def"));
 
             Assert.False(_functions.Like("abc\r\ndef", "ab%c"));
             Assert.False(_functions.Like("abc\r\ndef", "abc_def"));
+            Assert.False(_functions.Like("abc\ndef", "abcdef"));
+            Assert.False(_functions.Like("abc\rdef", "abcdef"));
         }
     }
 }
