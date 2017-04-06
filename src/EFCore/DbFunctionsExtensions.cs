@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -24,7 +26,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="matchExpression">The string that is to be matched.</param>
         /// <param name="pattern">The pattern which may involve wildcards %,_,[,],^.</param>
         /// <returns>true if there is a match.</returns>
-        public static bool Like(this DbFunctions _, string matchExpression, string pattern)
+        public static bool Like(
+            [CanBeNull] this DbFunctions _,
+            [CanBeNull] string matchExpression, 
+            [CanBeNull] string pattern)
             => LikeCore(matchExpression, pattern, escapeCharacter: null);
 
         /// <summary>
@@ -39,8 +44,16 @@ namespace Microsoft.EntityFrameworkCore
         ///     are not used as wildcards.
         /// </param>
         /// <returns>true if there is a match.</returns>
-        public static bool Like(this DbFunctions _, string matchExpression, string pattern, char escapeCharacter)
-            => LikeCore(matchExpression, pattern, escapeCharacter);
+        public static bool Like(
+            [CanBeNull] this DbFunctions _,
+            [CanBeNull] string matchExpression,
+            [CanBeNull] string pattern,
+            [NotNull] char escapeCharacter)
+        {
+            Check.NotNull(escapeCharacter, nameof(escapeCharacter));
+
+            return LikeCore(matchExpression, pattern, escapeCharacter);
+        }
 
         // Regex special chars defined here:
         // https://msdn.microsoft.com/en-us/library/4edbef7e(v=vs.110).aspx
