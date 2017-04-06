@@ -48,12 +48,8 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] this DbFunctions _,
             [CanBeNull] string matchExpression,
             [CanBeNull] string pattern,
-            [NotNull] char escapeCharacter)
-        {
-            Check.NotNull(escapeCharacter, nameof(escapeCharacter));
-
-            return LikeCore(matchExpression, pattern, escapeCharacter);
-        }
+            char escapeCharacter) 
+            => LikeCore(matchExpression, pattern, escapeCharacter);
 
         // Regex special chars defined here:
         // https://msdn.microsoft.com/en-us/library/4edbef7e(v=vs.110).aspx
