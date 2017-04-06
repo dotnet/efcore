@@ -1582,8 +1582,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var mapping in previousMapping)
             {
-                QueryCompilationContext.QuerySourceMapping
-                    .ReplaceMapping(mapping.Key, mapping.Value);
+                QueryCompilationContext.AddOrUpdateMapping(mapping.Key, mapping.Value);
             }
 
             var innerItemParameter
@@ -1591,7 +1590,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     innerShaper.Type,
                     joinClause.ItemName);
 
-            AddOrUpdateMapping(joinClause, innerItemParameter);
+            QueryCompilationContext.AddOrUpdateMapping(joinClause, innerItemParameter);
 
             var transparentIdentifierType
                 = CreateTransparentIdentifierType(

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -333,18 +334,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                {
                                    var propertyType = newExpression.Method.GetGenericArguments()[0];
 
-                                   var maybeConstantExpression = newExpression.Arguments[0] as ConstantExpression;
-
-                                   if (maybeConstantExpression != null)
+                                   if (newExpression.Arguments[0] is ConstantExpression maybeConstantExpression)
                                    {
                                        return Expression.Constant(
                                            property.GetGetter().GetClrValue(maybeConstantExpression.Value),
                                            propertyType);
                                    }
 
-                                   var maybeMethodCallExpression = newExpression.Arguments[0] as MethodCallExpression;
-
-                                   if (maybeMethodCallExpression != null
+                                   if (newExpression.Arguments[0] is MethodCallExpression maybeMethodCallExpression
                                        && maybeMethodCallExpression.Method.IsGenericMethod
                                        && maybeMethodCallExpression.Method.GetGenericMethodDefinition()
                                            .Equals(DefaultQueryExpressionVisitor.GetParameterValueMethodInfo)
@@ -366,6 +363,88 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                        Expression.Constant(property));
                                })
                    ?? newExpression;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static List<IPropertyBase> GetPropertyPath(
+            [NotNull] Expression expression,
+            [NotNull] QueryCompilationContext queryCompilationContext,
+            out QuerySourceReferenceExpression querySourceReferenceExpression)
+        {
+            var memberExpression = expression as MemberExpression;
+            var methodCallExpression = expression as MethodCallExpression;
+
+            var innerExpression = memberExpression?.Expression
+                                  ?? (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression?.Method)
+                                      ? methodCallExpression?.Arguments[0]
+                                      : null);
+
+            if (innerExpression == null)
+            {
+                querySourceReferenceExpression = expression as QuerySourceReferenceExpression;
+                return new List<IPropertyBase>();
+            }
+
+            Debug.Assert(memberExpression?.Member.Name != null || methodCallExpression != null);
+            var propertyName = memberExpression?.Member.Name
+                               ?? (string)(methodCallExpression.Arguments[1] as ConstantExpression)?.Value;
+
+            // in case of inheritance there might be convert to derived type here, so we want to check it first
+            var entityType = queryCompilationContext.Model.FindEntityType(innerExpression.Type);
+
+            innerExpression = innerExpression.RemoveConvert();
+
+            if (entityType == null)
+            {
+                entityType = queryCompilationContext.Model.FindEntityType(innerExpression.Type);
+            }
+
+            var innerProperties = GetPropertyPath(innerExpression, queryCompilationContext, out var innerQsre);
+
+            if (entityType == null)
+            {
+                if (innerProperties.Count > 0)
+                {
+                    entityType = (innerProperties[innerProperties.Count - 1] as INavigation)?.GetTargetType();
+                }
+                else if (innerQsre != null)
+                {
+                    entityType = queryCompilationContext.FindEntityType(innerQsre.ReferencedQuerySource);
+                }
+
+                if (entityType == null)
+                {
+                    querySourceReferenceExpression = null;
+                    innerProperties.Clear();
+                    return innerProperties;
+                }
+            }
+
+            var property = propertyName == null
+                ? null
+                : (IPropertyBase)entityType.FindProperty(propertyName)
+                  ?? entityType.FindNavigation(propertyName);
+
+            if (property == null)
+            {
+                if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression?.Method))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.PropertyNotFound(propertyName, entityType.DisplayName()));
+                }
+
+                querySourceReferenceExpression = null;
+                innerProperties.Clear();
+                return innerProperties;
+            }
+
+            innerProperties.Add(property);
+            querySourceReferenceExpression = innerQsre;
+
+            return innerProperties;
         }
 
         private static readonly MethodInfo _getValueMethodInfo

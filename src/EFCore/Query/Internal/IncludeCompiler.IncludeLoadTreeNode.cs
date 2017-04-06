@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 Navigation.PropertyInfo));
 
                     queryCompilationContext.AddQuerySourceRequiringMaterialization(mainFromClause);
-                    
+
                     var collectionQueryModel
                         = new QueryModel(
                             mainFromClause,

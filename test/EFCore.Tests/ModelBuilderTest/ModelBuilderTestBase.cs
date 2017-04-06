@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public abstract TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasEntityTypeAnnotation(string annotation, object value);
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
-            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression);
+            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TRelatedEntity, TProperty>> propertyExpression);
 
             public abstract TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> Ignore(string propertyName);
 

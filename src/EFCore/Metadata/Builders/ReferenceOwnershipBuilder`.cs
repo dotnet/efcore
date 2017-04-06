@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <c>blog => blog.Url</c>).
         /// </param>
         /// <returns> An object that can be used to configure the property. </returns>
-        public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
+        public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TRelatedEntity, TProperty>> propertyExpression)
             => new PropertyBuilder<TProperty>(RelatedEntityType.Builder.Property(
                 Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(),
                 ConfigurationSource.Explicit));
@@ -357,11 +357,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see
-        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithMany(Expression{Func{TRelatedEntity,IEnumerable{TEntity}}})" />
+        ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}
+        /// .WithMany(Expression{Func{TRelatedEntity,IEnumerable{TEntity}}})" />
         ///         or
-        ///         <see
-        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}})" />
+        ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}
+        /// .WithOne(Expression{Func{TRelatedEntity,TEntity}})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -396,8 +396,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see
-        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}})" />
+        ///         <see cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}
+        /// .WithOne(Expression{Func{TRelatedEntity,TEntity}})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -455,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         for all properties of this entity type as described in the <see cref="PropertyAccessMode" /> enum.
         ///     </para>
         ///     <para>
-        ///         Calling this method overrrides for all properties of this entity type any access mode that was
+        ///         Calling this method overrides for all properties of this entity type any access mode that was
         ///         set on the model.
         ///     </para>
         /// </summary>

@@ -8,6 +8,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -23,40 +26,46 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
     public class IncludeResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
     {
         private List<string> _navigationPropertyPaths;
+        private IQuerySource _querySource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public IncludeResultOperator([NotNull] IEnumerable<string> navigationPropertyPaths, [NotNull] Expression pathFromQuerySource)
+        public IncludeResultOperator(
+            [NotNull] IEnumerable<string> navigationPropertyPaths, [NotNull] Expression pathFromQuerySource)
         {
             _navigationPropertyPaths = new List<string>(navigationPropertyPaths);
             PathFromQuerySource = pathFromQuerySource;
-            QuerySource = GetQuerySource(pathFromQuerySource);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IQuerySource QuerySource
+        {
+            get { return _querySource ?? (_querySource = GetQuerySource(PathFromQuerySource)); }
+            set { _querySource = value; }
         }
 
         private static IQuerySource GetQuerySource(Expression expression)
         {
-            var querySourceReferenceExpression = expression as QuerySourceReferenceExpression;
-            if (querySourceReferenceExpression != null)
+            while (true)
             {
-                return querySourceReferenceExpression.ReferencedQuerySource;
-            }
+                if (expression is QuerySourceReferenceExpression querySourceReferenceExpression)
+                {
+                    return querySourceReferenceExpression.ReferencedQuerySource;
+                }
 
-            var memberExpression = expression as MemberExpression;
-            if (memberExpression != null)
-            {
-                return GetQuerySource(memberExpression.Expression.RemoveConvert());
-            }
+                if (!(expression is MemberExpression memberExpression))
+                {
+                    return null;
+                }
 
-            return null;
+                expression = memberExpression.Expression.RemoveConvert();
+            }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual IQuerySource QuerySource { get; set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -68,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyCollection<string> NavigationPropertyPaths =>_navigationPropertyPaths;
+        public virtual IReadOnlyList<string> NavigationPropertyPaths => _navigationPropertyPaths;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -94,7 +103,50 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override string ToString() 
+        public virtual INavigation[] GetNavigationPath([NotNull] QueryCompilationContext queryCompilationContext)
+        {
+            var entityType = queryCompilationContext.Model.FindEntityType(PathFromQuerySource.Type);
+            if (entityType == null)
+            {
+                if (PathFromQuerySource is QuerySourceReferenceExpression qsre)
+                {
+                    entityType = queryCompilationContext.FindEntityType(qsre.ReferencedQuerySource);
+                }
+
+                if (entityType == null)
+                {
+                    var pathFromSource = MemberAccessBindingExpressionVisitor.GetPropertyPath(
+                        PathFromQuerySource, queryCompilationContext, out var _);
+                    if (pathFromSource.Count > 0)
+                    {
+                        entityType = ((INavigation)pathFromSource[pathFromSource.Count - 1]).GetTargetType();
+                    }
+                }
+            }
+
+            var navigationPath = new INavigation[NavigationPropertyPaths.Count];
+
+            for (var i = 0; i < NavigationPropertyPaths.Count; i++)
+            {
+                navigationPath[i] = entityType.FindNavigation(NavigationPropertyPaths[i]);
+
+                if (navigationPath[i] == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.IncludeBadNavigation(NavigationPropertyPaths[i], entityType.DisplayName()));
+                }
+
+                entityType = navigationPath[i].GetTargetType();
+            }
+
+            return navigationPath;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override string ToString()
             => $@"Include(""{NavigationPropertyPaths.Join(".")}"")";
 
         /// <summary>

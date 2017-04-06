@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(elementType, nameof(elementType));
 
-            var entityType = _model.FindEntityType(elementType);
+            var entityType = QueryModelVisitor.QueryCompilationContext.FindEntityType(_querySource)
+                             ?? _model.FindEntityType(elementType);
 
             if (QueryModelVisitor.QueryCompilationContext
                 .QuerySourceRequiresMaterialization(_querySource))

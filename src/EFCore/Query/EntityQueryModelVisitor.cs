@@ -1,9 +1,10 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -417,23 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(
                         includeResultOperator =>
                             {
-                                var entityType = QueryCompilationContext.Model.FindEntityType(
-                                    includeResultOperator.PathFromQuerySource.Type);
-
-                                var parts = includeResultOperator.NavigationPropertyPaths.ToArray();
-                                var navigationPath = new INavigation[parts.Length];
-                                for (var i = 0; i < parts.Length; i++)
-                                {
-                                    navigationPath[i] = entityType.FindNavigation(parts[i]);
-
-                                    if (navigationPath[i] == null)
-                                    {
-                                        throw new InvalidOperationException(
-                                            CoreStrings.IncludeBadNavigation(parts[i], entityType.DisplayName()));
-                                    }
-
-                                    entityType = navigationPath[i].GetTargetType();
-                                }
+                                var navigationPath = includeResultOperator.GetNavigationPath(QueryCompilationContext);
 
                                 return new
                                 {
@@ -478,7 +463,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var sequenceType = resultQuerySourceReferenceExpression.Type.TryGetSequenceType();
 
                     if (sequenceType != null
-                        && QueryCompilationContext.Model.FindEntityType(sequenceType) != null)
+                        && (QueryCompilationContext.Model.FindEntityType(sequenceType) != null
+                            || QueryCompilationContext.Model.IsDelegatedIdentityEntityType(sequenceType)))
                     {
                         includeSpecification.IsEnumerableTarget = true;
                     }
@@ -660,13 +646,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression selector)
             => (from entityTrackingInfo in entityTrackingInfos
                 select
-                (Func<TResult, object>)
-                AccessorFindingExpressionVisitor
-                    .FindAccessorLambda(
-                        entityTrackingInfo.QuerySourceReferenceExpression,
-                        selector,
-                        Expression.Parameter(typeof(TResult), "result"))
-                    .Compile())
+                    (Func<TResult, object>)
+                        AccessorFindingExpressionVisitor
+                            .FindAccessorLambda(
+                                entityTrackingInfo.QuerySourceReferenceExpression,
+                                selector,
+                                Expression.Parameter(typeof(TResult), "result"))
+                            .Compile())
                 .ToList();
 
         /// <summary>
@@ -740,7 +726,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     _expression.Type.GetSequenceType(),
                     fromClause.ItemName);
 
-            AddOrUpdateMapping(fromClause, CurrentParameter);
+            QueryCompilationContext.AddOrUpdateMapping(fromClause, CurrentParameter);
         }
 
         /// <summary>
@@ -842,7 +828,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = Expression.Parameter(
                     innerSequenceExpression.Type.GetSequenceType(), joinClause.ItemName);
 
-            AddOrUpdateMapping(joinClause, innerItemParameter);
+            QueryCompilationContext.AddOrUpdateMapping(joinClause, innerItemParameter);
 
             var innerKeySelectorExpression
                 = ReplaceClauseReferences(joinClause.InnerKeySelector, joinClause);
@@ -915,7 +901,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     innerSequenceExpression.Type.GetSequenceType(),
                     groupJoinClause.JoinClause.ItemName);
 
-            AddOrUpdateMapping(groupJoinClause.JoinClause, innerItemParameter);
+            QueryCompilationContext.AddOrUpdateMapping(groupJoinClause.JoinClause, innerItemParameter);
 
             var innerKeySelectorExpression
                 = ReplaceClauseReferences(groupJoinClause.JoinClause.InnerKeySelector, groupJoinClause);
@@ -1015,7 +1001,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (index == 0
                         ? LinqOperatorProvider.OrderBy
                         : LinqOperatorProvider.ThenBy)
-                    .MakeGenericMethod(CurrentParameter.Type, expression.Type),
+                        .MakeGenericMethod(CurrentParameter.Type, expression.Type),
                     _expression,
                     Expression.Lambda(expression, CurrentParameter),
                     Expression.Constant(ordering.OrderingDirection));
@@ -1263,7 +1249,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            AddOrUpdateMapping(querySource, AccessInnerTransparentField(transparentIdentifierType, CurrentParameter));
+            QueryCompilationContext.AddOrUpdateMapping(querySource, AccessInnerTransparentField(transparentIdentifierType, CurrentParameter));
         }
 
         private void RescopeTransparentAccess(IQuerySource querySource, Expression targetExpression)
@@ -1354,21 +1340,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return expression;
         }
 
-        /// <summary>
-        ///     Adds or updates the expression mapped to a query source.
-        /// </summary>
-        /// <param name="querySource"> The query source. </param>
-        /// <param name="expression"> The expression mapped to the query source. </param>
-        public virtual void AddOrUpdateMapping(
-            [NotNull] IQuerySource querySource,
-            [NotNull] Expression expression)
-        {
-            Check.NotNull(querySource, nameof(querySource));
-            Check.NotNull(expression, nameof(expression));
-
-            QueryCompilationContext.AddOrUpdateMapping(querySource, expression);
-        }
-
         #region Binding
 
         /// <summary>
@@ -1448,7 +1419,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </returns>
         public virtual TResult BindNavigationPathPropertyExpression<TResult>(
             [NotNull] Expression propertyExpression,
-            [NotNull] Func<IEnumerable<IPropertyBase>, IQuerySource, TResult> propertyBinder)
+            [NotNull] Func<IReadOnlyList<IPropertyBase>, IQuerySource, TResult> propertyBinder)
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
             Check.NotNull(propertyBinder, nameof(propertyBinder));
@@ -1543,10 +1514,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             IQuerySource querySource,
             Func<IReadOnlyList<IPropertyBase>, IQuerySource, TResult> propertyBinder)
         {
-            QuerySourceReferenceExpression querySourceReferenceExpression;
-
-            var properties
-                = IterateCompositePropertyExpression(propertyExpression, out querySourceReferenceExpression);
+            var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
+                propertyExpression, QueryCompilationContext, out var querySourceReferenceExpression);
 
             if (querySourceReferenceExpression != null
                 && (querySource == null
@@ -1565,64 +1534,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return default(TResult);
-        }
-
-        private IReadOnlyList<IPropertyBase> IterateCompositePropertyExpression(
-            Expression expression,
-            out QuerySourceReferenceExpression querySourceReferenceExpression)
-        {
-            var properties = new List<IPropertyBase>();
-            var memberExpression = expression as MemberExpression;
-            var methodCallExpression = expression as MethodCallExpression;
-            querySourceReferenceExpression = null;
-
-            while (memberExpression?.Expression != null
-                   || IsPropertyMethod(methodCallExpression?.Method)
-                   && methodCallExpression?.Arguments[0] != null)
-            {
-                var propertyName = memberExpression?.Member.Name
-                                   ?? (string)(methodCallExpression.Arguments[1] as ConstantExpression)?.Value;
-
-                expression = memberExpression?.Expression ?? methodCallExpression.Arguments[0];
-
-                // in case of inheritance there might be convert to derived type here, so we want to check it first
-                var entityType = QueryCompilationContext.Model.FindEntityType(expression.Type);
-
-                expression = expression.RemoveConvert();
-
-                if (entityType == null)
-                {
-                    entityType = QueryCompilationContext.Model.FindEntityType(expression.Type);
-
-                    if (entityType == null)
-                    {
-                        break;
-                    }
-                }
-
-                var property
-                    = (IPropertyBase)entityType.FindProperty(propertyName)
-                      ?? entityType.FindNavigation(propertyName);
-
-                if (property == null)
-                {
-                    if (IsPropertyMethod(methodCallExpression?.Method))
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.PropertyNotFound(propertyName, entityType.DisplayName()));
-                    }
-
-                    break;
-                }
-
-                properties.Add(property);
-
-                querySourceReferenceExpression = expression as QuerySourceReferenceExpression;
-                memberExpression = expression as MemberExpression;
-                methodCallExpression = expression as MethodCallExpression;
-            }
-
-            return Enumerable.Reverse(properties).ToList();
         }
 
         /// <summary>

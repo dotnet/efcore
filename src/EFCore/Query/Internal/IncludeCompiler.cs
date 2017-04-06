@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -67,27 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var includeResultOperator in includeResultOperators.ToArray())
             {
-                var entityType
-                    = _queryCompilationContext.Model
-                        .FindEntityType(includeResultOperator.PathFromQuerySource.Type);
-
-                var nextEntityType = entityType;
-
-                var parts = includeResultOperator.NavigationPropertyPaths.ToArray();
-                var navigationPath = new INavigation[parts.Length];
-
-                for (var i = 0; i < parts.Length; i++)
-                {
-                    navigationPath[i] = nextEntityType.FindNavigation(parts[i]);
-
-                    if (navigationPath[i] == null)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.IncludeBadNavigation(parts[i], nextEntityType.DisplayName()));
-                    }
-
-                    nextEntityType = navigationPath[i].GetTargetType();
-                }
+                var navigationPath = includeResultOperator.GetNavigationPath(_queryCompilationContext);
 
                 var querySourceReferenceExpression
                     = querySourceTracingExpressionVisitor
@@ -109,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var sequenceType = querySourceReferenceExpression.Type.TryGetSequenceType();
 
                 if (sequenceType != null
-                    && _queryCompilationContext.Model.FindEntityType(sequenceType) != null)
+                    && (_queryCompilationContext.Model.FindEntityType(sequenceType) != null
+                    || _queryCompilationContext.Model.IsDelegatedIdentityEntityType(sequenceType)))
                 {
                     continue;
                 }

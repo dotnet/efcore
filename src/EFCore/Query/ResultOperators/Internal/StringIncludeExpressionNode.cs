@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             var navigationPropertyPathValue = (string)_navigationPropertyPath.Value;
 
             return new IncludeResultOperator(
-                navigationPropertyPathValue.Split(new[] { "." }, StringSplitOptions.RemoveEmptyEntries), 
+                navigationPropertyPathValue.Split(new[] { "." }, StringSplitOptions.RemoveEmptyEntries),
                 pathFromQuerySource);
         }
 

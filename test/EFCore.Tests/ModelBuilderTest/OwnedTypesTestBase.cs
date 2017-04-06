@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var model = modelBuilder.Model;
 
                 var entityBuilder = modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
+                entityBuilder.Property(d => d.CustomerId);
 
                 modelBuilder.Validate();
 

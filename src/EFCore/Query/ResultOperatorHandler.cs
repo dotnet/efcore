@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -82,8 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(resultOperator, nameof(resultOperator));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            ResultHandler handler;
-            if (!_handlers.TryGetValue(resultOperator.GetType(), out handler))
+            if (!_handlers.TryGetValue(resultOperator.GetType(), out ResultHandler handler))
             {
                 throw new NotImplementedException(resultOperator.GetType().ToString());
             }
@@ -218,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (choiceResultOperator.ReturnDefaultWhenEmpty
                     ? entityQueryModelVisitor.LinqOperatorProvider.FirstOrDefault
                     : entityQueryModelVisitor.LinqOperatorProvider.First)
-                .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleGroup(
@@ -268,8 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             entityQueryModelVisitor.CurrentParameter
                 = Expression.Parameter(expression.Type.GetSequenceType(), groupResultOperator.ItemName);
 
-            entityQueryModelVisitor
-                .AddOrUpdateMapping(groupResultOperator, entityQueryModelVisitor.CurrentParameter);
+            entityQueryModelVisitor.QueryCompilationContext.AddOrUpdateMapping(groupResultOperator, entityQueryModelVisitor.CurrentParameter);
 
             return expression;
         }
@@ -286,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<TSource, CancellationToken, Task<TElement>> elementSelector)
             => new AsyncGroupByAsyncEnumerable<TSource, TKey, TElement>(source, keySelector, elementSelector);
 
-        private sealed class AsyncGroupByAsyncEnumerable<TSource, TKey, TElement> 
+        private sealed class AsyncGroupByAsyncEnumerable<TSource, TKey, TElement>
             : IAsyncEnumerable<IGrouping<TKey, TElement>>
         {
             private readonly IAsyncEnumerable<TSource> _source;
@@ -393,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     (choiceResultOperator.ReturnDefaultWhenEmpty
                                         ? entityQueryModelVisitor.LinqOperatorProvider.LastOrDefault
                                         : entityQueryModelVisitor.LinqOperatorProvider.Last)
-                                    .MakeGenericMethod(methodCallExpression.Arguments[0].Type.GetSequenceType()),
+                                        .MakeGenericMethod(methodCallExpression.Arguments[0].Type.GetSequenceType()),
                                     methodCallExpression.Arguments[0])),
                             methodCallExpression.Arguments[1]
                         });
@@ -403,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (choiceResultOperator.ReturnDefaultWhenEmpty
                     ? entityQueryModelVisitor.LinqOperatorProvider.LastOrDefault
                     : entityQueryModelVisitor.LinqOperatorProvider.Last)
-                .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
         }
 
@@ -433,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (choiceResultOperator.ReturnDefaultWhenEmpty
                     ? entityQueryModelVisitor.LinqOperatorProvider.SingleOrDefault
                     : entityQueryModelVisitor.LinqOperatorProvider.Single)
-                .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleSkip(

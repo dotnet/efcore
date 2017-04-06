@@ -57,12 +57,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected override Expression VisitQuerySourceReference(
             QuerySourceReferenceExpression expression)
         {
-            var maybeEntityType
-                = expression.Type.TryGetSequenceType() ?? expression.Type;
+            var sequenceType = expression.Type.TryGetSequenceType();
 
             var entityType
-                = _model.FindEntityType(maybeEntityType)
-                  ?? _model.FindEntityType(expression.Type);
+                = ((sequenceType != null
+                    ? _model.FindEntityType(sequenceType)
+                    : null)
+                   ?? _model.FindEntityType(expression.Type))
+                  ?? _queryCompilationContext.FindEntityType(expression.ReferencedQuerySource);
 
             if (entityType != null)
             {

@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         }
 
         [Fact]
-        public void Query_dependent_include_principal_multiple_relationsships()
+        public void Query_dependent_include_principal_multiple_relationships()
         {
             Seed();
 
@@ -499,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         }
 
         [Fact]
-        public void Query_principal_include_dependent_multiple_relationsships()
+        public void Query_principal_include_dependent_multiple_relationships()
         {
             Seed();
 
@@ -858,6 +858,155 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             }
         }
 
+        [Fact]
+        public void Query_ownership_navigations()
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                // TODO: Infer these includes
+                // Issue #2953
+                var principal = context.Set<Order>()
+                    .Include(o => o.OrderDetails.BillingAddress)
+                    .Include(o => o.OrderDetails.ShippingAddress)
+                    .Single();
+
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            var dependent = principal.OrderDetails;
+                            Assert.Same(principal, dependent.Order);
+
+                            var subDependent1 = dependent.BillingAddress;
+                            var subDependent2 = dependent.ShippingAddress;
+                            Assert.Same(dependent, subDependent1.OrderDetails);
+                            Assert.Same(dependent, subDependent2.OrderDetails);
+                            Assert.Equal("BillMe", subDependent1.Street);
+                            Assert.Equal("ShipMe", subDependent2.Street);
+
+                            Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+                            var principalEntry = context.Entry(principal);
+                            Assert.Equal(EntityState.Unchanged, principalEntry.State);
+
+                            var dependentEntry = principalEntry.Reference(p => p.OrderDetails).TargetEntry;
+                            Assert.Equal(principal.Id, dependentEntry.Property("OrderId").CurrentValue);
+                            Assert.Equal(EntityState.Unchanged, dependentEntry.State);
+                            Assert.Equal(nameof(Order.OrderDetails), dependentEntry.Metadata.DefiningNavigationName);
+
+                            var subDependent1Entry = dependentEntry.Reference(p => p.BillingAddress).TargetEntry;
+                            Assert.Equal(principal.Id, subDependent1Entry.Property("OrderDetailsId").CurrentValue);
+                            Assert.Equal(EntityState.Unchanged, subDependent1Entry.State);
+                            Assert.Equal(nameof(OrderDetails.BillingAddress), subDependent1Entry.Metadata.DefiningNavigationName);
+
+                            var subDependent2Entry = dependentEntry.Reference(p => p.ShippingAddress).TargetEntry;
+                            Assert.Equal(principal.Id, subDependent2Entry.Property("OrderDetailsId").CurrentValue);
+                            Assert.Equal(EntityState.Unchanged, subDependent2Entry.State);
+                            Assert.Equal(nameof(OrderDetails.ShippingAddress), subDependent2Entry.Metadata.DefiningNavigationName);
+                        });
+            }
+        }
+
+        [Fact]
+        public void Query_owned_foreign_key()
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var foreignKeyValue = context.Set<Order>()
+                    .Select(o => EF.Property<int?>(o.OrderDetails, "OrderId")).Single();
+                var principal = context.Set<Order>().AsNoTracking().Single();
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, foreignKeyValue);
+                    });
+            }
+        }
+
+        [Fact]
+        public void Query_subowned_foreign_key()
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var foreignKeyValue = context.Set<Order>()
+                    .Select(o => EF.Property<int?>(o.OrderDetails.BillingAddress, "OrderDetailsId")).Single();
+                var principal = context.Set<Order>().AsNoTracking().Single();
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        Assert.Equal(principal.Id, foreignKeyValue);
+                    });
+            }
+        }
+
+        [Fact]
+        public void Query_owned()
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var owned = context.Set<Order>().Select(o => o.OrderDetails).Single();
+                var principal = context.Set<Order>().AsNoTracking().Single();
+
+                AssertFixup(
+                    context,
+                    () =>
+                    {
+                        var dependentEntry = context.Entry(owned);
+                        Assert.Equal(principal.Id, dependentEntry.Property("OrderId").CurrentValue);
+                        Assert.Equal(nameof(Order.OrderDetails), dependentEntry.Metadata.DefiningNavigationName);
+                    });
+            }
+        }
+
+        [Fact]
+        public void Query_subowned()
+        {
+            Seed();
+
+            using (var context = new QueryFixupContext())
+            {
+                var subDependent1 = context.Set<Order>()
+                    .Select(o => o.OrderDetails.BillingAddress)
+                    .Include(a => a.OrderDetails.Order).Single();
+                var subDependent2 = context.Set<Order>()
+                    .Select(o => o.OrderDetails.ShippingAddress)
+                    .Include(a => a.OrderDetails.Order).Single();
+
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal("BillMe", subDependent1.Street);
+                            Assert.Equal("ShipMe", subDependent2.Street);
+
+                            var dependent = subDependent1.OrderDetails;
+                            Assert.Same(dependent, subDependent2.OrderDetails);
+                            Assert.NotNull(dependent.Order);
+                            var principal = dependent.Order;
+
+                            var subDependent1Entry = context.Entry(subDependent1);
+                            Assert.Equal(principal.Id, subDependent1Entry.Property("OrderDetailsId").CurrentValue);
+                            Assert.Equal(nameof(OrderDetails.BillingAddress), subDependent1Entry.Metadata.DefiningNavigationName);
+
+                            var subDependent2Entry = context.Entry(subDependent2);
+                            Assert.Equal(principal.Id, subDependent2Entry.Property("OrderDetailsId").CurrentValue);
+                            Assert.Equal(nameof(OrderDetails.ShippingAddress), subDependent2Entry.Metadata.DefiningNavigationName);
+                        });
+            }
+        }
+
         private static void Seed()
         {
             using (var context = new QueryFixupContext())
@@ -891,7 +1040,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     new ParentPN { Id = 77 },
                     new ChildPN { Id = 78, ParentId = 77 },
                     new ParentDN { Id = 77 },
-                    new ChildDN { Id = 78, ParentId = 77 });
+                    new ChildDN { Id = 78, ParentId = 77 },
+                    new Order
+                    {
+                        Id = 77, OrderDetails = new OrderDetails
+                        {
+                            BillingAddress = new Address { Street = "BillMe" }, ShippingAddress = new Address { Street = "ShipMe" }
+                        }
+                    });
 
                 context.SaveChanges();
             }
@@ -978,6 +1134,26 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             public int CategoryId { get; set; }
 
             public Category Category { get; set; }
+        }
+
+        private class Order
+        {
+            public int Id { get; set; }
+
+            public OrderDetails OrderDetails { get; set; }
+        }
+
+        private class OrderDetails
+        {
+            public Order Order { get; set; }
+            public Address BillingAddress { get; set; }
+            public Address ShippingAddress { get; set; }
+        }
+
+        private class Address
+        {
+            public OrderDetails OrderDetails { get; set; }
+            public string Street { get; set; }
         }
 
         private class Blog
@@ -1127,6 +1303,30 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                     .HasOne(e => e.TopPost)
                     .WithOne()
                     .HasForeignKey<Blog>(e => e.TopPostId);
+
+                modelBuilder.Entity<Order>(pb =>
+                    {
+                        pb.Property(p => p.Id).ValueGeneratedNever();
+                        pb.OwnsOne(p => p.OrderDetails, cb =>
+                            {
+                                cb.Property<int?>("OrderId");
+                                cb.HasForeignKey("OrderId");
+                                cb.HasOne(c => c.Order)
+                                    .WithOne(p => p.OrderDetails);
+                                cb.OwnsOne(c => c.BillingAddress, scb =>
+                                    {
+                                        scb.HasForeignKey("OrderDetailsId");
+                                        scb.HasOne(sc => sc.OrderDetails)
+                                            .WithOne(c => c.BillingAddress);
+                                    });
+                                cb.OwnsOne(c => c.ShippingAddress, scb =>
+                                    {
+                                        scb.HasForeignKey("OrderDetailsId");
+                                        scb.HasOne(sc => sc.OrderDetails)
+                                            .WithOne(c => c.ShippingAddress);
+                                    });
+                            });
+                    });
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

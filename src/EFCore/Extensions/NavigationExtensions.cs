@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -22,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     True if the given navigation property is the navigation property on the dependent entity
         ///     type that points to the principal entity, otherwise false.
         /// </returns>
+        [DebuggerStepThrough]
         public static bool IsDependentToPrincipal([NotNull] this INavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).ForeignKey.DependentToPrincipal == navigation;
 
@@ -32,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     True if this is a collection property, false if it is a reference property.
         /// </returns>
+        [DebuggerStepThrough]
         public static bool IsCollection([NotNull] this INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
@@ -47,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The inverse navigation, or null if none is defined.
         /// </returns>
+        [DebuggerStepThrough]
         public static INavigation FindInverse([NotNull] this INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
@@ -62,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="navigation"> The navigation property to find the target entity type of. </param>
         /// <returns> The target entity type. </returns>
+        [DebuggerStepThrough]
         public static IEntityType GetTargetType([NotNull] this INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));

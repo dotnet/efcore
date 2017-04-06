@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly IRequiresMaterializationExpressionVisitorFactory _requiresMaterializationExpressionVisitorFactory;
         private readonly IEntityQueryModelVisitorFactory _entityQueryModelVisitorFactory;
+        private readonly Dictionary<IQuerySource, IEntityType> _querySourceEntityTypeMapping = new Dictionary<IQuerySource, IEntityType>();
 
         private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
         private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
@@ -107,6 +108,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
 
         /// <summary>
+        ///     Gets the entity type mapped to the given query source
+        /// </summary>
+        public virtual IEntityType FindEntityType([NotNull] IQuerySource querySource)
+        {
+            _querySourceEntityTypeMapping.TryGetValue(querySource, out var entityType);
+            return entityType;
+        }
+
+        /// <summary>
+        ///     Gets the entity type mapped to the given query source
+        /// </summary>
+        public virtual void AddOrUpdateMapping([NotNull] IQuerySource querySource, [NotNull] IEntityType entityType)
+            => _querySourceEntityTypeMapping[querySource] = entityType;
+
+        /// <summary>
         ///     Adds or updates the expression mapped to a query source.
         /// </summary>
         /// <param name="querySource"> The query source. </param>
@@ -128,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Gets the query annotations./
+        ///     Gets the query annotations.
         /// </summary>
         /// <value>
         ///     The query annotations.
@@ -143,13 +159,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 _queryAnnotations = value;
             }
-        }        
-        
-        /// <summary> 
-        ///     Creates cloned annotations targeting a new QueryModel. 
-        /// </summary> 
-        /// <param name="querySourceMapping">A query source mapping.</param> 
-        /// <param name="queryModel">A query model.</param> 
+        }
+
+        /// <summary>
+        ///     Creates cloned annotations targeting a new QueryModel.
+        /// </summary>
+        /// <param name="querySourceMapping">A query source mapping.</param>
+        /// <param name="queryModel">A query model.</param>
         public virtual void CloneAnnotations(
             [NotNull] QuerySourceMapping querySourceMapping,
             [NotNull] QueryModel queryModel)
@@ -159,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var clonedAnnotations = new List<IQueryAnnotation>();
 
-            // ReSharper disable once LoopCanBeConvertedToQuery 
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var annotation
                 in QueryAnnotations.OfType<ICloneableQueryAnnotation>())
             {
@@ -255,18 +271,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 if (constantExpression.IsEntityQueryable())
                 {
-                    var entityType = _model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
+                    var entityQueryable = (IQueryable)constantExpression.Value;
+                    var entityType = _model.FindEntityType(entityQueryable.ElementType);
 
-                    if (entityType != null)
+                    if (entityType != null
+                        && (_referencedEntityTypes > 0
+                            || entityType.ShadowPropertyCount() > 0))
                     {
-                        if (_referencedEntityTypes > 0
-                            || entityType.ShadowPropertyCount() > 0)
-                        {
-                            _requiresBuffering = true;
+                        _requiresBuffering = true;
 
-                            return constantExpression;
-                        }
+                        return constantExpression;
+                    }
 
+                    if (entityType != null
+                        || _model.IsDelegatedIdentityEntityType(entityQueryable.ElementType))
+                    {
                         _referencedEntityTypes++;
                     }
                 }
@@ -323,8 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _trackableIncludes = new Dictionary<IQuerySource, List<IReadOnlyList<INavigation>>>();
             }
 
-            List<IReadOnlyList<INavigation>> includes;
-            if (!_trackableIncludes.TryGetValue(querySource, out includes))
+            if (!_trackableIncludes.TryGetValue(querySource, out var includes))
             {
                 _trackableIncludes.Add(querySource, includes = new List<IReadOnlyList<INavigation>>());
             }
@@ -348,9 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return null;
             }
 
-            List<IReadOnlyList<INavigation>> includes;
-
-            return _trackableIncludes.TryGetValue(querySource, out includes) ? includes : null;
+            return _trackableIncludes.TryGetValue(querySource, out var includes) ? includes : null;
         }
 
         /// <summary>

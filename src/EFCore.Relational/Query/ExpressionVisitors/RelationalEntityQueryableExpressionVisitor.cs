@@ -145,7 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Check.NotNull(elementType, nameof(elementType));
 
             var relationalQueryCompilationContext = QueryModelVisitor.QueryCompilationContext;
-            var entityType = _model.FindEntityType(elementType);
+
+            var entityType = relationalQueryCompilationContext.FindEntityType(_querySource)
+                             ?? _model.FindEntityType(elementType);
 
             var selectExpression = _selectExpressionFactory.Create(relationalQueryCompilationContext);
 
