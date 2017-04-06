@@ -37,8 +37,7 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[CustomerID]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE [t].[__RowNumber__] > @__p_0
-ORDER BY [t].[CustomerID]",
+WHERE [t].[__RowNumber__] > @__p_0",
                 Sql);
         }
 
@@ -71,8 +70,7 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
-ORDER BY [t].[ContactName]",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 Sql);
         }
 
@@ -90,8 +88,7 @@ FROM (
     FROM [Customers] AS [c]
     INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
-ORDER BY [t].[OrderID]",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 Sql);
         }
 
@@ -109,8 +106,7 @@ FROM (
     FROM [Customers] AS [c]
     INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
-ORDER BY [t].[OrderID]",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 Sql);
         }
 
@@ -129,8 +125,7 @@ FROM (
     INNER JOIN [Customers] AS [ca] ON [o].[CustomerID] = [ca].[CustomerID]
     INNER JOIN [Customers] AS [cb] ON [o].[CustomerID] = [cb].[CustomerID]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
-ORDER BY [t].[OrderID]",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 Sql);
         }
 
@@ -150,8 +145,7 @@ FROM (
         ORDER BY [c].[ContactName]
     ) AS [t]
 ) AS [t0]
-WHERE [t0].[__RowNumber__] > @__p_1
-ORDER BY [t0].[ContactName]",
+WHERE [t0].[__RowNumber__] > @__p_1",
                 Sql);
         }
 
@@ -218,8 +212,7 @@ FROM (
         ORDER BY [c]
     ) AS [t]
 ) AS [t0]
-WHERE [t0].[__RowNumber__] > @__p_1
-ORDER BY [t0].[c]",
+WHERE [t0].[__RowNumber__] > @__p_1",
                 Sql);
         }
 
@@ -266,8 +259,7 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactTitle], [c].[ContactName]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))
-ORDER BY [t].[ContactTitle], [t].[ContactName]",
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 Sql);
         }
 
@@ -461,6 +453,59 @@ FROM (
     ) AS [t0]
     WHERE [t0].[__RowNumber__] > @__p_0
 ) AS [t]",
+                Sql);
+        }
+
+        public override void Include_with_orderby_skip_preserves_ordering()
+        {
+            base.Include_with_orderby_skip_preserves_ordering();
+
+            Assert.Equal(
+                @"@__p_0: 40
+@__p_1: 5
+
+SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[City], [c].[CustomerID]) AS [__RowNumber__]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] <> N'VAFFE'
+) AS [t0]
+WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
+
+@__p_0: 40
+@__p_1: 5
+
+SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
+INNER JOIN (
+    SELECT [t1].[CustomerID], [t1].[City]
+    FROM (
+        SELECT [c0].[CustomerID], [c0].[City], ROW_NUMBER() OVER(ORDER BY [c0].[City], [c0].[CustomerID]) AS [__RowNumber__]
+        FROM [Customers] AS [c0]
+        WHERE [c0].[CustomerID] <> N'VAFFE'
+    ) AS [t1]
+    WHERE ([t1].[__RowNumber__] > @__p_0) AND ([t1].[__RowNumber__] <= (@__p_0 + @__p_1))
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[City], [t].[CustomerID]",
+                Sql);
+        }
+
+        public override void GroupJoin_customers_orders_count_preserves_ordering()
+        {
+            base.GroupJoin_customers_orders_count_preserves_ordering();
+
+            Assert.Equal(
+                @"@__p_0: 5
+
+SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] <> N'VAFFE'
+    ORDER BY [c].[City]
+) AS [t]
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[City], [t].[CustomerID]",
                 Sql);
         }
 

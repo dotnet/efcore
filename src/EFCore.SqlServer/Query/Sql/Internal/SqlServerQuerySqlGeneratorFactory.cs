@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -13,13 +14,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
     /// </summary>
     public class SqlServerQuerySqlGeneratorFactory : QuerySqlGeneratorFactoryBase
     {
+        private readonly ISqlServerOptions _sqlServerOptions;
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqlServerQuerySqlGeneratorFactory([NotNull] QuerySqlGeneratorDependencies dependencies)
+        public SqlServerQuerySqlGeneratorFactory([NotNull] QuerySqlGeneratorDependencies dependencies,
+            [NotNull] ISqlServerOptions sqlServerOptions)
             : base(dependencies)
         {
+            _sqlServerOptions = sqlServerOptions;
         }
 
         /// <summary>
@@ -29,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         public override IQuerySqlGenerator CreateDefault(SelectExpression selectExpression)
             => new SqlServerQuerySqlGenerator(
                 Dependencies,
-                Check.NotNull(selectExpression, nameof(selectExpression)));
+                Check.NotNull(selectExpression, nameof(selectExpression)),
+                _sqlServerOptions.RowNumberPagingEnabled);
     }
 }

@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Bug in projection shaper. See Issue #8095")]
         public virtual void Lifting_when_subquery_nested_order_by_anonymous()
         {
             using (var context = CreateContext())
@@ -3318,6 +3318,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 from c in cs
                 join o in os on c.CustomerID equals o.CustomerID into orders
                 select new { cust = c, ords = orders.Count() });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_customers_orders_count_preserves_ordering()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs.Where(c => c.CustomerID != "VAFFE").OrderBy(c => c.City).Take(5)
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                select new { cust = c, ords = orders.Count() },
+                assertOrder: true);
         }
 
         [ConditionalFact]
@@ -7384,6 +7394,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 {
                     A = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate
                 }).OrderBy(n => n.A));
+        }
+
+        [ConditionalFact]
+        public virtual void Include_with_orderby_skip_preserves_ordering()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Include(c => c.Orders).Where(c => c.CustomerID != "VAFFE").OrderBy(c => c.City).Skip(40).Take(5),
+                entryCount: 53,
+                assertOrder: true);
         }
 
         private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)

@@ -1469,6 +1469,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return true;
             }
 
+            outerSelectExpression.LiftOrderBy();
+
             var outerJoinOrderingExtractor = new OuterJoinOrderingExtractor();
             outerJoinOrderingExtractor.Visit(predicate);
 

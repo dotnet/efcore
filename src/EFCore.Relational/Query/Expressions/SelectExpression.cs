@@ -182,6 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 if (value != null && _limit != null)
                 {
                     PushDownSubquery();
+                    LiftOrderBy();
                 }
 
                 _limit = value;
@@ -204,6 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     && value != null)
                 {
                     PushDownSubquery();
+                    LiftOrderBy();
                 }
 
                 _offset = value;
@@ -401,23 +403,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             IsProjectStar = true;
 
-            // This code is to preserve the ordering in the result when we add extra ordering like we do for grouping/include
-            foreach (var ordering in subquery.OrderBy.ToList())
-            {
-                var expression = ordering.Expression;
-
-                if (expression is NullableExpression nullableExpression)
-                {
-                    expression = nullableExpression.Operand;
-                }
-
-                var expressionToAdd
-                    = expression.LiftExpressionFromSubquery(subquery)
-                      ?? subquery.Projection[subquery.AddToProjection(expression, resetProjectStar: false)].LiftExpressionFromSubquery(subquery);
-
-                _orderBy.Add(new Ordering(expressionToAdd, ordering.OrderingDirection));
-            }
-
             if (subquery.Limit == null
                 && subquery.Offset == null)
             {
@@ -425,6 +410,43 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             return subquery;
+        }
+
+        /// <summary>
+        ///     Ensure that order by expressions from Project Star table of this select expression
+        ///     are copied on outer level to preserve ordering.
+        /// </summary>
+        public virtual void LiftOrderBy()
+        {
+            if (_projectStarTable is SelectExpression subquery)
+            {
+                if (subquery._orderBy.Count == 0)
+                {
+                    subquery.LiftOrderBy();
+                }
+
+                foreach (var ordering in subquery.OrderBy.ToList())
+                {
+                    var expression = ordering.Expression;
+
+                    if (expression is NullableExpression nullableExpression)
+                    {
+                        expression = nullableExpression.Operand;
+                    }
+
+                    var expressionToAdd
+                        = expression.LiftExpressionFromSubquery(subquery)
+                          ?? subquery.Projection[subquery.AddToProjection(expression, resetProjectStar: false)].LiftExpressionFromSubquery(subquery);
+
+                    _orderBy.Add(new Ordering(expressionToAdd, ordering.OrderingDirection));
+                }
+
+                if (subquery.Limit == null
+                    && subquery.Offset == null)
+                {
+                    subquery.ClearOrderBy();
+                }
+            }
         }
 
         /// <summary>

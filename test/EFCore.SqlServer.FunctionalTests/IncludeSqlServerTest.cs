@@ -395,15 +395,15 @@ INNER JOIN (
         FROM [Orders] AS [oo1]
         WHERE [c0].[CustomerID] = [oo1].[CustomerID]
         ORDER BY [oo1].[OrderDate] DESC
-    ) AS [c], (
+    ) AS [c]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c0].[CustomerID]) = 1)
+    ORDER BY (
         SELECT TOP(1) [oo0].[OrderDate]
         FROM [Orders] AS [oo0]
         WHERE [c0].[CustomerID] = [oo0].[CustomerID]
         ORDER BY [oo0].[OrderDate] DESC
-    ) AS [c0]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'W' + N'%' AND (CHARINDEX(N'W', [c0].[CustomerID]) = 1)
-    ORDER BY [c0] DESC, [c0].[CustomerID]
+    ) DESC, [c0].[CustomerID]
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
 ORDER BY [t].[c] DESC, [t].[CustomerID]",
                 Sql);
@@ -543,15 +543,15 @@ INNER JOIN (
         FROM [Orders] AS [o1]
         WHERE [c0].[CustomerID] = [o1].[CustomerID]
         ORDER BY [o1].[EmployeeID]
-    ) AS [c], (
+    ) AS [c]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] = N'ALFKI'
+    ORDER BY (
         SELECT TOP(1) [o0].[OrderDate]
         FROM [Orders] AS [o0]
         WHERE [c0].[CustomerID] = [o0].[CustomerID]
         ORDER BY [o0].[EmployeeID]
-    ) AS [c0]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] = N'ALFKI'
-    ORDER BY [c0], [c0].[CustomerID]
+    ), [c0].[CustomerID]
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
 ORDER BY [t].[c], [t].[CustomerID]",
                 Sql);
@@ -771,7 +771,7 @@ FROM (
     ORDER BY [c].[CustomerID]
 ) AS [t]
 CROSS JOIN [Customers] AS [c2]
-ORDER BY [c2].[CustomerID], [t].[CustomerID]
+ORDER BY [c2].[CustomerID]
 
 @__p_0: 5
 
@@ -817,42 +817,45 @@ ORDER BY [t].[CustomerID], [t0].[CustomerID]",
                 Assert.Contains(
                     @"@__p_0: 2
 
-SELECT DISTINCT [t3].[CustomerID]
-FROM (
-    SELECT TOP(@__p_0) [c3].*
-    FROM [Customers] AS [c3]
-    ORDER BY [c3].[CustomerID]
-) AS [t3]
-CROSS JOIN (
-    SELECT [c4].*
-    FROM [Customers] AS [c4]
-    ORDER BY [c4].[CustomerID]
-    OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
-) AS [t4]
+SELECT [c1.Orders].[OrderID], [c1.Orders].[CustomerID], [c1.Orders].[EmployeeID], [c1.Orders].[OrderDate]
+FROM [Orders] AS [c1.Orders]
+INNER JOIN (
+    SELECT DISTINCT [t1].[CustomerID]
+    FROM (
+        SELECT TOP(@__p_0) [c1].*
+        FROM [Customers] AS [c1]
+        ORDER BY [c1].[CustomerID]
+    ) AS [t1]
+    CROSS JOIN (
+        SELECT [c2].*
+        FROM [Customers] AS [c2]
+        ORDER BY [c2].[CustomerID]
+        OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+    ) AS [t2]
+) AS [t3] ON [c1.Orders].[CustomerID] = [t3].[CustomerID]
 ORDER BY [t3].[CustomerID]",
-                    Sql);
-
-                Assert.Contains(
-                    @"SELECT [c1.Orders].[OrderID], [c1.Orders].[CustomerID], [c1.Orders].[EmployeeID], [c1.Orders].[OrderDate]
-FROM [Orders] AS [c1.Orders]",
                     Sql);
 
                 Assert.Contains(
                     @"@__p_0: 2
 
-SELECT DISTINCT [t8].[CustomerID], [t7].[CustomerID]
-FROM (
-    SELECT TOP(@__p_0) [c7].*
-    FROM [Customers] AS [c7]
-    ORDER BY [c7].[CustomerID]
-) AS [t7]
-CROSS JOIN (
-    SELECT [c8].*
-    FROM [Customers] AS [c8]
-    ORDER BY [c8].[CustomerID]
-    OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
-) AS [t8]
-ORDER BY [t7].[CustomerID]",
+SELECT [c2.Orders].[OrderID], [c2.Orders].[CustomerID], [c2.Orders].[EmployeeID], [c2.Orders].[OrderDate]
+FROM [Orders] AS [c2.Orders]
+INNER JOIN (
+    SELECT DISTINCT [t5].[CustomerID], [t4].[CustomerID] AS [c0]
+    FROM (
+        SELECT TOP(@__p_0) [c3].*
+        FROM [Customers] AS [c3]
+        ORDER BY [c3].[CustomerID]
+    ) AS [t4]
+    CROSS JOIN (
+        SELECT [c4].*
+        FROM [Customers] AS [c4]
+        ORDER BY [c4].[CustomerID]
+        OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+    ) AS [t5]
+) AS [t6] ON [c2.Orders].[CustomerID] = [t6].[CustomerID]
+ORDER BY [t6].[c0], [t6].[CustomerID]",
                     Sql);
             }
         }
@@ -985,8 +988,7 @@ FROM (
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
-CROSS JOIN [Customers] AS [c2]
-ORDER BY [t].[CustomerID]",
+CROSS JOIN [Customers] AS [c2]",
                 Sql);
         }
 
@@ -1110,8 +1112,7 @@ CROSS JOIN (
     ORDER BY [o0].[CustomerID]
     OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
 ) AS [t0]
-LEFT JOIN [Customers] AS [o2.Customer] ON [t0].[CustomerID] = [o2.Customer].[CustomerID]
-ORDER BY [t].[CustomerID]",
+LEFT JOIN [Customers] AS [o2.Customer] ON [t0].[CustomerID] = [o2.Customer].[CustomerID]",
                     Sql);
             }
         }
@@ -1137,8 +1138,7 @@ CROSS JOIN (
     FROM [Orders] AS [o0]
     ORDER BY [o0].[OrderID]
     OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
-) AS [t0]
-ORDER BY [t].[OrderID]",
+) AS [t0]",
                     Sql);
             }
         }
@@ -1164,8 +1164,7 @@ CROSS JOIN (
     ORDER BY [o0].[OrderID]
     OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
 ) AS [t0]
-LEFT JOIN [Customers] AS [o2.Customer] ON [t0].[CustomerID] = [o2.Customer].[CustomerID]
-ORDER BY [t].[OrderID]",
+LEFT JOIN [Customers] AS [o2.Customer] ON [t0].[CustomerID] = [o2.Customer].[CustomerID]",
                     Sql);
             }
         }

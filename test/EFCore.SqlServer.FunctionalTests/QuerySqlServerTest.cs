@@ -56,17 +56,20 @@ FROM [Orders] AS [c1_Orders]",
         {
             base.Lifting_when_subquery_nested_order_by_simple();
 
+            // TODO: Avoid unnecessary pushdown of subquery. See Issue#8094
             Assert.Contains(
                 @"@__p_0: 2
 
-SELECT DISTINCT [t0].[CustomerID]
+SELECT [t0].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c0].*
-    FROM [Customers] AS [c0]
-    ORDER BY [c0].[CustomerID]
-) AS [t0]
-CROSS JOIN [Customers] AS [c20]
-ORDER BY [t0].[CustomerID]",
+    SELECT DISTINCT [t].[CustomerID]
+    FROM (
+        SELECT TOP(@__p_0) [c].*
+        FROM [Customers] AS [c]
+        ORDER BY [c].[CustomerID]
+    ) AS [t]
+    CROSS JOIN [Customers] AS [c2]
+) AS [t0]",
                 Sql);
 
             Assert.Contains(
@@ -561,7 +564,6 @@ FROM (
     FROM [Order Details] AS [od0]
     ORDER BY [od0].[OrderID]
 ) AS [t1]
-ORDER BY [t1].[OrderID]
 
 @_outer_CustomerID2: VINET (Size = 450)
 
@@ -3296,8 +3298,7 @@ FROM (
     SELECT TOP(@__p_0) [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
     FROM [Orders] AS [o2]
     ORDER BY [o2].[OrderID]
-) AS [t]
-ORDER BY [t].[OrderID]",
+) AS [t]",
                 Sql);
 
             Assert.Contains(
@@ -3605,8 +3606,7 @@ FROM (
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
-LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID]",
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]",
                 Sql);
         }
 
@@ -3766,6 +3766,25 @@ INNER JOIN (
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void GroupJoin_customers_orders_count_preserves_ordering()
+        {
+            base.GroupJoin_customers_orders_count_preserves_ordering();
+
+            AssertSql(
+                @"@__p_0: 5
+
+SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] <> N'VAFFE'
+    ORDER BY [c].[City]
+) AS [t]
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[City], [t].[CustomerID]",
                 Sql);
         }
 
@@ -7622,6 +7641,36 @@ ORDER BY (
     WHERE [c].[CustomerID] = [o0].[CustomerID]
     ORDER BY [o0].[OrderID] DESC
 )",
+                Sql);
+        }
+
+        public override void Include_with_orderby_skip_preserves_ordering()
+        {
+            base.Include_with_orderby_skip_preserves_ordering();
+
+            AssertSql(
+                @"@__p_0: 40
+@__p_1: 5
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] <> N'VAFFE'
+ORDER BY [c].[City], [c].[CustomerID]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+
+@__p_0: 40
+@__p_1: 5
+
+SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
+INNER JOIN (
+    SELECT [c0].[CustomerID], [c0].[City]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] <> N'VAFFE'
+    ORDER BY [c0].[City], [c0].[CustomerID]
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[City], [t].[CustomerID]",
                 Sql);
         }
 

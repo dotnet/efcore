@@ -2594,7 +2594,7 @@ FROM (
     WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 0)
     ORDER BY [g].[FullName]
 ) AS [t]
-ORDER BY [t].[Rank], [t].[FullName]",
+ORDER BY [t].[Rank]",
                 Sql);
         }
 

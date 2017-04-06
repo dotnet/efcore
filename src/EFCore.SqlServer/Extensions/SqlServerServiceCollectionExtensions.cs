@@ -85,15 +85,16 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IMigrationsSqlGenerator, SqlServerMigrationsSqlGenerator>()
                 .TryAdd<IRelationalDatabaseCreator, SqlServerDatabaseCreator>()
                 .TryAdd<IHistoryRepository, SqlServerHistoryRepository>()
-                .TryAdd<IEntityQueryModelVisitorFactory, SqlServerQueryModelVisitorFactory>()
                 .TryAdd<ICompiledQueryCacheKeyGenerator, SqlServerCompiledQueryCacheKeyGenerator>()
                 .TryAdd<IExecutionStrategyFactory, SqlServerExecutionStrategyFactory>()
                 .TryAdd<IQueryCompilationContextFactory, SqlServerQueryCompilationContextFactory>()
                 .TryAdd<IMemberTranslator, SqlServerCompositeMemberTranslator>()
                 .TryAdd<IMethodCallTranslator, SqlServerCompositeMethodCallTranslator>()
                 .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
+                .TryAdd<ISingletonOptions, ISqlServerOptions>(p => p.GetService<ISqlServerOptions>())
                 .TryAddProviderSpecificServices(b => b
                     .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
+                    .TryAddSingleton<ISqlServerOptions, SqlServerOptions>()
                     .TryAddScoped<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
                     .TryAddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
                     .TryAddScoped<ISqlServerConnection, SqlServerConnection>());
