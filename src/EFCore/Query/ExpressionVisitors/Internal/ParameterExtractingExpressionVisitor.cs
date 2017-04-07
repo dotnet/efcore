@@ -51,10 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private bool _inLambda;
 
-        private ParameterExtractingExpressionVisitor(
-            IEvaluatableExpressionFilter evaluatableExpressionFilter,
-            QueryContext queryContext,
-            ISensitiveDataLogger logger,
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public ParameterExtractingExpressionVisitor(
+            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter,
+            [NotNull] QueryContext queryContext,
+            [NotNull] ISensitiveDataLogger logger,
             bool parameterize)
         {
             _evaluatableExpressionFilter = evaluatableExpressionFilter;
@@ -67,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public Expression ExtractParameters([NotNull] Expression expression)
+        public virtual Expression ExtractParameters([NotNull] Expression expression)
         {
             var oldPartialEvaluationInfo = _partialEvaluationInfo;
 
@@ -375,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public object Evaluate([CanBeNull] Expression expression, [CanBeNull] out string parameterName)
+        public virtual object Evaluate([CanBeNull] Expression expression, [CanBeNull] out string parameterName)
         {
             parameterName = null;
 
