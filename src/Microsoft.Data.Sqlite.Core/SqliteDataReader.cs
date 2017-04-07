@@ -6,10 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Globalization;
-using System.Text;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
+using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -357,7 +356,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override bool GetBoolean(int ordinal)
-            => GetInt64(ordinal) != 0;
+            => ValueConversion.GetBoolean(() => GetInt64(ordinal));
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="byte" />.
@@ -365,7 +364,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override byte GetByte(int ordinal)
-            => (byte)GetInt64(ordinal);
+            => ValueConversion.GetByte(() => GetInt64(ordinal));
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="char" />.
@@ -373,7 +372,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override char GetChar(int ordinal)
-            => (char)GetInt64(ordinal);
+            => ValueConversion.GetChar(() => GetInt64(ordinal));
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="DateTime" />.
@@ -381,17 +380,10 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override DateTime GetDateTime(int ordinal)
-        {
-            var sqliteType = GetSqliteType(ordinal);
-            switch (sqliteType)
-            {
-                case raw.SQLITE_FLOAT:
-                case raw.SQLITE_INTEGER:
-                    return FromJulianDate(GetDouble(ordinal));
-                default:
-                    return DateTime.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
-            }
-        }
+            => ValueConversion.GetDateTime(
+                () => GetSqliteType(ordinal),
+                () => GetDouble(ordinal),
+                () => GetString(ordinal));
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="DateTimeOffset" />.
@@ -399,17 +391,10 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public DateTimeOffset GetDateTimeOffset(int ordinal)
-        {
-            var sqliteType = GetSqliteType(ordinal);
-            switch (sqliteType)
-            {
-                case raw.SQLITE_FLOAT:
-                case raw.SQLITE_INTEGER:
-                    return new DateTimeOffset(FromJulianDate(GetDouble(ordinal)));
-                default:
-                    return DateTimeOffset.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
-            }
-        }
+            => ValueConversion.GetDateTimeOffset(
+                () => GetSqliteType(ordinal),
+                () => GetDouble(ordinal),
+                () => GetString(ordinal));
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="decimal" />.
@@ -417,7 +402,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override decimal GetDecimal(int ordinal)
-            => decimal.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
+            => ValueConversion.GetDecimal(() => GetString(ordinal));
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="double" />.
@@ -435,7 +420,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override float GetFloat(int ordinal)
-            => (float)GetDouble(ordinal);
+            => ValueConversion.GetFloat(() => GetDouble(ordinal));
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="Guid" />.
@@ -443,24 +428,10 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override Guid GetGuid(int ordinal)
-        {
-            var sqliteType = GetSqliteType(ordinal);
-            switch (sqliteType)
-            {
-                case raw.SQLITE_BLOB:
-                    var bytes = GetBlob(ordinal);
-                    if (bytes.Length == 16)
-                    {
-                        return new Guid(bytes);
-                    }
-                    else
-                    {
-                        return new Guid(Encoding.UTF8.GetString(bytes, 0, bytes.Length));
-                    }
-                default:
-                    return new Guid(GetString(ordinal));
-            }
-        }
+            => ValueConversion.GetGuid(
+                () => GetSqliteType(ordinal),
+                () => GetBlob(ordinal),
+                () => GetString(ordinal));
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="short" />.
@@ -468,7 +439,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override short GetInt16(int ordinal)
-            => (short)GetInt64(ordinal);
+            => ValueConversion.GetInt16(() => GetInt64(ordinal));
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="int" />.
@@ -476,7 +447,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override int GetInt32(int ordinal)
-            => (int)GetInt64(ordinal);
+            => ValueConversion.GetInt32(() => GetInt64(ordinal));
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="long" />.
@@ -531,30 +502,6 @@ namespace Microsoft.Data.Sqlite
         public override T GetFieldValue<T>(int ordinal)
         {
             var type = typeof(T).UnwrapNullableType().UnwrapEnumType();
-            if (type == typeof(bool))
-            {
-                return (T)(object)GetBoolean(ordinal);
-            }
-            if (type == typeof(byte))
-            {
-                return (T)(object)GetByte(ordinal);
-            }
-            if (type == typeof(byte[]))
-            {
-                return (T)(object)GetBlob(ordinal);
-            }
-            if (type == typeof(char))
-            {
-                return (T)(object)GetChar(ordinal);
-            }
-            if (type == typeof(DateTime))
-            {
-                return (T)(object)GetDateTime(ordinal);
-            }
-            if (type == typeof(DateTimeOffset))
-            {
-                return (T)(object)GetDateTimeOffset(ordinal);
-            }
             if (type == typeof(DBNull))
             {
                 if (!_stepped || _done)
@@ -564,60 +511,15 @@ namespace Microsoft.Data.Sqlite
 
                 return (T)(object)DBNull.Value;
             }
-            if (type == typeof(decimal))
-            {
-                return (T)(object)GetDecimal(ordinal);
-            }
-            if (type == typeof(double))
-            {
-                return (T)(object)GetDouble(ordinal);
-            }
-            if (type == typeof(float))
-            {
-                return (T)(object)GetFloat(ordinal);
-            }
-            if (type == typeof(Guid))
-            {
-                return (T)(object)GetGuid(ordinal);
-            }
-            if (type == typeof(int))
-            {
-                return (T)(object)GetInt32(ordinal);
-            }
-            if (type == typeof(long))
-            {
-                return (T)(object)GetInt64(ordinal);
-            }
-            if (type == typeof(sbyte))
-            {
-                return (T)(object)((sbyte)GetInt64(ordinal));
-            }
-            if (type == typeof(short))
-            {
-                return (T)(object)GetInt16(ordinal);
-            }
-            if (type == typeof(string))
-            {
-                return (T)(object)GetString(ordinal);
-            }
-            if (type == typeof(TimeSpan))
-            {
-                return (T)(object)TimeSpan.Parse(GetString(ordinal));
-            }
-            if (type == typeof(uint))
-            {
-                return (T)(object)((uint)GetInt64(ordinal));
-            }
-            if (type == typeof(ulong))
-            {
-                return (T)(object)((ulong)GetInt64(ordinal));
-            }
-            if (type == typeof(ushort))
-            {
-                return (T)(object)((ushort)GetInt64(ordinal));
-            }
 
-            return base.GetFieldValue<T>(ordinal);
+            return ValueConversion.GetValue<T>(
+                type,
+                () => GetSqliteType(ordinal),
+                () => GetInt64(ordinal),
+                () => GetDouble(ordinal),
+                () => GetString(ordinal),
+                () => GetBlob(ordinal),
+                () => base.GetFieldValue<T>(ordinal));
         }
 
         /// <summary>
@@ -681,44 +583,5 @@ namespace Microsoft.Data.Sqlite
             => IsDBNull(ordinal)
                 ? throw new InvalidCastException()
                 : raw.sqlite3_column_blob(_stmt, ordinal) ?? _emptyByteArray;
-
-        /// <summary>
-        /// Computes DateTime from julian date. This function is a port of the
-        /// computeYMD and computeHMS functions from the original Sqlite core
-        /// source code in 'date.c'.
-        /// </summary>
-        /// <param name="julianDate">Real value containing the julian date</param>
-        /// <returns>The converted DateTime.</returns>
-        private static DateTime FromJulianDate(double julianDate)
-        {
-            // computeYMD
-            var iJD = (long)(julianDate * 86400000.0 + 0.5);
-            var Z = (int)((iJD + 43200000) / 86400000);
-            var A = (int)((Z - 1867216.25) / 36524.25);
-            A = Z + 1 + A - (A / 4);
-            var B = A + 1524;
-            var C = (int)((B - 122.1) / 365.25);
-            var D = (36525 * (C & 32767)) / 100;
-            var E = (int)((B - D) / 30.6001);
-            var X1 = (int)(30.6001 * E);
-            var day = B - D - X1;
-            var month = E < 14 ? E - 1 : E - 13;
-            var year = month > 2 ? C - 4716 : C - 4715;
-
-            // computeHMS
-            var s = (int)((iJD + 43200000) % 86400000);
-            var fracSecond = s / 1000.0;
-            s = (int)fracSecond;
-            fracSecond -= s;
-            var hour = s / 3600;
-            s -= hour * 3600;
-            var minute = s / 60;
-            fracSecond += s - minute * 60;
-
-            var second = (int)fracSecond;
-            var millisecond = (int)Math.Round((fracSecond - second) * 1000.0);
-
-            return new DateTime(year, month, day, hour, minute, second, millisecond);
-        }
     }
 }

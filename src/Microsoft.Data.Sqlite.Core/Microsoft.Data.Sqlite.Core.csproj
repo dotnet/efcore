@@ -25,6 +25,15 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </None>
+    <None Update="UserDefinedFunctions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>UserDefinedFunctions.cs</LastGenOutput>
+    </None>
+    <None Include="UserDefinedFunctions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UserDefinedFunctions.tt</DependentUpon>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +54,12 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="SqliteConnection.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UserDefinedFunctions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UserDefinedFunctions.tt</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>
