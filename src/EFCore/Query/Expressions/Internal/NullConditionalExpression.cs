@@ -126,11 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         {
             var newNullableCaller = visitor.Visit(NullableCaller);
             var newCaller = visitor.Visit(Caller);
-
-            var newAccessOperation
-                = visitor.Visit(
-                    ReplacingExpressionVisitor
-                        .Replace(Caller, newCaller, AccessOperation));
+            var newAccessOperation = visitor.Visit(AccessOperation);
 
             if (newNullableCaller != NullableCaller
                 || newCaller != Caller
