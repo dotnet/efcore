@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         exist then the database is deleted.
         ///     </para>
         ///     <para>
-        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by
+        ///         Warning: The entire database is deleted, and no effort is made to remove just the database objects that are used by
         ///         the model for this context.
         ///     </para>
         /// </summary>
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         exist then the database is deleted.
         ///     </para>
         ///     <para>
-        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by
+        ///         Warning: The entire database is deleted, and no effort is made to remove just the database objects that are used by
         ///         the model for this context.
         ///     </para>
         /// </summary>
