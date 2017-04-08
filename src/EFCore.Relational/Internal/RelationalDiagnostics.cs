@@ -341,6 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Guid connectionId,
             DbDataReader dataReader,
             int recordsAffected,
+            Guid instanceId,
             long startTimestamp,
             long currentTimestamp)
         {
@@ -352,6 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Connection = connection,
                         ConnectionId = connectionId,
                         DataReader = dataReader,
+                        InstanceId = instanceId,
                         RecordsAffected = recordsAffected,
                         Timestamp = currentTimestamp,
                         Duration = currentTimestamp - startTimestamp

@@ -228,7 +228,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                                     connection,
                                     dbCommand,
                                     dbCommand.ExecuteReader(),
-                                    DiagnosticSource);
+                                    DiagnosticSource,
+                                    instanceId);
                         }
                         catch
                         {
@@ -351,7 +352,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                                 connection,
                                 dbCommand,
                                 await dbCommand.ExecuteReaderAsync(cancellationToken), 
-                                DiagnosticSource);
+                                DiagnosticSource,
+                                instanceId);
                         }
                         catch
                         {

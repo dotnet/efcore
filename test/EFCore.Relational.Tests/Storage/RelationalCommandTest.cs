@@ -1084,6 +1084,55 @@ Logged Command",
             Assert.Equal(exception, afterData.Exception);
         }
 
+        [Fact]
+        public void Reports_command_reader_diagnostics()
+        {
+            var executeReaderCount = 0;
+            var disposeCount = -1;
+
+            var dbDataReader = new FakeDbDataReader();
+
+            var fakeDbConnection = new FakeDbConnection(
+                ConnectionString,
+                new FakeCommandExecutor(
+                    executeReader: (c, b) =>
+                    {
+                        executeReaderCount++;
+                        disposeCount = c.DisposeCount;
+                        return dbDataReader;
+                    }));
+
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
+
+            var options = CreateOptions(optionsExtension);
+
+            var diagnostic = new List<Tuple<string, object>>();
+
+            var relationalCommand = CreateRelationalCommand(
+                diagnosticSource: new ListDiagnosticSource(diagnostic)
+                );
+
+            var result = relationalCommand.ExecuteReader(
+                new FakeRelationalConnection(options));
+
+            // Before dispose, we should have 2 diagnostics
+            Assert.Equal(2, diagnostic.Count);
+            Assert.Equal(RelationalDiagnostics.BeforeExecuteCommand, diagnostic[0].Item1);
+            Assert.Equal(RelationalDiagnostics.AfterExecuteCommand, diagnostic[1].Item1);
+
+            var beforeData = (RelationalDiagnosticSourceBeforeMessage)diagnostic[0].Item2;
+            var afterData = (RelationalDiagnosticSourceAfterMessage)diagnostic[1].Item2;
+
+            Assert.Equal(beforeData.InstanceId, afterData.InstanceId);
+
+            result.Dispose();
+            // And a third after the dispose of the reader
+            Assert.Equal(3, diagnostic.Count);
+            Assert.Equal(RelationalDiagnostics.DataReaderDisposing, diagnostic[2].Item1);
+            dynamic disposeData = diagnostic[2].Item2;
+            Assert.Equal(beforeData.InstanceId, disposeData.InstanceId);
+        }
+
         private const string ConnectionString = "Fake Connection String";
 
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
