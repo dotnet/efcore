@@ -47,14 +47,11 @@ ORDER BY [o].[ProductID]",
         {
             base.Include_reference(useString);
 
-            if (!useString)
-            {
-                AssertSql(
-                    @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]",
-                    Sql);
-            }
+                Sql);
         }
 
         public override void Include_collection(bool useString)
@@ -207,10 +204,8 @@ ORDER BY [t].[CustomerID]",
         {
             base.Include_reference_and_collection(useString);
 
-            if (!useString)
-            {
-                AssertSql(
-                    @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 ORDER BY [o].[OrderID]
@@ -223,64 +218,45 @@ INNER JOIN (
     LEFT JOIN [Customers] AS [o.Customer0] ON [o0].[CustomerID] = [o.Customer0].[CustomerID]
 ) AS [t] ON [o.OrderDetails].[OrderID] = [t].[OrderID]
 ORDER BY [t].[OrderID]",
-                    Sql);
-            }
+                Sql);
         }
 
         public override void Include_references_multi_level(bool useString)
         {
             base.Include_references_multi_level(useString);
 
-            if (!useString)
-            {
-                AssertSql(
-                    @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o.Order].[OrderID], [o.Order].[CustomerID], [o.Order].[EmployeeID], [o.Order].[OrderDate], [o.Order.Customer].[CustomerID], [o.Order.Customer].[Address], [o.Order.Customer].[City], [o.Order.Customer].[CompanyName], [o.Order.Customer].[ContactName], [o.Order.Customer].[ContactTitle], [o.Order.Customer].[Country], [o.Order.Customer].[Fax], [o.Order.Customer].[Phone], [o.Order.Customer].[PostalCode], [o.Order.Customer].[Region]
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o.Order].[OrderID], [o.Order].[CustomerID], [o.Order].[EmployeeID], [o.Order].[OrderDate], [o.Order.Customer].[CustomerID], [o.Order.Customer].[Address], [o.Order.Customer].[City], [o.Order.Customer].[CompanyName], [o.Order.Customer].[ContactName], [o.Order.Customer].[ContactTitle], [o.Order.Customer].[Country], [o.Order.Customer].[Fax], [o.Order.Customer].[Phone], [o.Order.Customer].[PostalCode], [o.Order.Customer].[Region]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o.Order] ON [o].[OrderID] = [o.Order].[OrderID]
 LEFT JOIN [Customers] AS [o.Order.Customer] ON [o.Order].[CustomerID] = [o.Order.Customer].[CustomerID]",
-                    Sql);
-            }
-            else
-            {
-                AssertSql(
-                    @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Order Details] AS [o]
-INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]",
-                    Sql);
-            }
+                Sql);
         }
 
         public override void Include_multiple_references_multi_level(bool useString)
         {
             base.Include_multiple_references_multi_level(useString);
 
-            if (!useString)
-            {
-                AssertSql(
-                    @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[UnitPrice], [o.Product].[UnitsInStock], [o.Order].[OrderID], [o.Order].[CustomerID], [o.Order].[EmployeeID], [o.Order].[OrderDate], [o.Order.Customer].[CustomerID], [o.Order.Customer].[Address], [o.Order.Customer].[City], [o.Order.Customer].[CompanyName], [o.Order.Customer].[ContactName], [o.Order.Customer].[ContactTitle], [o.Order.Customer].[Country], [o.Order.Customer].[Fax], [o.Order.Customer].[Phone], [o.Order.Customer].[PostalCode], [o.Order.Customer].[Region]
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[UnitPrice], [o.Product].[UnitsInStock], [o.Order].[OrderID], [o.Order].[CustomerID], [o.Order].[EmployeeID], [o.Order].[OrderDate], [o.Order.Customer].[CustomerID], [o.Order.Customer].[Address], [o.Order.Customer].[City], [o.Order.Customer].[CompanyName], [o.Order.Customer].[ContactName], [o.Order.Customer].[ContactTitle], [o.Order.Customer].[Country], [o.Order.Customer].[Fax], [o.Order.Customer].[Phone], [o.Order.Customer].[PostalCode], [o.Order.Customer].[Region]
 FROM [Order Details] AS [o]
 INNER JOIN [Products] AS [o.Product] ON [o].[ProductID] = [o.Product].[ProductID]
 INNER JOIN [Orders] AS [o.Order] ON [o].[OrderID] = [o.Order].[OrderID]
 LEFT JOIN [Customers] AS [o.Order.Customer] ON [o.Order].[CustomerID] = [o.Order.Customer].[CustomerID]",
-                    Sql);
-            }
+                Sql);
         }
 
         public override void Include_multiple_references_multi_level_reverse(bool useString)
         {
             base.Include_multiple_references_multi_level_reverse(useString);
 
-            if (!useString)
-            {
-                AssertSql(
-                    @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o.Order].[OrderID], [o.Order].[CustomerID], [o.Order].[EmployeeID], [o.Order].[OrderDate], [o.Order.Customer].[CustomerID], [o.Order.Customer].[Address], [o.Order.Customer].[City], [o.Order.Customer].[CompanyName], [o.Order.Customer].[ContactName], [o.Order.Customer].[ContactTitle], [o.Order.Customer].[Country], [o.Order.Customer].[Fax], [o.Order.Customer].[Phone], [o.Order.Customer].[PostalCode], [o.Order.Customer].[Region], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[UnitPrice], [o.Product].[UnitsInStock]
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o.Order].[OrderID], [o.Order].[CustomerID], [o.Order].[EmployeeID], [o.Order].[OrderDate], [o.Order.Customer].[CustomerID], [o.Order.Customer].[Address], [o.Order.Customer].[City], [o.Order.Customer].[CompanyName], [o.Order.Customer].[ContactName], [o.Order.Customer].[ContactTitle], [o.Order.Customer].[Country], [o.Order.Customer].[Fax], [o.Order.Customer].[Phone], [o.Order.Customer].[PostalCode], [o.Order.Customer].[Region], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[UnitPrice], [o.Product].[UnitsInStock]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o.Order] ON [o].[OrderID] = [o.Order].[OrderID]
 LEFT JOIN [Customers] AS [o.Order.Customer] ON [o.Order].[CustomerID] = [o.Order.Customer].[CustomerID]
 INNER JOIN [Products] AS [o.Product] ON [o].[ProductID] = [o.Product].[ProductID]",
-                    Sql);
-            }
+                Sql);
         }
 
         public override void Include_references_and_collection_multi_level(bool useString)
@@ -902,7 +878,6 @@ INNER JOIN (
         ORDER BY [c2].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t2]
-    ORDER BY [t1].[CustomerID]
 ) AS [t3] ON [c1.Orders].[CustomerID] = [t3].[CustomerID]
 ORDER BY [t3].[CustomerID]
 
@@ -924,7 +899,6 @@ INNER JOIN (
         ORDER BY [c4].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t5]
-    ORDER BY [t4].[CustomerID], [t5].[CustomerID]
 ) AS [t6] ON [c2.Orders].[CustomerID] = [t6].[CustomerID]
 ORDER BY [t6].[c0], [t6].[CustomerID]",
                     Sql);
@@ -964,14 +938,14 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'
 ORDER BY [c].[City], [c].[CustomerID]
 
-SELECT [c.Orders0].[OrderID], [c.Orders0].[CustomerID], [c.Orders0].[EmployeeID], [c.Orders0].[OrderDate]
-FROM [Orders] AS [c.Orders0]
+SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
 INNER JOIN (
-    SELECT [c1].[CustomerID], [c1].[City]
-    FROM [Customers] AS [c1]
-    WHERE [c1].[CustomerID] = N'ALFKI'
-) AS [t0] ON [c.Orders0].[CustomerID] = [t0].[CustomerID]
-ORDER BY [t0].[City], [t0].[CustomerID]",
+    SELECT [c0].[CustomerID], [c0].[City]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] = N'ALFKI'
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[City], [t].[CustomerID]",
                 Sql);
         }
 
@@ -1054,7 +1028,6 @@ INNER JOIN (
         ORDER BY [c2].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t2]
-    ORDER BY [t1].[CustomerID]
 ) AS [t3] ON [c1.Orders].[CustomerID] = [t3].[CustomerID]
 ORDER BY [t3].[CustomerID]",
                     Sql);
@@ -1065,29 +1038,23 @@ ORDER BY [t3].[CustomerID]",
         {
             base.Include_multiple_references(useString);
 
-            if (!useString)
-            {
-                AssertSql(
-                    @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[UnitPrice], [o.Product].[UnitsInStock], [o.Order].[OrderID], [o.Order].[CustomerID], [o.Order].[EmployeeID], [o.Order].[OrderDate]
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[UnitPrice], [o.Product].[UnitsInStock], [o.Order].[OrderID], [o.Order].[CustomerID], [o.Order].[EmployeeID], [o.Order].[OrderDate]
 FROM [Order Details] AS [o]
 INNER JOIN [Products] AS [o.Product] ON [o].[ProductID] = [o.Product].[ProductID]
 INNER JOIN [Orders] AS [o.Order] ON [o].[OrderID] = [o.Order].[OrderID]",
-                    Sql);
-            }
+                Sql);
         }
 
         public override void Include_reference_alias_generation(bool useString)
         {
             base.Include_reference_alias_generation(useString);
 
-            if (!useString)
-            {
-                AssertSql(
-                    @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o.Order].[OrderID], [o.Order].[CustomerID], [o.Order].[EmployeeID], [o.Order].[OrderDate]
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o.Order].[OrderID], [o.Order].[CustomerID], [o.Order].[EmployeeID], [o.Order].[OrderDate]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o.Order] ON [o].[OrderID] = [o.Order].[OrderID]",
-                    Sql);
-            }
+                Sql);
         }
 
         public override void Include_duplicate_reference(bool useString)
@@ -1259,32 +1226,26 @@ ORDER BY [t].[CustomerID]",
         {
             base.Include_reference_dependent_already_tracked(useString);
 
-            if (!useString)
-            {
-                AssertSql(
-                    @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]",
-                    Sql);
-            }
+                Sql);
         }
 
         public override void Include_reference_as_no_tracking(bool useString)
         {
             base.Include_reference_as_no_tracking(useString);
 
-            if (!useString)
-            {
-                AssertSql(
-                    @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]",
-                    Sql);
-            }
+                Sql);
         }
 
         public override void Include_collection_as_no_tracking2(bool useString)

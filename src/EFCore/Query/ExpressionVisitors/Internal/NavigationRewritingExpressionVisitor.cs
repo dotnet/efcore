@@ -1120,7 +1120,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return outerQuerySourceReferenceExpression;
         }
 
-        private JoinClause BuildJoinFromNavigation(
+        private static JoinClause BuildJoinFromNavigation(
             QuerySourceReferenceExpression querySourceReferenceExpression,
             INavigation navigation,
             IEntityType targetEntityType,
@@ -1133,11 +1133,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     navigation.IsDependentToPrincipal()
                         ? navigation.ForeignKey.Properties
                         : navigation.ForeignKey.PrincipalKey.Properties,
-                    addNullCheck: addNullCheckToOuterKeySelector);
+                    addNullCheckToOuterKeySelector);
+
+            var itemName
+                = querySourceReferenceExpression.ReferencedQuerySource.HasGeneratedItemName()
+                    ? navigation.DeclaringEntityType.DisplayName()[0].ToString().ToLowerInvariant()
+                    : querySourceReferenceExpression.ReferencedQuerySource.ItemName;
 
             var joinClause
                 = new JoinClause(
-                    $"{querySourceReferenceExpression.ReferencedQuerySource.ItemName}.{navigation.Name}", // Interpolation okay; strings
+                    $"{itemName}.{navigation.Name}",
                     targetEntityType.ClrType,
                     NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(targetEntityType.ClrType),
                     outerKeySelector,
@@ -1215,10 +1220,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var newType = expression.Type;
 
-            var needsTypeCompensation = (originalType != newType)
+            var needsTypeCompensation = originalType != newType
                                         && !originalType.IsNullableType()
                                         && newType.IsNullableType()
-                                        && (originalType == newType.UnwrapNullableType());
+                                        && originalType == newType.UnwrapNullableType();
 
             return needsTypeCompensation
                 ? Expression.Convert(expression, originalType)

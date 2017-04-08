@@ -698,18 +698,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Lambda<Func<QueryContext, TResults>>(
                         _expression, QueryContextParameter);
 
-            var queryExecutor = queryExecutorExpression.Compile();
+            try
+            {
+                return queryExecutorExpression.Compile();
+            }
+            finally
+            {
+                QueryCompilationContext.Logger.LogDebug(
+                    CoreEventId.QueryPlan,
+                    () =>
+                        {
+                            var queryPlan = _expressionPrinter.Print(queryExecutorExpression);
 
-            QueryCompilationContext.Logger.LogDebug(
-                CoreEventId.QueryPlan,
-                () =>
-                    {
-                        var queryPlan = _expressionPrinter.Print(queryExecutorExpression);
-
-                        return queryPlan;
-                    });
-
-            return queryExecutor;
+                            return queryPlan;
+                        });
+            }
         }
 
         /// <summary>

@@ -143,6 +143,41 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 _queryAnnotations = value;
             }
+        }        
+        
+        /// <summary> 
+        ///     Creates cloned annotations targeting a new QueryModel. 
+        /// </summary> 
+        /// <param name="querySourceMapping">A query source mapping.</param> 
+        /// <param name="queryModel">A query model.</param> 
+        public virtual void CloneAnnotations(
+            [NotNull] QuerySourceMapping querySourceMapping,
+            [NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(querySourceMapping, nameof(querySourceMapping));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            var clonedAnnotations = new List<IQueryAnnotation>();
+
+            // ReSharper disable once LoopCanBeConvertedToQuery 
+            foreach (var annotation
+                in QueryAnnotations.OfType<ICloneableQueryAnnotation>())
+            {
+                if (querySourceMapping.ContainsMapping(annotation.QuerySource)
+                    && querySourceMapping.GetExpression(annotation.QuerySource)
+                        is QuerySourceReferenceExpression querySourceReferenceExpression)
+                {
+                    clonedAnnotations.Add(
+                        annotation.Clone(
+                            querySourceReferenceExpression.ReferencedQuerySource, queryModel));
+                }
+            }
+
+            var newAnnotations = QueryAnnotations.ToList();
+
+            newAnnotations.AddRange(clonedAnnotations);
+
+            QueryAnnotations = newAnnotations;
         }
 
         /// <summary>
