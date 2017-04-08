@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             if (diagnosticSource.IsEnabled(DataReaderDisposing))
             {
                 diagnosticSource.Write(DataReaderDisposing,
-                    new
+                    new RelationalDiagnosticSourceDataReaderDisposingMessage
                     {
                         Connection = connection,
                         ConnectionId = connectionId,

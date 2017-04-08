@@ -1129,7 +1129,7 @@ Logged Command",
             // And a third after the dispose of the reader
             Assert.Equal(3, diagnostic.Count);
             Assert.Equal(RelationalDiagnostics.DataReaderDisposing, diagnostic[2].Item1);
-            dynamic disposeData = diagnostic[2].Item2;
+            var disposeData = (RelationalDiagnosticSourceDataReaderDisposingMessage)diagnostic[2].Item2;
             Assert.Equal(beforeData.InstanceId, disposeData.InstanceId);
         }
 
