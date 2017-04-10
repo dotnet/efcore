@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(6, result.Count);
             }
         }
-        
+
         [ConditionalFact]
         public virtual void Include_multiple_one_to_one_and_one_to_many_self_reference()
         {

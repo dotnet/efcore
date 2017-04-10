@@ -1,8 +1,9 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -14,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -26,17 +28,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
     {
         private readonly IModel _model;
         private readonly IStateManager _stateManager;
-        private readonly DbSet<TEntity> _set;
+        private readonly IQueryable<TEntity> _queryRoot;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public EntityFinder([NotNull] DbContext context)
+        public EntityFinder([NotNull] DbContext context, [NotNull] IEntityType entityType)
         {
             _model = context.Model;
             _stateManager = context.GetService<IStateManager>();
-            _set = context.Set<TEntity>();
+            _queryRoot = (IQueryable<TEntity>)BuildQueryRoot(context, entityType);
         }
 
         /// <summary>
@@ -47,9 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Check.NotNull(keyValues, nameof(keyValues));
 
-            IReadOnlyList<IProperty> keyProperties;
-            return FindTracked(keyValues, out keyProperties)
-                   ?? _set.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
+            return FindTracked(keyValues, out IReadOnlyList<IProperty> keyProperties)
+                   ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
         }
 
         /// <summary>
@@ -67,11 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Check.NotNull(keyValues, nameof(keyValues));
 
-            IReadOnlyList<IProperty> keyProperties;
-            var tracked = FindTracked(keyValues, out keyProperties);
+            var tracked = FindTracked(keyValues, out IReadOnlyList<IProperty> keyProperties);
             return tracked != null
                 ? Task.FromResult(tracked)
-                : _set.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
+                : _queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
         }
 
         /// <summary>
@@ -82,11 +82,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Check.NotNull(keyValues, nameof(keyValues));
 
-            IReadOnlyList<IProperty> keyProperties;
-            var tracked = FindTracked(keyValues, out keyProperties);
+            var tracked = FindTracked(keyValues, out IReadOnlyList<IProperty> keyProperties);
             return tracked != null
                 ? Task.FromResult((object)tracked)
-                : _set.FirstOrDefaultAsync(
+                : _queryRoot.FirstOrDefaultAsync(
                     BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
         }
 
@@ -152,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 // Creates an empty Queryable that works with Async. Has to be an EF query because it
                 // could be used in a composition.
-                return _set.Where(e => false);
+                return _queryRoot.Where(e => false);
             }
 
             return Query(navigation, keyValues);
@@ -188,13 +187,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             }
 
-            return _set.AsNoTracking()
+            return _queryRoot.AsNoTracking()
                 .Where(BuildObjectLambda(properties, new ValueBuffer(keyValues)))
                 .Select(BuildProjection(entityType));
         }
 
         private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues)
-            => _set.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues)));
+            => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -278,6 +277,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             return Expression.Lambda<Func<object, bool>>(
                 BuildPredicate(keyProperties, keyValues, entityParameter), entityParameter);
+        }
+
+        private static IQueryable BuildQueryRoot(DbContext context, IEntityType entityType)
+        {
+            var definingEntityType = entityType.DefiningEntityType;
+            if (definingEntityType == null)
+            {
+                return (IQueryable)context.GetService<IDbSetInitializer>().CreateSet(context, entityType.ClrType);
+            }
+
+            return BuildQueryRoot(context, definingEntityType)
+                .Select(entityType.DefiningNavigationName, definingEntityType.ClrType, entityType.ClrType);
         }
 
         private static BinaryExpression BuildPredicate(

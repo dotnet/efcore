@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 return (string)Annotations.GetAnnotation(
                            RelationalFullAnnotationNames.Instance.TableName,
                            ProviderFullAnnotationNames?.TableName)
-                       ?? EntityType.DisplayName();
+                       ?? EntityType.ShortName();
             }
             [param: CanBeNull] set { SetTableName(value); }
         }

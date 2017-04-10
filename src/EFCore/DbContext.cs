@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
             : this(new DbContextOptions<DbContext>())
         {
         }
-                    
+
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="DbContext" /> class using the specified options.
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="options">The options for this context.</param>
         public DbContext([NotNull] DbContextOptions options)
-        {                                    
+        {
             Check.NotNull(options, nameof(options));
 
             if (!options.ContextType.GetTypeInfo().IsAssignableFrom(GetType().GetTypeInfo()))
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore
                 contextServices.Initialize(scopedServiceProvider, options, this);
 
                 _updateLogger = scopedServiceProvider.GetRequiredService<IInterceptingLogger<LoggerCategory.Update>>();
-                
+
                 return contextServices;
             }
             finally
@@ -1137,18 +1137,24 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
-            if (Model.FindEntityType(typeof(TEntity)) == null)
-            {
-                throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
-            }
-
             return (_setInitializer
                     ?? (_setInitializer = InternalServiceProvider.GetRequiredService<IDbSetInitializer>())).CreateSet<TEntity>(this);
         }
 
-        private IEntityFinder Finder(Type entityType)
-            => (_entityFinderSource
-                ?? (_entityFinderSource = InternalServiceProvider.GetRequiredService<IEntityFinderSource>())).Create(this, entityType);
+        private IEntityFinder Finder(Type type)
+        {
+            var entityType = Model.FindEntityType(type);
+            if (entityType == null)
+            {
+                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
+            }
+
+            return EntityFinderSource.Create(this, entityType);
+        }
+
+        private IEntityFinderSource EntityFinderSource
+            => _entityFinderSource
+               ?? (_entityFinderSource = InternalServiceProvider.GetRequiredService<IEntityFinderSource>());
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values

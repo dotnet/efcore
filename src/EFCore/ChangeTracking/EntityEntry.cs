@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -359,6 +359,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private IEntityFinder Finder
             => (_entityFinderSource
                 ?? (_entityFinderSource = InternalEntry.StateManager.Context.GetService<IEntityFinderSource>()))
-                .Create(InternalEntry.StateManager.Context, InternalEntry.EntityType.ClrType);
+                .Create(InternalEntry.StateManager.Context, InternalEntry.EntityType);
     }
 }

@@ -56,13 +56,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 if (entityType.BaseType.BaseType == null)
                 {
-                    discriminator?.HasValue(entityType.BaseType.Name, entityType.BaseType.DisplayName());
+                    discriminator?.HasValue(entityType.BaseType.Name, entityType.BaseType.ShortName());
                 }
             }
 
             if (discriminator != null)
             {
-                discriminator.HasValue(entityTypeBuilder.Metadata.Name, entityTypeBuilder.Metadata.DisplayName());
+                discriminator.HasValue(entityTypeBuilder.Metadata.Name, entityTypeBuilder.Metadata.ShortName());
                 SetDefaultDiscriminatorValues(derivedEntityTypes, discriminator);
             }
 
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var entityType in entityTypes)
             {
-                discriminator.HasValue(entityType.Name, entityType.DisplayName());
+                discriminator.HasValue(entityType.Name, entityType.ShortName());
             }
         }
     }

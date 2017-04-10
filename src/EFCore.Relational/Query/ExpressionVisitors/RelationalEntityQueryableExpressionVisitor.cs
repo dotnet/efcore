@@ -261,7 +261,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         .Invoke(null, new object[]
                         {
                             _querySource,
-                            entityType.DisplayName(),
                             QueryModelVisitor.QueryCompilationContext.IsTrackingQuery,
                             entityType.FindPrimaryKey(),
                             materializer,
@@ -340,7 +339,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         [UsedImplicitly]
         private static IShaper<TEntity> CreateEntityShaper<TEntity>(
             IQuerySource querySource,
-            string entityType,
             bool trackingQuery,
             IKey key,
             Func<ValueBuffer, object> materializer,
@@ -350,13 +348,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             => !useQueryBuffer
                 ? (IShaper<TEntity>)new UnbufferedEntityShaper<TEntity>(
                     querySource,
-                    entityType,
                     trackingQuery,
                     key,
                     materializer)
                 : new BufferedEntityShaper<TEntity>(
                     querySource,
-                    entityType,
                     trackingQuery,
                     key,
                     materializer,

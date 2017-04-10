@@ -26,12 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public BufferedEntityShaper(
             [NotNull] IQuerySource querySource,
-            [NotNull] string entityType,
             bool trackingQuery,
             [NotNull] IKey key,
             [NotNull] Func<ValueBuffer, object> materializer,
             [CanBeNull] Dictionary<Type, int[]> typeIndexMap)
-            : base(querySource, entityType, trackingQuery, key, materializer)
+            : base(querySource, trackingQuery, key, materializer)
         {
             _typeIndexMap = typeIndexMap;
         }
@@ -68,7 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         public override IShaper<TDerived> Cast<TDerived>()
             => new BufferedOffsetEntityShaper<TDerived>(
                 QuerySource,
-                EntityType,
                 IsTrackingQuery,
                 Key,
                 Materializer,
@@ -81,7 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         public override Shaper WithOffset(int offset)
             => new BufferedOffsetEntityShaper<TEntity>(
                     QuerySource,
-                    EntityType,
                     IsTrackingQuery,
                     Key,
                     Materializer,

@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         {
                             hashCode += (hashCode * 397) ^ obj.GetHashCode();
                         }
-                        
+
                         break;
                     }
                     default:

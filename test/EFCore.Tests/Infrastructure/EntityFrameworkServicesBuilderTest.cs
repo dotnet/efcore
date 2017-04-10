@@ -334,6 +334,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
             {
                 throw new NotImplementedException();
             }
+
+            public object CreateSet(DbContext context, Type type)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private class FakeEntityStateListener : IEntityStateListener

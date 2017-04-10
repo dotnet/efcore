@@ -25,10 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     b.HasOne(g => g.AssignedCity).WithMany(c => c.StationedGears).IsRequired(false);
                 });
 
-            modelBuilder.Entity<Officer>().HasBaseType<Gear>();
-            modelBuilder.Entity<Officer>(b => { b.HasMany(o => o.Reports).WithOne().HasForeignKey(o => new { o.LeaderNickname, o.LeaderSquadId }); });
-
-            modelBuilder.Entity<CogTag>(b => { b.HasKey(t => t.Id); });
+            modelBuilder.Entity<Officer>().HasMany(o => o.Reports).WithOne().HasForeignKey(o => new { o.LeaderNickname, o.LeaderSquadId });
 
             modelBuilder.Entity<Squad>(b =>
                 {
@@ -38,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Weapon>(b =>
                 {
+                    b.Property(w => w.Id).ValueGeneratedNever();
                     b.HasOne(w => w.SynergyWith).WithOne().HasForeignKey<Weapon>(w => w.SynergyWithId);
                     b.HasOne(w => w.Owner).WithMany(g => g.Weapons).HasForeignKey(w => w.OwnerFullName).HasPrincipalKey(g => g.FullName);
                 });

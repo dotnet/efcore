@@ -14,19 +14,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // TODO: Complex types are not supported. See issue#246
-            //builder.ComplexType<Location>();
-
             modelBuilder.Entity<Chassis>(b => { b.HasKey(c => c.TeamId); });
 
             modelBuilder.Entity<Engine>(b =>
                 {
                     b.Property(e => e.EngineSupplierId).IsConcurrencyToken();
                     b.Property(e => e.Name).IsConcurrencyToken();
+                    b.OwnsOne(e => e.StorageLocation, lb =>
+                        {
+                            lb.Property(l => l.Latitude).IsConcurrencyToken();
+                            lb.Property(l => l.Longitude).IsConcurrencyToken();
+                        });
                 });
-
-            // TODO: Complex types are not supported. See issue#246
-            // .Property(c => c.StorageLocation);
 
             modelBuilder.Ignore<Location>();
 
@@ -34,32 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Gearbox>();
 
-            // TODO: Complex types are not supported. See issue#246
-            //builder
-            //    .ComplexType<Location>()
-            //    .Properties(ps =>
-            //        {
-            //            // TODO: Use lambda expression
-            //            ps.Property<double>("Latitude", concurrencyToken: true);
-            //            // TODO: Use lambda expression
-            //            ps.Property<double>("Longitude", concurrencyToken: true);
-            //        });
-
             modelBuilder.Entity<Sponsor>(b =>
                 {
                     b.Property<int?>(Sponsor.ClientTokenPropertyName)
                         .IsConcurrencyToken();
                 });
-
-            // TODO: Complex types are not supported. See issue#246
-            //builder
-            //    .ComplexType<SponsorDetails>()
-            //    .Properties(ps =>
-            //        {
-            //            ps.Property(s => s.Days);
-            //            ps.Property(s => s.Space);
-            //        });
-            modelBuilder.Ignore<SponsorDetails>();
 
             modelBuilder.Entity<Team>(b =>
                 {
@@ -68,10 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 });
 
             modelBuilder.Entity<TestDriver>();
-            modelBuilder.Entity<TitleSponsor>();
-
-            // TODO: Complex types are not supported. See issue#246
-            // .Property(t => t.Details);
+            modelBuilder.Entity<TitleSponsor>()
+                .OwnsOne(s => s.Details);
 
             // TODO: Sponsor * <-> * Team. Many-to-many relationships are not supported without CLR class for join table. See issue#1368
         }

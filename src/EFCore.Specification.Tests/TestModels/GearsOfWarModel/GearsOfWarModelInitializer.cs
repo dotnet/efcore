@@ -17,7 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
             };
 
             context.Squads.Add(deltaSquad);
-            context.SaveChanges();
 
             var kiloSquad = new Squad
             {
@@ -26,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
             };
 
             context.Squads.Add(kiloSquad);
-            context.SaveChanges();
 
             var lightmassOffensive = new Mission
             {
@@ -66,7 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
 
             context.Missions.AddRange(lightmassOffensive, hollowStorm, halvoBay);
             context.SquadMissions.AddRange(lightMassDelta, hollowStormDelta, halvoBayKilo);
-            context.SaveChanges();
 
             var jacinto = new City
             {
@@ -92,15 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
                 Name = "Unknown"
             };
 
-            context.Cities.Add(jacinto);
-            context.Cities.Add(ephyra);
-            context.Cities.Add(hanover);
-            context.Cities.Add(unknown);
-
-            context.SaveChanges();
-
             var marcusLancer = new Weapon
             {
+                Id = 1,
                 Name = "Marcus' Lancer",
                 AmmunitionType = AmmunitionType.Cartridge,
                 IsAutomatic = true
@@ -108,6 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
 
             var marcusGnasher = new Weapon
             {
+                Id = 2,
                 Name = "Marcus' Gnasher",
                 AmmunitionType = AmmunitionType.Shell,
                 IsAutomatic = false,
@@ -116,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
 
             var domsHammerburst = new Weapon
             {
+                Id = 3,
                 Name = "Dom's Hammerburst",
                 AmmunitionType = AmmunitionType.Cartridge,
                 IsAutomatic = false
@@ -123,6 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
 
             var domsGnasher = new Weapon
             {
+                Id = 4,
                 Name = "Dom's Gnasher",
                 AmmunitionType = AmmunitionType.Shell,
                 IsAutomatic = false
@@ -130,6 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
 
             var colesGnasher = new Weapon
             {
+                Id = 5,
                 Name = "Cole's Gnasher",
                 AmmunitionType = AmmunitionType.Shell,
                 IsAutomatic = false
@@ -137,6 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
 
             var colesMulcher = new Weapon
             {
+                Id = 6,
                 Name = "Cole's Mulcher",
                 AmmunitionType = AmmunitionType.Cartridge,
                 IsAutomatic = true
@@ -144,6 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
 
             var bairdsLancer = new Weapon
             {
+                Id = 7,
                 Name = "Baird's Lancer",
                 AmmunitionType = AmmunitionType.Cartridge,
                 IsAutomatic = true
@@ -151,6 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
 
             var bairdsGnasher = new Weapon
             {
+                Id = 8,
                 Name = "Baird's Gnasher",
                 AmmunitionType = AmmunitionType.Shell,
                 IsAutomatic = false
@@ -158,6 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
 
             var paduksMarkza = new Weapon
             {
+                Id = 9,
                 Name = "Paduk's Markza",
                 AmmunitionType = AmmunitionType.Cartridge,
                 IsAutomatic = false
@@ -165,6 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
 
             var maulersFlail = new Weapon
             {
+                Id = 10,
                 Name = "Mauler's Flail",
                 IsAutomatic = false
             };
@@ -179,7 +179,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
             context.Weapons.Add(bairdsGnasher);
             context.Weapons.Add(paduksMarkza);
             context.Weapons.Add(maulersFlail);
-            context.SaveChanges();
 
             var marcusTag = new CogTag
             {
@@ -217,13 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
                 Note = "K.I.A."
             };
 
-            context.Tags.Add(marcusTag);
-            context.Tags.Add(domsTag);
-            context.Tags.Add(colesTag);
-            context.Tags.Add(bairdsTag);
-            context.Tags.Add(paduksTag);
             context.Tags.Add(kiaTag);
-            context.SaveChanges();
 
             var dom = new Gear
             {
@@ -233,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
                 SquadId = deltaSquad.Id,
                 Rank = MilitaryRank.Corporal,
                 AssignedCity = ephyra,
-                CityOrBirthName = ephyra.Name,
+                CityOfBirth = ephyra,
                 Tag = domsTag,
                 Weapons = new List<Weapon> { domsHammerburst, domsGnasher }
             };
@@ -245,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
                 HasSoulPatch = false,
                 SquadId = deltaSquad.Id,
                 Rank = MilitaryRank.Private,
-                CityOrBirthName = hanover.Name,
+                CityOfBirth = hanover,
                 AssignedCity = jacinto,
                 Tag = colesTag,
                 Weapons = new List<Weapon> { colesGnasher, colesMulcher }
@@ -258,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
                 HasSoulPatch = false,
                 SquadId = kiloSquad.Id,
                 Rank = MilitaryRank.Private,
-                CityOrBirthName = unknown.Name,
+                CityOfBirth = unknown,
                 Tag = paduksTag,
                 Weapons = new List<Weapon> { paduksMarkza }
             };
@@ -270,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
                 HasSoulPatch = true,
                 SquadId = deltaSquad.Id,
                 Rank = MilitaryRank.Corporal,
-                CityOrBirthName = unknown.Name,
+                CityOfBirth = unknown,
                 AssignedCity = jacinto,
                 Tag = bairdsTag,
                 Reports = new List<Gear> { paduk },
@@ -284,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
                 HasSoulPatch = true,
                 SquadId = deltaSquad.Id,
                 Rank = MilitaryRank.Sergeant,
-                CityOrBirthName = jacinto.Name,
+                CityOfBirth = jacinto,
                 Tag = marcusTag,
                 Reports = new List<Gear> { dom, cole, baird },
                 Weapons = new List<Weapon> { marcusLancer, marcusGnasher }

@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return candidateName;
             }
 
-            return foreignKey.PrincipalEntityType.DisplayName();
+            return foreignKey.PrincipalEntityType.ShortName();
         }
 
         /// <summary>
@@ -92,11 +92,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (allForeignKeysBetweenDependentAndPrincipal != null
                 && allForeignKeysBetweenDependentAndPrincipal.Count() > 1)
             {
-                return foreignKey.DeclaringEntityType.DisplayName()
+                return foreignKey.DeclaringEntityType.ShortName()
                        + dependentEndNavigationPropertyName;
             }
 
-            return foreignKey.DeclaringEntityType.DisplayName();
+            return foreignKey.DeclaringEntityType.ShortName();
         }
 
         private string FindCandidateNavigationName(IEnumerable<IProperty> properties)

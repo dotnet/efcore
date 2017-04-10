@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             if (!IsLoaded)
             {
-                Finder(Metadata.GetTargetType().ClrType).Load(Metadata, InternalEntry);
+                TargetFinder.Load(Metadata, InternalEntry);
             }
         }
 
@@ -120,8 +120,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public virtual Task LoadAsync(CancellationToken cancellationToken = default(CancellationToken))
             => IsLoaded
                 ? Task.FromResult(0)
-                : Finder(Metadata.GetTargetType().ClrType)
-                    .LoadAsync(Metadata, InternalEntry, cancellationToken);
+                : TargetFinder.LoadAsync(Metadata, InternalEntry, cancellationToken);
 
         /// <summary>
         ///     <para>
@@ -135,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> The query to load related entities. </returns>
         public virtual IQueryable Query()
-            => Finder(Metadata.GetTargetType().ClrType).Query(Metadata, InternalEntry);
+            => TargetFinder.Query(Metadata, InternalEntry);
 
         /// <summary>
         ///     <para>
@@ -170,10 +169,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEntityFinder Finder([NotNull] Type entityType)
+        private IEntityFinder TargetFinder
             => (_entityFinderSource
                 ?? (_entityFinderSource = InternalEntry.StateManager.Context.GetService<IEntityFinderSource>()))
-                .Create(InternalEntry.StateManager.Context, entityType);
+                .Create(InternalEntry.StateManager.Context, Metadata.GetTargetType());
 
         /// <summary>
         ///     Gets or sets a value indicating whether any of foreign key property values associated

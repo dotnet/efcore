@@ -22,11 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public UnbufferedEntityShaper(
             [NotNull] IQuerySource querySource,
-            [NotNull] string entityType,
             bool trackingQuery,
             [NotNull] IKey key,
             [NotNull] Func<ValueBuffer, object> materializer)
-            : base(querySource, entityType, trackingQuery, key, materializer)
+            : base(querySource, trackingQuery, key, materializer)
         {
         }
 
@@ -62,7 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         public override IShaper<TDerived> Cast<TDerived>()
             => new UnbufferedOffsetEntityShaper<TDerived>(
                 QuerySource,
-                EntityType,
                 IsTrackingQuery,
                 Key,
                 Materializer);
@@ -74,7 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         public override Shaper WithOffset(int offset)
             => new UnbufferedOffsetEntityShaper<TEntity>(
                     QuerySource,
-                    EntityType,
                     IsTrackingQuery,
                     Key,
                     Materializer)

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 
@@ -44,6 +45,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual DbSet<TEntity> CreateSet<TEntity>(DbContext context) where TEntity : class
-            => (DbSet<TEntity>)_setSource.Create(context, typeof(TEntity));
+            => (DbSet<TEntity>)CreateSet(context, typeof(TEntity));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual object CreateSet(DbContext context, Type type)
+            => _setSource.Create(context, type);
     }
 }

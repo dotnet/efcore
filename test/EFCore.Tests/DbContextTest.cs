@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new DbContext(optionsBuilder.Options))
             {
-                var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>());
+                var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>().Local);
                 Assert.Equal(CoreStrings.InvalidSetType(nameof(Category)), ex.Message);
             }
         }

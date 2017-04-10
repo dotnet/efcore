@@ -22,11 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public UnbufferedOffsetEntityShaper(
             [NotNull] IQuerySource querySource,
-            [NotNull] string entityType,
             bool trackingQuery,
             [NotNull] IKey key,
             [NotNull] Func<ValueBuffer, object> materializer)
-            : base(querySource, entityType, trackingQuery, key, materializer)
+            : base(querySource, trackingQuery, key, materializer)
         {
         }
 

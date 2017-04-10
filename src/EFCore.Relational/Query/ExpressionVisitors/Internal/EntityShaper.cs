@@ -21,23 +21,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected EntityShaper(
             [NotNull] IQuerySource querySource,
-            [NotNull] string entityType,
             bool trackingQuery,
             [NotNull] IKey key,
             [NotNull] Func<ValueBuffer, object> materializer)
             : base(querySource)
         {
             IsTrackingQuery = trackingQuery;
-            EntityType = entityType;
             Key = key;
             Materializer = materializer;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual string EntityType { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

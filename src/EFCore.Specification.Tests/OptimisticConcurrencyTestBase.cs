@@ -111,20 +111,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             return ConcurrencyTestAsync(StorePodiums, (c, ex) => ex.Entries.Single().Reload());
         }
 
-        // TODO: Uncomment the tests below when lazy loading works
-        // [Fact]
+        [Fact]
         public virtual Task Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first()
         {
             return ConcurrencyTestAsync(
                 c =>
                     {
-                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
+                        var team = c.Teams.Include(t => t.Chassis).Single(t => t.Id == Team.McLaren);
                         team.Chassis.Name = "MP4-25b";
                         team.Principal = "Larry David";
                     },
                 c =>
                     {
-                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
+                        var team = c.Teams.Include(t => t.Chassis).Single(t => t.Id == Team.McLaren);
                         team.Chassis.Name = "MP4-25c";
                         team.Principal = "Jerry Seinfeld";
                     },
@@ -150,25 +149,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     },
                 c =>
                     {
-                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
+                        var team = c.Teams.Include(t => t.Chassis).Single(t => t.Id == Team.McLaren);
                         Assert.Equal("MP4-25b", team.Chassis.Name);
                         Assert.Equal("Larry David", team.Principal);
                     });
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
+        [Fact]
         public virtual Task Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first()
         {
             return ConcurrencyTestAsync(
                 c =>
                     {
-                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
+                        var team = c.Teams.Include(t => t.Drivers).Single(t => t.Id == Team.McLaren);
                         team.Drivers.Single(d => d.Name == "Jenson Button").Poles = 1;
                         team.Principal = "Larry David";
                     },
                 c =>
                     {
-                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
+                        var team = c.Teams.Include(t => t.Drivers).Single(t => t.Id == Team.McLaren);
                         team.Drivers.Single(d => d.Name == "Jenson Button").Poles = 2;
                         team.Principal = "Jerry Seinfeld";
                     },
@@ -194,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     },
                 c =>
                     {
-                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
+                        var team = c.Teams.Include(t => t.Drivers).Single(t => t.Id == Team.McLaren);
                         Assert.Equal(1, team.Drivers.Single(d => d.Name == "Jenson Button").Poles);
                         Assert.Equal("Larry David", team.Principal);
                     });
@@ -204,12 +203,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual Task Concurrency_issue_where_the_FK_is_the_concurrency_token_can_be_handled()
         {
             return ConcurrencyTestAsync(
-                c =>
-                    c.Engines.Single(e => e.Name == "056").EngineSupplierId =
-                        c.EngineSuppliers.Single(s => s.Name == "Cosworth").Id,
-                c =>
-                    c.Engines.Single(e => e.Name == "056").EngineSupplier =
-                        c.EngineSuppliers.Single(s => s.Name == "Renault"),
+                c => c.Engines.Single(e => e.Name == "056").EngineSupplierId =
+                    c.EngineSuppliers.Single(s => s.Name == "Cosworth").Id,
+                c => c.Engines.Single(e => e.Name == "056").EngineSupplier =
+                    c.EngineSuppliers.Single(s => s.Name == "Renault"),
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
@@ -296,21 +293,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         #region Concurrency exceptions with complex types
 
-        [ConditionalFact(Skip = "Complex types are not supported.")] // TODO: See issue#246
+        [Fact]
         public virtual Task Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
         {
             return ConcurrencyTestAsync(
-                c => c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude = 47.642576,
+                c => c.Engines.Include(e => e.StorageLocation).Single(s => s.Name == "CA2010").StorageLocation.Latitude = 47.642576,
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
                         var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Engine>(entry.Entity);
+                        Assert.IsAssignableFrom<Location>(entry.Entity);
                         entry.Reload();
                     },
                 c =>
-                    Assert.Equal(47.642576, c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude));
+                    Assert.Equal(47.642576, c.Engines.Include(e => e.StorageLocation).Single(s => s.Name == "CA2010").StorageLocation.Latitude));
         }
 
         #endregion

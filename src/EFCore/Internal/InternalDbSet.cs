@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -20,11 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class InternalDbSet<TEntity>
-        : DbSet<TEntity>, IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>
+    public class InternalDbSet<TEntity> :
+        DbSet<TEntity>, IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>
         where TEntity : class
     {
         private readonly DbContext _context;
+        private IEntityType _entityType;
         private EntityQueryable<TEntity> _entityQueryable;
         private LocalView<TEntity> _localView;
 
@@ -36,16 +38,42 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Check.NotNull(context, nameof(context));
 
+            // Just storing context/service locator here so that the context will be initialized by the time the
+            // set is used and services will be obtained from the correctly scoped container when this happens.
             _context = context;
         }
 
-        // Using context/service locator here so that the context will be initialized the first time the
-        // set is used and services will be obtained from the correctly scoped container when this happens.
-        private EntityQueryable<TEntity> EntityQueryable
+        private IEntityType EntityType
         {
             get
             {
                 _context.CheckDisposed();
+
+                if (_entityType != null)
+                {
+                    return _entityType;
+                }
+
+                _entityType = _context.Model.FindEntityType(typeof(TEntity));
+                if (_entityType == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
+                }
+
+                return _entityType;
+            }
+        }
+
+        private void CheckState()
+        {
+            var _ = EntityType;
+        }
+
+        private EntityQueryable<TEntity> EntityQueryable
+        {
+            get
+            {
+                CheckState();
 
                 return NonCapturingLazyInitializer.EnsureInitialized(
                     ref _entityQueryable,
@@ -54,15 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private EntityQueryable<TEntity> CreateEntityQueryable()
-        {
-            if (_context.Model.FindEntityType(typeof(TEntity)) == null)
-            {
-                throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
-            }
-
-            return new EntityQueryable<TEntity>(_context.QueryProvider);
-        }
+        private EntityQueryable<TEntity> CreateEntityQueryable() => new EntityQueryable<TEntity>(_context.QueryProvider);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -72,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             get
             {
-                _context.CheckDisposed();
+                CheckState();
 
                 return _localView ?? (_localView = new LocalView<TEntity>(this));
             }
@@ -83,21 +103,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override TEntity Find(params object[] keyValues)
-            => _context.Find<TEntity>(keyValues);
+            => Finder.Find(keyValues);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Task<TEntity> FindAsync(params object[] keyValues)
-            => _context.FindAsync<TEntity>(keyValues);
+            => Finder.FindAsync(keyValues);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Task<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken)
-            => _context.FindAsync<TEntity>(keyValues, cancellationToken);
+            => Finder.FindAsync(keyValues, cancellationToken);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -213,6 +233,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public override void UpdateRange(IEnumerable<TEntity> entities)
             => _context.UpdateRange(entities);
 
+        private IEntityFinder<TEntity> Finder
+            => (IEntityFinder<TEntity>)_context.GetService<IEntityFinderSource>().Create(_context, EntityType);
+
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator() => EntityQueryable.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => EntityQueryable.GetEnumerator();
@@ -225,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         IQueryProvider IQueryable.Provider => EntityQueryable.Provider;
 
-        IServiceProvider IInfrastructure<IServiceProvider>.Instance 
+        IServiceProvider IInfrastructure<IServiceProvider>.Instance
             => ((IInfrastructure<IServiceProvider>)_context).Instance;
     }
 }

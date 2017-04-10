@@ -6,7 +6,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -76,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             EnsureInitialized();
 
-            return ((IEntityFinder<TProperty>)Finder(Metadata.GetTargetType().ClrType)).Query(Metadata, InternalEntry);
+            return (IQueryable<TProperty>)base.Query();
         }
     }
 }
