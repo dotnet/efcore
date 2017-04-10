@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\src\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
     <ProjectReference Include="..\..\src\EFCore.SqlServer\EFCore.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\EFCore.SqlServer.Design\EFCore.SqlServer.Design.csproj" />
+    <ProjectReference Include="..\..\test\EFCore.Relational.Tests\EFCore.Relational.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />

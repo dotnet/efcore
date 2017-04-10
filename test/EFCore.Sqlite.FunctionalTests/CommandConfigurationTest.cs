@@ -89,7 +89,5 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 base.OnConfiguring(optionsBuilder);
             }
         }
-
-        private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }

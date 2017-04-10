@@ -14,32 +14,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class TestHelpers
     {
-        public static void AssertBaseline(string expected, string actual, ITestOutputHelper testOutputHelper)
-        {
-            try
-            {
-                Assert.Equal(expected, actual);
-            }
-            catch
-            {
-                testOutputHelper.WriteLine(
-                    $@"
--- NEW BASELINE -------------------------------------------------------------------------------------------------------------------------
-            AssertSql(
-                @""{actual}"",
-                Sql);
-----------------------------------------------------------------------------------------------------------------------------------------");
-
-                throw;
-            }
-        }
-
         /// <summary>
         ///     Tests that calling the 'With' method for each constructor-injected service creates a clone 
         ///     of TDependencies with only that service replaced.

@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Xunit;
@@ -21,15 +22,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public void Dispose()
         {
             //Assert for all tests that OFFSET or FETCH is never used
-            Assert.DoesNotContain("OFFSET ", Sql);
-            Assert.DoesNotContain("FETCH ", Sql);
+            Assert.All(TestSqlLoggerFactory.SqlStatements, t => Assert.DoesNotContain("OFFSET", t));
+            Assert.All(TestSqlLoggerFactory.SqlStatements, t => Assert.DoesNotContain("FETCH", t));
         }
 
         public override void Skip()
         {
             base.Skip();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 5
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
@@ -37,15 +38,14 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[CustomerID]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE [t].[__RowNumber__] > @__p_0",
-                Sql);
+WHERE [t].[__RowNumber__] > @__p_0");
         }
 
         public override void Skip_no_orderby()
         {
             base.Skip_no_orderby();
 
-            Assert.EndsWith(
+            AssertSql(
                 @"@__p_0: 5
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
@@ -53,15 +53,14 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE [t].[__RowNumber__] > @__p_0",
-                Sql);
+WHERE [t].[__RowNumber__] > @__p_0");
         }
 
         public override void Skip_Take()
         {
             base.Skip_Take();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 5
 @__p_1: 10
 
@@ -70,15 +69,14 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
-                Sql);
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
         public override void Join_Customers_Orders_Skip_Take()
         {
             base.Join_Customers_Orders_Skip_Take();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 10
 @__p_1: 5
 
@@ -88,15 +86,14 @@ FROM (
     FROM [Customers] AS [c]
     INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
-                Sql);
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
         public override void Join_Customers_Orders_Projection_With_String_Concat_Skip_Take()
         {
             base.Join_Customers_Orders_Projection_With_String_Concat_Skip_Take();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 10
 @__p_1: 5
 
@@ -106,15 +103,14 @@ FROM (
     FROM [Customers] AS [c]
     INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
-                Sql);
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
         public override void Join_Customers_Orders_Orders_Skip_Take_Same_Properties()
         {
             base.Join_Customers_Orders_Orders_Skip_Take_Same_Properties();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 10
 @__p_1: 5
 
@@ -125,15 +121,14 @@ FROM (
     INNER JOIN [Customers] AS [ca] ON [o].[CustomerID] = [ca].[CustomerID]
     INNER JOIN [Customers] AS [cb] ON [o].[CustomerID] = [cb].[CustomerID]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
-                Sql);
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
         public override void Take_Skip()
         {
             base.Take_Skip();
 
-            Assert.Equal(@"@__p_0: 10
+            AssertSql(@"@__p_0: 10
 @__p_1: 5
 
 SELECT [t0].*
@@ -145,15 +140,14 @@ FROM (
         ORDER BY [c].[ContactName]
     ) AS [t]
 ) AS [t0]
-WHERE [t0].[__RowNumber__] > @__p_1",
-                Sql);
+WHERE [t0].[__RowNumber__] > @__p_1");
         }
 
         public override void Take_Skip_Distinct()
         {
             base.Take_Skip_Distinct();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 10
 @__p_1: 5
 
@@ -169,15 +163,14 @@ FROM (
         ) AS [t]
     ) AS [t1]
     WHERE [t1].[__RowNumber__] > @__p_1
-) AS [t0]",
-                Sql);
+) AS [t0]");
         }
 
         public override void Take_skip_null_coalesce_operator()
         {
             base.Take_skip_null_coalesce_operator();
 
-            Assert.Equal(@"@__p_0: 10
+            AssertSql(@"@__p_0: 10
 @__p_1: 5
 
 SELECT DISTINCT [t0].*
@@ -192,15 +185,14 @@ FROM (
         ) AS [t]
     ) AS [t1]
     WHERE [t1].[__RowNumber__] > @__p_1
-) AS [t0]",
-                Sql);
+) AS [t0]");
         }
 
         public override void Select_take_skip_null_coalesce_operator()
         {
             base.Select_take_skip_null_coalesce_operator();
 
-            Assert.Equal(@"@__p_0: 10
+            AssertSql(@"@__p_0: 10
 @__p_1: 5
 
 SELECT [t0].*
@@ -212,8 +204,7 @@ FROM (
         ORDER BY [c]
     ) AS [t]
 ) AS [t0]
-WHERE [t0].[__RowNumber__] > @__p_1",
-                Sql);
+WHERE [t0].[__RowNumber__] > @__p_1");
         }
 
         public override void String_Contains_Literal()
@@ -223,11 +214,10 @@ WHERE [t0].[__RowNumber__] > @__p_1",
                 cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
                 entryCount: 34);
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CHARINDEX(N'M', [c].[ContactName]) > 0",
-                Sql);
+WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         }
 
         public override void String_Contains_MethodCall()
@@ -237,20 +227,19 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0",
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
                 entryCount: 34);
 
-            Assert.Equal(
+            AssertSql(
                 @"@__LocalMethod1_0: M (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CHARINDEX(@__LocalMethod1_0, [c].[ContactName]) > 0) OR (@__LocalMethod1_0 = N'')",
-                Sql);
+WHERE (CHARINDEX(@__LocalMethod1_0, [c].[ContactName]) > 0) OR (@__LocalMethod1_0 = N'')");
         }
 
         public override void OrderBy_skip_take_level_1()
         {
             base.OrderBy_skip_take_level_1();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 5
 @__p_1: 8
 
@@ -259,15 +248,14 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactTitle], [c].[ContactName]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))",
-                Sql);
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
         public override void OrderBy_skip_take_level_2()
         {
             base.OrderBy_skip_take_level_2();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_2: 3
 @__p_0: 5
 @__p_1: 8
@@ -281,15 +269,14 @@ FROM (
     ) AS [t0]
     WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
 ) AS [t]
-ORDER BY [t].[ContactTitle], [t].[ContactName]",
-                Sql);
+ORDER BY [t].[ContactTitle], [t].[ContactName]");
         }
 
         public override void OrderBy_skip_take_distinct()
         {
             base.OrderBy_skip_take_distinct();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 5
 @__p_1: 15
 
@@ -301,15 +288,14 @@ FROM (
         FROM [Customers] AS [c]
     ) AS [t0]
     WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
-) AS [t]",
-                Sql);
+) AS [t]");
         }
 
         public override void OrderBy_skip_take_level_3()
         {
             base.OrderBy_skip_take_level_3();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_4: 5
 @__p_3: 8
 @__p_2: 10
@@ -333,15 +319,14 @@ FROM (
     ) AS [t0]
     ORDER BY [t0].[ContactTitle], [t0].[ContactName]
 ) AS [t1]
-ORDER BY [t1].[ContactTitle], [t1].[ContactName]",
-                Sql);
+ORDER BY [t1].[ContactTitle], [t1].[ContactName]");
         }
 
         public override void Skip_Take_Any()
         {
             base.Skip_Take_Any();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 5
 @__p_1: 10
 
@@ -354,15 +339,14 @@ SELECT CASE
         ) AS [t]
         WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1)))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END",
-                Sql);
+END");
         }
 
         public override void Skip_Take_All()
         {
             base.Skip_Take_All();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 5
 @__p_1: 10
 
@@ -376,15 +360,14 @@ SELECT CASE
         ) AS [t]
         WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1)))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END",
-                Sql);
+END");
         }
 
         public override void Skip_Count()
         {
             base.Skip_Count();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 7
 
 SELECT COUNT(*)
@@ -395,15 +378,14 @@ FROM (
         FROM [Customers] AS [c]
     ) AS [t0]
     WHERE [t0].[__RowNumber__] > @__p_0
-) AS [t]",
-                Sql);
+) AS [t]");
         }
 
         public override void Skip_LongCount()
         {
             base.Skip_LongCount();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 7
 
 SELECT COUNT_BIG(*)
@@ -414,15 +396,14 @@ FROM (
         FROM [Customers] AS [c]
     ) AS [t0]
     WHERE [t0].[__RowNumber__] > @__p_0
-) AS [t]",
-                Sql);
+) AS [t]");
         }
 
         public override void OrderBy_Skip_Count()
         {
             base.OrderBy_Skip_Count();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 7
 
 SELECT COUNT(*)
@@ -433,15 +414,14 @@ FROM (
         FROM [Customers] AS [c]
     ) AS [t0]
     WHERE [t0].[__RowNumber__] > @__p_0
-) AS [t]",
-                Sql);
+) AS [t]");
         }
 
         public override void OrderBy_Skip_LongCount()
         {
             base.OrderBy_Skip_LongCount();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 7
 
 SELECT COUNT_BIG(*)
@@ -452,15 +432,14 @@ FROM (
         FROM [Customers] AS [c]
     ) AS [t0]
     WHERE [t0].[__RowNumber__] > @__p_0
-) AS [t]",
-                Sql);
+) AS [t]");
         }
 
         public override void Include_with_orderby_skip_preserves_ordering()
         {
             base.Include_with_orderby_skip_preserves_ordering();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 40
 @__p_1: 5
 
@@ -470,9 +449,9 @@ FROM (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] <> N'VAFFE'
 ) AS [t0]
-WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
-
-@__p_0: 40
+WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))",
+                //
+                @"@__p_0: 40
 @__p_1: 5
 
 SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
@@ -486,15 +465,14 @@ INNER JOIN (
     ) AS [t1]
     WHERE ([t1].[__RowNumber__] > @__p_0) AND ([t1].[__RowNumber__] <= (@__p_0 + @__p_1))
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
-ORDER BY [t].[City], [t].[CustomerID]",
-                Sql);
+ORDER BY [t].[City], [t].[CustomerID]");
         }
 
         public override void GroupJoin_customers_orders_count_preserves_ordering()
         {
             base.GroupJoin_customers_orders_count_preserves_ordering();
 
-            Assert.Equal(
+            AssertSql(
                 @"@__p_0: 5
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -505,13 +483,14 @@ FROM (
     ORDER BY [c].[City]
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[City], [t].[CustomerID]",
-                Sql);
+ORDER BY [t].[City], [t].[CustomerID]");
         }
 
-        private const string FileLineEnding = @"
-";
+        protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private void AssertSql(params string[] expected)
+        {
+            RelationalTestHelpers.AssertBaseline(expected);
+        }
     }
 }
