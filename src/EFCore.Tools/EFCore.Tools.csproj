@@ -8,6 +8,7 @@
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
   
   <ItemGroup>

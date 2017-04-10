@@ -8,6 +8,7 @@
     <PackageTags>$(PackageTags);SQLite</PackageTags>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Sqlite.Core\EFCore.Sqlite.Core.csproj" />

@@ -8,6 +8,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore.Relational.Design.Specification</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" />
