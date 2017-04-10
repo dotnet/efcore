@@ -18,7 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
 #if NET46
             BuildReference.ByName("mscorlib"),
             BuildReference.ByName("System.Runtime, Version=4.0.20.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-#elif NETSTANDARD1_6 || NETCOREAPP2_0
+#elif NETSTANDARD1_6
+            BuildReference.ByName("System.Runtime")
+#elif NETCOREAPP2_0
+            BuildReference.ByName("netstandard"),
             BuildReference.ByName("System.Runtime")
 #else
 #error target frameworks need to be updated.

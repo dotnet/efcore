@@ -49,15 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 
         public int CloseCount { get; private set; }
 
-#if NET46
         public override void Close()
         {
             CloseCount++;
         }
-#elif NETCOREAPP2_0
-#else
-#error target frameworks need to be updated.
-#endif
+
         public int DisposeCount { get; private set; }
 
         protected override void Dispose(bool disposing)
@@ -66,12 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             {
                 DisposeCount++;
 
-#if NETCOREAPP2_0
-                CloseCount++;
-#elif NET46
-#else
-#error target frameworks need to be updated.
-#endif
                 base.Dispose(true);
             }
         }

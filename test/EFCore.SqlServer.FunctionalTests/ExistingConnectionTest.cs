@@ -59,12 +59,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                                 closeCount++;
                             }
                         };
-#if NET46
                     connection.Disposed += (_, __) => disposeCount++;
-#elif NETCOREAPP2_0
-#else
-#error target frameworks need to be updated.
-#endif
 
                     using (var context = new NorthwindContext(serviceProvider, connection))
                     {

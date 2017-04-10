@@ -203,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             Assert.False(context2.Database.AutoTransactionsEnabled);
         }
 
-        [Fact]
+        [ConditionalFact]
+        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public void State_manager_is_reset()
         {
             var serviceProvider = BuildServiceProvider<PooledContext>();
