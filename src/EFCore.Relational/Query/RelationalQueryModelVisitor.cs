@@ -458,10 +458,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             var previousQuerySource = FindPreviousQuerySource(queryModel, index);
             var previousSelectExpression = TryGetQuery(previousQuerySource);
             var previousProjectionCount = previousSelectExpression?.Projection.Count ?? 0;
+            var previousParameter = CurrentParameter;
+            var previousMapping = SnapshotQuerySourceMapping(queryModel);
 
             base.VisitJoinClause(joinClause, queryModel, index);
 
-            if (!TryFlattenJoin(joinClause, queryModel, index, previousProjectionCount))
+            if (!TryFlattenJoin(joinClause, queryModel, index, previousProjectionCount, previousParameter, previousMapping))
             {
                 RequiresClientJoin = true;
             }
@@ -1271,7 +1273,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             JoinClause joinClause,
             QueryModel queryModel,
             int index,
-            int previousProjectionCount)
+            int previousProjectionCount,
+            ParameterExpression previousParameter,
+            Dictionary<IQuerySource, Expression> previousMapping)
         {
             if (RequiresClientJoin || RequiresClientSelectMany)
             {
@@ -1336,25 +1340,39 @@ namespace Microsoft.EntityFrameworkCore.Query
             var outerShaper = ExtractShaper(outerShapedQuery, 0);
             var innerShaper = ExtractShaper(innerShapedQuery, previousProjectionCount);
 
-            var materializerLambda = (LambdaExpression)joinMethodCallExpression.Arguments.Last();
-            var materializer = materializerLambda.Compile();
+            if (innerShaper.Type == typeof(AnonymousObject))
+            {
+                Expression = outerShapedQuery;
+                CurrentParameter = previousParameter;
 
-            var compositeShaper
-                = CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializer);
+                foreach (var mapping in previousMapping)
+                {
+                    QueryCompilationContext.QuerySourceMapping
+                        .ReplaceMapping(mapping.Key, mapping.Value);
+                }
+            }
+            else
+            {
+                var materializerLambda = (LambdaExpression)joinMethodCallExpression.Arguments.Last();
+                var materializer = materializerLambda.Compile();
 
-            compositeShaper.SaveAccessorExpression(QueryCompilationContext.QuerySourceMapping);
+                var compositeShaper
+                    = CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializer);
 
-            innerShaper.UpdateQuerySource(joinClause);
+                compositeShaper.SaveAccessorExpression(QueryCompilationContext.QuerySourceMapping);
 
-            Expression
-                = Expression.Call(
-                    // ReSharper disable once PossibleNullReferenceException
-                    outerShapedQuery.Method
-                        .GetGenericMethodDefinition()
-                        .MakeGenericMethod(materializerLambda.ReturnType),
-                    outerShapedQuery.Arguments[0],
-                    outerShapedQuery.Arguments[1],
-                    Expression.Constant(compositeShaper));
+                innerShaper.UpdateQuerySource(joinClause);
+
+                Expression
+                    = Expression.Call(
+                        // ReSharper disable once PossibleNullReferenceException
+                        outerShapedQuery.Method
+                            .GetGenericMethodDefinition()
+                            .MakeGenericMethod(materializerLambda.ReturnType),
+                        outerShapedQuery.Arguments[0],
+                        outerShapedQuery.Arguments[1],
+                        Expression.Constant(compositeShaper));
+            }
 
             return true;
         }

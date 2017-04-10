@@ -306,10 +306,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
 
-            // Rewrite navigations
-
             new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger)
                 .VisitQueryModel(queryModel);
+
+            // Rewrite includes/navigations
 
             var includeCompiler = new IncludeCompiler(QueryCompilationContext, _querySourceTracingExpressionVisitorFactory);
 

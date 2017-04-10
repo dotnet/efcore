@@ -84,10 +84,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var querySourceReferenceFindingExpressionTreeVisitor
                     = new QuerySourceReferenceFindingExpressionTreeVisitor();
 
-                collectionQueryModel.BodyClauses.Single()
-                    .TransformExpressions(querySourceReferenceFindingExpressionTreeVisitor.Visit);
+                var whereClause = collectionQueryModel.BodyClauses
+                    .OfType<WhereClause>()
+                    .Single();
 
-                collectionQueryModel.BodyClauses.Clear();
+                whereClause.TransformExpressions(querySourceReferenceFindingExpressionTreeVisitor.Visit);
+
+                collectionQueryModel.BodyClauses.Remove(whereClause);
 
                 var parentQuerySourceReferenceExpression
                     = querySourceReferenceFindingExpressionTreeVisitor.QuerySourceReferenceExpression;
@@ -528,7 +531,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         {
                             projectionIndex = subQueryProjection.Count;
 
-                            subQueryProjection.Add(Expression.Convert(ordering.Expression, typeof(object)));
+                            subQueryProjection.Add(
+                                Expression.Convert(
+                                    // Workaround re-linq#RMLNQ-111 - When this is fixed the Clone can go away
+                                    CloningExpressionVisitor.AdjustExpressionAfterCloning(
+                                        ordering.Expression, 
+                                        new QuerySourceMapping()), 
+                                    typeof(object)));
                         }
 
                         var newExpression

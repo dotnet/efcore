@@ -95,8 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     continue;
                 }
 
-                if (!(!navigationPath.Any(n => n.IsCollection())
-                      || navigationPath.Length == 1))
+                if (navigationPath.Count(n => n.IsCollection()) > 1)
                 {
                     continue;
                 }

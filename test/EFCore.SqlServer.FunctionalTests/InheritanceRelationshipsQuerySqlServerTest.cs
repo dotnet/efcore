@@ -658,28 +658,30 @@ WHERE [e].[Discriminator] IN (N'NestedReferenceDerived', N'NestedReferenceBase')
             base.Nested_include_with_inheritance_reference_collection1();
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [b].[Id], [b].[BaseParentId], [b].[Discriminator], [b].[Name]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
-    SELECT [b].*
-    FROM [BaseReferenceOnBase] AS [b]
-    WHERE [b].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
-) AS [b] ON [b].[BaseParentId] = [e].[Id]
+    SELECT [e.BaseReferenceOnBase].*
+    FROM [BaseReferenceOnBase] AS [e.BaseReferenceOnBase]
+    WHERE [e.BaseReferenceOnBase].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
+) AS [t] ON [e].[Id] = [t].[BaseParentId]
 WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
-ORDER BY [b].[Id]",
+ORDER BY [t].[Id]",
                 //
-                @"SELECT [n].[Id], [n].[Discriminator], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId]
-FROM [NestedCollectionBase] AS [n]
-WHERE [n].[Discriminator] IN (N'NestedCollectionDerived', N'NestedCollectionBase') AND EXISTS (
-    SELECT 1
-    FROM [BaseInheritanceRelationshipEntity] AS [e]
+                @"SELECT [e.BaseReferenceOnBase.NestedCollection].[Id], [e.BaseReferenceOnBase.NestedCollection].[Discriminator], [e.BaseReferenceOnBase.NestedCollection].[Name], [e.BaseReferenceOnBase.NestedCollection].[ParentCollectionId], [e.BaseReferenceOnBase.NestedCollection].[ParentReferenceId]
+FROM [NestedCollectionBase] AS [e.BaseReferenceOnBase.NestedCollection]
+INNER JOIN (
+    SELECT DISTINCT [t0].[Id]
+    FROM [BaseInheritanceRelationshipEntity] AS [e0]
     LEFT JOIN (
-        SELECT [b].*
-        FROM [BaseReferenceOnBase] AS [b]
-        WHERE [b].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
-    ) AS [b] ON [b].[BaseParentId] = [e].[Id]
-    WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity') AND ([n].[ParentReferenceId] = [b].[Id]))
-ORDER BY [n].[ParentReferenceId]");
+        SELECT [e.BaseReferenceOnBase0].*
+        FROM [BaseReferenceOnBase] AS [e.BaseReferenceOnBase0]
+        WHERE [e.BaseReferenceOnBase0].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
+    ) AS [t0] ON [e0].[Id] = [t0].[BaseParentId]
+    WHERE [e0].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
+) AS [t1] ON [e.BaseReferenceOnBase.NestedCollection].[ParentReferenceId] = [t1].[Id]
+WHERE [e.BaseReferenceOnBase.NestedCollection].[Discriminator] IN (N'NestedCollectionDerived', N'NestedCollectionBase')
+ORDER BY [t1].[Id]");
         }
 
         public override void Nested_include_with_inheritance_reference_collection2()
@@ -695,28 +697,30 @@ ORDER BY [n].[ParentReferenceId]");
             base.Nested_include_with_inheritance_reference_collection3();
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [b].[Id], [b].[BaseParentId], [b].[Discriminator], [b].[Name]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[BaseParentId], [t].[Discriminator], [t].[Name]
 FROM [BaseInheritanceRelationshipEntity] AS [e]
 LEFT JOIN (
-    SELECT [b].*
-    FROM [BaseReferenceOnBase] AS [b]
-    WHERE [b].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
-) AS [b] ON [b].[BaseParentId] = [e].[Id]
+    SELECT [e.BaseReferenceOnBase].*
+    FROM [BaseReferenceOnBase] AS [e.BaseReferenceOnBase]
+    WHERE [e.BaseReferenceOnBase].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
+) AS [t] ON [e].[Id] = [t].[BaseParentId]
 WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'
-ORDER BY [b].[Id]",
+ORDER BY [t].[Id]",
                 //
-                @"SELECT [n].[Id], [n].[Discriminator], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId]
-FROM [NestedCollectionBase] AS [n]
-WHERE [n].[Discriminator] IN (N'NestedCollectionDerived', N'NestedCollectionBase') AND EXISTS (
-    SELECT 1
-    FROM [BaseInheritanceRelationshipEntity] AS [e]
+                @"SELECT [e.BaseReferenceOnBase.NestedCollection].[Id], [e.BaseReferenceOnBase.NestedCollection].[Discriminator], [e.BaseReferenceOnBase.NestedCollection].[Name], [e.BaseReferenceOnBase.NestedCollection].[ParentCollectionId], [e.BaseReferenceOnBase.NestedCollection].[ParentReferenceId]
+FROM [NestedCollectionBase] AS [e.BaseReferenceOnBase.NestedCollection]
+INNER JOIN (
+    SELECT DISTINCT [t0].[Id]
+    FROM [BaseInheritanceRelationshipEntity] AS [e0]
     LEFT JOIN (
-        SELECT [b].*
-        FROM [BaseReferenceOnBase] AS [b]
-        WHERE [b].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
-    ) AS [b] ON [b].[BaseParentId] = [e].[Id]
-    WHERE ([e].[Discriminator] = N'DerivedInheritanceRelationshipEntity') AND ([n].[ParentReferenceId] = [b].[Id]))
-ORDER BY [n].[ParentReferenceId]");
+        SELECT [e.BaseReferenceOnBase0].*
+        FROM [BaseReferenceOnBase] AS [e.BaseReferenceOnBase0]
+        WHERE [e.BaseReferenceOnBase0].[Discriminator] IN (N'DerivedReferenceOnBase', N'BaseReferenceOnBase')
+    ) AS [t0] ON [e0].[Id] = [t0].[BaseParentId]
+    WHERE [e0].[Discriminator] = N'DerivedInheritanceRelationshipEntity'
+) AS [t1] ON [e.BaseReferenceOnBase.NestedCollection].[ParentReferenceId] = [t1].[Id]
+WHERE [e.BaseReferenceOnBase.NestedCollection].[Discriminator] IN (N'NestedCollectionDerived', N'NestedCollectionBase')
+ORDER BY [t1].[Id]");
         }
 
         public override void Nested_include_with_inheritance_reference_collection4()
@@ -757,18 +761,20 @@ FROM [BaseInheritanceRelationshipEntity] AS [e]
 WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
 ORDER BY [e].[Id]",
                 //
-                @"SELECT [b].[Id], [b].[BaseParentId], [b].[Discriminator], [b].[Name], [b].[DerivedProperty], [n].[Id], [n].[Discriminator], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId]
-FROM [BaseCollectionOnBase] AS [b]
+                @"SELECT [e.BaseCollectionOnBase].[Id], [e.BaseCollectionOnBase].[BaseParentId], [e.BaseCollectionOnBase].[Discriminator], [e.BaseCollectionOnBase].[Name], [e.BaseCollectionOnBase].[DerivedProperty], [t].[Id], [t].[Discriminator], [t].[Name], [t].[ParentCollectionId], [t].[ParentReferenceId]
+FROM [BaseCollectionOnBase] AS [e.BaseCollectionOnBase]
 LEFT JOIN (
-    SELECT [n].*
-    FROM [NestedReferenceBase] AS [n]
-    WHERE [n].[Discriminator] IN (N'NestedReferenceDerived', N'NestedReferenceBase')
-) AS [n] ON [n].[ParentCollectionId] = [b].[Id]
-WHERE [b].[Discriminator] IN (N'DerivedCollectionOnBase', N'BaseCollectionOnBase') AND EXISTS (
-    SELECT 1
-    FROM [BaseInheritanceRelationshipEntity] AS [e]
-    WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity') AND ([b].[BaseParentId] = [e].[Id]))
-ORDER BY [b].[BaseParentId]");
+    SELECT [b.NestedReference].*
+    FROM [NestedReferenceBase] AS [b.NestedReference]
+    WHERE [b.NestedReference].[Discriminator] IN (N'NestedReferenceDerived', N'NestedReferenceBase')
+) AS [t] ON [e.BaseCollectionOnBase].[Id] = [t].[ParentCollectionId]
+INNER JOIN (
+    SELECT [e0].[Id]
+    FROM [BaseInheritanceRelationshipEntity] AS [e0]
+    WHERE [e0].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
+) AS [t0] ON [e.BaseCollectionOnBase].[BaseParentId] = [t0].[Id]
+WHERE [e.BaseCollectionOnBase].[Discriminator] IN (N'DerivedCollectionOnBase', N'BaseCollectionOnBase')
+ORDER BY [t0].[Id]");
         }
 
         public override void Nested_include_with_inheritance_collection_reference2()
@@ -900,14 +906,14 @@ WHERE [e].[Discriminator] IN (N'NestedCollectionDerived', N'NestedCollectionBase
 FROM [ReferencedEntity] AS [e]
 ORDER BY [e].[Id]",
                 //
-                @"SELECT [p].[Id], [p].[Name], [p].[ReferenceId], [p].[ReferencedEntityId], [r].[Id], [r].[Name]
-FROM [PrincipalEntity] AS [p]
-LEFT JOIN [ReferencedEntity] AS [r] ON [p].[ReferenceId] = [r].[Id]
-WHERE EXISTS (
-    SELECT 1
-    FROM [ReferencedEntity] AS [e]
-    WHERE [p].[ReferencedEntityId] = [e].[Id])
-ORDER BY [p].[ReferencedEntityId]");
+                @"SELECT [e.Principals].[Id], [e.Principals].[Name], [e.Principals].[ReferenceId], [e.Principals].[ReferencedEntityId], [p.Reference].[Id], [p.Reference].[Name]
+FROM [PrincipalEntity] AS [e.Principals]
+LEFT JOIN [ReferencedEntity] AS [p.Reference] ON [e.Principals].[ReferenceId] = [p.Reference].[Id]
+INNER JOIN (
+    SELECT [e0].[Id]
+    FROM [ReferencedEntity] AS [e0]
+) AS [t] ON [e.Principals].[ReferencedEntityId] = [t].[Id]
+ORDER BY [t].[Id]");
         }
 
         private void AssertSql(params string [] expected)

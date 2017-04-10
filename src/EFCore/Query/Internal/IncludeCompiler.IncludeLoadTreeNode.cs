@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -39,82 +40,147 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public INavigation Navigation { get; }
 
-            public void Compile(
+            public Expression Compile(
                 QueryCompilationContext queryCompilationContext,
                 Expression targetQuerySourceReferenceExpression,
                 Expression entityParameter,
                 ICollection<Expression> propertyExpressions,
-                ICollection<Expression> blockExpressions,
                 bool trackingQuery,
                 bool asyncQuery,
                 ref int includedIndex,
                 ref int collectionIncludeId)
+                => Navigation.IsCollection()
+                    ? CompileCollectionInclude(
+                        queryCompilationContext,
+                        targetQuerySourceReferenceExpression,
+                        entityParameter,
+                        trackingQuery,
+                        asyncQuery,
+                        ref collectionIncludeId)
+                    : CompileReferenceInclude(
+                        queryCompilationContext,
+                        propertyExpressions,
+                        entityParameter,
+                        trackingQuery,
+                        asyncQuery,
+                        ref includedIndex,
+                        ref collectionIncludeId,
+                        targetQuerySourceReferenceExpression);
+
+            private Expression CompileCollectionInclude(
+                QueryCompilationContext queryCompilationContext,
+                Expression targetQuerySourceReferenceExpression,
+                Expression entityParameter,
+                bool trackingQuery,
+                bool asyncQuery,
+                ref int collectionIncludeId)
             {
-                if (Navigation.IsCollection())
+                var targetType = Navigation.GetTargetType().ClrType;
+
+                var mainFromClause
+                    = new MainFromClause(
+                        targetType.Name.Substring(0, 1).ToLowerInvariant(),
+                        targetType,
+                        Expression.Property(
+                            targetQuerySourceReferenceExpression,
+                            Navigation.PropertyInfo));
+
+                queryCompilationContext.AddQuerySourceRequiringMaterialization(mainFromClause);
+
+                var querySourceReferenceExpression
+                    = new QuerySourceReferenceExpression(mainFromClause);
+
+                var collectionQueryModel
+                    = new QueryModel(
+                        mainFromClause,
+                        new SelectClause(querySourceReferenceExpression));
+
+                if (Children.Count > 0)
                 {
-                    var targetType = Navigation.GetTargetType().ClrType;
+                    Compile(
+                        queryCompilationContext,
+                        collectionQueryModel,
+                        trackingQuery,
+                        asyncQuery,
+                        ref collectionIncludeId,
+                        querySourceReferenceExpression);
+                }
 
-                    var mainFromClause
-                        = new MainFromClause(
-                            targetType.Name.Substring(0, 1).ToLowerInvariant(),
-                            targetType,
-                            Expression.Property(
-                                targetQuerySourceReferenceExpression,
-                                Navigation.PropertyInfo));
+                Expression collectionLambdaExpression
+                    = Expression.Lambda<Func<IEnumerable<object>>>(
+                        new SubQueryExpression(collectionQueryModel));
 
-                    queryCompilationContext.AddQuerySourceRequiringMaterialization(mainFromClause);
+                var includeCollectionMethodInfo = _queryBufferIncludeCollectionMethodInfo;
 
-                    var collectionQueryModel
-                        = new QueryModel(
-                            mainFromClause,
-                            new SelectClause(new QuerySourceReferenceExpression(mainFromClause)));
+                Expression cancellationTokenExpression = null;
 
-                    Expression collectionLambdaExpression
-                        = Expression.Lambda<Func<IEnumerable<object>>>(
-                            new SubQueryExpression(collectionQueryModel));
-
-                    var includeCollectionMethodInfo = _queryBufferIncludeCollectionMethodInfo;
-
-                    Expression cancellationTokenExpression = null;
-
-                    if (asyncQuery)
-                    {
-                        collectionLambdaExpression
-                            = Expression.Convert(
-                                collectionLambdaExpression,
-                                typeof(Func<IAsyncEnumerable<object>>));
-
-                        includeCollectionMethodInfo = _queryBufferIncludeCollectionAsyncMethodInfo;
-                        cancellationTokenExpression = _cancellationTokenParameter;
-                    }
-
-                    blockExpressions.Add(
-                        BuildCollectionIncludeExpressions(
-                            Navigation,
-                            entityParameter,
-                            trackingQuery,
+                if (asyncQuery)
+                {
+                    collectionLambdaExpression
+                        = Expression.Convert(
                             collectionLambdaExpression,
-                            includeCollectionMethodInfo,
-                            cancellationTokenExpression,
-                            ref collectionIncludeId));
+                            typeof(Func<IAsyncEnumerable<object>>));
+
+                    includeCollectionMethodInfo = _queryBufferIncludeCollectionAsyncMethodInfo;
+                    cancellationTokenExpression = _cancellationTokenParameter;
                 }
-                else
-                {
-                    blockExpressions.Add(
-                        Compile(
-                            propertyExpressions,
-                            entityParameter,
-                            trackingQuery,
-                            ref includedIndex,
-                            targetQuerySourceReferenceExpression));
-                }
+
+                return
+                    BuildCollectionIncludeExpressions(
+                        Navigation,
+                        entityParameter,
+                        trackingQuery,
+                        collectionLambdaExpression,
+                        includeCollectionMethodInfo,
+                        cancellationTokenExpression,
+                        ref collectionIncludeId);
             }
 
-            private Expression Compile(
+            private static Expression BuildCollectionIncludeExpressions(
+                INavigation navigation,
+                Expression targetEntityExpression,
+                bool trackingQuery,
+                Expression relatedCollectionFuncExpression,
+                MethodInfo includeCollectionMethodInfo,
+                Expression cancellationTokenExpression,
+                ref int collectionIncludeId)
+            {
+                var inverseNavigation = navigation.FindInverse();
+
+                var arguments = new List<Expression>
+                {
+                    Expression.Constant(collectionIncludeId++),
+                    Expression.Constant(navigation),
+                    Expression.Constant(inverseNavigation, typeof(INavigation)),
+                    Expression.Constant(navigation.GetTargetType()),
+                    Expression.Constant(navigation.GetCollectionAccessor()),
+                    Expression.Constant(inverseNavigation?.GetSetter(), typeof(IClrPropertySetter)),
+                    Expression.Constant(trackingQuery),
+                    targetEntityExpression,
+                    relatedCollectionFuncExpression
+                };
+
+                if (cancellationTokenExpression != null)
+                {
+                    arguments.Add(cancellationTokenExpression);
+                }
+
+                return Expression.Call(
+                    Expression.Property(
+                        EntityQueryModelVisitor.QueryContextParameter,
+                        nameof(QueryContext.QueryBuffer)),
+                    includeCollectionMethodInfo,
+                    arguments);
+            }
+
+            private Expression CompileReferenceInclude(
+                QueryCompilationContext queryCompilationContext,
                 ICollection<Expression> propertyExpressions,
                 Expression targetEntityExpression,
                 bool trackingQuery,
+                bool asyncQuery,
                 ref int includedIndex,
+                ref int collectionIncludeId,
                 Expression lastPropertyExpression)
             {
                 propertyExpressions.Add(
@@ -207,58 +273,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     blockExpressions.Add(
                         includeLoadTreeNode.Compile(
-                            propertyExpressions,
+                            queryCompilationContext,
+                            lastPropertyExpression,
                             relatedEntityExpression,
+                            propertyExpressions,
                             trackingQuery,
+                            asyncQuery,
                             ref includedIndex,
-                            lastPropertyExpression));
+                            ref collectionIncludeId));
                 }
 
+                AwaitTaskExpressions(asyncQuery, blockExpressions);
+
+                var blockType = blockExpressions.Last().Type;
+
                 return
-                    Expression.IfThen(
+                    Expression.Condition(
                         Expression.Not(
                             Expression.Call(
                                 _referenceEqualsMethodInfo,
                                 relatedArrayAccessExpression,
                                 Expression.Constant(null, typeof(object)))),
-                        Expression.Block(typeof(void), blockExpressions));
-            }
-
-            private static Expression BuildCollectionIncludeExpressions(
-                INavigation navigation,
-                Expression targetEntityExpression,
-                bool trackingQuery,
-                Expression relatedCollectionFuncExpression,
-                MethodInfo includeCollectionMethodInfo,
-                Expression cancellationTokenExpression,
-                ref int collectionIncludeId)
-            {
-                var inverseNavigation = navigation.FindInverse();
-
-                var arguments = new List<Expression>
-                {
-                    Expression.Constant(collectionIncludeId++),
-                    Expression.Constant(navigation),
-                    Expression.Constant(inverseNavigation, typeof(INavigation)),
-                    Expression.Constant(navigation.GetTargetType()),
-                    Expression.Constant(navigation.GetCollectionAccessor()),
-                    Expression.Constant(inverseNavigation?.GetSetter(), typeof(IClrPropertySetter)),
-                    Expression.Constant(trackingQuery),
-                    targetEntityExpression,
-                    relatedCollectionFuncExpression
-                };
-
-                if (cancellationTokenExpression != null)
-                {
-                    arguments.Add(cancellationTokenExpression);
-                }
-
-                return Expression.Call(
-                    Expression.Property(
-                        EntityQueryModelVisitor.QueryContextParameter,
-                        nameof(QueryContext.QueryBuffer)),
-                    includeCollectionMethodInfo,
-                    arguments);
+                        Expression.Block(
+                            blockType,
+                            blockExpressions),
+                        Expression.Default(blockType),
+                        blockType);
             }
 
             private static readonly MethodInfo _setRelationshipSnapshotValueMethodInfo
