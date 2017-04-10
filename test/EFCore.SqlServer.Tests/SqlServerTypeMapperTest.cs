@@ -883,12 +883,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             public override bool IsNullable { get; set; }
             public override string ParameterName { get; set; }
             public override string SourceColumn { get; set; }
-#if NET46
-            public override DataRowVersion SourceVersion { get; set; }
-#elif NETCOREAPP1_1
-#else
-#error target frameworks need to be updated.
-#endif
             public override object Value { get; set; }
             public override bool SourceColumnNullMapping { get; set; }
             public override int Size { get; set; }

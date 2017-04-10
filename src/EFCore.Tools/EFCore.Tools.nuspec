@@ -14,7 +14,7 @@
       <group targetFramework=".NETStandard1.3">
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" exclude="Build,Analyzers" />
       </group>
-      <group targetFramework=".NETFramework4.5.1">
+      <group targetFramework=".NETFramework4.6">
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" exclude="Build,Analyzers" />
       </group>
     </dependencies>

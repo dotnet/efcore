@@ -27,27 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
         public override IEnumerator GetEnumerator()
             => _parameters.GetEnumerator();
 
-#if NET46
-
-        public override bool IsSynchronized
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public override bool IsFixedSize
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public override bool IsReadOnly
-        {
-            get { throw new NotImplementedException(); }
-        }
-#elif NETCOREAPP1_1
-#else
-#error target frameworks need to be updated.
-#endif
-
         public override object SyncRoot
         {
             get { throw new NotImplementedException(); }
