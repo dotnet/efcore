@@ -3166,6 +3166,22 @@ INNER JOIN [Orders] AS [o] ON ([c].[CustomerID] = [o].[CustomerID]) AND ([c].[Cu
                 Sql);
         }
 
+        public override void Join_complex_condition()
+        {
+            base.Join_complex_condition();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [o].*
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10250
+) AS [t] ON 1 = 1
+WHERE [c].[CustomerID] = N'ALFKI'",
+                Sql);
+        }
+
         public override void Join_client_new_expression()
         {
             base.Join_client_new_expression();
@@ -6029,6 +6045,20 @@ FROM [Customers] AS [c]
 ORDER BY CASE
     WHEN [c].[Region] IS NULL
     THEN N'ZZ' ELSE [c].[Region]
+END",
+                Sql);
+        }
+
+        public override void OrderBy_conditional_operator_where_condition_null()
+        {
+            base.OrderBy_conditional_operator_where_condition_null();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY CASE
+    WHEN 0 = 1
+    THEN N'ZZ' ELSE [c].[City]
 END",
                 Sql);
         }

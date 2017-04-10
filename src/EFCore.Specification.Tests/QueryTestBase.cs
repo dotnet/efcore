@@ -3140,6 +3140,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Join_complex_condition()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs.Where(c => c.CustomerID == "ALFKI")
+                join o in os.Where(o => o.OrderID < 10250) on true equals true
+                select c.CustomerID);
+        }
+
+        [ConditionalFact]
         public virtual void Join_client_new_expression()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -6142,6 +6151,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Customer>(customer => customer
                     // ReSharper disable once ConvertConditionalTernaryToNullCoalescing
                     .OrderBy(c => c.Region == null ? "ZZ" : c.Region),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_conditional_operator_where_condition_null()
+        {
+            var fakeCustomer = new Customer();
+            AssertQuery<Customer>(customer => customer
+                    .OrderBy(c => fakeCustomer.City == "London" ? "ZZ" : c.City),
                 entryCount: 91);
         }
 
