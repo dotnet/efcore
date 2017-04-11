@@ -195,7 +195,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     TransformingVisitor.StringBuilder.Append(")");
                 }
 
-                base.VisitResultOperators(resultOperators, queryModel);
+                if (resultOperators.Count == 1)
+                {
+                    TransformingVisitor.StringBuilder.Append($".{resultOperators[0]}");
+                }
+                else
+                {
+                    base.VisitResultOperators(resultOperators, queryModel);
+                }
             }
 
             public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)

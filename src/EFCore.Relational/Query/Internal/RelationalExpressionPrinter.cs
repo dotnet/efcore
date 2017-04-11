@@ -48,9 +48,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var sql = querySqlGenerator.GenerateSql(new Dictionary<string, object>()).CommandText;
 
                     var lines = sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-                    foreach (var line in lines)
+                    for (int i = 0; i < lines.Length; i++)
                     {
-                        appendAction(stringBuilder, removeFormatting ? " " + line.TrimStart(' ') : line);
+                        if (i == lines.Length - 1)
+                        {
+                            appendAction = Append;
+                        }
+
+                        appendAction(stringBuilder, removeFormatting ? " " + lines[i].TrimStart(' ') : lines[i]);
                     }
 
                     stringBuilder.DecrementIndent();

@@ -74,7 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 new List<ConstantPrinterBase>
                 {
                     new EntityQueryableConstantPrinter(),
-                    new CollectionConstantPrinter(),
                     new MetadataPropertyPrinter(),
                     new DefaultConstantPrinter()
                 });
@@ -157,24 +156,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var queryPlan = PostProcess(_stringBuilder.ToString());
 
-            var result = "TRACKED: " + TrackedQuery + (removeFormatting ? " " : Environment.NewLine);
-            result += queryPlan;
-
             if (characterLimit != null && characterLimit.Value > 0)
             {
-                result = result.Length > characterLimit
-                    ? result.Substring(0, characterLimit.Value) + "..."
-                    : result;
+                queryPlan = queryPlan.Length > characterLimit
+                    ? queryPlan.Substring(0, characterLimit.Value) + "..."
+                    : queryPlan;
             }
 
-            return result;
+            return queryPlan;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual bool TrackedQuery { get; private set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -277,6 +267,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     VisitTry((TryExpression)expression);
                     break;
 
+                case ExpressionType.Index:
+                    VisitIndex((IndexExpression)expression);
+                    break;
+
                 case ExpressionType.Extension:
                     VisitExtension(expression);
                     break;
@@ -354,6 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 Append("return ");
                 Visit(blockExpression.Result);
+                AppendLine();
             }
 
             _stringBuilder.DecrementIndent();
@@ -436,12 +431,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var parameter in lambdaExpression.Parameters)
             {
+                var parameterName = parameter.Name ?? parameter.ToString();
+
                 if (!_parametersInScope.ContainsKey(parameter))
                 {
-                    _parametersInScope.Add(parameter, parameter.Name);
+                    _parametersInScope.Add(parameter, parameterName);
                 }
 
-                _stringBuilder.Append(parameter.Type.ShortDisplayName() + " " + parameter.Name);
+                _stringBuilder.Append(parameter.Type.ShortDisplayName() + " " + parameterName);
 
                 if (parameter != lambdaExpression.Parameters.Last())
                 {
@@ -515,31 +512,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return memeberInitExpression;
         }
 
+        private static readonly List<string> _simpleMethods = new List<string>
+        {
+            "get_Item",
+            "TryReadValue",
+            "ReferenceEquals"
+        };
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            var simpleMethods = new List<string>
-            {
-                "get_Item",
-                "TryReadValue"
-            };
-
-            switch (methodCallExpression.Method.Name)
-            {
-                case "_InterceptExceptions":
-                    Visit(methodCallExpression.Arguments[0]);
-
-                    return methodCallExpression;
-                case "_TrackEntities":
-                    TrackedQuery = true;
-                    Visit(methodCallExpression.Arguments[0]);
-
-                    return methodCallExpression;
-            }
-
             if (!EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
             {
                 _stringBuilder.Append(methodCallExpression.Method.ReturnType.ShortDisplayName() + " ");
@@ -553,21 +538,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             _stringBuilder.Append(methodCallExpression.Method.Name + "(");
 
-            var appendAction
-                = simpleMethods.Contains(methodCallExpression.Method.Name)
-                  || EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method)
-                    ? (Action<string>)Append
-                    : AppendLine;
+            var isSimpleMethodOrProperty = _simpleMethods.Contains(methodCallExpression.Method.Name)
+                || methodCallExpression.Arguments.Count < 2
+                || EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method);
+
+            var appendAction = isSimpleMethodOrProperty ? (Action<string>)Append : AppendLine;
 
             if (methodCallExpression.Arguments.Count > 0)
             {
                 appendAction("");
 
-                var showArgumentNames
-                    = !simpleMethods.Contains(methodCallExpression.Method.Name)
-                      && !EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method);
                 var argumentNames
-                    = showArgumentNames
+                    = !isSimpleMethodOrProperty
                         ? methodCallExpression.Method.GetParameters().Select(p => p.Name).ToList()
                         : new List<string>();
 
@@ -576,20 +558,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     var argument = methodCallExpression.Arguments[i];
 
-                    if (showArgumentNames)
+                    if (!isSimpleMethodOrProperty)
                     {
                         _stringBuilder.Append(argumentNames[i] + ": ");
                     }
 
                     Visit(argument);
 
-                    appendAction(i == methodCallExpression.Arguments.Count - 1 ? "" : ", ");
+                    if (i < methodCallExpression.Arguments.Count - 1)
+                    {
+                        appendAction(", ");
+                    }
                 }
 
                 _stringBuilder.DecrementIndent();
             }
 
-            appendAction(")");
+            Append(")");
 
             return methodCallExpression;
         }
@@ -637,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             _stringBuilder.DecrementIndent();
-            AppendLine("}");
+            Append("}");
 
             return newArrayExpression;
         }
@@ -699,7 +684,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitDefault(DefaultExpression defaultExpression)
         {
-            _stringBuilder.Append("default(" + defaultExpression.Type + ")");
+            _stringBuilder.Append("default(" + defaultExpression.Type.ShortDisplayName() + ")");
 
             return defaultExpression;
         }
@@ -720,6 +705,33 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return tryExpression;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitIndex(IndexExpression indexExpression)
+        {
+            Visit(indexExpression.Object);
+            _stringBuilder.Append("[");
+
+            if (indexExpression.Arguments.Any())
+            {
+                for (int i = 0; i < indexExpression.Arguments.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        _stringBuilder.Append(", ");
+                    }
+
+                    Visit(indexExpression.Arguments[i]);
+                }
+            }
+
+            _stringBuilder.Append("]");
+
+            return indexExpression;
         }
 
         /// <summary>
@@ -818,37 +830,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class CollectionConstantPrinter : ConstantPrinterBase
-        {
-            public override bool TryPrintConstant(
-                ConstantExpression constantExpression,
-                IndentedStringBuilder stringBuilder,
-                bool removeFormatting)
-            {
-                var value = constantExpression.Value;
-                if (value is IEnumerable enumerable
-                    && !(value is string))
-                {
-                    var appendAction = value is byte[] || removeFormatting ? Append : AppendLine;
-
-                    appendAction(stringBuilder, value.GetType().ShortDisplayName() + " ");
-                    appendAction(stringBuilder, "{ ");
-                    stringBuilder.IncrementIndent();
-                    foreach (var item in enumerable)
-                    {
-                        appendAction(stringBuilder, item + ", ");
-                    }
-
-                    stringBuilder.DecrementIndent();
-                    appendAction(stringBuilder, "}");
-
-                    return true;
-                }
-
-                return false;
-            }
-        }
-
         private class MetadataPropertyPrinter : ConstantPrinterBase
         {
             public override bool TryPrintConstant(
@@ -856,9 +837,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 IndentedStringBuilder stringBuilder,
                 bool removeFormatting)
             {
-                if (constantExpression.Value is Property property)
+                if (constantExpression.Value is PropertyBase property)
                 {
-                    stringBuilder.Append(property.Name);
+                    stringBuilder.Append(property.DeclaringType.ClrType.Name + "." + property.Name);
 
                     return true;
                 }
@@ -874,24 +855,49 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 IndentedStringBuilder stringBuilder,
                 bool removeFormatting)
             {
-                var stringValue = "null";
-                var value = constantExpression.Value;
+                Print(constantExpression.Value, stringBuilder, removeFormatting);
 
-                if (value != null)
+                return true;
+            }
+
+            private void Print(
+                object value,
+                IndentedStringBuilder stringBuilder,
+                bool removeFormatting)
+            {
+                if (value is IEnumerable enumerable
+                     && !(value is string))
                 {
-                    stringValue = value.ToString() != value.GetType().ToString()
-                        ? value.ToString()
-                        : value.GetType().Name;
+                    var appendAction = value is byte[] || removeFormatting ? Append : AppendLine;
 
-                    if (value is string)
+                    appendAction(stringBuilder, value.GetType().ShortDisplayName() + " ");
+                    appendAction(stringBuilder, "{ ");
+                    stringBuilder.IncrementIndent();
+                    foreach (var item in enumerable)
                     {
-                        stringValue = $@"""{stringValue}""";
+                        Print(item, stringBuilder, removeFormatting);
+
+                        appendAction(stringBuilder, ", ");
                     }
+
+                    stringBuilder.DecrementIndent();
+                    appendAction(stringBuilder, "}");
+
+                    return;
+                }
+
+                var stringValue = value == null
+                    ? "null"
+                    : value.ToString() != value.GetType().ToString()
+                        ? value.ToString()
+                        : value.GetType().ShortDisplayName();
+
+                if (value != null && value is string)
+                {
+                    stringValue = $@"""{stringValue}""";
                 }
 
                 stringBuilder.Append(stringValue);
-
-                return true;
             }
         }
     }
