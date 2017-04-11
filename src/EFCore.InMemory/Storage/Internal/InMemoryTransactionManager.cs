@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -15,10 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     {
         private static readonly InMemoryTransaction _stubTransaction = new InMemoryTransaction();
 
-        private readonly ILogger<InMemoryTransactionManager> _logger;
+        private readonly IInterceptingLogger<LoggerCategory.Database.Transaction> _logger;
 
         public InMemoryTransactionManager(
-            [NotNull] ILogger<InMemoryTransactionManager> logger)
+            [NotNull] IInterceptingLogger<LoggerCategory.Database.Transaction> logger)
         {
             Check.NotNull(logger, nameof(logger));
 

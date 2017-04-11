@@ -3,6 +3,7 @@
 
 using System.Data.SqlClient;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
@@ -77,7 +78,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                           .UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest")
                           .Options;
 
-            return new RelationalConnectionDependencies(options, new Logger<SqlServerConnection>(new LoggerFactory()), new DiagnosticListener("Fake"));
+            return new RelationalConnectionDependencies(
+                options,
+                new InterceptingLogger<LoggerCategory.Database.Transaction>(new LoggerFactory(), new LoggingOptions()),
+                new InterceptingLogger<LoggerCategory.Database.Connection>(new LoggerFactory(), new LoggingOptions()),
+                new DiagnosticListener("Fake"));
         }
     }
 }

@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -22,15 +21,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
     public class RelationalDatabaseModelFactoryTest
     {
         private readonly FakeScaffoldingModelFactory _factory;
-        private readonly TestLogger _logger;
+        private readonly TestLogger<LoggerCategory.Scaffolding> _logger;
         private static ColumnModel IdColumn => new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0 };
 
         public RelationalDatabaseModelFactoryTest()
         {
-            var factory = new TestLoggerFactory();
-            _logger = factory.Logger;
+            _logger = new TestLogger<LoggerCategory.Scaffolding>();
 
-            _factory = new FakeScaffoldingModelFactory(factory);
+            _factory = new FakeScaffoldingModelFactory(_logger);
         }
 
         [Fact]
@@ -868,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 }
             };
 
-            var factory  = new FakeScaffoldingModelFactory(new TestLoggerFactory(), new FakePluralizer());
+            var factory  = new FakeScaffoldingModelFactory(new TestLogger<LoggerCategory.Scaffolding>(), new FakePluralizer());
             var model = factory.Create(info);
 
             Assert.Collection(model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -923,7 +921,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 Tables = { blogTable, postTable }
             };
 
-            var factory = new FakeScaffoldingModelFactory(new TestLoggerFactory(), new FakePluralizer());
+            var factory = new FakeScaffoldingModelFactory(new TestLogger<LoggerCategory.Scaffolding>(), new FakePluralizer());
             var model = factory.Create(info);
 
             Assert.Collection(model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -946,14 +944,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         public IModel Create(DatabaseModel databaseModel) => CreateFromDatabaseModel(databaseModel);
 
         public FakeScaffoldingModelFactory(
-            [NotNull] ILoggerFactory loggerFactory)
-            : this(loggerFactory, new NullPluralizer())
+            [NotNull] IInterceptingLogger<LoggerCategory.Scaffolding> logger)
+            : this(logger, new NullPluralizer())
         { }
 
         public FakeScaffoldingModelFactory(
-            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IInterceptingLogger<LoggerCategory.Scaffolding> logger,
             [NotNull] IPluralizer pluralizer)
-            : base(loggerFactory,
+            : base(logger,
                 new TestTypeMapper(new RelationalTypeMapperDependencies()),
                 new FakeDatabaseModelFactory(),
                 new CandidateNamingService(),

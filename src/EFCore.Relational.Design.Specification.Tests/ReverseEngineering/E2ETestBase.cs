@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -30,7 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
 
             var serviceBuilder = new ServiceCollection()
                 .AddScaffolding()
-                .AddLogging();
+                .AddLogging()
+                .AddSingleton<ILoggingOptions, LoggingOptions>()
+                .AddSingleton(typeof(IInterceptingLogger<>), typeof(InterceptingLogger<>));
+
             ConfigureDesignTimeServices(serviceBuilder);
 
             var serviceProvider = serviceBuilder

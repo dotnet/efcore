@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -96,9 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The logger for this <see cref="ExecutionStrategy" />.
         /// </summary>
-        protected virtual ILogger<IExecutionStrategy> Logger { get; }
+        protected virtual IInterceptingLogger<LoggerCategory.Infrastructure> Logger { get; }
 
-        private readonly static AsyncLocal<bool?> _suspended = new AsyncLocal<bool?>();
+        private static readonly AsyncLocal<bool?> _suspended = new AsyncLocal<bool?>();
 
         /// <summary>
         ///     Indicates whether the strategy is suspended. The strategy is typically suspending while executing to avoid

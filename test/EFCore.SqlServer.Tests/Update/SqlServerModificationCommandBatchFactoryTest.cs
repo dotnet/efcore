@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
-                    new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
                     new DiagnosticListener("Fake"),
                     new SqlServerTypeMapper(
                         new RelationalTypeMapperDependencies())),
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
-                    new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
                     new DiagnosticListener("Fake"),
                     new SqlServerTypeMapper(
                         new RelationalTypeMapperDependencies())),

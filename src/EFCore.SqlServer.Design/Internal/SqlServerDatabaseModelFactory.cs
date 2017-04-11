@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqlServerDatabaseModelFactory([NotNull] ILogger<SqlServerDatabaseModelFactory> logger)
+        public SqlServerDatabaseModelFactory([NotNull] IInterceptingLogger<LoggerCategory.Scaffolding> logger)
         {
             Check.NotNull(logger, nameof(logger));
 
@@ -69,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ILogger Logger { get; }
+        public virtual IInterceptingLogger<LoggerCategory.Scaffolding> Logger { get; }
 
         private void ResetState()
         {

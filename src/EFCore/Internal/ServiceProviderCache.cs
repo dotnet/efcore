@@ -8,7 +8,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -97,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                 .EnsureInitialized(serviceProvider, options);
                         }
 
-                        var logger = serviceProvider.GetRequiredService<ILogger<ServiceProviderCache>>();
+                        var logger = serviceProvider.GetRequiredService<IInterceptingLogger<LoggerCategory.Infrastructure>>();
 
                         logger.LogDebug(
                             CoreEventId.ServiceProviderCreated, 

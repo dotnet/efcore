@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         ///     </para>
         /// </summary>
         /// <param name="logger"> A logger. </param>
-        public RelationalCompositeMethodCallTranslatorDependencies([NotNull] ILogger<IMethodCallTranslator> logger)
+        public RelationalCompositeMethodCallTranslatorDependencies([NotNull] IInterceptingLogger<LoggerCategory.Query> logger)
         {
             Logger = logger;
         }
@@ -47,14 +47,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// <summary>
         ///     The logger.
         /// </summary>
-        public ILogger<IMethodCallTranslator> Logger { get; }
+        public IInterceptingLogger<LoggerCategory.Query> Logger { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalCompositeMethodCallTranslatorDependencies With([NotNull] ILogger<IMethodCallTranslator> logger)
+        public RelationalCompositeMethodCallTranslatorDependencies With([NotNull] IInterceptingLogger<LoggerCategory.Query> logger)
             => new RelationalCompositeMethodCallTranslatorDependencies(logger);
     }
 }

@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ICompiledQueryCache _compiledQueryCache;
         private readonly ICompiledQueryCacheKeyGenerator _compiledQueryCacheKeyGenerator;
         private readonly IDatabase _database;
-        private readonly ISensitiveDataLogger _logger;
+        private readonly IInterceptingLogger<LoggerCategory.Query> _logger;
         private readonly INodeTypeProviderFactory _nodeTypeProviderFactory;
         private readonly Type _contextType;
 
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] ICompiledQueryCache compiledQueryCache,
             [NotNull] ICompiledQueryCacheKeyGenerator compiledQueryCacheKeyGenerator,
             [NotNull] IDatabase database,
-            [NotNull] ISensitiveDataLogger<QueryCompiler> logger,
+            [NotNull] IInterceptingLogger<LoggerCategory.Query> logger,
             [NotNull] INodeTypeProviderFactory nodeTypeProviderFactory,
             [NotNull] ICurrentDbContext currentContext)
         {
@@ -116,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private static Func<QueryContext, TResult> CompileQueryCore<TResult>(
-            Expression query, INodeTypeProvider nodeTypeProvider, IDatabase database, ILogger logger, Type contextType)
+            Expression query, INodeTypeProvider nodeTypeProvider, IDatabase database, IInterceptingLogger<LoggerCategory.Query> logger, Type contextType)
         {
             var queryModel
                 = CreateQueryParser(nodeTypeProvider)
@@ -209,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private static Func<QueryContext, Task<TResult>> CreateCompiledSingletonAsyncQuery<TResult>(
-                Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery, ILogger logger, Type contextType)
+                Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery, IInterceptingLogger<LoggerCategory.Query> logger, Type contextType)
             => qc => ExecuteSingletonAsyncQuery(qc, compiledQuery, logger, contextType);
 
         /// <summary>
@@ -234,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static async Task<TResult> ExecuteSingletonAsyncQuery<TResult>(
             QueryContext queryContext,
             Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery,
-            ILogger logger,
+            IInterceptingLogger<LoggerCategory.Query> logger,
             Type contextType)
         {
             try

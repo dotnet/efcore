@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         private readonly IRelationalConnection _relationalConnection;
         private readonly DbTransaction _dbTransaction;
-        private readonly ILogger _logger;
+        private readonly IInterceptingLogger<LoggerCategory.Database.Transaction> _logger;
         private readonly DiagnosticSource _diagnosticSource;
         private readonly bool _transactionOwned;
 
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public RelationalTransaction(
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
-            [NotNull] ILogger logger,
+            [NotNull] IInterceptingLogger<LoggerCategory.Database.Transaction> logger,
             [NotNull] DiagnosticSource diagnosticSource,
             bool transactionOwned)
         {

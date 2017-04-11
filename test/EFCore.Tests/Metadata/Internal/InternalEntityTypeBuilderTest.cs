@@ -1582,7 +1582,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             }
 
             validationConvention.Apply(modelBuilder);
-            var modelValidator = new CoreModelValidator(new ModelValidatorDependencies(new Logger<ModelValidator>(new LoggerFactory())));
+
+            var modelValidator = new CoreModelValidator(
+                new ModelValidatorDependencies(
+                    new InterceptingLogger<LoggerCategory.Model.Validation>(
+                        new LoggerFactory(),
+                        new LoggingOptions())));
+
             modelValidator.Validate(modelBuilder.Metadata);
 
             Assert.Equal(expectedIgnored, ignoredEntityTypeBuilder.Metadata.FindDeclaredIgnoredMemberConfigurationSource(memberToIgnore) == ignoreConfigurationSource);

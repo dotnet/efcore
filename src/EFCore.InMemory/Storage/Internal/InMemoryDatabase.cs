@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     public class InMemoryDatabase : Database, IInMemoryDatabase
     {
         private readonly IInMemoryStore _store;
-        private readonly ILogger<InMemoryDatabase> _logger;
+        private readonly IInterceptingLogger<LoggerCategory.Update> _updateLogger;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -34,15 +33,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] DatabaseDependencies dependencies,
             [NotNull] IInMemoryStoreSource storeSource,
             [NotNull] IDbContextOptions options,
-            [NotNull] ILogger<InMemoryDatabase> logger)
+            [NotNull] IInterceptingLogger<LoggerCategory.Update> updateLogger)
             : base(dependencies)
         {
             Check.NotNull(storeSource, nameof(storeSource));
             Check.NotNull(options, nameof(options));
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(updateLogger, nameof(updateLogger));
 
             _store = storeSource.GetStore(options);
-            _logger = logger;
+            _updateLogger = updateLogger;
         }
 
         /// <summary>
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override int SaveChanges(IReadOnlyList<IUpdateEntry> entries)
-            => _store.ExecuteTransaction(Check.NotNull(entries, nameof(entries)), _logger);
+            => _store.ExecuteTransaction(Check.NotNull(entries, nameof(entries)), _updateLogger);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public override Task<int> SaveChangesAsync(
             IReadOnlyList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken))
-            => Task.FromResult(_store.ExecuteTransaction(Check.NotNull(entries, nameof(entries)), _logger));
+            => Task.FromResult(_store.ExecuteTransaction(Check.NotNull(entries, nameof(entries)), _updateLogger));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

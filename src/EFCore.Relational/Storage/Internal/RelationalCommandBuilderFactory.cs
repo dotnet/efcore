@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class RelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
     {
-        private readonly ISensitiveDataLogger _logger;
+        private readonly IInterceptingLogger<LoggerCategory.Database.Sql> _logger;
         private readonly DiagnosticSource _diagnosticSource;
         private readonly IRelationalTypeMapper _typeMapper;
 
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalCommandBuilderFactory(
-            [NotNull] ISensitiveDataLogger<IRelationalCommandBuilderFactory> logger,
+            [NotNull] IInterceptingLogger<LoggerCategory.Database.Sql> logger,
             [NotNull] DiagnosticSource diagnosticSource,
             [NotNull] IRelationalTypeMapper typeMapper)
         {
@@ -47,11 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IRelationalCommandBuilder CreateCore(
-                [NotNull] ISensitiveDataLogger sensitiveDataLogger,
+                [NotNull] IInterceptingLogger<LoggerCategory.Database.Sql> logger,
                 [NotNull] DiagnosticSource diagnosticSource,
                 [NotNull] IRelationalTypeMapper relationalTypeMapper)
             => new RelationalCommandBuilder(
-                sensitiveDataLogger,
+                logger,
                 diagnosticSource,
                 relationalTypeMapper);
     }

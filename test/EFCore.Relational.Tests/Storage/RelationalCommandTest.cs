@@ -880,10 +880,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             var fakeConnection = new FakeRelationalConnection(options);
 
             var relationalCommand = CreateRelationalCommand(
-                logger: new SensitiveDataLogger<RelationalCommand>(
-                    new SensitiveDataLoggerDependencies<RelationalCommand>(
-                        new ListLogger<RelationalCommand>(log),
-                        new FakeLoggingOptions(false))),
+                logger: new InterceptingLogger<LoggerCategory.Database.Sql>(
+                    new ListLoggerFactory(log),
+                    new FakeLoggingOptions(false)),
                 commandText: "Logged Command",
                 parameters: new[]
                 {
@@ -928,10 +927,9 @@ Logged Command",
             var fakeConnection = new FakeRelationalConnection(options);
 
             var relationalCommand = CreateRelationalCommand(
-                logger: new SensitiveDataLogger<RelationalCommand>(
-                    new SensitiveDataLoggerDependencies<RelationalCommand>(
-                        new ListLogger<RelationalCommand>(log),
-                        new FakeLoggingOptions(true))),
+                logger: new InterceptingLogger<LoggerCategory.Database.Sql>(
+                    new ListLoggerFactory(log),
+                    new FakeLoggingOptions(true)),
                 commandText: "Logged Command",
                 parameters: new[]
                 {
@@ -1122,12 +1120,12 @@ Logged Command",
         }
         
         private IRelationalCommand CreateRelationalCommand(
-            ISensitiveDataLogger logger = null,
+            IInterceptingLogger<LoggerCategory.Database.Sql> logger = null,
             DiagnosticSource diagnosticSource = null,
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                logger ?? new FakeSensitiveDataLogger<RelationalCommand>(),
+                logger ?? new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
                 diagnosticSource ?? new DiagnosticListener("Fake"),
                 commandText,
                 parameters ?? new IRelationalParameter[0]);

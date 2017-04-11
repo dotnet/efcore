@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
-                    new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
                     new DiagnosticListener("Fake"),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
-                    new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
                     new DiagnosticListener("Fake"),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
-                    new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
                     new DiagnosticListener("Fake"),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
