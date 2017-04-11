@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -8,8 +8,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -22,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class QueryBuffer : IQueryBuffer
     {
-        private readonly LazyRef<IStateManager> _stateManager;
+        private readonly QueryContextDependencies _dependencies;
 
         private IWeakReferenceIdentityMap _identityMap0;
         private IWeakReferenceIdentityMap _identityMap1;
@@ -38,8 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public QueryBuffer([NotNull] LazyRef<IStateManager> stateManager)
-            => _stateManager = stateManager;
+        public QueryBuffer(
+            [NotNull] QueryContextDependencies dependencies)
+        {
+            _dependencies = dependencies;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -53,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (queryStateManager)
             {
-                var entry = _stateManager.Value.TryGetEntry(key, entityLoadInfo.ValueBuffer, throwOnNullKey);
+                var entry = _dependencies.StateManager.TryGetEntry(key, entityLoadInfo.ValueBuffer, throwOnNullKey);
 
                 if (entry != null)
                 {
@@ -97,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual object GetPropertyValue(object entity, IProperty property)
         {
-            var entry = _stateManager.Value.TryGetEntry(entity);
+            var entry = _dependencies.StateManager.TryGetEntry(entity);
 
             if (entry != null)
             {
@@ -124,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 boxedValueBuffer = ValueBuffer.Empty;
             }
 
-            entityTrackingInfo.StartTracking(_stateManager.Value, entity, (ValueBuffer)boxedValueBuffer);
+            entityTrackingInfo.StartTracking(_dependencies.StateManager, entity, (ValueBuffer)boxedValueBuffer);
         }
 
         /// <summary>
@@ -138,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 boxedValueBuffer = ValueBuffer.Empty;
             }
 
-            _stateManager.Value
+            _dependencies.StateManager
                 .StartTrackingFromQuery(
                     entityType,
                     entity,
@@ -208,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 else
                 {
-                    var entry = _stateManager.Value.TryGetEntry(enumerator.Current);
+                    var entry = _dependencies.StateManager.TryGetEntry(enumerator.Current);
 
                     Debug.Assert(entry != null);
 
@@ -232,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         if (tracking)
                         {
-                            var internalEntityEntry = _stateManager.Value.TryGetEntry(enumerator.Current);
+                            var internalEntityEntry = _dependencies.StateManager.TryGetEntry(enumerator.Current);
 
                             Debug.Assert(internalEntityEntry != null);
 
@@ -259,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (tracking)
             {
-                var internalEntityEntry = _stateManager.Value.TryGetEntry(entity);
+                var internalEntityEntry = _dependencies.StateManager.TryGetEntry(entity);
 
                 Debug.Assert(internalEntityEntry != null);
 
@@ -331,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 else
                 {
-                    var entry = _stateManager.Value.TryGetEntry(asyncEnumerator.Current);
+                    var entry = _dependencies.StateManager.TryGetEntry(asyncEnumerator.Current);
 
                     Debug.Assert(entry != null);
 
@@ -355,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         if (tracking)
                         {
-                            var internalEntityEntry = _stateManager.Value.TryGetEntry(asyncEnumerator.Current);
+                            var internalEntityEntry = _dependencies.StateManager.TryGetEntry(asyncEnumerator.Current);
 
                             Debug.Assert(internalEntityEntry != null);
 
@@ -382,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (tracking)
             {
-                var internalEntityEntry = _stateManager.Value.TryGetEntry(entity);
+                var internalEntityEntry = _dependencies.StateManager.TryGetEntry(entity);
 
                 Debug.Assert(internalEntityEntry != null);
 
@@ -399,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (!_valueBuffers.TryGetValue(entity, out var boxedValueBuffer))
             {
-                var entry = _stateManager.Value.TryGetEntry(entity);
+                var entry = _dependencies.StateManager.TryGetEntry(entity);
 
                 Debug.Assert(entry != null);
 

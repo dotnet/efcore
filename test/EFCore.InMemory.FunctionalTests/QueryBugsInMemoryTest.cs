@@ -514,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                     {
                         using (var context = new Context3595())
                         {
-                            context.GetInfrastructure().GetRequiredService<IInMemoryStoreSource>().GetPersistentStore(DatabaseName).Clear();
+                            context.GetService<IInMemoryStoreSource>().GetPersistentStore(DatabaseName).Clear();
                         }
                     });
     }

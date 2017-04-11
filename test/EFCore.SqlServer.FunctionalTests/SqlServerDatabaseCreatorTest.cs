@@ -760,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     public class SqlServerDatabaseCreatorTest
     {
         public static IRelationalDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
-            => new BloggingContext(testStore).GetInfrastructure().GetRequiredService<IRelationalDatabaseCreator>();
+            => new BloggingContext(testStore).GetService<IRelationalDatabaseCreator>();
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class TestSqlServerExecutionStrategyFactory : SqlServerExecutionStrategyFactory

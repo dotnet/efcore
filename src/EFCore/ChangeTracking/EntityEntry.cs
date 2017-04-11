@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -30,8 +30,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         private static readonly int _maxEntityState = Enum.GetValues(typeof(EntityState)).Cast<int>().Max();
-
-        private IEntityFinderSource _entityFinderSource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -357,8 +355,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private IEntityFinder Finder
-            => (_entityFinderSource
-                ?? (_entityFinderSource = InternalEntry.StateManager.Context.GetService<IEntityFinderSource>()))
+            => InternalEntry.StateManager.Context.GetInfrastructure<DbContextDependencies>().EntityFinderSource
                 .Create(InternalEntry.StateManager.Context, InternalEntry.EntityType);
     }
 }

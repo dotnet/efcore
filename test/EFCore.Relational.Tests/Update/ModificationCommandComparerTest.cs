@@ -26,8 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 .UseModel(model);
             optionsBuilder.UseTransientInMemoryDatabase();
 
-            var contextServices = new DbContext(optionsBuilder.Options).GetInfrastructure();
-            var stateManager = contextServices.GetRequiredService<IStateManager>();
+            var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
             var key = entityType.AddProperty("Id", typeof(int));
             entityType.GetOrSetPrimaryKey(key);
@@ -145,8 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             var optionsBuilder = new DbContextOptionsBuilder().UseModel(model).UseTransientInMemoryDatabase();
 
-            var contextServices = new DbContext(optionsBuilder.Options).GetInfrastructure();
-            var stateManager = contextServices.GetRequiredService<IStateManager>();
+            var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
             var keyProperty = entityType.AddProperty("Id", typeof(T));
             keyProperty.IsNullable = false;

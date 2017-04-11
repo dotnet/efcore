@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             InMemoryTestHelpers.Instance.TestDependenciesClone<QueryContextDependencies>(
                 nameof(QueryContextDependencies.ChangeDetector),
-                nameof(QueryContextDependencies.StateManager));
+                nameof(QueryContextDependencies.StateManager),
+                nameof(QueryContextDependencies.QueryProvider));
         }
     }
 }

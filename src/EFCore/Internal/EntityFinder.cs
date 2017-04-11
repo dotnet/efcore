@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public EntityFinder([NotNull] DbContext context, [NotNull] IEntityType entityType)
         {
             _model = context.Model;
-            _stateManager = context.GetService<IStateManager>();
+            _stateManager = context.GetInfrastructure<DbContextDependencies>().StateManager;
             _queryRoot = (IQueryable<TEntity>)BuildQueryRoot(context, entityType);
         }
 

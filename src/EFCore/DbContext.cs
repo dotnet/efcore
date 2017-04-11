@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -44,24 +44,23 @@ namespace Microsoft.EntityFrameworkCore
     ///         is discovered by convention, you can override the <see cref="OnModelCreating(ModelBuilder)" /> method.
     ///     </para>
     /// </remarks>
-    public class DbContext : IDisposable, IInfrastructure<IServiceProvider>, IDbContextPoolable
+    public class DbContext :
+        IDisposable,
+        IInfrastructure<IServiceProvider>,
+        IInfrastructure<DbContextDependencies>,
+        IDbContextPoolable
     {
         private readonly DbContextOptions _options;
 
         private IDbContextServices _contextServices;
-        private IDbSetInitializer _setInitializer;
-        private IEntityFinderSource _entityFinderSource;
-        private ChangeTracker _changeTracker;
+        private DbContextDependencies _dbContextDependencies;
         private DatabaseFacade _database;
-        private IStateManager _stateManager;
-        private IEntityGraphAttacher _graphAttacher;
-        private IModel _model;
+        private ChangeTracker _changeTracker;
         private IInterceptingLogger<LoggerCategory.Update> _updateLogger;
-        private IAsyncQueryProvider _queryProvider;
-        private IDbContextPool _dbContextPool;
 
-        private bool _initializing;
         private IServiceScope _serviceScope;
+        private IDbContextPool _dbContextPool;
+        private bool _initializing;
         private bool _disposed;
 
         /// <summary>
@@ -95,17 +94,66 @@ namespace Microsoft.EntityFrameworkCore
 
             _options = options;
 
+            // This service is not stored in _setInitializer as this may not be the service provider that will be used
+            // as the internal service provider going forward, because at this time OnConfiguring has not yet been called.
+            // Mostly that isn't a problem because set initialization is done by our internal services, but in the case
+            // where some of those services are replaced, this could initialize set using non-replaced services.
+            // In this rare case if this is a problem for the app, then the app can just not use this mechanism to create
+            // DbSet instances, and this code becomes a no-op. However, if this set initializer is then saved and used later
+            // for the Set method, then it makes the problem bigger because now an app is using the non-replaced services
+            // even when it doesn't need to.
             ServiceProviderCache.Instance.GetOrAdd(options, providerRequired: false)
                 .GetRequiredService<IDbSetInitializer>()
                 .InitializeSets(this);
         }
 
-        private IStateManager StateManager
-            => _stateManager
-               ?? (_stateManager = InternalServiceProvider.GetRequiredService<IStateManager>());
+        /// <summary>
+        ///     Provides access to database related information and operations for this context.
+        /// </summary>
+        public virtual DatabaseFacade Database
+        {
+            get
+            {
+                CheckDisposed();
 
-        internal IAsyncQueryProvider QueryProvider
-            => _queryProvider ?? (_queryProvider = this.GetService<IAsyncQueryProvider>());
+                return _database ?? (_database = new DatabaseFacade(this));
+            }
+        }
+
+        /// <summary>
+        ///     Provides access to information and operations for entity instances this context is tracking.
+        /// </summary>
+        public virtual ChangeTracker ChangeTracker
+            => _changeTracker
+               ?? (_changeTracker = InternalServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create());
+
+        /// <summary>
+        ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
+        /// </summary>
+        public virtual IModel Model => DbContextDependencies.Model;
+
+        /// <summary>
+        ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
+        /// <returns> A set for the given entity type. </returns>
+        public virtual DbSet<TEntity> Set<TEntity>() where TEntity : class
+        {
+            CheckDisposed();
+
+            return DbContextDependencies.DbSetInitializer.CreateSet<TEntity>(this);
+        }
+
+        private IEntityFinder Finder(Type type)
+        {
+            var entityType = Model.FindEntityType(type);
+            if (entityType == null)
+            {
+                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
+            }
+
+            return DbContextDependencies.EntityFinderSource.Create(this, entityType);
+        }
 
         private IServiceProvider InternalServiceProvider
         {
@@ -116,6 +164,13 @@ namespace Microsoft.EntityFrameworkCore
                 return (_contextServices ?? (_contextServices = InitializeServices())).InternalServiceProvider;
             }
         }
+
+        private DbContextDependencies DbContextDependencies
+            => _dbContextDependencies ?? (_dbContextDependencies = InternalServiceProvider.GetRequiredService<DbContextDependencies>());
+
+        private IEntityGraphAttacher GraphAttacher => DbContextDependencies.EntityGraphAttacher;
+
+        private IStateManager StateManager => DbContextDependencies.StateManager;
 
         internal void CheckDisposed()
         {
@@ -167,17 +222,6 @@ namespace Microsoft.EntityFrameworkCore
                 _initializing = false;
             }
         }
-
-        /// <summary>
-        ///     <para>
-        ///         Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
-        ///     </para>
-        ///     <para>
-        ///         This property is intended for use by extension methods that need to make use of services
-        ///         not directly exposed in the public API surface.
-        ///     </para>
-        /// </summary>
-        IServiceProvider IInfrastructure<IServiceProvider>.Instance => InternalServiceProvider;
 
         /// <summary>
         ///     <para>
@@ -404,14 +448,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     _disposed = true;
 
-                    _stateManager?.Unsubscribe();
+                    _dbContextDependencies?.StateManager.Unsubscribe();
 
                     _serviceScope?.Dispose();
-                    _setInitializer = null;
+                    _dbContextDependencies = null;
                     _changeTracker = null;
-                    _stateManager = null;
-                    _graphAttacher = null;
-                    _model = null;
+                    _database = null;
                     _dbContextPool = null;
                 }
             }
@@ -467,9 +509,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (entry.EntityState == EntityState.Detached)
             {
-                (_graphAttacher
-                 ?? (_graphAttacher = InternalServiceProvider.GetRequiredService<IEntityGraphAttacher>()))
-                    .AttachGraph(entry, entityState);
+                GraphAttacher.AttachGraph(entry, entityState);
             }
             else
             {
@@ -484,9 +524,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (entry.EntityState == EntityState.Detached)
             {
-                await (_graphAttacher
-                       ?? (_graphAttacher = InternalServiceProvider.GetRequiredService<IEntityGraphAttacher>()))
-                    .AttachGraphAsync(entry, entityState, cancellationToken);
+                await GraphAttacher.AttachGraphAsync(entry, entityState, cancellationToken);
             }
             else
             {
@@ -1088,75 +1126,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Provides access to database related information and operations for this context.
-        /// </summary>
-        public virtual DatabaseFacade Database
-        {
-            get
-            {
-                CheckDisposed();
-
-                return _database ?? (_database = new DatabaseFacade(this));
-            }
-        }
-
-        /// <summary>
-        ///     Provides access to information and operations for entity instances this context is tracking.
-        /// </summary>
-        public virtual ChangeTracker ChangeTracker
-        {
-            get
-            {
-                CheckDisposed();
-
-                return _changeTracker
-                       ?? (_changeTracker = InternalServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create());
-            }
-        }
-
-        /// <summary>
-        ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
-        /// </summary>
-        public virtual IModel Model
-        {
-            get
-            {
-                CheckDisposed();
-
-                return _model
-                       ?? (_model = InternalServiceProvider.GetRequiredService<IModel>());
-            }
-        }
-
-        /// <summary>
-        ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
-        /// </summary>
-        /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
-        /// <returns> A set for the given entity type. </returns>
-        public virtual DbSet<TEntity> Set<TEntity>() where TEntity : class
-        {
-            CheckDisposed();
-
-            return (_setInitializer
-                    ?? (_setInitializer = InternalServiceProvider.GetRequiredService<IDbSetInitializer>())).CreateSet<TEntity>(this);
-        }
-
-        private IEntityFinder Finder(Type type)
-        {
-            var entityType = Model.FindEntityType(type);
-            if (entityType == null)
-            {
-                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
-            }
-
-            return EntityFinderSource.Create(this, entityType);
-        }
-
-        private IEntityFinderSource EntityFinderSource
-            => _entityFinderSource
-               ?? (_entityFinderSource = InternalServiceProvider.GetRequiredService<IEntityFinderSource>());
-
-        /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
         ///     is being tracked by the context, then it is returned immediately without making a request to the
         ///     database. Otherwise, a query is made to the database for an entity with the given primary key values
@@ -1259,5 +1228,22 @@ namespace Microsoft.EntityFrameworkCore
 
             return ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues, cancellationToken);
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
+        ///     </para>
+        ///     <para>
+        ///         This property is intended for use by extension methods that need to make use of services
+        ///         not directly exposed in the public API surface.
+        ///     </para>
+        /// </summary>
+        IServiceProvider IInfrastructure<IServiceProvider>.Instance => InternalServiceProvider;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        DbContextDependencies IInfrastructure<DbContextDependencies>.Instance => DbContextDependencies;
     }
 }

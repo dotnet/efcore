@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -53,9 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(concurrencyDetector, nameof(concurrencyDetector));
 
             CurrentDbContext = currentContext;
-            StateManager = new LazyRef<IStateManager>(() => currentContext.Context.GetService<IStateManager>());
-            ChangeDetector = new LazyRef<IChangeDetector>(() => currentContext.Context.GetService<IChangeDetector>());
-
             ConcurrencyDetector = concurrencyDetector;
         }
 
@@ -67,12 +65,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Gets the change detector.
         /// </summary>
-        public LazyRef<IChangeDetector> ChangeDetector { get; }
+        public IChangeDetector ChangeDetector => CurrentDbContext.Context.GetInfrastructure<DbContextDependencies>().ChangeDetector;
 
         /// <summary>
         ///     Gets the state manager.
         /// </summary>
-        public LazyRef<IStateManager> StateManager { get; }
+        public IStateManager StateManager => CurrentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+
+        /// <summary>
+        ///     Gets the query provider.
+        /// </summary>
+        public IQueryProvider QueryProvider => CurrentDbContext.Context.GetInfrastructure<DbContextDependencies>().QueryProvider;
 
         /// <summary>
         ///     Gets the concurrency detector.

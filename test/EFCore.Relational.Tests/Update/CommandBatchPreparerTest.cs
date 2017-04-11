@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 .UseModel(model);
             optionsBuilder.UseTransientInMemoryDatabase();
 
-            return new DbContext(optionsBuilder.Options).GetInfrastructure();
+            return new DbContext(optionsBuilder.Options).GetInfrastructure<IServiceProvider>();
         }
 
         private static ICommandBatchPreparer CreateCommandBatchPreparer(IModificationCommandBatchFactory modificationCommandBatchFactory = null)

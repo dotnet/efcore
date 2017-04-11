@@ -17,7 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private static readonly MethodInfo _genericCreate
             = typeof(DbSetSource).GetTypeInfo().GetDeclaredMethod(nameof(CreateConstructor));
 
-        // Stores DbSet<T> objects
         private readonly ConcurrentDictionary<Type, Func<DbContext, object>> _cache
             = new ConcurrentDictionary<Type, Func<DbContext, object>>();
 

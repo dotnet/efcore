@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The state manager.
         /// </value>
-        public virtual LazyRef<IStateManager> StateManager => Dependencies.StateManager;
+        public virtual IStateManager StateManager => Dependencies.StateManager;
 
         /// <summary>
         ///     The query provider.
@@ -65,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The query provider.
         /// </value>
-        public virtual IQueryProvider QueryProvider => StateManager.Value.Context.QueryProvider;
+        public virtual IQueryProvider QueryProvider => Dependencies.QueryProvider;
 
         /// <summary>
         ///     Gets the concurrency detector.
@@ -122,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Notify the state manager that a tracking query is starting.
         /// </summary>
-        public virtual void BeginTrackingQuery() => StateManager.Value.BeginTrackingQuery();
+        public virtual void BeginTrackingQuery() => StateManager.BeginTrackingQuery();
 
         /// <summary>
         ///     Start tracking an entity.
@@ -139,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             else
             {
-                entityTrackingInfo.StartTracking(StateManager.Value, entity, ValueBuffer.Empty);
+                entityTrackingInfo.StartTracking(StateManager, entity, ValueBuffer.Empty);
             }
         }
 
