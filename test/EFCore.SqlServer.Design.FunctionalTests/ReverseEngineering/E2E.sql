@@ -97,7 +97,18 @@ if exists (select * from sysobjects where id = object_id('dbo.PrimaryKeyWithSequ
 	drop table "dbo"."PrimaryKeyWithSequence"
 GO
 
-CREATE TYPE TestTypeAlias FROM nvarchar(max)
+if exists (select * from sys.schemas where name = 'TestSchema')
+	drop schema TestSchema
+GO
+
+CREATE SCHEMA TestSchema
+GO
+
+CREATE TYPE dbo.TestTypeAlias FROM nvarchar(max)
+GO
+
+-- the below type alias is just used to check that having 2 same-name, different-schema type aliases works
+CREATE TYPE TestSchema.TestTypeAlias FROM int
 GO
 
 CREATE TABLE "dbo"."AllDataTypes" (
@@ -147,7 +158,7 @@ CREATE TABLE "dbo"."AllDataTypes" (
 	xmlColumn xml NULL,
 	geographyColumn geography NULL,
 	geometryColumn geometry NULL,
-	typeAliasColumn TestTypeAlias NULL,
+	typeAliasColumn dbo.TestTypeAlias NULL,
 	binaryVaryingColumn binary varying NULL,
 	binaryVarying133Column binary varying(133) NULL,
 	binaryVaryingMaxColumn binary varying(max) NULL,
