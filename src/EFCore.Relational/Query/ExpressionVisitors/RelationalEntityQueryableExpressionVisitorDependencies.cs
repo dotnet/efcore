@@ -48,24 +48,28 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="materializerFactory"> The materializer factory. </param>
         /// <param name="shaperCommandContextFactory"> The shaper command context factory. </param>
         /// <param name="relationalAnnotationProvider"> The relational annotation provider. </param>
+        /// <param name="sqlTranslatingExpressionVisitorFactory"> The SQL translating expression visitor factory. </param>
         public RelationalEntityQueryableExpressionVisitorDependencies(
             [NotNull] IModel model,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
-            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
+            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
+            [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
             Check.NotNull(shaperCommandContextFactory, nameof(shaperCommandContextFactory));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
+            Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
 
             Model = model;
             SelectExpressionFactory = selectExpressionFactory;
             MaterializerFactory = materializerFactory;
             ShaperCommandContextFactory = shaperCommandContextFactory;
             RelationalAnnotationProvider = relationalAnnotationProvider;
+            SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
         }
 
         /// <summary>
@@ -94,6 +98,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         public IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
 
         /// <summary>
+        ///     The SQL translating expression visitor factory.
+        /// </summary>
+        public ISqlTranslatingExpressionVisitorFactory SqlTranslatingExpressionVisitorFactory { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="model"> A replacement for the current dependency of this type. </param>
@@ -104,7 +113,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 SelectExpressionFactory,
                 MaterializerFactory,
                 ShaperCommandContextFactory,
-                RelationalAnnotationProvider);
+                RelationalAnnotationProvider,
+                SqlTranslatingExpressionVisitorFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -117,7 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 selectExpressionFactory,
                 MaterializerFactory,
                 ShaperCommandContextFactory,
-                RelationalAnnotationProvider);
+                RelationalAnnotationProvider,
+                SqlTranslatingExpressionVisitorFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -130,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 SelectExpressionFactory,
                 materializerFactory,
                 ShaperCommandContextFactory,
-                RelationalAnnotationProvider);
+                RelationalAnnotationProvider,
+                SqlTranslatingExpressionVisitorFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -143,7 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 SelectExpressionFactory,
                 MaterializerFactory,
                 shaperCommandContextFactory,
-                RelationalAnnotationProvider);
+                RelationalAnnotationProvider,
+                SqlTranslatingExpressionVisitorFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -156,6 +169,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 SelectExpressionFactory,
                 MaterializerFactory,
                 ShaperCommandContextFactory,
-                relationalAnnotationProvider);
+                relationalAnnotationProvider,
+                SqlTranslatingExpressionVisitorFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="sqlTranslatingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalEntityQueryableExpressionVisitorDependencies With([NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory)
+            => new RelationalEntityQueryableExpressionVisitorDependencies(
+                Model,
+                SelectExpressionFactory,
+                MaterializerFactory,
+                ShaperCommandContextFactory,
+                RelationalAnnotationProvider,
+                sqlTranslatingExpressionVisitorFactory);
     }
 }

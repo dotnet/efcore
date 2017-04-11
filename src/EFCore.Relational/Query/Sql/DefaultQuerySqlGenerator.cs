@@ -236,6 +236,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 GeneratePredicate(selectExpression.Predicate);
             }
 
+            if (selectExpression.GroupBy.Any())
+            {
+                _relationalCommandBuilder.AppendLine();
+
+                GenerateGroupBy(selectExpression.GroupBy);
+            }
+
             if (selectExpression.OrderBy.Any())
             {
                 _relationalCommandBuilder.AppendLine();
@@ -327,7 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     Visit a single projection in SQL SELECT clause
         /// </summary>
         /// <param name="projection"> The projection expression. </param>
-        protected virtual void GenerateProjection([NotNull] Expression projection) => Visit(ApplyOptimizations(projection, searchCondition: false));
+        protected virtual void GenerateProjection([NotNull] Expression projection) 
+            => Visit(ApplyOptimizations(projection, searchCondition: false));
 
         /// <summary>
         ///     Visit the predicate in SQL WHERE clause
@@ -345,6 +353,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
         }
 
+        /// <summary>
+        ///     Generates the GROUP BY SQL.
+        /// </summary>
+        /// <param name="expressions"> The expressions. </param>
+        protected virtual void GenerateGroupBy([NotNull] IReadOnlyList<Expression> expressions)
+        {
+            _relationalCommandBuilder.Append("GROUP BY ");
+
+            ProcessExpressionList(expressions, GenerateGrouping);
+        }
+
+        /// <summary>
+        ///     Visit a single expression in a SQL GROUP BY clause
+        /// </summary>
+        /// <param name="grouping"> The grouping expression. </param>
+        protected virtual void GenerateGrouping([NotNull] Expression grouping) 
+            => Visit(ApplyOptimizations(grouping, searchCondition: false));
+        
         /// <summary>
         ///     Generates the ORDER BY SQL.
         /// </summary>

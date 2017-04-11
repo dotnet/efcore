@@ -486,11 +486,78 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IAsyncEnumerable<IAsyncGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
+        private static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
             IAsyncEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector)
-            => source.GroupBy(keySelector, elementSelector);
+            => new GroupByAsyncEnumerable<TSource, TKey, TElement>(source, keySelector, elementSelector);
+
+        private class GroupByAsyncEnumerable<TSource, TKey, TElement> : IAsyncEnumerable<IGrouping<TKey, TElement>>
+        {
+            private readonly IAsyncEnumerable<TSource> _source;
+            private readonly Func<TSource, TKey> _keySelector;
+            private readonly Func<TSource, TElement> _elementSelector;
+
+            public GroupByAsyncEnumerable(
+                IAsyncEnumerable<TSource> source,
+                Func<TSource, TKey> keySelector,
+                Func<TSource, TElement> elementSelector)
+            {
+                _source = source;
+                _keySelector = keySelector;
+                _elementSelector = elementSelector;
+            }
+
+            public IAsyncEnumerator<IGrouping<TKey, TElement>> GetEnumerator()
+                => new GroupByEnumerator(this);
+
+            private class GroupByEnumerator : IAsyncEnumerator<IGrouping<TKey, TElement>>
+            {
+                private readonly GroupByAsyncEnumerable<TSource, TKey, TElement> _groupByAsyncEnumerable;
+
+                private IEnumerator<Grouping<TKey, TElement>> _groupsEnumerator;
+
+                public GroupByEnumerator(GroupByAsyncEnumerable<TSource, TKey, TElement> groupByAsyncEnumerable)
+                {
+                    _groupByAsyncEnumerable = groupByAsyncEnumerable;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (_groupsEnumerator == null)
+                    {
+                        var groups = new Dictionary<TKey, Grouping<TKey, TElement>>();
+
+                        using (var sourceEnumerator = _groupByAsyncEnumerable._source.GetEnumerator())
+                        {
+                            while (await sourceEnumerator.MoveNext(cancellationToken))
+                            {
+                                var key = _groupByAsyncEnumerable._keySelector(sourceEnumerator.Current);
+                                var element = _groupByAsyncEnumerable._elementSelector(sourceEnumerator.Current);
+
+                                Grouping<TKey, TElement> grouping;
+                                if (!groups.TryGetValue(key, out grouping))
+                                {
+                                    groups.Add(key, grouping = new Grouping<TKey, TElement>(key));
+                                }
+
+                                grouping.Add(element);
+                            }
+                        }
+
+                        _groupsEnumerator = groups.Values.GetEnumerator();
+                    }
+
+                    return _groupsEnumerator.MoveNext();
+                }
+
+                public IGrouping<TKey, TElement> Current => _groupsEnumerator?.Current;
+
+                public void Dispose() => _groupsEnumerator?.Dispose();
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
