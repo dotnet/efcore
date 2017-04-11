@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
@@ -79,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
                     () => transactionManager.RollbackTransaction()).Message);
         }
 
-        private class FakeLogger : ILogger<InMemoryTransactionManager>
+        private class FakeLogger : IInterceptingLogger<LoggerCategory.Database.Transaction>
         {
             public void Log<TState>(
                 LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
@@ -90,6 +91,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             public bool IsEnabled(LogLevel logLevel) => true;
 
             public IDisposable BeginScope<TState>(TState state) => null;
+
+            public ILoggingOptions Options { get; }
+
+            public bool LogSensitiveData { get; }
         }
     }
 }

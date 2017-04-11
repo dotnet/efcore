@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Builds_simple_command()
         {
             var commandBuilder = new RelationalCommandBuilder(
-                new FakeSensitiveDataLogger<RelationalCommand>(),
+                new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
                 new DiagnosticListener("Fake"),
                 new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies()));
 
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Build_command_with_parameter()
         {
             var commandBuilder = new RelationalCommandBuilder(
-                new FakeSensitiveDataLogger<RelationalCommand>(),
+                new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
                 new DiagnosticListener("Fake"),
                 new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies()));
 

@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 using IsolationLevel = System.Data.IsolationLevel;
 #if NET46
 using System.Transactions;
@@ -90,11 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns> The connection. </returns>
         protected abstract DbConnection CreateDbConnection();
-
-        /// <summary>
-        ///     Gets the logger to write to.
-        /// </summary>
-        protected virtual ILogger<IRelationalConnection> Logger => Dependencies.Logger;
 
         /// <summary>
         ///     Gets the diagnostic source.
@@ -195,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private IDbContextTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
         {
-            Logger.LogDebug(
+            Dependencies.TransactionLogger.LogDebug(
                 RelationalEventId.BeginningTransaction,
                 isolationLevel,
                 il => RelationalStrings.RelationalLoggerBeginningTransaction(il.ToString("G")));
@@ -204,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 = new RelationalTransaction(
                     this,
                     DbConnection.BeginTransaction(isolationLevel),
-                    Logger,
+                    Dependencies.TransactionLogger,
                     DiagnosticSource,
                     transactionOwned: true);
 
@@ -233,7 +227,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 Open();
 
-                CurrentTransaction = new RelationalTransaction(this, transaction, Logger, DiagnosticSource, transactionOwned: false);
+                CurrentTransaction = new RelationalTransaction(
+                    this, 
+                    transaction, 
+                    Dependencies.TransactionLogger, 
+                    DiagnosticSource, 
+                    transactionOwned: false);
             }
 
             return CurrentTransaction;
@@ -282,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (_connection.Value.State != ConnectionState.Open)
             {
-                Logger.LogDebug(
+                Dependencies.ConnectionLogger.LogDebug(
                     RelationalEventId.OpeningConnection,
                     new
                     {
@@ -365,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (_connection.Value.State != ConnectionState.Open)
             {
-                Logger.LogDebug(
+                Dependencies.ConnectionLogger.LogDebug(
                     RelationalEventId.OpeningConnection,
                     new
                     {
@@ -430,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 #if NET46
             if (Transaction.Current != null)
             {
-                Logger.LogWarning(
+                Dependencies.TransactionLogger.LogWarning(
                     RelationalEventId.AmbientTransactionWarning,
                     () => RelationalStrings.AmbientTransaction);
             }
@@ -454,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 if (_connection.Value.State != ConnectionState.Closed)
                 {
-                    Logger.LogDebug(
+                    Dependencies.ConnectionLogger.LogDebug(
                         RelationalEventId.ClosingConnection,
                         new
                         {

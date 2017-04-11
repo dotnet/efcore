@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public ExecutionStrategyContextDependencies(
             [NotNull] ICurrentDbContext currentDbContext,
             [CanBeNull] IDbContextOptions options,
-            [CanBeNull] ILogger<IExecutionStrategy> logger)
+            [CanBeNull] IInterceptingLogger<LoggerCategory.Infrastructure> logger)
         {
             Check.NotNull(currentDbContext, nameof(currentDbContext));
 
@@ -69,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The logger.
         /// </summary>
-        public ILogger<IExecutionStrategy> Logger { get; }
+        public IInterceptingLogger<LoggerCategory.Infrastructure> Logger { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -92,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public ExecutionStrategyContextDependencies With([NotNull] ILogger<IExecutionStrategy> logger)
+        public ExecutionStrategyContextDependencies With([NotNull] IInterceptingLogger<LoggerCategory.Infrastructure> logger)
             => new ExecutionStrategyContextDependencies(CurrentDbContext, Options, logger);
     }
 }

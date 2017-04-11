@@ -20,7 +20,6 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -336,9 +335,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         private class NondeterministicResultCheckingVisitor : QueryModelVisitorBase
         {
             private const int QueryModelStringLengthLimit = 100;
-            private readonly ILogger _logger;
+            private readonly IInterceptingLogger<LoggerCategory.Query> _logger;
 
-            public NondeterministicResultCheckingVisitor([NotNull] ILogger logger) => _logger = logger;
+            public NondeterministicResultCheckingVisitor([NotNull] IInterceptingLogger<LoggerCategory.Query> logger)
+            {
+                _logger = logger;
+            }
 
             public override void VisitQueryModel(QueryModel queryModel)
             {

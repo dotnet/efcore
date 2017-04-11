@@ -14,12 +14,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
     public class TestRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
     {
-        private readonly ISensitiveDataLogger _logger;
+        private readonly IInterceptingLogger<LoggerCategory.Database.Sql> _logger;
         private readonly DiagnosticSource _diagnosticSource;
         private readonly IRelationalTypeMapper _typeMapper;
 
         public TestRelationalCommandBuilderFactory(
-            ISensitiveDataLogger<RelationalCommandBuilderFactory> logger,
+            IInterceptingLogger<LoggerCategory.Database.Sql> logger,
             DiagnosticSource diagnosticSource,
             IRelationalTypeMapper typeMapper)
         {
@@ -36,11 +36,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
         private class TestRelationalCommandBuilder : IRelationalCommandBuilder
         {
-            private readonly ISensitiveDataLogger _logger;
+            private readonly IInterceptingLogger<LoggerCategory.Database.Sql> _logger;
             private readonly DiagnosticSource _diagnosticSource;
 
             public TestRelationalCommandBuilder(
-                ISensitiveDataLogger logger,
+                IInterceptingLogger<LoggerCategory.Database.Sql> logger,
                 DiagnosticSource diagnosticSource,
                 IRelationalTypeMapper typeMapper)
             {
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             private readonly RelationalCommand _realRelationalCommand;
 
             public TestRelationalCommand(
-                ISensitiveDataLogger logger,
+                IInterceptingLogger<LoggerCategory.Database.Sql> logger,
                 DiagnosticSource diagnosticSource,
                 string commandText,
                 IReadOnlyList<IRelationalParameter> parameters)

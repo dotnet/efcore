@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
@@ -191,8 +190,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         protected override ModelValidator CreateModelValidator()
             => new SqlServerModelValidator(
                 new ModelValidatorDependencies(
-                    new Logger<RelationalModelValidator>(
-                        new ListLoggerFactory(Log, l => l == typeof(RelationalModelValidator).FullName))),
+                    new InterceptingLogger<LoggerCategory.Model.Validation>(
+                        new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
+                        new LoggingOptions())),
                 new RelationalModelValidatorDependencies(
                     new TestSqlServerAnnotationProvider(),
                     new SqlServerTypeMapper(new RelationalTypeMapperDependencies())));

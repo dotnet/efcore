@@ -3,38 +3,13 @@
 
 using System;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Design
 {
-    public class TestLoggerFactory : LoggerFactory
-    {
-        public TestLoggerFactory()
-        {
-            Logger = new TestLogger();
-            AddProvider(new TestLoggerProvider(Logger));
-        }
-
-        public TestLogger Logger { get; }
-    }
-
-    public class TestLoggerProvider : ILoggerProvider
-    {
-        private readonly ILogger _logger;
-
-        public TestLoggerProvider(ILogger logger)
-        {
-            _logger = logger;
-        }
-
-        public ILogger CreateLogger(string name) => _logger;
-
-        public void Dispose()
-        {
-        }
-    }
-
-    public class TestLogger : ILogger
+    public class TestLogger<T> : IInterceptingLogger<T>
+        where T : LoggerCategory<T>, new()
     {
         public IDisposable BeginScope<TState>(TState state) => new NullScope();
         public string FullLog => _sb.ToString();
@@ -46,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
             => _sb.Append(logLevel)
                 .Append(": ")
                 .Append(formatter(state, exception));
+
+        public ILoggingOptions Options { get; }
+
+        public bool LogSensitiveData { get; }
 
         public class NullScope : IDisposable
         {

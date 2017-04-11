@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
@@ -97,12 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
         protected ModelValidatorTest()
         {
             Log = new List<Tuple<LogLevel, string>>();
-            Logger = new Logger<ModelValidator>(new ListLoggerFactory(Log, l => l == typeof(ModelValidator).FullName));
+            Logger = new InterceptingLogger<LoggerCategory.Model.Validation>(
+                new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
+                new LoggingOptions());
         }
 
         protected List<Tuple<LogLevel, string>> Log { get; }
 
-        protected Logger<ModelValidator> Logger { get; }
+        protected IInterceptingLogger<LoggerCategory.Model.Validation> Logger { get; }
 
         protected virtual void VerifyWarning(string expectedMessage, IModel model)
         {

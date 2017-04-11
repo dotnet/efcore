@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalCommand(
-            [NotNull] ISensitiveDataLogger logger,
+            [NotNull] IInterceptingLogger<LoggerCategory.Database.Sql> logger,
             [NotNull] DiagnosticSource diagnosticSource,
             [NotNull] string commandText,
             [NotNull] IReadOnlyList<IRelationalParameter> parameters)
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual ISensitiveDataLogger Logger { get; }
+        protected virtual IInterceptingLogger<LoggerCategory.Database.Sql> Logger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

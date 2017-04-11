@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             var transaction = new RelationalTransaction(
                 connection,
                 dbTransaction,
-                new ListLogger(new List<Tuple<LogLevel, string>>()),
-                new DiagnosticListener("Fake"), 
+                new InterceptingLogger<LoggerCategory.Database.Transaction>(new ListLoggerFactory(new List<Tuple<LogLevel, string>>()), new LoggingOptions()),
+                new DiagnosticListener("Fake"),
                 false);
 
             Assert.Equal(dbTransaction, transaction.GetDbTransaction());

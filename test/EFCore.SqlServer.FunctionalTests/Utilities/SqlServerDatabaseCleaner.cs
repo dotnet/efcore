@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -13,7 +14,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
     public class SqlServerDatabaseCleaner : RelationalDatabaseCleaner
     {
         protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
-            => new SqlServerDatabaseModelFactory(loggerFactory.CreateLogger<SqlServerDatabaseModelFactory>());
+            => new SqlServerDatabaseModelFactory(
+                new InterceptingLogger<LoggerCategory.Scaffolding>(
+                    loggerFactory,
+                    new LoggingOptions()));
 
         protected override bool AcceptIndex(IndexModel index)
             => false;

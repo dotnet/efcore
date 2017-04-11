@@ -17,8 +17,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore.Extensions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
@@ -27,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
-        protected virtual ILogger Logger { get; }
+        protected virtual IInterceptingLogger<LoggerCategory.Scaffolding> Logger { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
         protected virtual CandidateNamingService CandidateNamingService { get; }
 
@@ -39,19 +37,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         private readonly IPluralizer _pluralizer;
 
         public RelationalScaffoldingModelFactory(
-            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IInterceptingLogger<LoggerCategory.Scaffolding> logger,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] CandidateNamingService candidateNamingService,
             [NotNull] IPluralizer pluralizer)
         {
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(logger, nameof(logger));
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(candidateNamingService, nameof(candidateNamingService));
             Check.NotNull(pluralizer, nameof(pluralizer));
 
-            Logger = loggerFactory.CreateLogger<RelationalScaffoldingModelFactory>();
+            Logger = logger;
             TypeMapper = typeMapper;
             CandidateNamingService = candidateNamingService;
             _databaseModelFactory = databaseModelFactory;

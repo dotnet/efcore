@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void LogCommandExecuted(
-            [NotNull] this ISensitiveDataLogger logger,
+            [NotNull] this IInterceptingLogger<LoggerCategory.Database.Sql> logger,
             [NotNull] DbCommand command,
             long startTimestamp,
             long currentTimestamp)

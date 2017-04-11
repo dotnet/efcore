@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -131,7 +132,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual TestModelBuilder Validate()
             {
                 var modelBuilder = ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate();
-                new CoreModelValidator(new ModelValidatorDependencies(new Logger<ModelValidator>(new LoggerFactory()))).Validate(modelBuilder.Metadata);
+                new CoreModelValidator(
+                        new ModelValidatorDependencies(
+                            new InterceptingLogger<LoggerCategory.Model.Validation>(
+                                    new LoggerFactory(),
+                                    new LoggingOptions())))
+                    .Validate(modelBuilder.Metadata);
                 return this;
             }
 

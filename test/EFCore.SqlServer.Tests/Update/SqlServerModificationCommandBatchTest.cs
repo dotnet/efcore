@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
         {
             var batch = new SqlServerModificationCommandBatch(
                 new RelationalCommandBuilderFactory(
-                    new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
                     new DiagnosticListener("Fake"),
                     new SqlServerTypeMapper(new RelationalTypeMapperDependencies())),
                 new SqlServerSqlGenerationHelper(
