@@ -70,7 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ICompiledQueryCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IQueryAnnotationExtractor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEntityTrackingInfoFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(ISubQueryMemberPushDownExpressionVisitor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ITaskBlockingExpressionVisitor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMemberAccessBindingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(INavigationRewritingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -210,7 +209,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IQueryAnnotationExtractor, QueryAnnotationExtractor>();
             TryAdd<IQueryOptimizer, QueryOptimizer>();
             TryAdd<IEntityTrackingInfoFactory, EntityTrackingInfoFactory>();
-            TryAdd<ISubQueryMemberPushDownExpressionVisitor, SubQueryMemberPushDownExpressionVisitor>();
             TryAdd<ITaskBlockingExpressionVisitor, TaskBlockingExpressionVisitor>();
             TryAdd<IEntityResultFindingExpressionVisitorFactory, EntityResultFindingExpressionVisitorFactory>();
             TryAdd<IMemberAccessBindingExpressionVisitorFactory, MemberAccessBindingExpressionVisitorFactory>();
