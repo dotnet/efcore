@@ -355,9 +355,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             selectExpression.ClearTables();
 
-            var emptySelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext, "empty");
-            emptySelectExpression.AddToProjection(new AliasExpression("empty", Expression.Constant(null)));
+            var queryCompilationContext = handlerContext.QueryModelVisitor.QueryCompilationContext;
+            var emptySelectExpression = handlerContext.SelectExpressionFactory.Create(queryCompilationContext, "empty");
 
+            emptySelectExpression.AddToProjection(new AliasExpression("empty", Expression.Constant(null)));
             selectExpression.AddTable(emptySelectExpression);
 
             var leftOuterJoinExpression = new LeftOuterJoinExpression(subquery);
@@ -368,13 +369,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             selectExpression.AddTable(leftOuterJoinExpression);
 
             selectExpression.ProjectStarTable = subquery;
-
-            handlerContext.QueryModelVisitor.Expression
-                = new DefaultIfEmptyExpressionVisitor(
-                        handlerContext.QueryModelVisitor.QueryCompilationContext)
-                    .Visit(handlerContext.QueryModelVisitor.Expression);
-
-            return handlerContext.EvalOnClient(requiresClientResultOperator: false);
+            
+            return new DefaultIfEmptyExpressionVisitor(queryCompilationContext)
+                .Visit(handlerContext.QueryModelVisitor.Expression);
         }
 
         private sealed class DefaultIfEmptyExpressionVisitor : ExpressionVisitor
@@ -386,21 +383,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _relationalQueryCompilationContext = relationalQueryCompilationContext;
             }
 
+            protected override Expression VisitExtension(Expression extensionExpression)
+            {
+                if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
+                {
+                    return shapedQueryExpression.AsDefaultIfEmpty();
+                }
+
+                return base.VisitExtension(extensionExpression);
+            }
+
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
                 if (methodCallExpression.Method.MethodIsClosedFormOf(
-                    _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
-                {
-                    return Expression.Call(
-                        _relationalQueryCompilationContext.QueryMethodProvider.DefaultIfEmptyShapedQueryMethod
-                            .MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()),
-                        methodCallExpression.Arguments);
-                }
-
-                if (methodCallExpression.Method.MethodIsClosedFormOf(
                     _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersMethod))
                 {
-                    var newSource = VisitMethodCall((MethodCallExpression)methodCallExpression.Arguments[1]);
+                    var newSource = Visit(methodCallExpression.Arguments[1]);
 
                     return Expression.Call(
                         methodCallExpression.Method,

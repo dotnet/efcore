@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 QueryModelVisitor.RegisterSubQueryVisitor(_querySource, queryModelVisitor);
             }
 
-            return queryModelVisitor.Expression;
+            return new NonComposableQueryExpression(queryModelVisitor.Expression);
         }
 
         /// <summary>
@@ -168,6 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             Func<IQuerySqlGenerator> querySqlGeneratorFunc = selectExpression.CreateDefaultQuerySqlGenerator;
 
+            var useQueryComposition = true;
+
             if (fromSqlAnnotation == null)
             {
                 selectExpression.AddTable(
@@ -188,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 var trimmedSql = fromSqlAnnotation.Sql.TrimStart('\r', '\n', '\t', ' ');
 
-                var useQueryComposition
+                useQueryComposition
                     = trimmedSql.StartsWith("SELECT ", StringComparison.OrdinalIgnoreCase)
                       || trimmedSql.StartsWith("SELECT" + Environment.NewLine, StringComparison.OrdinalIgnoreCase)
                       || trimmedSql.StartsWith("SELECT\t", StringComparison.OrdinalIgnoreCase);
@@ -223,24 +225,30 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            var shaper = CreateShaper(elementType, entityType, selectExpression);
+            var shaper = CreateShaper(elementType, entityType, selectExpression, useQueryComposition);
 
-            return Expression.Call(
-                QueryModelVisitor.QueryCompilationContext.QueryMethodProvider // TODO: Don't use ShapedQuery when projecting
-                    .ShapedQueryMethod
-                    .MakeGenericMethod(shaper.Type),
-                EntityQueryModelVisitor.QueryContextParameter,
-                Expression.Constant(_shaperCommandContextFactory.Create(querySqlGeneratorFunc)),
-                Expression.Constant(shaper));
+            var shapedQueryExpression = new ShapedQueryExpression(
+                QueryModelVisitor.QueryCompilationContext,
+                selectExpression,
+                shaper,
+                _shaperCommandContextFactory.Create(querySqlGeneratorFunc));
+
+            return useQueryComposition
+                ? (Expression)shapedQueryExpression
+                : new NonComposableQueryExpression(shapedQueryExpression);
         }
 
-        private Shaper CreateShaper(Type elementType, IEntityType entityType, SelectExpression selectExpression)
+        private Shaper CreateShaper(
+            Type elementType, 
+            IEntityType entityType, 
+            SelectExpression selectExpression,
+            bool useQueryComposition)
         {
             Shaper shaper;
 
             if (QueryModelVisitor.QueryCompilationContext
                     .QuerySourceRequiresMaterialization(_querySource)
-                || QueryModelVisitor.RequiresClientEval)
+                || !useQueryComposition)
             {
                 var materializer
                     = _materializerFactory

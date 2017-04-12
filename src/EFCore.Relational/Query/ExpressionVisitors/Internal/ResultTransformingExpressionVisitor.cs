@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
@@ -37,37 +37,44 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitMethodCall(MethodCallExpression node)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
-            Check.NotNull(node, nameof(node));
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
 
-            if (node.Method.MethodIsClosedFormOf(
-                _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
+            if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
             {
-                var queryArguments = node.Arguments.ToList();
-
-                queryArguments[2] = Expression.Default(typeof(int?));
-
-                return ResultOperatorHandler
-                    .CallWithPossibleCancellationToken(
-                        _relationalQueryCompilationContext.QueryMethodProvider
-                            .GetResultMethod.MakeGenericMethod(typeof(TResult)),
-                        Expression.Call(
-                            _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod,
-                            queryArguments));
+                return ResultOperatorHandler.CallWithPossibleCancellationToken(
+                    _relationalQueryCompilationContext.QueryMethodProvider
+                        .GetResultMethod.MakeGenericMethod(typeof(TResult)),
+                    Expression.Call(
+                        _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod,
+                        EntityQueryModelVisitor.QueryContextParameter,
+                        Expression.Constant(shapedQueryExpression.ShaperCommandContext),
+                        Expression.Default(typeof(int?))));
             }
 
-            if (node.Method.MethodIsClosedFormOf(
+            return base.VisitExtension(extensionExpression);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
+            if (methodCallExpression.Method.MethodIsClosedFormOf(
                 _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersMethod))
             {
-                var sourceArgument = (MethodCallExpression)Visit(node.Arguments[1]);
+                var sourceArgument = (MethodCallExpression)Visit(methodCallExpression.Arguments[1]);
                 if (sourceArgument.Method.MethodIsClosedFormOf(
                     _relationalQueryCompilationContext.QueryMethodProvider.GetResultMethod))
                 {
                     var getResultArgument = sourceArgument.Arguments[0];
                     var newGetResultArgument = Expression.Call(
                         _relationalQueryCompilationContext.QueryMethodProvider.InjectParametersMethod.MakeGenericMethod(typeof(ValueBuffer)),
-                        node.Arguments[0], getResultArgument, node.Arguments[2], node.Arguments[3]);
+                        methodCallExpression.Arguments[0], getResultArgument, methodCallExpression.Arguments[2], methodCallExpression.Arguments[3]);
 
                     return ResultOperatorHandler.CallWithPossibleCancellationToken(sourceArgument.Method, newGetResultArgument);
                 }
@@ -76,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
-            foreach (var expression in node.Arguments)
+            foreach (var expression in methodCallExpression.Arguments)
             {
                 var newExpression = Visit(expression);
 
@@ -86,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
             }
 
-            return node;
+            return methodCallExpression;
         }
     }
 }
