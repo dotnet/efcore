@@ -4,10 +4,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
+
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
 {
@@ -405,6 +407,99 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
             model.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
 
             Validate(model);
+        }
+
+
+        [Fact]
+        public virtual void Detects_missing_function_name()
+        {
+            var model = new Model();
+
+            var dbFunc = model.AddDbFunction(typeof(string).GetTypeInfo().GetMethods().Where(m => m.Name == nameof(string.ToLower) && m.GetParameters().Count() == 0).Single());
+
+            dbFunc.Name = null;
+
+            VerifyError(CoreStrings.DbFunctionNameEmpty(), model);
+        }
+
+        [Fact]
+        public virtual void Detects_function_duplicate_parameter_index()
+        {
+            var model = new Model();
+
+            var dbFunc = model.AddDbFunction(typeof(string).GetTypeInfo().GetMethods().Where(m => m.Name == nameof(string.ToLower) && m.GetParameters().Count() == 0).Single());
+
+            dbFunc.AddParameter("a").SetParameterIndex(0);
+            dbFunc.AddParameter("b").SetParameterIndex(0);
+
+            VerifyError(CoreStrings.DbFunctionDuplicateIndex("String.ToLower"), model);
+        }
+
+        [Fact]
+        public virtual void Detects_function_missing_parameter_index()
+        {
+            var model = new Model();
+
+            var dbFunc = model.AddDbFunction(typeof(string).GetTypeInfo().GetMethods().Where(m => m.Name == nameof(string.ToLower) && m.GetParameters().Count() == 0).Single());
+
+            dbFunc.AddParameter("a").SetParameterIndex(1);
+
+            VerifyError(CoreStrings.DbFunctionNonContinuousIndex("String.ToLower"), model);
+        }
+
+        [Fact]
+        public virtual void Detects_function_with_non_constant_identifier_parameter()
+        {
+            var model = new Model();
+
+            var dbFunc = model.AddDbFunction(typeof(string).GetTypeInfo().GetMethods().Where(m => m.Name == nameof(string.ToLower) && m.GetParameters().Count() == 0).Single());
+
+            var dbParam = dbFunc.AddParameter("a"); ;
+            dbParam.SetParameterIndex(0);
+            dbParam.IsIdentifier = true;
+
+            VerifyError(CoreStrings.DbFunctionIdentifierMustBeCompileTimeConstant("String.ToLower", dbParam.Name), model);
+        }
+
+        [Fact]
+        public virtual void Detects_function_object_parameter_on_static_method()
+        {
+            var model = new Model();
+
+            var dbFunc = model.AddDbFunction(typeof(string).GetTypeInfo().GetDeclaredMethod(nameof(string.IsNullOrEmpty)));
+
+            var dbParam = dbFunc.AddParameter("a"); ;
+            dbParam.SetParameterIndex(0);
+            dbParam.IsObjectParameter = true;
+
+            VerifyError(CoreStrings.DbFunctionObjectParameterOnStaticMethod("String.IsNullOrEmpty", dbParam.Name), model);
+        }
+
+        [Fact]
+        public virtual void Detects_function_with_array_parameter_but_no_translate_callback()
+        {
+            var model = new Model();
+
+            var dbFunc = model.AddDbFunction(typeof(string).GetTypeInfo().GetDeclaredMethod(nameof(string.IsNullOrEmpty)));
+
+            var dbParam = dbFunc.AddParameter("a"); ;
+            dbParam.SetParameterIndex(0);
+            dbParam.ParameterType = typeof(string[]);
+
+            VerifyError(CoreStrings.DbFunctionParameterArrayNoTranslate("String.IsNullOrEmpty", dbParam.Name), model);
+        }
+
+        [Fact]
+        public virtual void Detects_function_with_parameter_with_missing_type()
+        {
+            var model = new Model();
+
+            var dbFunc = model.AddDbFunction(typeof(string).GetTypeInfo().GetDeclaredMethod(nameof(string.IsNullOrEmpty)));
+
+            var dbParam = dbFunc.AddParameter("a"); ;
+            dbParam.IsObjectParameter = true;
+
+            VerifyError(CoreStrings.DbFunctionObjectParameterOnStaticMethod("String.IsNullOrEmpty", dbParam.Name), model);
         }
 
         // INotify interfaces not really implemented; just marking the classes to test metadata construction

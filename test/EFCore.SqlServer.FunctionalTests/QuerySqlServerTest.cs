@@ -5710,7 +5710,7 @@ WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])",
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (CHARINDEX(N'A', [c].[CustomerID]) = 1)
 
-@_outer_City: Berlin (Size = 6)
+@_outer_City: Berlin (Size = 4000)
 @_outer_CustomerID: ALFKI (Size = 450)
 
 SELECT TOP(3) [o].[OrderDate]

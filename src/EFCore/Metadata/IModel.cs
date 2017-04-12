@@ -21,6 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<IEntityType> GetEntityTypes();
 
         /// <summary>
+        ///     Gets all db functions defined in the model.
+        /// </summary>
+        /// <returns> All entity types defined in the model. </returns>
+        IEnumerable<IDbFunction> GetDbFunctions();
+
+        /// <summary>
         ///     Gets the entity type with the given name. Returns null if no entity type with the given name is found.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>

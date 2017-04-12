@@ -1009,6 +1009,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
+            var dbFunctionExpression = expression as DbFunctionExpression;
+            if (dbFunctionExpression != null)
+            {
+                var newArguments = Visit(dbFunctionExpression.Arguments);
+
+                if (newArguments.Any(a => a == null))
+                    return null;
+
+                return dbFunctionExpression.Translate(newArguments)
+                        ?? new SqlFunctionExpression(dbFunctionExpression.Name, dbFunctionExpression.Type, dbFunctionExpression.SchemaName, newArguments);
+            }
+
+            if ((expression as IdentifierExpression) != null)
+                return expression;
+
             return base.VisitExtension(expression);
         }
 

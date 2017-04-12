@@ -14,6 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when an entity type is added to the model.
         /// </summary>
+        public virtual IList<IDbFunctionConvention> DbFunctionAddedConventions { get; } = new List<IDbFunctionConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an entity type is added to the model.
+        /// </summary>
         public virtual IList<IEntityTypeConvention> EntityTypeAddedConventions { get; } = new List<IEntityTypeConvention>();
 
         /// <summary>

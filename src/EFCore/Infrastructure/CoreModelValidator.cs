@@ -41,6 +41,49 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             EnsureChangeTrackingStrategy(model);
             ValidateDelegatedIdentityNavigations(model);
             EnsureFieldMapping(model);
+            EnsureDbFunctions(model);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void EnsureDbFunctions([NotNull] IModel model)
+        {
+            foreach (var dbFunction in model.GetDbFunctions())
+            {
+                if (String.IsNullOrEmpty(dbFunction.Name))
+                    ShowError(CoreStrings.DbFunctionNameEmpty());
+
+                var paramIndexes = dbFunction.Parameters.Select(fp => fp.ParameterIndex).ToArray();
+                var dbFuncName = $"{dbFunction.MethodInfo.DeclaringType.Name}.{dbFunction.MethodInfo.Name}";
+
+                if (paramIndexes.Distinct().Count() != dbFunction.Parameters.Count())
+                    ShowError(CoreStrings.DbFunctionDuplicateIndex(dbFuncName));
+
+                if (Enumerable.Range(0, paramIndexes.Length).Except(paramIndexes).Any())
+                    ShowError(CoreStrings.DbFunctionNonContinuousIndex(dbFuncName));
+
+                var idNoValue = dbFunction.Parameters.Where(p => p.IsIdentifier && p.Value == null).FirstOrDefault();
+                if (idNoValue != null)
+                    ShowError(CoreStrings.DbFunctionIdentifierMustBeCompileTimeConstant(dbFuncName, idNoValue.Name));
+
+                var objectParam = dbFunction.Parameters.Where(p => p.IsObjectParameter).FirstOrDefault();
+                if (dbFunction.MethodInfo.IsStatic == true && objectParam != null)
+                    ShowError(CoreStrings.DbFunctionObjectParameterOnStaticMethod(dbFuncName, objectParam.Name));
+
+                var missingType = dbFunction.Parameters.Where(p => p.IsIdentifier == false
+                    && p.IsObjectParameter == false
+                    && p.ParameterType == null).FirstOrDefault();
+
+                if (missingType != null)
+                    ShowError(CoreStrings.DbFunctionParameterMissingType(dbFuncName, missingType.Name));
+
+                var arrayParam = dbFunction.Parameters.Where(p => p.ParameterType.GetTypeInfo().IsArray == true).FirstOrDefault();
+
+                if (arrayParam != null && dbFunction.HasTranslateCallback == false)
+                    ShowError(CoreStrings.DbFunctionParameterArrayNoTranslate(dbFuncName, arrayParam.Name));
+            }
         }
 
         /// <summary>

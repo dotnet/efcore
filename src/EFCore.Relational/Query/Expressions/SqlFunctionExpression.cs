@@ -29,12 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public SqlFunctionExpression(
             [NotNull] string functionName,
             [NotNull] Type returnType)
-            : this(functionName, returnType, Enumerable.Empty<Expression>())
+            : this(functionName, returnType, null, Enumerable.Empty<Expression>())
         {
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SqlFunctionExpression" /> class.
+        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.Expressions.SqlFunctionExpression class.
         /// </summary>
         /// <param name="functionName"> Name of the function. </param>
         /// <param name="returnType"> The return type. </param>
@@ -43,10 +43,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] string functionName,
             [NotNull] Type returnType,
             [NotNull] IEnumerable<Expression> arguments)
+            : this(functionName, returnType, null, arguments)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SqlFunctionExpression" /> class.
+        /// </summary>
+        /// <param name="functionName"> Name of the function. </param>
+        /// <param name="returnType"> The return type. </param>
+        /// /// <param name="schema"> The schema this function exists in if any. </param>
+        /// <param name="arguments"> The arguments. </param>
+        public SqlFunctionExpression(
+            [NotNull] string functionName,
+            [NotNull] Type returnType,
+            [CanBeNull] string schema,
+            [NotNull] IEnumerable<Expression> arguments)
         {
             FunctionName = functionName;
             Type = returnType;
-
+            Schema = schema;
             _arguments = arguments.ToList().AsReadOnly();
         }
 
@@ -57,6 +73,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The name of the function.
         /// </value>
         public virtual string FunctionName { get; }
+
+        /// <summary>
+        ///     Gets the name of the schema.
+        /// </summary>
+        /// <value>
+        ///     The name of the schema.
+        /// </value>
+        public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The arguments.
@@ -153,6 +177,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 hashCode = (hashCode * 397) ^ Type.GetHashCode();
                 return hashCode;
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{this.FunctionName}({string.Join(", ", this.Arguments)})";
         }
     }
 }

@@ -26,6 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 typeof(CollectionNavigationBuilder<SampleEntity, SampleEntity>),
                 typeof(EntityTypeBuilder),
                 typeof(EntityTypeBuilder<>),
+                typeof(DbFunctionBuilder),
+                typeof(DbFunctionParameterBuilder),
                 typeof(IndexBuilder),
                 typeof(KeyBuilder),
                 typeof(PropertyBuilder),

@@ -79,6 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             FindSets(modelBuilder, context);
 
+            FindFunctions(modelBuilder, context);
+
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 
             internalModelBuilder.Validate();
@@ -107,6 +109,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var setInfo in Dependencies.SetFinder.FindSets(context))
             {
                 modelBuilder.Entity(setInfo.ClrType);
+            }
+        }
+
+        /// <summary>
+        ///     Adds the user defined database functions found in <see cref="DbContext" /> to the model.
+        /// </summary>
+        /// <param name="modelBuilder"> The <see cref="ModelBuilder"/> being used to build the model. </param>
+        /// <param name="context"> The context to find <see cref="DbSet{TEntity}"/> properties on. </param>
+        protected virtual void FindFunctions([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context)
+        {
+            foreach (var dbFunctionMethodInfo in DbFunctionFinder.FindFunctions(context))
+            {
+                modelBuilder.DbFunction(dbFunctionMethodInfo);
             }
         }
     }

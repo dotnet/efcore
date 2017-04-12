@@ -51,6 +51,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual InternalDbFunctionBuilder OnDbFunctionAdded([NotNull] InternalDbFunctionBuilder dbFunctionBuilder)
+            => _scope.OnDbFunctionAdded(Check.NotNull(dbFunctionBuilder, nameof(dbFunctionBuilder)));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool OnEntityTypeIgnored([NotNull] InternalModelBuilder modelBuilder, [NotNull] string name, [CanBeNull] Type type)
             => _scope.OnEntityTypeIgnored(Check.NotNull(modelBuilder, nameof(modelBuilder)), Check.NotNull(name, nameof(name)), type);
 

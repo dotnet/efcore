@@ -702,6 +702,15 @@
   <data name="FirstWithoutOrderByAndFilter" xml:space="preserve">
     <value>Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.</value>
   </data>
+  <data name="DbFunctionIdentifierMustBeConstant" xml:space="preserve">
+    <value>Db Function '{dbFunctionName}' has parameters '{badParam}' which are Identifer parameters that done have a set value.</value>
+  </data>
+  <data name="DbFunctionNonContinuousIndex" xml:space="preserve">
+    <value>Db Function '{dbFunctionName}' has a non continuous parameter index.</value>
+  </data>
+  <data name="DbFunctionParametersDuplicateIndex" xml:space="preserve">
+    <value>Db Function '{dbFunctionName}' has parameters with duplicate indexes.</value>
+  </data>
   <data name="InvalidPoolSize" xml:space="preserve">
     <value>The specified poolSize must be greater than 0.</value>
   </data>
@@ -749,5 +758,38 @@
   </data>
   <data name="UntrackedDelegatedIdentityEntity" xml:space="preserve">
     <value>The entity type '{entityType}' has delegated identity and the given entity is currently not being tracked. To start tracking this entity call '{targetEntryCall}' on the owner entry.</value>
+  </data>
+  <data name="DuplicateDbFunction" xml:space="preserve">
+    <value>The Db Function '{dbFunction}' cannot be added to the model because an Db Function with the same Methodinfo already exists.</value>
+  </data>
+  <data name="DbFunctionNameEmpty" xml:space="preserve">
+    <value>Db Function has no name set.</value>
+  </data>
+  <data name="DbFunctionObjectParameterOnStaticMethod" xml:space="preserve">
+    <value>Db Function '{dbFunctionName}' is a static method but has parameters {badParam} which are Object parameters</value>
+  </data>
+  <data name="DbFunctionInvalidParameterType" xml:space="preserve">
+    <value>The parameter '{dbParameter}' for Db Function '{dbFunction}' has an invalid type.  The type is '{dbParamType}'.  The type must be a primitive, datetime, decimal, guid, enum, nullable versions of those types, object, string, or an array of those types.</value>
+  </data>
+  <data name="DbFunctionInvalidReturnType" xml:space="preserve">
+    <value>The Db Function '{dbFunction}' has an invalid return type '{returnType}'.  The return  type must be a primitive, datetime, decimal, guid, or nullable versions of those types.</value>
+  </data>
+  <data name="DbFunctionInvalidTypeObjectParamMissingTranslate" xml:space="preserve">
+    <value>The parameter '{dbParameter}' Db Function '{dbFunction}' has an invalid type and is set to IsObject.  The parent function must provide a TranslateCallback, or the type must be a primitive, datetime, decimal, guid, enum, nullable versions of those types, object, string, or an array of those types.</value>
+  </data>
+  <data name="DbFunctionParameterArrayNoTranslate" xml:space="preserve">
+    <value>The parameter '{badParam}' for Db Function '{dbFunctionName}' is an array type.  The db function must supply a translate method in this case.</value>
+  </data>
+  <data name="DbFunctionParameterMissingType" xml:space="preserve">
+    <value>The parameter '{dbParameter}' for Db Function '{dbFunctionName}' is missing its type.  The type must be a primitive, datetime, decimal, guid, nullable versions of those types, object, string, or an array of those types.</value>
+  </data>
+  <data name="DbFunctionGenericMethodNotSupported" xml:space="preserve">
+    <value>The Db Function '{dbFunction}' is generic.  Generic methods are not supported.</value>
+  </data>
+  <data name="DbFunctionMethodNotFound" xml:space="preserve">
+    <value>Can not load function {functionName} from type {declaringType}.  Method is not found.</value>
+  </data>
+  <data name="DbFunctionMethodTooManyOverloads" xml:space="preserve">
+    <value>Can not load function {functionName} from type {declaringType}.  Too many overloads found.  Register the method with the overload of DbFunction which accepts MethodInfo.</value>
   </data>
 </root>

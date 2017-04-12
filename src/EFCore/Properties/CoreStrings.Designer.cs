@@ -1524,6 +1524,116 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType, index, indexType);
 
         /// <summary>
+        /// Db Function has no name set.
+        /// </summary>
+        public static string DbFunctionNameEmpty()
+           => GetString("DbFunctionNameEmpty");
+
+        /// <summary>
+        /// Db Function '{dbFunctionName}' has parameters with duplicate indexes.
+        /// </summary>
+        public static string DbFunctionDuplicateIndex([CanBeNull] object dbFunctionName)
+             => string.Format(
+                GetString("DbFunctionParametersDuplicateIndex", nameof(dbFunctionName)),
+                dbFunctionName);
+
+        /// <summary>
+        /// Db Function '{dbFunctionName}' has a non continuous parameter index.
+        /// </summary>
+        public static string DbFunctionNonContinuousIndex([CanBeNull] object dbFunctionName)
+             => string.Format(
+                GetString("DbFunctionNonContinuousIndex", nameof(dbFunctionName)),
+                dbFunctionName);
+
+        /// <summary>
+        /// Db Function '{dbFunctionName}' has parameters '{dbParams}' which are Identifer parameters that done have a set value.
+        /// </summary>
+        public static string DbFunctionIdentifierMustBeCompileTimeConstant([CanBeNull] object dbFunctionName, [CanBeNull] object badParam)
+            => string.Format(
+                GetString("DbFunctionIdentifierMustBeConstant", nameof(dbFunctionName), nameof(badParam)),
+                dbFunctionName, badParam);
+
+        /// <summary>
+        /// Db Function '{dbFunctionName}' is a static method but has parameters {dbParams} which are Object parameters
+        /// </summary>
+        public static string DbFunctionObjectParameterOnStaticMethod([CanBeNull] object dbFunctionName, [CanBeNull] object badParam)
+            => string.Format(
+                GetString("DbFunctionObjectParameterOnStaticMethod", nameof(dbFunctionName), nameof(badParam)),
+                dbFunctionName, badParam);
+
+        /// <summary>
+        /// The Db Function '{dbFunction}' cannot be added to the model because an Db Function with the same Methodinfo already exists.
+        /// </summary>
+        public static string DuplicateDbFunction([CanBeNull] MethodInfo dbFunction)
+            => string.Format(
+                GetString("DuplicateDbFunction", nameof(dbFunction)),
+                dbFunction);
+
+        /// <summary>
+        /// The parameter '{dbParameter}' for Db Function '{dbFunction}' has an invalid type.  The type is '{dbParamType}'.  The type must be a primitive, datetime, decimal, guid, enum, nullable versions of those types, object, string, or an array of those types.
+        /// </summary>
+        public static string DbFunctionInvalidParameterType([CanBeNull] MethodInfo dbFunction, [CanBeNull] object dbParameter, [CanBeNull] object dbParamType)
+            => string.Format(
+                GetString("DbFunctionInvalidParameterType", nameof(dbParameter), nameof(dbFunction), nameof(dbParamType)),
+                dbParameter, $"{ dbFunction?.DeclaringType}.{dbFunction?.Name}", dbParamType);
+
+        /// <summary>
+        /// The parameter '{dbParameter}' Db Function '{dbFunction}' has an invalid type and is set to IsObject.  The parent function must provide a TranslateCallback, or the type must be a primitive, datetime, decimal, guid, enum, nullable versions of those types, object, string, or an array of those types.
+        /// </summary>
+        public static string DbFunctionInvalidTypeObjectParamMissingTranslate([CanBeNull] MethodInfo dbFunction, [CanBeNull] object dbParameter, [CanBeNull] object dbParamType)
+            => string.Format(
+                GetString("DbFunctionInvalidTypeObjectParamMissingTranslate", nameof(dbParameter), nameof(dbFunction), nameof(dbParamType)),
+                dbParameter, $"{ dbFunction?.DeclaringType}.{dbFunction?.Name}", dbParamType) ;
+
+        /// <summary>
+        /// The Db Function '{dbFunction}' has an invalid return type '{returnType}'.  The return  type must be a primitive, datetime, decimal, guid, or nullable versions of those types.
+        /// </summary>
+        public static string DbFunctionInvalidReturnType([CanBeNull] MethodInfo dbFunction, [CanBeNull] object returnType)
+            => string.Format(
+                GetString("DbFunctionInvalidReturnType",nameof(returnType), nameof(dbFunction)),
+                returnType, $"{ dbFunction?.DeclaringType}.{dbFunction?.Name}");
+
+        /// <summary>
+        /// The parameter '{dbParameter}' for Db Function '{dbFunctionName}' is missing its type.  The type must be a primitive, datetime, decimal, guid, nullable versions of those types, object, string, or an array of those types.
+        /// </summary>
+        public static string DbFunctionParameterMissingType([CanBeNull] object dbFunctionName, [CanBeNull] object badParam)
+             => string.Format(
+                GetString("DbFunctionParameterMissingType", nameof(dbFunctionName), nameof(badParam)),
+                dbFunctionName, badParam);
+
+        /// <summary>
+        /// The parameter '{dbParameter}' for Db Function '{dbFunctionName}' is an array type.  The db function must supply a translate method in this case.
+        /// </summary>
+        public static string DbFunctionParameterArrayNoTranslate([CanBeNull] object dbFunctionName, [CanBeNull] object badParam)
+             => string.Format(
+                GetString("DbFunctionParameterArrayNoTranslate", nameof(dbFunctionName), nameof(badParam)),
+                dbFunctionName, badParam);
+
+        /// <summary>
+        /// The Db Function '{dbFunction}' is generic.  Generic methods are not supported.
+        /// </summary>
+        public static string DbFunctionGenericMethodNotSupported([CanBeNull] MethodInfo dbFunction)
+             => string.Format(
+                GetString("DbFunctionGenericMethodNotSupported", nameof(dbFunction)),
+                $"{ dbFunction?.DeclaringType}.{dbFunction?.Name}");
+
+        /// <summary>
+        /// Can not load function {functionName} from type {declaringType}.  Method is not found.
+        /// </summary>
+        public static string DbFunctionMethodNotFound([CanBeNull] object declaringType, [CanBeNull] object functionName)
+             => string.Format(
+                GetString("DbFunctionMethodNotFound", nameof(functionName), nameof(declaringType)),
+                functionName, declaringType);
+
+        /// <summary>
+        /// Can not load function {functionName} from type {declaringType}.  Too many overloads found.  Register the method with the overload of DbFunction which accepts MethodInfo.
+        /// </summary>
+        public static string DbFunctionMethodTooManyOverloads([CanBeNull] object declaringType, [CanBeNull] object functionName)
+            => string.Format(
+                GetString("DbFunctionMethodTooManyOverloads", nameof(functionName), nameof(declaringType)),
+                functionName, declaringType);
+
+        /// <summary>
         ///     Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.
         /// </summary>
         public static string FirstWithoutOrderByAndFilter([CanBeNull] object queryModel)

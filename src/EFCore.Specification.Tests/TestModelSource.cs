@@ -31,6 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             FindSets(modelBuilder, context);
 
+            FindFunctions(modelBuilder, context);
+
             _onModelCreating(modelBuilder);
 
             model.Validate();

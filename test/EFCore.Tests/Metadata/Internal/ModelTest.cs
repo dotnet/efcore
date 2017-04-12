@@ -250,6 +250,33 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Same(foreignKey, entityType1.GetReferencingForeignKeys().Single());
         }
 
+        [Fact]
+        public void Adding_duplicate_dbfunction_throws()
+        {
+            var model = new Model();
+
+            var dbFunctionMethod = typeof(string).GetTypeInfo().GetMethods().Where(m => m.Name == nameof(string.ToLower) && m.GetParameters().Count() == 0).Single();
+
+            model.AddDbFunction(dbFunctionMethod);
+
+            Assert.Equal(
+                CoreStrings.DuplicateDbFunction(dbFunctionMethod),
+                Assert.Throws<InvalidOperationException>(() => model.AddDbFunction(dbFunctionMethod)).Message);
+        }
+
+        [Fact]
+        public void Can_get_dbFunction_by_methodInfo()
+        {
+            var model = new Model();
+
+            var dbFunctionMethod = typeof(string).GetTypeInfo().GetMethods().Where(m => m.Name == nameof(string.ToLower) && m.GetParameters().Count() == 0).Single();
+
+            var dbFunc = model.AddDbFunction(dbFunctionMethod);
+
+            Assert.Same(dbFunc, model.FindDbFunction(dbFunctionMethod));
+            Assert.Null(model.FindDbFunction(typeof(string).GetTypeInfo().GetMethods().Where(m => m.Name == nameof(string.ToUpper) && m.GetParameters().Count() == 0).Single()));
+        }
+
         private class Customer
         {
             public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");

@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -1260,7 +1261,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </returns>
         public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
-            GenerateFunctionCall(sqlFunctionExpression.FunctionName, sqlFunctionExpression.Arguments);
+            GenerateFunctionCall(sqlFunctionExpression.FunctionName, sqlFunctionExpression.Arguments, sqlFunctionExpression.Schema);
 
             return sqlFunctionExpression;
         }
@@ -1268,13 +1269,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     Generates a SQL function call.
         /// </summary>
+        /// <param name="schema">The function schema</param>
         /// <param name="functionName">The function name</param>
         /// <param name="arguments">The function arguments</param>
         protected virtual void GenerateFunctionCall(
-            [NotNull] string functionName, [NotNull] IReadOnlyList<Expression> arguments)
+            [NotNull] string functionName, [NotNull] IReadOnlyList<Expression> arguments,
+            [CanBeNull] string schema = null)
         {
             Check.NotEmpty(functionName, nameof(functionName));
             Check.NotNull(arguments, nameof(arguments));
+
+            if (!string.IsNullOrWhiteSpace(schema))
+            {
+                _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(schema))
+                    .Append(".");
+            }
+
+            var parentTypeMapping = _typeMapping;
+            _typeMapping = null;
 
             _relationalCommandBuilder.Append(functionName);
             _relationalCommandBuilder.Append("(");
@@ -1282,6 +1294,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             ProcessExpressionList(arguments);
 
             _relationalCommandBuilder.Append(")");
+
+            _typeMapping = parentTypeMapping;
         }
 
         /// <summary>
@@ -1369,9 +1383,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 }
                 case ExpressionType.Negate:
                 {
-                    _relationalCommandBuilder.Append("-");
+                    _relationalCommandBuilder.Append("-(");
 
                     Visit(expression.Operand);
+
+                    _relationalCommandBuilder.Append(")");
 
                     return expression;
                 }
@@ -1452,6 +1468,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalCommandBuilder.Append(parameterName);
 
             return propertyParameterExpression;
+        }
+
+        /// <summary>
+        ///     Visits an Extension expression.
+        /// </summary>
+        /// <param name="expression"> The extension parameter expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        protected override Expression VisitExtension(Expression expression)
+        {
+            if (expression is IdentifierExpression)
+            {
+                var value = (expression as IdentifierExpression).Value;
+
+                _relationalCommandBuilder.Append(value == null
+                                ? "NULL"
+                                : value);
+            }
+
+            return expression;
         }
 
         /// <summary>
