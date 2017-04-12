@@ -33,22 +33,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             base.Lifting_when_subquery_nested_order_by_anonymous();
 
-            Assert.Contains(
+            Assert.Equal(
                 @"@__p_0: 2
 
-SELECT DISTINCT [t0].[CustomerID]
-FROM (
-    SELECT TOP(@__p_0) [c0].*
-    FROM [Customers] AS [c0]
-    ORDER BY [c0].[CustomerID]
-) AS [t0]
-CROSS JOIN [Customers] AS [c20]
-ORDER BY [t0].[CustomerID]",
-                Sql);
-
-            Assert.Contains(
-                @"SELECT [c1_Orders].[OrderID], [c1_Orders].[CustomerID], [c1_Orders].[EmployeeID], [c1_Orders].[OrderDate]
-FROM [Orders] AS [c1_Orders]",
+SELECT [c1_Orders].[OrderID], [c1_Orders].[CustomerID], [c1_Orders].[EmployeeID], [c1_Orders].[OrderDate], [t0].[CustomerID]
+FROM [Orders] AS [c1_Orders]
+INNER JOIN (
+    SELECT DISTINCT [t].[CustomerID]
+    FROM (
+        SELECT TOP(@__p_0) [c].*
+        FROM [Customers] AS [c]
+        ORDER BY [c].[CustomerID]
+    ) AS [t]
+    CROSS JOIN [Customers] AS [c2]
+) AS [t0] ON [c1_Orders].[CustomerID] = [t0].[CustomerID]",
                 Sql);
         }
 
