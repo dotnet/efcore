@@ -23,5 +23,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Scaffolding.Internal
         }
 
         struct SomeGenericStruct<T> {}
+
+        [Theory]
+        [InlineData("", "\"\"")]
+        [InlineData("SomeValue", "\"SomeValue\"")]
+        [InlineData("Contains\\Backslash\"QuoteAnd\tTab", "\"Contains\\\\Backslash\\\"QuoteAnd\\tTab\"")]
+        [InlineData("Contains\r\nNewlinesAnd\"Quotes", "@\"Contains\r\nNewlinesAnd\"\"Quotes\"")]
+        public void DelimitString(string input, string expectedOutput)
+        {
+            Assert.Equal(expectedOutput, new CSharpUtilities().DelimitString(input));
+        }
     }
 }
