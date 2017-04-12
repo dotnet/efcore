@@ -118,7 +118,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(value, nameof(value));
 
-            return "\"" + EscapeString(value) + "\"";
+            return value.Contains(Environment.NewLine)
+                ? "@\"" + EscapeVerbatimString(value) + "\""
+                : "\"" + EscapeString(value) + "\"";
         }
 
         /// <summary>
