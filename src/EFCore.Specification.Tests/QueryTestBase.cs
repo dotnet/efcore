@@ -7454,6 +7454,37 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                      entryCount: 1);
         }
 
+        [ConditionalFact]
+        public virtual void GroupBy_join_anonymous()
+        {
+            AssertQuery<Order, OrderDetail>((os, ods) =>
+                (from order in os
+                 join orderDetail in ods on order.OrderID equals orderDetail.OrderID into orderJoin
+                 from orderDetail in orderJoin
+                 group new
+                 {
+                     orderDetail.ProductID,
+                     orderDetail.Quantity,
+                     orderDetail.UnitPrice
+                 } by new
+                 {
+                     order.OrderID,
+                     order.OrderDate
+                 })
+                    .Where(x => x.Key.OrderID == 10248),
+                asserter: (l2oResults, efResults) =>
+                {
+                    var l2oGroup = l2oResults.Cast<IGrouping<dynamic, dynamic>>().Single();
+                    var efGroup = efResults.Cast<IGrouping<dynamic, dynamic>>().Single();
+
+                    Assert.Equal(l2oGroup.Key, efGroup.Key);
+
+                    Assert.Equal(
+                        l2oGroup.OrderBy(element => element.ProductID),
+                        efGroup.OrderBy(element => element.ProductID));
+                });
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected QueryTestBase(TFixture fixture)

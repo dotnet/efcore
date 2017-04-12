@@ -7704,6 +7704,18 @@ ORDER BY [t].[City], [t].[CustomerID]",
                 Sql);
         }
 
+        public override void GroupBy_join_anonymous()
+        {
+            base.GroupBy_join_anonymous();
+
+            AssertSql(
+                @"SELECT [order0].[OrderID], [order0].[CustomerID], [order0].[EmployeeID], [order0].[OrderDate], [orderDetail0].[OrderID], [orderDetail0].[ProductID], [orderDetail0].[Discount], [orderDetail0].[Quantity], [orderDetail0].[UnitPrice]
+FROM [Orders] AS [order0]
+LEFT JOIN [Order Details] AS [orderDetail0] ON [order0].[OrderID] = [orderDetail0].[OrderID]
+ORDER BY [order0].[OrderID]",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 
