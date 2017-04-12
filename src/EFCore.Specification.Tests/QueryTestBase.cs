@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact(Skip = "Bug in projection shaper. See Issue #8095")]
+        [ConditionalFact]
         public virtual void Lifting_when_subquery_nested_order_by_anonymous()
         {
             using (var context = CreateContext())

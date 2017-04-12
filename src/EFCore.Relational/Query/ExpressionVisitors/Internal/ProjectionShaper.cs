@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             public override Type Type => typeof(TOut);
 
             public TOut Shape(QueryContext queryContext, ValueBuffer valueBuffer)
-                => _selector(queryContext, _shaper.Shape(queryContext, valueBuffer));
+                => _selector(queryContext, _shaper.Shape(queryContext, valueBuffer.WithOffset(ValueBufferOffset)));
 
             public override Shaper WithOffset(int offset)
                 => new TypedProjectionShaper<TShaper, TIn, TOut>(
