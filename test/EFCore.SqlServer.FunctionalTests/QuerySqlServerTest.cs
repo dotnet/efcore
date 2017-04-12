@@ -648,15 +648,15 @@ ORDER BY [c1].[CustomerID]
 
 @_outer_CustomerID: ALFKI (Size = 450)
 
-SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
-FROM [Customers] AS [c2]
-WHERE @_outer_CustomerID = [c2].[CustomerID]
+SELECT [c20].[CustomerID], [c20].[Address], [c20].[City], [c20].[CompanyName], [c20].[ContactName], [c20].[ContactTitle], [c20].[Country], [c20].[Fax], [c20].[Phone], [c20].[PostalCode], [c20].[Region]
+FROM [Customers] AS [c20]
+WHERE @_outer_CustomerID = [c20].[CustomerID]
 
 @_outer_CustomerID: ANATR (Size = 450)
 
-SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
-FROM [Customers] AS [c2]
-WHERE @_outer_CustomerID = [c2].[CustomerID]",
+SELECT [c20].[CustomerID], [c20].[Address], [c20].[City], [c20].[CompanyName], [c20].[ContactName], [c20].[ContactTitle], [c20].[Country], [c20].[Fax], [c20].[Phone], [c20].[PostalCode], [c20].[Region]
+FROM [Customers] AS [c20]
+WHERE @_outer_CustomerID = [c20].[CustomerID]",
                 Sql);
         }
 
@@ -704,52 +704,6 @@ SELECT CASE
         WHERE [o0].[CustomerID] = @_outer_CustomerID)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
-                Sql);
-        }
-
-        public override void GroupBy_anonymous()
-        {
-            base.GroupBy_anonymous();
-
-            AssertSql(
-                @"SELECT [c].[City], [c].[CustomerID]
-FROM [Customers] AS [c]
-ORDER BY [c].[City]",
-                Sql);
-        }
-
-        public override void GroupBy_anonymous_with_where()
-        {
-            base.GroupBy_anonymous_with_where();
-
-            AssertSql(
-                @"SELECT [c].[City], [c].[CustomerID]
-FROM [Customers] AS [c]
-WHERE [c].[Country] IN (N'Argentina', N'Austria', N'Brazil', N'France', N'Germany', N'USA')
-ORDER BY [c].[City]",
-                Sql);
-        }
-
-        public override void GroupBy_nested_order_by_enumerable()
-        {
-            base.GroupBy_nested_order_by_enumerable();
-
-            AssertSql(
-                @"SELECT [c0].[Country], [c0].[CustomerID]
-FROM [Customers] AS [c0]
-ORDER BY [c0].[Country]",
-                Sql);
-        }
-
-        public override void GroupBy_join_default_if_empty_anonymous()
-        {
-            base.GroupBy_join_default_if_empty_anonymous();
-
-            AssertSql(
-                @"SELECT [order0].[OrderID], [order0].[CustomerID], [order0].[EmployeeID], [order0].[OrderDate], [orderDetail0].[OrderID], [orderDetail0].[ProductID], [orderDetail0].[Discount], [orderDetail0].[Quantity], [orderDetail0].[UnitPrice]
-FROM [Orders] AS [order0]
-LEFT JOIN [Order Details] AS [orderDetail0] ON [order0].[OrderID] = [orderDetail0].[OrderID]
-ORDER BY [order0].[OrderID]",
                 Sql);
         }
 
@@ -3449,117 +3403,6 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
-        public override void GroupBy_simple()
-        {
-            base.GroupBy_simple();
-
-            AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-ORDER BY [o].[CustomerID]",
-                Sql);
-        }
-
-        public override void GroupBy_Distinct()
-        {
-            base.GroupBy_Distinct();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]",
-                Sql);
-        }
-
-        public override void GroupBy_Count()
-        {
-            base.GroupBy_Count();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]",
-                Sql);
-        }
-
-        public override void GroupBy_LongCount()
-        {
-            base.GroupBy_LongCount();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]",
-                Sql);
-        }
-
-        public override void GroupBy_DateTimeOffset_Property()
-        {
-            base.GroupBy_DateTimeOffset_Property();
-
-            AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL
-ORDER BY DATEPART(month, [o].[OrderDate])",
-                Sql);
-        }
-
-        public override void Select_GroupBy()
-        {
-            base.Select_GroupBy();
-
-            AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID]
-FROM [Orders] AS [o]
-ORDER BY [o].[CustomerID]",
-                Sql);
-        }
-
-        public override void Select_GroupBy_SelectMany()
-        {
-            base.Select_GroupBy_SelectMany();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[OrderID]",
-                Sql);
-        }
-
-        public override void GroupBy_with_orderby()
-        {
-            base.GroupBy_with_orderby();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]",
-                Sql);
-        }
-
-        public override void GroupBy_with_orderby_and_anonymous_projection()
-        {
-            base.GroupBy_with_orderby_and_anonymous_projection();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]",
-                Sql);
-        }
-
-        public override void GroupBy_with_orderby_take_skip_distinct()
-        {
-            base.GroupBy_with_orderby_take_skip_distinct();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]",
-                Sql);
-        }
-
         public override void SelectMany_cartesian_product_with_ordering()
         {
             base.SelectMany_cartesian_product_with_ordering();
@@ -5815,33 +5658,33 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
 
-@_outer_CustomerID1: ALFKI (Size = 450)
+@_outer_CustomerID: ALFKI (Size = 450)
 
-SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID1 = [o2].[CustomerID]
-ORDER BY [o2].[OrderID]
+SELECT [o1].[OrderID]
+FROM [Orders] AS [o1]
+WHERE @_outer_CustomerID = [o1].[CustomerID]
+GROUP BY [o1].[OrderID]
 
-@_outer_CustomerID1: ANATR (Size = 450)
+@_outer_CustomerID: ANATR (Size = 450)
 
-SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID1 = [o2].[CustomerID]
-ORDER BY [o2].[OrderID]
+SELECT [o1].[OrderID]
+FROM [Orders] AS [o1]
+WHERE @_outer_CustomerID = [o1].[CustomerID]
+GROUP BY [o1].[OrderID]
 
-@_outer_CustomerID1: ANTON (Size = 450)
+@_outer_CustomerID: ANTON (Size = 450)
 
-SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID1 = [o2].[CustomerID]
-ORDER BY [o2].[OrderID]
+SELECT [o1].[OrderID]
+FROM [Orders] AS [o1]
+WHERE @_outer_CustomerID = [o1].[CustomerID]
+GROUP BY [o1].[OrderID]
 
-@_outer_CustomerID1: AROUT (Size = 450)
+@_outer_CustomerID: AROUT (Size = 450)
 
-SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID1 = [o2].[CustomerID]
-ORDER BY [o2].[OrderID]",
+SELECT [o1].[OrderID]
+FROM [Orders] AS [o1]
+WHERE @_outer_CustomerID = [o1].[CustomerID]
+GROUP BY [o1].[OrderID]",
                 Sql);
         }
 
@@ -7184,7 +7027,7 @@ WHERE [t0].[OrderID] IS NOT NULL",
             AssertSql(
                 @"SELECT [c].[CustomerID], [t0].[OrderID], [t2].[OrderDate]
 FROM [Customers] AS [c]
-CROSS APPLY (
+CROSS JOIN (
     SELECT [t].*
     FROM (
         SELECT NULL AS [empty]
@@ -7301,8 +7144,8 @@ ORDER BY [t1].[ContactTitle], [t1].[ContactName]",
         {
             base.No_orderby_added_for_fully_translated_manually_constructed_LOJ();
 
-            AssertSql(
-                @"SELECT [e1].[City], [e2].[City], [e2].[EmployeeID]
+            Assert.Equal(
+                @"SELECT [e1].[City], [e2].[City]
 FROM [Employees] AS [e1]
 LEFT JOIN [Employees] AS [e2] ON [e1].[EmployeeID] = [e2].[ReportsTo]",
                 Sql);
@@ -7513,17 +7356,12 @@ ORDER BY [c].[CustomerID]",
             AssertSql(
                 @"SELECT [outer].[CustomerID], [outer].[Address], [outer].[City], [outer].[CompanyName], [outer].[ContactName], [outer].[ContactTitle], [outer].[Country], [outer].[Fax], [outer].[Phone], [outer].[PostalCode], [outer].[Region]
 FROM [Customers] AS [outer]
-WHERE [outer].[CustomerID] = N'ALFKI'
-
-SELECT CASE
-    WHEN EXISTS (
+WHERE ([outer].[CustomerID] = N'ALFKI') AND EXISTS (
+    SELECT 1
+    FROM [Customers] AS [c]
+    WHERE EXISTS (
         SELECT 1
-        FROM [Customers] AS [c0]
-        WHERE EXISTS (
-            SELECT 1
-            FROM [Customers] AS [cc1]))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END",
+        FROM [Customers] AS [cc]))",
                 Sql);
         }
 
@@ -7534,20 +7372,15 @@ END",
             AssertSql(
                 @"SELECT [outer].[CustomerID], [outer].[Address], [outer].[City], [outer].[CompanyName], [outer].[ContactName], [outer].[ContactTitle], [outer].[Country], [outer].[Fax], [outer].[Phone], [outer].[PostalCode], [outer].[Region]
 FROM [Customers] AS [outer]
-WHERE [outer].[CustomerID] = N'ALFKI'
-
-SELECT CASE
-    WHEN EXISTS (
+WHERE ([outer].[CustomerID] = N'ALFKI') AND EXISTS (
+    SELECT 1
+    FROM [Customers] AS [c]
+    WHERE EXISTS (
         SELECT 1
-        FROM [Customers] AS [c0]
+        FROM [Customers] AS [cc]
         WHERE EXISTS (
-            SELECT 1
-            FROM [Customers] AS [cc1]
-            WHERE EXISTS (
-                SELECT DISTINCT TOP(10) 1
-                FROM [Customers] AS [inner1])))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END",
+            SELECT DISTINCT TOP(10) 1
+            FROM [Customers] AS [inner])))",
                 Sql);
         }
 

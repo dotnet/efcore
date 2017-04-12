@@ -3724,471 +3724,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void GroupBy_anonymous()
-        {
-            AssertQuery<Customer>(cs =>
-                    cs.Select(c => new { c.City, c.CustomerID })
-                        .GroupBy(a => a.City),
-                asserter: (l2oResults, efResults) =>
-                    {
-                        var efGroupings = efResults.Cast<IGrouping<string, dynamic>>().ToList();
-
-                        foreach (IGrouping<string, dynamic> l2oGrouping in l2oResults)
-                        {
-                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
-
-                            Assert.Equal(l2oGrouping.OrderBy(o => o.CustomerID), efGrouping.OrderBy(o => o.CustomerID));
-                        }
-                    });
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_anonymous_with_where()
-        {
-            var countries = new[] { "Argentina", "Austria", "Brazil", "France", "Germany", "USA" };
-            AssertQuery<Customer>(cs =>
-                    cs.Where(c => countries.Contains(c.Country))
-                        .Select(c => new { c.City, c.CustomerID })
-                        .GroupBy(a => a.City),
-                asserter: (l2oResults, efResults) =>
-                    {
-                        var efGroupings = efResults.Cast<IGrouping<string, dynamic>>().ToList();
-
-                        foreach (IGrouping<string, dynamic> l2oGrouping in l2oResults)
-                        {
-                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
-
-                            Assert.Equal(l2oGrouping.OrderBy(o => o.CustomerID), efGrouping.OrderBy(o => o.CustomerID));
-                        }
-                    });
-        }
-
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void GroupBy_anonymous_subquery()
-        {
-            AssertQuery<Customer>(cs =>
-                cs.Select(c => new { c.City, c.CustomerID })
-                    .GroupBy(a => from c2 in cs select c2),
-                assertOrder: true);
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_nested_order_by_enumerable()
-        {
-            AssertQuery<Customer>(cs =>
-                    cs.Select(c => new { c.Country, c.CustomerID })
-                        .OrderBy(a => a.Country)
-                        .GroupBy(a => a.Country)
-                        .Select(g => g.OrderBy(a => a.CustomerID)),
-                assertOrder: true);
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_join_default_if_empty_anonymous()
-        {
-            AssertQuery<Order, OrderDetail>((os, ods) =>
-                    (from order in os
-                     join orderDetail in ods on order.OrderID equals orderDetail.OrderID into orderJoin
-                     from orderDetail in orderJoin.DefaultIfEmpty()
-                     group new
-                     {
-                         orderDetail.ProductID,
-                         orderDetail.Quantity,
-                         orderDetail.UnitPrice
-                     } by new
-                     {
-                         order.OrderID,
-                         order.OrderDate
-                     })
-                        .Where(x => x.Key.OrderID == 10248),
-                asserter: (l2oResults, efResults) =>
-                    {
-                        var l2oGroup = l2oResults.Cast<IGrouping<dynamic, dynamic>>().Single();
-                        var efGroup = efResults.Cast<IGrouping<dynamic, dynamic>>().Single();
-
-                        Assert.Equal(l2oGroup.Key, efGroup.Key);
-
-                        Assert.Equal(
-                            l2oGroup.OrderBy(element => element.ProductID),
-                            efGroup.OrderBy(element => element.ProductID));
-                    });
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_SelectMany()
-        {
-            AssertQuery<Customer>(
-                cs => cs.GroupBy(c => c.City).SelectMany(g => g),
-                entryCount: 91);
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_simple()
-        {
-            AssertQuery<Order>(
-                os => os.GroupBy(o => o.CustomerID),
-                entryCount: 830,
-                asserter: (l2oResults, efResults) =>
-                    {
-                        var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
-
-                        foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
-                        {
-                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
-
-                            Assert.Equal(l2oGrouping.OrderBy(o => o.OrderID), efGrouping.OrderBy(o => o.OrderID));
-                        }
-                    });
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_simple2()
-        {
-            AssertQuery<Order>(
-                os => os.GroupBy(o => o.CustomerID).Select(g => g),
-                entryCount: 830,
-                asserter: (l2oResults, efResults) =>
-                    {
-                        var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
-
-                        foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
-                        {
-                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
-
-                            Assert.Equal(l2oGrouping.OrderBy(o => o.OrderID), efGrouping.OrderBy(o => o.OrderID));
-                        }
-                    });
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_first()
-        {
-            AssertQuery<Order>(
-                os => os.Where(o => o.CustomerID == "ALFKI").GroupBy(o => o.CustomerID).Cast<object>().First(),
-                asserter: (l2oResult, efResult) =>
-                    {
-                        var l2oGrouping = (IGrouping<string, Order>)l2oResult;
-                        var efGrouping = (IGrouping<string, Order>)efResult;
-
-                        Assert.Equal(l2oGrouping.Key, efGrouping.Key);
-                        Assert.Equal(l2oGrouping.OrderBy(o => o.OrderID), efGrouping.OrderBy(o => o.OrderID));
-                    },
-                entryCount: 6);
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_Sum()
-        {
-            AssertQuery<Order>(os =>
-                    os.GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID)));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_Count()
-        {
-            AssertQuery<Order>(os =>
-                    os.GroupBy(o => o.CustomerID).Select(g => g.Count()));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_LongCount()
-        {
-            AssertQuery<Order>(os =>
-                    os.GroupBy(o => o.CustomerID).Select(g => g.LongCount()));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_Shadow()
-        {
-            AssertQuery<Employee>(es =>
-                es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"
-                              && e.EmployeeID == 1)
-                    .GroupBy(e => EF.Property<string>(e, "Title"))
-                    .Select(g => EF.Property<string>(g.First(), "Title")));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_Shadow2()
-        {
-            AssertQuery<Employee>(es =>
-                es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"
-                              && e.EmployeeID == 1)
-                    .GroupBy(e => EF.Property<string>(e, "Title"))
-                    .Select(g => g.First()));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_Shadow3()
-        {
-            AssertQuery<Employee>(es =>
-                es.Where(e => e.EmployeeID == 1)
-                    .GroupBy(e => e.EmployeeID)
-                    .Select(g => EF.Property<string>(g.First(), "Title")));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_Sum_Min_Max_Avg()
-        {
-            AssertQuery<Order>(os =>
-                os.GroupBy(o => o.CustomerID).Select(g =>
-                    new
-                    {
-                        Sum = g.Sum(o => o.OrderID),
-                        Min = g.Min(o => o.OrderID),
-                        Max = g.Max(o => o.OrderID),
-                        Avg = g.Average(o => o.OrderID)
-                    }));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_with_result_selector()
-        {
-            AssertQuery<Order>(os =>
-                os.GroupBy(o => o.CustomerID, (k, g) =>
-                    new
-                    {
-                        Sum = g.Sum(o => o.OrderID),
-                        Min = g.Min(o => o.OrderID),
-                        Max = g.Max(o => o.OrderID),
-                        Avg = g.Average(o => o.OrderID)
-                    }));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_with_element_selector_sum()
-        {
-            AssertQuery<Order>(os =>
-                    os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Sum()));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_with_element_selector()
-        {
-            AssertQuery<Order>(os =>
-                    os.GroupBy(o => o.CustomerID, o => o.OrderID)
-                        .OrderBy(g => g.Key)
-                        .Select(g => g.OrderBy(o => o)),
-                asserter:
-                (l2oResults, efResults) =>
-                    {
-                        var l2oObjects
-                            = l2oResults
-                                .SelectMany(q1 => ((IEnumerable<int>)q1));
-
-                        var efObjects
-                            = efResults
-                                .SelectMany(q1 => ((IEnumerable<int>)q1));
-
-                        Assert.Equal(l2oObjects, efObjects);
-                    });
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_with_element_selector2()
-        {
-            AssertQuery<Order>(os =>
-                    os.GroupBy(o => o.CustomerID)
-                        .OrderBy(g => g.Key)
-                        .Select(g => g.OrderBy(o => o.OrderID)),
-                asserter:
-                (l2oResults, efResults) =>
-                    {
-                        var l2oObjects
-                            = l2oResults
-                                .SelectMany(q1 => ((IEnumerable<Order>)q1));
-
-                        var efObjects
-                            = efResults
-                                .SelectMany(q1 => ((IEnumerable<Order>)q1));
-
-                        Assert.Equal(l2oObjects, efObjects);
-                    });
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_with_element_selector3()
-        {
-            AssertQuery<Employee>(es =>
-                    es.GroupBy(e => e.EmployeeID)
-                        .OrderBy(g => g.Key)
-                        .Select(g => g.Select(e => new { Title = EF.Property<string>(e, "Title"), e }).ToList()),
-                assertOrder: true);
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_with_element_selector_sum_max()
-        {
-            AssertQuery<Order>(os =>
-                os.GroupBy(o => o.CustomerID, o => o.OrderID)
-                    .Select(g => new { Sum = g.Sum(), Max = g.Max() }));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_with_anonymous_element()
-        {
-            AssertQuery<Order>(os =>
-                os.GroupBy(o => o.CustomerID, o => new { o.OrderID })
-                    .Select(g => g.Sum(x => x.OrderID)));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_with_two_part_key()
-        {
-            AssertQuery<Order>(os =>
-                os.GroupBy(o => new { o.CustomerID, o.OrderDate })
-                    .Select(g => g.Sum(o => o.OrderID)));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_DateTimeOffset_Property()
-        {
-            AssertQuery<Order>(os =>
-                    os.Where(o => o.OrderDate.HasValue)
-                        .GroupBy(o => o.OrderDate.Value.Month),
-                asserter: (l2oResults, efResults) =>
-                    {
-                        var efGroupings = efResults.Cast<IGrouping<int, Order>>().ToList();
-
-                        foreach (IGrouping<int, Order> l2oGrouping in l2oResults)
-                        {
-                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
-
-                            Assert.Equal(l2oGrouping.OrderBy(o => o.OrderID), efGrouping.OrderBy(o => o.OrderID));
-                        }
-                    },
-                entryCount: 830);
-        }
-
-        [ConditionalFact]
-        public virtual void OrderBy_GroupBy()
-        {
-            AssertQuery<Order>(os =>
-                os.OrderBy(o => o.OrderID)
-                    .GroupBy(o => o.CustomerID)
-                    .Select(g => g.Sum(o => o.OrderID)));
-        }
-
-        [ConditionalFact]
-        public virtual void OrderBy_GroupBy_SelectMany()
-        {
-            AssertQuery<Order>(os =>
-                    os.OrderBy(o => o.OrderID)
-                        .GroupBy(o => o.CustomerID)
-                        .SelectMany(g => g),
-                entryCount: 830);
-        }
-
-        [ConditionalFact]
-        public virtual void OrderBy_GroupBy_SelectMany_shadow()
-        {
-            AssertQuery<Employee>(es =>
-                es.OrderBy(e => e.EmployeeID)
-                    .GroupBy(e => e.EmployeeID)
-                    .SelectMany(g => g)
-                    .Select(g => EF.Property<string>(g, "Title")));
-        }
-
-        [ConditionalFact]
-        public virtual void Select_GroupBy()
-        {
-            AssertQuery<Order>(
-                os => os.Select(o => new ProjectedType
-                {
-                    Order = o.OrderID,
-                    Customer = o.CustomerID
-                })
-                    .GroupBy(p => p.Customer),
-                asserter:
-                (l2oResults, efResults) =>
-                    {
-                        var efGroupings = efResults.Cast<IGrouping<string, ProjectedType>>().ToList();
-
-                        foreach (IGrouping<string, ProjectedType> l2oGrouping in l2oResults)
-                        {
-                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
-
-                            Assert.Equal(l2oGrouping.OrderBy(p => p.Order), efGrouping.OrderBy(p => p.Order));
-                        }
-                    });
-        }
-
-        [ConditionalFact]
-        public virtual void Select_GroupBy_SelectMany()
-        {
-            AssertQuery<Order>(
-                os => os.Select(o => new ProjectedType
-                {
-                    Order = o.OrderID,
-                    Customer = o.CustomerID
-                })
-                    .GroupBy(o => o.Order)
-                    .SelectMany(g => g));
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_with_orderby()
-        {
-            AssertQuery<Order>(
-                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key),
-                asserter:
-                (l2oResults, efResults) =>
-                    {
-                        var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
-
-                        foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
-                        {
-                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
-
-                            Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
-                        }
-                    },
-                entryCount: 830);
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_with_orderby_and_anonymous_projection()
-        {
-            AssertQuery<Order>(
-                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Select(g => new { Foo = "Foo", Group = g }),
-                asserter:
-                (l2oResults, efResults) =>
-                    {
-                        Assert.Equal(l2oResults.Count, efResults.Count);
-                        for (var i = 0; i < l2oResults.Count; i++)
-                        {
-                            dynamic l2oResult = l2oResults[i];
-                            dynamic efResult = efResults[i];
-
-                            Assert.Equal(l2oResult.Foo, l2oResult.Foo);
-                            IGrouping<string, Order> l2oGrouping = l2oResult.Group;
-                            IGrouping<string, Order> efGrouping = efResult.Group;
-                            Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
-                        }
-                    },
-                entryCount: 830);
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_with_orderby_take_skip_distinct()
-        {
-            AssertQuery<Order>(
-                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Take(5).Skip(3).Distinct(),
-                asserter:
-                (l2oResults, efResults) =>
-                    {
-                        var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
-
-                        foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
-                        {
-                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
-
-                            Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
-                        }
-                    },
-                entryCount: 31);
-        }
-
-        [ConditionalFact]
         public virtual void Select_All()
         {
             using (var context = CreateContext())
@@ -4203,26 +3738,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             Customer = o.CustomerID
                         })
                         .All(p => p.Customer == "ALFKI")
-                );
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void Select_GroupBy_All()
-        {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    false,
-                    context
-                        .Set<Order>()
-                        .Select(o => new ProjectedType
-                        {
-                            Order = o.OrderID,
-                            Customer = o.CustomerID
-                        })
-                        .GroupBy(a => a.Customer)
-                        .All(a => a.Key == "ALFKI")
                 );
             }
         }
@@ -4605,24 +4120,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 cs => cs.Select(c => new { c.CustomerID }).Distinct().OrderBy(a => a.CustomerID),
                 cs => cs.Select(c => new { c.CustomerID }).Distinct().OrderBy(a => a.CustomerID, StringComparer.Ordinal),
                 assertOrder: true);
-        }
-
-        [ConditionalFact]
-        public virtual void Distinct_GroupBy()
-        {
-            AssertQuery<Order>(os =>
-                    os.Distinct()
-                        .GroupBy(o => o.CustomerID)
-                        .OrderBy(g => g.Key)
-                        .Select(g => new { g.Key, c = g.Count() }),
-                assertOrder: true);
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_Distinct()
-        {
-            AssertQuery<Order>(os =>
-                    os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
         }
 
         [ConditionalFact]
@@ -7677,7 +7174,50 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<int?>> query,
+            bool assertOrder = false,
+            int entryCount = 0)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    query(context.Set<TItem>()).ToArray(),
+                    assertOrder);
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        private void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<long>> query, bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    query(context.Set<TItem>()).ToArray(),
+                    assertOrder);
+            }
+        }
+
+        private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<double>> query, bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    query(context.Set<TItem>()).ToArray(),
+                    assertOrder);
+            }
+        }
+
+        private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<double?>> query, bool assertOrder = false)
             where TItem : class
         {
             using (var context = CreateContext())

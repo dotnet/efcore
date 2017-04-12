@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -47,12 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public virtual ISet<IQuerySource> FindQuerySourcesRequiringMaterialization([NotNull] QueryModel queryModel)
         {
-            // Top-level query source result operators need to be promoted manually here
-            // because unlike subquerys' result operators, they won't be promoted via
-            // HandleUnderlyingQuerySources
-            foreach (var querySourceResultOperator in queryModel.ResultOperators.OfType<IQuerySource>())
+            foreach (var groupResultOperator in queryModel.ResultOperators.OfType<GroupResultOperator>())
             {
-                PromoteQuerySource(querySourceResultOperator);
+                PromoteQuerySource(groupResultOperator);
             }
 
             _queryModelStack.Push(queryModel);
@@ -220,6 +218,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
+            foreach (var groupResultOperator in expression.QueryModel.ResultOperators.OfType<GroupResultOperator>())
+            {
+                PromoteQuerySource(groupResultOperator);
+            }
+
             _queryModelStack.Push(expression.QueryModel);
 
             expression.QueryModel.TransformExpressions(Visit);
@@ -325,9 +328,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     var finalResultOperator = subQueryExpression.QueryModel.ResultOperators.LastOrDefault();
 
-                    if (finalResultOperator is IQuerySource querySourceResultOperator)
+                    if (finalResultOperator is GroupResultOperator subQueryGroupResultOperator)
                     {
-                        action(querySourceResultOperator);
+                        if (IsValidForDemotion(subQueryGroupResultOperator))
+                        {
+                            action(subQueryGroupResultOperator);
+                        }
                     }
                     else if (subQueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression qsre)
                     {
@@ -341,30 +347,59 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
+        private static bool IsValidForDemotion(GroupResultOperator groupResultOperator)
+        {
+            bool IsValidForDemotion(Expression expression)
+                => expression.Type == typeof(string)
+                    || expression.Type == typeof(byte[])
+                    || expression.Type.TryGetSequenceType() == null;
+
+            return IsValidForDemotion(groupResultOperator.KeySelector)
+                && IsValidForDemotion(groupResultOperator.ElementSelector);
+        }
+
         private void AdjustForResultOperators(QueryModel queryModel)
         {
-            var referencedQuerySource
-                = (queryModel.SelectClause.Selector as QuerySourceReferenceExpression)?.ReferencedQuerySource
-                  ?? (queryModel.MainFromClause.FromExpression as QuerySourceReferenceExpression)?.ReferencedQuerySource;
+            var isSubQuery = _queryModelStack.Count > 0;
+            var groupResultOperators = queryModel.ResultOperators.OfType<GroupResultOperator>().ToArray();
 
-            // The selector may not have been a QSRE but this query model may still have something that needs adjusted.
-            // Example:
-            // context.Orders.GroupBy(o => o.CustomerId).Select(g => new { g.Key, g.Sum(o => o.TotalAmount) })
-            // The g.Sum(...) will result in a subquery model like { from Order o in [g] select o.TotalAmount => Sum() }.
-            // In that case we need to ensure that the referenced query source [g] is demoted.
-            if (referencedQuerySource == null)
+            if (isSubQuery && groupResultOperators.Length != 0)
             {
+                void DemoteGroupBySelectorExpression(Expression expression)
+                {
+                    if (expression is NewExpression newExpression)
+                    {
+                        foreach (var argument in newExpression.Arguments)
+                        {
+                            DemoteGroupBySelectorExpression(argument);
+                        }
+                    }
+                    else if (expression is QuerySourceReferenceExpression qsre)
+                    {
+                        DemoteQuerySource(qsre.ReferencedQuerySource);
+                    }
+                }
+
+                foreach (var groupResultOperator in groupResultOperators)
+                {
+                    if (!IsValidForDemotion(groupResultOperator))
+                    {
+                        break;
+                    }
+
+                    DemoteGroupBySelectorExpression(queryModel.SelectClause.Selector);
+                    DemoteQuerySource(groupResultOperator);
+                }
+
                 return;
             }
 
-            var isSubQuery = _queryModelStack.Count > 0;
-            var finalResultOperator = queryModel.ResultOperators.LastOrDefault();
+            var referencedQuerySource
+                = queryModel.SelectClause.Selector.TryGetQuerySource()
+                ?? queryModel.MainFromClause.FromExpression.TryGetQuerySource();
 
-            if (isSubQuery && finalResultOperator is GroupResultOperator)
+            if (referencedQuerySource == null)
             {
-                // These two lines should be uncommented to implement GROUP BY translation.
-                //DemoteQuerySource(referencedQuerySource);
-                //DemoteQuerySource(groupResultOperator);
                 return;
             }
 
@@ -373,6 +408,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     .FindResultQuerySourceReferenceExpression(
                         _queryModelStack.Peek().SelectClause.Selector,
                         referencedQuerySource) == null;
+
+            var finalResultOperator = queryModel.ResultOperators.LastOrDefault();
 
             if (finalResultOperator is SingleResultOperator
                 || finalResultOperator is FirstResultOperator
@@ -395,8 +432,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 // or a subquery that belongs to some outer-level query that returns 
                 // a single or scalar value. The referenced query source should be 
                 // re-promoted later if necessary.
-                DemoteQuerySourceAndUnderlyingFromClause(referencedQuerySource);
-                return;
+                if (!referencedQuerySource.ItemType.IsGrouping() || !queryModel.BodyClauses.Any())
+                {
+                    DemoteQuerySourceAndUnderlyingFromClause(referencedQuerySource);
+                }
+
+                return; 
             }
 
             if (isSubQuery && (unreachableFromParentSelector || finalResultOperator is DefaultIfEmptyResultOperator))

@@ -4,6 +4,7 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
@@ -30,6 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The target table expression.
         /// </summary>
         public virtual TableExpressionBase TableExpression => _tableExpression;
+
+        public override bool HandlesQuerySource([NotNull] IQuerySource querySource)
+        {
+            return _tableExpression.HandlesQuerySource(querySource)
+                || base.HandlesQuerySource(querySource);
+        }
 
         /// <summary>
         ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(System.Linq.Expressions.Expression)" /> method passing the

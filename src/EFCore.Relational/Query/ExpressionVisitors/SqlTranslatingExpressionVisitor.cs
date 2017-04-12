@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -21,6 +20,7 @@ using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing;
+using Remotion.Linq.Clauses.ExpressionVisitors;
 
 // ReSharper disable AssignNullToNotNullAttribute
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
@@ -440,9 +440,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             var binaryExpression = expression as BinaryExpression;
             var leftConstantExpression = binaryExpression?.Left as ConstantExpression;
-            var leftExpressions = leftConstantExpression?.Value as Expression[];
+            var leftExpressions = (binaryExpression?.Left as CompositeExpression)?.Flatten().ToArray();
             var rightConstantExpression = binaryExpression?.Right as ConstantExpression;
-            var rightExpressions = rightConstantExpression?.Value as Expression[];
+            var rightExpressions = (binaryExpression?.Right as CompositeExpression)?.Flatten().ToArray();
 
             if (leftExpressions != null
                 && rightConstantExpression != null
@@ -503,6 +503,32 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             if (rightExpression == null)
             {
                 return null;
+            }
+
+            var leftCompositeExpression = leftExpression as CompositeExpression;
+            var rightCompositeExpression = rightExpression as CompositeExpression;
+
+            if (leftCompositeExpression != null && rightCompositeExpression == null)
+            {
+                var leftExpressions = leftCompositeExpression.Flatten().ToArray();
+
+                if (leftExpressions.Length != 1)
+                {
+                    return null;
+                }
+
+                leftExpression = leftExpressions[0];
+            }
+            else if (rightCompositeExpression != null && leftCompositeExpression == null)
+            {
+                var rightExpressions = rightCompositeExpression.Flatten().ToArray();
+
+                if (rightExpressions.Length != 1)
+                {
+                    return null;
+                }
+
+                rightExpression = rightExpressions[0];
             }
 
             var nullExpression
@@ -652,7 +678,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 var newExpression = Visit(memberExpression.Expression);
 
-                if (newExpression != null
+                if (newExpression is CompositeExpression)
+                {
+                    return newExpression;
+                }
+
+                if (newExpression != null 
                     || memberExpression.Expression == null)
                 {
                     var newMemberExpression
@@ -681,7 +712,29 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 var selectExpression = _queryModelVisitor.TryGetQuery(qsre.ReferencedQuerySource);
 
-                return selectExpression?.GetProjectionForMemberInfo(memberExpression.Member);
+                if (selectExpression == null)
+                {
+                    return null;
+                }
+
+                var associatedProjectionExpression = selectExpression.GetProjectionForMemberInfo(memberExpression.Member);
+
+                if (associatedProjectionExpression != null)
+                {
+                    return associatedProjectionExpression;
+                }
+                
+                if (memberExpression.Expression.Type.IsGrouping() && memberExpression.Member.Name == "Key")
+                {
+                    if (!selectExpression.GroupBy.Any())
+                    {
+                        selectExpression
+                            = (SelectExpression)selectExpression
+                                .GetTableForQuerySource(qsre.ReferencedQuerySource);
+                    }
+                        
+                    return new CompositeExpression(selectExpression.GroupBy);
+                }
             }
 
             return null;
@@ -795,7 +848,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 if (memberBindings.Length == expression.Arguments.Count)
                 {
-                    return Expression.Constant(memberBindings);
+                    return new CompositeExpression(memberBindings);
                 }
             }
             else if (expression.Type == typeof(AnonymousObject))
@@ -811,7 +864,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 if (memberBindings.Length == propertyCallExpressions.Count)
                 {
-                    return Expression.Constant(memberBindings);
+                    return new CompositeExpression(memberBindings);
                 }
             }
 
@@ -851,31 +904,40 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     }
                 }
             }
-            else if (!(subQueryOutputDataInfo is StreamedSequenceInfo))
+
+            if (_inProjection && _queryModelVisitor.RequiresClientProjection)
             {
-                var streamedSingleValueInfo = subQueryOutputDataInfo as StreamedSingleValueInfo;
+                return null;
+            }
 
-                var streamedSingleValueSupportedType
-                    = streamedSingleValueInfo != null
-                      && _relationalTypeMapper.FindMapping(
-                          streamedSingleValueInfo.DataType
-                              .UnwrapNullableType()
-                              .UnwrapEnumType()) != null;
+            if (subQueryOutputDataInfo is StreamedScalarValueInfo || subQueryOutputDataInfo is StreamedSingleValueInfo)
+            {
+                var translatedAggregateSubQuery = TryTranslateAggregateSubQuery(expression);
 
-                if (_inProjection
-                    && !(subQueryOutputDataInfo is StreamedScalarValueInfo)
-                    && !streamedSingleValueSupportedType)
+                if (translatedAggregateSubQuery != null)
                 {
-                    return null;
+                    return translatedAggregateSubQuery;
                 }
 
-                var querySourceReferenceExpression
-                    = subQueryModel.SelectClause.Selector as QuerySourceReferenceExpression;
+                var compilationContext = _queryModelVisitor.QueryCompilationContext;
 
-                if (querySourceReferenceExpression == null
-                    || _inProjection
-                    || !_queryModelVisitor.QueryCompilationContext
-                        .QuerySourceRequiresMaterialization(querySourceReferenceExpression.ReferencedQuerySource))
+                var isRelationalType
+                    = _relationalTypeMapper.FindMapping(
+                        subQueryOutputDataInfo.DataType
+                            .UnwrapNullableType()
+                            .UnwrapEnumType()) != null;
+
+                var isEntityType = compilationContext.Model.FindEntityType(subQueryOutputDataInfo.DataType) != null;
+
+                var referencedQuerySource
+                    = (subQueryModel.SelectClause.Selector as QuerySourceReferenceExpression)?
+                        .ReferencedQuerySource;
+
+                var requiresMaterialization
+                    = referencedQuerySource != null
+                        && compilationContext.QuerySourceRequiresMaterialization(referencedQuerySource);
+
+                if (isRelationalType || (isEntityType && !requiresMaterialization))
                 {
                     var subQueryModelVisitor
                         = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
@@ -911,6 +973,154 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
 
             return null;
+        }
+
+        private Expression TryTranslateAggregateSubQuery(SubQueryExpression subQueryExpression)
+        {
+            var subQueryModel = subQueryExpression.QueryModel;
+            var finalResultOperator = subQueryModel.ResultOperators.LastOrDefault();
+
+            if (!(finalResultOperator is AverageResultOperator
+                || finalResultOperator is CountResultOperator
+                || finalResultOperator is LongCountResultOperator
+                || finalResultOperator is MaxResultOperator
+                || finalResultOperator is MinResultOperator
+                || finalResultOperator is SumResultOperator))
+            {
+                return null;
+            }
+
+            var groupingQuerySource = subQueryModel.MainFromClause.FromExpression.TryGetQuerySource();
+
+            if (groupingQuerySource == null
+                || !groupingQuerySource.ItemType.IsGrouping()
+                || subQueryModel.BodyClauses.Any())
+            {
+                return null;
+            }
+
+            var targetSelectExpression = _queryModelVisitor.TryGetQuery(groupingQuerySource);
+
+            if (targetSelectExpression == null)
+            {
+                return null;
+            }
+            
+            if (finalResultOperator is CountResultOperator)
+            {
+                return new SqlFunctionExpression("COUNT", typeof(int), new[] { new SqlFragmentExpression("*") });
+            }
+            else if (finalResultOperator is LongCountResultOperator)
+            {
+                return new SqlFunctionExpression("COUNT", typeof(long), new[] { new SqlFragmentExpression("*") });
+            }
+
+            var groupResultOperator = groupingQuerySource.TryGetUnderlyingGroupResultOperator();
+
+            if (groupResultOperator == null)
+            {
+                return null;
+            }
+
+            var selector = subQueryModel.SelectClause.Selector;
+
+            if (subQueryModel.IsIdentityQuery())
+            {
+                // This means the grouped query was already grouping some property
+                // of an entity or similar.
+                selector = groupResultOperator.ElementSelector;
+            }
+            else
+            {
+                // Replace clause references in the selector so we will be able to 
+                // successfully translate any columns. Otherwise we would not be able
+                // to find the appropriate SelectExpression from the query model visitor.
+                var querySourceMapping = new QuerySourceMapping();
+                querySourceMapping.AddMapping(subQueryModel.MainFromClause, groupResultOperator.ElementSelector);
+                selector = ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(selector, querySourceMapping, false);
+            }
+
+            var translatedSelector = Visit(selector);
+
+            if (translatedSelector == null)
+            {
+                return null;
+            }
+
+            string functionName = null;
+            Type resultType = selector.Type;
+            Expression argument = translatedSelector;
+
+            if (finalResultOperator is AverageResultOperator)
+            {
+                var targetType
+                    = selector.Type.UnwrapNullableType() == typeof(decimal)
+                        ? selector.Type
+                        : selector.Type.IsNullableType()
+                            ? typeof(double?)
+                            : typeof(double);
+                
+                functionName = "AVG";
+                resultType = targetType;
+                argument = new ExplicitCastExpression(translatedSelector, targetType);
+            }
+            else if (finalResultOperator is MaxResultOperator)
+            {
+                functionName = "MAX";
+            }
+            else if (finalResultOperator is MinResultOperator)
+            {
+                functionName = "MIN";
+            }
+            else if (finalResultOperator is SumResultOperator)
+            {
+                functionName = "SUM";
+            }
+            else
+            {
+                return null;
+            }
+
+            var resultExpression = new SqlFunctionExpression(functionName, resultType, new[] { argument });
+
+            var pushedDownExpression = new ExpressionPushDownExpressionVisitor(groupingQuerySource).Visit(resultExpression);
+
+            if (resultExpression != pushedDownExpression)
+            {
+                var underlyingTableExpression = targetSelectExpression.GetTableForQuerySource(groupingQuerySource);
+
+                if (underlyingTableExpression is JoinExpressionBase joinExpression)
+                {
+                    underlyingTableExpression = joinExpression.TableExpression;
+                }
+
+                var subSelectExpression = underlyingTableExpression as SelectExpression;
+                var projectionIndex = subSelectExpression.AddToProjection(pushedDownExpression);
+
+                return subSelectExpression.Projection[projectionIndex].LiftExpressionFromSubquery(subSelectExpression);
+            }
+
+            return resultExpression;
+        }
+        
+        private class ExpressionPushDownExpressionVisitor : ExpressionVisitor
+        {
+            private readonly IQuerySource _targetQuerySource;
+
+            public ExpressionPushDownExpressionVisitor(IQuerySource targetQuerySource)
+                => _targetQuerySource = targetQuerySource;
+
+            protected override Expression VisitExtension(Expression node)
+            {
+                if (node is ColumnReferenceExpression columnReferenceExpression
+                    && columnReferenceExpression.Table.HandlesQuerySource(_targetQuerySource)
+                    && columnReferenceExpression.Expression is ColumnExpression columnExpression)
+                {
+                    return columnExpression;
+                }
+
+                return base.VisitExtension(node);
+            }
         }
 
         /// <summary>

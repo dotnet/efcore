@@ -37,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 IModel model,
                 ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
                 ISelectExpressionFactory selectExpressionFactory,
+                IShaperCommandContextFactory shaperCommandContextFactory,
                 RelationalQueryModelVisitor queryModelVisitor,
                 ResultOperatorBase resultOperator,
                 QueryModel queryModel,
@@ -47,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 Model = model;
                 SelectExpressionFactory = selectExpressionFactory;
+                ShaperCommandContextFactory = shaperCommandContextFactory;
                 QueryModelVisitor = queryModelVisitor;
                 ResultOperator = resultOperator;
                 QueryModel = queryModel;
@@ -55,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public IModel Model { get; }
             public ISelectExpressionFactory SelectExpressionFactory { get; }
+            public IShaperCommandContextFactory ShaperCommandContextFactory { get; }
             public ResultOperatorBase ResultOperator { get; }
             public SelectExpression SelectExpression { get; }
             public QueryModel QueryModel { get; }
@@ -99,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IModel _model;
         private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
         private readonly ISelectExpressionFactory _selectExpressionFactory;
+        private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
         private readonly IResultOperatorHandler _resultOperatorHandler;
 
         /// <summary>
@@ -109,11 +113,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IModel model,
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
+            [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
             [NotNull] IResultOperatorHandler resultOperatorHandler)
         {
             _model = model;
             _sqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
             _selectExpressionFactory = selectExpressionFactory;
+            _shaperCommandContextFactory = shaperCommandContextFactory;
             _resultOperatorHandler = resultOperatorHandler;
         }
 
@@ -139,6 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _model,
                     _sqlTranslatingExpressionVisitorFactory,
                     _selectExpressionFactory,
+                    _shaperCommandContextFactory,
                     relationalQueryModelVisitor,
                     resultOperator,
                     queryModel,
@@ -438,36 +445,98 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleGroup(HandlerContext handlerContext)
         {
-            var sqlTranslatingExpressionVisitor = handlerContext.CreateSqlTranslatingVisitor();
-
             var groupResultOperator = (GroupResultOperator)handlerContext.ResultOperator;
+            var compilationContext = handlerContext.QueryModelVisitor.QueryCompilationContext;
 
-            var sqlExpression
-                = sqlTranslatingExpressionVisitor.Visit(groupResultOperator.KeySelector);
+            var sqlTranslator
+                = handlerContext.CreateSqlTranslatingVisitor();
 
-            if (sqlExpression != null)
+            var sqlKeyExpression
+                = sqlTranslator.Visit(groupResultOperator.KeySelector);
+
+            var sqlElementExpression
+                = sqlTranslator.Visit(groupResultOperator.ElementSelector);
+
+            if (sqlKeyExpression != null)
             {
-                var columns = (sqlExpression as ConstantExpression)?.Value as Expression[] ?? new[] { sqlExpression };
+                var selectExpression = handlerContext.SelectExpression;
 
-                handlerContext.SelectExpression
-                    .PrependToOrderBy(columns.Select(c => new Ordering(c, OrderingDirection.Asc)));
+                selectExpression.ClearOrderBy();
+
+                IEnumerable<Expression> ProcessGroupingExpressions(Expression sqlExpression)
+                    => ((sqlExpression as CompositeExpression)?.Flatten().ToArray() ?? new[] { sqlExpression })
+                        .Select(e => e.RemoveConvert());
+
+                if (!compilationContext.QuerySourceRequiresMaterialization(groupResultOperator))
+                {
+                    foreach (var keyExpression in ProcessGroupingExpressions(sqlKeyExpression))
+                    {
+                        selectExpression.AddToGroupBy(keyExpression);
+                    }
+
+                    selectExpression.ClearProjection();
+
+                    var queryMethodProvider = handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider;
+                    var shaper = new GroupingShaper(groupResultOperator);
+                    
+                    var expression 
+                        = Expression.Call(
+                            queryMethodProvider.ShapedQueryMethod.MakeGenericMethod(shaper.Type),
+                            EntityQueryModelVisitor.QueryContextParameter,
+                            Expression.Constant(
+                                handlerContext.ShaperCommandContextFactory.Create(
+                                    selectExpression.CreateDefaultQuerySqlGenerator)),
+                            Expression.Constant(shaper));
+
+                    var currentMethodCall = (MethodCallExpression)handlerContext.QueryModelVisitor.Expression;
+
+                    if (currentMethodCall.Method.MethodIsClosedFormOf(queryMethodProvider.InjectParametersMethod))
+                    {
+                        var newArguments = currentMethodCall.Arguments.ToArray();
+
+                        newArguments[1] = expression;
+
+                        return Expression.Call(
+                            queryMethodProvider.InjectParametersMethod.MakeGenericMethod(shaper.Type),
+                            newArguments);
+                    }
+
+                    return expression;
+                }
+                else
+                {
+                    foreach (var keyExpression in ProcessGroupingExpressions(sqlKeyExpression))
+                    {
+                        selectExpression.AddToProjection(keyExpression);
+                        selectExpression.AddToOrderBy(new Ordering(keyExpression, OrderingDirection.Asc));
+                    }
+
+                    // The sqlElementExpression may be null if the element selector is a QSRE.
+                    if (sqlElementExpression != null)
+                    {
+                        foreach (var elementExpression in ProcessGroupingExpressions(sqlElementExpression))
+                        {
+                            selectExpression.AddToProjection(elementExpression);
+                        }
+                    }
+
+                    var oldGroupByCall = (MethodCallExpression)handlerContext.EvalOnClient();
+
+                    var newGroupByCall
+                        = handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.GroupByMethod;
+
+                    if (oldGroupByCall.Method.Name == "_GroupByAsync")
+                    {
+                        newGroupByCall = _groupByAsync;
+                    }
+
+                    return Expression.Call(
+                        newGroupByCall.MakeGenericMethod(oldGroupByCall.Method.GetGenericArguments()),
+                        oldGroupByCall.Arguments);
+                }
             }
 
-            var oldGroupByCall = (MethodCallExpression)handlerContext.EvalOnClient();
-
-            var newGroupByCall
-                = handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.GroupByMethod;
-
-            if (oldGroupByCall.Method.Name == "_GroupByAsync")
-            {
-                newGroupByCall = _groupByAsync;
-            }
-
-            return sqlExpression != null
-                ? Expression.Call(newGroupByCall
-                        .MakeGenericMethod(oldGroupByCall.Method.GetGenericArguments()),
-                    oldGroupByCall.Arguments)
-                : oldGroupByCall;
+            return handlerContext.EvalOnClient();
         }
 
         private static readonly MethodInfo _groupByAsync

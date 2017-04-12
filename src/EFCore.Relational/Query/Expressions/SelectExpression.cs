@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly List<Expression> _projection = new List<Expression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
+        private readonly List<Expression> _groupBy = new List<Expression>();
         private readonly List<Ordering> _orderBy = new List<Ordering>();
         private readonly Dictionary<MemberInfo, Expression> _memberInfoProjectionMapping = new Dictionary<MemberInfo, Expression>();
         private readonly List<Expression> _starProjection = new List<Expression>();
@@ -247,8 +248,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 selectExpression.Alias = _queryCompilationContext.CreateUniqueTableAlias(alias);
             }
 
+            if (QuerySource != null)
+            {
+                selectExpression.QuerySource = QuerySource;
+            }
+
             selectExpression._tables.AddRange(_tables);
             selectExpression._projection.AddRange(_projection);
+            selectExpression._groupBy.AddRange(_groupBy);
             selectExpression._orderBy.AddRange(_orderBy);
 
             return selectExpression;
@@ -262,6 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _tables.Clear();
             _projection.Clear();
             _starProjection.Clear();
+            _groupBy.Clear();
             _orderBy.Clear();
             _limit = null;
             _offset = null;
@@ -379,13 +387,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
                 if (memberInfo != null)
                 {
+                    subquery._memberInfoProjectionMapping[memberInfo] = expressionToAdd;
                     _memberInfoProjectionMapping[memberInfo] = expressionToAdd.LiftExpressionFromSubquery(subquery);
                 }
 
                 subquery._projection.Add(expressionToAdd);
             }
 
+            if (QuerySource != null)
+            {
+                subquery.QuerySource = QuerySource;
+            }
+
             subquery._tables.AddRange(_tables);
+            subquery._groupBy.AddRange(_groupBy);
             subquery._orderBy.AddRange(_orderBy);
 
             subquery.Predicate = Predicate;
@@ -553,11 +568,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(expression, nameof(expression));
 
+            if (expression is NullableExpression nullableExpression)
+            {
+                expression = nullableExpression.Operand;
+            }
+
             if (expression.NodeType == ExpressionType.Convert)
             {
                 var unaryExpression = (UnaryExpression)expression;
 
-                if (unaryExpression.Type.UnwrapNullableType()
+                if (unaryExpression.Type.UnwrapNullableType() 
                     == unaryExpression.Operand.Type)
                 {
                     expression = unaryExpression.Operand;
@@ -625,6 +645,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                                 ? (Expression)new AliasExpression(uniqueAlias, columnReferenceExpression)
                                 : columnReferenceExpression;
 
+                        break;
+                    }
+                    default:
+                    {
+                        expression = new AliasExpression(CreateUniqueProjectionAlias(null), expression);
                         break;
                     }
                 }
@@ -717,8 +742,125 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Transforms the projection of this SelectExpression by expanding the wildcard ('*') projection
-        ///     into individual explicit projection expressions.
+        ///     The SQL GROUP BY of this SelectExpression.
+        /// </summary>
+        public virtual IReadOnlyList<Expression> GroupBy => _groupBy;
+
+        /// <summary>
+        ///     Adds an expression to the GROUP BY of this SelectExpression.
+        /// </summary>
+        /// <param name="expression"> The expression to add. </param>
+        public virtual void AddToGroupBy([NotNull] Expression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            switch (expression)
+            {
+                case AliasExpression aliasExpression:
+                    _groupBy.Add(new AliasExpression(aliasExpression.Alias, aliasExpression.Expression));
+                    break;
+                default:
+                    _groupBy.Add(expression);
+                    break;
+            }
+        }
+
+        /// <summary>
+        ///     Updates a translated expression so that any references to this 
+        ///     SelectExpression's tables are replaced with references to this 
+        ///     SelectExpression.
+        /// </summary>
+        /// <param name="expression"> The expression to update. </param>
+        /// <returns>
+        ///     The updated expression.
+        /// </returns>
+        public virtual Expression LiftColumnReferences([NotNull] Expression expression)
+            => new ColumnReferenceLiftingExpressionVisitor(this)
+                .Visit(Check.NotNull(expression, nameof(expression)));
+
+        private class ColumnReferenceLiftingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly SelectExpression _selectExpression;
+
+            public ColumnReferenceLiftingExpressionVisitor(SelectExpression selectExpression)
+                => _selectExpression = selectExpression;
+
+            protected override Expression VisitExtension(Expression node)
+            {
+                if (node is ColumnExpression columnExpression
+                    && _selectExpression.Tables.Contains(columnExpression.Table))
+                {
+                    return node.LiftExpressionFromSubquery(_selectExpression);
+                }
+
+                return base.VisitExtension(node);
+            }
+        }
+
+        private class TableUpdatingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly TableExpressionBase _sourceTable;
+            private readonly TableExpressionBase _destinationTable;
+
+            public TableUpdatingExpressionVisitor(TableExpressionBase sourceTable, TableExpressionBase destinationTable)
+            {
+                _sourceTable = sourceTable;
+                _destinationTable = destinationTable;
+            }
+
+            protected override Expression VisitExtension(Expression node)
+            {
+                if (node == _sourceTable)
+                {
+                    return _destinationTable;
+                }
+
+                return base.VisitExtension(node);
+            }
+        }
+
+        /// <summary>
+        ///     Given an expression to be added to the projection of this SelectExpression,
+        ///     adds the expression to the appropriate subquery and returns a ColumnReferenceExpression
+        ///     referencing that subquery if needed.
+        /// </summary>
+        /// <param name="expression"> The expression to retarget. </param>
+        /// <param name="querySource"> The query source associated with the given expression. </param>
+        /// <returns> A ColumnExpression or, if no lifting was needed, the given expression. </returns>
+        public virtual Expression PushDownColumnReferences([NotNull] Expression expression, [NotNull] IQuerySource querySource)
+        {
+            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(querySource, nameof(querySource));
+
+            var targetTable = GetTableForQuerySource(querySource);
+
+            if (targetTable is JoinExpressionBase joinExpression)
+            {
+                targetTable = joinExpression.TableExpression;
+            }
+            
+            if (targetTable is SelectExpression subSelectExpression)
+            {
+                var liftedExpression = subSelectExpression.LiftColumnReferences(expression);
+
+                if (liftedExpression != expression)
+                {
+                    var projectionIndex 
+                        = subSelectExpression.AddToProjection(
+                            subSelectExpression.PushDownColumnReferences(
+                                expression, 
+                                querySource));
+
+                    return subSelectExpression.Projection[projectionIndex]
+                        .LiftExpressionFromSubquery(subSelectExpression);
+                }
+            }
+
+            return expression;
+        }
+
+        /// <summary>
+        ///     Adds a column to the ORDER BY of this SelectExpression.
         /// </summary>
         public virtual void ExplodeStarProjection()
         {
@@ -860,6 +1002,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _tables.Add(crossJoinExpression);
             _projection.AddRange(projection);
 
+            CopyMemberInfoProjectionMapping(tableExpression);
+
             return crossJoinExpression;
         }
 
@@ -879,6 +1023,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             _tables.Add(crossJoinLateralExpression);
             _projection.AddRange(projection);
+
+            CopyMemberInfoProjectionMapping(tableExpression);
 
             return crossJoinLateralExpression;
         }
@@ -918,6 +1064,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 AddToPredicate(innerPredicate);
             }
 
+            CopyMemberInfoProjectionMapping(tableExpression);
+
             return innerJoinExpression;
         }
 
@@ -949,7 +1097,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _tables.Add(outerJoinExpression);
             _projection.AddRange(projection);
 
+            CopyMemberInfoProjectionMapping(tableExpression);
+
             return outerJoinExpression;
+        }
+
+        private void CopyMemberInfoProjectionMapping(TableExpressionBase tableExpression)
+        {
+            if (tableExpression is SelectExpression subSelectExpression)
+            {
+                foreach (var mapping in subSelectExpression._memberInfoProjectionMapping)
+                {
+                    _memberInfoProjectionMapping[mapping.Key] = mapping.Value.LiftExpressionFromSubquery(subSelectExpression);
+                }
+            }
         }
 
         /// <summary>
@@ -1035,6 +1196,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             visitor.Visit(Predicate);
+
+            foreach (var expression in GroupBy)
+            {
+                visitor.Visit(expression);
+            }
 
             foreach (var ordering in OrderBy)
             {

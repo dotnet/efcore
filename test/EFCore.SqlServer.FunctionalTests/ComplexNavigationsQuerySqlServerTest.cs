@@ -696,8 +696,8 @@ LEFT JOIN [Level2] AS [e.OneToOne_Optional_FK] ON [e].[Id] = [e.OneToOne_Optiona
         {
             base.Select_nav_prop_reference_optional1_via_DefaultIfEmpty();
 
-            AssertSql(
-                @"SELECT [l2].[Name], [l2].[Id]
+            Assert.Equal(
+                @"SELECT [l2].[Name]
 FROM [Level1] AS [l1]
 LEFT JOIN [Level2] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]",
                 Sql);

@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly IMaterializerFactory _materializerFactory;
         private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
+        private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
         private readonly IQuerySource _querySource;
 
         /// <summary>
@@ -54,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             _materializerFactory = dependencies.MaterializerFactory;
             _shaperCommandContextFactory = dependencies.ShaperCommandContextFactory;
             _relationalAnnotationProvider = dependencies.RelationalAnnotationProvider;
+            _sqlTranslatingExpressionVisitorFactory = dependencies.SqlTranslatingExpressionVisitorFactory;
             _querySource = querySource;
         }
 
@@ -98,6 +100,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             Check.NotNull(node, nameof(node));
 
+            if (TryHandleGroupingKeyExpression(node))
+            {
+                return node;
+            }
+
             QueryModelVisitor
                 .BindMemberExpression(
                     node,
@@ -108,6 +115,46 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     bindSubQueries: true);
 
             return base.VisitMember(node);
+        }
+
+        private bool TryHandleGroupingKeyExpression(MemberExpression node)
+        {
+            if (node.Expression == null || !node.Expression.Type.IsGrouping() || node.Member.Name != "Key")
+            {
+                return false;
+            }
+
+            var groupedQuerySource = node.Expression.TryGetQuerySource();
+
+            if (groupedQuerySource == null)
+            {
+                return false;
+            }
+
+            var targetSelectExpression = QueryModelVisitor.TryGetQuery(groupedQuerySource);
+
+            if (targetSelectExpression == null)
+            {
+                return false;
+            }
+
+            var sqlTranslator = _sqlTranslatingExpressionVisitorFactory.Create(QueryModelVisitor);
+            var sqlExpression = sqlTranslator.Visit(node);
+
+            if (sqlExpression is CompositeExpression compositeExpression)
+            {
+                foreach (var expression in compositeExpression.Flatten())
+                {
+                    targetSelectExpression.AddToProjection(
+                        targetSelectExpression.PushDownColumnReferences(
+                            expression.RemoveConvert(), 
+                            groupedQuerySource));
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

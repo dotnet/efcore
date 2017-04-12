@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -260,20 +261,56 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                            ?? node;
                 }
 
-                var member = node.Member;
-                var typeInfo = newExpression.Type.GetTypeInfo();
-
-                if (typeInfo.IsGenericType
-                    && (typeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>)
-                        || typeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>)))
-                {
-                    member = typeInfo.GetDeclaredProperty("Key");
-                }
-
-                return Expression.MakeMemberAccess(newExpression, member);
+                return TryHandleGroupingKeyExpression(expression, newExpression)
+                    ?? Expression.MakeMemberAccess(newExpression, node.Member);
             }
 
             return node;
+        }
+
+        private Expression TryHandleGroupingKeyExpression(
+            Expression originalExpression,
+            Expression newExpression)
+        {
+            if (!newExpression.Type.IsGrouping())
+            {
+                return null;
+            }
+
+            var keyMember = newExpression.Type.GetTypeInfo().GetDeclaredProperty("Key");
+            var keyAccessor = Expression.MakeMemberAccess(newExpression, keyMember);
+
+            if (keyMember.GetMemberType() == typeof(ValueBuffer))
+            {
+                var groupResultOperator = originalExpression.TryGetQuerySource()?.TryGetUnderlyingGroupResultOperator();
+
+                if (groupResultOperator != null)
+                {
+                    var querySourceGatherer = new QuerySourceGatheringExpressionVisitor();
+                    querySourceGatherer.Visit(groupResultOperator.KeySelector);
+
+                    foreach (var querySource in querySourceGatherer.QuerySources)
+                    {
+                        _queryModelVisitor.QueryCompilationContext.AddOrUpdateMapping(querySource, keyAccessor);
+                    }
+
+                    return Visit(groupResultOperator.KeySelector);
+                }
+            }
+
+            return keyAccessor;
+        }
+
+        private class QuerySourceGatheringExpressionVisitor : ExpressionVisitorBase
+        {
+            public HashSet<IQuerySource> QuerySources { get; } = new HashSet<IQuerySource>();
+
+            protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
+            {
+                QuerySources.Add(expression.ReferencedQuerySource);
+
+                return base.VisitQuerySourceReference(expression);
+            }
         }
 
         /// <summary>

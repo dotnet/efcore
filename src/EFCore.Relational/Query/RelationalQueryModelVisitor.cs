@@ -705,9 +705,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         || !subSelectExpression.IsCorrelated()
                         || !(querySource is AdditionalFromClause)))
                 {
-                    if (!subSelectExpression.IsIdentityQuery())
+                    subSelectExpression.QuerySource = querySource;
+
+                    if (!subSelectExpression.IsIdentityQuery() && !subSelectExpression.GroupBy.Any())
                     {
-                        subSelectExpression.PushDownSubquery().QuerySource = querySource;
+                        subSelectExpression.PushDownSubquery();
+                        subSelectExpression.ExplodeStarProjection();
                     }
 
                     AddQuery(querySource, subSelectExpression);
@@ -716,8 +719,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         = new QuerySourceUpdater(
                                 querySource,
                                 QueryCompilationContext,
-                                LinqOperatorProvider,
-                                subSelectExpression)
+                                LinqOperatorProvider)
                             .Visit(subQueryModelVisitor.Expression);
 
                     return newExpression;
@@ -734,19 +736,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly IQuerySource _querySource;
             private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
             private readonly ILinqOperatorProvider _linqOperatorProvider;
-            private readonly SelectExpression _selectExpression;
             private bool _insideShapedQueryMethod;
 
             public QuerySourceUpdater(
                 IQuerySource querySource,
                 RelationalQueryCompilationContext relationalQueryCompilationContext,
-                ILinqOperatorProvider linqOperatorProvider,
-                SelectExpression selectExpression)
+                ILinqOperatorProvider linqOperatorProvider)
             {
                 _querySource = querySource;
                 _relationalQueryCompilationContext = relationalQueryCompilationContext;
                 _linqOperatorProvider = linqOperatorProvider;
-                _selectExpression = selectExpression;
             }
 
             protected override Expression VisitConstant(ConstantExpression constantExpression)
@@ -768,8 +767,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     shaper.UpdateQuerySource(_querySource);
-
-                    _selectExpression.ExplodeStarProjection();
                 }
 
                 return base.VisitConstant(constantExpression);
@@ -919,11 +916,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Expression.Constant(true, typeof(bool)),
                             Expression.Constant(false, typeof(bool)));
                     }
-
-                    orderings.Add(
-                        new Ordering(
-                            sqlOrderingExpression,
-                            ordering.OrderingDirection));
+                    
+                    if (sqlOrderingExpression is CompositeExpression compositeExpression)
+                    {
+                        foreach (var sqlExpression in compositeExpression.Flatten())
+                        {
+                            orderings.Add(new Ordering(sqlExpression, ordering.OrderingDirection));
+                        }
+                    }
+                    else
+                    {
+                        orderings.Add(new Ordering(sqlOrderingExpression, ordering.OrderingDirection));
+                    }
                 }
 
                 if (orderings.Count == orderByClause.Orderings.Count)
@@ -1303,7 +1307,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return false;
             }
 
-           var sqlTranslatingExpressionVisitor
+            var sqlTranslatingExpressionVisitor
                 = _sqlTranslatingExpressionVisitorFactory.Create(this);
 
             var predicate
@@ -1317,17 +1321,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             QueriesBySource.Remove(joinClause);
 
-            outerSelectExpression.RemoveRangeFromProjection(previousProjectionCount);
-
-            var projection
-                = QueryCompilationContext.QuerySourceRequiresMaterialization(joinClause)
-                    ? innerSelectExpression.Projection
-                    : Enumerable.Empty<Expression>();
+            predicate = PrepareJoinPredicate(
+                previousProjectionCount,
+                outerQuerySource,
+                joinClause,
+                outerSelectExpression,
+                innerSelectExpression,
+                predicate);
 
             var joinExpression
                 = outerSelectExpression.AddInnerJoin(
                     innerSelectExpression.Tables.Single(),
-                    projection,
+                    innerSelectExpression.Projection,
                     innerSelectExpression.Predicate);
 
             joinExpression.Predicate = predicate;
@@ -1426,17 +1431,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             QueriesBySource.Remove(joinClause);
 
-            outerSelectExpression.RemoveRangeFromProjection(previousProjectionCount);
-
-            var projections
-                = QueryCompilationContext.QuerySourceRequiresMaterialization(joinClause)
-                    ? innerSelectExpression.Projection
-                    : Enumerable.Empty<Expression>();
+            predicate = PrepareJoinPredicate(
+                previousProjectionCount,
+                outerQuerySource,
+                joinClause,
+                outerSelectExpression,
+                innerSelectExpression,
+                predicate);
 
             var joinExpression
                 = outerSelectExpression.AddLeftOuterJoin(
                     innerSelectExpression.Tables.Single(),
-                    projections);
+                    innerSelectExpression.Projection);
 
             joinExpression.Predicate = predicate;
             joinExpression.QuerySource = joinClause;
@@ -1624,6 +1630,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(compositeShaper));
 
             return true;
+        }
+
+        private Expression PrepareJoinPredicate(
+            int previousProjectionCount,
+            IQuerySource outerQuerySource,
+            IQuerySource innerQuerySource,
+            SelectExpression outerSelectExpression,
+            SelectExpression innerSelectExpression,
+            Expression predicate)
+        {
+            if (outerSelectExpression.GroupBy.Any())
+            {
+                predicate = outerSelectExpression.PushDownSubquery().LiftColumnReferences(predicate);
+                outerSelectExpression.ExplodeStarProjection();
+            }
+
+            outerSelectExpression.RemoveRangeFromProjection(previousProjectionCount);
+
+            if (innerSelectExpression.GroupBy.Any())
+            {
+                predicate = innerSelectExpression.PushDownSubquery().LiftColumnReferences(predicate);
+                innerSelectExpression.ExplodeStarProjection();
+            }
+
+            if (!QueryCompilationContext.QuerySourceRequiresMaterialization(innerQuerySource))
+            {
+                innerSelectExpression.ClearProjection();
+            }
+
+            return predicate;
         }
 
         #endregion
@@ -1922,7 +1958,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             parameterNameExpressions.AddRange(parameters.Keys.Select(Expression.Constant));
             parameterValueExpressions.AddRange(parameters.Values);
 
-            var elementType = expression.Type.GetTypeInfo().GenericTypeArguments.Single();
+            var elementType = expression.Type.TryGetSequenceType();
 
             return Expression.Call(
                 QueryCompilationContext.QueryMethodProvider.InjectParametersMethod.MakeGenericMethod(elementType),

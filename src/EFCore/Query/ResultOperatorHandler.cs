@@ -15,8 +15,8 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -232,11 +232,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                         groupResultOperator.KeySelector,
                         queryModel.MainFromClause);
 
+            keySelector
+                = AdjustSubQueryType(
+                    entityQueryModelVisitor,
+                    groupResultOperator.KeySelector,
+                    keySelector);
+
             var elementSelector
                 = entityQueryModelVisitor
                     .ReplaceClauseReferences(
                         groupResultOperator.ElementSelector,
                         queryModel.MainFromClause);
+
+            elementSelector
+                = AdjustSubQueryType(
+                    entityQueryModelVisitor,
+                    groupResultOperator.ElementSelector,
+                    elementSelector);
 
             var taskLiftingExpressionVisitor = new TaskLiftingExpressionVisitor();
             var asyncElementSelector = taskLiftingExpressionVisitor.LiftTasks(elementSelector);
@@ -286,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<TSource, CancellationToken, Task<TElement>> elementSelector)
             => new AsyncGroupByAsyncEnumerable<TSource, TKey, TElement>(source, keySelector, elementSelector);
 
-        private sealed class AsyncGroupByAsyncEnumerable<TSource, TKey, TElement> 
+        private sealed class AsyncGroupByAsyncEnumerable<TSource, TKey, TElement>
             : IAsyncEnumerable<IGrouping<TKey, TElement>>
         {
             private readonly IAsyncEnumerable<TSource> _source;
@@ -361,6 +373,47 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 public void Dispose() => _lookupEnumerator?.Dispose();
             }
+        }
+
+        private static Expression AdjustSubQueryType(
+            EntityQueryModelVisitor entityQueryModelVisitor,
+            Expression oldExpression,
+            Expression newExpression)
+        {
+            if (oldExpression is SubQueryExpression && newExpression.Type != oldExpression.Type)
+            {
+                var subQueryExpressionTypeInfo = oldExpression.Type.GetTypeInfo();
+
+                if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(subQueryExpressionTypeInfo))
+                {
+                    return Expression.Call(
+                        entityQueryModelVisitor.LinqOperatorProvider.ToQueryable
+                            .MakeGenericMethod(newExpression.Type.GetSequenceType()),
+                        newExpression,
+                        EntityQueryModelVisitor.QueryContextParameter);
+                }
+                else if (subQueryExpressionTypeInfo.IsGenericType)
+                {
+                    var genericTypeDefinition = subQueryExpressionTypeInfo.GetGenericTypeDefinition();
+
+                    if (genericTypeDefinition == typeof(IOrderedEnumerable<>))
+                    {
+                        return Expression.Call(
+                            entityQueryModelVisitor.LinqOperatorProvider.ToOrdered
+                                .MakeGenericMethod(newExpression.Type.GetSequenceType()),
+                            newExpression);
+                    }
+                    else if (genericTypeDefinition == typeof(IEnumerable<>))
+                    {
+                        return Expression.Call(
+                            entityQueryModelVisitor.LinqOperatorProvider.ToEnumerable
+                                .MakeGenericMethod(newExpression.Type.GetSequenceType()),
+                            newExpression);
+                    }
+                }
+            }
+
+            return newExpression;
         }
 
         private static Expression HandleIntersect(
