@@ -315,6 +315,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             includeCompiler.CompileIncludes(queryModel, includeResultOperators, TrackResults(queryModel), asyncQuery);
 
+            queryModel.TransformExpressions(new CollectionNavigationSubqueryInjector(this).Visit);
+
             _navigationRewritingExpressionVisitorFactory
                 .Create(this)
                 .Rewrite(queryModel, parentQueryModel: null);

@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Update_read_only_props_with_named_fields()
             => Update<BlogReadOnlyExplicit>("Posts");
 
-        [Fact(Skip = "#8068")]
+        [Fact]
         public virtual void Include_collection_write_only_props()
         {
             using (var context = CreateContext())
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Update_write_only_props()
             => Update<BlogWriteOnly>("Posts");
 
-        [Fact(Skip = "#8068")]
+        [Fact]
         public virtual void Include_collection_write_only_props_with_named_fields()
         {
             using (var context = CreateContext())

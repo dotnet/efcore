@@ -2664,6 +2664,106 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Client_method_on_collection_navigation_in_predicate()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g in ctx.Gears
+                            where g.HasSoulPatch && FavoriteWeapon(g.Weapons).Name == "Marcus' Lancer"
+                            select g.Nickname;
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+                Assert.Equal("Marcus", result[0]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Client_method_on_collection_navigation_in_predicate_accessed_by_ef_property()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g in ctx.Gears
+                            where !g.HasSoulPatch && FavoriteWeapon(EF.Property<List<Weapon>>(g, "Weapons")).Name == "Cole's Gnasher"
+                            select g.Nickname;
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+                Assert.Equal("Cole Train", result[0]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Client_method_on_collection_navigation_in_order_by()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g in ctx.Gears
+                            where !g.HasSoulPatch
+                            orderby FavoriteWeapon(g.Weapons).Name descending
+                            select g.Nickname;
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal("Paduk", result[0]);
+                Assert.Equal("Dom", result[1]);
+                Assert.Equal("Cole Train", result[2]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Client_method_on_collection_navigation_in_additional_from_clause()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g in ctx.Gears.OfType<Officer>()
+                            from v in Veterans(g.Reports)
+                            orderby g.Nickname, v.Nickname
+                            select new { g = g.Nickname, v = v.Nickname };
+                            
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.True(result.Select(r => r.g).All(g => g == "Marcus"));
+                Assert.Equal("Baird", result[0].v);
+                Assert.Equal("Cole Train", result[1].v);
+                Assert.Equal("Dom", result[2].v);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Client_method_on_collection_navigation_in_outer_join_key()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from o in ctx.Gears.OfType<Officer>()
+                            join g in ctx.Gears on FavoriteWeapon(o.Weapons).Name equals FavoriteWeapon(g.Weapons).Name
+                            where o.HasSoulPatch
+                            orderby o.Nickname, g.Nickname
+                            select new { o = o.Nickname, g = g.Nickname };
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Baird", result[0].o);
+                Assert.Equal("Baird", result[0].g);
+                Assert.Equal("Marcus", result[1].o);
+                Assert.Equal("Marcus", result[1].g);
+            }
+        }
+
+        private static Weapon FavoriteWeapon(IEnumerable<Weapon> weapons)
+            => weapons.OrderBy(w => w.Id).FirstOrDefault();
+
+        private static IEnumerable<Gear> Veterans(IEnumerable<Gear> gears)
+        {
+            return gears.Where(g => g.Nickname == "Marcus" || g.Nickname == "Dom" || g.Nickname == "Cole Train" || g.Nickname == "Baird");
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)
