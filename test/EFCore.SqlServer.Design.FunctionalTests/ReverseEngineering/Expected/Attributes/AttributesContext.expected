@@ -123,15 +123,11 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.PropertyConfigurationId).ValueGeneratedOnAdd();
 
-                entity.Property(e => e.ComputedDateTimeColumn)
-                    .HasComputedColumnSql("getdate()")
-                    .ValueGeneratedOnAddOrUpdate();
+                entity.Property(e => e.ComputedDateTimeColumn).HasComputedColumnSql("getdate()");
 
                 entity.Property(e => e.RowversionColumn).ValueGeneratedOnAddOrUpdate();
 
-                entity.Property(e => e.SumOfAandB)
-                    .HasComputedColumnSql("[A]+[B]")
-                    .ValueGeneratedOnAddOrUpdate();
+                entity.Property(e => e.SumOfAandB).HasComputedColumnSql("[A]+[B]");
 
                 entity.Property(e => e.WithDateDefaultExpression).HasDefaultValueSql("getdate()");
 

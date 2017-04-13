@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         protected const string DefaultDbContextName = "Model" + DbContextSuffix;
 
         private static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
-        private static readonly KeyConvention _keyConvention = new KeyConvention();
+        private readonly ValueGeneratorConvention _valueGeneratorConvention;
 
         private readonly ConfigurationFactory _configurationFactory;
         private List<OptionsBuilderConfiguration> _onConfiguringConfigurations;
@@ -70,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             AnnotationProvider = annotationProvider;
             CSharpUtilities = cSharpUtilities;
             ScaffoldingUtilities = scaffoldingUtilities;
+            _valueGeneratorConvention = new RelationalValueGeneratorConvention(annotationProvider);
         }
 
         /// <summary>
@@ -524,48 +525,36 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (!((Property)propertyConfiguration.Property).GetValueGeneratedConfigurationSource().HasValue)
+            var valueGenerated = propertyConfiguration.Property.ValueGenerated;
+            if (!((Property)propertyConfiguration.Property).GetValueGeneratedConfigurationSource().HasValue
+                || _valueGeneratorConvention.GetValueGenerated((Property)propertyConfiguration.Property) == valueGenerated)
             {
                 return;
             }
 
-            var valueGenerated = propertyConfiguration.Property.ValueGenerated;
-
+            string methodName;
             switch (valueGenerated)
             {
                 case ValueGenerated.OnAdd:
-                    // If this property is the single integer primary key on the EntityType then
-                    // KeyConvention assumes ValueGeneratedOnAdd() so there is no need to add it.
-                    if (_keyConvention.FindValueGeneratedOnAddProperty(
-                            new List<Property> { (Property)propertyConfiguration.Property },
-                            (EntityType)propertyConfiguration.EntityConfiguration.EntityType) == null
-                        && AnnotationProvider.For(propertyConfiguration.Property).DefaultValueSql == null)
-                    {
-                        propertyConfiguration.FluentApiConfigurations.Add(
-                            _configurationFactory.CreateFluentApiConfiguration(
-                                /* hasAttributeEquivalent */ false,
-                                nameof(PropertyBuilder.ValueGeneratedOnAdd)));
-                    }
-
+                    methodName = nameof(PropertyBuilder.ValueGeneratedOnAdd);
                     break;
 
                 case ValueGenerated.OnAddOrUpdate:
-                    propertyConfiguration.FluentApiConfigurations.Add(
-                        _configurationFactory.CreateFluentApiConfiguration(
-                            /* hasAttributeEquivalent */ false,
-                            nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate)));
+                    methodName = nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate);
                     break;
 
                 case ValueGenerated.Never:
-                    propertyConfiguration.FluentApiConfigurations.Add(
-                        _configurationFactory.CreateFluentApiConfiguration(
-                            /* hasAttributeEquivalent */ false,
-                            nameof(PropertyBuilder.ValueGeneratedNever)));
+                    methodName = nameof(PropertyBuilder.ValueGeneratedNever);
                     break;
 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            propertyConfiguration.FluentApiConfigurations.Add(
+                _configurationFactory.CreateFluentApiConfiguration(
+                    /* hasAttributeEquivalent */ false,
+                    methodName));
         }
 
         /// <summary>

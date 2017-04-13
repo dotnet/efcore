@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -30,10 +31,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var valueGenerationStrategyConvention = new SqlServerValueGenerationStrategyConvention();
             conventionSet.ModelInitializedConventions.Add(valueGenerationStrategyConvention);
 
+            ValueGeneratorConvention valueGeneratorConvention = new SqlServerValueGeneratorConvention(Dependencies.AnnotationProvider);
+            ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, valueGeneratorConvention);
+
             var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention();
             conventionSet.EntityTypeAnnotationSetConventions.Add(sqlServerInMemoryTablesConvention);
 
+            ReplaceConvention(conventionSet.PrimaryKeySetConventions, valueGeneratorConvention);
+
             conventionSet.KeyAddedConventions.Add(sqlServerInMemoryTablesConvention);
+
+            ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGeneratorConvention);
+
+            ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
             var sqlServerIndexConvention = new SqlServerIndexConvention(_sqlGenerationHelper);
             conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
@@ -46,19 +56,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             conventionSet.PropertyNullableChangedConventions.Add(sqlServerIndexConvention);
 
             conventionSet.PropertyAnnotationSetConventions.Add(sqlServerIndexConvention);
+            conventionSet.PropertyAnnotationSetConventions.Add((SqlServerValueGeneratorConvention)valueGeneratorConvention);
 
             return conventionSet;
         }
 
         public static ConventionSet Build()
             => new SqlServerConventionSetBuilder(
-                    new RelationalConventionSetBuilderDependencies(
-                        new SqlServerTypeMapper(
-                            new RelationalTypeMapperDependencies()),
-                        null,
-                        null),
-                    new SqlServerSqlGenerationHelper(
-                        new RelationalSqlGenerationHelperDependencies()))
+                new RelationalConventionSetBuilderDependencies(
+                    new SqlServerTypeMapper(
+                        new RelationalTypeMapperDependencies()),
+                    new SqlServerAnnotationProvider(),
+                    null,
+                    null),
+                new SqlServerSqlGenerationHelper(
+                    new RelationalSqlGenerationHelperDependencies()))
                 .AddConventions(new CoreConventionSetBuilder().CreateConventionSet());
     }
 }

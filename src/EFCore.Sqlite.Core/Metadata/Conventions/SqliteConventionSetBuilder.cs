@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -18,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public static ConventionSet Build()
             => new SqliteConventionSetBuilder(
                     new RelationalConventionSetBuilderDependencies(
-                        new SqliteTypeMapper(new RelationalTypeMapperDependencies()), null, null))
+                        new SqliteTypeMapper(new RelationalTypeMapperDependencies()), new SqliteAnnotationProvider(), null, null))
                 .AddConventions(new CoreConventionSetBuilder().CreateConventionSet());
     }
 }

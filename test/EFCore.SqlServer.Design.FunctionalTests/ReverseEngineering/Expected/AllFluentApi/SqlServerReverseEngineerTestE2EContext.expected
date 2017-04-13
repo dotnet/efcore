@@ -483,8 +483,7 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.ComputedDateTimeColumn)
                     .HasColumnType("datetime")
-                    .HasComputedColumnSql("getdate()")
-                    .ValueGeneratedOnAddOrUpdate();
+                    .HasComputedColumnSql("getdate()");
 
                 entity.Property(e => e.PropertyConfiguration1).HasColumnName("PropertyConfiguration");
 
@@ -495,8 +494,7 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.SumOfAandB)
                     .HasColumnName("SumOfAAndB")
-                    .HasComputedColumnSql("[A]+[B]")
-                    .ValueGeneratedOnAddOrUpdate();
+                    .HasComputedColumnSql("[A]+[B]");
 
                 entity.Property(e => e.WithDateDefaultExpression).HasDefaultValueSql("getdate()");
 

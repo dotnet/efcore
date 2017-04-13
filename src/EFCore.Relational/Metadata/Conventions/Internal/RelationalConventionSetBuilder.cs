@@ -54,15 +54,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             ReplaceConvention(conventionSet.EntityTypeIgnoredConventions, inversePropertyAttributeConvention);
 
+            ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention(Dependencies.AnnotationProvider);
             ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, relationshipDiscoveryConvention);
+            ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, valueGeneratorConvention);
 
             ReplaceConvention(conventionSet.EntityTypeMemberIgnoredConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.EntityTypeMemberIgnoredConventions, relationshipDiscoveryConvention);
 
-            ReplaceConvention(
-                conventionSet.ForeignKeyAddedConventions,
+            ReplaceConvention(conventionSet.PrimaryKeySetConventions, valueGeneratorConvention);
+
+            ReplaceConvention(conventionSet.ForeignKeyAddedConventions,
                 (ForeignKeyAttributeConvention)new RelationalForeignKeyAttributeConvention(typeMapper));
+            ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGeneratorConvention);
+
+            ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
             ReplaceConvention(conventionSet.NavigationAddedConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.NavigationAddedConventions, relationshipDiscoveryConvention);
@@ -84,6 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 new TableNameFromDbSetConvention(Dependencies.Context?.Context, Dependencies.SetFinder));
 
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
+
+            conventionSet.PropertyAnnotationSetConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
 
             return conventionSet;
         }

@@ -22,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     </para>
     ///     <para>
     ///         Do not construct instances of this class directly from either provider or application code as the
-    ///         constructor signature may change as new dependencies are added. Instead, use this type in 
-    ///         your constructor so that an instance will be created and injected automatically by the 
-    ///         dependency injection container. To create an instance with some dependent services replaced, 
-    ///         first resolve the object from the dependency injection container, then replace selected 
+    ///         constructor signature may change as new dependencies are added. Instead, use this type in
+    ///         your constructor so that an instance will be created and injected automatically by the
+    ///         dependency injection container. To create an instance with some dependent services replaced,
+    ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
@@ -36,11 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///         Creates the service dependencies parameter object for a <see cref="RelationalConventionSetBuilder" />.
         ///     </para>
         ///     <para>
-        ///         Do not call this constructor directly from either provider or application code as it may change 
-        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance 
-        ///         will be created and injected automatically by the dependency injection container. To create 
-        ///         an instance with some dependent services replaced, first resolve the object from the dependency 
-        ///         injection container, then replace selected services using the 'With...' methods. Do not call 
+        ///         Do not call this constructor directly from either provider or application code as it may change
+        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance
+        ///         will be created and injected automatically by the dependency injection container. To create
+        ///         an instance with some dependent services replaced, first resolve the object from the dependency
+        ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
         ///     <para>
@@ -50,12 +50,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public RelationalConventionSetBuilderDependencies(
             [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalAnnotationProvider annotationProvider,
             [CanBeNull] ICurrentDbContext currentContext,
             [CanBeNull] IDbSetFinder setFinder)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 
             TypeMapper = typeMapper;
+            AnnotationProvider = annotationProvider;
             Context = currentContext;
             SetFinder = setFinder;
         }
@@ -65,6 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IRelationalTypeMapper TypeMapper { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public IRelationalAnnotationProvider AnnotationProvider { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -84,7 +92,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConventionSetBuilderDependencies With([NotNull] IRelationalTypeMapper typeMapper)
-            => new RelationalConventionSetBuilderDependencies(typeMapper, Context, SetFinder);
+            => new RelationalConventionSetBuilderDependencies(typeMapper, AnnotationProvider, Context, SetFinder);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="annotationProvider"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalConventionSetBuilderDependencies With([NotNull] IRelationalAnnotationProvider annotationProvider)
+            => new RelationalConventionSetBuilderDependencies(TypeMapper, annotationProvider, Context, SetFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -92,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConventionSetBuilderDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new RelationalConventionSetBuilderDependencies(TypeMapper, currentContext, SetFinder);
+            => new RelationalConventionSetBuilderDependencies(TypeMapper, AnnotationProvider, currentContext, SetFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -100,6 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <param name="setFinder"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConventionSetBuilderDependencies With([NotNull] IDbSetFinder setFinder)
-            => new RelationalConventionSetBuilderDependencies(TypeMapper, Context, setFinder);
+            => new RelationalConventionSetBuilderDependencies(TypeMapper, AnnotationProvider, Context, setFinder);
     }
 }

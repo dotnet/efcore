@@ -29,8 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         protected new virtual RelationalAnnotationsBuilder Annotations => (RelationalAnnotationsBuilder)base.Annotations;
 
-        private InternalPropertyBuilder PropertyBuilder => ((Property)Property).Builder;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -60,32 +58,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasDefaultValueSql([CanBeNull] string value)
-        {
-            PropertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
-
-            return SetDefaultValueSql(value);
-        }
+            => SetDefaultValueSql(value);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasComputedColumnSql([CanBeNull] string value)
-        {
-            PropertyBuilder.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Convention);
-
-            return SetComputedColumnSql(value);
-        }
+            => SetComputedColumnSql(value);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasDefaultValue([CanBeNull] object value)
-        {
-            PropertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
-
-            return SetDefaultValue(value);
-        }
+            => SetDefaultValue(value);
     }
 }
