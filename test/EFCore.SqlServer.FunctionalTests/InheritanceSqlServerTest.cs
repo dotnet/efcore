@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Inheritance;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -11,9 +11,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class InheritanceSqlServerTest : InheritanceTestBase<InheritanceSqlServerFixture>
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
         public InheritanceSqlServerTest(InheritanceSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            _testOutputHelper = testOutputHelper;
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
@@ -378,9 +381,14 @@ FROM [Animal] AS [k]
 WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')");
         }
 
-        private void AssertSql(params string [] expected)
+        private void AssertSql(params string[] expected)
         {
-            RelationalTestHelpers.AssertBaseline(expected);
+            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ true, expected);
+        }
+
+        private void AssertContainsSql(params string[] expected)
+        {
+            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ false, expected);
         }
     }
 }

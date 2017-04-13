@@ -3,10 +3,9 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -14,9 +13,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class RowNumberPagingTest : QueryTestBase<NorthwindRowNumberPagingQuerySqlServerFixture>, IDisposable
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
         public RowNumberPagingTest(NorthwindRowNumberPagingQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            _testOutputHelper = testOutputHelper;
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
@@ -491,7 +493,12 @@ ORDER BY [t].[City], [t].[CustomerID]");
 
         private void AssertSql(params string[] expected)
         {
-            RelationalTestHelpers.AssertBaseline(expected);
+            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ true, expected);
+        }
+
+        private void AssertContainsSql(params string[] expected)
+        {
+            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ false, expected);
         }
     }
 }

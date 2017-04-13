@@ -3,9 +3,9 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
@@ -20,10 +20,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>
     {
-        // ReSharper disable once UnusedParameter.Local
+        private readonly ITestOutputHelper _testOutputHelper;
+
         public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            _testOutputHelper = testOutputHelper;
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
@@ -52,7 +54,7 @@ INNER JOIN (
             base.Lifting_when_subquery_nested_order_by_simple();
 
             // TODO: Avoid unnecessary pushdown of subquery. See Issue#8094
-            AssertSql(
+            AssertContainsSql(
                 @"@__p_0: 2
 
 SELECT [t0].[CustomerID]
@@ -3104,7 +3106,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         {
             base.Join_client_new_expression();
 
-            AssertSql(
+            AssertContainsSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]",
                 //
@@ -3127,7 +3129,7 @@ CROSS JOIN [Employees] AS [e]");
         {
             base.Client_Join_select_many();
 
-            AssertSql(
+            AssertContainsSql(
                 @"@__p_1: 2
 
 SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title]
@@ -3186,7 +3188,7 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         {
             base.Join_customers_orders_with_subquery();
 
-            AssertSql(
+            AssertContainsSql(
                 @"SELECT [o20].[CustomerID], [o20].[OrderID]
 FROM [Orders] AS [o20]
 ORDER BY [o20].[OrderID]",
@@ -3216,7 +3218,7 @@ WHERE [t].[CustomerID] = N'ALFKI'");
         {
             base.Join_customers_orders_with_subquery_anonymous_property_method();
 
-            AssertSql(
+            AssertContainsSql(
                 @"SELECT [o20].[OrderID], [o20].[CustomerID], [o20].[EmployeeID], [o20].[OrderDate]
 FROM [Orders] AS [o20]
 ORDER BY [o20].[OrderID]",
@@ -3229,7 +3231,7 @@ FROM [Customers] AS [c]");
         {
             base.Join_customers_orders_with_subquery_anonymous_property_method_with_take();
 
-            AssertSql(
+            AssertContainsSql(
                 @"@__p_0: 5
 
 SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
@@ -3247,7 +3249,7 @@ FROM [Customers] AS [c]");
         {
             base.Join_customers_orders_with_subquery_predicate();
 
-            AssertSql(
+            AssertContainsSql(
                 @"SELECT [o20].[CustomerID], [o20].[OrderID]
 FROM [Orders] AS [o20]
 WHERE [o20].[OrderID] > 0
@@ -3934,7 +3936,7 @@ FROM [Customers] AS [c]");
         {
             base.OrderBy_multiple_queries();
 
-            AssertSql(
+            AssertContainsSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]",
                 //
@@ -7453,7 +7455,12 @@ ORDER BY [order0].[OrderID]");
 
         private void AssertSql(params string [] expected)
         {
-            RelationalTestHelpers.AssertBaseline(expected);
+            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ true, expected);
+        }
+
+        private void AssertContainsSql(params string[] expected)
+        {
+            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ false, expected);
         }
     }
 }
