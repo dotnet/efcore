@@ -2659,6 +2659,22 @@ WHERE [l2.OneToMany_Required_Inverse0].[Id] = @__level1Id_0
 ORDER BY [l2.OneToMany_Required_Self_Inverse0].[Name]");
         }
 
+        public override void Nested_group_join_with_take()
+        {
+            base.Nested_group_join_with_take();
+
+            AssertSql(
+                @"@__p_0: 2
+
+SELECT [l2_outer].[Name]
+FROM (
+    SELECT TOP(@__p_0) [l2_inner].*
+    FROM [Level1] AS [l1_inner]
+    LEFT JOIN [Level2] AS [l2_inner] ON [l1_inner].[Id] = [l2_inner].[Level1_Optional_Id]
+) AS [t]
+LEFT JOIN [Level2] AS [l2_outer] ON [t].[Id] = [l2_outer].[Level1_Optional_Id]");
+        }
+
         private void AssertSql(params string [] expected)
         {
             RelationalTestHelpers.AssertBaseline(expected);
