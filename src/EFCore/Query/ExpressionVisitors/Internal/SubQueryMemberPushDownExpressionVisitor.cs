@@ -48,9 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
             {
                 var subQueryExpression = newMethodCallExpression.Arguments[0] as SubQueryExpression;
-                var subSelector = subQueryExpression?.QueryModel.SelectClause.Selector as QuerySourceReferenceExpression;
-
-                if (subSelector != null)
+                if (subQueryExpression?.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression subSelector)
                 {
                     var subQueryModel = subQueryExpression.QueryModel;
 

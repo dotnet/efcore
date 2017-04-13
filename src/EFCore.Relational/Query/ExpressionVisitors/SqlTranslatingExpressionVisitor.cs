@@ -856,13 +856,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     return null;
                 }
 
-                var querySourceReferenceExpression
-                    = subQueryModel.SelectClause.Selector as QuerySourceReferenceExpression;
+                var referencedQuerySource = subQueryModel.SelectClause.Selector.TryGetReferencedQuerySource();
 
-                if (querySourceReferenceExpression == null
+                if (referencedQuerySource == null
                     || _inProjection
                     || !_queryModelVisitor.QueryCompilationContext
-                        .QuerySourceRequiresMaterialization(querySourceReferenceExpression.ReferencedQuerySource))
+                        .QuerySourceRequiresMaterialization(referencedQuerySource))
                 {
                     var subQueryModelVisitor
                         = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext

@@ -1556,8 +1556,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ?.QueryModel;
 
             var referencedQuerySource
-                = (subQueryModel?.MainFromClause.FromExpression as QuerySourceReferenceExpression)
-                    ?.ReferencedQuerySource;
+                = subQueryModel?.MainFromClause.FromExpression.TryGetReferencedQuerySource();
 
             if (referencedQuerySource != groupJoinClause
                 || queryModel.CountQuerySourceReferences(groupJoinClause) != 1

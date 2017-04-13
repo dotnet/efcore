@@ -50,22 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         }
 
         private static IQuerySource GetQuerySource(Expression expression)
-        {
-            while (true)
-            {
-                if (expression is QuerySourceReferenceExpression querySourceReferenceExpression)
-                {
-                    return querySourceReferenceExpression.ReferencedQuerySource;
-                }
-
-                if (!(expression is MemberExpression memberExpression))
-                {
-                    return null;
-                }
-
-                expression = memberExpression.Expression.RemoveConvert();
-            }
-        }
+            => expression.TryGetReferencedQuerySource()
+               ?? (expression is MemberExpression memberExpression
+                   ? GetQuerySource(memberExpression.Expression.RemoveConvert())
+                   : null);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

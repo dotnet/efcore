@@ -521,8 +521,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             var source2 = entityQueryModelVisitor
                 .ReplaceClauseReferences(secondSource);
 
+            var resultType = entityQueryModelVisitor.Expression.Type.GetSequenceType();
+            var sourceType = source2.Type.GetSequenceType();
+            while (!resultType.GetTypeInfo().IsAssignableFrom(sourceType.GetTypeInfo()))
+            {
+                resultType = resultType.GetTypeInfo().BaseType;
+            }
+
             return Expression.Call(
-                setMethodInfo.MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
+                setMethodInfo.MakeGenericMethod(resultType),
                 entityQueryModelVisitor.Expression,
                 source2);
         }

@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -231,18 +233,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var parentQueryModel = _queryModelStack.Peek();
 
-            var referencedQuerySource
-                = (expression.QueryModel.SelectClause.Selector
-                    as QuerySourceReferenceExpression)?
-                .ReferencedQuerySource;
+            var referencedQuerySource = expression.QueryModel.SelectClause.Selector.TryGetReferencedQuerySource();
 
             if (referencedQuerySource != null)
             {
-                var parentQuerySource =
-                    (parentQueryModel.SelectClause.Selector as QuerySourceReferenceExpression)
-                    ?.ReferencedQuerySource;
+                var parentQuerySource = parentQueryModel.SelectClause.Selector.TryGetReferencedQuerySource();
 
-                if (referencedQuerySource.ItemType == parentQuerySource?.ItemType)
+                var parentQueryModelResultType
+                    = parentQueryModel.ResultTypeOverride?.TryGetSequenceType()
+                      ?? ((CastResultOperator)parentQueryModel.ResultOperators.LastOrDefault(r => r is CastResultOperator))?.CastItemType
+                      ?? parentQuerySource?.ItemType;
+
+                if (parentQueryModelResultType?.GetTypeInfo().IsAssignableFrom(referencedQuerySource.ItemType.GetTypeInfo()) == true)
                 {
                     var resultSetOperators = GetSetResultOperatorSourceExpressions(parentQueryModel);
 
@@ -345,8 +347,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private void AdjustForResultOperators(QueryModel queryModel)
         {
             var referencedQuerySource
-                = (queryModel.SelectClause.Selector as QuerySourceReferenceExpression)?.ReferencedQuerySource
-                  ?? (queryModel.MainFromClause.FromExpression as QuerySourceReferenceExpression)?.ReferencedQuerySource;
+                = queryModel.SelectClause.Selector.TryGetReferencedQuerySource()
+                  ?? queryModel.MainFromClause.FromExpression.TryGetReferencedQuerySource();
 
             // The selector may not have been a QSRE but this query model may still have something that needs adjusted.
             // Example:
@@ -435,9 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             DemoteQuerySource(querySource);
 
             var underlyingQuerySource
-                = ((querySource as FromClauseBase)
-                    ?.FromExpression as QuerySourceReferenceExpression)
-                ?.ReferencedQuerySource;
+                = (querySource as FromClauseBase)?.FromExpression.TryGetReferencedQuerySource();
 
             if (underlyingQuerySource != null)
             {

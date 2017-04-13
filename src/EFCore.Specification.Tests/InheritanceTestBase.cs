@@ -439,6 +439,66 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [Fact]
+        public virtual void Can_concat_kiwis_and_eagles_as_birds()
+        {
+            using (var context = CreateContext())
+            {
+                var kiwis = context.Set<Kiwi>();
+
+                var eagles = context.Set<Eagle>();
+
+                var concat = kiwis.Cast<Bird>().Concat(eagles).ToList();
+
+                Assert.Equal(2, concat.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_except_kiwis_and_eagles_as_birds()
+        {
+            using (var context = CreateContext())
+            {
+                var kiwis = context.Set<Kiwi>();
+
+                var eagles = context.Set<Eagle>();
+
+                var concat = kiwis.Cast<Bird>().Except(eagles).ToList();
+
+                Assert.Equal(1, concat.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_intersect_kiwis_and_eagles_as_birds()
+        {
+            using (var context = CreateContext())
+            {
+                var kiwis = context.Set<Kiwi>();
+
+                var eagles = context.Set<Eagle>();
+
+                var concat = kiwis.Cast<Bird>().Intersect(eagles).ToList();
+
+                Assert.Equal(0, concat.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_union_kiwis_and_eagles_as_birds()
+        {
+            using (var context = CreateContext())
+            {
+                var kiwis = context.Set<Kiwi>();
+
+                var eagles = context.Set<Eagle>();
+
+                var concat = kiwis.Cast<Bird>().Union(eagles).ToList();
+
+                Assert.Equal(2, concat.Count);
+            }
+        }
+
         protected InheritanceContext CreateContext() => Fixture.CreateContext();
 
         protected TFixture Fixture { get; }

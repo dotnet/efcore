@@ -10,6 +10,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.Expressions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -256,6 +258,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             return constantExpression.Type.GetTypeInfo().IsGenericType
                    && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IQuerySource TryGetReferencedQuerySource([NotNull] this Expression expression)
+        {
+            return (expression as QuerySourceReferenceExpression)?.ReferencedQuerySource;
         }
     }
 }

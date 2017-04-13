@@ -587,8 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     propertyCreator,
                     conditionalAccessPropertyCreator);
 
-                var resultQsre = navigationResultExpression as QuerySourceReferenceExpression;
-                if (resultQsre != null)
+                if (navigationResultExpression is QuerySourceReferenceExpression resultQsre)
                 {
                     foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations
                         .OfType<IncludeResultOperator>()
@@ -674,8 +673,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var qsre = (declaringExpression as MemberExpression)?.Expression as QuerySourceReferenceExpression;
                 if (qsre == null)
                 {
-                    var methodCallExpression = declaringExpression as MethodCallExpression;
-                    if (methodCallExpression != null && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+                    if (declaringExpression is MethodCallExpression methodCallExpression
+                        && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
                     {
                         qsre = methodCallExpression.Arguments[0] as QuerySourceReferenceExpression;
                     }
@@ -1035,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations.OfType<IncludeResultOperator>())
             {
-                if ((includeResultOperator.PathFromQuerySource as QuerySourceReferenceExpression)?.ReferencedQuerySource
+                if (includeResultOperator.PathFromQuerySource.TryGetReferencedQuerySource()
                     == additionalFromClauseBeingProcessed)
                 {
                     includeResultOperator.PathFromQuerySource = querySourceReferenceExpression;
@@ -1100,7 +1099,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations.OfType<IncludeResultOperator>())
                     {
-                        if ((includeResultOperator.PathFromQuerySource as QuerySourceReferenceExpression)?.ReferencedQuerySource
+                        if (includeResultOperator.PathFromQuerySource.TryGetReferencedQuerySource()
                             == additionalFromClauseBeingProcessed)
                         {
                             includeResultOperator.PathFromQuerySource = navigationJoin.QuerySourceReferenceExpression;
