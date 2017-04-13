@@ -4089,6 +4089,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 verifyOrdered: true);
         }
 
+        [ConditionalFact]
+        public virtual void Nested_group_join_with_take()
+        {
+            AssertQuery<Level1, Level2>(
+                (l1s, l2s) => from l1_outer in
+                              (from l1_inner in l1s
+                               join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                               from l2_inner in grouping_inner.DefaultIfEmpty()
+                               select l2_inner).Take(2)
+                              join l2_outer in l2s on l1_outer.Id equals l2_outer.Level1_Optional_Id into grouping_outer
+                              from l2_outer in grouping_outer.DefaultIfEmpty()
+                              select l2_outer.Name,
+                (l1s, l2s) => from l1_outer in
+                              (from l1_inner in l1s
+                               join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                               from l2_inner in grouping_inner.DefaultIfEmpty()
+                               select l2_inner).Take(2)
+                              join l2_outer in l2s on MaybeScalar<int>(l1_outer, () => l1_outer.Id) equals l2_outer.Level1_Optional_Id into grouping_outer
+                              from l2_outer in grouping_outer.DefaultIfEmpty()
+                              select Maybe(l2_outer, () => l2_outer.Name));
+        }
+
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
         {
             if (caller == null)
