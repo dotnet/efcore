@@ -12,12 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class InterceptingLogger<T> : ILogger<T>
+    public class InterceptingLogger<TLoggerCategory> : IInterceptingLogger<TLoggerCategory>
+        where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
     {
-        private static readonly string _name = typeof(T).DisplayName();
-
         private readonly ILogger _logger;
-        private readonly WarningsConfiguration _warningsConfiguration;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -27,10 +25,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] ILoggerFactory loggerFactory,
             [CanBeNull] ILoggingOptions loggingOptions)
         {
-            _logger = loggerFactory.CreateLogger(_name);
+            _logger = loggerFactory.CreateLogger(new TLoggerCategory().ToString());
 
-            _warningsConfiguration = loggingOptions?.WarningsConfiguration;
+            Options = loggingOptions;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ILoggingOptions Options { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -45,9 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             if (logLevel == LogLevel.Warning
                 && state != null
-                && _warningsConfiguration != null)
+                && Options?.WarningsConfiguration != null)
             {
-                var warningBehavior = _warningsConfiguration.GetBehavior(state);
+                var warningBehavior = Options.WarningsConfiguration.GetBehavior(state);
 
                 if (warningBehavior == WarningBehavior.Throw)
                 {
@@ -67,6 +71,34 @@ namespace Microsoft.EntityFrameworkCore.Internal
             else if (IsEnabled(logLevel))
             {
                 _logger.Log(logLevel, eventId, state, exception, formatter);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool LogSensitiveData
+        {
+            get
+            {
+                var options = Options;
+                if (options == null)
+                {
+                    return false;
+                }
+
+                if (options.SensitiveDataLoggingEnabled
+                    && !options.SensitiveDataLoggingWarned)
+                {
+                    this.LogWarning(
+                        CoreEventId.SensitiveDataLoggingEnabledWarning,
+                        () => CoreStrings.SensitiveDataLoggingEnabled);
+
+                    options.SensitiveDataLoggingWarned = true;
+                }
+
+                return options.SensitiveDataLoggingEnabled;
             }
         }
 

@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         private class BadDataCommandBuilderFactory : RelationalCommandBuilderFactory
         {
             public BadDataCommandBuilderFactory(
-                ISensitiveDataLogger<IRelationalCommandBuilderFactory> logger,
+                IInterceptingLogger<LoggerCategory.Database.Sql> logger,
                 DiagnosticSource diagnosticSource,
                 IRelationalTypeMapper typeMapper)
                 : base(logger, diagnosticSource, typeMapper)
@@ -144,18 +144,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             public object[] Values { private get; set; }
 
             protected override IRelationalCommandBuilder CreateCore(
-                    ISensitiveDataLogger sensitiveDataLogger,
+                    IInterceptingLogger<LoggerCategory.Database.Sql> logger,
                     DiagnosticSource diagnosticSource,
                     IRelationalTypeMapper relationalTypeMapper)
                 => new BadDataRelationalCommandBuilder(
-                    sensitiveDataLogger, diagnosticSource, relationalTypeMapper, Values);
+                    logger, diagnosticSource, relationalTypeMapper, Values);
 
             private class BadDataRelationalCommandBuilder : RelationalCommandBuilder
             {
                 private readonly object[] _values;
 
                 public BadDataRelationalCommandBuilder(
-                    ISensitiveDataLogger logger,
+                    IInterceptingLogger<LoggerCategory.Database.Sql> logger,
                     DiagnosticSource diagnosticSource,
                     IRelationalTypeMapper typeMapper,
                     object[] values)
@@ -165,18 +165,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 }
 
                 protected override IRelationalCommand BuildCore(
-                        ISensitiveDataLogger sensitiveDataLogger,
+                        IInterceptingLogger<LoggerCategory.Database.Sql> logger,
                         DiagnosticSource diagnosticSource,
                         string commandText,
                         IReadOnlyList<IRelationalParameter> parameters)
-                    => new BadDataRelationalCommand(sensitiveDataLogger, diagnosticSource, commandText, parameters, _values);
+                    => new BadDataRelationalCommand(logger, diagnosticSource, commandText, parameters, _values);
 
                 private class BadDataRelationalCommand : RelationalCommand
                 {
                     private readonly object[] _values;
 
                     public BadDataRelationalCommand(
-                        ISensitiveDataLogger logger,
+                        IInterceptingLogger<LoggerCategory.Database.Sql> logger,
                         DiagnosticSource diagnosticSource,
                         string commandText,
                         IReadOnlyList<IRelationalParameter> parameters,

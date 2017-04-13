@@ -16,7 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
     public class ModelSourceTest
     {
         private readonly CoreModelValidator _coreModelValidator
-            = new CoreModelValidator(new ModelValidatorDependencies(new Logger<ModelValidator>(new LoggerFactory())));
+            = new CoreModelValidator(
+                new ModelValidatorDependencies(
+                    new InterceptingLogger<LoggerCategory.Model.Validation>(
+                        new LoggerFactory(),
+                        new LoggingOptions())));
 
         private readonly NullConventionSetBuilder _nullConventionSetBuilder
             = new NullConventionSetBuilder();

@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -104,7 +103,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual int ExecuteTransaction(IEnumerable<IUpdateEntry> entries, ILogger<InMemoryDatabase> logger)
+        public virtual int ExecuteTransaction(
+            IEnumerable<IUpdateEntry> entries, 
+            IInterceptingLogger<LoggerCategory.Update> updateLogger)
         {
             var rowsAffected = 0;
 
@@ -139,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 }
             }
 
-            logger.LogInformation<object>(
+            updateLogger.LogInformation<object>(
                 InMemoryEventId.SavedChanges,
                 rowsAffected,
                 InMemoryStrings.LogSavedChanges);

@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly IMigrationCommandExecutor _migrationCommandExecutor;
         private readonly IRelationalConnection _connection;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
-        private readonly ILogger _logger;
+        private readonly IInterceptingLogger<LoggerCategory.Migrations> _logger;
         private readonly string _activeProvider;
 
         /// <summary>
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
             [NotNull] IRelationalConnection connection,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] ILogger<Migrator> logger,
+            [NotNull] IInterceptingLogger<LoggerCategory.Migrations> logger,
             [NotNull] IDatabaseProvider databaseProvider)
         {
             Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));

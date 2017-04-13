@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -88,18 +87,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IEnumerable<T> _InterceptExceptions<T>(
-            IEnumerable<T> source, Type contextType, ILogger logger, QueryContext queryContext)
+            IEnumerable<T> source, Type contextType, IInterceptingLogger<LoggerCategory.Query> logger, QueryContext queryContext)
             => new ExceptionInterceptor<T>(source, contextType, logger, queryContext);
 
         private sealed class ExceptionInterceptor<T> : IEnumerable<T>
         {
             private readonly IEnumerable<T> _innerEnumerable;
             private readonly Type _contextType;
-            private readonly ILogger _logger;
+            private readonly IInterceptingLogger<LoggerCategory.Query> _logger;
             private readonly QueryContext _queryContext;
 
             public ExceptionInterceptor(
-                IEnumerable<T> innerEnumerable, Type contextType, ILogger logger, QueryContext queryContext)
+                IEnumerable<T> innerEnumerable, Type contextType, IInterceptingLogger<LoggerCategory.Query> logger, QueryContext queryContext)
             {
                 _innerEnumerable = innerEnumerable;
                 _contextType = contextType;

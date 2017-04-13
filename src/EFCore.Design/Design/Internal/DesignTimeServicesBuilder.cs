@@ -91,6 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 [NotNull] IServiceCollection services)
             => services
                 .AddTransient<MigrationsScaffolder>()
+                .AddTransient(_ => contextServices.GetService<ILoggingOptions>())
+                .AddTransient(_ => contextServices.GetService(typeof(IInterceptingLogger<>)))
                 .AddTransient(_ => contextServices.GetService<ICurrentDbContext>())
                 .AddTransient(_ => contextServices.GetService<IDatabaseProvider>())
                 .AddTransient(_ => contextServices.GetService<IDbContextOptions>())

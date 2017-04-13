@@ -4,6 +4,7 @@
 using System.Data.Common;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
@@ -16,8 +17,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         private bool _connectionClosed;
 
         public TestRelationalTransaction(
-            TestSqlServerConnection connection, DbTransaction transaction, ILogger logger, DiagnosticSource diagnosticSource, bool transactionOwned)
-            : this(connection, new RelationalTransaction(connection, transaction, logger, diagnosticSource, transactionOwned))
+            TestSqlServerConnection connection, DbTransaction transaction, ILoggerFactory loggerFactory, DiagnosticSource diagnosticSource, bool transactionOwned)
+            : this(
+                connection,
+                new RelationalTransaction(
+                    connection,
+                    transaction,
+                    new InterceptingLogger<LoggerCategory.Database.Transaction>(loggerFactory, new LoggingOptions()),
+                    diagnosticSource,
+                    transactionOwned))
         {
         }
 

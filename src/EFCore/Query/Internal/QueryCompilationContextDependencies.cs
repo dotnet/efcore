@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public QueryCompilationContextDependencies(
             [NotNull] IModel model,
-            [NotNull] ISensitiveDataLogger<IQueryCompilationContextFactory> logger,
+            [NotNull] IInterceptingLogger<LoggerCategory.Query> logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ICurrentDbContext currentContext)
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ISensitiveDataLogger<IQueryCompilationContextFactory> Logger { get; }
+        public IInterceptingLogger<LoggerCategory.Query> Logger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public QueryCompilationContextDependencies With([NotNull] ISensitiveDataLogger<IQueryCompilationContextFactory> logger) => new QueryCompilationContextDependencies(
+        public QueryCompilationContextDependencies With([NotNull] IInterceptingLogger<LoggerCategory.Query> logger) => new QueryCompilationContextDependencies(
             Model,
             Check.NotNull(logger, nameof(logger)),
             EntityQueryModelVisitorFactory,

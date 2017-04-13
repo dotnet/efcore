@@ -298,12 +298,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
         }
 
         private IRelationalCommand CreateRelationalCommand(
-            ISensitiveDataLogger logger = null,
+            IInterceptingLogger<LoggerCategory.Database.Sql> logger = null,
             DiagnosticSource diagnosticSource = null,
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                logger ?? new FakeSensitiveDataLogger<RelationalCommand>(),
+                logger ?? new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
                 diagnosticSource ?? new DiagnosticListener("Fake"),
                 commandText,
                 parameters ?? new IRelationalParameter[0]);

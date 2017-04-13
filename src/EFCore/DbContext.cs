@@ -18,7 +18,6 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -57,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
         private IStateManager _stateManager;
         private IEntityGraphAttacher _graphAttacher;
         private IModel _model;
-        private ILogger _logger;
+        private IInterceptingLogger<LoggerCategory.Update> _updateLogger;
         private IAsyncQueryProvider _queryProvider;
         private IDbContextPool _dbContextPool;
 
@@ -76,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
             : this(new DbContextOptions<DbContext>())
         {
         }
-
+                    
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="DbContext" /> class using the specified options.
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="options">The options for this context.</param>
         public DbContext([NotNull] DbContextOptions options)
-        {
+        {                                                                                                                                                                       
             Check.NotNull(options, nameof(options));
 
             if (!options.ContextType.GetTypeInfo().IsAssignableFrom(GetType().GetTypeInfo()))
@@ -159,8 +158,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 contextServices.Initialize(scopedServiceProvider, options, this);
 
-                _logger = scopedServiceProvider.GetRequiredService<ILogger<DbContext>>();
-
+                _updateLogger = scopedServiceProvider.GetRequiredService<IInterceptingLogger<LoggerCategory.Update>>();
+                
                 return contextServices;
             }
             finally
@@ -260,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (Exception exception)
             {
-                _logger.LogError(
+                _updateLogger.LogError(
                     CoreEventId.DatabaseError,
                     () => new DatabaseErrorLogState(GetType()),
                     exception,
@@ -336,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (Exception exception)
             {
-                _logger.LogError(
+                _updateLogger.LogError(
                     CoreEventId.DatabaseError,
                     () => new DatabaseErrorLogState(GetType()),
                     exception,

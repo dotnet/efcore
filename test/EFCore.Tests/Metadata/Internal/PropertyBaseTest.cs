@@ -623,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             }
         }
 
-        private class FakeLogger : ILogger<ModelValidator>
+        private class FakeLogger : IInterceptingLogger<LoggerCategory.Model.Validation>
         {
             public void Log<TState>(
                 LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
@@ -634,6 +634,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             public bool IsEnabled(LogLevel logLevel) => true;
 
             public IDisposable BeginScope<TState>(TState state) => null;
+
+            public ILoggingOptions Options { get; }
+
+            public bool LogSensitiveData { get; }
         }
 
         [Fact]

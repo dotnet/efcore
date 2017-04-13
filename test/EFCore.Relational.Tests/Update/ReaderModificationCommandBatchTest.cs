@@ -570,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 IUpdateSqlGenerator sqlGenerator = null)
                 : base(
                     new RelationalCommandBuilderFactory(
-                        new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                        new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
                         new DiagnosticListener("Fake"),
                         new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                     new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),

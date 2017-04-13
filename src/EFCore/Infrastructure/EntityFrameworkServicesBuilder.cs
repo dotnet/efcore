@@ -64,9 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(INodeTypeProviderFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ISingletonOptionsInitialzer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ILoggingOptions), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(ISensitiveDataLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelValidator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(ILogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICompiledQueryCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IQueryAnnotationExtractor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEntityTrackingInfoFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -76,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IQuerySourceTracingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IExpressionPrinter), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IProjectionExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IInterceptingLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IKeyPropagator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INavigationFixer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ILocalViewListener), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -221,10 +220,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IResultOperatorHandler, ResultOperatorHandler>();
             TryAdd<IProjectionExpressionVisitorFactory, ProjectionExpressionVisitorFactory>();
             TryAdd<ISingletonOptionsInitialzer, SingletonOptionsInitialzer>();
+            TryAdd(typeof(IInterceptingLogger<>), typeof(InterceptingLogger<>));
             TryAdd<ILoggingOptions, LoggingOptions>();
             TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetService<ILoggingOptions>());
-            TryAdd(typeof(ISensitiveDataLogger<>), typeof(SensitiveDataLogger<>));
-            TryAdd(typeof(ILogger<>), typeof(InterceptingLogger<>));
             TryAdd(p => GetContextServices(p).Model);
             TryAdd(p => GetContextServices(p).CurrentContext);
             TryAdd(p => GetContextServices(p).ContextOptions);
@@ -243,7 +241,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<ModelSourceDependencies>()
                 .AddDependencySingleton<ValueGeneratorCacheDependencies>()
                 .AddDependencySingleton<ModelValidatorDependencies>()
-                .AddDependency(typeof(SensitiveDataLoggerDependencies<>), ServiceLifetime.Singleton)
                 .AddDependencyScoped<ExecutionStrategyContextDependencies>()
                 .AddDependencyScoped<CompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<QueryContextDependencies>()

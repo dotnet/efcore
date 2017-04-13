@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -22,7 +23,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests
         {
             TestStore.ExecuteNonQuery(createSql);
 
-            return new SqlServerDatabaseModelFactory(new TestLoggerFactory(logger).CreateLogger<SqlServerDatabaseModelFactory>())
+            return new SqlServerDatabaseModelFactory(
+                    new InterceptingLogger<LoggerCategory.Scaffolding>(
+                        new TestLoggerFactory(logger),
+                        new LoggingOptions()))
                 .Create(TestStore.ConnectionString, selection ?? TableSelectionSet.All);
         }
 

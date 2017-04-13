@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class RelationalCommandBuilder : IRelationalCommandBuilder
     {
-        private readonly ISensitiveDataLogger _logger;
+        private readonly IInterceptingLogger<LoggerCategory.Database.Sql> _logger;
         private readonly DiagnosticSource _diagnosticSource;
 
         private readonly IndentedStringBuilder _commandTextBuilder = new IndentedStringBuilder();
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalCommandBuilder(
-            [NotNull] ISensitiveDataLogger logger,
+            [NotNull] IInterceptingLogger<LoggerCategory.Database.Sql> logger,
             [NotNull] DiagnosticSource diagnosticSource,
             [NotNull] IRelationalTypeMapper typeMapper)
         {
@@ -64,12 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IRelationalCommand BuildCore(
-                [NotNull] ISensitiveDataLogger sensitiveDataLogger,
+                [NotNull] IInterceptingLogger<LoggerCategory.Database.Sql> logger,
                 [NotNull] DiagnosticSource diagnosticSource,
                 [NotNull] string commandText,
                 [NotNull] IReadOnlyList<IRelationalParameter> parameters)
             => new RelationalCommand(
-                sensitiveDataLogger, diagnosticSource, commandText, parameters);
+                logger, diagnosticSource, commandText, parameters);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

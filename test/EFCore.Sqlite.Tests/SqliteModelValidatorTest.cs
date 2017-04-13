@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
@@ -64,8 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
         protected override ModelValidator CreateModelValidator()
             => new SqliteModelValidator(
                 new ModelValidatorDependencies(
-                    new Logger<RelationalModelValidator>(
-                        new ListLoggerFactory(Log, l => l == typeof(RelationalModelValidator).FullName))),
+                    new InterceptingLogger<LoggerCategory.Model.Validation>(
+                        new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
+                        new LoggingOptions())),
                 new RelationalModelValidatorDependencies(
                     new TestSqliteAnnotationProvider(),
                     new SqliteTypeMapper(new RelationalTypeMapperDependencies())));
