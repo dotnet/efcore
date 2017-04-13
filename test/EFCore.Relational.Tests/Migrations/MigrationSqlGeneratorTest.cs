@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             base.AddColumnOperation_with_defaultValueSql();
 
             Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Birthday\" date DEFAULT (CURRENT_TIMESTAMP);" + EOL,
+                "ALTER TABLE \"People\" ADD \"Birthday\" date NULL DEFAULT (CURRENT_TIMESTAMP);" + EOL,
                 Sql);
         }
 
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             base.AddColumnOperation_with_computed_column_SQL();
 
             Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Birthday\" date;" + EOL,
+                "ALTER TABLE \"People\" ADD \"Birthday\" date NULL;" + EOL,
                 Sql);
         }
 
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             base.AddColumnOperation_with_maxLength();
 
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" just_string(30);" + EOL,
+                "ALTER TABLE \"Person\" ADD \"Name\" just_string(30) NULL;" + EOL,
                 Sql);
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             base.AddColumnOperation_with_maxLength_on_derived();
 
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" just_string(30);" + EOL,
+                "ALTER TABLE \"Person\" ADD \"Name\" just_string(30) NULL;" + EOL,
                 Sql);
         }
 
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             base.AddColumnOperation_with_shared_column();
 
             Assert.Equal(
-                "ALTER TABLE \"Base\" ADD \"Foo\" just_string(2000);" + EOL,
+                "ALTER TABLE \"Base\" ADD \"Foo\" just_string(2000) NULL;" + EOL,
                 Sql);
         }
 
@@ -223,8 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             Assert.Equal(
                 "CREATE TABLE \"dbo\".\"People\" (" + EOL +
                 "    \"Id\" default_int_mapping NOT NULL," + EOL +
-                "    \"EmployerId\" default_int_mapping," + EOL +
-                "    \"SSN\" char(11)," + EOL +
+                "    \"EmployerId\" default_int_mapping NULL," + EOL +
+                "    \"SSN\" char(11) NULL," + EOL +
                 "    PRIMARY KEY (\"Id\")," + EOL +
                 "    UNIQUE (\"SSN\")," + EOL +
                 "    FOREIGN KEY (\"EmployerId\") REFERENCES \"Companies\" (\"Id\")" + EOL +

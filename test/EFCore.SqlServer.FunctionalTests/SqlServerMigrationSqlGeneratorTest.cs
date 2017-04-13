@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.AddColumnOperation_with_unicode_no_model();
 
             Assert.Equal(
-                "ALTER TABLE [Person] ADD [Name] varchar(max);" + EOL,
+                "ALTER TABLE [Person] ADD [Name] varchar(max) NULL;" + EOL,
                 Sql);
         }
 
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.AddColumnOperation_with_maxLength();
 
             Assert.Equal(
-                "ALTER TABLE [Person] ADD [Name] nvarchar(30);" + EOL,
+                "ALTER TABLE [Person] ADD [Name] nvarchar(30) NULL;" + EOL,
                 Sql);
         }
 
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.AddColumnOperation_with_maxLength_overridden();
 
             Assert.Equal(
-                "ALTER TABLE [Person] ADD [Name] nvarchar(32);" + EOL,
+                "ALTER TABLE [Person] ADD [Name] nvarchar(32) NULL;" + EOL,
                 Sql);
         }
 
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.AddColumnOperation_with_maxLength_on_derived();
 
             Assert.Equal(
-                "ALTER TABLE [Person] ADD [Name] nvarchar(30);" + EOL,
+                "ALTER TABLE [Person] ADD [Name] nvarchar(30) NULL;" + EOL,
                 Sql);
         }
 
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.AddColumnOperation_with_ansi();
 
             Assert.Equal(
-                "ALTER TABLE [Person] ADD [Name] varchar(max);" + EOL,
+                "ALTER TABLE [Person] ADD [Name] varchar(max) NULL;" + EOL,
                 Sql);
         }
 
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.AddColumnOperation_with_unicode_overridden();
 
             Assert.Equal(
-                "ALTER TABLE [Person] ADD [Name] nvarchar(max);" + EOL,
+                "ALTER TABLE [Person] ADD [Name] nvarchar(max) NULL;" + EOL,
                 Sql);
         }
 
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.AddColumnOperation_with_shared_column();
 
             Assert.Equal(
-                "ALTER TABLE [Base] ADD [Foo] nvarchar(max);" + EOL,
+                "ALTER TABLE [Base] ADD [Foo] nvarchar(max) NULL;" + EOL,
                 Sql);
         }
 
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 });
 
             Assert.Equal(
-                "ALTER TABLE [Person] ADD [RowVersion] rowversion;" + EOL,
+                "ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;" + EOL,
                 Sql);
         }
 
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 });
 
             Assert.Equal(
-                "ALTER TABLE [Person] ADD [RowVersion] rowversion;" + EOL,
+                "ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;" + EOL,
                 Sql);
         }
 
@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(450);" + EOL,
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(450) NULL;" + EOL,
                 Sql);
         }
 
@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30);" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL +
                 "CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);" + EOL,
                 Sql);
         }
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30);" + EOL,
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL,
                 Sql);
         }
 
@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30);" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL +
                 "GO" + EOL +
                 EOL +
                 "CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);" + EOL,
