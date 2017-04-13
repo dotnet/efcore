@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a group join include used to describe an Include operation that should
         ///     be performed as part of a GroupJoin.
         /// </summary>
-        /// <param name="navigationPath"> The included navigation path. </param>
+        /// <param name="includeSpecification"> The included navigation path. </param>
         /// <param name="querySourceRequiresTracking"> true if this query source requires tracking. </param>
         /// <param name="existingGroupJoinInclude"> A possibly null existing group join include. </param>
         /// <param name="relatedEntitiesLoaders"> The related entities loaders. </param>
@@ -286,18 +286,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A new group join include.
         /// </returns>
         public virtual object CreateGroupJoinInclude(
-            IReadOnlyList<INavigation> navigationPath,
+            IncludeSpecification includeSpecification,
             bool querySourceRequiresTracking,
             object existingGroupJoinInclude,
             object relatedEntitiesLoaders)
         {
-            Check.NotNull(navigationPath, nameof(navigationPath));
+            Check.NotNull(includeSpecification, nameof(includeSpecification));
             Check.NotNull(relatedEntitiesLoaders, nameof(relatedEntitiesLoaders));
 
             var previousGroupJoinInclude
                 = new AsyncGroupJoinInclude(
-                    navigationPath,
-                    (IReadOnlyList<Func<QueryContext, IAsyncRelatedEntitiesLoader>>)relatedEntitiesLoaders,
+                    includeSpecification,
+                    (IReadOnlyList<Func<QueryContext, KeyValuePair<IncludeSpecification, IAsyncRelatedEntitiesLoader>>>)relatedEntitiesLoaders,
                     querySourceRequiresTracking);
 
             var groupJoinInclude = existingGroupJoinInclude as AsyncGroupJoinInclude;
@@ -548,21 +548,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             RelationalQueryContext queryContext,
             IAsyncEnumerable<T> innerResults,
             Func<T, object> entityAccessor,
-            IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<Func<QueryContext, IAsyncRelatedEntitiesLoader>> relatedEntitiesLoaderFactories,
+            IncludeSpecification includeSpecification,
+            IReadOnlyList<Func<QueryContext, KeyValuePair<IncludeSpecification, IAsyncRelatedEntitiesLoader>>> relatedEntitiesLoaderFactories,
             bool querySourceRequiresTracking)
         {
             queryContext.BeginIncludeScope();
 
             var relatedEntitiesLoaders
-                = relatedEntitiesLoaderFactories.Select(f => f(queryContext))
-                    .ToArray();
+                = relatedEntitiesLoaderFactories.Select(f => f(queryContext)).ToDictionary(l => l.Key, l => l.Value);
 
             return new IncludeAsyncEnumerable<T>(
                 queryContext,
                 innerResults,
                 entityAccessor,
-                navigationPath,
+                includeSpecification,
                 relatedEntitiesLoaders,
                 querySourceRequiresTracking);
         }
@@ -572,22 +571,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly RelationalQueryContext _queryContext;
             private readonly IAsyncEnumerable<T> _innerResults;
             private readonly Func<T, object> _entityAccessor;
-            private readonly IReadOnlyList<INavigation> _navigationPath;
-            private readonly IAsyncRelatedEntitiesLoader[] _relatedEntitiesLoaders;
+            private readonly IncludeSpecification _includeSpecification;
+            private readonly IReadOnlyDictionary<IncludeSpecification, IAsyncRelatedEntitiesLoader> _relatedEntitiesLoaders;
             private readonly bool _querySourceRequiresTracking;
 
             public IncludeAsyncEnumerable(
                 RelationalQueryContext queryContext,
                 IAsyncEnumerable<T> innerResults,
                 Func<T, object> entityAccessor,
-                IReadOnlyList<INavigation> navigationPath,
-                IAsyncRelatedEntitiesLoader[] relatedEntitiesLoaders,
+                IncludeSpecification includeSpecification,
+                IReadOnlyDictionary<IncludeSpecification, IAsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
                 bool querySourceRequiresTracking)
             {
                 _queryContext = queryContext;
                 _innerResults = innerResults;
                 _entityAccessor = entityAccessor;
-                _navigationPath = navigationPath;
+                _includeSpecification = includeSpecification;
                 _relatedEntitiesLoaders = relatedEntitiesLoaders;
                 _querySourceRequiresTracking = querySourceRequiresTracking;
             }
@@ -597,7 +596,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     _queryContext,
                     _innerResults.GetEnumerator(),
                     _entityAccessor,
-                    _navigationPath,
+                    _includeSpecification,
                     _relatedEntitiesLoaders,
                     _querySourceRequiresTracking);
 
@@ -606,22 +605,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 private readonly RelationalQueryContext _queryContext;
                 private readonly IAsyncEnumerator<T> _innerResults;
                 private readonly Func<T, object> _entityAccessor;
-                private readonly IReadOnlyList<INavigation> _navigationPath;
-                private readonly IAsyncRelatedEntitiesLoader[] _relatedEntitiesLoaders;
+                private readonly IncludeSpecification _includeSpecification;
+                private readonly IReadOnlyDictionary<IncludeSpecification, IAsyncRelatedEntitiesLoader> _relatedEntitiesLoaders;
                 private readonly bool _querySourceRequiresTracking;
 
                 public IncludeAsyncEnumerator(
                     RelationalQueryContext queryContext,
                     IAsyncEnumerator<T> innerResults,
                     Func<T, object> entityAccessor,
-                    IReadOnlyList<INavigation> navigationPath,
-                    IAsyncRelatedEntitiesLoader[] relatedEntitiesLoaders,
+                    IncludeSpecification includeSpecification,
+                    IReadOnlyDictionary<IncludeSpecification, IAsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
                     bool querySourceRequiresTracking)
                 {
                     _queryContext = queryContext;
                     _innerResults = innerResults;
                     _entityAccessor = entityAccessor;
-                    _navigationPath = navigationPath;
+                    _includeSpecification = includeSpecification;
                     _relatedEntitiesLoaders = relatedEntitiesLoaders;
                     _querySourceRequiresTracking = querySourceRequiresTracking;
                 }
@@ -638,7 +637,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 _entityAccessor == null
                                     ? Current
                                     : _entityAccessor(Current), // TODO: Compile time?
-                                _navigationPath,
+                                _includeSpecification,
                                 _relatedEntitiesLoaders,
                                 _querySourceRequiresTracking,
                                 cancellationToken);
@@ -657,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     foreach (var relatedEntitiesLoader in _relatedEntitiesLoaders)
                     {
-                        relatedEntitiesLoader.Dispose();
+                        relatedEntitiesLoader.Value.Dispose();
                     }
 
                     _queryContext.EndIncludeScope();
@@ -706,13 +705,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             public IAsyncEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
             {
                 var valueBuffer
-                    = ((RelationalQueryContext)queryContext)
+                    = ((RelationalQueryContext) queryContext)
                         .GetIncludeValueBuffer(_queryIndex).WithOffset(_valueBufferOffset);
 
-                return new AsyncEnumerableAdapter<EntityLoadInfo>(
-                    new EntityLoadInfo(valueBuffer, _materializer));
+                return new AsyncEnumerableAdapter<EntityLoadInfo>(new EntityLoadInfo(valueBuffer, _materializer));
             }
-
+            
             private sealed class AsyncEnumerableAdapter<T> : IAsyncEnumerable<T>
             {
                 private readonly T _value;
@@ -758,7 +756,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public void Dispose()
             {
-                // no-op
             }
         }
 
@@ -786,30 +783,43 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly AsyncIncludeCollectionIterator _includeCollectionIterator;
             private readonly Func<ValueBuffer, object> _materializer;
 
+            private readonly IValueBufferCursor _valueBufferCursor;
+            private readonly int _queryIndex;
+
             public CollectionRelatedEntitiesLoader(
                 QueryContext queryContext,
                 ShaperCommandContext shaperCommandContext,
                 int queryIndex,
                 Func<ValueBuffer, object> materializer)
             {
-                _includeCollectionIterator
-                    = new AsyncIncludeCollectionIterator(
-                        _Query(queryContext, shaperCommandContext, queryIndex)
-                            .GetEnumerator());
+                var enumerator = _Query(queryContext, shaperCommandContext, queryIndex).GetEnumerator();
+                _valueBufferCursor = enumerator as IValueBufferCursor;
+                _queryIndex = queryIndex;
+
+                _includeCollectionIterator = new AsyncIncludeCollectionIterator(enumerator);
 
                 _materializer = materializer;
             }
 
             public IAsyncEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
             {
-                return
-                    AsyncLinqOperatorProvider
-                        ._Select(
-                            _includeCollectionIterator.GetRelatedValues(keyComparer),
-                            vr => new EntityLoadInfo(vr, _materializer));
+                var result = AsyncLinqOperatorProvider
+                    ._Select(
+                        _includeCollectionIterator.GetRelatedValues(keyComparer),
+                        vr => new EntityLoadInfo(vr, _materializer));
+
+                if (_valueBufferCursor != null)
+                {
+                    (queryContext as RelationalQueryContext)?.EnsureQueryContextIncludesBufferCursor(_valueBufferCursor, _queryIndex);
+                }
+
+                return result;
             }
 
-            public void Dispose() => _includeCollectionIterator?.Dispose();
+            public void Dispose()
+            {
+                _includeCollectionIterator?.Dispose();
+            }
         }
 
         /// <summary>

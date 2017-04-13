@@ -20,17 +20,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.IncludeSpecification class.
         /// </summary>
         /// <param name="querySource"> The query source. </param>
-        /// <param name="navigationPath"> The set of navigation properties to be included. </param>
+        /// <param name="navigation"></param>
+        /// <param name="references"></param>
         public IncludeSpecification(
             [NotNull] IQuerySource querySource,
-            [NotNull] IReadOnlyList<INavigation> navigationPath)
+            [NotNull] INavigation navigation,
+            [CanBeNull] IReadOnlyList<IncludeSpecification> references)
         {
             Check.NotNull(querySource, nameof(querySource));
-            Check.NotNull(navigationPath, nameof(navigationPath));
+            Check.NotNull(navigation, nameof(navigation));
 
             QuerySource = querySource;
-            NavigationPath = navigationPath;
+            Navigation = navigation;
+            References = references ?? new List<IncludeSpecification>();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual INavigation Navigation { [NotNull]get; }
 
         /// <summary>
         ///     Gets the query source.
@@ -38,15 +46,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The query source.
         /// </value>
-        public virtual IQuerySource QuerySource { get; }
+        public virtual IQuerySource QuerySource { [NotNull]get; }
 
         /// <summary>
-        ///     Gets the set of navigation properties to be included.
+        ///     Gets the set of navigation references to be included.
         /// </summary>
         /// <value>
-        ///     The set of navigation properties to be included.
+        ///     The set of navigation references to be included.
         /// </value>
-        public virtual IReadOnlyList<INavigation> NavigationPath { get; }
+        public virtual IReadOnlyList<IncludeSpecification> References { [NotNull]get; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether this object is an enumerable target.
@@ -56,6 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </value>
         public virtual bool IsEnumerableTarget { get; set; }
 
+        private string Format(int level)
+        {
+            return $"{QuerySource.ItemName}.{Navigation.Name}{(References.Count > 0 ? "->\n" + new string('\t', level + 1) : "")}" +
+                   References.Select(r => r.Format(level + 1)).Join("\n" + new string('\t', level + 1));
+        }
+
         /// <summary>
         ///     Convert this object into a string representation.
         /// </summary>
@@ -63,6 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A string that represents this object.
         /// </returns>
         public override string ToString()
-            => $"{QuerySource.ItemName}.{NavigationPath.Select(n => n.Name).Join(".")}"; // Interpolation okay; strings
+        {
+            return Format(0);
+        }
     }
 }

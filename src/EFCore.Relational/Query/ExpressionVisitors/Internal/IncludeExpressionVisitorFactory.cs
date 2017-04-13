@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -58,9 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public virtual ExpressionVisitor Create(
             IQuerySource querySource,
-            IReadOnlyList<INavigation> navigationPath,
+            IncludeSpecification includeSpecification,
             RelationalQueryCompilationContext relationalQueryCompilationContext,
-            IReadOnlyList<int> queryIndexes,
+            NavigationIndex queryIndexes,
             bool querySourceRequiresTracking)
             => new IncludeExpressionVisitor(
                 _selectExpressionDependencies,
@@ -70,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 _shaperCommandContextFactory,
                 _relationalAnnotationProvider,
                 Check.NotNull(querySource, nameof(querySource)),
-                Check.NotNull(navigationPath, nameof(navigationPath)),
+                Check.NotNull(includeSpecification, nameof(includeSpecification)),
                 Check.NotNull(relationalQueryCompilationContext, nameof(relationalQueryCompilationContext)),
                 Check.NotNull(queryIndexes, nameof(queryIndexes)),
                 querySourceRequiresTracking);

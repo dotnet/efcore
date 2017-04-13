@@ -435,17 +435,63 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 return new
                                 {
-                                    specification = new IncludeSpecification(includeResultOperator.QuerySource, navigationPath),
+                                    specification = new IncludeSet { QuerySource = includeResultOperator.QuerySource, Navigations = navigationPath },
                                     order = string.Concat(navigationPath.Select(n => n.IsCollection() ? "1" : "0"))
                                 };
                             })
                     .OrderByDescending(e => e.order)
-                    .ThenBy(e => e.specification.NavigationPath.First().IsDependentToPrincipal())
-                    .Select(e => e.specification)
-                    .ToList();
+                    .ThenBy(e => e.specification.Navigations.First().IsDependentToPrincipal())
+                    .Select(e => e.specification);
 
-            IncludeNavigations(queryModel, includeSpecifications);
+            IncludeNavigations(queryModel, CreateSpecifications(includeSpecifications, navigationIndex: 0).ToList());
         }
+
+        private struct IncludeSet
+        {
+            public IQuerySource QuerySource { get; set; }
+
+            public INavigation[] Navigations { get; set; }
+        }
+
+        private struct IncludeKey
+        {
+            private sealed class QuerySourceNavigationEqualityComparer : IEqualityComparer<IncludeKey>
+            {
+                public bool Equals(IncludeKey x, IncludeKey y)
+                {
+                    return x.QuerySource == y.QuerySource && x.Navigation == y.Navigation;
+                }
+
+                public int GetHashCode(IncludeKey obj)
+                {
+                    unchecked
+                    {
+                        return (obj.QuerySource.GetHashCode()*397) ^ obj.Navigation.GetHashCode();
+                    }
+                }
+            }
+
+            public static IEqualityComparer<IncludeKey> QuerySourceNavigationComparer { get; } = new QuerySourceNavigationEqualityComparer();
+
+            public IQuerySource QuerySource { get; set; }
+
+            public INavigation Navigation { get; set; }
+        }
+
+        private static IEnumerable<IncludeSpecification> CreateSpecifications(IEnumerable<IncludeSet> includeSets, int navigationIndex) =>
+            includeSets.GroupBy(set => new IncludeKey
+                {
+                    QuerySource = set.QuerySource,
+                    Navigation = set.Navigations[navigationIndex]
+                }, IncludeKey.QuerySourceNavigationComparer)
+                .Select(
+                    sets =>
+                        new IncludeSpecification(sets.Key.QuerySource, sets.Key.Navigation,
+                            CreateSpecifications(
+                                sets.Where(l => l.Navigations.Length > navigationIndex + 1), navigationIndex + 1
+                            ).ToArray()
+                        )
+                );
 
         /// <summary>
         ///     Includes related data requested in the LINQ query.
@@ -495,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     QueryCompilationContext
                         .AddTrackableInclude(
                             resultQuerySourceReferenceExpression.ReferencedQuerySource,
-                            includeSpecification.NavigationPath);
+                            includeSpecification);
                 }
                 else
                 {

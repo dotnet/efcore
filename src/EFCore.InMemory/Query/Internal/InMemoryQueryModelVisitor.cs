@@ -110,24 +110,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return base.VisitMethodCall(node);
             }
 
-            private Expression ApplyTopLevelInclude(Expression expression)
-                => Expression.Call(
-                    _includeMethodInfo.MakeGenericMethod(
-                        expression.Type.GetTypeInfo().GenericTypeArguments.First()),
+            private Expression ApplyTopLevelInclude(MethodCallExpression expression)
+            {
+                var elementType = expression.Type.GenericTypeArguments.First();
+                var includeMethod = _includeMethodInfo.MakeGenericMethod(elementType);
+
+                var relatedEntitiesLoaders = new Dictionary<IncludeSpecification, IRelatedEntitiesLoader>();
+
+                AddRelatedEntitiesLoaders(_includeSpecification, _materializerFactory, relatedEntitiesLoaders);
+
+                var result = Expression.Call(
+                    includeMethod,
                     QueryContextParameter,
                     expression,
                     Expression.Constant(_includeSpecification),
-                    Expression.Constant(
-                        _includeSpecification.NavigationPath
-                            .Select(n =>
-                                {
-                                    var targetType = n.GetTargetType();
-                                    var materializer = _materializerFactory.CreateMaterializer(targetType);
-
-                                    return new RelatedEntitiesLoader(targetType, materializer.Compile());
-                                })
-                            .ToArray()),
+                    Expression.Constant(relatedEntitiesLoaders),
                     Expression.Constant(_querySourceRequiresTracking));
+
+                return result;
+            }
 
             private class SelectorIncludeInjectingExpressionVisitor : ExpressionVisitorBase
             {
@@ -157,21 +158,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             ? _includeCollectionMethodInfo.MakeGenericMethod(node.Type)
                             : _includeEntityMethodInfo.MakeGenericMethod(node.Type);
 
+                        var relatedEntitiesLoaders = new Dictionary<IncludeSpecification, IRelatedEntitiesLoader>();
+
+                        AddRelatedEntitiesLoaders(_includeSpecification, _materializerFactory, relatedEntitiesLoaders);
+
                         var result = Expression.Call(
                             includeMethod,
                             QueryContextParameter,
                             node,
                             Expression.Constant(_includeSpecification),
-                            Expression.Constant(
-                                _includeSpecification.NavigationPath
-                                    .Select(n =>
-                                        {
-                                            var targetType = n.GetTargetType();
-                                            var materializer = _materializerFactory.CreateMaterializer(targetType);
-
-                                            return new RelatedEntitiesLoader(targetType, materializer.Compile());
-                                        })
-                                    .ToArray()),
+                            Expression.Constant(relatedEntitiesLoaders),
                             Expression.Constant(_querySourceRequiresTracking));
 
                         return result;
@@ -186,6 +182,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     return node.Update(newBody, node.Parameters);
                 }
+            }
+        }
+
+        private static void AddRelatedEntitiesLoaders(IncludeSpecification includeSpecification, IMaterializerFactory materializerFactory,
+            Dictionary<IncludeSpecification, IRelatedEntitiesLoader> relatedEntitiesLoaders)
+        {
+            var targetType = includeSpecification.Navigation.GetTargetType();
+            var materializer = materializerFactory.CreateMaterializer(targetType);
+
+            relatedEntitiesLoaders.Add(includeSpecification, new RelatedEntitiesLoader(targetType, materializer.Compile()));
+
+            foreach (var reference in includeSpecification.References)
+            {
+                AddRelatedEntitiesLoaders(reference, materializerFactory, relatedEntitiesLoaders);
             }
         }
 
@@ -226,14 +236,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryContext queryContext,
             TEntity source,
             IncludeSpecification includeSpecification,
-            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
+            IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> relatedEntitiesLoaders,
             bool querySourceRequiresTracking)
         {
             queryContext.QueryBuffer
                 .Include(
                     queryContext,
                     source,
-                    includeSpecification.NavigationPath,
+                    includeSpecification,
                     relatedEntitiesLoaders,
                     querySourceRequiresTracking);
 
@@ -245,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryContext queryContext,
             TEntity source,
             IncludeSpecification includeSpecification,
-            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
+            IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> relatedEntitiesLoaders,
             bool querySourceRequiresTracking)
         {
             foreach (var entity in (IEnumerable)source)
@@ -254,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .Include(
                         queryContext,
                         entity,
-                        includeSpecification.NavigationPath,
+                        includeSpecification,
                         relatedEntitiesLoaders,
                         querySourceRequiresTracking);
             }
@@ -271,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryContext queryContext,
             IEnumerable<TResult> source,
             IncludeSpecification includeSpecification,
-            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
+            IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> relatedEntitiesLoaders,
             bool querySourceRequiresTracking)
         {
             foreach (var result in source)
@@ -281,23 +291,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     foreach (var entity in (IEnumerable)result)
                     {
                         queryContext.QueryBuffer
-                            .Include(
-                                queryContext,
-                                entity,
-                                includeSpecification.NavigationPath,
-                                relatedEntitiesLoaders,
-                                querySourceRequiresTracking);
+                                .Include(
+                                    queryContext,
+                                    entity,
+                                    includeSpecification,
+                                    relatedEntitiesLoaders,
+                                    querySourceRequiresTracking);
                     }
                 }
                 else
                 {
                     queryContext.QueryBuffer
-                        .Include(
-                            queryContext,
-                            result,
-                            includeSpecification.NavigationPath,
-                            relatedEntitiesLoaders,
-                            querySourceRequiresTracking);
+                            .Include(
+                                queryContext,
+                                result,
+                                includeSpecification,
+                                relatedEntitiesLoaders,
+                                querySourceRequiresTracking);
                 }
 
                 yield return result;

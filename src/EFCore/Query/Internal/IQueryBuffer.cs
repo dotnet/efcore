@@ -89,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         void Include(
             [NotNull] QueryContext queryContext,
             [CanBeNull] object entity,
-            [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
+            [NotNull] IncludeSpecification includeSpecification,
+            [NotNull] IReadOnlyDictionary<IncludeSpecification, IRelatedEntitiesLoader> relatedEntitiesLoaders,
             bool queryStateManager);
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         Task IncludeAsync(
             [NotNull] QueryContext queryContext,
             [CanBeNull] object entity,
-            [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] IReadOnlyList<IAsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
+            [NotNull] IncludeSpecification includeSpecification,
+            [NotNull] IReadOnlyDictionary<IncludeSpecification, IAsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
             bool queryStateManager,
             CancellationToken cancellationToken);
     }

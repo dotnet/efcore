@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly IEntityQueryModelVisitorFactory _entityQueryModelVisitorFactory;
 
         private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
-        private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
+        private IDictionary<IQuerySource, List<IncludeSpecification>> _trackableIncludes;
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
         /// <summary>
@@ -311,25 +311,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Adds a trackable include.
         /// </summary>
         /// <param name="querySource"> The query source. </param>
-        /// <param name="navigationPath"> The included navigation path. </param>
+        /// <param name="includeSpecification"> The included navigation path. </param>
         public virtual void AddTrackableInclude(
-            [NotNull] IQuerySource querySource, [NotNull] IReadOnlyList<INavigation> navigationPath)
+            [NotNull] IQuerySource querySource, [NotNull] IncludeSpecification includeSpecification)
         {
             Check.NotNull(querySource, nameof(querySource));
-            Check.NotNull(navigationPath, nameof(navigationPath));
+            Check.NotNull(includeSpecification, nameof(includeSpecification));
 
             if (_trackableIncludes == null)
             {
-                _trackableIncludes = new Dictionary<IQuerySource, List<IReadOnlyList<INavigation>>>();
+                _trackableIncludes = new Dictionary<IQuerySource, List<IncludeSpecification>>();
             }
 
-            List<IReadOnlyList<INavigation>> includes;
+            List<IncludeSpecification> includes;
             if (!_trackableIncludes.TryGetValue(querySource, out includes))
             {
-                _trackableIncludes.Add(querySource, includes = new List<IReadOnlyList<INavigation>>());
+                _trackableIncludes.Add(querySource, includes = new List<IncludeSpecification>());
             }
 
-            includes.Add(navigationPath);
+            includes.Add(includeSpecification);
         }
 
         /// <summary>
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>
         ///     The trackable includes.
         /// </returns>
-        public virtual IReadOnlyList<IReadOnlyList<INavigation>> GetTrackableIncludes([NotNull] IQuerySource querySource)
+        public virtual IReadOnlyList<IncludeSpecification> GetTrackableIncludes([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
 
@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return null;
             }
 
-            List<IReadOnlyList<INavigation>> includes;
+            List<IncludeSpecification> includes;
 
             return _trackableIncludes.TryGetValue(querySource, out includes) ? includes : null;
         }

@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class AsyncGroupJoinInclude : GroupJoinIncludeBase
     {
-        private readonly IReadOnlyList<Func<QueryContext, IAsyncRelatedEntitiesLoader>> _relatedEntitiesLoaderFactories;
+        private readonly IReadOnlyList<Func<QueryContext, KeyValuePair<IncludeSpecification, IAsyncRelatedEntitiesLoader>>> _relatedEntitiesLoaderFactories;
+
         private AsyncGroupJoinInclude _previous;
 
         /// <summary>
@@ -25,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public AsyncGroupJoinInclude(
-            [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] IReadOnlyList<Func<QueryContext, IAsyncRelatedEntitiesLoader>> relatedEntitiesLoaderFactories,
+            [NotNull] IncludeSpecification includeSpecification,
+            [NotNull] IReadOnlyList<Func<QueryContext, KeyValuePair<IncludeSpecification, IAsyncRelatedEntitiesLoader>>> relatedEntitiesLoaderFactories,
             bool querySourceRequiresTracking)
-            : base(navigationPath, querySourceRequiresTracking)
+            : base(includeSpecification, querySourceRequiresTracking)
         {
             _relatedEntitiesLoaderFactories = relatedEntitiesLoaderFactories;
         }
@@ -68,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var asyncGroupJoinIncludeContext
                 = new AsyncGroupJoinIncludeContext(
-                    NavigationPath,
+                    IncludeSpecification,
                     QuerySourceRequiresTracking,
                     queryContext,
                     _relatedEntitiesLoaderFactories);
@@ -87,10 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public class AsyncGroupJoinIncludeContext : IDisposable
         {
-            private readonly IReadOnlyList<INavigation> _navigationPath;
+            private readonly IncludeSpecification _includeSpecification;
             private readonly bool _querySourceRequiresTracking;
             private readonly RelationalQueryContext _queryContext;
-            private readonly IAsyncRelatedEntitiesLoader[] _relatedEntitiesLoaders;
+            private readonly IReadOnlyDictionary<IncludeSpecification, IAsyncRelatedEntitiesLoader> _relatedEntitiesLoaders;
 
             private AsyncGroupJoinIncludeContext _previous;
 
@@ -99,20 +100,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             public AsyncGroupJoinIncludeContext(
-                [NotNull] IReadOnlyList<INavigation> navigationPath,
+                [NotNull] IncludeSpecification includeSpecification,
                 bool querySourceRequiresTracking,
                 [NotNull] RelationalQueryContext queryContext,
-                [NotNull] IReadOnlyList<Func<QueryContext, IAsyncRelatedEntitiesLoader>> relatedEntitiesLoaderFactories)
+                [NotNull] IReadOnlyList<Func<QueryContext, KeyValuePair<IncludeSpecification, IAsyncRelatedEntitiesLoader>>> relatedEntitiesLoaderFactories)
             {
-                _navigationPath = navigationPath;
+                _includeSpecification = includeSpecification;
                 _querySourceRequiresTracking = querySourceRequiresTracking;
 
                 _queryContext = queryContext;
                 _queryContext.BeginIncludeScope();
 
                 _relatedEntitiesLoaders
-                    = relatedEntitiesLoaderFactories.Select(f => f(queryContext))
-                        .ToArray();
+                    = relatedEntitiesLoaderFactories.Select(f => f(queryContext)).ToDictionary(pair => pair.Key, pair => pair.Value);
             }
 
             /// <summary>
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .IncludeAsync(
                         _queryContext,
                         entity,
-                        _navigationPath,
+                        _includeSpecification,
                         _relatedEntitiesLoaders,
                         _querySourceRequiresTracking,
                         cancellationToken);
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     _previous?.Dispose();
 
-                    foreach (var relatedEntitiesLoader in _relatedEntitiesLoaders)
+                    foreach (var relatedEntitiesLoader in _relatedEntitiesLoaders.Values)
                     {
                         relatedEntitiesLoader.Dispose();
                     }

@@ -11,10 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public abstract class GroupJoinIncludeBase : IDisposable
     {
         protected GroupJoinIncludeBase(
-            [NotNull] IReadOnlyList<INavigation> navigationPath,
+            [NotNull] IncludeSpecification includeSpecification,
             bool querySourceRequiresTracking)
         {
-            NavigationPath = navigationPath;
+            IncludeSpecification = includeSpecification;
             QuerySourceRequiresTracking = querySourceRequiresTracking;
         }
 
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IReadOnlyList<INavigation> NavigationPath { get; }
+        protected virtual IncludeSpecification IncludeSpecification { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

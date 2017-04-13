@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a group join include used to describe an Include operation that should
         ///     be performed as part of a GroupJoin.
         /// </summary>
-        /// <param name="navigationPath"> The included navigation path. </param>
+        /// <param name="includeSpecification"> The included navigation path. </param>
         /// <param name="querySourceRequiresTracking"> true if this query source requires tracking. </param>
         /// <param name="existingGroupJoinInclude"> A possibly null existing group join include. </param>
         /// <param name="relatedEntitiesLoaders"> The related entities loaders. </param>
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A new group join include.
         /// </returns>
         object CreateGroupJoinInclude(
-            [NotNull] IReadOnlyList<INavigation> navigationPath,
+            [NotNull] IncludeSpecification includeSpecification,
             bool querySourceRequiresTracking,
             [CanBeNull] object existingGroupJoinInclude,
             [NotNull] object relatedEntitiesLoaders);

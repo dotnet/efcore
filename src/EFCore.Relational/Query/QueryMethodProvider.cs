@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var valueBuffer
                 in new QueryingEnumerable(
-                    (RelationalQueryContext)queryContext,
+                    (RelationalQueryContext) queryContext,
                     shaperCommandContext,
                     queryIndex: null))
             {
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var valueBuffer
                 in new QueryingEnumerable(
-                    (RelationalQueryContext)queryContext,
+                    (RelationalQueryContext) queryContext,
                     shaperCommandContext,
                     queryIndex: null))
             {
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             ShaperCommandContext shaperCommandContext,
             int? queryIndex)
             => new QueryingEnumerable(
-                (RelationalQueryContext)queryContext,
+                (RelationalQueryContext) queryContext,
                 shaperCommandContext,
                 queryIndex);
 
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     return enumerator.Current[0] == null
                         ? default(TResult)
-                        : (TResult)enumerator.Current[0];
+                        : (TResult) enumerator.Current[0];
                 }
             }
 
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var currentKey = keySelector(sourceEnumerator.Current);
                     var element = elementSelector(sourceEnumerator.Current);
-                    var grouping = new Grouping<TKey, TElement>(currentKey) { element };
+                    var grouping = new Grouping<TKey, TElement>(currentKey) {element};
 
                     while (true)
                     {
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a group join include used to describe an Include operation that should
         ///     be performed as part of a GroupJoin.
         /// </summary>
-        /// <param name="navigationPath"> The included navigation path. </param>
+        /// <param name="includeSpecification"> The included navigation path. </param>
         /// <param name="querySourceRequiresTracking"> true if this query source requires tracking. </param>
         /// <param name="existingGroupJoinInclude"> A possibly null existing group join include. </param>
         /// <param name="relatedEntitiesLoaders"> The related entities loaders. </param>
@@ -223,15 +223,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A new group join include.
         /// </returns>
         public virtual object CreateGroupJoinInclude(
-            IReadOnlyList<INavigation> navigationPath,
+            IncludeSpecification includeSpecification,
             bool querySourceRequiresTracking,
             object existingGroupJoinInclude,
             object relatedEntitiesLoaders)
         {
             var previousGroupJoinInclude
                 = new GroupJoinInclude(
-                    navigationPath,
-                    (IReadOnlyList<Func<QueryContext, IRelatedEntitiesLoader>>)relatedEntitiesLoaders,
+                    includeSpecification,
+                    (IReadOnlyList<Func<QueryContext, KeyValuePair<IncludeSpecification, IRelatedEntitiesLoader>>>) relatedEntitiesLoaders,
                     querySourceRequiresTracking);
 
             var groupJoinInclude = existingGroupJoinInclude as GroupJoinInclude;
@@ -378,15 +378,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             RelationalQueryContext queryContext,
             IEnumerable<T> innerResults,
             Func<T, object> entityAccessor,
-            IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<Func<QueryContext, IRelatedEntitiesLoader>> relatedEntitiesLoaderFactories,
+            IncludeSpecification includeSpecification,
+            IReadOnlyList<Func<QueryContext, KeyValuePair<IncludeSpecification, IRelatedEntitiesLoader>>> relatedEntitiesLoaderFactories,
             bool querySourceRequiresTracking)
         {
             queryContext.BeginIncludeScope();
 
             var relatedEntitiesLoaders
-                = relatedEntitiesLoaderFactories.Select(f => f(queryContext))
-                    .ToArray();
+                = relatedEntitiesLoaderFactories.Select(f => f(queryContext)).ToDictionary(l => l.Key, l => l.Value);
 
             try
             {
@@ -398,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             entityAccessor == null
                                 ? innerResult
                                 : entityAccessor(innerResult), // TODO: Compile time?
-                            navigationPath,
+                            includeSpecification,
                             relatedEntitiesLoaders,
                             querySourceRequiresTracking);
 
@@ -407,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             finally // Need this to run even if innerResults is not fully consumed.
             {
-                foreach (var relatedEntitiesLoader in relatedEntitiesLoaders)
+                foreach (var relatedEntitiesLoader in relatedEntitiesLoaders.Values)
                 {
                     relatedEntitiesLoader.Dispose();
                 }
@@ -464,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public IEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
             {
                 var valueBuffer
-                    = ((RelationalQueryContext)queryContext)
+                    = ((RelationalQueryContext) queryContext)
                         .GetIncludeValueBuffer(_queryIndex).WithOffset(_valueBufferOffset);
 
                 yield return new EntityLoadInfo(valueBuffer, _materializer);
@@ -472,7 +471,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public void Dispose()
             {
-                // no-op
             }
         }
 
@@ -503,24 +501,37 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly IncludeCollectionIterator _includeCollectionIterator;
             private readonly Func<ValueBuffer, object> _materializer;
 
+            private readonly IValueBufferCursor _valueBufferCursor;
+            private readonly int _queryIndex;
+
             public CollectionRelatedEntitiesLoader(
                 QueryContext queryContext,
                 ShaperCommandContext shaperCommandContext,
                 int queryIndex,
                 Func<ValueBuffer, object> materializer)
             {
-                _includeCollectionIterator
-                    = new IncludeCollectionIterator(
-                        _Query(queryContext, shaperCommandContext, queryIndex)
-                            .GetEnumerator());
+                var enumerator = _Query(queryContext, shaperCommandContext, queryIndex).GetEnumerator();
+                _valueBufferCursor = enumerator as IValueBufferCursor;
+                _queryIndex = queryIndex;
+
+                _includeCollectionIterator = new IncludeCollectionIterator(enumerator);
 
                 _materializer = materializer;
             }
 
             public IEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
-                => _includeCollectionIterator
+            {
+                var result = _includeCollectionIterator
                     .GetRelatedValues(keyComparer)
                     .Select(vr => new EntityLoadInfo(vr, _materializer));
+
+                if (_valueBufferCursor != null)
+                {
+                    (queryContext as RelationalQueryContext)?.EnsureQueryContextIncludesBufferCursor(_valueBufferCursor, _queryIndex);
+                }
+
+                return result;
+            }
 
             public void Dispose() => _includeCollectionIterator?.Dispose();
         }

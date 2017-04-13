@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private bool _requiresClientOrderBy;
         private bool _requiresClientResultOperator;
 
-        private Dictionary<IncludeSpecification, List<int>> _navigationIndexMap = new Dictionary<IncludeSpecification, List<int>>();
+        private NavigationIndexMap _navigationIndexMap = new NavigationIndexMap();
         private readonly List<GroupJoinClause> _unflattenedGroupJoinClauses = new List<GroupJoinClause>();
 
         /// <summary>
@@ -276,33 +276,43 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.IncludeNavigations(queryModel, includeSpecifications);
         }
 
-        private static Dictionary<IncludeSpecification, List<int>> BuildNavigationIndexMap(
-            IEnumerable<IncludeSpecification> includeSpecifications)
+        private static NavigationIndexMap BuildNavigationIndexMap(IEnumerable<IncludeSpecification> includeSpecifications)
         {
-            var openedReaderCount = 0;
-            var navigationIndexMap = new Dictionary<IncludeSpecification, List<int>>();
-
+            var navigationIndexMap = new NavigationIndexMap();
             foreach (var includeSpecification in includeSpecifications.Reverse())
             {
-                var indexes = new List<int>();
-                var openedNewReader = false;
-
-                foreach (var navigation in includeSpecification.NavigationPath)
+                NavigationIndex navigationIndex;
+                if (includeSpecification.Navigation.IsCollection())
                 {
-                    if (navigation.IsCollection())
-                    {
-                        openedNewReader = true;
-                        openedReaderCount++;
-                        indexes.Add(openedReaderCount);
-                    }
-                    else
-                    {
-                        var index = openedNewReader ? openedReaderCount : 0;
-                        indexes.Add(index);
-                    }
+                    navigationIndex = new NavigationIndex(1, BuildIndexMap(includeSpecification.References, 1, true));
+                }
+                else
+                {
+                    navigationIndex = new NavigationIndex(0, BuildIndexMap(includeSpecification.References, 0, false));
+                }
+                navigationIndexMap.Add(includeSpecification, navigationIndex);
+            }
+            return navigationIndexMap;
+        }
+
+        private static NavigationIndexMap BuildIndexMap(IEnumerable<IncludeSpecification> includeSpecifications, int openedReaderCount,
+            bool openedNewReader)
+        {
+            var navigationIndexMap = new NavigationIndexMap();
+
+            foreach (var includeSpecification in includeSpecifications)
+            {
+                NavigationIndex navigationIndex;
+                if (includeSpecification.Navigation.IsCollection())
+                {
+                    navigationIndex = new NavigationIndex(openedReaderCount + 1, BuildIndexMap(includeSpecification.References, openedReaderCount + 1, true));
+                }
+                else
+                {
+                    navigationIndex = new NavigationIndex(openedNewReader ? openedReaderCount : 0, BuildIndexMap(includeSpecification.References, openedReaderCount, openedNewReader));
                 }
 
-                navigationIndexMap.Add(includeSpecification, indexes);
+                navigationIndexMap.Add(includeSpecification, navigationIndex);
             }
 
             return navigationIndexMap;
@@ -324,13 +334,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(includeSpecification, nameof(includeSpecification));
             Check.NotNull(resultType, nameof(resultType));
 
-            var includeExpressionVisitor
-                = _includeExpressionVisitorFactory.Create(
-                    includeSpecification.QuerySource,
-                    includeSpecification.NavigationPath,
-                    QueryCompilationContext,
-                    _navigationIndexMap[includeSpecification],
-                    querySourceRequiresTracking);
+            var includeExpressionVisitor = _includeExpressionVisitorFactory.Create(
+                includeSpecification.QuerySource,
+                includeSpecification,
+                QueryCompilationContext,
+                _navigationIndexMap[includeSpecification],
+                querySourceRequiresTracking);
 
             Expression = includeExpressionVisitor.Visit(Expression);
         }
