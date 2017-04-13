@@ -86,37 +86,38 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
+            if (extensionExpression is ShapedQueryExpression shapedQueryExpression
+                && shapedQueryExpression.Shaper.IsShaperForQuerySource(_querySource))
+            {
+                return Expression.Call(
+                    _queryCompilationContext.QueryMethodProvider.IncludeMethod
+                        .MakeGenericMethod(shapedQueryExpression.Shaper.Type),
+                    Expression.Convert(EntityQueryModelVisitor.QueryContextParameter, typeof(RelationalQueryContext)),
+                    shapedQueryExpression,
+                    shapedQueryExpression.Shaper.GetAccessorExpression(_querySource),
+                    Expression.Constant(_navigationPath),
+                    (Expression)_createRelatedEntitiesLoadersMethodInfo
+                        .MakeGenericMethod(_queryCompilationContext.QueryMethodProvider.RelatedEntitiesLoaderType)
+                        .Invoke(this, new object[] { _querySource, _navigationPath }),
+                    Expression.Constant(_querySourceRequiresTracking));
+            }
+
+            return base.VisitExtension(extensionExpression);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
             if (methodCallExpression.Method.MethodIsClosedFormOf(
-                _queryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
-            {
-                var shaper
-                    = ((ConstantExpression)methodCallExpression.Arguments[2]).Value
-                        as Shaper;
-
-                if (shaper != null
-                    && shaper.IsShaperForQuerySource(_querySource))
-                {
-                    var resultType = methodCallExpression.Method.GetGenericArguments()[0];
-                    var entityAccessor = shaper.GetAccessorExpression(_querySource);
-
-                    return
-                        Expression.Call(
-                            _queryCompilationContext.QueryMethodProvider.IncludeMethod.MakeGenericMethod(resultType),
-                            Expression.Convert(methodCallExpression.Arguments[0], typeof(RelationalQueryContext)),
-                            methodCallExpression,
-                            entityAccessor,
-                            Expression.Constant(_navigationPath),
-                            (Expression)_createRelatedEntitiesLoadersMethodInfo
-                                .MakeGenericMethod(_queryCompilationContext.QueryMethodProvider.RelatedEntitiesLoaderType)
-                                .Invoke(this, new object[] { _querySource, _navigationPath }),
-                            Expression.Constant(_querySourceRequiresTracking));
-                }
-            }
-            else if (methodCallExpression.Method.MethodIsClosedFormOf(
                 _queryCompilationContext.QueryMethodProvider.GroupJoinMethod))
             {
                 var newMethodCallExpression = TryMatchGroupJoinShaper(methodCallExpression, 2);
