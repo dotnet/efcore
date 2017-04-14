@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             : base(fixture)
         {
             _testOutputHelper = testOutputHelper;
+
             //TestSqlLoggerFactory.CaptureOutput(_testOutputHelper);
         }
 
@@ -624,25 +625,25 @@ ORDER BY [t].[CustomerID]");
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",
                 //
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
-    FROM [Customers] AS [c]
-    WHERE [o].[CustomerID] = [c].[CustomerID])
-ORDER BY [o].[CustomerID], [o].[OrderID]",
-                //
-                @"SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
-FROM [Order Details] AS [o0]
+                @"SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
 INNER JOIN (
-    SELECT DISTINCT [o].[CustomerID], [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE EXISTS (
-        SELECT 1
-        FROM [Customers] AS [c]
-        WHERE [o].[CustomerID] = [c].[CustomerID])
-) AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-ORDER BY [o1].[CustomerID], [o1].[OrderID]");
+    SELECT [c0].[CustomerID]
+    FROM [Customers] AS [c0]
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[CustomerID], [c.Orders].[OrderID]",
+                //
+                @"SELECT [c.Orders.OrderDetails].[OrderID], [c.Orders.OrderDetails].[ProductID], [c.Orders.OrderDetails].[Discount], [c.Orders.OrderDetails].[Quantity], [c.Orders.OrderDetails].[UnitPrice]
+FROM [Order Details] AS [c.Orders.OrderDetails]
+INNER JOIN (
+    SELECT DISTINCT [c.Orders0].[OrderID], [t0].[CustomerID]
+    FROM [Orders] AS [c.Orders0]
+    INNER JOIN (
+        SELECT [c1].[CustomerID]
+        FROM [Customers] AS [c1]
+    ) AS [t0] ON [c.Orders0].[CustomerID] = [t0].[CustomerID]
+) AS [t1] ON [c.Orders.OrderDetails].[OrderID] = [t1].[OrderID]
+ORDER BY [t1].[CustomerID], [t1].[OrderID]");
         }
 
         public override void Include_collection_when_projection(bool useString)
@@ -1287,39 +1288,49 @@ ORDER BY (
     ORDER BY [oo].[OrderDate] DESC
 ) DESC, [c].[CustomerID]",
                 //
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
+                @"SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
 INNER JOIN (
-    SELECT DISTINCT TOP(1) (
-        SELECT TOP(1) [oo].[OrderDate]
-        FROM [Orders] AS [oo]
-        WHERE [c].[CustomerID] = [oo].[CustomerID]
-        ORDER BY [oo].[OrderDate] DESC
-    ) AS [c], [c].[CustomerID]
-    FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c].[CustomerID], LEN(N'W')) = N'W')
-    ORDER BY [c] DESC, [c].[CustomerID]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[c] DESC, [c0].[CustomerID], [o].[OrderID]",
+    SELECT TOP(1) [c0].[CustomerID], (
+        SELECT TOP(1) [oo1].[OrderDate]
+        FROM [Orders] AS [oo1]
+        WHERE [c0].[CustomerID] = [oo1].[CustomerID]
+        ORDER BY [oo1].[OrderDate] DESC
+    ) AS [c]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'W')) = N'W')
+    ORDER BY (
+        SELECT TOP(1) [oo0].[OrderDate]
+        FROM [Orders] AS [oo0]
+        WHERE [c0].[CustomerID] = [oo0].[CustomerID]
+        ORDER BY [oo0].[OrderDate] DESC
+    ) DESC, [c0].[CustomerID]
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[c] DESC, [t].[CustomerID], [c.Orders].[OrderID]",
                 //
-                @"SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
-FROM [Order Details] AS [o0]
+                @"SELECT [c.Orders.OrderDetails].[OrderID], [c.Orders.OrderDetails].[ProductID], [c.Orders.OrderDetails].[Discount], [c.Orders.OrderDetails].[Quantity], [c.Orders.OrderDetails].[UnitPrice]
+FROM [Order Details] AS [c.Orders.OrderDetails]
 INNER JOIN (
-    SELECT DISTINCT [c0].[c], [c0].[CustomerID], [o].[OrderID]
-    FROM [Orders] AS [o]
+    SELECT DISTINCT [c.Orders0].[OrderID], [t0].[c], [t0].[CustomerID]
+    FROM [Orders] AS [c.Orders0]
     INNER JOIN (
-        SELECT DISTINCT TOP(1) (
-            SELECT TOP(1) [oo].[OrderDate]
-            FROM [Orders] AS [oo]
-            WHERE [c].[CustomerID] = [oo].[CustomerID]
-            ORDER BY [oo].[OrderDate] DESC
-        ) AS [c], [c].[CustomerID]
-        FROM [Customers] AS [c]
-        WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c].[CustomerID], LEN(N'W')) = N'W')
-        ORDER BY [c] DESC, [c].[CustomerID]
-    ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-) AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-ORDER BY [o1].[c] DESC, [o1].[CustomerID], [o1].[OrderID]");
+        SELECT TOP(1) [c1].[CustomerID], (
+            SELECT TOP(1) [oo4].[OrderDate]
+            FROM [Orders] AS [oo4]
+            WHERE [c1].[CustomerID] = [oo4].[CustomerID]
+            ORDER BY [oo4].[OrderDate] DESC
+        ) AS [c]
+        FROM [Customers] AS [c1]
+        WHERE [c1].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c1].[CustomerID], LEN(N'W')) = N'W')
+        ORDER BY (
+            SELECT TOP(1) [oo3].[OrderDate]
+            FROM [Orders] AS [oo3]
+            WHERE [c1].[CustomerID] = [oo3].[CustomerID]
+            ORDER BY [oo3].[OrderDate] DESC
+        ) DESC, [c1].[CustomerID]
+    ) AS [t0] ON [c.Orders0].[CustomerID] = [t0].[CustomerID]
+) AS [t1] ON [c.Orders.OrderDetails].[OrderID] = [t1].[OrderID]
+ORDER BY [t1].[c] DESC, [t1].[CustomerID], [t1].[OrderID]");
         }
 
         public override void Include_collection_with_conditional_order_by(bool useString)
@@ -1351,11 +1362,6 @@ ORDER BY [t].[c], [t].[CustomerID]");
         private void AssertSql(params string[] expected)
         {
             RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ true, expected);
-        }
-
-        private void AssertContainsSql(params string[] expected)
-        {
-            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ false, expected);
         }
     }
 }

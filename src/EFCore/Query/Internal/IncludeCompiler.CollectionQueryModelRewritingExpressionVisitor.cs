@@ -28,13 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private readonly QueryCompilationContext _queryCompilationContext;
             private readonly QueryModel _parentQueryModel;
+            private readonly IncludeCompiler _includeCompiler;
 
             public CollectionQueryModelRewritingExpressionVisitor(
                 QueryCompilationContext queryCompilationContext,
-                QueryModel parentQueryModel)
+                QueryModel parentQueryModel,
+                IncludeCompiler includeCompiler)
             {
                 _queryCompilationContext = queryCompilationContext;
                 _parentQueryModel = parentQueryModel;
+                _includeCompiler = includeCompiler;
             }
 
             public List<Ordering> ParentOrderings { get; } = new List<Ordering>();
@@ -60,6 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             .Value;
 
                     Rewrite(subQueryExpression.QueryModel, navigation);
+
+                    _includeCompiler.RewriteCollectionQueries(subQueryExpression.QueryModel);
 
                     var newArguments = methodCallExpression.Arguments.ToArray();
 

@@ -900,6 +900,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     // we disable this for order by, because you can't have a parameter (that is integer) in the order by
                     var canBindPropertyToOuterParameter = _canBindPropertyToOuterParameter;
+
                     _canBindPropertyToOuterParameter = false;
 
                     var sqlOrderingExpression
@@ -979,6 +980,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (!matchingIncludes.Any())
                     {
                         var materializer = (LambdaExpression)methodCallExpression.Arguments[1];
+
+                        if (selectClause.Selector.Type == typeof(AnonymousObject))
+                        {
+                            // We will end up fully translating this projection, so turn
+                            // this into a no-op.
+
+                            materializer 
+                                = Expression.Lambda(
+                                    Expression.Default(materializer.Body.Type),
+                                    materializer.Parameters);
+                        }
+
                         var qsreFinder = new QuerySourceReferenceFindingExpressionVisitor();
 
                         qsreFinder.Visit(materializer.Body);

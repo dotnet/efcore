@@ -86,38 +86,41 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             ref collectionIncludeId));
                 }
 
-                AwaitTaskExpressions(asyncQuery, blockExpressions);
+                if (blockExpressions.Count > 0)
+                {
+                    AwaitTaskExpressions(asyncQuery, blockExpressions);
 
-                var includeExpression
-                    = blockExpressions.Last().Type == typeof(Task)
-                        ? (Expression)Expression.Property(
-                            Expression.Call(
-                                _includeAsyncMethodInfo
-                                    .MakeGenericMethod(targetQuerySourceReferenceExpression.Type),
+                    var includeExpression
+                        = blockExpressions.Last().Type == typeof(Task)
+                            ? (Expression)Expression.Property(
+                                Expression.Call(
+                                    _includeAsyncMethodInfo
+                                        .MakeGenericMethod(targetQuerySourceReferenceExpression.Type),
+                                    EntityQueryModelVisitor.QueryContextParameter,
+                                    targetQuerySourceReferenceExpression,
+                                    Expression.NewArrayInit(typeof(object), propertyExpressions),
+                                    Expression.Lambda(
+                                        Expression.Block(blockExpressions),
+                                        EntityQueryModelVisitor.QueryContextParameter,
+                                        entityParameter,
+                                        _includedParameter,
+                                        _cancellationTokenParameter),
+                                    _cancellationTokenParameter),
+                                nameof(Task<object>.Result))
+                            : Expression.Call(
+                                _includeMethodInfo.MakeGenericMethod(targetQuerySourceReferenceExpression.Type),
                                 EntityQueryModelVisitor.QueryContextParameter,
                                 targetQuerySourceReferenceExpression,
                                 Expression.NewArrayInit(typeof(object), propertyExpressions),
                                 Expression.Lambda(
-                                    Expression.Block(blockExpressions),
+                                    Expression.Block(typeof(void), blockExpressions),
                                     EntityQueryModelVisitor.QueryContextParameter,
                                     entityParameter,
-                                    _includedParameter,
-                                    _cancellationTokenParameter),
-                                _cancellationTokenParameter),
-                            nameof(Task<object>.Result))
-                        : Expression.Call(
-                            _includeMethodInfo.MakeGenericMethod(targetQuerySourceReferenceExpression.Type),
-                            EntityQueryModelVisitor.QueryContextParameter,
-                            targetQuerySourceReferenceExpression,
-                            Expression.NewArrayInit(typeof(object), propertyExpressions),
-                            Expression.Lambda(
-                                Expression.Block(typeof(void), blockExpressions),
-                                EntityQueryModelVisitor.QueryContextParameter,
-                                entityParameter,
-                                _includedParameter));
+                                    _includedParameter));
 
-                ApplyIncludeExpressionsToQueryModel(
-                    queryModel, targetQuerySourceReferenceExpression, includeExpression);
+                    ApplyIncludeExpressionsToQueryModel(
+                        queryModel, targetQuerySourceReferenceExpression, includeExpression);
+                }
             }
 
             private static void ApplyIncludeExpressionsToQueryModel(
