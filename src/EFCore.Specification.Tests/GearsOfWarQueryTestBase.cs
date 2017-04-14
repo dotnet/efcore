@@ -2648,6 +2648,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Select_length_of_string_property()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from w in ctx.Weapons
+                            select new { w.Name, w.Name.Length };
+
+                var result = query.ToList();
+                foreach (var r in result)
+                {
+                    Assert.Equal(r.Name.Length, r.Length);
+                }
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

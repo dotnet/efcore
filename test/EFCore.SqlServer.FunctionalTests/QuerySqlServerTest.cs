@@ -1780,7 +1780,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE LEN([c].[CustomerID]) = 5");
+WHERE CAST(LEN([c].[CustomerID]) AS int) = 5");
         }
 
         public override void Queryable_simple()
@@ -2155,7 +2155,7 @@ FROM [Customers] AS [c]");
             base.Select_anonymous_constant_in_expression();
 
             AssertSql(
-                @"SELECT [c].[CustomerID], LEN([c].[CustomerID]) + 5
+                @"SELECT [c].[CustomerID], CAST(LEN([c].[CustomerID]) AS int) + 5
 FROM [Customers] AS [c]");
         }
 
@@ -2560,7 +2560,7 @@ WHERE [e].[ReportsTo] IS NULL");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE LEN([c].[City]) = 6");
+WHERE CAST(LEN([c].[City]) AS int) = 6");
         }
 
         public override void Where_datetime_date_component()
@@ -3856,7 +3856,7 @@ SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE LEN([c].[CustomerID]) <> 5
+        WHERE CAST(LEN([c].[CustomerID]) AS int) <> 5
         ORDER BY [c].[ContactName]
         OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -5154,7 +5154,7 @@ WHERE NEWID() <> '00000000-0000-0000-0000-000000000000'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE POWER(LEN([c].[CustomerID]), 2E0) = 25E0");
+WHERE POWER(CAST(LEN([c].[CustomerID]) AS int), 2E0) = 25E0");
         }
 
         public override void Where_string_to_lower()
@@ -5600,7 +5600,7 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
     SELECT TOP(1) (
         SELECT TOP(1) [od].[ProductID]
         FROM [Order Details] AS [od]
-        WHERE ([od].[OrderID] <> LEN([c].[CustomerID])) AND ([o].[OrderID] = [od].[OrderID])
+        WHERE ([od].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int)) AND ([o].[OrderID] = [od].[OrderID])
     )
     FROM [Orders] AS [o]
     WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])

@@ -362,7 +362,7 @@ SELECT CASE
         FROM (
             SELECT 1 AS [c], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
             FROM [Customers] AS [c]
-            WHERE LEN([c].[CustomerID]) <> 5
+            WHERE CAST(LEN([c].[CustomerID]) AS int) <> 5
         ) AS [t]
         WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1)))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)

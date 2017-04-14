@@ -1002,7 +1002,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (RIGHT([g].[LeaderNicknam
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gear] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (LEN([g].[LeaderNickname]) = 5)");
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (CAST(LEN([g].[LeaderNickname]) AS int) = 5)");
         }
 
         public override void Null_propagation_optimization5()
@@ -1012,7 +1012,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (LEN([g].[LeaderNickname]
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gear] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (LEN([g].[LeaderNickname]) = 5)");
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (CAST(LEN([g].[LeaderNickname]) AS int) = 5)");
         }
 
         public override void Null_propagation_optimization6()
@@ -1022,7 +1022,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (LEN([g].[LeaderNickname]
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gear] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (LEN([g].[LeaderNickname]) = 5)");
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (CAST(LEN([g].[LeaderNickname]) AS int) = 5)");
         }
 
         public override void Select_null_propagation_negative1()
@@ -1033,7 +1033,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (LEN([g].[LeaderNickname]
                 @"SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL
     THEN CASE
-        WHEN LEN([g].[Nickname]) = 5
+        WHEN CAST(LEN([g].[Nickname]) AS int) = 5
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END ELSE NULL
 END
@@ -2462,6 +2462,15 @@ FROM (
     ORDER BY [g].[FullName]
 ) AS [t]
 ORDER BY [t].[Rank]");
+        }
+
+        public override void Select_length_of_string_property()
+        {
+            base.Select_length_of_string_property();
+
+            AssertSql(
+                @"SELECT [w].[Name], CAST(LEN([w].[Name]) AS int)
+FROM [Weapon] AS [w]");
         }
 
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
