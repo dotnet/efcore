@@ -99,6 +99,9 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
     }
 
     [SqlServerConfiguredCondition]
+#if NETCOREAPP2_0
+    [OsSkipCondition(TestPlatform.Windows, WindowsVersions.Win2008R2, WindowsVersions.Win7, SkipReason = "SqlClient has issue with .netcoreapp2.0 on win7.")]
+#endif
     public class SqlServerEndToEndTest : EndToEndTest<SqlServerTestStore, SqlServerCrossStoreFixture>, IClassFixture<SqlServerCrossStoreFixture>
     {
         public SqlServerEndToEndTest(SqlServerCrossStoreFixture fixture)
@@ -126,6 +129,9 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
 
     [Collection("SharedEndToEndCollection")]
     [SqlServerConfiguredCondition]
+#if NETCOREAPP2_0
+    [OsSkipCondition(TestPlatform.Windows, WindowsVersions.Win2008R2, WindowsVersions.Win7, SkipReason = "SqlClient has issue with .netcoreapp2.0 on win7.")]
+#endif
     public class SharedSqlServerEndToEndTest : EndToEndTest<SqlServerTestStore, SharedCrossStoreFixture>
     {
         public SharedSqlServerEndToEndTest(SharedCrossStoreFixture fixture)
