@@ -5693,6 +5693,66 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
         }
 
+        public override void Select_DTO_distinct_translated_to_server()
+        {
+            base.Select_DTO_distinct_translated_to_server();
+
+            AssertSql(
+                @"SELECT DISTINCT 1
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
+        }
+
+        public override void Select_DTO_constructor_distinct_translated_to_server()
+        {
+            base.Select_DTO_constructor_distinct_translated_to_server();
+
+            AssertSql(
+                @"SELECT DISTINCT [o].[CustomerID]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
+        }
+
+        public override void Select_DTO_with_member_init_distinct_translated_to_server()
+        {
+            base.Select_DTO_with_member_init_distinct_translated_to_server();
+
+            AssertSql(
+                @"SELECT DISTINCT [o].[CustomerID], [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
+        }
+
+        public override void Select_DTO_with_member_init_distinct_in_subquery_translated_to_server()
+        {
+            base.Select_DTO_with_member_init_distinct_in_subquery_translated_to_server();
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [t].[OrderID], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT DISTINCT [o].[CustomerID], [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10300
+) AS [t]
+CROSS JOIN [Customers] AS [c]
+WHERE [c].[CustomerID] = [t].[CustomerID]");
+        }
+
+        public override void Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server()
+        {
+            base.Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID], [t].[OrderID]
+FROM [Customers] AS [c]
+CROSS JOIN (
+    SELECT DISTINCT [o].[CustomerID], [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10300
+) AS [t]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
+        }
+
         public override void Select_correlated_subquery_projection()
         {
             base.Select_correlated_subquery_projection();
@@ -7399,6 +7459,119 @@ ORDER BY [c]");
         public override void Anonymous_subquery_orderby()
         {
             base.Anonymous_subquery_orderby();
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [o1].[OrderDate]
+    FROM [Orders] AS [o1]
+    WHERE [c].[CustomerID] = [o1].[CustomerID]
+    ORDER BY [o1].[OrderID] DESC
+)
+FROM [Customers] AS [c]
+WHERE (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) > 1
+ORDER BY (
+    SELECT TOP(1) [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+    ORDER BY [o0].[OrderID] DESC
+)");
+        }
+
+        public override void DTO_member_distinct_where()
+        {
+            base.DTO_member_distinct_where();
+
+            AssertSql(
+                @"SELECT [t].[CustomerID]
+FROM (
+    SELECT DISTINCT [c].[CustomerID]
+    FROM [Customers] AS [c]
+) AS [t]
+WHERE [t].[CustomerID] = N'ALFKI'");
+        }
+
+        public override void DTO_member_distinct_orderby()
+        {
+            base.DTO_member_distinct_orderby();
+
+            AssertSql(
+                @"SELECT [t].[CustomerID]
+FROM (
+    SELECT DISTINCT [c].[CustomerID]
+    FROM [Customers] AS [c]
+) AS [t]
+ORDER BY [t].[CustomerID]");
+        }
+
+        public override void DTO_member_distinct_result()
+        {
+            base.DTO_member_distinct_result();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM (
+    SELECT DISTINCT [c].[CustomerID]
+    FROM [Customers] AS [c]
+) AS [t]
+WHERE [t].[CustomerID] LIKE N'A' + N'%' AND (LEFT([t].[CustomerID], LEN(N'A')) = N'A')");
+        }
+
+        public override void DTO_complex_distinct_where()
+        {
+            base.DTO_complex_distinct_where();
+
+            AssertSql(
+                @"SELECT [t].[c]
+FROM (
+    SELECT DISTINCT [c].[CustomerID] + [c].[City] AS [c]
+    FROM [Customers] AS [c]
+) AS [t]
+WHERE [t].[c] = N'ALFKIBerlin'");
+        }
+
+        public override void DTO_complex_distinct_orderby()
+        {
+            base.DTO_complex_distinct_orderby();
+
+            AssertSql(
+                @"SELECT [t].[c]
+FROM (
+    SELECT DISTINCT [c].[CustomerID] + [c].[City] AS [c]
+    FROM [Customers] AS [c]
+) AS [t]
+ORDER BY [t].[c]");
+        }
+
+        public override void DTO_complex_distinct_result()
+        {
+            base.DTO_complex_distinct_result();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM (
+    SELECT DISTINCT [c].[CustomerID] + [c].[City] AS [c]
+    FROM [Customers] AS [c]
+) AS [t]
+WHERE [t].[c] LIKE N'A' + N'%' AND (LEFT([t].[c], LEN(N'A')) = N'A')");
+        }
+
+        public override void DTO_complex_orderby()
+        {
+            base.DTO_complex_orderby();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] + [c].[City] AS [c]
+FROM [Customers] AS [c]
+ORDER BY [c]");
+        }
+
+        public override void DTO_subquery_orderby()
+        {
+            base.DTO_subquery_orderby();
 
             AssertSql(
                 @"SELECT (

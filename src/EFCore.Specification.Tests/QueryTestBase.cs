@@ -2458,31 +2458,105 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalFact]
         public virtual void Select_nested_collection_count_using_DTO()
         {
-            using (var context = CreateContext())
-            {
-                var expected = context.Customers.Include(c => c.Orders)
+            AssertQuery<Customer>(
+                cs => cs
                     .Where(c => c.CustomerID.StartsWith("A"))
-                    .ToList()
-                    .Select(c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
-                    .ToList();
+                    .Select(c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count }));
+        }
 
-                ClearLog();
+        [ConditionalFact]
+        public virtual void Select_DTO_distinct_translated_to_server()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.OrderID < 10300)
+                    .Select(o => new OrderCountDTO())
+                    .Distinct());
+        }
 
-                var query = context.Customers
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count });
+        [ConditionalFact]
+        public virtual void Select_DTO_constructor_distinct_translated_to_server()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.OrderID < 10300)
+                    .Select(o => new OrderCountDTO(o.CustomerID))
+                    .Distinct());
+        }
 
-                var result = query.ToList();
+        [ConditionalFact]
+        public virtual void Select_DTO_with_member_init_distinct_translated_to_server()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.OrderID < 10300)
+                    .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                    .Distinct());
+        }
 
-                Assert.Equal(4, result.Count);
-                Assert.All(result, t => Assert.True(expected.Where(e => e.Id == t.Id && e.Count == t.Count).Any()));
-            }
+        [ConditionalFact]
+        public virtual void Select_DTO_with_member_init_distinct_in_subquery_translated_to_server()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from o in os.Where(o => o.OrderID < 10300)
+                                .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                                .Distinct()
+                            from c in cs.Where(c => c.CustomerID == o.Id)
+                            select c);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs.Where(c => c.CustomerID.StartsWith("A"))
+                            from o in os.Where(o => o.OrderID < 10300)
+                                        .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                                        .Distinct()
+                            select new {c, o}
+                            );
         }
 
         private class OrderCountDTO
         {
             public string Id { get; set; }
             public int Count { get; set; }
+
+            public OrderCountDTO() { }
+
+            public OrderCountDTO(string id)
+            {
+                Id = id;
+                Count = 0;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj))
+                {
+                    return false;
+                }
+
+                if (ReferenceEquals(this, obj))
+                {
+                    return true;
+                }
+
+                return obj.GetType() == GetType() && Equals((OrderCountDTO)obj);
+            }
+
+            private bool Equals(OrderCountDTO other)
+            {
+                return string.Equals(Id, other.Id) && Count == other.Count;
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return ((Id?.GetHashCode() ?? 0) * 397) ^ Count;
+                }
+            }
         }
 
         [ConditionalFact]
@@ -7440,6 +7514,89 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 {
                     A = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate
                 }).OrderBy(n => n.A));
+        }
+
+        private class DTO<T>
+        {
+            public T Property { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj))
+                {
+                    return false;
+                }
+
+                if (ReferenceEquals(this, obj))
+                {
+                    return true;
+                }
+
+                return obj.GetType() == GetType() && Equals((DTO<T>)obj);
+            }
+
+            private bool Equals(DTO<T> other) => EqualityComparer<T>.Default.Equals(Property, other.Property);
+
+            public override int GetHashCode() => Property.GetHashCode();
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_member_distinct_where()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID }).Distinct().Where(n => n.Property == "ALFKI"));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_member_distinct_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID }).Distinct().OrderBy(n => n.Property));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_member_distinct_result()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID }).Distinct().Count(n => n.Property.StartsWith("A")));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_complex_distinct_where()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID + c.City }).Distinct().Where(n => n.Property == "ALFKIBerlin"));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_complex_distinct_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID + c.City }).Distinct().OrderBy(n => n.Property));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_complex_distinct_result()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID + c.City }).Distinct().Count(n => n.Property.StartsWith("A")));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_complex_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID + c.City }).OrderBy(n => n.Property));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_subquery_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.Orders.Count > 1).Select(c => new DTO<DateTime?>
+                {
+                    Property = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate
+                }).OrderBy(n => n.Property));
         }
 
         [ConditionalFact]

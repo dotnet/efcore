@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -51,6 +50,45 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
         private new RelationalQueryModelVisitor QueryModelVisitor
             => (RelationalQueryModelVisitor)base.QueryModelVisitor;
+
+        /// <summary>
+        ///     Visit a member init expression.
+        /// </summary>
+        /// <param name="memberInitExpression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression corresponding to the translated member init.
+        /// </returns>
+        protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
+        {
+            var newMemberInitExpression = base.VisitMemberInit(memberInitExpression);
+
+            var selectExpression = QueryModelVisitor.TryGetQuery(_querySource);
+
+            if (selectExpression != null)
+            {
+                foreach (var sourceBinding in memberInitExpression.Bindings)
+                {
+                    if (sourceBinding is MemberAssignment memberAssignment)
+                    {
+                        var sourceExpression = memberAssignment.Expression;
+
+                        if (_sourceExpressionProjectionMapping.TryGetValue(sourceExpression, out var sqlExpression))
+                        {
+                            var memberInfo = memberAssignment.Member;
+
+                            if (memberInfo != null)
+                            {
+                                selectExpression.SetProjectionForMemberInfo(
+                                    memberInfo,
+                                    sqlExpression);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return newMemberInitExpression;
+        }
 
         /// <summary>
         ///     Visit a method call expression.
@@ -120,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 {
                     var sourceExpression = newExpression.Arguments[i];
 
-                    if (_sourceExpressionProjectionMapping.ContainsKey(sourceExpression))
+                    if (_sourceExpressionProjectionMapping.TryGetValue(sourceExpression, out var sqlExpression))
                     {
                         var memberInfo = newExpression.Members?[i]
                                          ?? (newExpression.Arguments[i] as MemberExpression)?.Member;
@@ -129,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         {
                             selectExpression.SetProjectionForMemberInfo(
                                 memberInfo,
-                                _sourceExpressionProjectionMapping[sourceExpression]);
+                                sqlExpression);
                         }
                     }
                 }
@@ -152,6 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             if (expression != null
                 && !(expression is ConstantExpression)
                 && !(expression is NewExpression)
+                && !(expression is MemberInitExpression)
                 && selectExpression != null)
             {
                 var existingProjectionsCount = selectExpression.Projection.Count;
