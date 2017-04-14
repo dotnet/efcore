@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -134,54 +133,54 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         private class BadDataCommandBuilderFactory : RelationalCommandBuilderFactory
         {
             public BadDataCommandBuilderFactory(
-                IInterceptingLogger<LoggerCategory.Database.Sql> logger,
-                DiagnosticSource diagnosticSource,
+                IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
+                IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
                 IRelationalTypeMapper typeMapper)
-                : base(logger, diagnosticSource, typeMapper)
+                : base(sqlLogger, readerLogger, typeMapper)
             {
             }
 
             public object[] Values { private get; set; }
 
             protected override IRelationalCommandBuilder CreateCore(
-                    IInterceptingLogger<LoggerCategory.Database.Sql> logger,
-                    DiagnosticSource diagnosticSource,
+                    IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
+                    IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
                     IRelationalTypeMapper relationalTypeMapper)
                 => new BadDataRelationalCommandBuilder(
-                    logger, diagnosticSource, relationalTypeMapper, Values);
+                    sqlLogger, readerLogger, relationalTypeMapper, Values);
 
             private class BadDataRelationalCommandBuilder : RelationalCommandBuilder
             {
                 private readonly object[] _values;
 
                 public BadDataRelationalCommandBuilder(
-                    IInterceptingLogger<LoggerCategory.Database.Sql> logger,
-                    DiagnosticSource diagnosticSource,
+                    IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
+                    IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
                     IRelationalTypeMapper typeMapper,
                     object[] values)
-                    : base(logger, diagnosticSource, typeMapper)
+                    : base(sqlLogger, readerLogger, typeMapper)
                 {
                     _values = values;
                 }
 
                 protected override IRelationalCommand BuildCore(
-                        IInterceptingLogger<LoggerCategory.Database.Sql> logger,
-                        DiagnosticSource diagnosticSource,
+                        IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
+                        IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
                         string commandText,
                         IReadOnlyList<IRelationalParameter> parameters)
-                    => new BadDataRelationalCommand(logger, diagnosticSource, commandText, parameters, _values);
+                    => new BadDataRelationalCommand(sqlLogger, readerLogger, commandText, parameters, _values);
 
                 private class BadDataRelationalCommand : RelationalCommand
                 {
                     private readonly object[] _values;
 
                     public BadDataRelationalCommand(
-                        IInterceptingLogger<LoggerCategory.Database.Sql> logger,
-                        DiagnosticSource diagnosticSource,
+                        IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
+                        IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
                         string commandText,
                         IReadOnlyList<IRelationalParameter> parameters,
                         object[] values)
-                        : base(logger, diagnosticSource, commandText, parameters)
+                        : base(sqlLogger, readerLogger, commandText, parameters)
                     {
                         _values = values;
                     }

@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         private DbContextDependencies _dbContextDependencies;
         private DatabaseFacade _database;
         private ChangeTracker _changeTracker;
-        private IInterceptingLogger<LoggerCategory.Update> _updateLogger;
+        private IDiagnosticsLogger<LoggerCategory.Update> _updateLogger;
 
         private IServiceScope _serviceScope;
         private IDbContextPool _dbContextPool;
@@ -213,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 contextServices.Initialize(scopedServiceProvider, options, this);
 
-                _updateLogger = scopedServiceProvider.GetRequiredService<IInterceptingLogger<LoggerCategory.Update>>();
+                _updateLogger = scopedServiceProvider.GetRequiredService<IDiagnosticsLogger<LoggerCategory.Update>>();
 
                 return contextServices;
             }
@@ -303,11 +302,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (Exception exception)
             {
-                _updateLogger.LogError(
-                    CoreEventId.DatabaseError,
-                    () => new DatabaseErrorLogState(GetType()),
-                    exception,
-                    e => CoreStrings.LogExceptionDuringSaveChanges(Environment.NewLine, e));
+                _updateLogger.SaveChangesFailed(GetType(), exception);
 
                 throw;
             }
@@ -379,11 +374,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (Exception exception)
             {
-                _updateLogger.LogError(
-                    CoreEventId.DatabaseError,
-                    () => new DatabaseErrorLogState(GetType()),
-                    exception,
-                    e => CoreStrings.LogExceptionDuringSaveChanges(Environment.NewLine, e));
+                _updateLogger.SaveChangesFailed(GetType(), exception);
 
                 throw;
             }

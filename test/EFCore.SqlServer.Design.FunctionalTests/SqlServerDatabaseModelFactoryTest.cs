@@ -73,7 +73,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
 
             var dbModel = CreateModel(sql, selectionSet, logger);
             Assert.Single(dbModel.Tables);
-            Assert.DoesNotContain(logger.Items, i => i.logLevel == LogLevel.Warning);
+            Assert.DoesNotContain(logger.Items, i => ((string)i.message).Contains("ShortHills"));
         }
 
         [Fact]

@@ -14,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore
     ///         <code>LoggerCategory.Database.Sql.Name</code>.
     ///     </para>
     ///     <para>
-    ///         Use these types with <see cref="IInterceptingLogger{TLoggerCategory}" /> to
-    ///         create a logger.
+    ///         Use these types with <see cref="IDiagnosticsLogger{TLoggerCategory}" /> or
+    ///         <see cref="IInterceptingLogger{TLoggerCategory}" /> to create a logger.
     ///     </para>
     /// </summary>
     public static class LoggerCategory
@@ -34,6 +34,13 @@ namespace Microsoft.EntityFrameworkCore
             ///     Logger category for messages related to connection operations.
             /// </summary>
             public class Connection : LoggerCategory<Connection>
+            {
+            }
+
+            /// <summary>
+            ///     Logger category for messages related to data reader operations.
+            /// </summary>
+            public class DataReader : LoggerCategory<DataReader>
             {
             }
 

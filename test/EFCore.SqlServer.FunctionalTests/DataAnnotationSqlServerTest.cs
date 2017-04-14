@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
-                    nameof(RelationalEventId) + "." + nameof(RelationalEventId.ModelValidationKeyDefaultValueWarning),
+                    RelationalEventId.ModelValidationKeyDefaultValueWarning,
                     RelationalStrings.KeyHasDefaultValue(nameof(Login1.UserName), nameof(Login1))),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
 

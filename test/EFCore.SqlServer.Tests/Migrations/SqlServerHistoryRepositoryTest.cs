@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -145,8 +146,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
             var typeMapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
 
             var commandBuilderFactory = new RelationalCommandBuilderFactory(
-                new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                new DiagnosticListener("Fake"),
+                new DiagnosticsLogger<LoggerCategory.Database.Sql>(
+                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
+                    new DiagnosticListener("Fake")),
+                new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
+                    new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
+                    new DiagnosticListener("Fake")),
                 typeMapper);
 
             return new SqlServerHistoryRepository(

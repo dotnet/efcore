@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqliteScaffoldingModelFactory(
-            [NotNull] IInterceptingLogger<LoggerCategory.Scaffolding> logger,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] CandidateNamingService candidateNamingService,
@@ -39,9 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (tableSelectionSet != null
                 && tableSelectionSet.Schemas.Any())
             {
-                Logger.LogWarning(
-                    SqliteDesignEventId.SchemasNotSupportedWarning,
-                    () => SqliteDesignStrings.UsingSchemaSelectionsWarning);
+                Logger.SchemasNotSupportedWarning();
 
                 // we've logged a general warning above that sqlite ignores all
                 // schema selections so mark all of them as matched so that we don't

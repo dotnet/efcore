@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -24,9 +25,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests
             TestStore.ExecuteNonQuery(createSql);
 
             return new SqlServerDatabaseModelFactory(
-                    new InterceptingLogger<LoggerCategory.Scaffolding>(
-                        new TestLoggerFactory(logger),
-                        new LoggingOptions()))
+                    new DiagnosticsLogger<LoggerCategory.Scaffolding>(
+                        new InterceptingLogger<LoggerCategory.Scaffolding>(
+                            new TestLoggerFactory(logger),
+                            new LoggingOptions()),
+                        new DiagnosticListener("Fake")))
                 .Create(TestStore.ConnectionString, selection ?? TableSelectionSet.All);
         }
 
@@ -70,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests
             public IDisposable BeginScope<TState>(TState state) => NullScope.Instance;
 
             public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-                => Items.Add(new { logLevel, eventId, state, exception });
+                => Items.Add(new { logLevel, eventId, state, exception, message = formatter(state, exception) });
 
             public bool IsEnabled(LogLevel logLevel) => true;
 

@@ -5,7 +5,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -31,9 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             foreach (var entityType in model.GetEntityTypes().Where(e => e.Sqlite().Schema != null))
             {
-                ShowWarning(
-                    SqliteEventId.SchemaConfiguredWarning,
-                    SqliteStrings.SchemaConfigured(entityType.DisplayName(), entityType.Sqlite().Schema));
+                Dependencies.Logger.SchemaConfiguredWarning(entityType, entityType.Sqlite().Schema);
             }
         }
 
@@ -41,11 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             foreach (var sequence in model.Sqlite().Sequences)
             {
-                ShowWarning(SqliteEventId.SequenceWarning, SqliteStrings.SequenceConfigured(sequence.Name));
+                Dependencies.Logger.SequenceConfiguredWarning(sequence);
             }
         }
-
-        protected virtual void ShowWarning(SqliteEventId eventId, [NotNull] string message)
-            => Dependencies.Logger.LogWarning(eventId, () => message);
     }
 }

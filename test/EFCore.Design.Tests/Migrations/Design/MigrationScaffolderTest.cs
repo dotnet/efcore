@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -62,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                 idGenerator,
                 new CSharpMigrationsGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpSnapshotGenerator(code)),
                 new MockHistoryRepository(),
-                new LoggerFactory().CreateLogger<MigrationsScaffolder>(),
+                new DiagnosticsLogger<LoggerCategory.Migrations>(
+                    new InterceptingLogger<LoggerCategory.Migrations>(new LoggerFactory(), new LoggingOptions()),
+                    new DiagnosticListener("Fake")),
                 new MockProvider());
         }
 

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -16,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class RelationalCommandBuilder : IRelationalCommandBuilder
     {
-        private readonly IInterceptingLogger<LoggerCategory.Database.Sql> _logger;
-        private readonly DiagnosticSource _diagnosticSource;
+        private readonly IDiagnosticsLogger<LoggerCategory.Database.Sql> _sqlLogger;
+        private readonly IDiagnosticsLogger<LoggerCategory.Database.DataReader> _readerLogger;
 
         private readonly IndentedStringBuilder _commandTextBuilder = new IndentedStringBuilder();
 
@@ -26,16 +25,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalCommandBuilder(
-            [NotNull] IInterceptingLogger<LoggerCategory.Database.Sql> logger,
-            [NotNull] DiagnosticSource diagnosticSource,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
             [NotNull] IRelationalTypeMapper typeMapper)
         {
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(diagnosticSource, nameof(diagnosticSource));
+            Check.NotNull(sqlLogger, nameof(sqlLogger));
+            Check.NotNull(readerLogger, nameof(readerLogger));
             Check.NotNull(typeMapper, nameof(typeMapper));
 
-            _logger = logger;
-            _diagnosticSource = diagnosticSource;
+            _sqlLogger = sqlLogger;
+            _readerLogger = readerLogger;
             ParameterBuilder = new RelationalParameterBuilder(typeMapper);
         }
 
@@ -54,8 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public virtual IRelationalCommand Build()
             => BuildCore(
-                _logger,
-                _diagnosticSource,
+                _sqlLogger,
+                _readerLogger,
                 _commandTextBuilder.ToString(),
                 ParameterBuilder.Parameters);
 
@@ -64,12 +63,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IRelationalCommand BuildCore(
-                [NotNull] IInterceptingLogger<LoggerCategory.Database.Sql> logger,
-                [NotNull] DiagnosticSource diagnosticSource,
+                [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
+                [NotNull] IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
                 [NotNull] string commandText,
                 [NotNull] IReadOnlyList<IRelationalParameter> parameters)
             => new RelationalCommand(
-                logger, diagnosticSource, commandText, parameters);
+                sqlLogger, readerLogger, commandText, parameters);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

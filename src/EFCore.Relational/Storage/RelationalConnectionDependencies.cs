@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -43,22 +42,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="contextOptions"> The options for the current context instance. </param>
         /// <param name="transactionLogger"> The logger to which transaction messages will be written. </param>
         /// <param name="connectionLogger"> The logger to which connection messages will be written. </param>
-        /// <param name="diagnosticSource"> The diagnostic source to write to. </param>
         public RelationalConnectionDependencies(
             [NotNull] IDbContextOptions contextOptions,
-            [NotNull] IInterceptingLogger<LoggerCategory.Database.Transaction> transactionLogger,
-            [NotNull] IInterceptingLogger<LoggerCategory.Database.Connection> connectionLogger,
-            [NotNull] DiagnosticSource diagnosticSource)
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Transaction> transactionLogger,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Connection> connectionLogger)
         {
             Check.NotNull(contextOptions, nameof(contextOptions));
-            Check.NotNull(connectionLogger, nameof(connectionLogger));
             Check.NotNull(transactionLogger, nameof(transactionLogger));
-            Check.NotNull(diagnosticSource, nameof(diagnosticSource));
+            Check.NotNull(connectionLogger, nameof(connectionLogger));
 
             ContextOptions = contextOptions;
-            ConnectionLogger = connectionLogger;
             TransactionLogger = transactionLogger;
-            DiagnosticSource = diagnosticSource;
+            ConnectionLogger = connectionLogger;
         }
 
         /// <summary>
@@ -69,18 +64,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The logger to which transaction messages will be written.
         /// </summary>
-        public IInterceptingLogger<LoggerCategory.Database.Transaction> TransactionLogger { get; }
+        public IDiagnosticsLogger<LoggerCategory.Database.Transaction> TransactionLogger { get; }
 
 
         /// <summary>
         ///     The logger to which connection messages will be written.
         /// </summary>
-        public IInterceptingLogger<LoggerCategory.Database.Connection> ConnectionLogger { get; }
-
-        /// <summary>
-        ///     The diagnostic source to write to.
-        /// </summary>
-        public DiagnosticSource DiagnosticSource { get; }
+        public IDiagnosticsLogger<LoggerCategory.Database.Connection> ConnectionLogger { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -90,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConnectionDependencies With([NotNull] IDbContextOptions contextOptions)
-            => new RelationalConnectionDependencies(contextOptions, TransactionLogger, ConnectionLogger, DiagnosticSource);
+            => new RelationalConnectionDependencies(contextOptions, TransactionLogger, ConnectionLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -99,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A replacement for the current dependency of this type.
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalConnectionDependencies With([NotNull] IInterceptingLogger<LoggerCategory.Database.Connection> connectionLogger)
-            => new RelationalConnectionDependencies(ContextOptions, TransactionLogger, connectionLogger, DiagnosticSource);
+        public RelationalConnectionDependencies With([NotNull] IDiagnosticsLogger<LoggerCategory.Database.Connection> connectionLogger)
+            => new RelationalConnectionDependencies(ContextOptions, TransactionLogger, connectionLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -109,17 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A replacement for the current dependency of this type.
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalConnectionDependencies With([NotNull] IInterceptingLogger<LoggerCategory.Database.Transaction> transactionLogger)
-            => new RelationalConnectionDependencies(ContextOptions, transactionLogger, ConnectionLogger, DiagnosticSource);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="diagnosticSource">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalConnectionDependencies With([NotNull] DiagnosticSource diagnosticSource)
-            => new RelationalConnectionDependencies(ContextOptions, TransactionLogger, ConnectionLogger, diagnosticSource);
+        public RelationalConnectionDependencies With([NotNull] IDiagnosticsLogger<LoggerCategory.Database.Transaction> transactionLogger)
+            => new RelationalConnectionDependencies(ContextOptions, transactionLogger, ConnectionLogger);
     }
 }

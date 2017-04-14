@@ -19,11 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("[c].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.Where(c => c.IsLondon).ToList()).Message);
+                            () => context.Customers.Where(c => c.IsLondon).ToList())
+                        .Message);
             }
         }
 
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("orderby [c].IsLondon asc")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.OrderBy(c => c.IsLondon).ToList()).Message);
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("orderby [c].IsLondon asc, ClientMethod([c]) asc")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
@@ -64,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning(
                             "{from Customer c2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer]) where (([c1].CustomerID == [c2].CustomerID) AndAlso [c2].IsLondon) select [c2] => Any()}")),
                     Assert.Throws<InvalidOperationException>(
@@ -81,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("All([c].IsLondon)")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.All(c => c.IsLondon)).Message);
@@ -94,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("[c].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
@@ -124,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("[c].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
                         () =>
@@ -144,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("from Int32 i in value(System.Int32[])")),
                     Assert.Throws<InvalidOperationException>(
                         () =>
@@ -161,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("join Int32 i in __p_0 on [e1].EmployeeID equals [i]")),
                     Assert.Throws<InvalidOperationException>(
                         () =>
@@ -178,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("join Int32 i in __p_0 on [e1].EmployeeID equals [i]")),
                     Assert.Throws<InvalidOperationException>(
                         () =>
@@ -195,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("GroupBy([c].CustomerID, [c])")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
@@ -210,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("[c].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.First(c => c.IsLondon)).Message);
@@ -223,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("[c].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Single(c => c.IsLondon)).Message);
@@ -236,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("[c].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.FirstOrDefault(c => c.IsLondon)).Message);
@@ -249,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("[c].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.SingleOrDefault(c => c.IsLondon)).Message);

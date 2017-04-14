@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly IMigrationCommandExecutor _migrationCommandExecutor;
         private readonly IRelationalConnection _connection;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
-        private readonly IInterceptingLogger<LoggerCategory.Migrations> _logger;
+        private readonly IDiagnosticsLogger<LoggerCategory.Migrations> _logger;
         private readonly string _activeProvider;
 
         /// <summary>
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
             [NotNull] IRelationalConnection connection,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IInterceptingLogger<LoggerCategory.Migrations> logger,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Migrations> logger,
             [NotNull] IDatabaseProvider databaseProvider)
         {
             Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));
@@ -78,10 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         public virtual void Migrate(string targetMigration = null)
         {
-            var connection = _connection.DbConnection;
-            _logger.LogDebug(
-                RelationalEventId.MigrateUsingConnection,
-                () => RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
+            _logger.MigrateUsingConnection(this, _connection, targetMigration);
 
             if (!_historyRepository.Exists())
             {
@@ -110,10 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             string targetMigration = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var connection = _connection.DbConnection;
-            _logger.LogDebug(
-                RelationalEventId.MigrateUsingConnection,
-                () => RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
+            _logger.MigrateUsingConnection(this, _connection, targetMigration);
 
             if (!await _historyRepository.ExistsAsync(cancellationToken))
             {
@@ -155,9 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var index = i;
                 yield return () =>
                     {
-                        _logger.LogInformation(
-                            RelationalEventId.RevertingMigration,
-                            () => RelationalStrings.RevertingMigration(migration.GetId()));
+                        _logger.MigrationReverting(this, migration, targetMigration);
 
                         return GenerateDownSql(
                             migration,
@@ -171,9 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 yield return () =>
                     {
-                        _logger.LogInformation(
-                            RelationalEventId.ApplyingMigration,
-                            () => RelationalStrings.ApplyingMigration(migration.GetId()));
+                        _logger.MigrationApplying(this, migration, targetMigration);
 
                         return GenerateUpSql(migration);
                     };
@@ -276,9 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     ? migrationsToRevert[i + 1]
                     : null;
 
-                _logger.LogDebug(
-                    RelationalEventId.GeneratingMigrationDownScript,
-                    () => RelationalStrings.GeneratingDown(migration.GetId()));
+                _logger.MigrationGeneratingDownScript(this, migration, fromMigration, toMigration, idempotent);
 
                 foreach (var command in GenerateDownSql(migration, previousMigration))
                 {
@@ -302,9 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var migration in migrationsToApply)
             {
-                _logger.LogDebug(
-                    RelationalEventId.GeneratingMigrationUpScript,
-                    () => RelationalStrings.GeneratingUp(migration.GetId()));
+                _logger.MigrationGeneratingUpScript(this, migration, fromMigration, toMigration, idempotent);
 
                 foreach (var command in GenerateUpSql(migration))
                 {

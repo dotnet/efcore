@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -614,7 +615,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             try
             {
-                new CoreModelValidator(new ModelValidatorDependencies(new FakeLogger())).Validate(propertyBase.DeclaringType.Model);
+                new CoreModelValidator(new ModelValidatorDependencies(
+                        new DiagnosticsLogger<LoggerCategory.Model.Validation>(
+                            new FakeLogger(),
+                            new DiagnosticListener("Fake"))))
+                    .Validate(propertyBase.DeclaringType.Model);
                 Assert.Null(failMessage);
             }
             catch (InvalidOperationException ex)
@@ -631,13 +636,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 throw new InvalidOperationException(formatter(state, exception));
             }
 
-            public bool IsEnabled(LogLevel logLevel) => true;
+            public bool IsEnabled(EventId eventId, LogLevel logLevel) => true;
 
             public IDisposable BeginScope<TState>(TState state) => null;
 
             public ILoggingOptions Options { get; }
 
-            public bool LogSensitiveData { get; }
+            public bool ShouldLogSensitiveData(IDiagnosticsLogger<LoggerCategory.Model.Validation> diagnostics) => false;
         }
 
         [Fact]

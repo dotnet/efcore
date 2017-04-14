@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -96,8 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         k => k.Properties))
                 .Where(p => RelationalExtensions.For(p).DefaultValue != null))
             {
-                ShowWarning(RelationalEventId.ModelValidationKeyDefaultValueWarning,
-                    RelationalStrings.KeyHasDefaultValue(property.Name, property.DeclaringEntityType.DisplayName()));
+                Dependencies.Logger.ModelValidationKeyDefaultValueWarning(property);
             }
         }
 
@@ -442,13 +440,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 discriminatorValues[discriminatorValue] = derivedType;
             }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual void ShowWarning(RelationalEventId eventId, [NotNull] string message)
-            => Dependencies.Logger.LogWarning(eventId, () => message);
 
         private static string Format(IEnumerable<string> columnNames)
             => "{" + string.Join(", ", columnNames.Select(c => "'" + c + "'")) + "}";

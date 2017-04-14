@@ -91,11 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected abstract DbConnection CreateDbConnection();
 
         /// <summary>
-        ///     Gets the diagnostic source.
-        /// </summary>
-        protected virtual DiagnosticSource DiagnosticSource => Dependencies.DiagnosticSource;
-
-        /// <summary>
         ///     Gets the connection string for the database.
         /// </summary>
         public virtual string ConnectionString => _connectionString ?? _connection.Value.ConnectionString;
@@ -189,18 +184,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private IDbContextTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
         {
-            Dependencies.TransactionLogger.LogDebug(
-                RelationalEventId.BeginningTransaction,
-                isolationLevel,
-                il => RelationalStrings.RelationalLoggerBeginningTransaction(il.ToString("G")));
+            var dbTransaction = DbConnection.BeginTransaction(isolationLevel);
 
             CurrentTransaction
                 = new RelationalTransaction(
                     this,
-                    DbConnection.BeginTransaction(isolationLevel),
+                    dbTransaction,
                     Dependencies.TransactionLogger,
-                    DiagnosticSource,
                     transactionOwned: true);
+
+            Dependencies.TransactionLogger.TransactionStarted(this, dbTransaction);
 
             return CurrentTransaction;
         }
@@ -231,8 +224,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     this, 
                     transaction, 
                     Dependencies.TransactionLogger, 
-                    DiagnosticSource, 
                     transactionOwned: false);
+
+                Dependencies.TransactionLogger.TransactionUsed(this, transaction);
             }
 
             return CurrentTransaction;
@@ -281,22 +275,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (_connection.Value.State != ConnectionState.Open)
             {
-                Dependencies.ConnectionLogger.LogDebug(
-                    RelationalEventId.OpeningConnection,
-                    new
-                    {
-                        _connection.Value.Database,
-                        _connection.Value.DataSource
-                    },
-                    state =>
-                        RelationalStrings.RelationalLoggerOpeningConnection(
-                            state.Database,
-                            state.DataSource));
-
                 var startTimestamp = Stopwatch.GetTimestamp();
                 var instanceId = Guid.NewGuid();
-                DiagnosticSource.WriteConnectionOpening(_connection.Value,
-                    ConnectionId,
+                Dependencies.ConnectionLogger.ConnectionOpening(
+                    this,
                     instanceId,
                     startTimestamp,
                     async: false);
@@ -307,8 +289,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     wasOpened = true;
 
                     var currentTimestamp = Stopwatch.GetTimestamp();
-                    DiagnosticSource.WriteConnectionOpened(_connection.Value, 
-                        ConnectionId,
+                    Dependencies.ConnectionLogger.ConnectionOpened(
+                        this,
                         instanceId,
                         startTimestamp, 
                         currentTimestamp,
@@ -317,8 +299,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 catch (Exception e)
                 {
                     var currentTimestamp = Stopwatch.GetTimestamp();
-                    DiagnosticSource.WriteConnectionError(_connection.Value, 
-                        ConnectionId, 
+                    Dependencies.ConnectionLogger.ConnectionError(
+                        this, 
                         e,
                         instanceId,
                         startTimestamp,
@@ -364,22 +346,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (_connection.Value.State != ConnectionState.Open)
             {
-                Dependencies.ConnectionLogger.LogDebug(
-                    RelationalEventId.OpeningConnection,
-                    new
-                    {
-                        _connection.Value.Database,
-                        _connection.Value.DataSource
-                    },
-                    state =>
-                        RelationalStrings.RelationalLoggerOpeningConnection(
-                            state.Database,
-                            state.DataSource));
-
                 var startTimestamp = Stopwatch.GetTimestamp();
                 var instanceId = Guid.NewGuid();
-                DiagnosticSource.WriteConnectionOpening(_connection.Value,
-                    ConnectionId,
+                Dependencies.ConnectionLogger.ConnectionOpening(
+                    this,
                     instanceId,
                     startTimestamp,
                     async: true);
@@ -390,8 +360,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     wasOpened = true;
 
                     var currentTimestamp = Stopwatch.GetTimestamp();
-                    DiagnosticSource.WriteConnectionOpened(_connection.Value,
-                        ConnectionId,
+                    Dependencies.ConnectionLogger.ConnectionOpened(
+                        this,
                         instanceId,
                         startTimestamp,
                         currentTimestamp,
@@ -400,8 +370,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 catch (Exception e)
                 {
                     var currentTimestamp = Stopwatch.GetTimestamp();
-                    DiagnosticSource.WriteConnectionError(_connection.Value,
-                        ConnectionId,
+                    Dependencies.ConnectionLogger.ConnectionError(
+                        this,
                         e,
                         instanceId,
                         startTimestamp,
@@ -429,9 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 #if NET46
             if (Transaction.Current != null)
             {
-                Dependencies.TransactionLogger.LogWarning(
-                    RelationalEventId.AmbientTransactionWarning,
-                    () => RelationalStrings.AmbientTransaction);
+                Dependencies.TransactionLogger.AmbientTransactionWarning(this);
             }
 #elif NETSTANDARD1_3
 #else
@@ -453,22 +421,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 if (_connection.Value.State != ConnectionState.Closed)
                 {
-                    Dependencies.ConnectionLogger.LogDebug(
-                        RelationalEventId.ClosingConnection,
-                        new
-                        {
-                            _connection.Value.Database,
-                            _connection.Value.DataSource
-                        },
-                        state =>
-                            RelationalStrings.RelationalLoggerClosingConnection(
-                                state.Database,
-                                state.DataSource));
-
                     var startTimestamp = Stopwatch.GetTimestamp();
                     var instanceId = Guid.NewGuid();
-                    DiagnosticSource.WriteConnectionClosing(_connection.Value,
-                        ConnectionId,
+                    Dependencies.ConnectionLogger.ConnectionClosing(
+                        this,
                         instanceId,
                         startTimestamp,
                         async: false);
@@ -479,8 +435,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         wasClosed = true;
 
                         var currentTimestamp = Stopwatch.GetTimestamp();
-                        DiagnosticSource.WriteConnectionClosed(_connection.Value,
-                            ConnectionId,
+                        Dependencies.ConnectionLogger.ConnectionClosed(
+                            this,
                             instanceId,
                             startTimestamp,
                             currentTimestamp,
@@ -489,8 +445,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     catch (Exception e)
                     {
                         var currentTimestamp = Stopwatch.GetTimestamp();
-                        DiagnosticSource.WriteConnectionError(_connection.Value,
-                            ConnectionId,
+                        Dependencies.ConnectionLogger.ConnectionError(
+                            this,
                             e,
                             instanceId,
                             startTimestamp,

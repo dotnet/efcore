@@ -18,5 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual long? Min { get; [param: CanBeNull] set; }
         public virtual long? Max { get; [param: CanBeNull] set; }
         public virtual bool? IsCyclic { get; [param: CanBeNull] set; }
+
+        public virtual string DisplayName
+            => (!string.IsNullOrEmpty(SchemaName) ? SchemaName + "." : "") + Name;
     }
 }

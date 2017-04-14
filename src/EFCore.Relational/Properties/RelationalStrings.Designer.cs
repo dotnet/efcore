@@ -96,6 +96,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 database, server);
 
         /// <summary>
+        ///     Opened connection to database '{database}' on server '{server}'.
+        /// </summary>
+        public static string RelationalLoggerOpenedConnection([CanBeNull] object database, [CanBeNull] object server)
+            => string.Format(
+                GetString("RelationalLoggerOpenedConnection", nameof(database), nameof(server)),
+                database, server);
+
+        /// <summary>
         ///     Closing connection to database '{database}' on server '{server}'.
         /// </summary>
         public static string RelationalLoggerClosingConnection([CanBeNull] object database, [CanBeNull] object server)
@@ -104,11 +112,35 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 database, server);
 
         /// <summary>
+        ///     Closed connection to database '{database}' on server '{server}'.
+        /// </summary>
+        public static string RelationalLoggerClosedConnection([CanBeNull] object database, [CanBeNull] object server)
+            => string.Format(
+                GetString("RelationalLoggerClosedConnection", nameof(database), nameof(server)),
+                database, server);
+
+        /// <summary>
+        ///     An error occurred using the connection to database '{database}' on server '{server}'.
+        /// </summary>
+        public static string RelationalLoggerConnectionError([CanBeNull] object database, [CanBeNull] object server)
+            => string.Format(
+                GetString("RelationalLoggerConnectionError", nameof(database), nameof(server)),
+                database, server);
+
+        /// <summary>
         ///     Beginning transaction with isolation level '{isolationLevel}'.
         /// </summary>
         public static string RelationalLoggerBeginningTransaction([CanBeNull] object isolationLevel)
             => string.Format(
                 GetString("RelationalLoggerBeginningTransaction", nameof(isolationLevel)),
+                isolationLevel);
+
+        /// <summary>
+        ///     Using an existing transaction with isolation level '{isolationLevel}'.
+        /// </summary>
+        public static string RelationalLoggerUsingTransaction([CanBeNull] object isolationLevel)
+            => string.Format(
+                GetString("RelationalLoggerUsingTransaction", nameof(isolationLevel)),
                 isolationLevel);
 
         /// <summary>
@@ -122,6 +154,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string RelationalLoggerRollingbackTransaction
             => GetString("RelationalLoggerRollingbackTransaction");
+
+        /// <summary>
+        ///     Disposing transaction.
+        /// </summary>
+        public static string RelationalLoggerDisposingTransaction
+            => GetString("RelationalLoggerDisposingTransaction");
+
+        /// <summary>
+        ///     An error occurred using a transaction.
+        /// </summary>
+        public static string RelationalLoggerTransactionError
+            => GetString("RelationalLoggerTransactionError");
+
+        /// <summary>
+        ///     A data reader was disposed.
+        /// </summary>
+        public static string DisposingDataReader
+            => GetString("DisposingDataReader");
 
         /// <summary>
         ///     Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', and 'Byte'.
@@ -200,14 +250,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("PossibleUnintendedUseOfEquals", nameof(left), nameof(right)),
                 left, right);
-
-        /// <summary>
-        ///     Linq translation for method '{function}' used by this database provider can return incorrect results when the value argument contains wildcard characters (e.g. '%' or '_').
-        /// </summary>
-        public static string PossibleIncorrectResultsUsingLikeOperator([CanBeNull] object function)
-            => string.Format(
-                GetString("PossibleIncorrectResultsUsingLikeOperator", nameof(function)),
-                function);
 
         /// <summary>
         ///     The Include operation is not supported when calling a stored procedure.
@@ -344,11 +386,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 parameter);
 
         /// <summary>
+        ///     Executing DbCommand [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
+        /// </summary>
+        public static string RelationalLoggerExecutingCommand([CanBeNull] object parameters, [CanBeNull] object commandType, [CanBeNull] object commandTimeout, [CanBeNull] object newLine, [CanBeNull] object commandText)
+            => string.Format(
+                GetString("RelationalLoggerExecutingCommand", nameof(parameters), nameof(commandType), nameof(commandTimeout), nameof(newLine), nameof(commandText)),
+                parameters, commandType, commandTimeout, newLine, commandText);
+
+        /// <summary>
         ///     Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
         /// </summary>
         public static string RelationalLoggerExecutedCommand([CanBeNull] object elapsed, [CanBeNull] object parameters, [CanBeNull] object commandType, [CanBeNull] object commandTimeout, [CanBeNull] object newLine, [CanBeNull] object commandText)
             => string.Format(
                 GetString("RelationalLoggerExecutedCommand", nameof(elapsed), nameof(parameters), nameof(commandType), nameof(commandTimeout), nameof(newLine), nameof(commandText)),
+                elapsed, parameters, commandType, commandTimeout, newLine, commandText);
+
+        /// <summary>
+        ///     Failed executing DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
+        /// </summary>
+        public static string RelationalLoggerCommandFailed([CanBeNull] object elapsed, [CanBeNull] object parameters, [CanBeNull] object commandType, [CanBeNull] object commandTimeout, [CanBeNull] object newLine, [CanBeNull] object commandText)
+            => string.Format(
+                GetString("RelationalLoggerCommandFailed", nameof(elapsed), nameof(parameters), nameof(commandType), nameof(commandTimeout), nameof(newLine), nameof(commandText)),
                 elapsed, parameters, commandType, commandTimeout, newLine, commandText);
 
         /// <summary>

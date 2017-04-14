@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -349,38 +350,44 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             => new TheoryData<Delegate, string, bool>
             {
                 {
-                    new CommandAction((connection, command, parameterValues)
-                        => command.ExecuteNonQuery(connection, parameterValues)),
+                    new CommandAction(
+                        (connection, command, parameterValues)
+                            => command.ExecuteNonQuery(connection, parameterValues)),
                     "ExecuteNonQuery",
                     false
                 },
                 {
-                    new CommandAction((connection, command, parameterValues)
-                        => command.ExecuteScalar(connection, parameterValues)),
+                    new CommandAction(
+                        (connection, command, parameterValues)
+                            => command.ExecuteScalar(connection, parameterValues)),
                     "ExecuteScalar",
                     false
                 },
                 {
-                    new CommandAction((connection, command, parameterValues)
-                        => command.ExecuteReader(connection, parameterValues)),
+                    new CommandAction(
+                        (connection, command, parameterValues)
+                            => command.ExecuteReader(connection, parameterValues)),
                     "ExecuteReader",
                     false
                 },
                 {
-                    new CommandFunc((connection, command, parameterValues)
-                        => command.ExecuteNonQueryAsync(connection, parameterValues)),
+                    new CommandFunc(
+                        (connection, command, parameterValues)
+                            => command.ExecuteNonQueryAsync(connection, parameterValues)),
                     "ExecuteNonQuery",
                     true
                 },
                 {
-                    new CommandFunc((connection, command, parameterValues)
-                        => command.ExecuteScalarAsync(connection, parameterValues)),
+                    new CommandFunc(
+                        (connection, command, parameterValues)
+                            => command.ExecuteScalarAsync(connection, parameterValues)),
                     "ExecuteScalar",
                     true
                 },
                 {
-                    new CommandFunc((connection, command, parameterValues)
-                        => command.ExecuteReaderAsync(connection, parameterValues)),
+                    new CommandFunc(
+                        (connection, command, parameterValues)
+                            => command.ExecuteReaderAsync(connection, parameterValues)),
                     "ExecuteReader",
                     true
                 }
@@ -407,15 +414,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             {
                 Assert.Equal(
                     RelationalStrings.MissingParameterValue("FirstInvariant"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async ()
-                        => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, null))).Message);
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async ()
+                            => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, null))).Message);
             }
             else
             {
                 Assert.Equal(
                     RelationalStrings.MissingParameterValue("FirstInvariant"),
-                    Assert.Throws<InvalidOperationException>(()
-                        => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null)).Message);
+                    Assert.Throws<InvalidOperationException>(
+                            ()
+                                => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null))
+                        .Message);
             }
         }
 
@@ -446,15 +456,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             {
                 Assert.Equal(
                     RelationalStrings.MissingParameterValue("ThirdInvariant"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async ()
-                        => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues))).Message);
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async ()
+                            => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues))).Message);
             }
             else
             {
                 Assert.Equal(
                     RelationalStrings.MissingParameterValue("ThirdInvariant"),
-                    Assert.Throws<InvalidOperationException>(()
-                        => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues)).Message);
+                    Assert.Throws<InvalidOperationException>(
+                            ()
+                                => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues))
+                        .Message);
             }
         }
 
@@ -679,15 +692,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             {
                 Assert.Equal(
                     RelationalStrings.MissingParameterValue("ThirdInvariant"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async ()
-                        => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues))).Message);
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async ()
+                            => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues))).Message);
             }
             else
             {
                 Assert.Equal(
                     RelationalStrings.MissingParameterValue("ThirdInvariant"),
-                    Assert.Throws<InvalidOperationException>(()
-                        => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues)).Message);
+                    Assert.Throws<InvalidOperationException>(
+                            ()
+                                => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues))
+                        .Message);
             }
         }
 
@@ -720,15 +736,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             {
                 Assert.Equal(
                     RelationalStrings.ParameterNotObjectArray("CompositeInvariant"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async ()
-                        => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues))).Message);
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async ()
+                            => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues))).Message);
             }
             else
             {
                 Assert.Equal(
                     RelationalStrings.ParameterNotObjectArray("CompositeInvariant"),
-                    Assert.Throws<InvalidOperationException>(()
-                        => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues)).Message);
+                    Assert.Throws<InvalidOperationException>(
+                            ()
+                                => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues))
+                        .Message);
             }
         }
 
@@ -767,8 +786,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             }
             else
             {
-                Assert.Throws<InvalidOperationException>(()
-                    => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null));
+                Assert.Throws<InvalidOperationException>(
+                    ()
+                        => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null));
             }
 
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
@@ -811,8 +831,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             }
             else
             {
-                Assert.Throws<InvalidOperationException>(()
-                    => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null));
+                Assert.Throws<InvalidOperationException>(
+                    ()
+                        => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null));
 
                 Assert.Equal(1, fakeDbConnection.OpenCount);
             }
@@ -857,8 +878,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             }
             else
             {
-                Assert.Throws<InvalidOperationException>(()
-                    => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null));
+                Assert.Throws<InvalidOperationException>(
+                    ()
+                        => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null));
 
                 Assert.Equal(1, fakeDbConnection.OpenCount);
             }
@@ -903,12 +925,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues);
             }
 
-            Assert.Equal(1, log.Count);
-            Assert.Equal(LogLevel.Information, log[0].Item1);
-            Assert.EndsWith(
-                @"[Parameters=[FirstParameter='?'], CommandType='0', CommandTimeout='30']
+            Assert.Equal(2, log.Count);
+
+            Assert.Equal(LogLevel.Debug, log[0].Item1);
+            Assert.Equal(LogLevel.Information, log[1].Item1);
+
+            foreach (var item in log)
+            {
+                Assert.EndsWith(
+                    @"[Parameters=[FirstParameter='?'], CommandType='0', CommandTimeout='30']
 Logged Command",
-                log[0].Item2.Replace(Environment.NewLine, FileLineEnding));
+                    item.Item2.Replace(Environment.NewLine, FileLineEnding));
+            }
         }
 
         [Theory]
@@ -950,15 +978,20 @@ Logged Command",
                 ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues);
             }
 
-            Assert.Equal(2, log.Count);
+            Assert.Equal(3, log.Count);
             Assert.Equal(LogLevel.Warning, log[0].Item1);
             Assert.Equal(CoreStrings.SensitiveDataLoggingEnabled, log[0].Item2);
 
-            Assert.Equal(LogLevel.Information, log[1].Item1);
-            Assert.EndsWith(
-                @"ms) [Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
+            Assert.Equal(LogLevel.Debug, log[1].Item1);
+            Assert.Equal(LogLevel.Information, log[2].Item1);
+
+            foreach (var item in log.Skip(1))
+            {
+                Assert.EndsWith(
+                    @"[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
 Logged Command",
-                log[1].Item2.Replace(Environment.NewLine, FileLineEnding));
+                    item.Item2.Replace(Environment.NewLine, FileLineEnding));
+            }
         }
 
         [Theory]
@@ -996,8 +1029,8 @@ Logged Command",
             }
 
             Assert.Equal(2, diagnostic.Count);
-            Assert.Equal(RelationalDiagnostics.BeforeExecuteCommand, diagnostic[0].Item1);
-            Assert.Equal(RelationalDiagnostics.AfterExecuteCommand, diagnostic[1].Item1);
+            Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[0].Item1);
+            Assert.Equal(RelationalEventId.CommandExecuted.Name, diagnostic[1].Item1);
 
             var beforeData = (RelationalDiagnosticSourceBeforeMessage)diagnostic[0].Item2;
             var afterData = (RelationalDiagnosticSourceAfterMessage)diagnostic[1].Item2;
@@ -1059,13 +1092,14 @@ Logged Command",
             }
             else
             {
-                Assert.Throws<InvalidOperationException>(()
-                    => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues));
+                Assert.Throws<InvalidOperationException>(
+                    ()
+                        => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues));
             }
 
             Assert.Equal(2, diagnostic.Count);
-            Assert.Equal(RelationalDiagnostics.BeforeExecuteCommand, diagnostic[0].Item1);
-            Assert.Equal(RelationalDiagnostics.CommandExecutionError, diagnostic[1].Item1);
+            Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[0].Item1);
+            Assert.Equal(RelationalEventId.CommandError.Name, diagnostic[1].Item1);
 
             var beforeData = (RelationalDiagnosticSourceBeforeMessage)diagnostic[0].Item2;
             var afterData = (RelationalDiagnosticSourceAfterMessage)diagnostic[1].Item2;
@@ -1093,8 +1127,9 @@ Logged Command",
             var optionsBuilder = new DbContextOptionsBuilder();
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
-                .AddOrUpdateExtension(optionsExtension
-                                      ?? new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString));
+                .AddOrUpdateExtension(
+                    optionsExtension
+                    ?? new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString));
 
             return optionsBuilder.Options;
         }
@@ -1118,15 +1153,19 @@ Logged Command",
             public bool SensitiveDataLoggingWarned { get; set; }
             public WarningsConfiguration WarningsConfiguration => null;
         }
-        
+
         private IRelationalCommand CreateRelationalCommand(
             IInterceptingLogger<LoggerCategory.Database.Sql> logger = null,
             DiagnosticSource diagnosticSource = null,
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                logger ?? new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                diagnosticSource ?? new DiagnosticListener("Fake"),
+                new DiagnosticsLogger<LoggerCategory.Database.Sql>(
+                    logger ?? new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
+                    diagnosticSource ?? new DiagnosticListener("Fake")),
+                new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
+                    new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
+                    diagnosticSource ?? new DiagnosticListener("Fake")),
                 commandText,
                 parameters ?? new IRelationalParameter[0]);
     }

@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
@@ -17,13 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class EqualsTranslator : IMethodCallTranslator
     {
-        private readonly IInterceptingLogger<LoggerCategory.Query> _logger;
+        private readonly IDiagnosticsLogger<LoggerCategory.Query> _logger;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public EqualsTranslator([NotNull] IInterceptingLogger<LoggerCategory.Query> logger)
+        public EqualsTranslator([NotNull] IDiagnosticsLogger<LoggerCategory.Query> logger)
         {
             Check.NotNull(logger, nameof(logger));
 
@@ -59,11 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                             Expression.Convert(argument, unwrappedArgumentType));
                     }
 
-                    _logger.LogWarning(
-                        RelationalEventId.PossibleUnintendedUseOfEqualsWarning,
-                        () => RelationalStrings.PossibleUnintendedUseOfEquals(
-                            methodCallExpression.Object.ToString(),
-                            argument.ToString()));
+                    _logger.QueryPossibleUnintendedUseOfEqualsWarning(methodCallExpression, argument);
 
                     // Equals(object) always returns false if when comparing objects of different types
                     return Expression.Constant(false);

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Tests;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -613,9 +614,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         protected override ModelValidator CreateModelValidator()
             => new RelationalModelValidator(
                 new ModelValidatorDependencies(
-                    new InterceptingLogger<LoggerCategory.Model.Validation>(
-                        new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
-                        new LoggingOptions())),
+                    new DiagnosticsLogger<LoggerCategory.Model.Validation>(
+                        new InterceptingLogger<LoggerCategory.Model.Validation>(
+                            new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
+                            new LoggingOptions()),
+                        new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
                     new TestAnnotationProvider(),
                     new TestRelationalTypeMapper(

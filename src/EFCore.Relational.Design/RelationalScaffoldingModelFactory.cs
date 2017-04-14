@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
-        protected virtual IInterceptingLogger<LoggerCategory.Scaffolding> Logger { get; }
+        protected virtual IDiagnosticsLogger<LoggerCategory.Scaffolding> Logger { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
         protected virtual CandidateNamingService CandidateNamingService { get; }
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         private readonly IPluralizer _pluralizer;
 
         public RelationalScaffoldingModelFactory(
-            [NotNull] IInterceptingLogger<LoggerCategory.Scaffolding> logger,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] CandidateNamingService candidateNamingService,
@@ -73,16 +73,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             foreach (var schemaSelection in tableSelectionSet.Schemas.Where(s => !s.IsMatched))
             {
-                Logger.LogWarning(
-                    RelationalDesignEventId.MissingSchemaWarning,
-                    () => RelationalDesignStrings.MissingSchema(schemaSelection.Text));
+                Logger.MissingSchemaWarning(schemaSelection.Text);
             }
 
             foreach (var tableSelection in tableSelectionSet.Tables.Where(t => !t.IsMatched))
             {
-                Logger.LogWarning(
-                    RelationalDesignEventId.MissingTableWarning,
-                    () => RelationalDesignStrings.MissingTable(tableSelection.Text));
+                Logger.MissingTableWarning(tableSelection.Text);
             }
         }
 
@@ -170,9 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             if (string.IsNullOrEmpty(sequence.Name))
             {
-                Logger.LogWarning(
-                    RelationalDesignEventId.SequenceMustBeNamedWarning,
-                    () => RelationalDesignStrings.SequencesRequireName);
+                Logger.SequenceNotNamedWarning();
                 return null;
             }
 
@@ -185,9 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             if (sequenceType != null
                 && !Sequence.SupportedTypes.Contains(sequenceType))
             {
-                Logger.LogWarning(
-                    RelationalDesignEventId.SequenceTypeNotSupportedWarning,
-                    () => RelationalDesignStrings.BadSequenceType(sequence.Name, sequence.DataType));
+                Logger.SequenceTypeNotSupportedWarning(sequence.Name, sequence.DataType);
                 return null;
             }
 
@@ -257,9 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             if (keyBuilder == null)
             {
                 var errorMessage = RelationalDesignStrings.UnableToGenerateEntityType(table.DisplayName);
-                Logger.LogWarning(
-                    RelationalDesignEventId.UnableToGenerateEntityTypeWarning,
-                    () => errorMessage);
+                Logger.UnableToGenerateEntityTypeWarning(table.DisplayName);
 
                 var model = modelBuilder.Model;
                 model.RemoveEntityType(entityTypeName);
@@ -296,9 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             if (clrType == null)
             {
                 _unmappedColumns.Add(column);
-                Logger.LogWarning(
-                    RelationalDesignEventId.ColumnTypeNotMappedWarning,
-                    () => RelationalDesignStrings.CannotFindTypeMappingForColumn(column.DisplayName, column.DataType));
+                Logger.ColumnTypeNotMappedWarning(column.DisplayName, column.DataType);
                 return null;
             }
 
@@ -370,9 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             if (keyColumns.Count == 0)
             {
-                Logger.LogWarning(
-                    RelationalDesignEventId.MissingPrimaryKeyWarning,
-                    () => RelationalDesignStrings.MissingPrimaryKey(table.DisplayName));
+                Logger.MissingPrimaryKeyWarning(table.DisplayName);
                 return null;
             }
 
@@ -381,11 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 .Select(c => c.Name).ToList();
             if (unmappedColumns.Any())
             {
-                Logger.LogWarning(
-                    RelationalDesignEventId.PrimaryKeyColumnsNotMappedWarning,
-                    () => RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound(
-                        table.DisplayName,
-                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumns)));
+                Logger.PrimaryKeyColumnsNotMappedWarning(table.DisplayName, unmappedColumns);
                 return null;
             }
 
@@ -418,11 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 .Select(c => c.Name).ToList();
             if (unmappedColumns.Any())
             {
-                Logger.LogWarning(
-                    RelationalDesignEventId.IndexColumnsNotMappedWarning,
-                    () => RelationalDesignStrings.UnableToScaffoldIndexMissingProperty(
-                        index.Name,
-                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumns)));
+                Logger.IndexColumnsNotMappedWarning(index.Name, unmappedColumns);
                 return null;
             }
 
@@ -496,9 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             if (foreignKey.PrincipalTable == null)
             {
-                Logger.LogWarning(
-                    RelationalDesignEventId.ForeignKeyReferencesMissingTableWarning,
-                    () => RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalTableNotFound(foreignKey.DisplayName));
+                Logger.ForeignKeyReferencesMissingTableWarning(foreignKey.DisplayName);
                 return null;
             }
 
@@ -522,11 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 .ToList();
             if (unmappedDependentColumns.Any())
             {
-                Logger.LogWarning(
-                    RelationalDesignEventId.ForeignKeyColumnsNotMappedWarning,
-                    () => RelationalDesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(
-                        foreignKey.DisplayName,
-                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedDependentColumns)));
+                Logger.ForeignKeyColumnsNotMappedWarning(foreignKey.DisplayName, unmappedDependentColumns);
                 return null;
             }
 
@@ -539,10 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             var principalEntityType = modelBuilder.Model.FindEntityType(GetEntityTypeName(foreignKey.PrincipalTable));
             if (principalEntityType == null)
             {
-                Logger.LogWarning(
-                    RelationalDesignEventId.ForeignKeyReferencesMissingTableWarning,
-                    () => RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalTableScaffoldingError(
-                        foreignKey.DisplayName, foreignKey.PrincipalTable.DisplayName));
+                Logger.ForeignKeyReferencesNotMappedTableWarning(foreignKey.DisplayName, foreignKey.PrincipalTable.DisplayName);
                 return null;
             }
 
@@ -553,11 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 .ToList();
             if (unmappedPrincipalColumns.Any())
             {
-                Logger.LogWarning(
-                    RelationalDesignEventId.ForeignKeyColumnsNotMappedWarning,
-                    () => RelationalDesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(
-                        foreignKey.DisplayName,
-                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedPrincipalColumns)));
+                Logger.ForeignKeyColumnsNotMappedWarning(foreignKey.DisplayName, unmappedPrincipalColumns);
                 return null;
             }
 
@@ -581,14 +546,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                         principalPropertiesMap.Where(tuple => tuple.Item1.IsNullable);
                     if (nullablePrincipalProperties.Any())
                     {
-                        Logger.LogWarning(
-                            RelationalDesignEventId.ForeignKeyPrincipalEndContainsNullableColumns,
-                            () => RelationalDesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
+                        Logger.ForeignKeyPrincipalEndContainsNullableColumnsWarning(
                                 foreignKey.DisplayName,
                                 index.Relational().Name,
-                                nullablePrincipalProperties
-                                    .Select(tuple => tuple.Item2.DisplayName)
-                                    .Aggregate((a, b) => a + "," + b)));
+                                nullablePrincipalProperties.Select(tuple => tuple.Item2.DisplayName).ToList());
+
                         nullablePrincipalProperties
                             .ToList().ForEach(tuple => tuple.Item1.IsNullable = false);
                     }
@@ -596,14 +558,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 }
                 else
                 {
-                    var principalColumns = foreignKeyColumns
-                        .Select(c => c.PrincipalColumn.Name)
-                        .Aggregate((a, b) => a + "," + b);
+                    var principalColumns = foreignKeyColumns.Select(c => c.PrincipalColumn.Name).ToList();
 
-                    Logger.LogWarning(
-                        RelationalDesignEventId.ForeignKeyReferencesMissingPrincipalKeyWarning,
-                        () => RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
-                            foreignKey.DisplayName, principalColumns, principalEntityType.DisplayName()));
+                    Logger.ForeignKeyReferencesMissingPrincipalKeyWarning(
+                            foreignKey.DisplayName, principalEntityType.DisplayName(), principalColumns);
+
                     return null;
                 }
             }

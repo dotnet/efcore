@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -14,38 +13,35 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
     public class TestRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
     {
-        private readonly IInterceptingLogger<LoggerCategory.Database.Sql> _logger;
-        private readonly DiagnosticSource _diagnosticSource;
+        private readonly IDiagnosticsLogger<LoggerCategory.Database.Sql> _logger;
+        private readonly IDiagnosticsLogger<LoggerCategory.Database.DataReader> _readerLogger;
         private readonly IRelationalTypeMapper _typeMapper;
 
         public TestRelationalCommandBuilderFactory(
-            IInterceptingLogger<LoggerCategory.Database.Sql> logger,
-            DiagnosticSource diagnosticSource,
+            IDiagnosticsLogger<LoggerCategory.Database.Sql> logger,
+            IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
             IRelationalTypeMapper typeMapper)
         {
             _logger = logger;
-            _diagnosticSource = diagnosticSource;
+            _readerLogger = readerLogger;
             _typeMapper = typeMapper;
         }
 
         public virtual IRelationalCommandBuilder Create()
-            => new TestRelationalCommandBuilder(
-                _logger,
-                _diagnosticSource,
-                _typeMapper);
+            => new TestRelationalCommandBuilder(_logger, _readerLogger, _typeMapper);
 
         private class TestRelationalCommandBuilder : IRelationalCommandBuilder
         {
-            private readonly IInterceptingLogger<LoggerCategory.Database.Sql> _logger;
-            private readonly DiagnosticSource _diagnosticSource;
+            private readonly IDiagnosticsLogger<LoggerCategory.Database.Sql> _logger;
+            private readonly IDiagnosticsLogger<LoggerCategory.Database.DataReader> _readerLogger;
 
             public TestRelationalCommandBuilder(
-                IInterceptingLogger<LoggerCategory.Database.Sql> logger,
-                DiagnosticSource diagnosticSource,
+                IDiagnosticsLogger<LoggerCategory.Database.Sql> logger,
+                IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
                 IRelationalTypeMapper typeMapper)
             {
                 _logger = logger;
-                _diagnosticSource = diagnosticSource;
+                _readerLogger = readerLogger;
                 ParameterBuilder = new RelationalParameterBuilder(typeMapper);
             }
 
@@ -56,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             public IRelationalCommand Build()
                 => new TestRelationalCommand(
                     _logger,
-                    _diagnosticSource,
+                    _readerLogger,
                     ((IInfrastructure<IndentedStringBuilder>)this).Instance.ToString(),
                     ParameterBuilder.Parameters);
         }
@@ -66,12 +62,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             private readonly RelationalCommand _realRelationalCommand;
 
             public TestRelationalCommand(
-                IInterceptingLogger<LoggerCategory.Database.Sql> logger,
-                DiagnosticSource diagnosticSource,
+                IDiagnosticsLogger<LoggerCategory.Database.Sql> logger,
+                IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
                 string commandText,
                 IReadOnlyList<IRelationalParameter> parameters)
             {
-                _realRelationalCommand = new RelationalCommand(logger, diagnosticSource, commandText, parameters);
+                _realRelationalCommand = new RelationalCommand(logger, readerLogger, commandText, parameters);
             }
 
             public string CommandText => _realRelationalCommand.CommandText;

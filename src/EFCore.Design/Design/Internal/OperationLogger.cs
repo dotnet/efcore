@@ -5,7 +5,6 @@ using System;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -55,8 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Func<TState, Exception, string> formatter)
         {
             // Only show SQL when verbose
-            if (_categoryName == typeof(RelationalCommandBuilderFactory).FullName
-                && eventId.Id == (int)RelationalEventId.ExecutedCommand)
+            if (_categoryName == LoggerCategory.Database.Sql.Name
+                && eventId.Id == RelationalEventId.CommandExecuted.Id)
             {
                 logLevel = LogLevel.Debug;
             }

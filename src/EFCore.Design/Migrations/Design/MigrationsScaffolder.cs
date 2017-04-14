@@ -17,7 +17,6 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private readonly IMigrationsIdGenerator _idGenerator;
         private readonly MigrationsCodeGenerator _migrationCodeGenerator;
         private readonly IHistoryRepository _historyRepository;
-        private readonly ILogger _logger;
+        private readonly IDiagnosticsLogger<LoggerCategory.Migrations> _logger;
         private readonly string _activeProvider;
 
         public MigrationsScaffolder(
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] IMigrationsIdGenerator idGenerator,
             [NotNull] MigrationsCodeGenerator migrationCodeGenerator,
             [NotNull] IHistoryRepository historyRepository,
-            [NotNull] ILogger<MigrationsScaffolder> logger,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Migrations> logger,
             [NotNull] IDatabaseProvider databaseProvider)
         {
             Check.NotNull(currentContext, nameof(currentContext));
@@ -123,9 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
                 else
                 {
-                    _logger.LogWarning(
-                        DesignEventId.ForeignMigrations,
-                        () => DesignStrings.ForeignMigrations(migrationNamespace));
+                    _logger.ForeignMigrations(migrationNamespace);
                 }
             }
 
@@ -144,9 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 var lastModelSnapshotName = modelSnapshot.GetType().Name;
                 if (lastModelSnapshotName != modelSnapshotName)
                 {
-                    _logger.LogDebug(
-                        DesignEventId.ReusingSnapshotName,
-                        () => DesignStrings.ReusingSnapshotName(lastModelSnapshotName));
+                    _logger.SnapshotNameReusing(lastModelSnapshotName);
 
                     modelSnapshotName = lastModelSnapshotName;
                 }
@@ -154,9 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             if (upOperations.Any(o => o.IsDestructiveChange))
             {
-                _logger.LogWarning(
-                    DesignEventId.DestructiveOperation,
-                    () => DesignStrings.DestructiveOperation);
+                _logger.DestructiveOperation(upOperations.Where(o => o.IsDestructiveChange));
             }
 
             var migrationCode = _migrationCodeGenerator.GenerateMigration(
@@ -224,9 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     if (force)
                     {
-                        _logger.LogWarning(
-                            DesignEventId.ForceRemoveMigration,
-                            () => DesignStrings.ForceRemoveMigration(migration.GetId()));
+                        _logger.MigrationForceRemove(migration);
                     }
                     else if (_historyRepository.GetAppliedMigrations().Any(
                         e => e.MigrationId.Equals(migration.GetId(), StringComparison.OrdinalIgnoreCase)))
@@ -238,17 +229,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     var migrationFile = TryGetProjectFile(projectDir, migrationFileName);
                     if (migrationFile != null)
                     {
-                        _logger.LogInformation(
-                            DesignEventId.RemovingMigration,
-                            () => DesignStrings.RemovingMigration(migration.GetId()));
+                        _logger.MigrationRemoving(migration);
                         File.Delete(migrationFile);
                         files.MigrationFile = migrationFile;
                     }
                     else
                     {
-                        _logger.LogWarning(
-                            DesignEventId.NoMigrationFile,
-                            () => DesignStrings.NoMigrationFile(migrationFileName, migration.GetType().ShortDisplayName()));
+                        _logger.MigrationFileNotFound(migration, migrationFileName);
                     }
 
                     var migrationMetadataFileName = migration.GetId() + ".Designer" + language;
@@ -260,9 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     }
                     else
                     {
-                        _logger.LogDebug(
-                            DesignEventId.NoMigrationMetadataFile,
-                            () => DesignStrings.NoMigrationMetadataFile(migrationMetadataFileName));
+                        _logger.MigrationMetadataFileNotFound(migration, migrationMetadataFileName);
                     }
 
                     model = migrations.Count > 1
@@ -271,9 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
                 else
                 {
-                    _logger.LogDebug(
-                        DesignEventId.ManuallyDeleted,
-                        () => DesignStrings.ManuallyDeleted);
+                    _logger.MigrationManuallyDeleted(migration);
                 }
             }
 
@@ -284,17 +267,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 if (modelSnapshotFile != null)
                 {
-                    _logger.LogInformation(
-                        DesignEventId.RemovingSnapshot,
-                        () => DesignStrings.RemovingSnapshot);
+                    _logger.SnapshotRemoving(modelSnapshot, modelSnapshotFile);
                     File.Delete(modelSnapshotFile);
                     files.SnapshotFile = modelSnapshotFile;
                 }
                 else
                 {
-                    _logger.LogWarning(
-                        DesignEventId.NoSnapshotFile,
-                        () => DesignStrings.NoSnapshotFile(modelSnapshotFileName, modelSnapshot.GetType().ShortDisplayName()));
+                    _logger.SnapshotFileNotFound(modelSnapshot, modelSnapshotFile);
                 }
             }
             else
@@ -314,9 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         modelSnapshotFileName);
                 }
 
-                _logger.LogInformation(
-                    DesignEventId.RevertingSnapshot,
-                    () => DesignStrings.RevertingSnapshot);
+                _logger.SnapshotReverting(modelSnapshot, modelSnapshotFile);
                 File.WriteAllText(modelSnapshotFile, modelSnapshotCode, Encoding.UTF8);
             }
 
@@ -339,16 +316,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var modelSnapshotDirectory = outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
             var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
-            _logger.LogDebug(
-                DesignEventId.WritingMigration,
-                () => DesignStrings.WritingMigration(migrationFile));
+            _logger.MigrationWriting(migration, migrationFile);
             Directory.CreateDirectory(migrationDirectory);
             File.WriteAllText(migrationFile, migration.MigrationCode, Encoding.UTF8);
             File.WriteAllText(migrationMetadataFile, migration.MetadataCode, Encoding.UTF8);
 
-            _logger.LogDebug(
-                DesignEventId.WritingSnapshot,
-                () => DesignStrings.WritingSnapshot(modelSnapshotFile));
+            _logger.SnapshotWriting(migration, modelSnapshotFile);
             Directory.CreateDirectory(modelSnapshotDirectory);
             File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, Encoding.UTF8);
 
@@ -367,9 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 var lastNamespace = siblingType.Namespace;
                 if (lastNamespace != defaultNamespace)
                 {
-                    _logger.LogDebug(
-                        DesignEventId.ReusingNamespace,
-                        () => DesignStrings.ReusingNamespace(siblingType.ShortDisplayName()));
+                    _logger.NamespaceReusing(siblingType);
 
                     return lastNamespace;
                 }
@@ -396,9 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     var lastDirectory = Path.GetDirectoryName(siblingPath);
                     if (!defaultDirectory.Equals(lastDirectory, StringComparison.OrdinalIgnoreCase))
                     {
-                        _logger.LogDebug(
-                            DesignEventId.ReusingDirectory,
-                            () => DesignStrings.ReusingDirectory(siblingFileName));
+                        _logger.DirectoryReusing(siblingFileName);
 
                         return lastDirectory;
                     }

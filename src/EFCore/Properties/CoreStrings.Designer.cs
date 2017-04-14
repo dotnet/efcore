@@ -252,12 +252,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType, expectedType);
 
         /// <summary>
-        ///     Cannot change ObservableHashSet during a CollectionChanged event.
-        /// </summary>
-        public static string ObservableCollectionReentrancy
-            => GetString("ObservableCollectionReentrancy");
-
-        /// <summary>
         ///     The specified field '{field}' could not be found for property '{property}' on entity type '{entityType}'.
         /// </summary>
         public static string MissingBackingField([CanBeNull] object field, [CanBeNull] object property, [CanBeNull] object entityType)
@@ -718,12 +712,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("AnnotationNotFound", nameof(annotation)),
                 annotation);
-
-        /// <summary>
-        ///     The Include operator is not implemented by the current database provider.
-        /// </summary>
-        public static string IncludeNotImplemented
-            => GetString("IncludeNotImplemented");
 
         /// <summary>
         ///     The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.
@@ -1356,18 +1344,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
-        ///     Sequence contains more than one element
-        /// </summary>
-        public static string MoreThanOneElement
-            => GetString("MoreThanOneElement");
-
-        /// <summary>
-        ///     Sequence contains no elements
-        /// </summary>
-        public static string NoElements
-            => GetString("NoElements");
-
-        /// <summary>
         ///     A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.
         /// </summary>
         public static string NoParameterlessConstructor([CanBeNull] object entityType)
@@ -1398,14 +1374,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("WarningAsErrorTemplate", nameof(eventId), nameof(message)),
                 eventId, message);
-
-        /// <summary>
-        ///     {message} To configure this warning use the DbContextOptionsBuilder.ConfigureWarnings API (event id '{eventId}'). ConfigureWarnings can be used when overriding the DbContext.OnConfiguring method or using AddDbContext on the application service provider.
-        /// </summary>
-        public static string WarningLogTemplate([CanBeNull] object message, [CanBeNull] object eventId)
-            => string.Format(
-                GetString("WarningLogTemplate", nameof(message), nameof(eventId)),
-                message, eventId);
 
         /// <summary>
         ///     Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.

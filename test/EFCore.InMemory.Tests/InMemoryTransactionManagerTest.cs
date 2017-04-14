@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -19,7 +20,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseTransientInMemoryDatabase();
 
-            var transactionManager = new InMemoryTransactionManager(new FakeLogger());
+            var transactionManager = new InMemoryTransactionManager(
+                new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
+                    new FakeLogger(), 
+                    new DiagnosticListener("Fake")));
 
             Assert.Null(transactionManager.CurrentTransaction);
         }
@@ -30,7 +34,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseTransientInMemoryDatabase();
 
-            var transactionManager = new InMemoryTransactionManager(new FakeLogger());
+            var transactionManager = new InMemoryTransactionManager(
+                new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
+                    new FakeLogger(),
+                    new DiagnosticListener("Fake")));
 
             Assert.Equal(
                 InMemoryStrings.TransactionsNotSupported,
@@ -44,7 +51,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseTransientInMemoryDatabase();
 
-            var transactionManager = new InMemoryTransactionManager(new FakeLogger());
+            var transactionManager = new InMemoryTransactionManager(
+                new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
+                    new FakeLogger(),
+                    new DiagnosticListener("Fake")));
 
             Assert.Equal(
                 InMemoryStrings.TransactionsNotSupported,
@@ -58,7 +68,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseTransientInMemoryDatabase();
 
-            var transactionManager = new InMemoryTransactionManager(new FakeLogger());
+            var transactionManager = new InMemoryTransactionManager(
+                new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
+                    new FakeLogger(),
+                    new DiagnosticListener("Fake")));
 
             Assert.Equal(
                 InMemoryStrings.TransactionsNotSupported,
@@ -72,7 +85,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseTransientInMemoryDatabase();
 
-            var transactionManager = new InMemoryTransactionManager(new FakeLogger());
+            var transactionManager = new InMemoryTransactionManager(
+                new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
+                    new FakeLogger(),
+                    new DiagnosticListener("Fake")));
 
             Assert.Equal(
                 InMemoryStrings.TransactionsNotSupported,
@@ -88,13 +104,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
                 throw new InvalidOperationException(formatter(state, exception));
             }
 
-            public bool IsEnabled(LogLevel logLevel) => true;
+            public bool IsEnabled(EventId eventId, LogLevel logLevel) => true;
 
             public IDisposable BeginScope<TState>(TState state) => null;
 
             public ILoggingOptions Options { get; }
 
-            public bool LogSensitiveData { get; }
+            public bool ShouldLogSensitiveData(IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics) => false;
         }
     }
 }

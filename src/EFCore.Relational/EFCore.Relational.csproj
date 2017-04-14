@@ -17,7 +17,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="$(CoreFxVersion)" />
     <PackageReference Include="System.Data.Common" Version="$(CoreFxVersion)" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(CoreFxVersion)" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
     <Reference Include="System.Transactions" />

@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -31,43 +30,40 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         protected virtual void EnsureNoDefaultDecimalMapping([NotNull] IModel model)
         {
-            foreach (var property in model.GetEntityTypes().SelectMany(t => t.GetDeclaredProperties())
-                .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
-                            && p.SqlServer().ColumnType == null))
+            foreach (var property in model.GetEntityTypes()
+                .SelectMany(t => t.GetDeclaredProperties())
+                .Where(
+                    p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                         && p.SqlServer().ColumnType == null))
             {
-                ShowWarning(SqlServerEventId.DefaultDecimalTypeWarning,
-                    SqlServerStrings.DefaultDecimalTypeColumn(property.Name, property.DeclaringEntityType.DisplayName()));
+                Dependencies.Logger.DecimalTypeDefaultWarning(property);
             }
         }
 
         protected virtual void EnsureNoByteIdentityMapping([NotNull] IModel model)
         {
-            foreach (var property in model.GetEntityTypes().SelectMany(t => t.GetDeclaredProperties())
-                .Where(p => p.ClrType.UnwrapNullableType() == typeof(byte)
-                            && p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
+            foreach (var property in model.GetEntityTypes()
+                .SelectMany(t => t.GetDeclaredProperties())
+                .Where(
+                    p => p.ClrType.UnwrapNullableType() == typeof(byte)
+                         && p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
             {
-                ShowWarning(SqlServerEventId.ByteIdentityColumn,
-                    SqlServerStrings.ByteIdentityColumn(property.Name, property.DeclaringEntityType.DisplayName()));
+                Dependencies.Logger.ByteIdentityColumnWarning(property);
             }
         }
 
         protected virtual void EnsureNoNonKeyValueGeneration([NotNull] IModel model)
         {
-            foreach (var property in model.GetEntityTypes().SelectMany(t => t.GetDeclaredProperties())
-                .Where(p =>
-                    (((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false) == SqlServerValueGenerationStrategy.SequenceHiLo
-                     || ((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false) == SqlServerValueGenerationStrategy.IdentityColumn)
-                    && !p.IsKey()))
+            foreach (var property in model.GetEntityTypes()
+                .SelectMany(t => t.GetDeclaredProperties())
+                .Where(
+                    p =>
+                        (((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false) == SqlServerValueGenerationStrategy.SequenceHiLo
+                         || ((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false) == SqlServerValueGenerationStrategy.IdentityColumn)
+                        && !p.IsKey()))
             {
                 ShowError(SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));
             }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual void ShowWarning(SqlServerEventId eventId, [NotNull] string message)
-            => Dependencies.Logger.LogWarning(eventId, () => message);
     }
 }

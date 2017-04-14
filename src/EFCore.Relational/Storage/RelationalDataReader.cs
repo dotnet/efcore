@@ -5,7 +5,9 @@ using System;
 using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly IRelationalConnection _connection;
         private readonly DbCommand _command;
         private readonly DbDataReader _reader;
-        private readonly DiagnosticSource _diagnosticSource;
+        private readonly IDiagnosticsLogger<LoggerCategory.Database.DataReader> _logger;
         private readonly long _startTimestamp;
 
         private bool _disposed;
@@ -35,21 +37,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="connection"> The connection. </param>
         /// <param name="command"> The command that was executed. </param>
         /// <param name="reader"> The underlying reader for the result set. </param>
-        /// <param name="diagnosticSource"> The diagnostic source. </param>
+        /// <param name="logger"> The diagnostic source. </param>
         public RelationalDataReader(
             [CanBeNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [NotNull] DbDataReader reader,
-            [NotNull] DiagnosticSource diagnosticSource)
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.DataReader> logger)
         {
             Check.NotNull(command, nameof(command));
             Check.NotNull(reader, nameof(reader));
-            Check.NotNull(diagnosticSource, nameof(diagnosticSource));
+            Check.NotNull(logger, nameof(logger));
 
             _connection = connection;
             _command = command;
             _reader = reader;
-            _diagnosticSource = diagnosticSource;
+            _logger = logger;
             _startTimestamp = Stopwatch.GetTimestamp();
         }
 
@@ -76,9 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                _diagnosticSource.WriteDataReaderDisposing(
-                    _connection.DbConnection,
-                    _connection.ConnectionId,
+                _logger.DataReaderDisposing(
+                    _connection,
                     _reader,
                     _reader.RecordsAffected,
                     _startTimestamp,

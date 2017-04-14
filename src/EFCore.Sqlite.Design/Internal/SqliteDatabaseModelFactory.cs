@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqliteDatabaseModelFactory([NotNull] IInterceptingLogger<LoggerCategory.Scaffolding> logger)
+        public SqliteDatabaseModelFactory([NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger)
         {
             Check.NotNull(logger, nameof(logger));
 
@@ -37,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IInterceptingLogger<LoggerCategory.Scaffolding> Logger { get; }
+        public virtual IDiagnosticsLogger<LoggerCategory.Scaffolding> Logger { get; }
 
         private DbConnection _connection;
         private TableSelectionSet _tableSelectionSet;
@@ -136,9 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     {
                         var name = reader.GetValueOrDefault<string>("name");
 
-                        Logger.LogDebug(
-                            RelationalDesignEventId.FoundTable,
-                            () => SqliteDesignStrings.FoundTable(name));
+                        Logger.TableFound(name);
 
                         if (_tableSelectionSet.Allows(name))
                         {
@@ -153,9 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         }
                         else
                         {
-                            Logger.LogDebug(
-                                RelationalDesignEventId.TableSkipped,
-                                () => SqliteDesignStrings.TableNotInSelectionSet(name));
+                            Logger.TableSkipped(name);
                         }
                     }
                 }
@@ -181,11 +178,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             var notNull = reader.GetValueOrDefault<bool>("notnull");
                             var defaultValue = reader.GetValueOrDefault<string>("dflt_value");
 
-                            Logger.LogDebug(
-                                RelationalDesignEventId.FoundColumn,
-                                () => SqliteDesignStrings.FoundColumn(
+                            Logger.ColumnFound(
                                     table.Name, columnName, dataType, ordinal,
-                                    notNull, primaryKeyOrdinal, defaultValue));
+                                    notNull, primaryKeyOrdinal, defaultValue);
 
                             var isPk = primaryKeyOrdinal != 0;
                             var column = new ColumnModel
@@ -226,9 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 IsUnique = reader.GetValueOrDefault<bool>("unique")
                             };
 
-                            Logger.LogDebug(
-                                RelationalDesignEventId.FoundIndex,
-                                () => SqliteDesignStrings.FoundIndex(index.Name, table.Name, index.IsUnique));
+                            Logger.IndexFound(index.Name, table.Name, index.IsUnique);
 
                             table.Indexes.Add(index);
                         }
@@ -247,16 +240,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 var columnName = reader.GetValueOrDefault<string>("name");
                                 var indexOrdinal = reader.GetValueOrDefault<int>("seqno");
 
-                                Logger.LogDebug(
-                                    RelationalDesignEventId.FoundIndexColumn,
-                                    () => SqliteDesignStrings.FoundIndexColumn(
-                                        index.Name, table.Name, columnName, indexOrdinal));
+                                Logger.IndexColumnFound(
+                                        table.Name, index.Name, index.IsUnique, columnName, indexOrdinal);
 
                                 if (string.IsNullOrEmpty(columnName))
                                 {
-                                    Logger.LogWarning(
-                                        SqliteDesignEventId.IndexMissingColumnNameWarning,
-                                        () => SqliteDesignStrings.ColumnNameEmptyOnIndex(index.Name, table.Name));
+                                    Logger.IndexColumnNotNamedWarning(index.Name, table.Name);
                                     continue;
                                 }
 
@@ -297,11 +286,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             var deleteAction = reader.GetValueOrDefault<string>("on_delete");
                             var fkOrdinal = reader.GetValueOrDefault<int>("seq");
 
-                            Logger.LogDebug(
-                                RelationalDesignEventId.FoundForeignKeyColumn,
-                                () => SqliteDesignStrings.FoundForeignKeyColumn(
+                            Logger.ForeignKeyColumnFound(
                                     dependentTable.Name, id, principalTableName, fromColumnName,
-                                    toColumnName, deleteAction, fkOrdinal));
+                                    toColumnName, deleteAction, fkOrdinal);
 
                             ForeignKeyModel foreignKey;
                             if (!tableForeignKeys.TryGetValue(id, out foreignKey))
@@ -309,10 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 TableModel principalTable;
                                 if (!_tables.TryGetValue(principalTableName, out principalTable))
                                 {
-                                    Logger.LogDebug(
-                                        RelationalDesignEventId.ForeignKeyReferencesMissingTable,
-                                        () => SqliteDesignStrings.PrincipalTableNotFound(
-                                            id, dependentTable.Name, principalTableName));
+                                    Logger.ForeignKeyReferencesMissingTableWarning(id.ToString(CultureInfo.InvariantCulture));
                                     continue;
                                 }
 
@@ -333,10 +317,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             ColumnModel toColumn;
                             if (!_tableColumns.TryGetValue(ColumnKey(foreignKey.PrincipalTable, toColumnName), out toColumn))
                             {
-                                Logger.LogDebug(
-                                    SqliteDesignEventId.ForeignKeyReferencesMissingColumn,
-                                    () => SqliteDesignStrings.PrincipalColumnNotFound(
-                                        id, dependentTable.Name, toColumnName, principalTableName));
+                                Logger.ForeignKeyPrincipalColumnMissingWarning(
+                                        id.ToString(), dependentTable.Name, toColumnName, principalTableName);
                                 continue;
                             }
                             fkColumn.PrincipalColumn = toColumn;

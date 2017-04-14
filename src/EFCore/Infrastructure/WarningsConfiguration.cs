@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -20,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class WarningsConfiguration
     {
-        private Dictionary<object, WarningBehavior> _explicitBehaviors
-            = new Dictionary<object, WarningBehavior>();
+        private Dictionary<int, WarningBehavior> _explicitBehaviors
+            = new Dictionary<int, WarningBehavior>();
 
         private WarningBehavior _defaultBehavior = WarningBehavior.Log;
 
@@ -80,15 +81,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="warningBehavior"> The behavior to set. </param>
         /// <returns> A new instance with the behaviors set. </returns>
         public virtual WarningsConfiguration WithExplicit(
-            [NotNull] IEnumerable<object> eventIds, WarningBehavior warningBehavior)
+            [NotNull] IEnumerable<EventId> eventIds, WarningBehavior warningBehavior)
         {
             var clone = Clone();
 
-            clone._explicitBehaviors = new Dictionary<object, WarningBehavior>(_explicitBehaviors);
+            clone._explicitBehaviors = new Dictionary<int, WarningBehavior>(_explicitBehaviors);
 
             foreach (var eventId in eventIds)
             {
-                clone._explicitBehaviors[eventId] = warningBehavior;
+                clone._explicitBehaviors[eventId.Id] = warningBehavior;
             }
 
             _serviceProviderHash = null;
@@ -100,12 +101,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Gets the <see cref="WarningBehavior" /> set for the given event ID, or the <see cref="DefaultBehavior" />
         ///     if no explicit behavior has been set.
         /// </summary>
-        public virtual WarningBehavior GetBehavior([NotNull] object eventId)
+        public virtual WarningBehavior? GetBehavior(EventId eventId)
         {
             WarningBehavior warningBehavior;
-            return _explicitBehaviors.TryGetValue(eventId, out warningBehavior)
-                ? warningBehavior
-                : _defaultBehavior;
+            return _explicitBehaviors.TryGetValue(eventId.Id, out warningBehavior)
+                ? (WarningBehavior?)warningBehavior
+                : null;
         }
 
         /// <summary>
@@ -116,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="eventId"> The event ID for which the behavior should be set. </param>
         /// <param name="warningBehavior"> The behavior to set. </param>
         /// <returns> A new instance with the behavior set, or this instance if a behavior was already set. </returns>
-        public virtual WarningsConfiguration TryWithExplicit([NotNull] object eventId, WarningBehavior warningBehavior)
-            => _explicitBehaviors.ContainsKey(eventId)
+        public virtual WarningsConfiguration TryWithExplicit(EventId eventId, WarningBehavior warningBehavior)
+            => _explicitBehaviors.ContainsKey(eventId.Id)
                 ? this
                 : WithExplicit(new[] { eventId }, warningBehavior);
 

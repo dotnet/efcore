@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AddSingleton<EntityTypeWriter>()
                 .AddSingleton<CodeWriter, StringBuilderCodeWriter>()
                 .AddSingleton<ILoggingOptions, LoggingOptions>()
+                .AddSingleton<DiagnosticSource>(new DiagnosticListener(LoggerCategory.Root))
+                .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
                 .AddSingleton(typeof(IInterceptingLogger<>), typeof(InterceptingLogger<>));
     }
 }

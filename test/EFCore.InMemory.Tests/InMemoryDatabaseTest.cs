@@ -151,8 +151,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             mockLogger.Verify(
                 l => l.Log(
                     LogLevel.Information,
-                    (int)InMemoryEventId.SavedChanges,
-                    1,
+                    InMemoryEventId.ChangesSaved,
+                    null,
                     null,
                     It.IsAny<Func<object, Exception, string>>()),
                 Times.Once);

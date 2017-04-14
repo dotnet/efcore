@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -14,7 +13,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -160,18 +158,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         private class FakeSqlServerConnection : SqlServerConnection
         {
             private readonly IDbContextOptions _options;
-            private readonly ILoggerFactory _loggerFactory;
 
-            public FakeSqlServerConnection(IDbContextOptions options, ILoggerFactory loggerFactory, DiagnosticSource diagnosticSource)
-                : base(
-                    new RelationalConnectionDependencies(
-                        options,
-                        new InterceptingLogger<LoggerCategory.Database.Transaction>(new LoggerFactory(), new LoggingOptions()),
-                        new InterceptingLogger<LoggerCategory.Database.Connection>(new LoggerFactory(), new LoggingOptions()),
-                        diagnosticSource))
+            public FakeSqlServerConnection(IDbContextOptions options, RelationalConnectionDependencies dependencies)
+                : base(dependencies)
             {
                 _options = options;
-                _loggerFactory = loggerFactory;
             }
 
             public int ErrorNumber { get; set; }
@@ -201,7 +192,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 return await Task.FromResult(true);
             }
 
-            public override ISqlServerConnection CreateMasterConnection() => new FakeSqlServerConnection(_options, _loggerFactory, Dependencies.DiagnosticSource);
+            public override ISqlServerConnection CreateMasterConnection() 
+                => new FakeSqlServerConnection(_options, Dependencies);
         }
 
         private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory

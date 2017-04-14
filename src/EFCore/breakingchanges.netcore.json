@@ -1,5 +1,24 @@
 [
   {
+    "TypeId": "public enum Microsoft.EntityFrameworkCore.Infrastructure.CoreEventId",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder Ignore(params Microsoft.EntityFrameworkCore.Infrastructure.CoreEventId[] coreEventIds)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder Log(params Microsoft.EntityFrameworkCore.Infrastructure.CoreEventId[] coreEventIds)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder Throw(params Microsoft.EntityFrameworkCore.Infrastructure.CoreEventId[] coreEventIds)",
+    "Kind": "Removal"
+  },
+  {
     "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.DatabaseProviderServices : Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
     "Kind": "Removal"
   },
@@ -58,11 +77,6 @@
   {
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDatabaseProvider",
     "MemberId": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices GetProviderServices(System.IServiceProvider serviceProvider)",
-    "Kind": "Removal"
-  },
-  {
-    "TypeId": "public enum Microsoft.EntityFrameworkCore.Infrastructure.CoreEventId",
-    "MemberId": "ModelValidationWarning = 8",
     "Kind": "Removal"
   },
   {

@@ -25,18 +25,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalCommand(
-            [NotNull] IInterceptingLogger<LoggerCategory.Database.Sql> logger,
-            [NotNull] DiagnosticSource diagnosticSource,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
             [NotNull] string commandText,
             [NotNull] IReadOnlyList<IRelationalParameter> parameters)
         {
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(diagnosticSource, nameof(diagnosticSource));
+            Check.NotNull(sqlLogger, nameof(sqlLogger));
+            Check.NotNull(readerLogger, nameof(readerLogger));
             Check.NotNull(commandText, nameof(commandText));
             Check.NotNull(parameters, nameof(parameters));
 
-            Logger = logger;
-            DiagnosticSource = diagnosticSource;
+            SqlLogger = sqlLogger;
+            ReaderLogger = readerLogger;
             CommandText = commandText;
             Parameters = parameters;
         }
@@ -45,13 +45,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IInterceptingLogger<LoggerCategory.Database.Sql> Logger { get; }
+        protected virtual IDiagnosticsLogger<LoggerCategory.Database.Sql> SqlLogger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual DiagnosticSource DiagnosticSource { get; }
+        protected virtual IDiagnosticsLogger<LoggerCategory.Database.DataReader> ReaderLogger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             var startTimestamp = Stopwatch.GetTimestamp();
             var instanceId = Guid.NewGuid();
 
-            DiagnosticSource.WriteCommandBefore(
+            SqlLogger.CommandExecuting(
                 connection.ConnectionId,
                 dbCommand,
                 executeMethod,
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                                     connection,
                                     dbCommand,
                                     dbCommand.ExecuteReader(),
-                                    DiagnosticSource);
+                                    ReaderLogger);
                         }
                         catch
                         {
@@ -247,9 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
-
-                DiagnosticSource.WriteCommandAfter(
+                SqlLogger.CommandExecuted(
                     connection.ConnectionId,
                     dbCommand,
                     executeMethod,
@@ -267,9 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             {
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
-
-                DiagnosticSource.WriteCommandError(
+                SqlLogger.CommandError(
                     connection.ConnectionId,
                     dbCommand,
                     executeMethod,
@@ -312,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             var startTimestamp = Stopwatch.GetTimestamp();
             var instanceId = Guid.NewGuid();
 
-            DiagnosticSource.WriteCommandBefore(
+            SqlLogger.CommandExecuting(
                 connection.ConnectionId,
                 dbCommand,
                 executeMethod,
@@ -350,8 +346,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                             result = new RelationalDataReader(
                                 connection,
                                 dbCommand,
-                                await dbCommand.ExecuteReaderAsync(cancellationToken), 
-                                DiagnosticSource);
+                                await dbCommand.ExecuteReaderAsync(cancellationToken),
+                                ReaderLogger);
                         }
                         catch
                         {
@@ -370,9 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
-
-                DiagnosticSource.WriteCommandAfter(
+                SqlLogger.CommandExecuted(
                     connection.ConnectionId,
                     dbCommand,
                     executeMethod,
@@ -391,9 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             {
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
-
-                DiagnosticSource.WriteCommandError(
+                SqlLogger.CommandError(
                     connection.ConnectionId,
                     dbCommand,
                     executeMethod,

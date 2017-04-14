@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public QueryCompilationContextDependencies(
             [NotNull] IModel model,
-            [NotNull] IInterceptingLogger<LoggerCategory.Query> logger,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Query> logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ICurrentDbContext currentContext)
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public IInterceptingLogger<LoggerCategory.Query> Logger { get; }
+        public IDiagnosticsLogger<LoggerCategory.Query> Logger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public QueryCompilationContextDependencies With([NotNull] IModel model)
             => new QueryCompilationContextDependencies(
-                Check.NotNull(model, nameof(model)),
+                model,
                 Logger,
                 EntityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,
@@ -86,45 +86,49 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public QueryCompilationContextDependencies With([NotNull] IInterceptingLogger<LoggerCategory.Query> logger) => new QueryCompilationContextDependencies(
-            Model,
-            Check.NotNull(logger, nameof(logger)),
-            EntityQueryModelVisitorFactory,
-            RequiresMaterializationExpressionVisitorFactory,
-            CurrentContext);
+        public QueryCompilationContextDependencies With([NotNull] IDiagnosticsLogger<LoggerCategory.Query> logger)
+            => new QueryCompilationContextDependencies(
+                Model,
+                logger,
+                EntityQueryModelVisitorFactory,
+                RequiresMaterializationExpressionVisitorFactory,
+                CurrentContext);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public QueryCompilationContextDependencies With([NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory) => new QueryCompilationContextDependencies(
-            Model,
-            Logger,
-            Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
-            RequiresMaterializationExpressionVisitorFactory,
-            CurrentContext);
+        public QueryCompilationContextDependencies With([NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory)
+            => new QueryCompilationContextDependencies(
+                Model,
+                Logger,
+                entityQueryModelVisitorFactory,
+                RequiresMaterializationExpressionVisitorFactory,
+                CurrentContext);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public QueryCompilationContextDependencies With(
-            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory) => new QueryCompilationContextDependencies(
-            Model,
-            Logger,
-            EntityQueryModelVisitorFactory,
-            Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
-            CurrentContext);
+            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory)
+            => new QueryCompilationContextDependencies(
+                Model,
+                Logger,
+                EntityQueryModelVisitorFactory,
+                requiresMaterializationExpressionVisitorFactory,
+                CurrentContext);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public QueryCompilationContextDependencies With([NotNull] ICurrentDbContext currentContext) => new QueryCompilationContextDependencies(
-            Model,
-            Logger,
-            EntityQueryModelVisitorFactory,
-            RequiresMaterializationExpressionVisitorFactory,
-            Check.NotNull(currentContext, nameof(currentContext)));
+        public QueryCompilationContextDependencies With([NotNull] ICurrentDbContext currentContext)
+            => new QueryCompilationContextDependencies(
+                Model,
+                Logger,
+                EntityQueryModelVisitorFactory,
+                RequiresMaterializationExpressionVisitorFactory,
+                currentContext);
     }
 }

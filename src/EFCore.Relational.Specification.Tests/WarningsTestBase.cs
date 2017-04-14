@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("[c].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Where(c => c.IsLondon).ToList()).Message);
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("Last()")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Last()).Message);
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("Last()")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Where(c => c.CustomerID == "ALFKI" && c.Orders.OrderBy(o => o.OrderID).Last().OrderID > 1000).ToList()).Message);
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
+                        RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.ClientEvalWarning("LastOrDefault()")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.LastOrDefault()).Message);

@@ -16,68 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.SqlServerDesignStrings", typeof(SqlServerDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
-        ///     Found a column on foreign key [{schemaName}].[{tableName}].[{fkName}] with an empty or null name. Not including column in foreign key
-        /// </summary>
-        public static string ColumnNameEmptyOnForeignKey([CanBeNull] object schemaName, [CanBeNull] object tableName, [CanBeNull] object fkName)
-            => string.Format(
-                GetString("ColumnNameEmptyOnForeignKey", nameof(schemaName), nameof(tableName), nameof(fkName)),
-                schemaName, tableName, fkName);
-
-        /// <summary>
-        ///     Found a column on index [{schemaName}].[{tableName}].[{indexName}] with an empty or null name. Not including column in index.
-        /// </summary>
-        public static string ColumnNameEmptyOnIndex([CanBeNull] object schemaName, [CanBeNull] object tableName, [CanBeNull] object indexName)
-            => string.Format(
-                GetString("ColumnNameEmptyOnIndex", nameof(schemaName), nameof(tableName), nameof(indexName)),
-                schemaName, tableName, indexName);
-
-        /// <summary>
-        ///     Found a column on table [{schemaName}].[{tableName}] with an empty or null name. Skipping column.
-        /// </summary>
-        public static string ColumnNameEmptyOnTable([CanBeNull] object schemaName, [CanBeNull] object tableName)
-            => string.Format(
-                GetString("ColumnNameEmptyOnTable", nameof(schemaName), nameof(tableName)),
-                schemaName, tableName);
-
-        /// <summary>
-        ///     Column {columnName} belongs to table [{schema}].[{tableName}] which is not included in the selection set. Skipping.
-        /// </summary>
-        public static string ColumnNotInSelectionSet([CanBeNull] object columnName, [CanBeNull] object schema, [CanBeNull] object tableName)
-            => string.Format(
-                GetString("ColumnNotInSelectionSet", nameof(columnName), nameof(schema), nameof(tableName)),
-                columnName, schema, tableName);
-
-        /// <summary>
         ///     For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.
         /// </summary>
         public static string DataTypeDoesNotAllowSqlServerIdentityStrategy([CanBeNull] object columnId, [CanBeNull] object sqlServerDataType)
             => string.Format(
                 GetString("DataTypeDoesNotAllowSqlServerIdentityStrategy", nameof(columnId), nameof(sqlServerDataType)),
                 columnId, sqlServerDataType);
-
-        /// <summary>
-        ///     Foreign key column {columnName} belongs to foreign key {fkName} on table [{schema}].[{tableName}] which is not included in the selection set. Skipping.
-        /// </summary>
-        public static string ForeignKeyColumnNotInSelectionSet([CanBeNull] object columnName, [CanBeNull] object fkName, [CanBeNull] object schema, [CanBeNull] object tableName)
-            => string.Format(
-                GetString("ForeignKeyColumnNotInSelectionSet", nameof(columnName), nameof(fkName), nameof(schema), nameof(tableName)),
-                columnName, fkName, schema, tableName);
-
-        /// <summary>
-        ///     Found a foreign key on table [{schemaName}].[{tableName}] with an empty or null name. Skipping foreign key.
-        /// </summary>
-        public static string ForeignKeyNameEmpty([CanBeNull] object schemaName, [CanBeNull] object tableName)
-            => string.Format(
-                GetString("ForeignKeyNameEmpty", nameof(schemaName), nameof(tableName)),
-                schemaName, tableName);
-
-        /// <summary>
-        ///     Found column with schema: {schema}, table: {tableName}, column name: {columnName}, data type: {dataType}, data type schema: {dataTypeSchema}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.
-        /// </summary>
-        public static string FoundColumn([CanBeNull] object schema, [CanBeNull] object tableName, [CanBeNull] object columnName, [CanBeNull] object dataType, [CanBeNull] object dataTypeSchema, [CanBeNull] object ordinal, [CanBeNull] object isNullable, [CanBeNull] object primaryKeyOrdinal, [CanBeNull] object defaultValue, [CanBeNull] object computedValue, [CanBeNull] object precision, [CanBeNull] object scale, [CanBeNull] object maxLength, [CanBeNull] object isIdentity, [CanBeNull] object isComputed)
-            => string.Format(
-                GetString("FoundColumn", nameof(schema), nameof(tableName), nameof(columnName), nameof(dataType), nameof(dataTypeSchema), nameof(ordinal), nameof(isNullable), nameof(primaryKeyOrdinal), nameof(defaultValue), nameof(computedValue), nameof(precision), nameof(scale), nameof(maxLength), nameof(isIdentity), nameof(isComputed)),
-                schema, tableName, columnName, dataType, dataTypeSchema, ordinal, isNullable, primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, isIdentity, isComputed);
 
         /// <summary>
         ///     Found default schema {defaultSchema}.
@@ -88,124 +32,28 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 defaultSchema);
 
         /// <summary>
-        ///     Found foreign key column with schema: {schema}, table: {tableName}, foreign key name: {fkName}, principal table schema: {principalTableSchema}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, update action: {updateAction}, delete action: {deleteAction}, ordinal: {ordinal}.
+        ///     Found type alias with name: {alias} which maps to underlying data type {dataType}.
         /// </summary>
-        public static string FoundForeignKeyColumn([CanBeNull] object schema, [CanBeNull] object tableName, [CanBeNull] object fkName, [CanBeNull] object principalTableSchema, [CanBeNull] object principalTableName, [CanBeNull] object columnName, [CanBeNull] object principalColumnName, [CanBeNull] object updateAction, [CanBeNull] object deleteAction, [CanBeNull] object ordinal)
+        public static string FoundTypeAlias([CanBeNull] object alias, [CanBeNull] object dataType)
             => string.Format(
-                GetString("FoundForeignKeyColumn", nameof(schema), nameof(tableName), nameof(fkName), nameof(principalTableSchema), nameof(principalTableName), nameof(columnName), nameof(principalColumnName), nameof(updateAction), nameof(deleteAction), nameof(ordinal)),
-                schema, tableName, fkName, principalTableSchema, principalTableName, columnName, principalColumnName, updateAction, deleteAction, ordinal);
+                GetString("FoundTypeAlias", nameof(alias), nameof(dataType)),
+                alias, dataType);
 
         /// <summary>
-        ///     Found index column with schema: {schema}, table: {tableName}, index name: {indexName}, unique: {isUnique}, type description: {typeDesc}, column name: {columnName}, ordinal: {ordinal}.
+        ///     Found column with table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.
         /// </summary>
-        public static string FoundIndexColumn([CanBeNull] object schema, [CanBeNull] object tableName, [CanBeNull] object indexName, [CanBeNull] object isUnique, [CanBeNull] object typeDesc, [CanBeNull] object columnName, [CanBeNull] object ordinal)
+        public static string FoundColumn([CanBeNull] object tableName, [CanBeNull] object columnName, [CanBeNull] object dataType, [CanBeNull] object ordinal, [CanBeNull] object isNullable, [CanBeNull] object primaryKeyOrdinal, [CanBeNull] object defaultValue, [CanBeNull] object computedValue, [CanBeNull] object precision, [CanBeNull] object scale, [CanBeNull] object maxLength, [CanBeNull] object isIdentity, [CanBeNull] object isComputed)
             => string.Format(
-                GetString("FoundIndexColumn", nameof(schema), nameof(tableName), nameof(indexName), nameof(isUnique), nameof(typeDesc), nameof(columnName), nameof(ordinal)),
-                schema, tableName, indexName, isUnique, typeDesc, columnName, ordinal);
+                GetString("FoundColumn", nameof(tableName), nameof(columnName), nameof(dataType), nameof(ordinal), nameof(isNullable), nameof(primaryKeyOrdinal), nameof(defaultValue), nameof(computedValue), nameof(precision), nameof(scale), nameof(maxLength), nameof(isIdentity), nameof(isComputed)),
+                tableName, columnName, dataType, ordinal, isNullable, primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, isIdentity, isComputed);
 
         /// <summary>
-        ///     Found sequence with schema: {schema}, name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
+        ///     Found foreign key column with table: {tableName}, foreign key name: {fkName}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, update action: {updateAction}, delete action: {deleteAction}, ordinal: {ordinal}.
         /// </summary>
-        public static string FoundSequence([CanBeNull] object schema, [CanBeNull] object name, [CanBeNull] object dataType, [CanBeNull] object isCyclic, [CanBeNull] object increment, [CanBeNull] object start, [CanBeNull] object min, [CanBeNull] object max)
+        public static string FoundForeignKeyColumn([CanBeNull] object tableName, [CanBeNull] object fkName, [CanBeNull] object principalTableName, [CanBeNull] object columnName, [CanBeNull] object principalColumnName, [CanBeNull] object updateAction, [CanBeNull] object deleteAction, [CanBeNull] object ordinal)
             => string.Format(
-                GetString("FoundSequence", nameof(schema), nameof(name), nameof(dataType), nameof(isCyclic), nameof(increment), nameof(start), nameof(min), nameof(max)),
-                schema, name, dataType, isCyclic, increment, start, min, max);
-
-        /// <summary>
-        ///     Found table with schema: {schema}, name: {name}.
-        /// </summary>
-        public static string FoundTable([CanBeNull] object schema, [CanBeNull] object name)
-            => string.Format(
-                GetString("FoundTable", nameof(schema), nameof(name)),
-                schema, name);
-
-        /// <summary>
-        ///     Found type alias with schema: {schema} name: {alias} which maps to underlying data type {dataType}.
-        /// </summary>
-        public static string FoundTypeAlias([CanBeNull] object schema, [CanBeNull] object alias, [CanBeNull] object dataType)
-            => string.Format(
-                GetString("FoundTypeAlias", nameof(schema), nameof(alias), nameof(dataType)),
-                schema, alias, dataType);
-
-        /// <summary>
-        ///     Index column {columnName} belongs to index {indexName} on table [{schema}].[{tableName}] which is not included in the selection set. Skipping.
-        /// </summary>
-        public static string IndexColumnNotInSelectionSet([CanBeNull] object columnName, [CanBeNull] object indexName, [CanBeNull] object schema, [CanBeNull] object tableName)
-            => string.Format(
-                GetString("IndexColumnNotInSelectionSet", nameof(columnName), nameof(indexName), nameof(schema), nameof(tableName)),
-                columnName, indexName, schema, tableName);
-
-        /// <summary>
-        ///     Found an index on table [{schemaName}].[{tableName}] with an empty or null name. Skipping index.
-        /// </summary>
-        public static string IndexNameEmpty([CanBeNull] object schemaName, [CanBeNull] object tableName)
-            => string.Format(
-                GetString("IndexNameEmpty", nameof(schemaName), nameof(tableName)),
-                schemaName, tableName);
-
-        /// <summary>
-        ///     For foreign key {fkName} on table [{schema}].[{tableName}], unable to model the end of the foreign key on principal table [{principalTableSchema}].[{principalTableName}]. This is usually because the principal table was not included in the selection set.
-        /// </summary>
-        public static string PrincipalTableNotInSelectionSet([CanBeNull] object fkName, [CanBeNull] object schema, [CanBeNull] object tableName, [CanBeNull] object principalTableSchema, [CanBeNull] object principalTableName)
-            => string.Format(
-                GetString("PrincipalTableNotInSelectionSet", nameof(fkName), nameof(schema), nameof(tableName), nameof(principalTableSchema), nameof(principalTableName)),
-                fkName, schema, tableName, principalTableSchema, principalTableName);
-
-        /// <summary>
-        ///     Found a sequence in schema [{schemaName}] with an empty or null name. Skipping sequence.
-        /// </summary>
-        public static string SequenceNameEmpty([CanBeNull] object schemaName)
-            => string.Format(
-                GetString("SequenceNameEmpty", nameof(schemaName)),
-                schemaName);
-
-        /// <summary>
-        ///     Table [{schema}].[{tableName}] is not included in the selection set. Skipping.
-        /// </summary>
-        public static string TableNotInSelectionSet([CanBeNull] object schema, [CanBeNull] object tableName)
-            => string.Format(
-                GetString("TableNotInSelectionSet", nameof(schema), nameof(tableName)),
-                schema, tableName);
-
-        /// <summary>
-        ///     For column {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.
-        /// </summary>
-        public static string UnableToConvertDefaultValue([CanBeNull] object columnId, [CanBeNull] object defaultValue, [CanBeNull] object propertyType, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)
-            => string.Format(
-                GetString("UnableToConvertDefaultValue", nameof(columnId), nameof(defaultValue), nameof(propertyType), nameof(propertyName), nameof(entityTypeName)),
-                columnId, defaultValue, propertyType, propertyName, entityTypeName);
-
-        /// <summary>
-        ///     Foreign Key {fkName} contains a column named {columnName} which cannot be found on table [{schemaName}].[{tableName}]. Not including column in foreign key.
-        /// </summary>
-        public static string UnableToFindColumnForForeignKey([CanBeNull] object fkName, [CanBeNull] object columnName, [CanBeNull] object schemaName, [CanBeNull] object tableName)
-            => string.Format(
-                GetString("UnableToFindColumnForForeignKey", nameof(fkName), nameof(columnName), nameof(schemaName), nameof(tableName)),
-                fkName, columnName, schemaName, tableName);
-
-        /// <summary>
-        ///     Index {indexName} contains a column named {columnName} which cannot be found on table [{schemaName}].[{tableName}]. Not including column in index.
-        /// </summary>
-        public static string UnableToFindColumnForIndex([CanBeNull] object indexName, [CanBeNull] object columnName, [CanBeNull] object schemaName, [CanBeNull] object tableName)
-            => string.Format(
-                GetString("UnableToFindColumnForIndex", nameof(indexName), nameof(columnName), nameof(schemaName), nameof(tableName)),
-                indexName, columnName, schemaName, tableName);
-
-        /// <summary>
-        ///     For column {columnName}. Unable to find parent table [{schemaName}].[{tablename}]. Skipping column.
-        /// </summary>
-        public static string UnableToFindTableForColumn([CanBeNull] object columnName, [CanBeNull] object schemaName, [CanBeNull] object tablename)
-            => string.Format(
-                GetString("UnableToFindTableForColumn", nameof(columnName), nameof(schemaName), nameof(tablename)),
-                columnName, schemaName, tablename);
-
-        /// <summary>
-        ///     For index {indexName}. Unable to find parent table [{schemaName}].[{tableName}]. Skipping index.
-        /// </summary>
-        public static string UnableToFindTableForIndex([CanBeNull] object indexName, [CanBeNull] object schemaName, [CanBeNull] object tableName)
-            => string.Format(
-                GetString("UnableToFindTableForIndex", nameof(indexName), nameof(schemaName), nameof(tableName)),
-                indexName, schemaName, tableName);
+                GetString("FoundForeignKeyColumn", nameof(tableName), nameof(fkName), nameof(principalTableName), nameof(columnName), nameof(principalColumnName), nameof(updateAction), nameof(deleteAction), nameof(ordinal)),
+                tableName, fkName, principalTableName, columnName, principalColumnName, updateAction, deleteAction, ordinal);
 
         private static string GetString(string name, params string[] formatterNames)
         {

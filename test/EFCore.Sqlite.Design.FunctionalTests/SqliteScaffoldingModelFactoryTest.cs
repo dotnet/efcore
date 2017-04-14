@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -29,10 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             var serviceCollection = new ServiceCollection().AddScaffolding().AddLogging();
             new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
-
-            serviceCollection
-                .AddSingleton<ILoggingOptions, LoggingOptions>()
-                .AddSingleton(typeof(IInterceptingLogger<>), typeof(InterceptingLogger<>));
 
             var serviceProvider = serviceCollection
                 .AddSingleton<IFileService, FileSystemFileService>()
@@ -204,8 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             GetModel(sql);
 
-            Assert.Contains("Debug: " +
-                            SqliteDesignStrings.PrincipalTableNotFound(0, "Children", "Parent"),
+            Assert.Contains("Warning: " +
+                            RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalTableNotFound("0"),
                 _logger.FullLog);
         }
 
@@ -222,8 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             GetModel(sql);
 
-            Assert.Contains("Debug: " +
-                            SqliteDesignStrings.PrincipalColumnNotFound(0, "Children", "Id", "Parent"),
+            Assert.Contains("Warning: " +
+                            RelationalDesignStrings.PrincipalColumnNotFound(0, "Children", "Id", "Parent"),
                 _logger.FullLog);
         }
 

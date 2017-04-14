@@ -1,0 +1,6 @@
+[
+  {
+    "TypeId": "public enum Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDesignEventId",
+    "Kind": "Removal"
+  }
+]

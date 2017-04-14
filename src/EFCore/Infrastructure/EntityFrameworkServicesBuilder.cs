@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -75,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IExpressionPrinter), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IProjectionExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IInterceptingLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IKeyPropagator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INavigationFixer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ILocalViewListener), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -221,6 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IProjectionExpressionVisitorFactory, ProjectionExpressionVisitorFactory>();
             TryAdd<ISingletonOptionsInitialzer, SingletonOptionsInitialzer>();
             TryAdd(typeof(IInterceptingLogger<>), typeof(InterceptingLogger<>));
+            TryAdd(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>));
             TryAdd<ILoggingOptions, LoggingOptions>();
             TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetService<ILoggingOptions>());
             TryAdd(p => GetContextServices(p).Model);
@@ -234,6 +237,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IEntityStateListener, ILocalViewListener>(p => p.GetService<ILocalViewListener>());
             TryAdd<IResettableService, IStateManager>(p => p.GetService<IStateManager>());
             TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetService<IDbContextTransactionManager>());
+
+            ServiceCollectionMap
+                .TryAddSingleton<DiagnosticSource>(new DiagnosticListener(LoggerCategory.Root));
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<DatabaseProviderDependencies>()

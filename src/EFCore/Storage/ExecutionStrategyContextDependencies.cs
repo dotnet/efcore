@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public ExecutionStrategyContextDependencies(
             [NotNull] ICurrentDbContext currentDbContext,
             [CanBeNull] IDbContextOptions options,
-            [CanBeNull] IInterceptingLogger<LoggerCategory.Infrastructure> logger)
+            [CanBeNull] IDiagnosticsLogger<LoggerCategory.Infrastructure> logger)
         {
             Check.NotNull(currentDbContext, nameof(currentDbContext));
 
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The logger.
         /// </summary>
-        public IInterceptingLogger<LoggerCategory.Infrastructure> Logger { get; }
+        public IDiagnosticsLogger<LoggerCategory.Infrastructure> Logger { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public ExecutionStrategyContextDependencies With([NotNull] IInterceptingLogger<LoggerCategory.Infrastructure> logger)
+        public ExecutionStrategyContextDependencies With([NotNull] IDiagnosticsLogger<LoggerCategory.Infrastructure> logger)
             => new ExecutionStrategyContextDependencies(CurrentDbContext, Options, logger);
     }
 }

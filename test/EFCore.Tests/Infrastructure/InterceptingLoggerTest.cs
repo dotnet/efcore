@@ -47,15 +47,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
             var queryLogger = new InterceptingLogger<LoggerCategory.Query>(loggerFactory, new LoggingOptions());
             var randomLogger = loggerFactory.CreateLogger("Random");
 
-            dbLogger.LogInformation("DB1");
-            sqlLogger.LogInformation("SQL1");
-            queryLogger.LogInformation("Query1");
-            randomLogger.LogInformation("Random1");
+            dbLogger.LogInformation(1, "DB1");
+            sqlLogger.LogInformation(2, "SQL1");
+            queryLogger.LogInformation(3, "Query1");
+            randomLogger.LogInformation(4, "Random1");
 
-            dbLogger.LogInformation("DB2");
-            sqlLogger.LogInformation("SQL2");
-            queryLogger.LogInformation("Query2");
-            randomLogger.LogInformation("Random2");
+            dbLogger.LogInformation(1, "DB2");
+            sqlLogger.LogInformation(2, "SQL2");
+            queryLogger.LogInformation(3, "Query2");
+            randomLogger.LogInformation(4, "Random2");
 
             Assert.Equal(loggerProvider.Messages, expected);
         }

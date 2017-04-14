@@ -11,7 +11,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -87,18 +86,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IEnumerable<T> _InterceptExceptions<T>(
-            IEnumerable<T> source, Type contextType, IInterceptingLogger<LoggerCategory.Query> logger, QueryContext queryContext)
+            IEnumerable<T> source, Type contextType, IDiagnosticsLogger<LoggerCategory.Query> logger, QueryContext queryContext)
             => new ExceptionInterceptor<T>(source, contextType, logger, queryContext);
 
         private sealed class ExceptionInterceptor<T> : IEnumerable<T>
         {
             private readonly IEnumerable<T> _innerEnumerable;
             private readonly Type _contextType;
-            private readonly IInterceptingLogger<LoggerCategory.Query> _logger;
+            private readonly IDiagnosticsLogger<LoggerCategory.Query> _logger;
             private readonly QueryContext _queryContext;
 
             public ExceptionInterceptor(
-                IEnumerable<T> innerEnumerable, Type contextType, IInterceptingLogger<LoggerCategory.Query> logger, QueryContext queryContext)
+                IEnumerable<T> innerEnumerable, Type contextType, IDiagnosticsLogger<LoggerCategory.Query> logger, QueryContext queryContext)
             {
                 _innerEnumerable = innerEnumerable;
                 _contextType = contextType;
@@ -136,12 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                         catch (Exception exception)
                         {
-                            _exceptionInterceptor._logger
-                                .LogError(
-                                    CoreEventId.DatabaseError,
-                                    () => new DatabaseErrorLogState(_exceptionInterceptor._contextType),
-                                    exception,
-                                    e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
+                            _exceptionInterceptor._logger.QueryIterationFailed(_exceptionInterceptor._contextType, exception);
 
                             throw;
                         }

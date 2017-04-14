@@ -12,13 +12,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
     {
         public ILoggingOptions Options { get; }
 
-        public bool LogSensitiveData { get; }
+        public bool ShouldLogSensitiveData(IDiagnosticsLogger<T> diagnostics) => false;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
         }
 
-        public bool IsEnabled(LogLevel logLevel) => true;
+        public bool IsEnabled(EventId eventId, LogLevel logLevel) => true;
 
         public IDisposable BeginScope(object state)
         {

@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresClientSelectMany)
             {
-                WarnClientEval(fromClause);
+                WarnClientEval(queryModel, fromClause);
             }
         }
 
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresClientJoin)
             {
-                WarnClientEval(joinClause);
+                WarnClientEval(queryModel, joinClause);
             }
         }
 
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresClientJoin)
             {
-                WarnClientEval(groupJoinClause.JoinClause);
+                WarnClientEval(queryModel, groupJoinClause.JoinClause);
             }
         }
 
@@ -800,7 +800,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresClientFilter)
             {
-                WarnClientEval(whereClause.Predicate);
+                WarnClientEval(queryModel, whereClause.Predicate);
 
                 base.VisitWhereClause(whereClause, queryModel, index);
             }
@@ -876,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresClientOrderBy)
             {
-                WarnClientEval(orderByClause);
+                WarnClientEval(queryModel, orderByClause);
 
                 base.VisitOrderByClause(orderByClause, queryModel, index);
             }
@@ -978,7 +978,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresClientResultOperator)
             {
-                WarnClientEval(resultOperator);
+                WarnClientEval(queryModel, resultOperator);
             }
         }
 
@@ -1004,14 +1004,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Generated a client-eval warning
         /// </summary>
+        /// <param name="queryModel"> The query model </param>
         /// <param name="expression"> The expression being client-eval'd. </param>
-        protected virtual void WarnClientEval([NotNull] object expression)
+        protected virtual void WarnClientEval(
+            [NotNull] QueryModel queryModel,
+            [NotNull] object expression)
         {
             Check.NotNull(expression, nameof(expression));
 
-            QueryCompilationContext.Logger.LogWarning(
-                RelationalEventId.QueryClientEvaluationWarning,
-                () => RelationalStrings.ClientEvalWarning(expression));
+            QueryCompilationContext.Logger.QueryClientEvaluationWarning(queryModel, expression);
         }
 
         private class TypeIsExpressionTranslatingVisitor : ExpressionVisitorBase

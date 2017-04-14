@@ -4580,12 +4580,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
-            using (var context = new ChangeWarningsCacheContext(serviceProvider, b => b.Throw(CoreEventId.QueryPlan)))
+            using (var context = new ChangeWarningsCacheContext(serviceProvider, b => b.Throw(CoreEventId.QueryExecutionPlanned)))
             {
                 var _ = context.Model;
             }
 
-            using (var context = new ChangeWarningsCacheContext(serviceProvider, b => b.Log(CoreEventId.QueryPlan)))
+            using (var context = new ChangeWarningsCacheContext(serviceProvider, b => b.Log(CoreEventId.QueryExecutionPlanned)))
             {
                 Assert.Equal(
                     CoreStrings.SingletonOptionChanged(

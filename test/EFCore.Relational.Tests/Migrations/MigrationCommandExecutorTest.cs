@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
@@ -303,8 +304,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                logger ?? new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                diagnosticSource ?? new DiagnosticListener("Fake"),
+                new DiagnosticsLogger<LoggerCategory.Database.Sql>(
+                    logger ?? new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
+                    diagnosticSource ?? new DiagnosticListener("Fake")),
+                new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
+                    new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
+                    diagnosticSource ?? new DiagnosticListener("Fake")),
                 commandText,
                 parameters ?? new IRelationalParameter[0]);
     }

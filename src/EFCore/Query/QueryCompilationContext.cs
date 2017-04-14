@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The logger.
         /// </value>
-        public virtual IInterceptingLogger<LoggerCategory.Query> Logger { get; }
+        public virtual IDiagnosticsLogger<LoggerCategory.Query> Logger { get; }
 
         /// <summary>
         ///     Gets the linq operator provider.

@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Design.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -19,10 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Design.Internal
             var loggerFactory = new LoggerFactory();
             loggerFactory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, reporter)));
 
-            var logger = loggerFactory.CreateLogger<RelationalCommandBuilderFactory>();
+            var logger = loggerFactory.CreateLogger(LoggerCategory.Database.Sql.Name);
             logger.Log<object>(
                 LogLevel.Information,
-                (int)RelationalEventId.ExecutedCommand,
+                RelationalEventId.CommandExecuted,
                 null,
                 null,
                 (_, __) => "-- Can't stop the SQL");

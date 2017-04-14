@@ -16,12 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.SqliteDesignStrings", typeof(SqliteDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
-        ///     Found a column on index {indexName} on table {tableName} with an empty or null name. Not including column in index.
+        ///     Scaffolding from a SQLite database will ignore any schema selection arguments. 
         /// </summary>
-        public static string ColumnNameEmptyOnIndex([CanBeNull] object indexName, [CanBeNull] object tableName)
-            => string.Format(
-                GetString("ColumnNameEmptyOnIndex", nameof(indexName), nameof(tableName)),
-                indexName, tableName);
+        public static string UsingSchemaSelectionsWarning
+            => GetString("UsingSchemaSelectionsWarning");
 
         /// <summary>
         ///     Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, not nullable: {isNotNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}.
@@ -38,60 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("FoundForeignKeyColumn", nameof(tableName), nameof(id), nameof(principalTableName), nameof(columnName), nameof(principalColumnName), nameof(deleteAction), nameof(ordinal)),
                 tableName, id, principalTableName, columnName, principalColumnName, deleteAction, ordinal);
-
-        /// <summary>
-        ///     Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
-        /// </summary>
-        public static string FoundIndex([CanBeNull] object indexName, [CanBeNull] object tableName, [CanBeNull] object isUnique)
-            => string.Format(
-                GetString("FoundIndex", nameof(indexName), nameof(tableName), nameof(isUnique)),
-                indexName, tableName, isUnique);
-
-        /// <summary>
-        ///     Found index column on index {indexName} on table {tableName}, column name: {columnName}, ordinal: {ordinal}.
-        /// </summary>
-        public static string FoundIndexColumn([CanBeNull] object indexName, [CanBeNull] object tableName, [CanBeNull] object columnName, [CanBeNull] object ordinal)
-            => string.Format(
-                GetString("FoundIndexColumn", nameof(indexName), nameof(tableName), nameof(columnName), nameof(ordinal)),
-                indexName, tableName, columnName, ordinal);
-
-        /// <summary>
-        ///     Found table with name: {name}.
-        /// </summary>
-        public static string FoundTable([CanBeNull] object name)
-            => string.Format(
-                GetString("FoundTable", nameof(name)),
-                name);
-
-        /// <summary>
-        ///     For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principalTableName}. Skipping foreign key.
-        /// </summary>
-        public static string PrincipalColumnNotFound([CanBeNull] object id, [CanBeNull] object tableName, [CanBeNull] object principalColumnName, [CanBeNull] object principalTableName)
-            => string.Format(
-                GetString("PrincipalColumnNotFound", nameof(id), nameof(tableName), nameof(principalColumnName), nameof(principalTableName)),
-                id, tableName, principalColumnName, principalTableName);
-
-        /// <summary>
-        ///     For foreign key with identity {id} on table {tableName}, unable to find the principal table {principalTableName}. Either the principal table is missing from the database or it was not included in the selection set. Skipping foreign key.
-        /// </summary>
-        public static string PrincipalTableNotFound([CanBeNull] object id, [CanBeNull] object tableName, [CanBeNull] object principalTableName)
-            => string.Format(
-                GetString("PrincipalTableNotFound", nameof(id), nameof(tableName), nameof(principalTableName)),
-                id, tableName, principalTableName);
-
-        /// <summary>
-        ///     Table {tableName} is not included in the selection set. Skipping.
-        /// </summary>
-        public static string TableNotInSelectionSet([CanBeNull] object tableName)
-            => string.Format(
-                GetString("TableNotInSelectionSet", nameof(tableName)),
-                tableName);
-
-        /// <summary>
-        ///     Scaffolding from a SQLite database will ignore any schema selection arguments. 
-        /// </summary>
-        public static string UsingSchemaSelectionsWarning
-            => GetString("UsingSchemaSelectionsWarning");
 
         private static string GetString(string name, params string[] formatterNames)
         {

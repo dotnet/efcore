@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         public string FullLog => _sb.ToString();
         private readonly StringBuilder _sb = new StringBuilder();
 
-        public bool IsEnabled(LogLevel logLevel) => true;
+        public bool IsEnabled(EventId eventId, LogLevel logLevel) => true;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             => _sb.Append(logLevel)
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
         public ILoggingOptions Options { get; }
 
-        public bool LogSensitiveData { get; }
+        public bool ShouldLogSensitiveData(IDiagnosticsLogger<T> diagnostics) => false;
 
         public class NullScope : IDisposable
         {

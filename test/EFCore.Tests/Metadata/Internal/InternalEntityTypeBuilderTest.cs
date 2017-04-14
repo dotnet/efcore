@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -1585,9 +1586,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             var modelValidator = new CoreModelValidator(
                 new ModelValidatorDependencies(
-                    new InterceptingLogger<LoggerCategory.Model.Validation>(
-                        new LoggerFactory(),
-                        new LoggingOptions())));
+                    new DiagnosticsLogger<LoggerCategory.Model.Validation>(
+                        new InterceptingLogger<LoggerCategory.Model.Validation>(
+                            new LoggerFactory(),
+                            new LoggingOptions()),
+                        new DiagnosticListener("Fake"))));
 
             modelValidator.Validate(modelBuilder.Metadata);
 

@@ -16,6 +16,52 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.RelationalDesignStrings", typeof(RelationalDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
+        ///     Metadata model returned should not be null. Provider: {providerTypeName}.
+        /// </summary>
+        public static string ProviderReturnedNullModel([CanBeNull] object providerTypeName)
+            => string.Format(
+                GetString("ProviderReturnedNullModel", nameof(providerTypeName)),
+                providerTypeName);
+
+        /// <summary>
+        ///     No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.
+        /// </summary>
+        public static string ReadOnlyFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object readOnlyFiles)
+            => string.Format(
+                GetString("ReadOnlyFiles", nameof(outputDirectoryName), nameof(readOnlyFiles)),
+                outputDirectoryName, readOnlyFiles);
+
+        /// <summary>
+        ///     Cannot scaffold the connection string. The "UseProviderMethodName" is missing from the scaffolding model.
+        /// </summary>
+        public static string MissingUseProviderMethodNameAnnotation
+            => GetString("MissingUseProviderMethodNameAnnotation");
+
+        /// <summary>
+        ///     The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.
+        /// </summary>
+        public static string ExistingFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object existingFiles)
+            => string.Format(
+                GetString("ExistingFiles", nameof(outputDirectoryName), nameof(existingFiles)),
+                outputDirectoryName, existingFiles);
+
+        /// <summary>
+        ///     Found a column on index {indexName} on table {tableName} with an empty or null name. Not including column in index.
+        /// </summary>
+        public static string ColumnNameEmptyOnIndex([CanBeNull] object indexName, [CanBeNull] object tableName)
+            => string.Format(
+                GetString("ColumnNameEmptyOnIndex", nameof(indexName), nameof(tableName)),
+                indexName, tableName);
+
+        /// <summary>
+        ///     For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.
+        /// </summary>
+        public static string PrincipalColumnNotFound([CanBeNull] object id, [CanBeNull] object tableName, [CanBeNull] object principalColumnName, [CanBeNull] object principaltableName)
+            => string.Format(
+                GetString("PrincipalColumnNotFound", nameof(id), nameof(tableName), nameof(principalColumnName), nameof(principaltableName)),
+                id, tableName, principalColumnName, principaltableName);
+
+        /// <summary>
         ///     Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.
         /// </summary>
         public static string CannotFindTypeMappingForColumn([CanBeNull] object columnName, [CanBeNull] object dateType)
@@ -40,12 +86,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 foreignKeyName);
 
         /// <summary>
-        ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principalTableName}' could not be scaffolded.
+        ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principaltableName}' could not be scaffolded.
         /// </summary>
-        public static string ForeignKeyScaffoldErrorPrincipalTableScaffoldingError([CanBeNull] object foreignKeyName, [CanBeNull] object principalTableName)
+        public static string ForeignKeyScaffoldErrorPrincipalTableScaffoldingError([CanBeNull] object foreignKeyName, [CanBeNull] object principaltableName)
             => string.Format(
-                GetString("ForeignKeyScaffoldErrorPrincipalTableScaffoldingError", nameof(foreignKeyName), nameof(principalTableName)),
-                foreignKeyName, principalTableName);
+                GetString("ForeignKeyScaffoldErrorPrincipalTableScaffoldingError", nameof(foreignKeyName), nameof(principaltableName)),
+                foreignKeyName, principaltableName);
 
         /// <summary>
         ///     Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.
@@ -72,20 +118,116 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 tableName);
 
         /// <summary>
-        ///     Metadata model returned should not be null. Provider: {providerTypeName}.
+        ///     Found table with name: {name}.
         /// </summary>
-        public static string ProviderReturnedNullModel([CanBeNull] object providerTypeName)
+        public static string FoundTable([CanBeNull] object name)
             => string.Format(
-                GetString("ProviderReturnedNullModel", nameof(providerTypeName)),
-                providerTypeName);
+                GetString("FoundTable", nameof(name)),
+                name);
 
         /// <summary>
-        ///     No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.
+        ///     Table {tableName} is not included in the selection set. Skipping.
         /// </summary>
-        public static string ReadOnlyFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object readOnlyFiles)
+        public static string TableNotInSelectionSet([CanBeNull] object tableName)
             => string.Format(
-                GetString("ReadOnlyFiles", nameof(outputDirectoryName), nameof(readOnlyFiles)),
-                outputDirectoryName, readOnlyFiles);
+                GetString("TableNotInSelectionSet", nameof(tableName)),
+                tableName);
+
+        /// <summary>
+        ///     Column {columnName} belongs to table {tableName} which is not included in the selection set. Skipping.
+        /// </summary>
+        public static string ColumnNotInSelectionSet([CanBeNull] object columnName, [CanBeNull] object tableName)
+            => string.Format(
+                GetString("ColumnNotInSelectionSet", nameof(columnName), nameof(tableName)),
+                columnName, tableName);
+
+        /// <summary>
+        ///     Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
+        /// </summary>
+        public static string FoundIndex([CanBeNull] object indexName, [CanBeNull] object tableName, [CanBeNull] object isUnique)
+            => string.Format(
+                GetString("FoundIndex", nameof(indexName), nameof(tableName), nameof(isUnique)),
+                indexName, tableName, isUnique);
+
+        /// <summary>
+        ///     Found index column on index {indexName} on table {tableName}, column name: {columnName}, ordinal: {ordinal}.
+        /// </summary>
+        public static string FoundIndexColumn([CanBeNull] object indexName, [CanBeNull] object tableName, [CanBeNull] object columnName, [CanBeNull] object ordinal)
+            => string.Format(
+                GetString("FoundIndexColumn", nameof(indexName), nameof(tableName), nameof(columnName), nameof(ordinal)),
+                indexName, tableName, columnName, ordinal);
+
+        /// <summary>
+        ///     Index column {columnName} belongs to index {indexName} on table {tableName} which is not included in the selection set. Skipping.
+        /// </summary>
+        public static string IndexColumnNotInSelectionSet([CanBeNull] object columnName, [CanBeNull] object indexName, [CanBeNull] object tableName)
+            => string.Format(
+                GetString("IndexColumnNotInSelectionSet", nameof(columnName), nameof(indexName), nameof(tableName)),
+                columnName, indexName, tableName);
+
+        /// <summary>
+        ///     Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
+        /// </summary>
+        public static string FoundSequence([CanBeNull] object name, [CanBeNull] object dataType, [CanBeNull] object isCyclic, [CanBeNull] object increment, [CanBeNull] object start, [CanBeNull] object min, [CanBeNull] object max)
+            => string.Format(
+                GetString("FoundSequence", nameof(name), nameof(dataType), nameof(isCyclic), nameof(increment), nameof(start), nameof(min), nameof(max)),
+                name, dataType, isCyclic, increment, start, min, max);
+
+        /// <summary>
+        ///     Found a column on foreign key {tableName}.{fkName} with an empty or null name. Not including column in foreign key
+        /// </summary>
+        public static string ColumnNameEmptyOnForeignKey([CanBeNull] object tableName, [CanBeNull] object fkName)
+            => string.Format(
+                GetString("ColumnNameEmptyOnForeignKey", nameof(tableName), nameof(fkName)),
+                tableName, fkName);
+
+        /// <summary>
+        ///     Found a column on table {tableName} with an empty or null name. Skipping column.
+        /// </summary>
+        public static string ColumnNameEmptyOnTable([CanBeNull] object tableName)
+            => string.Format(
+                GetString("ColumnNameEmptyOnTable", nameof(tableName)),
+                tableName);
+
+        /// <summary>
+        ///     For index {indexName}. Unable to find parent table {tableName}. Skipping index.
+        /// </summary>
+        public static string UnableToFindTableForIndex([CanBeNull] object indexName, [CanBeNull] object tableName)
+            => string.Format(
+                GetString("UnableToFindTableForIndex", nameof(indexName), nameof(tableName)),
+                indexName, tableName);
+
+        /// <summary>
+        ///     Found an index on table {tableName} with an empty or null name. Skipping index.
+        /// </summary>
+        public static string IndexNameEmpty([CanBeNull] object tableName)
+            => string.Format(
+                GetString("IndexNameEmpty", nameof(tableName)),
+                tableName);
+
+        /// <summary>
+        ///     Found a foreign key on table {tableName} with an empty or null name. Skipping foreign key.
+        /// </summary>
+        public static string ForeignKeyNameEmpty([CanBeNull] object tableName)
+            => string.Format(
+                GetString("ForeignKeyNameEmpty", nameof(tableName)),
+                tableName);
+
+        /// <summary>
+        ///     Foreign key column {columnName} belongs to foreign key {fkName} on table {tableName} which is not included in the selection set. Skipping.
+        /// </summary>
+        public static string ForeignKeyColumnNotInSelectionSet([CanBeNull] object columnName, [CanBeNull] object fkName, [CanBeNull] object tableName)
+            => string.Format(
+                GetString("ForeignKeyColumnNotInSelectionSet", nameof(columnName), nameof(fkName), nameof(tableName)),
+                columnName, fkName, tableName);
+
+        /// <summary>
+        ///     For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.
+        /// </summary>
+        public static string PrincipalTableNotInSelectionSet([CanBeNull] object fkName, [CanBeNull] object tableName, [CanBeNull] object principaltableName)
+            => string.Format(
+                GetString("PrincipalTableNotInSelectionSet", nameof(fkName), nameof(tableName), nameof(principaltableName)),
+                fkName, tableName, principaltableName);
 
         /// <summary>
         ///     Unable to generate entity type for table '{tableName}'.
@@ -102,20 +244,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("UnableToScaffoldIndexMissingProperty", nameof(indexName), nameof(columnNames)),
                 indexName, columnNames);
-
-        /// <summary>
-        ///     Cannot scaffold the connection string. The "UseProviderMethodName" is missing from the scaffolding model.
-        /// </summary>
-        public static string MissingUseProviderMethodNameAnnotation
-            => GetString("MissingUseProviderMethodNameAnnotation");
-
-        /// <summary>
-        ///     The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.
-        /// </summary>
-        public static string ExistingFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object existingFiles)
-            => string.Format(
-                GetString("ExistingFiles", nameof(outputDirectoryName), nameof(existingFiles)),
-                outputDirectoryName, existingFiles);
 
         /// <summary>
         ///     Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.

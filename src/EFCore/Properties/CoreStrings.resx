@@ -207,9 +207,6 @@
   <data name="PropertyDoesNotBelong" xml:space="preserve">
     <value>The property '{property}' belongs to entity type '{entityType}' but is being used with an instance of entity type '{expectedType}'.</value>
   </data>
-  <data name="ObservableCollectionReentrancy" xml:space="preserve">
-    <value>Cannot change ObservableHashSet during a CollectionChanged event.</value>
-  </data>
   <data name="MissingBackingField" xml:space="preserve">
     <value>The specified field '{field}' could not be found for property '{property}' on entity type '{entityType}'.</value>
   </data>
@@ -386,9 +383,6 @@
   </data>
   <data name="AnnotationNotFound" xml:space="preserve">
     <value>The annotation '{annotation}' was not found. Ensure that the annotation has been added.</value>
-  </data>
-  <data name="IncludeNotImplemented" xml:space="preserve">
-    <value>The Include operator is not implemented by the current database provider.</value>
   </data>
   <data name="IncludeBadNavigation" xml:space="preserve">
     <value>The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.</value>
@@ -633,12 +627,6 @@
   <data name="DatabaseGeneratedNull" xml:space="preserve">
     <value>The database generated a null value for non-nullable property '{property}' of entity type '{entityType}'. Ensure value generation configuration in the database matches the configuration in the model.</value>
   </data>
-  <data name="MoreThanOneElement" xml:space="preserve">
-    <value>Sequence contains more than one element</value>
-  </data>
-  <data name="NoElements" xml:space="preserve">
-    <value>Sequence contains no elements</value>
-  </data>
   <data name="NoParameterlessConstructor" xml:space="preserve">
     <value>A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.</value>
   </data>
@@ -650,9 +638,6 @@
   </data>
   <data name="WarningAsErrorTemplate" xml:space="preserve">
     <value>Warning as error exception for warning '{eventId}': {message} To suppress this Exception use the DbContextOptionsBuilder.ConfigureWarnings API. ConfigureWarnings can be used when overriding the DbContext.OnConfiguring method or using AddDbContext on the application service provider.</value>
-  </data>
-  <data name="WarningLogTemplate" xml:space="preserve">
-    <value>{message} To configure this warning use the DbContextOptionsBuilder.ConfigureWarnings API (event id '{eventId}'). ConfigureWarnings can be used when overriding the DbContext.OnConfiguring method or using AddDbContext on the application service provider.</value>
   </data>
   <data name="ContextDisposed" xml:space="preserve">
     <value>Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>

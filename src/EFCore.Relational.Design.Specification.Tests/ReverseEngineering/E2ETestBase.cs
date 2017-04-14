@@ -32,9 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
 
             var serviceBuilder = new ServiceCollection()
                 .AddScaffolding()
-                .AddLogging()
-                .AddSingleton<ILoggingOptions, LoggingOptions>()
-                .AddSingleton(typeof(IInterceptingLogger<>), typeof(InterceptingLogger<>));
+                .AddLogging();
 
             ConfigureDesignTimeServices(serviceBuilder);
 

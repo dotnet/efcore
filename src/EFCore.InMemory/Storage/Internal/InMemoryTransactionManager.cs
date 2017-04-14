@@ -14,10 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     {
         private static readonly InMemoryTransaction _stubTransaction = new InMemoryTransaction();
 
-        private readonly IInterceptingLogger<LoggerCategory.Database.Transaction> _logger;
+        private readonly IDiagnosticsLogger<LoggerCategory.Database.Transaction> _logger;
 
         public InMemoryTransactionManager(
-            [NotNull] IInterceptingLogger<LoggerCategory.Database.Transaction> logger)
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Transaction> logger)
         {
             Check.NotNull(logger, nameof(logger));
 
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         public virtual IDbContextTransaction BeginTransaction()
         {
-            LogWarning();
+            _logger.TransactionIgnoredWarning();
 
             return _stubTransaction;
         }
@@ -34,23 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public virtual Task<IDbContextTransaction> BeginTransactionAsync(
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            LogWarning();
+            _logger.TransactionIgnoredWarning();
 
             return Task.FromResult<IDbContextTransaction>(_stubTransaction);
         }
 
-        public virtual void CommitTransaction() => LogWarning();
+        public virtual void CommitTransaction() => _logger.TransactionIgnoredWarning();
 
-        public virtual void RollbackTransaction() => LogWarning();
+        public virtual void RollbackTransaction() => _logger.TransactionIgnoredWarning();
 
         public virtual IDbContextTransaction CurrentTransaction => null;
-
-        protected virtual void LogWarning()
-        {
-            _logger.LogWarning(
-                InMemoryEventId.TransactionIgnoredWarning,
-                () => InMemoryStrings.TransactionsNotSupported);
-        }
 
         public virtual void Reset()
         {

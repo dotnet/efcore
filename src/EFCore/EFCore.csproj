@@ -17,6 +17,7 @@ Microsoft.EntityFrameworkCore.DbSet</Description>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(AspNetCoreVersion)" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(CoreFxVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Remotion.Linq" Version="$(RelinqVersion)" />
     <PackageReference Include="System.Collections.Immutable" Version="$(ImmutableCollectionsVersion)" />

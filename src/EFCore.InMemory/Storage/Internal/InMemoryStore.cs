@@ -104,8 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual int ExecuteTransaction(
-            IEnumerable<IUpdateEntry> entries, 
-            IInterceptingLogger<LoggerCategory.Update> updateLogger)
+            IEnumerable<IUpdateEntry> entries,
+            IDiagnosticsLogger<LoggerCategory.Update> updateLogger)
         {
             var rowsAffected = 0;
 
@@ -140,10 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 }
             }
 
-            updateLogger.LogInformation<object>(
-                InMemoryEventId.SavedChanges,
-                rowsAffected,
-                InMemoryStrings.LogSavedChanges);
+            updateLogger.ChangesSaved(entries, rowsAffected);
 
             return rowsAffected;
         }

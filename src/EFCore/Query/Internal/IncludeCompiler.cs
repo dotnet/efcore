@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
@@ -109,10 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             foreach (var includeResultOperator in _includeResultOperators)
             {
-                _queryCompilationContext.Logger
-                    .LogWarning(
-                        CoreEventId.IncludeIgnoredWarning,
-                        () => CoreStrings.LogIgnoredInclude(includeResultOperator.DisplayString()));
+                _queryCompilationContext.Logger.IncludeIgnoredWarning(includeResultOperator.DisplayString());
             }
         }
 
@@ -152,10 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 includeLoadTree.AddLoadPath(navigationPath);
 
-                _queryCompilationContext.Logger
-                    .LogDebug(
-                        CoreEventId.IncludingNavigation,
-                        () => CoreStrings.LogIncludingNavigation(includeResultOperator.DisplayString()));
+                _queryCompilationContext.Logger.NavigationIncluded(includeResultOperator.DisplayString());
 
                 _includeResultOperators.Remove(includeResultOperator);
             }

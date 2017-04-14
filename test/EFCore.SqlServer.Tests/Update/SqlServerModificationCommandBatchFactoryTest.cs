@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -21,8 +22,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
-                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                    new DiagnosticListener("Fake"),
+                    new DiagnosticsLogger<LoggerCategory.Database.Sql>(
+                        new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
+                        new DiagnosticListener("Fake")),
+                    new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
+                        new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
+                        new DiagnosticListener("Fake")),
                     new SqlServerTypeMapper(
                         new RelationalTypeMapperDependencies())),
                 new SqlServerSqlGenerationHelper(
@@ -51,8 +56,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
-                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                    new DiagnosticListener("Fake"),
+                    new DiagnosticsLogger<LoggerCategory.Database.Sql>(
+                        new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
+                        new DiagnosticListener("Fake")),
+                    new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
+                        new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
+                        new DiagnosticListener("Fake")),
                     new SqlServerTypeMapper(
                         new RelationalTypeMapperDependencies())),
                 new SqlServerSqlGenerationHelper(

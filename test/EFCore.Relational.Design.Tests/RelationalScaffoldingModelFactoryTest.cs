@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -28,7 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         {
             _logger = new TestLogger<LoggerCategory.Scaffolding>();
 
-            _factory = new FakeScaffoldingModelFactory(_logger);
+            _factory = new FakeScaffoldingModelFactory(
+                new DiagnosticsLogger<LoggerCategory.Scaffolding>(
+                    _logger,
+                    new DiagnosticListener("Fake")));
         }
 
         [Fact]
@@ -866,7 +870,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 }
             };
 
-            var factory  = new FakeScaffoldingModelFactory(new TestLogger<LoggerCategory.Scaffolding>(), new FakePluralizer());
+            var factory = new FakeScaffoldingModelFactory(
+                new DiagnosticsLogger<LoggerCategory.Scaffolding>(
+                    new TestLogger<LoggerCategory.Scaffolding>(),
+                    new DiagnosticListener("Fake")),
+                new FakePluralizer());
+
             var model = factory.Create(info);
 
             Assert.Collection(model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -921,7 +930,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 Tables = { blogTable, postTable }
             };
 
-            var factory = new FakeScaffoldingModelFactory(new TestLogger<LoggerCategory.Scaffolding>(), new FakePluralizer());
+            var factory = new FakeScaffoldingModelFactory(
+                new DiagnosticsLogger<LoggerCategory.Scaffolding>(
+                    new TestLogger<LoggerCategory.Scaffolding>(),
+                    new DiagnosticListener("Fake")),
+                new FakePluralizer());
+
             var model = factory.Create(info);
 
             Assert.Collection(model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -944,12 +958,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         public IModel Create(DatabaseModel databaseModel) => CreateFromDatabaseModel(databaseModel);
 
         public FakeScaffoldingModelFactory(
-            [NotNull] IInterceptingLogger<LoggerCategory.Scaffolding> logger)
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger)
             : this(logger, new NullPluralizer())
         { }
 
         public FakeScaffoldingModelFactory(
-            [NotNull] IInterceptingLogger<LoggerCategory.Scaffolding> logger,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger,
             [NotNull] IPluralizer pluralizer)
             : base(logger,
                 new TestTypeMapper(new RelationalTypeMapperDependencies()),

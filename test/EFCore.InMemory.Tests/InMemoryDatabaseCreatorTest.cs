@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         {
             public DbSet<Fraggle> Fraggles { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase(nameof(FraggleContext));
         }
 
@@ -124,11 +124,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
-            modelBuilder.Entity<Test>(b =>
-                {
-                    b.HasKey(c => c.Id);
-                    b.Property(c => c.Name);
-                });
+            modelBuilder.Entity<Test>(
+                b =>
+                    {
+                        b.HasKey(c => c.Id);
+                        b.Property(c => c.Name);
+                    });
 
             return modelBuilder.Model;
         }

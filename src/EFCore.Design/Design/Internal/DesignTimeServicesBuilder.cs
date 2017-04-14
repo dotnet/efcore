@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -93,6 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .AddTransient<MigrationsScaffolder>()
                 .AddTransient(_ => contextServices.GetService<ILoggingOptions>())
                 .AddTransient(_ => contextServices.GetService(typeof(IInterceptingLogger<>)))
+                .AddTransient(_ => contextServices.GetService(typeof(IDiagnosticsLogger<>)))
+                .AddTransient(_ => contextServices.GetService<DiagnosticSource>())
                 .AddTransient(_ => contextServices.GetService<ICurrentDbContext>())
                 .AddTransient(_ => contextServices.GetService<IDatabaseProvider>())
                 .AddTransient(_ => contextServices.GetService<IDbContextOptions>())

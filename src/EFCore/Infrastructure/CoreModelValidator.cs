@@ -89,10 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             continue;
                         }
 
-                        ShowWarning(CoreEventId.ModelValidationShadowKeyWarning, CoreStrings.ShadowKey(
-                            Property.Format(key.Properties),
-                            entityType.DisplayName(),
-                            Property.Format(key.Properties)));
+                        Dependencies.Logger.ModelValidationShadowKeyWarning(entityType, key);
                     }
                 }
             }
@@ -271,12 +268,5 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
             }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual void ShowWarning(CoreEventId eventId, [NotNull] string message)
-            => Dependencies.Logger.LogWarning(eventId, () => message);
     }
 }

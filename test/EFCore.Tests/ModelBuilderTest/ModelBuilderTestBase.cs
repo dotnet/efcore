@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
@@ -134,10 +135,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var modelBuilder = ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate();
                 new CoreModelValidator(
                         new ModelValidatorDependencies(
-                            new InterceptingLogger<LoggerCategory.Model.Validation>(
+                            new DiagnosticsLogger<LoggerCategory.Model.Validation>(
+                                new InterceptingLogger<LoggerCategory.Model.Validation>(
                                     new LoggerFactory(),
-                                    new LoggingOptions())))
+                                    new LoggingOptions()),
+                                new DiagnosticListener("Fake"))))
                     .Validate(modelBuilder.Metadata);
+
                 return this;
             }
 

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
@@ -70,6 +72,152 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         private class FakeCurrentDbContext : ICurrentDbContext
         {
             public DbContext Context { get; }
+        }
+
+        public void TestEventLogging(
+            Type eventIdType,
+            Type loggerExtensionsType,
+            IDictionary<Type, Func<object>> fakeFactories)
+        {
+            var eventIdFields = eventIdType.GetTypeInfo()
+                .DeclaredFields
+                .Where(p => p.FieldType == typeof(EventId))
+                .ToList();
+
+            var declaredMethods = loggerExtensionsType.GetTypeInfo()
+                .DeclaredMethods.OrderBy(e => e.Name)
+                .ToList();
+
+            var loggerMethods = declaredMethods
+                .ToDictionary(m => m.Name);
+
+            foreach (var eventIdField in eventIdFields)
+            {
+                var eventName = eventIdField.Name;
+                Assert.Contains(eventName, loggerMethods.Keys);
+
+                var loggerMethod = loggerMethods[eventName];
+
+                var loggerParameters = loggerMethod.GetParameters();
+                var category = loggerParameters[0].ParameterType.GenericTypeArguments[0];
+
+                if (category.GetTypeInfo().ContainsGenericParameters)
+                {
+                    category = typeof(LoggerCategory.Infrastructure);
+                    loggerMethod = loggerMethod.MakeGenericMethod(category);
+                }
+
+                var eventId = ((EventId)eventIdField.GetValue(null));
+
+                var categoryName = Activator.CreateInstance(category).ToString();
+                Assert.Equal(categoryName + "." + eventName, eventId.Name);
+
+                var testLogger = (TestLoggerBase)Activator.CreateInstance(typeof(TestLogger<>).MakeGenericType(category));
+                var testDiagnostics = new TestDiagnosticSource();
+
+                var args = new object[loggerParameters.Length];
+                args[0] = Activator.CreateInstance(
+                    typeof(DiagnosticsLogger<>).MakeGenericType(category),
+                    testLogger,
+                    testDiagnostics);
+
+                for (var i = 1; i < args.Length; i++)
+                {
+                    var type = loggerParameters[i].ParameterType;
+
+                    if (fakeFactories.TryGetValue(type, out var factory))
+                    {
+                        args[i] = factory();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            args[i] = Activator.CreateInstance(type);
+                        }
+                        catch (Exception)
+                        {
+                            Assert.True(false, "Need to add factory for type " + type.DisplayName());
+                        }
+                    }
+                }
+
+                foreach (var enableFor in new[] { "Foo", eventId.Name })
+                {
+                    testDiagnostics.EnableFor = enableFor;
+
+                    var logged = false;
+                    foreach (LogLevel logLevel in Enum.GetValues(typeof(LogLevel)))
+                    {
+                        testLogger.EnabledFor = logLevel;
+                        testLogger.LoggedAt = null;
+                        testDiagnostics.Logged = null;
+
+                        loggerMethod.Invoke(null, args);
+
+                        if (testLogger.LoggedAt != null)
+                        {
+                            Assert.Equal(logLevel, testLogger.LoggedAt);
+                            logged = true;
+                        }
+
+                        if (enableFor == eventId.Name)
+                        {
+                            Assert.Equal(eventId.Name, testDiagnostics.Logged);
+                        }
+                        else
+                        {
+                            Assert.Null(testDiagnostics.Logged);
+                        }
+                    }
+
+                    Assert.True(logged);
+                }
+            }
+        }
+
+        private class TestLoggerBase
+        {
+            public LogLevel EnabledFor { get; set; }
+
+            public LogLevel? LoggedAt { get; set; }
+
+            public EventId LoggedEvent { get; set; }
+        }
+
+        private class TestLogger<TCategory> : TestLoggerBase, IInterceptingLogger<TCategory>
+            where TCategory : LoggerCategory<TCategory>, new()
+        {
+            public ILoggingOptions Options => null;
+
+            public IDisposable BeginScope<TState>(TState state) => null;
+
+            public bool IsEnabled(EventId eventId, LogLevel logLevel)
+            {
+                LoggedEvent = eventId;
+                return EnabledFor == logLevel;
+            }
+
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+            {
+                LoggedAt = logLevel;
+                Assert.Equal(LoggedEvent, eventId);
+            }
+
+            public bool ShouldLogSensitiveData(IDiagnosticsLogger<TCategory> diagnostics) => false;
+        }
+
+        private class TestDiagnosticSource : DiagnosticSource
+        {
+            public string EnableFor { get; set; }
+            public string Logged { get; set; }
+
+            public override void Write(string name, object value)
+            {
+                Logged = name;
+            }
+
+            public override bool IsEnabled(string name) => name == EnableFor;
         }
 
         public DbContextOptions CreateOptions(IModel model, IServiceProvider serviceProvider = null)

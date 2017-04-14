@@ -116,10 +116,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 
+            var indexWarn = _reporter.Messages.Warn.Single(m => m.Contains("PK__Filtered__"));
+
             AssertLog(new LoggerMessages
             {
                 Warn =
                 {
+                    indexWarn,
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"),
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"),
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
@@ -164,10 +167,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 
+            var indexWarn = _reporter.Messages.Warn.Single(m => m.Contains("PK__Filtered__"));
+
             AssertLog(new LoggerMessages
             {
                 Warn =
                 {
+                    indexWarn,
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"),
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"),
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),

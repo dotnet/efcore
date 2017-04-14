@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -15,8 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Builds_simple_command()
         {
             var commandBuilder = new RelationalCommandBuilder(
-                new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                new DiagnosticListener("Fake"),
+                new DiagnosticsLogger<LoggerCategory.Database.Sql>(
+                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
+                    new DiagnosticListener("Fake")),
+                new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
+                    new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
+                    new DiagnosticListener("Fake")),
                 new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies()));
 
             var command = commandBuilder.Build();
@@ -29,8 +34,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Build_command_with_parameter()
         {
             var commandBuilder = new RelationalCommandBuilder(
-                new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                new DiagnosticListener("Fake"),
+                new DiagnosticsLogger<LoggerCategory.Database.Sql>(
+                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
+                    new DiagnosticListener("Fake")),
+                new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
+                    new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
+                    new DiagnosticListener("Fake")),
                 new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies()));
 
             commandBuilder.ParameterBuilder.AddParameter(

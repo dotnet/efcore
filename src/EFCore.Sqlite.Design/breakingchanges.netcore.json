@@ -1,0 +1,6 @@
+[
+  {
+    "TypeId": "public enum Microsoft.EntityFrameworkCore.Infrastructure.SqliteDesignEventId",
+    "Kind": "Removal"
+  }
+]

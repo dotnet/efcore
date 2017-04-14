@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             {
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(InMemoryEventId)}.{nameof(InMemoryEventId.TransactionIgnoredWarning)}",
+                        InMemoryEventId.TransactionIgnoredWarning,
                         InMemoryStrings.TransactionsNotSupported),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Database.BeginTransaction()).Message);
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             {
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(CoreEventId)}.{nameof(CoreEventId.IncludeIgnoredWarning)}",
+                        CoreEventId.IncludeIgnoredWarning.ToString(),
                         CoreStrings.LogIgnoredInclude("[e].Nav")),
                     Assert.Throws<InvalidOperationException>(()
                         => context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList()).Message);
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             {
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
-                        $"{nameof(CoreEventId)}.{nameof(CoreEventId.IncludeIgnoredWarning)}",
+                        CoreEventId.IncludeIgnoredWarning.ToString(),
                         CoreStrings.LogIgnoredInclude("[e].Nav")),
                     Assert.Throws<InvalidOperationException>(()
                         => context.WarningAsErrorEntities.Include(e => e.Nav).Skip(1).Select(e => e.Id).ToList()).Message);
@@ -84,9 +84,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         private class WarningAsErrorContext : DbContext
         {
-            private readonly CoreEventId[] _eventIds;
+            private readonly EventId[] _eventIds;
 
-            public WarningAsErrorContext(params CoreEventId[] eventIds)
+            public WarningAsErrorContext(params EventId[] eventIds)
             {
                 _eventIds = eventIds;
             }

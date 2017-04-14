@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -15,9 +16,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
     {
         protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
             => new SqlServerDatabaseModelFactory(
-                new InterceptingLogger<LoggerCategory.Scaffolding>(
-                    loggerFactory,
-                    new LoggingOptions()));
+                new DiagnosticsLogger<LoggerCategory.Scaffolding>(
+                    new InterceptingLogger<LoggerCategory.Scaffolding>(
+                        loggerFactory,
+                        new LoggingOptions()),
+                    new DiagnosticListener("Fake")));
 
         protected override bool AcceptIndex(IndexModel index)
             => false;

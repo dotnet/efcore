@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
@@ -119,8 +120,12 @@ Statement3
         private MigrationCommandListBuilder CreateBuilder()
             => new MigrationCommandListBuilder(
                 new RelationalCommandBuilderFactory(
-                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                    new DiagnosticListener("Fake"),
+                    new DiagnosticsLogger<LoggerCategory.Database.Sql>(
+                        new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
+                        new DiagnosticListener("Fake")),
+                    new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
+                        new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
+                        new DiagnosticListener("Fake")),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())));
     }
 }

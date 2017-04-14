@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerScaffoldingModelFactory(
-            [NotNull] IInterceptingLogger<LoggerCategory.Scaffolding> logger,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] CandidateNamingService candidateNamingService,
@@ -159,10 +159,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 if (typeof(byte) == propertyBuilder.Metadata.ClrType)
                 {
-                    Logger.LogWarning(
-                        SqlServerDesignEventId.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning,
-                        () => SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy(
-                            column.DisplayName, column.DataType));
+                    Logger.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning(
+                        column.DisplayName, column.DataType);
                 }
                 else
                 {

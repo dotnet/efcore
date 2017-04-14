@@ -181,12 +181,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            using (QueryCompilationContext.Logger.BeginScope(this))
+            using (QueryCompilationContext.Logger.Logger.BeginScope(this))
             {
-                QueryCompilationContext.Logger
-                    .LogDebug(
-                        CoreEventId.CompilingQueryModel,
-                        () => CoreStrings.LogCompilingQueryModel(Environment.NewLine, queryModel.Print()));
+                QueryCompilationContext.Logger.QueryModelCompiling(queryModel);
 
                 _blockTaskExpressions = false;
 
@@ -220,12 +217,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            using (QueryCompilationContext.Logger.BeginScope(this))
+            using (QueryCompilationContext.Logger.Logger.BeginScope(this))
             {
-                QueryCompilationContext.Logger
-                    .LogDebug(
-                        CoreEventId.CompilingQueryModel,
-                        () => CoreStrings.LogCompilingQueryModel(Environment.NewLine, queryModel.Print()));
+                QueryCompilationContext.Logger.QueryModelCompiling(queryModel);
 
                 _blockTaskExpressions = false;
 
@@ -316,18 +310,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // Log results
 
-            QueryCompilationContext.Logger
-                .LogDebug(
-                    CoreEventId.OptimizedQueryModel,
-                    () => CoreStrings.LogOptimizedQueryModel(Environment.NewLine, queryModel.Print()));
+            QueryCompilationContext.Logger.QueryModelOptimized(queryModel);
         }
 
         private class NondeterministicResultCheckingVisitor : QueryModelVisitorBase
         {
-            private const int QueryModelStringLengthLimit = 100;
-            private readonly IInterceptingLogger<LoggerCategory.Query> _logger;
+            private readonly IDiagnosticsLogger<LoggerCategory.Query> _logger;
 
-            public NondeterministicResultCheckingVisitor([NotNull] IInterceptingLogger<LoggerCategory.Query> logger)
+            public NondeterministicResultCheckingVisitor([NotNull] IDiagnosticsLogger<LoggerCategory.Query> logger)
                 => _logger = logger;
 
             public override void VisitQueryModel(QueryModel queryModel)
@@ -342,20 +332,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (resultOperators.Any(o => o is SkipResultOperator || o is TakeResultOperator)
                     && !queryModel.BodyClauses.OfType<OrderByClause>().Any())
                 {
-                    _logger.LogWarning(
-                        CoreEventId.CompilingQueryModel,
-                        () => CoreStrings.RowLimitingOperationWithoutOrderBy(
-                            queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit)));
+                    _logger.RowLimitingOperationWithoutOrderByWarning(queryModel);
                 }
 
                 if (resultOperators.Any(o => o is FirstResultOperator)
                     && !queryModel.BodyClauses.OfType<OrderByClause>().Any()
                     && !queryModel.BodyClauses.OfType<WhereClause>().Any())
                 {
-                    _logger.LogWarning(
-                        CoreEventId.CompilingQueryModel,
-                        () => CoreStrings.FirstWithoutOrderByAndFilter(
-                            queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit)));
+                    _logger.FirstWithoutOrderByAndFilterWarning(queryModel);
                 }
 
                 base.VisitResultOperators(resultOperators, queryModel);
@@ -547,14 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             finally
             {
-                QueryCompilationContext.Logger.LogDebug(
-                    CoreEventId.QueryPlan,
-                    () =>
-                        {
-                            var queryPlan = _expressionPrinter.Print(queryExecutorExpression);
-
-                            return queryPlan;
-                        });
+                QueryCompilationContext.Logger.QueryExecutionPlanned(_expressionPrinter, queryExecutorExpression);
             }
         }
 

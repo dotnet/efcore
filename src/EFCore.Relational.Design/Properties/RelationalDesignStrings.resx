@@ -117,6 +117,24 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ProviderReturnedNullModel" xml:space="preserve">
+    <value>Metadata model returned should not be null. Provider: {providerTypeName}.</value>
+  </data>
+  <data name="ReadOnlyFiles" xml:space="preserve">
+    <value>No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.</value>
+  </data>
+  <data name="MissingUseProviderMethodNameAnnotation" xml:space="preserve">
+    <value>Cannot scaffold the connection string. The "UseProviderMethodName" is missing from the scaffolding model.</value>
+  </data>
+  <data name="ExistingFiles" xml:space="preserve">
+    <value>The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.</value>
+  </data>
+  <data name="ColumnNameEmptyOnIndex" xml:space="preserve">
+    <value>Found a column on index {indexName} on table {tableName} with an empty or null name. Not including column in index.</value>
+  </data>
+  <data name="PrincipalColumnNotFound" xml:space="preserve">
+    <value>For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.</value>
+  </data>
   <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
     <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
   </data>
@@ -127,7 +145,7 @@
     <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.</value>
   </data>
   <data name="ForeignKeyScaffoldErrorPrincipalTableScaffoldingError" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principalTableName}' could not be scaffolded.</value>
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principaltableName}' could not be scaffolded.</value>
   </data>
   <data name="ForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
     <value>Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.</value>
@@ -138,23 +156,53 @@
   <data name="MissingPrimaryKey" xml:space="preserve">
     <value>Unable to identify the primary key for table '{tableName}'.</value>
   </data>
-  <data name="ProviderReturnedNullModel" xml:space="preserve">
-    <value>Metadata model returned should not be null. Provider: {providerTypeName}.</value>
+  <data name="FoundTable" xml:space="preserve">
+    <value>Found table with name: {name}.</value>
   </data>
-  <data name="ReadOnlyFiles" xml:space="preserve">
-    <value>No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.</value>
+  <data name="TableNotInSelectionSet" xml:space="preserve">
+    <value>Table {tableName} is not included in the selection set. Skipping.</value>
+  </data>
+  <data name="ColumnNotInSelectionSet" xml:space="preserve">
+    <value>Column {columnName} belongs to table {tableName} which is not included in the selection set. Skipping.</value>
+  </data>
+  <data name="FoundIndex" xml:space="preserve">
+    <value>Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.</value>
+  </data>
+  <data name="FoundIndexColumn" xml:space="preserve">
+    <value>Found index column on index {indexName} on table {tableName}, column name: {columnName}, ordinal: {ordinal}.</value>
+  </data>
+  <data name="IndexColumnNotInSelectionSet" xml:space="preserve">
+    <value>Index column {columnName} belongs to index {indexName} on table {tableName} which is not included in the selection set. Skipping.</value>
+  </data>
+  <data name="FoundSequence" xml:space="preserve">
+    <value>Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.</value>
+  </data>
+  <data name="ColumnNameEmptyOnForeignKey" xml:space="preserve">
+    <value>Found a column on foreign key {tableName}.{fkName} with an empty or null name. Not including column in foreign key</value>
+  </data>
+  <data name="ColumnNameEmptyOnTable" xml:space="preserve">
+    <value>Found a column on table {tableName} with an empty or null name. Skipping column.</value>
+  </data>
+  <data name="UnableToFindTableForIndex" xml:space="preserve">
+    <value>For index {indexName}. Unable to find parent table {tableName}. Skipping index.</value>
+  </data>
+  <data name="IndexNameEmpty" xml:space="preserve">
+    <value>Found an index on table {tableName} with an empty or null name. Skipping index.</value>
+  </data>
+  <data name="ForeignKeyNameEmpty" xml:space="preserve">
+    <value>Found a foreign key on table {tableName} with an empty or null name. Skipping foreign key.</value>
+  </data>
+  <data name="ForeignKeyColumnNotInSelectionSet" xml:space="preserve">
+    <value>Foreign key column {columnName} belongs to foreign key {fkName} on table {tableName} which is not included in the selection set. Skipping.</value>
+  </data>
+  <data name="PrincipalTableNotInSelectionSet" xml:space="preserve">
+    <value>For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.</value>
   </data>
   <data name="UnableToGenerateEntityType" xml:space="preserve">
     <value>Unable to generate entity type for table '{tableName}'.</value>
   </data>
   <data name="UnableToScaffoldIndexMissingProperty" xml:space="preserve">
     <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
-  </data>
-  <data name="MissingUseProviderMethodNameAnnotation" xml:space="preserve">
-    <value>Cannot scaffold the connection string. The "UseProviderMethodName" is missing from the scaffolding model.</value>
-  </data>
-  <data name="ExistingFiles" xml:space="preserve">
-    <value>The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.</value>
   </data>
   <data name="SequencesRequireName" xml:space="preserve">
     <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>

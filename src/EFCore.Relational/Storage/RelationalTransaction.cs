@@ -7,7 +7,6 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -25,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         private readonly IRelationalConnection _relationalConnection;
         private readonly DbTransaction _dbTransaction;
-        private readonly IInterceptingLogger<LoggerCategory.Database.Transaction> _logger;
-        private readonly DiagnosticSource _diagnosticSource;
+        private readonly IDiagnosticsLogger<LoggerCategory.Database.Transaction> _logger;
         private readonly bool _transactionOwned;
 
         private bool _connectionClosed;
@@ -38,21 +36,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="connection"> The connection to the database. </param>
         /// <param name="transaction"> The underlying <see cref="DbTransaction" />. </param>
         /// <param name="logger"> The logger to write to. </param>
-        /// <param name="diagnosticSource"> The diagnostic source to write to. </param>
         /// <param name="transactionOwned">
         ///     A value indicating whether the transaction is owned by this class (i.e. if it can be disposed when this class is disposed).
         /// </param>
         public RelationalTransaction(
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
-            [NotNull] IInterceptingLogger<LoggerCategory.Database.Transaction> logger,
-            [NotNull] DiagnosticSource diagnosticSource,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(transaction, nameof(transaction));
             Check.NotNull(logger, nameof(logger));
-            Check.NotNull(diagnosticSource, nameof(diagnosticSource));
 
             if (connection.DbConnection != transaction.Connection)
             {
@@ -63,13 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             _dbTransaction = transaction;
             _logger = logger;
-            _diagnosticSource = diagnosticSource;
             _transactionOwned = transactionOwned;
-
-            _diagnosticSource.WriteTransactionStarted(
-                _relationalConnection.DbConnection, 
-                _relationalConnection.ConnectionId, 
-                _dbTransaction);
         }
 
         /// <summary>
@@ -77,10 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual void Commit()
         {
-            _logger.LogDebug(
-                RelationalEventId.CommittingTransaction,
-                () => RelationalStrings.RelationalLoggerCommittingTransaction);
-
             var startTimestamp = Stopwatch.GetTimestamp();
 
             try
@@ -89,9 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                _diagnosticSource.WriteTransactionCommit(
-                    _relationalConnection.DbConnection, 
-                    _relationalConnection.ConnectionId,
+                _logger.TransactionCommitted(
+                    _relationalConnection,
                     _dbTransaction,
                     startTimestamp,
                     currentTimestamp);
@@ -100,9 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                _diagnosticSource.WriteTransactionError(
-                    _relationalConnection.DbConnection, 
-                    _relationalConnection.ConnectionId,
+                _logger.TransactionError(
+                    _relationalConnection,
                     _dbTransaction, 
                     "Commit",
                     e,
@@ -119,10 +102,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual void Rollback()
         {
-            _logger.LogDebug(
-                RelationalEventId.RollingbackTransaction,
-                () => RelationalStrings.RelationalLoggerRollingbackTransaction);
-
             var startTimestamp = Stopwatch.GetTimestamp();
 
             try
@@ -131,9 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                _diagnosticSource.WriteTransactionRollback(
-                    _relationalConnection.DbConnection,
-                    _relationalConnection.ConnectionId,
+                _logger.TransactionRolledBack(
+                    _relationalConnection,
                     _dbTransaction,
                     startTimestamp,
                     currentTimestamp);
@@ -142,9 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                _diagnosticSource.WriteTransactionError(
-                    _relationalConnection.DbConnection,
-                    _relationalConnection.ConnectionId,
+                _logger.TransactionError(
+                    _relationalConnection,
                     _dbTransaction,
                     "Rollback",
                     e,
@@ -169,9 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     _dbTransaction.Dispose();
 
-                    _diagnosticSource.WriteTransactionDisposed(
-                        _relationalConnection.DbConnection, 
-                        _relationalConnection.ConnectionId, 
+                    _logger.TransactionDisposed(
+                        _relationalConnection, 
                         _dbTransaction);
                 }
 

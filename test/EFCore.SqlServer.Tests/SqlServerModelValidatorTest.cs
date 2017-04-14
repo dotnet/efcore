@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -190,9 +191,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         protected override ModelValidator CreateModelValidator()
             => new SqlServerModelValidator(
                 new ModelValidatorDependencies(
-                    new InterceptingLogger<LoggerCategory.Model.Validation>(
-                        new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
-                        new LoggingOptions())),
+                    new DiagnosticsLogger<LoggerCategory.Model.Validation>(
+                        new InterceptingLogger<LoggerCategory.Model.Validation>(
+                            new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
+                            new LoggingOptions()),
+                        new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
                     new TestSqlServerAnnotationProvider(),
                     new SqlServerTypeMapper(new RelationalTypeMapperDependencies())));

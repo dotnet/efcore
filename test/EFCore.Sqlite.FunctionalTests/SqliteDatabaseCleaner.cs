@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -13,9 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     {
         protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
             => new SqliteDatabaseModelFactory(
-                new InterceptingLogger<LoggerCategory.Scaffolding>(
-                    loggerFactory,
-                    new LoggingOptions()));
+                new DiagnosticsLogger<LoggerCategory.Scaffolding>(
+                    new InterceptingLogger<LoggerCategory.Scaffolding>(
+                        loggerFactory,
+                        new LoggingOptions()),
+                    new DiagnosticListener("Fake")));
 
         protected override bool AcceptForeignKey(ForeignKeyModel foreignKey) => false;
 

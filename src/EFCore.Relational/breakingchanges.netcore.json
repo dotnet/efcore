@@ -1,5 +1,18 @@
 [
   {
+    "TypeId": "public enum Microsoft.EntityFrameworkCore.Infrastructure.RelationalEventId",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.WarningConfigurationBuilderExtensions",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor",
+    "MemberId": "protected virtual System.Void WarnClientEval(System.Object expression)",
+    "Kind": "Removal"
+  },
+  {
     "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<T0, T1> where T0 : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<T0, T1> where T1 : Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension",
     "Kind": "Removal"
   },

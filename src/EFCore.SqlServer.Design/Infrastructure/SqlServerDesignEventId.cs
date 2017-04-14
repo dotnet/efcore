@@ -1,74 +1,67 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     Values that are used as the eventId when logging messages from the SQL Server Design Entity Framework Core
-    ///     components.
+    ///     <para>
+    ///         Event IDs for relational design events that correspond to messages logged to an <see cref="ILogger" />
+    ///         and events sent to a <see cref="DiagnosticSource" />.
+    ///     </para>
+    ///     <para>
+    ///         These IDs are also used with <see cref="WarningsConfigurationBuilder" /> to configure the
+    ///         behavior of warnings.
+    ///     </para>
     /// </summary>
-    public enum SqlServerDesignEventId
+    public static class SqlServerDesignEventId
     {
-        /// <summary>
-        ///     Found default schema.
-        /// </summary>
-        FoundDefaultSchema = 1,
+        // Warning: These values must not change between releases.
+        // Only add new values to the end of sections, never in the middle.
+        // Try to use <Noun><Verb> naming and be consistent with existing names.
+        private enum Id
+        {
+            // Scaffolding events
+            ColumnFound = CoreEventId.ProviderDesignBaseId,
+            ForeignKeyColumnFound,
+            DefaultSchemaFound,
+            TypeAliasFound,
+            DataTypeDoesNotAllowSqlServerIdentityStrategyWarning
+        }
+
+        private static readonly string _scaffoldingPrefix = LoggerCategory.Scaffolding.Name + ".";
+        private static EventId MakeScaffoldingId(Id id) => new EventId((int)id, _scaffoldingPrefix + id);
 
         /// <summary>
-        ///     Found type alias.
+        ///     A column was found.
+        ///     This event is in the <see cref="LoggerCategory.Scaffolding" /> category.
         /// </summary>
-        FoundTypeAlias,
+        public static readonly EventId ColumnFound = MakeScaffoldingId(Id.ColumnFound);
 
         /// <summary>
-        ///     Column name empty on table.
+        ///     A column of a foreign key was found.
+        ///     This event is in the <see cref="LoggerCategory.Scaffolding" /> category.
         /// </summary>
-        ColumnMustBeNamedWarning,
+        public static readonly EventId ForeignKeyColumnFound = MakeScaffoldingId(Id.ForeignKeyColumnFound);
 
         /// <summary>
-        ///     Index name empty.
+        ///     A default schema was found.
+        ///     This event is in the <see cref="LoggerCategory.Scaffolding" /> category.
         /// </summary>
-        IndexMustBeNamedWarning,
+        public static readonly EventId DefaultSchemaFound = MakeScaffoldingId(Id.DefaultSchemaFound);
 
         /// <summary>
-        ///     Unable to find table for index.
+        ///     A type alias was found.
+        ///     This event is in the <see cref="LoggerCategory.Scaffolding" /> category.
         /// </summary>
-        IndexTableMissingWarning,
+        public static readonly EventId TypeAliasFound = MakeScaffoldingId(Id.TypeAliasFound);
 
         /// <summary>
-        ///     Column name empty on index.
+        ///     The data type does not support the SQL Server identity strategy.
+        ///     This event is in the <see cref="LoggerCategory.Scaffolding" /> category.
         /// </summary>
-        IndexColumnMustBeNamedWarning,
-
-        /// <summary>
-        ///     Foreign key name empty.
-        /// </summary>
-        ForeignKeyMustBeNamedWarning,
-
-        /// <summary>
-        ///     Foreign key column not in selection set.
-        /// </summary>
-        ForeignKeyColumnSkipped,
-
-        /// <summary>
-        ///     Column name empty on foreign key.
-        /// </summary>
-        ColumnNameEmptyOnForeignKey,
-
-        /// <summary>
-        ///     Data type does not allow SQL Server identity strategy.
-        /// </summary>
-        DataTypeDoesNotAllowSqlServerIdentityStrategyWarning,
-
-        /// <summary>
-        ///     Cannot interpret default value.
-        ///     Note: no longer used.
-        /// </summary>
-        CannotInterpretDefaultValueWarning,
-
-        /// <summary>
-        ///     Cannot interpret computed value.
-        ///     Note: no longer used.
-        /// </summary>
-        CannotInterpretComputedValueWarning
+        public static readonly EventId DataTypeDoesNotAllowSqlServerIdentityStrategyWarning = MakeScaffoldingId(Id.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning);
     }
 }

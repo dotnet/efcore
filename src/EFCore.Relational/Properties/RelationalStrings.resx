@@ -153,17 +153,38 @@
   <data name="RelationalLoggerOpeningConnection" xml:space="preserve">
     <value>Opening connection to database '{database}' on server '{server}'.</value>
   </data>
+  <data name="RelationalLoggerOpenedConnection" xml:space="preserve">
+    <value>Opened connection to database '{database}' on server '{server}'.</value>
+  </data>
   <data name="RelationalLoggerClosingConnection" xml:space="preserve">
     <value>Closing connection to database '{database}' on server '{server}'.</value>
   </data>
+  <data name="RelationalLoggerClosedConnection" xml:space="preserve">
+    <value>Closed connection to database '{database}' on server '{server}'.</value>
+  </data>
+  <data name="RelationalLoggerConnectionError" xml:space="preserve">
+    <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
+  </data>
   <data name="RelationalLoggerBeginningTransaction" xml:space="preserve">
     <value>Beginning transaction with isolation level '{isolationLevel}'.</value>
+  </data>
+  <data name="RelationalLoggerUsingTransaction" xml:space="preserve">
+    <value>Using an existing transaction with isolation level '{isolationLevel}'.</value>
   </data>
   <data name="RelationalLoggerCommittingTransaction" xml:space="preserve">
     <value>Committing transaction.</value>
   </data>
   <data name="RelationalLoggerRollingbackTransaction" xml:space="preserve">
     <value>Rolling back transaction.</value>
+  </data>
+  <data name="RelationalLoggerDisposingTransaction" xml:space="preserve">
+    <value>Disposing transaction.</value>
+  </data>
+  <data name="RelationalLoggerTransactionError" xml:space="preserve">
+    <value>An error occurred using a transaction.</value>
+  </data>
+  <data name="DisposingDataReader" xml:space="preserve">
+    <value>A data reader was disposed.</value>
   </data>
   <data name="BadSequenceType" xml:space="preserve">
     <value>Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', and 'Byte'.</value>
@@ -197,9 +218,6 @@
   </data>
   <data name="PossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method Equals(object) for arguments of different types: '{left}', '{right}'. This comparison will always return 'false'.</value>
-  </data>
-  <data name="PossibleIncorrectResultsUsingLikeOperator" xml:space="preserve">
-    <value>Linq translation for method '{function}' used by this database provider can return incorrect results when the value argument contains wildcard characters (e.g. '%' or '_').</value>
   </data>
   <data name="StoredProcedureIncludeNotSupported" xml:space="preserve">
     <value>The Include operation is not supported when calling a stored procedure.</value>
@@ -253,8 +271,14 @@
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>
   </data>
+  <data name="RelationalLoggerExecutingCommand" xml:space="preserve">
+    <value>Executing DbCommand [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
+  </data>
   <data name="RelationalLoggerExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
+  </data>
+  <data name="RelationalLoggerCommandFailed" xml:space="preserve">
+    <value>Failed executing DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
   </data>
   <data name="DuplicateColumnNameDataTypeMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different data types ('{dataType1}' and '{dataType2}').</value>

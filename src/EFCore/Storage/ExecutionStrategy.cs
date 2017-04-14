@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The logger for this <see cref="ExecutionStrategy" />.
         /// </summary>
-        protected virtual IInterceptingLogger<LoggerCategory.Infrastructure> Logger { get; }
+        protected virtual IDiagnosticsLogger<LoggerCategory.Infrastructure> Logger { get; }
 
         private static readonly AsyncLocal<bool?> _suspended = new AsyncLocal<bool?>();
 

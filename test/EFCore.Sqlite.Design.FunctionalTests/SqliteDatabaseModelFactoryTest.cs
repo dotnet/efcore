@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -26,12 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         {
             _testStore = SqliteTestStore.CreateScratch();
 
-            var serviceCollection = new ServiceCollection().AddLogging();
+            var serviceCollection = new ServiceCollection().AddScaffolding().AddLogging();
             new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
-
-            serviceCollection
-                .AddSingleton<ILoggingOptions, LoggingOptions>()
-                .AddSingleton(typeof(IInterceptingLogger<>), typeof(InterceptingLogger<>));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 

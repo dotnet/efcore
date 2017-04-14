@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] Expression expression,
             [NotNull] QueryContext queryContext,
             [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter,
-            [NotNull] IInterceptingLogger<LoggerCategory.Query> logger,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Query> logger,
             bool parameterize)
         {
             var visitor 
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
         private readonly QueryContext _queryContext;
-        private readonly IInterceptingLogger<LoggerCategory.Query> _logger;
+        private readonly IDiagnosticsLogger<LoggerCategory.Query> _logger;
         private readonly bool _parameterize;
 
         private PartialEvaluationInfo _partialEvaluationInfo;
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         public ParameterExtractingExpressionVisitor(
             [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter,
             [NotNull] QueryContext queryContext,
-            [NotNull] IInterceptingLogger<LoggerCategory.Query> logger,
+            [NotNull] IDiagnosticsLogger<LoggerCategory.Query> logger,
             bool parameterize)
         {
             _evaluatableExpressionFilter = evaluatableExpressionFilter;
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             catch (Exception exception)
             {
                 throw new InvalidOperationException(
-                    _logger.LogSensitiveData
+                    _logger.Logger.ShouldLogSensitiveData(_logger)
                         ? CoreStrings.ExpressionParameterizationExceptionSensitive(expression)
                         : CoreStrings.ExpressionParameterizationException,
                     exception);

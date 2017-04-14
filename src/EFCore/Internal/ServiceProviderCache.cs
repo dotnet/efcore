@@ -96,17 +96,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                 .EnsureInitialized(serviceProvider, options);
                         }
 
-                        var logger = serviceProvider.GetRequiredService<IInterceptingLogger<LoggerCategory.Infrastructure>>();
+                        var logger = serviceProvider.GetRequiredService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>();
 
-                        logger.LogDebug(
-                            CoreEventId.ServiceProviderCreated, 
-                            () => CoreStrings.ServiceProviderCreated);
+                        logger.ServiceProviderCreated(serviceProvider);
 
                         if (_configurations.Count >= 20)
                         {
-                            logger.LogWarning(
-                                CoreEventId.ManyServiceProvidersCreated,
-                                () => CoreStrings.ManyServiceProvidersCreated);
+                            logger.ManyServiceProvidersCreatedWarning(_configurations.Values);
                         }
 
                         return serviceProvider;

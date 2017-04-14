@@ -25,11 +25,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             var connection = new FakeRelationalConnection(
                 CreateOptions((FakeRelationalOptionsExtension)new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
 
+            var loggerFactory = new ListLoggerFactory(new List<Tuple<LogLevel, string>>());
+
             var transaction = new RelationalTransaction(
                 connection,
                 dbTransaction,
-                new InterceptingLogger<LoggerCategory.Database.Transaction>(new ListLoggerFactory(new List<Tuple<LogLevel, string>>()), new LoggingOptions()),
-                new DiagnosticListener("Fake"),
+                new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
+                    new InterceptingLogger<LoggerCategory.Database.Transaction>(loggerFactory, new LoggingOptions()),
+                    new DiagnosticListener("Fake")),
                 false);
 
             Assert.Equal(dbTransaction, transaction.GetDbTransaction());
