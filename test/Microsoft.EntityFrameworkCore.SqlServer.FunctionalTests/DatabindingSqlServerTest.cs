@@ -43,5 +43,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             base.Entities_removed_from_the_local_view_are_marked_deleted_in_the_state_manager();
         }
+
+#if NET451
+
+        [Fact(Skip = "Test is flaky on CI")]
+        public override void Adding_entity_to_state_manager_of_different_type_than_local_view_type_has_no_effect_on_local_binding_list()
+        {
+            base.Adding_entity_to_state_manager_of_different_type_than_local_view_type_has_no_effect_on_local_binding_list();
+        }
+#endif
+
     }
 }

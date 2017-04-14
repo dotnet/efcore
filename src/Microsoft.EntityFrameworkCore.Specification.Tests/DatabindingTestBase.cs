@@ -584,8 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
-        public void
-            Adding_entity_to_state_manager_of_different_type_than_local_view_type_has_no_effect_on_local_binding_list()
+        public virtual void Adding_entity_to_state_manager_of_different_type_than_local_view_type_has_no_effect_on_local_binding_list()
         {
             using (var context = CreateF1Context())
             {
