@@ -274,13 +274,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         foreach (var property in entityType.FindPrimaryKey().Properties)
                         {
-                            var itemProperty = itemSelectExpression.BindPropertyToSelectExpression(
+                            var itemProperty = itemSelectExpression.BindProperty(
                                 property,
                                 itemSelectExpression.ProjectStarTable.QuerySource);
 
                             itemSelectExpression.AddToProjection(itemProperty);
 
-                            var collectionProperty = collectionSelectExpression.BindPropertyToSelectExpression(
+                            var collectionProperty = collectionSelectExpression.BindProperty(
                                 property,
                                 collectionSelectExpression.ProjectStarTable.QuerySource);
 

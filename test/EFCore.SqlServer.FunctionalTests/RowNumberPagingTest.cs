@@ -131,12 +131,13 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
         {
             base.Take_Skip();
 
-            AssertSql(@"@__p_0: 10
+            AssertSql(
+                @"@__p_0: 10
 @__p_1: 5
 
-SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+SELECT [t0].*
 FROM (
-    SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], ROW_NUMBER() OVER(ORDER BY [t].[ContactName]) AS [__RowNumber__]
+    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[ContactName]) AS [__RowNumber__]
     FROM (
         SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
@@ -154,11 +155,11 @@ WHERE [t0].[__RowNumber__] > @__p_1");
                 @"@__p_0: 10
 @__p_1: 5
 
-SELECT DISTINCT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+SELECT DISTINCT [t0].*
 FROM (
-    SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+    SELECT [t1].*
     FROM (
-        SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], ROW_NUMBER() OVER(ORDER BY [t].[ContactName]) AS [__RowNumber__]
+        SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[ContactName]) AS [__RowNumber__]
         FROM (
             SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
             FROM [Customers] AS [c]
@@ -173,14 +174,15 @@ FROM (
         {
             base.Take_skip_null_coalesce_operator();
 
-            AssertSql(@"@__p_0: 10
+            AssertSql(
+                @"@__p_0: 10
 @__p_1: 5
 
-SELECT DISTINCT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+SELECT DISTINCT [t0].*
 FROM (
-    SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+    SELECT [t1].*
     FROM (
-        SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], ROW_NUMBER() OVER(ORDER BY [t].[c]) AS [__RowNumber__]
+        SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[c]) AS [__RowNumber__]
         FROM (
             SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
             FROM [Customers] AS [c]
@@ -195,12 +197,13 @@ FROM (
         {
             base.Select_take_skip_null_coalesce_operator();
 
-            AssertSql(@"@__p_0: 10
+            AssertSql(
+                @"@__p_0: 10
 @__p_1: 5
 
-SELECT [t0].[CustomerID], [t0].[CompanyName], [t0].[c]
+SELECT [t0].*
 FROM (
-    SELECT [t].[CustomerID], [t].[CompanyName], [t].[c], ROW_NUMBER() OVER(ORDER BY [t].[c]) AS [__RowNumber__]
+    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[c]) AS [__RowNumber__]
     FROM (
         SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [c]
         FROM [Customers] AS [c]
@@ -263,7 +266,7 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
 @__p_0: 5
 @__p_1: 8
 
-SELECT TOP(@__p_2) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT TOP(@__p_2) [t].*
 FROM (
     SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
     FROM (
@@ -283,7 +286,7 @@ ORDER BY [t].[ContactTitle], [t].[ContactName]");
                 @"@__p_0: 5
 @__p_1: 15
 
-SELECT DISTINCT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT DISTINCT [t].*
 FROM (
     SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
     FROM (
@@ -305,11 +308,11 @@ FROM (
 @__p_0: 5
 @__p_1: 15
 
-SELECT TOP(@__p_4) [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+SELECT TOP(@__p_4) [t1].*
 FROM (
-    SELECT TOP(@__p_3) [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    SELECT TOP(@__p_3) [t0].*
     FROM (
-        SELECT TOP(@__p_2) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+        SELECT TOP(@__p_2) [t].*
         FROM (
             SELECT [t2].[CustomerID], [t2].[Address], [t2].[City], [t2].[CompanyName], [t2].[ContactName], [t2].[ContactTitle], [t2].[Country], [t2].[Fax], [t2].[Phone], [t2].[PostalCode], [t2].[Region]
             FROM (

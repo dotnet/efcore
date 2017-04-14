@@ -134,6 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 if (value)
                 {
                     _starProjection.AddRange(_projection);
+                    _projection.Clear();
                 }
                 else
                 {
@@ -156,7 +157,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 if (_offset != null)
                 {
                     PushDownSubquery();
-                    ExplodeStarProjection();
                 }
 
                 if (value && _orderBy.Any(o => !_projection.Contains(o.Expression, _expressionEqualityComparer)))
@@ -183,7 +183,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 if (value != null && _limit != null)
                 {
                     PushDownSubquery();
-                    ExplodeStarProjection();
                     LiftOrderBy();
                 }
 
@@ -207,7 +206,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     && value != null)
                 {
                     PushDownSubquery();
-                    ExplodeStarProjection();
                     LiftOrderBy();
                 }
 
@@ -332,9 +330,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </returns>
         public virtual SelectExpression PushDownSubquery()
         {
-            var subquery = new SelectExpression(Dependencies, _queryCompilationContext, SubqueryAliasPrefix);
+            var subquery = new SelectExpression(Dependencies, _queryCompilationContext, SubqueryAliasPrefix)
+            {
+                IsProjectStar = IsProjectStar || !_projection.Any()
+            };
 
-            foreach (var expression in _projection)
+            var projectionsToAdd = IsProjectStar ? _starProjection : _projection;
+            var outerProjections = new List<Expression>();
+
+            foreach (var expression in projectionsToAdd)
             {
                 var expressionToAdd = expression;
 
@@ -378,14 +382,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     }
                 }
 
-                var memberInfo = _memberInfoProjectionMapping.FirstOrDefault(kvp => _expressionEqualityComparer.Equals(kvp.Value, expression)).Key;
+                if (IsProjectStar)
+                {
+                    subquery._starProjection.Add(expressionToAdd);
+                }
+                else
+                {
+                    subquery._projection.Add(expressionToAdd);
+                }
+
+                var outerProjection = expressionToAdd.LiftExpressionFromSubquery(subquery);
+
+                var memberInfo = _memberInfoProjectionMapping.FirstOrDefault(
+                        kvp => _expressionEqualityComparer.Equals(kvp.Value, expression))
+                    .Key;
 
                 if (memberInfo != null)
                 {
-                    _memberInfoProjectionMapping[memberInfo] = expressionToAdd.LiftExpressionFromSubquery(subquery);
+                    _memberInfoProjectionMapping[memberInfo] = outerProjection;
                 }
 
-                subquery._projection.Add(expressionToAdd);
+                outerProjections.Add(outerProjection);
             }
 
             subquery._tables.AddRange(_tables);
@@ -397,13 +414,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             subquery._offset = _offset;
             subquery._isDistinct = _isDistinct;
             subquery.ProjectStarTable = ProjectStarTable;
-            subquery.IsProjectStar = IsProjectStar || !subquery._projection.Any();
 
             Clear();
 
             _tables.Add(subquery);
+            _projection.AddRange(outerProjections);
             ProjectStarTable = subquery;
-
             IsProjectStar = true;
 
             if (subquery.Limit == null
@@ -487,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <returns>
         ///     The bound expression which can be used to refer column from this select expression.
         /// </returns>
-        public virtual Expression BindPropertyToSelectExpression(
+        public virtual Expression BindProperty(
             [NotNull] IProperty property,
             [NotNull] IQuerySource querySource)
         {
@@ -502,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             var projectedExpressionToSearch = table is SelectExpression subquerySelectExpression
-                ? (Expression)subquerySelectExpression.BindPropertyToSelectExpression(property, querySource)
+                ? (Expression)subquerySelectExpression.BindProperty(property, querySource)
                     .LiftExpressionFromSubquery(table)
                 : new ColumnExpression(_relationalAnnotationProvider.For(property).ColumnName, property, table);
 
@@ -541,7 +557,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(querySource, nameof(querySource));
 
             return AddToProjection(
-                BindPropertyToSelectExpression(property, querySource));
+                BindProperty(property, querySource));
         }
 
         /// <summary>
@@ -713,10 +729,44 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(property, nameof(property));
             Check.NotNull(querySource, nameof(querySource));
 
-            var projectedExpressionToSearch = BindPropertyToSelectExpression(property, querySource);
+            var projectedExpressionToSearch = BindProperty(property, querySource);
 
             return _projection
                 .FindIndex(e => _expressionEqualityComparer.Equals(e, projectedExpressionToSearch));
+        }
+
+        /// <summary>
+        ///     Computes the bound expression corresponding to the supplied index and query source.
+        /// </summary>
+        /// <param name="projectionIndex"> The index of projected expression in subquery. </param>
+        /// <param name="querySource"> The originating query source. </param>
+        /// <returns>
+        ///     The projected expression.
+        /// </returns>
+        public virtual Expression BindSubqueryProjectionIndex(
+            int projectionIndex,
+            [NotNull] IQuerySource querySource)
+        {
+            Check.NotNull(querySource, nameof(querySource));
+
+            var table = GetTableForQuerySource(querySource);
+
+            if (table is JoinExpressionBase joinTable)
+            {
+                table = joinTable.TableExpression;
+            }
+
+            if (table is SelectExpression subquerySelectExpression)
+            {
+                var innerProjectedExpression
+                    = subquerySelectExpression.IsProjectStar
+                        ? subquerySelectExpression._starProjection[projectionIndex]
+                        : subquerySelectExpression._projection[projectionIndex];
+
+                return innerProjectedExpression.LiftExpressionFromSubquery(table);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -727,12 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             if (IsProjectStar)
             {
-                var subquery = (SelectExpression)_tables.Single();
-
-                foreach (var projectedExpression in subquery._projection)
-                {
-                    _projection.Add(projectedExpression.LiftExpressionFromSubquery(subquery));
-                }
+                _projection.AddRange(_starProjection);
 
                 IsProjectStar = false;
             }
@@ -1132,7 +1177,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(querySource, nameof(querySource));
 
             return AddToProjection(
-                BindPropertyToSelectExpression(property, table, querySource));
+                BindProperty(property, table, querySource));
         }
 
         /// <summary>
@@ -1142,7 +1187,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="table"></param>
         /// <param name="querySource"></param>
         /// <returns></returns>
-        public virtual Expression BindPropertyToSelectExpression(
+        public virtual Expression BindProperty(
             [NotNull] IProperty property,
             [NotNull] TableExpressionBase table,
             [NotNull] IQuerySource querySource)
@@ -1156,7 +1201,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             var projectedExpressionToSearch = table is SelectExpression subquerySelectExpression
-                ? (Expression)subquerySelectExpression.BindPropertyToSelectExpression(property, querySource)
+                ? (Expression)subquerySelectExpression.BindProperty(property, querySource)
                     .LiftExpressionFromSubquery(table)
                 : new ColumnExpression(_relationalAnnotationProvider.For(property).ColumnName, property, table);
 
@@ -1182,7 +1227,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(property, nameof(property));
             Check.NotNull(table, nameof(table));
 
-            var orderingExpression = BindPropertyToSelectExpression(property, table, querySource);
+            var orderingExpression = BindProperty(property, table, querySource);
 
             return AddToOrderBy(new Ordering(orderingExpression, orderingDirection));
         }

@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     .For(concreteEntityTypes[0]).DiscriminatorProperty;
 
             var discriminatorColumn
-                = selectExpression.BindPropertyToSelectExpression(
+                = selectExpression.BindProperty(
                     discriminatorProperty,
                     querySource);
 

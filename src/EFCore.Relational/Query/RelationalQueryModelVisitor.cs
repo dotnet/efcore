@@ -1434,7 +1434,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var subSelectExpression = innerSelectExpression.PushDownSubquery();
                 innerSelectExpression.ExplodeStarProjection();
                 subSelectExpression.IsProjectStar = true;
-                subSelectExpression.ClearProjection();
                 subSelectExpression.QuerySource = joinClause;
 
                 predicate

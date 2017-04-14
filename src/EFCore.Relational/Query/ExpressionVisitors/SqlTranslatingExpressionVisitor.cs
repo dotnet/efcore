@@ -611,26 +611,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var projectionIndex
                         = (int)((ConstantExpression)methodCallExpression.Arguments.Single()).Value;
 
-                    var tableExpression
-                        = selectExpression
-                            .GetTableForQuerySource(
-                                querySourceReferenceExpression.ReferencedQuerySource);
-
-                    if (tableExpression is SelectExpression)
-                    {
-                        return selectExpression.Projection[projectionIndex];
-                    }
-
-                    var subSelectExpression
-                        = (SelectExpression)((JoinExpressionBase)tableExpression)
-                        .TableExpression;
-
-                    return subSelectExpression.Projection[projectionIndex]
-                        .LiftExpressionFromSubquery(tableExpression);
+                    return selectExpression.BindSubqueryProjectionIndex(
+                        projectionIndex,
+                        querySourceReferenceExpression.ReferencedQuerySource);
                 }
             }
 
-            return TryBindMemberOrMethodToAliasExpression(methodCallExpression, (expression, visitor, binder)
+            return TryBindMemberOrMethodToSelectExpression(methodCallExpression, (expression, visitor, binder)
                     => visitor.BindMethodCallExpression(expression, binder))
                 ?? _queryModelVisitor.BindLocalMethodCallExpression(methodCallExpression)
                 ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
@@ -669,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            return TryBindMemberOrMethodToAliasExpression(memberExpression, (expression, visitor, binder)
+            return TryBindMemberOrMethodToSelectExpression(memberExpression, (expression, visitor, binder)
                     => visitor.BindMemberExpression(expression, binder))
                 ?? TryBindQuerySourcePropertyExpression(memberExpression)
                 ?? _queryModelVisitor.BindMemberToOuterQueryParameter(memberExpression);
@@ -687,27 +674,27 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return null;
         }
 
-        private Expression TryBindMemberOrMethodToAliasExpression<TExpression>(
+        private Expression TryBindMemberOrMethodToSelectExpression<TExpression>(
             TExpression sourceExpression,
             Func<TExpression, RelationalQueryModelVisitor, Func<IProperty, IQuerySource, SelectExpression, Expression>, Expression> binder)
         {
             Expression BindPropertyToSelectExpression(
                 IProperty property, IQuerySource querySource, SelectExpression selectExpression)
-                => selectExpression.BindPropertyToSelectExpression(
+                => selectExpression.BindProperty(
                         property,
                         querySource);
 
             var boundExpression = binder(sourceExpression, _queryModelVisitor, (property, querySource, selectExpression) =>
             {
-                var aliasExpression = BindPropertyToSelectExpression(property, querySource, selectExpression);
+                var boundPropertyExpression = BindPropertyToSelectExpression(property, querySource, selectExpression);
 
                 if (_targetSelectExpression != null && selectExpression != _targetSelectExpression)
                 {
-                    selectExpression.AddToProjection(aliasExpression);
+                    selectExpression.AddToProjection(boundPropertyExpression);
                     return null;
                 }
 
-                return aliasExpression;
+                return boundPropertyExpression;
             });
 
             if (boundExpression != null)

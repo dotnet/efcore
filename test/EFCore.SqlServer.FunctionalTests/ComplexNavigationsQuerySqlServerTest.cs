@@ -1366,7 +1366,7 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY",
 SELECT [e.OneToOne_Required_FK.OneToMany_Optional].[Id], [e.OneToOne_Required_FK.OneToMany_Optional].[Level2_Optional_Id], [e.OneToOne_Required_FK.OneToMany_Optional].[Level2_Required_Id], [e.OneToOne_Required_FK.OneToMany_Optional].[Name], [e.OneToOne_Required_FK.OneToMany_Optional].[OneToMany_Optional_InverseId], [e.OneToOne_Required_FK.OneToMany_Optional].[OneToMany_Optional_Self_InverseId], [e.OneToOne_Required_FK.OneToMany_Optional].[OneToMany_Required_InverseId], [e.OneToOne_Required_FK.OneToMany_Optional].[OneToMany_Required_Self_InverseId], [e.OneToOne_Required_FK.OneToMany_Optional].[OneToOne_Optional_PK_InverseId], [e.OneToOne_Required_FK.OneToMany_Optional].[OneToOne_Optional_SelfId]
 FROM [Level3] AS [e.OneToOne_Required_FK.OneToMany_Optional]
 INNER JOIN (
-    SELECT DISTINCT [t].[Id], [t].[Name]
+    SELECT DISTINCT [t].*
     FROM (
         SELECT [e.OneToOne_Required_FK0].[Id], [e0].[Name]
         FROM [Level1] AS [e0]
@@ -1383,7 +1383,7 @@ ORDER BY [t0].[Name], [t0].[Id]",
 SELECT [e.OneToOne_Required_FK.OneToMany_Required].[Id], [e.OneToOne_Required_FK.OneToMany_Required].[Level2_Optional_Id], [e.OneToOne_Required_FK.OneToMany_Required].[Level2_Required_Id], [e.OneToOne_Required_FK.OneToMany_Required].[Name], [e.OneToOne_Required_FK.OneToMany_Required].[OneToMany_Optional_InverseId], [e.OneToOne_Required_FK.OneToMany_Required].[OneToMany_Optional_Self_InverseId], [e.OneToOne_Required_FK.OneToMany_Required].[OneToMany_Required_InverseId], [e.OneToOne_Required_FK.OneToMany_Required].[OneToMany_Required_Self_InverseId], [e.OneToOne_Required_FK.OneToMany_Required].[OneToOne_Optional_PK_InverseId], [e.OneToOne_Required_FK.OneToMany_Required].[OneToOne_Optional_SelfId]
 FROM [Level3] AS [e.OneToOne_Required_FK.OneToMany_Required]
 INNER JOIN (
-    SELECT DISTINCT [t1].[Id], [t1].[Name]
+    SELECT DISTINCT [t1].*
     FROM (
         SELECT [e.OneToOne_Required_FK1].[Id], [e1].[Name]
         FROM [Level1] AS [e1]
@@ -1419,7 +1419,7 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY",
 SELECT [e.OneToOne_Required_FK.OneToMany_Required].[Id], [e.OneToOne_Required_FK.OneToMany_Required].[Level2_Optional_Id], [e.OneToOne_Required_FK.OneToMany_Required].[Level2_Required_Id], [e.OneToOne_Required_FK.OneToMany_Required].[Name], [e.OneToOne_Required_FK.OneToMany_Required].[OneToMany_Optional_InverseId], [e.OneToOne_Required_FK.OneToMany_Required].[OneToMany_Optional_Self_InverseId], [e.OneToOne_Required_FK.OneToMany_Required].[OneToMany_Required_InverseId], [e.OneToOne_Required_FK.OneToMany_Required].[OneToMany_Required_Self_InverseId], [e.OneToOne_Required_FK.OneToMany_Required].[OneToOne_Optional_PK_InverseId], [e.OneToOne_Required_FK.OneToMany_Required].[OneToOne_Optional_SelfId]
 FROM [Level3] AS [e.OneToOne_Required_FK.OneToMany_Required]
 INNER JOIN (
-    SELECT DISTINCT [t1].[Id], [t1].[Name], [t1].[c0]
+    SELECT DISTINCT [t1].*
     FROM (
         SELECT [e.OneToOne_Required_FK1].[Id], [e1].[Name], [e.OneToOne_Optional_FK1].[Id] AS [c0]
         FROM [Level1] AS [e1]
@@ -1437,7 +1437,7 @@ ORDER BY [t2].[Name], [t2].[c0], [t2].[Id]",
 SELECT [e.OneToOne_Optional_FK.OneToMany_Optional].[Id], [e.OneToOne_Optional_FK.OneToMany_Optional].[Level2_Optional_Id], [e.OneToOne_Optional_FK.OneToMany_Optional].[Level2_Required_Id], [e.OneToOne_Optional_FK.OneToMany_Optional].[Name], [e.OneToOne_Optional_FK.OneToMany_Optional].[OneToMany_Optional_InverseId], [e.OneToOne_Optional_FK.OneToMany_Optional].[OneToMany_Optional_Self_InverseId], [e.OneToOne_Optional_FK.OneToMany_Optional].[OneToMany_Required_InverseId], [e.OneToOne_Optional_FK.OneToMany_Optional].[OneToMany_Required_Self_InverseId], [e.OneToOne_Optional_FK.OneToMany_Optional].[OneToOne_Optional_PK_InverseId], [e.OneToOne_Optional_FK.OneToMany_Optional].[OneToOne_Optional_SelfId]
 FROM [Level3] AS [e.OneToOne_Optional_FK.OneToMany_Optional]
 INNER JOIN (
-    SELECT DISTINCT [t].[Id], [t].[Name]
+    SELECT DISTINCT [t].*
     FROM (
         SELECT [e.OneToOne_Optional_FK0].[Id], [e0].[Name]
         FROM [Level1] AS [e0]
@@ -1474,7 +1474,7 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY",
 SELECT [e.OneToOne_Optional_FK.OneToOne_Required_FK.OneToMany_Optional].[Id], [e.OneToOne_Optional_FK.OneToOne_Required_FK.OneToMany_Optional].[Level3_Optional_Id], [e.OneToOne_Optional_FK.OneToOne_Required_FK.OneToMany_Optional].[Level3_Required_Id], [e.OneToOne_Optional_FK.OneToOne_Required_FK.OneToMany_Optional].[Name], [e.OneToOne_Optional_FK.OneToOne_Required_FK.OneToMany_Optional].[OneToMany_Optional_InverseId], [e.OneToOne_Optional_FK.OneToOne_Required_FK.OneToMany_Optional].[OneToMany_Optional_Self_InverseId], [e.OneToOne_Optional_FK.OneToOne_Required_FK.OneToMany_Optional].[OneToMany_Required_InverseId], [e.OneToOne_Optional_FK.OneToOne_Required_FK.OneToMany_Optional].[OneToMany_Required_Self_InverseId], [e.OneToOne_Optional_FK.OneToOne_Required_FK.OneToMany_Optional].[OneToOne_Optional_PK_InverseId], [e.OneToOne_Optional_FK.OneToOne_Required_FK.OneToMany_Optional].[OneToOne_Optional_SelfId]
 FROM [Level4] AS [e.OneToOne_Optional_FK.OneToOne_Required_FK.OneToMany_Optional]
 INNER JOIN (
-    SELECT DISTINCT [t].[Id], [t].[Name]
+    SELECT DISTINCT [t].*
     FROM (
         SELECT [e.OneToOne_Optional_FK.OneToOne_Required_FK0].[Id], [e0].[Name]
         FROM [Level1] AS [e0]
