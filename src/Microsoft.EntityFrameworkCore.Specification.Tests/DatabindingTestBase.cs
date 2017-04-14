@@ -405,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
-        public void LocalView_is_initialized_with_entities_from_the_context()
+        public virtual void LocalView_is_initialized_with_entities_from_the_context()
         {
             using (var context = CreateF1Context())
             {
