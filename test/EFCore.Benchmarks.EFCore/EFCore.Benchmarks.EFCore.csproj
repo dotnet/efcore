@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
-    <TargetFrameworks>net46;netcoreapp2.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.0</TargetFrameworks>
+    <TargetFramework>net46</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Benchmarks.EFCore</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks.EFCore</RootNamespace>
     <!-- TODO: Remove when Microsoft/vstest#428 is fixed. -->
@@ -10,7 +9,6 @@
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
     <ProjectReference Include="..\..\src\EFCore.SqlServer\EFCore.SqlServer.csproj" />
     <ProjectReference Include="..\EFCore.Benchmarks\EFCore.Benchmarks.csproj" />
   </ItemGroup>

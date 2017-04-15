@@ -13,37 +13,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
     {
         private readonly TestPlatform _excludedOperatingSystem;
         private readonly IEnumerable<string> _excludedVersions;
-        private readonly TestPlatform _osPlatform;
-        private readonly string _osVersion;
 
-        public OsSkipConditionAttribute(TestPlatform operatingSystem, params string[] versions) :
-            this(
-                operatingSystem,
-                GetCurrentOs(),
-                GetCurrentOsVersion(),
-                versions)
-        {
-        }
-
-        // to enable unit testing
-        internal OsSkipConditionAttribute(
-            TestPlatform operatingSystem, TestPlatform osPlatform, string osVersion, params string[] versions)
+        public OsSkipConditionAttribute(TestPlatform operatingSystem, params string[] versions)
         {
             _excludedOperatingSystem = operatingSystem;
             _excludedVersions = versions ?? Enumerable.Empty<string>();
-            _osPlatform = osPlatform;
-            _osVersion = osVersion;
         }
 
         public bool IsMet
         {
             get
             {
-                var skip = _excludedOperatingSystem == _osPlatform;
+                var skip = _excludedOperatingSystem == GetCurrentOs();
+                var osVersion = GetCurrentOsVersion();
                 if (_excludedVersions.Any())
                 {
                     skip = skip
-                           && _excludedVersions.Any(ex => _osVersion.StartsWith(ex, StringComparison.OrdinalIgnoreCase));
+                           && _excludedVersions.Any(ex => osVersion.StartsWith(ex, StringComparison.OrdinalIgnoreCase));
                 }
 
                 // Since a test would be excuted only if 'IsMet' is true, return false if we want to skip
