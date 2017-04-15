@@ -591,13 +591,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var appendAction = newExpression.Arguments.Count > 1 ? (Action<string>)AppendLine : Append;
             appendAction("(");
             _stringBuilder.IncrementIndent();
-
-            for (var i = 0; i < newExpression.Arguments.Count; i++)
-            {
-                Visit(newExpression.Arguments[i]);
-                appendAction(i == newExpression.Arguments.Count - 1 ? "" : ", ");
-            }
-
+            VisitArguments(newExpression.Arguments, appendAction);
             _stringBuilder.DecrementIndent();
             _stringBuilder.Append(")");
 
@@ -614,13 +608,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             appendAction("new " + newArrayExpression.Type.GetElementType().ShortDisplayName() + "[]");
             appendAction("{ ");
             _stringBuilder.IncrementIndent();
-
-            for (var i = 0; i < newArrayExpression.Expressions.Count; i++)
-            {
-                Visit(newArrayExpression.Expressions[i]);
-                appendAction(i == newArrayExpression.Expressions.Count - 1 ? " " : ", ");
-            }
-
+            VisitArguments(newArrayExpression.Expressions, appendAction, lastSeparator: " ");
             _stringBuilder.DecrementIndent();
             Append("}");
 
@@ -715,20 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Visit(indexExpression.Object);
             _stringBuilder.Append("[");
-
-            if (indexExpression.Arguments.Any())
-            {
-                for (int i = 0; i < indexExpression.Arguments.Count; i++)
-                {
-                    if (i > 0)
-                    {
-                        _stringBuilder.Append(", ");
-                    }
-
-                    Visit(indexExpression.Arguments[i]);
-                }
-            }
-
+            VisitArguments(indexExpression.Arguments, s => _stringBuilder.Append(s));
             _stringBuilder.Append("]");
 
             return indexExpression;
@@ -752,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     break;
 
                 case NullConditionalExpression nullConditional:
-                    StringBuilder.Append(nullConditional.ToString());
+                    VisitNullConditionalExpression(nullConditional);
                     break;
 
                 default:
@@ -766,6 +741,48 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return extensionExpression;
+        }
+
+        private void VisitNullConditionalExpression(NullConditionalExpression nullConditionalExpression)
+        {
+            if (nullConditionalExpression.AccessOperation is MemberExpression memberExpression)
+            {
+                Visit(nullConditionalExpression.NullableCaller);
+                _stringBuilder.Append("?." + memberExpression.Member.Name);
+            }
+            else if (nullConditionalExpression.AccessOperation is MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.Object != null)
+                {
+                    Visit(nullConditionalExpression.NullableCaller);
+                    _stringBuilder.Append("?." + methodCallExpression.Method.Name + "(");
+                    VisitArguments(methodCallExpression.Arguments, s => _stringBuilder.Append(s));
+                    _stringBuilder.Append(")");
+                }
+
+                var method = methodCallExpression.Method;
+
+                _stringBuilder.Append(method.DeclaringType?.Name + "." + method.Name + "(?");
+                Visit(nullConditionalExpression.NullableCaller);
+                _stringBuilder.Append("?, ");
+                VisitArguments(methodCallExpression.Arguments.Skip(1).ToList(), s => _stringBuilder.Append(s));
+                _stringBuilder.Append(")");
+            }
+            else
+            {
+                _stringBuilder.Append("?");
+                Visit(nullConditionalExpression.AccessOperation);
+                _stringBuilder.Append("?");
+            }
+        }
+
+        private void VisitArguments(IList<Expression> arguments, Action<string> appendAction, string lastSeparator = "")
+        {
+            for (var i = 0; i < arguments.Count; i++)
+            {
+                Visit(arguments[i]);
+                appendAction(i == arguments.Count - 1 ? lastSeparator : ", ");
+            }
         }
 
         /// <summary>
