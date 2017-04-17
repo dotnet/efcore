@@ -39,12 +39,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                         using (var command = connection.CreateCommand())
                         {
+                            command.CommandTimeout = 600;
                             command.CommandText = "ALTER DATABASE [" + connection.Database + "] SET ALLOW_SNAPSHOT_ISOLATION ON";
                             command.ExecuteNonQuery();
                         }
 
                         using (var command = connection.CreateCommand())
                         {
+                            command.CommandTimeout = 600;
                             command.CommandText = "ALTER DATABASE [" + connection.Database + "] SET READ_COMMITTED_SNAPSHOT ON";
                             command.ExecuteNonQuery();
                         }

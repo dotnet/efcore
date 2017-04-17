@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private static IServiceProvider CreateContextServices(SqlServerTestStore testStore)
             => ((IInfrastructure<IServiceProvider>)new BloggingContext(
                     new DbContextOptionsBuilder()
-                        .UseSqlServer(testStore.ConnectionString, b => b.ApplyConfiguration())
+                        .UseSqlServer(testStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(600))
                         .UseInternalServiceProvider(new ServiceCollection()
                             .AddEntityFrameworkSqlServer()
                             .AddScoped<SqlServerExecutionStrategyFactory, TestSqlServerExecutionStrategyFactory>()

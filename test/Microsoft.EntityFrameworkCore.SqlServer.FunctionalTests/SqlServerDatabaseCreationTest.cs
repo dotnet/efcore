@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             await EnsuredDeleted_noop_when_database_doesnt_exist_test(async: true, file: false);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Test is flaky on CI")]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task EnsuredDeletedAsync_noop_when_database_with_filename_doesnt_exist()
         {
