@@ -911,7 +911,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug3409
 
-        [Fact(Skip = "Issue #7573")]
+        [Fact]
         public void ThenInclude_with_interface_navigations_3409()
         {
             using (CreateDatabase3409())
@@ -940,7 +940,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                     Assert.Equal(3, results.Count);
                     Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
-                    Assert.Equal(1, results.Count(c => c.ParentBackNavigation != null));
+                    Assert.Equal(2, results.Count(c => c.ParentBackNavigation != null));
                 }
 
                 using (var context = new MyContext3409(_options))
@@ -959,7 +959,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                     Assert.Equal(3, results.Count);
                     Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
-                    Assert.Equal(1, results.Count(c => c.ParentBackNavigationB != null));
+                    Assert.Equal(2, results.Count(c => c.ParentBackNavigationB != null));
                 }
 
                 using (var context = new MyContext3409(_options))
