@@ -39,10 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductName", typeof(string), typeof(int)),
+                    CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "UnitPrice", typeof(decimal?), typeof(int)),
                     Assert.Throws<InvalidOperationException>(() =>
                         context.Set<Product>()
-                            .FromSql(@"SELECT ""ProductID"", ""ProductName"" AS ""SupplierID"", ""SupplierID"" AS ""ProductName"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
+                            .FromSql(@"SELECT ""ProductID"", ""SupplierID"" AS ""UnitPrice"", ""ProductName"", ""UnitsInStock"", ""Discontinued""
                                FROM ""Products""")
                             .ToList()).Message);
             }
@@ -54,12 +54,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductName", typeof(string), typeof(int)),
+                    CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "UnitPrice", typeof(decimal?), typeof(int)),
                     Assert.Throws<InvalidOperationException>(() =>
                         context.Set<Product>()
-                            .FromSql(@"SELECT ""ProductID"", ""ProductName"" AS ""SupplierID"", ""SupplierID"" AS ""ProductName"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
+                            .FromSql(@"SELECT ""ProductID"", ""SupplierID"" AS ""UnitPrice"", ""ProductName"", ""UnitsInStock"", ""Discontinued""
                                FROM ""Products""")
-                            .Select(p => p.ProductName)
+                            .Select(p => p.UnitPrice)
                             .ToList()).Message);
             }
         }
