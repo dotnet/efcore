@@ -5047,6 +5047,16 @@ FROM [Order Details] AS [od]
 WHERE (([od].[OrderID] = 11077) AND ([od].[Discount] > 0E0)) AND (LOG([od].[Discount]) < 0E0)");
         }
 
+        public override void Where_math_log_new_base()
+        {
+            base.Where_math_log_new_base();
+
+            AssertSql(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (([od].[OrderID] = 11077) AND ([od].[Discount] > 0E0)) AND (LOG([od].[Discount], 7E0) < 0E0)");
+        }
+        
         public override void Where_math_sqrt()
         {
             base.Where_math_sqrt();

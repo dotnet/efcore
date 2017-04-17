@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
@@ -14,6 +16,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqlServerDateAddTranslator : IMethodCallTranslator
     {
+        private readonly Dictionary<MethodInfo, string> _methodInfoDatePartMapping = new Dictionary<MethodInfo, string>
+        {
+            {  typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddYears), new[] { typeof(int) }), "year" },
+            {  typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMonths), new[] { typeof(int) }), "month" },
+            {  typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddDays), new[] { typeof(double) }), "day" },
+            {  typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddHours), new[] { typeof(double) }), "hour" },
+            {  typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMinutes), new[] { typeof(double) }), "minute" },
+            {  typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), "second" },
+            {  typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMilliseconds), new[] { typeof(double) }), "millisecond" }
+        };
+
         /// <summary>
         ///     Translates the given method call expression.
         /// </summary>
@@ -23,9 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </returns>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            string datePart;
-            if (methodCallExpression.Method.DeclaringType == typeof(DateTime)
-                && (datePart = GetDatePart(methodCallExpression.Method.Name)) != null)
+            if (_methodInfoDatePartMapping.TryGetValue(methodCallExpression.Method, out string datePart))
             {
                 var amountToAdd = methodCallExpression.Arguments.First();
 
@@ -48,30 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                         methodCallExpression.Object
                     });
             }
-            return null;
-        }
 
-        private static string GetDatePart(string memberName)
-        {
-            switch (memberName)
-            {
-                case nameof(DateTime.AddYears):
-                    return "year";
-                case nameof(DateTime.AddMonths):
-                    return "month";
-                case nameof(DateTime.AddDays):
-                    return "day";
-                case nameof(DateTime.AddHours):
-                    return "hour";
-                case nameof(DateTime.AddMinutes):
-                    return "minute";
-                case nameof(DateTime.AddSeconds):
-                    return "second";
-                case nameof(DateTime.AddMilliseconds):
-                    return "millisecond";
-                default:
-                    return null;
-            }
+            return null;
         }
     }
 }

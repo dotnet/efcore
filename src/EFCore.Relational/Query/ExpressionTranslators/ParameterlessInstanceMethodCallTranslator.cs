@@ -28,8 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         protected ParameterlessInstanceMethodCallTranslator(
             [NotNull] Type declaringType, [NotNull] string clrMethodName, [NotNull] string sqlFunctionName)
         {
-            _methodInfo = declaringType.GetTypeInfo()
-                .GetDeclaredMethods(clrMethodName).Single(m => !m.GetParameters().Any());
+            _methodInfo = declaringType.GetRuntimeMethod(clrMethodName, new Type[] { });
 
             _sqlFunctionName = sqlFunctionName;
         }

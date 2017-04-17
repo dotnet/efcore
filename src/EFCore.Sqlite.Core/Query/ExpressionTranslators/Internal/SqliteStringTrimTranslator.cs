@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
@@ -15,8 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqliteStringTrimTranslator : IMethodCallTranslator
     {
-        private static readonly IEnumerable<MethodInfo> _trims = typeof(string).GetTypeInfo()
-            .GetDeclaredMethods(nameof(string.Trim));
+        private static readonly MethodInfo _methodInfo
+            = typeof(string).GetRuntimeMethod(nameof(string.Trim), new Type[] { });
+
+        private static readonly MethodInfo _methodInfoWithParams
+            = typeof(string).GetRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -24,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            if (_trims.Contains(methodCallExpression.Method))
+            if (methodCallExpression.Method.Equals(_methodInfo) || methodCallExpression.Method.Equals(_methodInfoWithParams))
             {
                 var sqlArguments = new List<Expression> { methodCallExpression.Object };
                 var charactersToTrim = methodCallExpression.Arguments.Count == 1

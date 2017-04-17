@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
@@ -14,9 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqlServerStringTrimTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _trim = typeof(string).GetTypeInfo()
-            .GetDeclaredMethods(nameof(string.Trim))
-            .Single(m => !m.GetParameters().Any());
+        private static readonly MethodInfo _methodInfo
+            = typeof(string).GetRuntimeMethod(nameof(string.Trim), new Type[] { });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            if (_trim.Equals(methodCallExpression.Method))
+            if (_methodInfo.Equals(methodCallExpression.Method))
             {
                 var sqlArguments = new[] { methodCallExpression.Object };
                 return new SqlFunctionExpression(

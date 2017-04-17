@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
@@ -14,9 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqlServerStringSubstringTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _methodInfo = typeof(string).GetTypeInfo()
-            .GetDeclaredMethods(nameof(string.Substring))
-            .Single(m => m.GetParameters().Length == 2);
+        private static readonly MethodInfo _methodInfo
+            = typeof(string).GetRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
