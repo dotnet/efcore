@@ -21,7 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
         ChangedOnlyMonsterContext.ProductPhoto, ChangedOnlyMonsterContext.ProductWebFeature, ChangedOnlyMonsterContext.Supplier,
         ChangedOnlyMonsterContext.SupplierLogo, ChangedOnlyMonsterContext.SupplierInfo, ChangedOnlyMonsterContext.CustomerInfo,
         ChangedOnlyMonsterContext.Computer, ChangedOnlyMonsterContext.ComputerDetail, ChangedOnlyMonsterContext.Driver,
-        ChangedOnlyMonsterContext.License>
+        ChangedOnlyMonsterContext.License, ChangedOnlyMonsterContext.ConcurrencyInfo, ChangedOnlyMonsterContext.AuditInfo,
+        ChangedOnlyMonsterContext.ContactDetails, ChangedOnlyMonsterContext.Dimensions, ChangedOnlyMonsterContext.Phone,
+        ChangedOnlyMonsterContext.BackOrderLine, ChangedOnlyMonsterContext.DiscontinuedProduct,
+        ChangedOnlyMonsterContext.ProductPageView>
     {
         public ChangedOnlyMonsterContext(DbContextOptions options, Action<ModelBuilder> onModelCreating)
             : base(options, onModelCreating)
@@ -45,18 +48,34 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             }
         }
 
-        // TODO: Inheritance
-        //public class BackOrderLine2 : BackOrderLine
-        //{
-        //}
+        public class BackOrderLine2 : BackOrderLine
+        {
+        }
 
-        //public class BackOrderLine : OrderLine
-        //{
-        //    public DateTime ETA { get; set; }
+        public class BackOrderLine : OrderLine, IBackOrderLine
+        {
+            private ISupplier _supplier;
+            private int _supplierId;
+            private DateTime _eta;
 
-        //    public int SupplierId { get; set; }
-        //    public virtual ISupplier Supplier { get; set; }
-        //}
+            public DateTime ETA
+            {
+                get { return _eta; }
+                set { SetWithNotify(value, ref _eta); }
+            }
+
+            public int SupplierId
+            {
+                get { return _supplierId; }
+                set { SetWithNotify(value, ref _supplierId); }
+            }
+
+            public virtual ISupplier Supplier
+            {
+                get { return _supplier; }
+                set { SetWithNotify(value, ref _supplier); }
+            }
+        }
 
         public class BarcodeDetail : NotificationEntity, IBarcodeDetail
         {
@@ -188,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             private string _serial;
             private string _specifications;
             private DateTime _purchaseDate;
-            private Dimensions _dimensions;
+            private IDimensions _dimensions;
             private IComputer _computer;
 
             public ComputerDetail()
@@ -232,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
                 set { SetWithNotify(value, ref _purchaseDate); }
             }
 
-            public Dimensions Dimensions
+            public IDimensions Dimensions
             {
                 get { return _dimensions; }
                 set { SetWithNotify(value, ref _dimensions); }
@@ -270,6 +289,63 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             }
         }
 
+        public class ConcurrencyInfo : NotificationEntity, IConcurrencyInfo
+        {
+            private string _token;
+            private DateTime? _queriedDateTime;
+
+            public string Token
+            {
+                get { return _token; }
+                set { SetWithNotify(value, ref _token); }
+            }
+
+            public DateTime? QueriedDateTime
+            {
+                get { return _queriedDateTime; }
+                set { SetWithNotify(value, ref _queriedDateTime); }
+            }
+        }
+
+        public class ContactDetails : NotificationEntity, IContactDetails
+        {
+            private string _email;
+            private IPhone _homePhone;
+            private IPhone _workPhone;
+            private IPhone _mobilePhone;
+
+            public ContactDetails()
+            {
+                HomePhone = new Phone();
+                WorkPhone = new Phone();
+                MobilePhone = new Phone();
+            }
+
+            public string Email
+            {
+                get { return _email; }
+                set { SetWithNotify(value, ref _email); }
+            }
+
+            public IPhone HomePhone
+            {
+                get { return _homePhone; }
+                set { SetWithNotify(value, ref _homePhone); }
+            }
+
+            public IPhone WorkPhone
+            {
+                get { return _workPhone; }
+                set { SetWithNotify(value, ref _workPhone); }
+            }
+
+            public IPhone MobilePhone
+            {
+                get { return _mobilePhone; }
+                set { SetWithNotify(value, ref _mobilePhone); }
+            }
+        }
+
         public class CustomerInfo : NotificationEntity, ICustomerInfo
         {
             private int _customerInfoId;
@@ -288,14 +364,55 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             }
         }
 
-        // TODO: Inheritance
-        //public class DiscontinuedProduct : NotificationEntity, Product
-        //{
-        //    public DateTime Discontinued { get; set; }
-        //    public int? ReplacementProductId { get; set; }
+        public class Dimensions : NotificationEntity, IDimensions
+        {
+            private decimal _width;
+            private decimal _height;
+            private decimal _depth;
 
-        //    public virtual IProduct ReplacedBy { get; set; }
-        //}
+            public decimal Width
+            {
+                get { return _width; }
+                set { SetWithNotify(value, ref _width); }
+            }
+
+            public decimal Height
+            {
+                get { return _height; }
+                set { SetWithNotify(value, ref _height); }
+            }
+
+            public decimal Depth
+            {
+                get { return _depth; }
+                set { SetWithNotify(value, ref _depth); }
+            }
+        }
+
+        public class DiscontinuedProduct : Product, IDiscontinuedProduct
+        {
+            private IProduct _replacedBy;
+            private DateTime _discontinued;
+            private int? _replacementProductId;
+
+            public DateTime Discontinued
+            {
+                get { return _discontinued; }
+                set { _discontinued = value; }
+            }
+
+            public int? ReplacementProductId
+            {
+                get { return _replacementProductId; }
+                set { _replacementProductId = value; }
+            }
+
+            public virtual IProduct ReplacedBy
+            {
+                get { return _replacedBy; }
+                set { _replacedBy = value; }
+            }
+        }
 
         public class Driver : NotificationEntity, IDriver
         {
@@ -595,7 +712,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             private int _anOrderId;
             private int _alternateId;
             private int? _customerId;
-            private ConcurrencyInfo _concurrency;
+            private IConcurrencyInfo _concurrency;
             private ICustomer _customer;
             private ICollection<IOrderLine> _orderLines;
             private ICollection<IOrderNote> _notes;
@@ -631,7 +748,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
                 set { SetWithNotify(value, ref _customerId); }
             }
 
-            public ConcurrencyInfo Concurrency
+            public IConcurrencyInfo Concurrency
             {
                 get { return _concurrency; }
                 set { SetWithNotify(value, ref _concurrency); }
@@ -840,14 +957,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             private int _productId;
             private string _description;
             private string _baseConcurrency;
-            private Dimensions _dimensions;
-            private ConcurrencyInfo _complexConcurrency;
-            private AuditInfo _nestedComplexConcurrency;
+            private IDimensions _dimensions;
+            private IConcurrencyInfo _complexConcurrency;
+            private IAuditInfo _nestedComplexConcurrency;
             private ICollection<ISupplier> _suppliers;
             private IProductDetail _detail;
             private ICollection<IProductReview> _reviews;
             private ICollection<IProductPhoto> _photos;
             private ICollection<IBarcode> _barcodes;
+            private ICollection<IDiscontinuedProduct> _replaces;
 
             public Product()
             {
@@ -858,7 +976,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             public void InitializeCollections()
             {
                 Suppliers = Suppliers ?? new ObservableCollection<ISupplier>();
-                //Replaces = new ObservableCollection<DiscontinuedProduct>();
+                Replaces = new ObservableCollection<IDiscontinuedProduct>();
                 Reviews = Reviews ?? new ObservableCollection<IProductReview>();
                 Photos = Photos ?? new ObservableCollection<IProductPhoto>();
                 Barcodes = Barcodes ?? new ObservableCollection<IBarcode>();
@@ -883,19 +1001,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
                 set { SetWithNotify(value, ref _baseConcurrency); }
             }
 
-            public Dimensions Dimensions
+            public IDimensions Dimensions
             {
                 get { return _dimensions; }
                 set { SetWithNotify(value, ref _dimensions); }
             }
 
-            public ConcurrencyInfo ComplexConcurrency
+            public IConcurrencyInfo ComplexConcurrency
             {
                 get { return _complexConcurrency; }
                 set { SetWithNotify(value, ref _complexConcurrency); }
             }
 
-            public AuditInfo NestedComplexConcurrency
+            public IAuditInfo NestedComplexConcurrency
             {
                 get { return _nestedComplexConcurrency; }
                 set { SetWithNotify(value, ref _nestedComplexConcurrency); }
@@ -907,7 +1025,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
                 set { SetWithNotify(value, ref _suppliers); }
             }
 
-            //public virtual ICollection<DiscontinuedProduct> Replaces { get; set; }
+            public virtual ICollection<IDiscontinuedProduct> Replaces
+            {
+                get { return _replaces; }
+                set { SetWithNotify(value, ref _replaces); }
+            }
 
             public virtual IProductDetail Detail
             {
@@ -934,13 +1056,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             }
         }
 
-        // TODO: Inheritance
-        //public class ProductPageView : NotificationEntity, PageView
-        //{
-        //    public int ProductId { get; set; }
+        public class ProductPageView : PageView, IProductPageView
+        {
+            private IProduct _product;
+            private int _productId;
 
-        //    public virtual IProduct Product { get; set; }
-        //}
+            public int ProductId
+            {
+                get { return _productId; }
+                set { SetWithNotify(value, ref _productId); }
+            }
+
+            public virtual IProduct Product
+            {
+                get { return _product; }
+                set { SetWithNotify(value, ref _product); }
+            }
+        }
 
         public class ProductPhoto : NotificationEntity, IProductPhoto
         {
@@ -1228,11 +1360,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             private string _name;
             private ICollection<IProduct> _products;
             private ISupplierLogo _logo;
+            private ICollection<IBackOrderLine> _backOrderLines;
 
             public void InitializeCollections()
             {
                 Products = Products ?? new ObservableCollection<IProduct>();
-                //BackOrderLines = new ObservableCollection<BackOrderLine>();
+                BackOrderLines = new ObservableCollection<IBackOrderLine>();
             }
 
             public int SupplierId
@@ -1253,7 +1386,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
                 set { SetWithNotify(value, ref _products); }
             }
 
-            //public virtual ICollection<BackOrderLine> BackOrderLines { get; set; }
+            public virtual ICollection<IBackOrderLine> BackOrderLines
+            {
+                get { return _backOrderLines; }
+                set { SetWithNotify(value, ref _backOrderLines); }
+            }
 
             public virtual ISupplierLogo Logo
             {
@@ -1286,14 +1423,43 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
                 set { SetWithNotify(value, ref _username); }
             }
         }
+        public class AuditInfo : NotificationEntity, IAuditInfo
+        {
+            private DateTime _modifiedDate;
+            private string _modifiedBy;
+            private IConcurrencyInfo _concurrency;
+
+            public AuditInfo()
+            {
+                Concurrency = new ConcurrencyInfo();
+            }
+
+            public DateTime ModifiedDate
+            {
+                get { return _modifiedDate; }
+                set { SetWithNotify(value, ref _modifiedDate); }
+            }
+
+            public string ModifiedBy
+            {
+                get { return _modifiedBy; }
+                set { SetWithNotify(value, ref _modifiedBy); }
+            }
+
+            public IConcurrencyInfo Concurrency
+            {
+                get { return _concurrency; }
+                set { SetWithNotify(value, ref _concurrency); }
+            }
+        }
 
         public class Customer : NotificationEntity, ICustomer
         {
             private int _customerId;
             private int? _husbandId;
             private string _name;
-            private ContactDetails _contactInfo;
-            private AuditInfo _auditing;
+            private IContactDetails _contactInfo;
+            private IAuditInfo _auditing;
             private ICollection<IAnOrder> _orders;
             private ICollection<ILogin> _logins;
             private ICustomer _husband;
@@ -1330,13 +1496,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
                 set { SetWithNotify(value, ref _name); }
             }
 
-            public ContactDetails ContactInfo
+            public IContactDetails ContactInfo
             {
                 get { return _contactInfo; }
                 set { SetWithNotify(value, ref _contactInfo); }
             }
 
-            public AuditInfo Auditing
+            public IAuditInfo Auditing
             {
                 get { return _auditing; }
                 set { SetWithNotify(value, ref _auditing); }
@@ -1437,6 +1603,36 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             {
                 get { return _orders; }
                 set { SetWithNotify(value, ref _orders); }
+            }
+        }
+
+        public class Phone : NotificationEntity, IPhone
+        {
+            private PhoneType _phoneType;
+            private string _extension;
+            private string _phoneNumber;
+
+            public Phone()
+            {
+                Extension = "None";
+            }
+
+            public string PhoneNumber
+            {
+                get { return _phoneNumber; }
+                set { SetWithNotify(value, ref _phoneNumber); }
+            }
+
+            public string Extension
+            {
+                get { return _extension; }
+                set { SetWithNotify(value, ref _extension); }
+            }
+
+            public PhoneType PhoneType
+            {
+                get { return _phoneType; }
+                set { SetWithNotify(value, ref _phoneType); }
             }
         }
     }

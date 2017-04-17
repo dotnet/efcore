@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
@@ -20,17 +19,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     /// </summary>
     public class EntityEqualityRewritingExpressionVisitor : ExpressionVisitorBase
     {
-        private readonly IModel _model;
+        private readonly QueryCompilationContext _queryCompilationContext;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public EntityEqualityRewritingExpressionVisitor([NotNull] IModel model)
+        public EntityEqualityRewritingExpressionVisitor([NotNull] QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(model, nameof(model));
-
-            _model = model;
+            _queryCompilationContext = queryCompilationContext;
         }
 
         /// <summary>
@@ -57,14 +54,32 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var isNullComparison = isLeftNullConstant || isRightNullConstant;
                 var nonNullExpression = isLeftNullConstant ? newBinaryExpression.Right : newBinaryExpression.Left;
 
+                var qsre = nonNullExpression as QuerySourceReferenceExpression;
                 // If a navigation being compared to null then don't rewrite
                 if (isNullComparison
-                    && !(nonNullExpression is QuerySourceReferenceExpression))
+                    && qsre == null)
                 {
                     return newBinaryExpression;
                 }
 
-                var entityType = _model.FindEntityType(nonNullExpression.Type);
+                var entityType = _queryCompilationContext.Model.FindEntityType(nonNullExpression.Type);
+                if (entityType == null)
+                {
+                    if (qsre != null)
+                    {
+                        entityType = _queryCompilationContext.FindEntityType(qsre.ReferencedQuerySource);
+                    }
+                    else
+                    {
+                        var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
+                            nonNullExpression, _queryCompilationContext, out qsre);
+                        if (properties.Count > 0
+                            && properties[properties.Count - 1] is INavigation navigation)
+                        {
+                            entityType = navigation.GetTargetType();
+                        }
+                    }
+                }
 
                 if (entityType != null)
                 {
@@ -122,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     return Expression.Coalesce(conditionalExpression.IfTrue, conditionalExpression.IfFalse);
                 }
-                
+
                 // Converts 'null == [q] ? [s] : [q]' into '[s] ?? [q]'
 
                 if (binaryExpression.NodeType == ExpressionType.Equal
@@ -143,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             bool nullComparison)
         {
             // If comparing with null then we need only first PK property
-            return (properties.Count == 1) || nullComparison
+            return properties.Count == 1 || nullComparison
                 ? EntityQueryModelVisitor.CreatePropertyExpression(target, properties[0])
                 : Expression.New(
                     AnonymousObject.AnonymousObjectCtor,

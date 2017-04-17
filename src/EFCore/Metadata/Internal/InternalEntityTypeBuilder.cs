@@ -1863,7 +1863,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         principalKey = principalBaseEntityTypeBuilder.HasKeyInternal(principalKeyProperties, ConfigurationSource.Convention).Metadata;
                     }
 
-                    var baseName = string.IsNullOrEmpty(navigationToPrincipalName) ? principalType.DisplayName() : navigationToPrincipalName;
+                    var baseName = string.IsNullOrEmpty(navigationToPrincipalName) ? principalType.ShortName() : navigationToPrincipalName;
                     dependentProperties = CreateUniqueProperties(null, principalKey.Properties, isRequired ?? false, baseName);
                 }
 

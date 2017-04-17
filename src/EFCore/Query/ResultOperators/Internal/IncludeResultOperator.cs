@@ -93,21 +93,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         public virtual INavigation[] GetNavigationPath([NotNull] QueryCompilationContext queryCompilationContext)
         {
-            var entityType = queryCompilationContext.Model.FindEntityType(PathFromQuerySource.Type);
+            IEntityType entityType = null;
+            if (PathFromQuerySource is QuerySourceReferenceExpression qsre)
+            {
+                entityType = queryCompilationContext.FindEntityType(qsre.ReferencedQuerySource);
+            }
             if (entityType == null)
             {
-                if (PathFromQuerySource is QuerySourceReferenceExpression qsre)
-                {
-                    entityType = queryCompilationContext.FindEntityType(qsre.ReferencedQuerySource);
-                }
+                entityType = queryCompilationContext.Model.FindEntityType(PathFromQuerySource.Type);
 
                 if (entityType == null)
                 {
                     var pathFromSource = MemberAccessBindingExpressionVisitor.GetPropertyPath(
-                        PathFromQuerySource, queryCompilationContext, out var _);
-                    if (pathFromSource.Count > 0)
+                        PathFromQuerySource, queryCompilationContext, out qsre);
+                    if (pathFromSource.Count > 0
+                        && pathFromSource[pathFromSource.Count - 1] is INavigation navigation)
                     {
-                        entityType = ((INavigation)pathFromSource[pathFromSource.Count - 1]).GetTargetType();
+                        entityType = navigation.GetTargetType();
                     }
                 }
             }

@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
@@ -12,6 +14,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     /// </summary>
     public class SubQueryMemberPushDownExpressionVisitor : ExpressionVisitorBase
     {
+        private readonly QueryCompilationContext _queryCompilationContext;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public SubQueryMemberPushDownExpressionVisitor([NotNull] QueryCompilationContext queryCompilationContext)
+        {
+            _queryCompilationContext = queryCompilationContext;
+        }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -26,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (subSelector is QuerySourceReferenceExpression
                 || subSelector is SubQueryExpression)
             {
-                var subQueryModel = subQueryExpression.QueryModel.Clone();
+                var querySourceMapping = new QuerySourceMapping();
+                var subQueryModel = subQueryExpression.QueryModel.Clone(querySourceMapping);
+                _queryCompilationContext.UpdateMapping(querySourceMapping);
 
                 subQueryModel.SelectClause.Selector = VisitMember(memberExpression.Update(subQueryModel.SelectClause.Selector));
                 subQueryModel.ResultTypeOverride = subQueryModel.SelectClause.Selector.Type;

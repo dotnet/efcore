@@ -1290,13 +1290,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var driver1 = context.Drivers.Single(e => e.Name == "Eeky Bear");
                 var driver2 = context.Drivers.Single(e => e.Name == "Splash Bear");
 
-                // TODO: Querying for actual entity currently throws, so projecting to just FK instead
-                // Issue #906 
-                var licenseName1 = context.Licenses.Where(e => e.LicenseNumber == "10").Select(e => e.Name).Single();
-                var licenseName2 = context.Licenses.Where(e => e.LicenseNumber == "11").Select(e => e.Name).Single();
+                var license1 = context.Licenses.Single(e => e.LicenseNumber == "10");
+                var license2 = context.Licenses.Single(e => e.LicenseNumber == "11");
 
-                Assert.Equal(driver1.Name, licenseName1);
-                Assert.Equal(driver2.Name, licenseName2);
+                Assert.Equal(driver1.Name, license1.Name);
+                Assert.Equal(driver2.Name, license2.Name);
             }
         }
 
@@ -1571,8 +1569,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var driver1 = context.Drivers.Single(e => e.Name == "Eeky Bear");
                 var driver2 = context.Drivers.Single(e => e.Name == "Splash Bear");
 
-                // TODO: Currently these LINQ queries throw InvalidCastException
-                // Issue #906
                 var license1 = context.Licenses.Single(e => e.LicenseNumber == "10");
                 var license2 = context.Licenses.Single(e => e.LicenseNumber == "11");
 

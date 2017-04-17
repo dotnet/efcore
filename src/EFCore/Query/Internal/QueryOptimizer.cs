@@ -2,16 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using Microsoft.EntityFrameworkCore.Query.ResultOperators;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -53,26 +49,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
-        private readonly IModel _model;
+        private QueryCompilationContext _queryCompilationContext;
 
         private readonly TransformingQueryModelExpressionVisitor<QueryOptimizer> _transformingExpressionVisitor;
-        private readonly EntityEqualityRewritingExpressionVisitor _entityEqualityRewritingExpressionVisitor;
-        private readonly SubQueryMemberPushDownExpressionVisitor _subQueryMemberPushDownExpressionVisitor;
         private readonly AdditionalFromClauseOptimizingQueryModelVisitor _additionalFromClauseOptimizingQueryModelVisitor;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public QueryOptimizer([NotNull] IModel model)
+        public QueryOptimizer()
         {
-            Check.NotNull(model, nameof(model));
-
-            _model = model;
             _transformingExpressionVisitor = new TransformingQueryModelExpressionVisitor<QueryOptimizer>(this);
-            _entityEqualityRewritingExpressionVisitor = new EntityEqualityRewritingExpressionVisitor(model);
-            _subQueryMemberPushDownExpressionVisitor = new SubQueryMemberPushDownExpressionVisitor();
             _additionalFromClauseOptimizingQueryModelVisitor = new AdditionalFromClauseOptimizingQueryModelVisitor();
         }
 
@@ -81,18 +69,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Optimize(
-            IReadOnlyCollection<IQueryAnnotation> queryAnnotations,
+            QueryCompilationContext queryCompilationContext,
             QueryModel queryModel)
         {
-            _queryAnnotations = queryAnnotations;
+            _queryCompilationContext = queryCompilationContext;
 
             _additionalFromClauseOptimizingQueryModelVisitor.VisitQueryModel(queryModel);
 
             VisitQueryModel(queryModel);
 
             queryModel.TransformExpressions(_transformingExpressionVisitor.Visit);
-            queryModel.TransformExpressions(_entityEqualityRewritingExpressionVisitor.Visit);
-            queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
+            queryModel.TransformExpressions(new EntityEqualityRewritingExpressionVisitor(queryCompilationContext).Visit);
+            queryModel.TransformExpressions(new SubQueryMemberPushDownExpressionVisitor(queryCompilationContext).Visit);
         }
 
         /// <summary>
@@ -130,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         = subQueryExpression.QueryModel.MainFromClause.FromExpression;
 
                     foreach (var queryAnnotation
-                        in _queryAnnotations
+                        in _queryCompilationContext.QueryAnnotations
                             .Where(qa => qa.QuerySource == subQueryExpression.QueryModel.MainFromClause))
                     {
                         queryAnnotation.QuerySource = joinClause;
@@ -189,9 +177,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var subqueryInMainClauseWithoutResultOperatorsProjectingItsMainClause
                 = fromClause is MainFromClause
-                    && !subQueryModel.ResultOperators.Any()
-                    && subQueryModel.SelectClause.Selector is QuerySourceReferenceExpression subquerySelectorsQsre
-                    && subquerySelectorsQsre.ReferencedQuerySource == subQueryModel.MainFromClause;
+                  && !subQueryModel.ResultOperators.Any()
+                  && subQueryModel.SelectClause.Selector is QuerySourceReferenceExpression subquerySelectorsQsre
+                  && subquerySelectorsQsre.ReferencedQuerySource == subQueryModel.MainFromClause;
 
             if (subQueryModel.ResultOperators.All(ro => ro is CastResultOperator)
                 && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause)
@@ -270,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 else
                 {
-                    var entityType = _model.FindEntityType(searchedItemType);
+                    var entityType = _queryCompilationContext.Model.FindEntityType(searchedItemType);
 
                     if (entityType != null)
                     {
@@ -317,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (newExpression is QuerySourceReferenceExpression qsre)
             {
                 var newQuerySource = qsre.ReferencedQuerySource;
-                foreach (var queryAnnotation in _queryAnnotations.Where(qa => qa.QuerySource == oldQuerySource))
+                foreach (var queryAnnotation in _queryCompilationContext.QueryAnnotations.Where(qa => qa.QuerySource == oldQuerySource))
                 {
                     queryAnnotation.QuerySource = newQuerySource;
                     queryAnnotation.QueryModel = queryModel;

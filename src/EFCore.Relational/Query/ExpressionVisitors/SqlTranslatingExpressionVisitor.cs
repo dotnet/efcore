@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -48,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly IRelationalTypeMapper _relationalTypeMapper;
         private readonly SelectExpression _targetSelectExpression;
         private readonly Expression _topLevelPredicate;
-        
+
         private readonly bool _inProjection;
 
         /// <summary>
@@ -319,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var testExpression = isLeftNullConstant ? binaryTest.Right : binaryTest.Left;
             var resultExpression = binaryTest.NodeType == ExpressionType.Equal ? node.IfFalse : node.IfTrue;
 
-            var nullCheckRemovalTestingVisitor = new NullCheckRemovalTestingVisitor(_queryModelVisitor.QueryCompilationContext.Model);
+            var nullCheckRemovalTestingVisitor = new NullCheckRemovalTestingVisitor(_queryModelVisitor.QueryCompilationContext);
 
             return nullCheckRemovalTestingVisitor.CanRemoveNullCheck(testExpression, resultExpression)
                 ? resultExpression
@@ -328,14 +327,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
         private class NullCheckRemovalTestingVisitor : ExpressionVisitorBase
         {
+            private readonly RelationalQueryCompilationContext _queryCompilationContext;
             private IQuerySource _querySource;
-            private readonly IModel _model;
             private string _propertyName;
             private bool? _canRemoveNullCheck;
 
-            public NullCheckRemovalTestingVisitor(IModel model)
+            public NullCheckRemovalTestingVisitor(RelationalQueryCompilationContext queryCompilationContext)
             {
-                _model = model;
+                _queryCompilationContext = queryCompilationContext;
             }
 
             public bool CanRemoveNullCheck(Expression testExpression, Expression resultExpression)
@@ -375,8 +374,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     return;
                 }
 
-
-                if (expression is MethodCallExpression methodCallExpression && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+                if (expression is MethodCallExpression methodCallExpression
+                    && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
                 {
                     if (methodCallExpression.Arguments[0] is QuerySourceReferenceExpression querySourceCaller)
                     {
@@ -384,7 +383,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         {
                             _querySource = querySourceCaller.ReferencedQuerySource;
                             _propertyName = (string)propertyNameExpression.Value;
-                            if (_model.FindEntityType(_querySource.ItemType)?.FindProperty(_propertyName)?.IsPrimaryKey() ?? false)
+                            if ((_queryCompilationContext.FindEntityType(_querySource)
+                                 ?? _queryCompilationContext.Model.FindEntityType(_querySource.ItemType))
+                                ?.FindProperty(_propertyName)?.IsPrimaryKey()
+                                ?? false)
                             {
                                 _propertyName = null;
                             }
@@ -1014,8 +1016,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 if (expression.ReferencedQuerySource is JoinClause joinClause)
                 {
                     var entityType
-                        = _queryModelVisitor.QueryCompilationContext.Model
-                            .FindEntityType(joinClause.ItemType);
+                        = _queryModelVisitor.QueryCompilationContext.FindEntityType(joinClause)
+                          ?? _queryModelVisitor.QueryCompilationContext.Model
+                              .FindEntityType(joinClause.ItemType);
 
                     if (entityType != null)
                     {

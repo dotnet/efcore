@@ -264,17 +264,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (item is SelectExpression itemSelectExpression)
                 {
-                    var entityType = handlerContext.Model.FindEntityType(handlerContext.QueryModel.MainFromClause.ItemType);
+                    var queryCompilationContext = handlerContext.QueryModelVisitor.QueryCompilationContext;
+                    var entityType = queryCompilationContext.FindEntityType(handlerContext.QueryModel.MainFromClause)
+                                     ?? handlerContext.Model.FindEntityType(handlerContext.QueryModel.MainFromClause.ItemType);
 
                     if (entityType != null)
                     {
-                        var outerSelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
+                        var outerSelectExpression = handlerContext.SelectExpressionFactory.Create(queryCompilationContext);
 
                         var collectionSelectExpression
-                            = handlerContext.SelectExpression.Clone(handlerContext.QueryModelVisitor.QueryCompilationContext.CreateUniqueTableAlias());
+                            = handlerContext.SelectExpression.Clone(queryCompilationContext.CreateUniqueTableAlias());
                         outerSelectExpression.AddTable(collectionSelectExpression);
 
-                        itemSelectExpression.Alias = handlerContext.QueryModelVisitor.QueryCompilationContext.CreateUniqueTableAlias();
+                        itemSelectExpression.Alias = queryCompilationContext.CreateUniqueTableAlias();
                         var joinExpression = outerSelectExpression.AddInnerJoin(itemSelectExpression);
 
                         foreach (var property in entityType.FindPrimaryKey().Properties)
@@ -386,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
 
-            public DefaultIfEmptyExpressionVisitor(RelationalQueryCompilationContext relationalQueryCompilationContext) 
+            public DefaultIfEmptyExpressionVisitor(RelationalQueryCompilationContext relationalQueryCompilationContext)
                 => _relationalQueryCompilationContext = relationalQueryCompilationContext;
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)

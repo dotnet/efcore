@@ -6,6 +6,13 @@ using System.Collections.Generic;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 {
+    public interface IBackOrderLine : IOrderLine
+    {
+        DateTime ETA { get; set; }
+        int SupplierId { get; set; }
+        ISupplier Supplier { get; set; }
+    }
+
     public interface IBarcodeDetail
     {
         byte[] Code { get; set; }
@@ -42,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
         string Serial { get; set; }
         string Specifications { get; set; }
         DateTime PurchaseDate { get; set; }
-        Dimensions Dimensions { get; set; }
+        IDimensions Dimensions { get; set; }
         IComputer Computer { get; set; }
     }
 
@@ -53,26 +60,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
         IComputerDetail ComputerDetail { get; set; }
     }
 
-    public class ConcurrencyInfo
+    public interface IConcurrencyInfo
     {
-        public string Token { get; set; }
-        public DateTime? QueriedDateTime { get; set; }
+        string Token { get; set; }
+        DateTime? QueriedDateTime { get; set; }
     }
 
-    public class ContactDetails
+    public interface IContactDetails
     {
-        public ContactDetails()
-        {
-            HomePhone = new Phone();
-            WorkPhone = new Phone();
-            MobilePhone = new Phone();
-        }
+        string Email { get; set; }
 
-        public string Email { get; set; }
-
-        public Phone HomePhone { get; set; }
-        public Phone WorkPhone { get; set; }
-        public Phone MobilePhone { get; set; }
+        IPhone HomePhone { get; set; }
+        IPhone WorkPhone { get; set; }
+        IPhone MobilePhone { get; set; }
     }
 
     public interface ICustomerInfo
@@ -81,11 +81,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
         string Information { get; set; }
     }
 
-    public class Dimensions
+    public interface IDimensions
     {
-        public decimal Width { get; set; }
-        public decimal Height { get; set; }
-        public decimal Depth { get; set; }
+        decimal Width { get; set; }
+        decimal Height { get; set; }
+        decimal Depth { get; set; }
+    }
+
+    public interface IDiscontinuedProduct : IProduct
+    {
+        DateTime Discontinued { get; set; }
+        int? ReplacementProductId { get; set; }
+        IProduct ReplacedBy { get; set; }
     }
 
     public interface IDriver
@@ -154,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
         int AnOrderId { get; set; }
         int AlternateId { get; set; }
         int? CustomerId { get; set; }
-        ConcurrencyInfo Concurrency { get; set; }
+        IConcurrencyInfo Concurrency { get; set; }
         ICustomer Customer { get; set; }
         ICollection<IOrderLine> OrderLines { get; set; }
         ICollection<IOrderNote> Notes { get; set; }
@@ -209,16 +216,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
         int ProductId { get; set; }
         string Description { get; set; }
         string BaseConcurrency { get; set; }
-        Dimensions Dimensions { get; set; }
-        ConcurrencyInfo ComplexConcurrency { get; set; }
-        AuditInfo NestedComplexConcurrency { get; set; }
+        IDimensions Dimensions { get; set; }
+        IConcurrencyInfo ComplexConcurrency { get; set; }
+        IAuditInfo NestedComplexConcurrency { get; set; }
         ICollection<ISupplier> Suppliers { get; set; }
-        //ICollection<DiscontinuedProduct> Replaces { get; set; }
+        ICollection<IDiscontinuedProduct> Replaces { get; set; }
         IProductDetail Detail { get; set; }
         ICollection<IProductReview> Reviews { get; set; }
         ICollection<IProductPhoto> Photos { get; set; }
         ICollection<IBarcode> Barcodes { get; set; }
         void InitializeCollections();
+    }
+
+    public interface IProductPageView : IPageView
+    {
+        int ProductId { get; set; }
+        IProduct Product { get; set; }
     }
 
     public interface IProductPhoto
@@ -294,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
         int SupplierId { get; set; }
         string Name { get; set; }
         ICollection<IProduct> Products { get; set; }
-        //ICollection<BackOrderLine> BackOrderLines { get; set; }
+        ICollection<IBackOrderLine> BackOrderLines { get; set; }
         ISupplierLogo Logo { get; set; }
         void InitializeCollections();
     }
@@ -306,17 +319,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
         string Username { get; set; }
     }
 
-    public class AuditInfo
+    public interface IAuditInfo
     {
-        public AuditInfo()
-        {
-            Concurrency = new ConcurrencyInfo();
-        }
+        DateTime ModifiedDate { get; set; }
+        string ModifiedBy { get; set; }
 
-        public DateTime ModifiedDate { get; set; }
-        public string ModifiedBy { get; set; }
-
-        public ConcurrencyInfo Concurrency { get; set; }
+        IConcurrencyInfo Concurrency { get; set; }
     }
 
     public interface ICustomer
@@ -324,8 +332,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
         int CustomerId { get; set; }
         int? HusbandId { get; set; }
         string Name { get; set; }
-        ContactDetails ContactInfo { get; set; }
-        AuditInfo Auditing { get; set; }
+        IContactDetails ContactInfo { get; set; }
+        IAuditInfo Auditing { get; set; }
         ICollection<IAnOrder> Orders { get; set; }
         ICollection<ILogin> Logins { get; set; }
         ICustomer Husband { get; set; }
@@ -354,16 +362,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
         void InitializeCollections();
     }
 
-    public class Phone
+    public interface IPhone
     {
-        public Phone()
-        {
-            Extension = "None";
-        }
-
-        public string PhoneNumber { get; set; }
-        public string Extension { get; set; }
-        public PhoneType PhoneType { get; set; }
+        string PhoneNumber { get; set; }
+        string Extension { get; set; }
+        PhoneType PhoneType { get; set; }
     }
 
     public enum PhoneType

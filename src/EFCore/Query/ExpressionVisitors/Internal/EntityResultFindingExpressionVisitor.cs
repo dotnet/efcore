@@ -60,11 +60,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var sequenceType = expression.Type.TryGetSequenceType();
 
             var entityType
-                = ((sequenceType != null
-                    ? _model.FindEntityType(sequenceType)
-                    : null)
-                   ?? _model.FindEntityType(expression.Type))
-                  ?? _queryCompilationContext.FindEntityType(expression.ReferencedQuerySource);
+                = _queryCompilationContext.FindEntityType(expression.ReferencedQuerySource)
+                  ?? ((sequenceType != null
+                      ? _model.FindEntityType(sequenceType)
+                      : null)
+                      ?? _model.FindEntityType(expression.Type));
 
             if (entityType != null)
             {

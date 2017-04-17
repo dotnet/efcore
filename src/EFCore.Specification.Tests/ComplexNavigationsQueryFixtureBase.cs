@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Level4>().Property(e => e.Id).ValueGeneratedNever();
 
             modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Optional_Self).WithOne();
-            modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Required_PK).WithOne(e => e.OneToOne_Required_PK_Inverse).HasPrincipalKey<Level1>(e => e.Id).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Required_PK).WithOne(e => e.OneToOne_Required_PK_Inverse).HasPrincipalKey<Level1>(e => e.Id).HasForeignKey<Level2>(e => e.Id).IsRequired().OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Optional_PK).WithOne(e => e.OneToOne_Optional_PK_Inverse).HasPrincipalKey<Level1>(e => e.Id).IsRequired(false);
             modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Required_FK).WithOne(e => e.OneToOne_Required_FK_Inverse).HasForeignKey<Level2>(e => e.Level1_Required_Id).IsRequired().OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Optional_FK).WithOne(e => e.OneToOne_Optional_FK_Inverse).HasForeignKey<Level2>(e => e.Level1_Optional_Id).IsRequired(false);
@@ -31,10 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Level1>().HasMany(e => e.OneToMany_Optional_Self).WithOne(e => e.OneToMany_Optional_Self_Inverse).IsRequired(false);
 
             modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Optional_Self).WithOne();
-            modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Required_PK).WithOne(e => e.OneToOne_Required_PK_Inverse).HasPrincipalKey<Level2>(e => e.Id).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Required_PK).WithOne(e => e.OneToOne_Required_PK_Inverse).HasPrincipalKey<Level2>(e => e.Id).HasForeignKey<Level3>(e => e.Id).IsRequired().OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Optional_PK).WithOne(e => e.OneToOne_Optional_PK_Inverse).HasPrincipalKey<Level2>(e => e.Id).IsRequired(false);
-            modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Required_FK).WithOne(e => e.OneToOne_Required_FK_Inverse).HasForeignKey<Level3>(e => e.Level2_Required_Id).IsRequired().OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Optional_FK).WithOne(e => e.OneToOne_Optional_FK_Inverse).HasForeignKey<Level3>(e => e.Level2_Optional_Id).IsRequired(false);
             modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Required_FK).WithOne(e => e.OneToOne_Required_FK_Inverse).HasForeignKey<Level3>(e => e.Level2_Required_Id).IsRequired().OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Optional_FK).WithOne(e => e.OneToOne_Optional_FK_Inverse).HasForeignKey<Level3>(e => e.Level2_Optional_Id).IsRequired(false);
             modelBuilder.Entity<Level2>().HasMany(e => e.OneToMany_Required).WithOne(e => e.OneToMany_Required_Inverse).IsRequired().OnDelete(DeleteBehavior.Restrict);
@@ -43,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             modelBuilder.Entity<Level2>().HasMany(e => e.OneToMany_Optional_Self).WithOne(e => e.OneToMany_Optional_Self_Inverse).IsRequired(false);
 
             modelBuilder.Entity<Level3>().HasOne(e => e.OneToOne_Optional_Self).WithOne();
-            modelBuilder.Entity<Level3>().HasOne(e => e.OneToOne_Required_PK).WithOne(e => e.OneToOne_Required_PK_Inverse).HasPrincipalKey<Level3>(e => e.Id).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Level3>().HasOne(e => e.OneToOne_Required_PK).WithOne(e => e.OneToOne_Required_PK_Inverse).HasPrincipalKey<Level3>(e => e.Id).HasForeignKey<Level4>(e => e.Id).IsRequired().OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Level3>().HasOne(e => e.OneToOne_Optional_PK).WithOne(e => e.OneToOne_Optional_PK_Inverse).HasPrincipalKey<Level3>(e => e.Id).IsRequired(false);
             modelBuilder.Entity<Level3>().HasOne(e => e.OneToOne_Required_FK).WithOne(e => e.OneToOne_Required_FK_Inverse).HasForeignKey<Level4>(e => e.Level3_Required_Id).IsRequired().OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Level3>().HasOne(e => e.OneToOne_Optional_FK).WithOne(e => e.OneToOne_Optional_FK_Inverse).HasForeignKey<Level4>(e => e.Level3_Optional_Id).IsRequired(false);

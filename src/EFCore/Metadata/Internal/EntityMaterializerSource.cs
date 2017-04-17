@@ -48,16 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .GetDeclaredMethod(nameof(TryReadValue));
 
         private static TValue TryReadValue<TValue>(
-            ValueBuffer valueBuffer, 
+            ValueBuffer valueBuffer,
             int index,
             IPropertyBase property = null)
         {
-            object untypedValue = null;
-
+            var untypedValue = valueBuffer[index];
             try
             {
-                untypedValue = valueBuffer[index];
-
                 return (TValue)untypedValue;
             }
             catch (Exception e)

@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // First pass of optimizations
 
-            _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
+            _queryOptimizer.Optimize(QueryCompilationContext, queryModel);
 
             new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger).VisitQueryModel(queryModel);
 
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // Second pass of optimizations
 
-            _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
+            _queryOptimizer.Optimize(QueryCompilationContext, queryModel);
 
             // Log results
 

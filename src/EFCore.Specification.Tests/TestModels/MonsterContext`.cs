@@ -8,10 +8,11 @@ using System.Linq;
 namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 {
     public class MonsterContext<
-            TCustomer, TBarcode, TIncorrectScan, TBarcodeDetail, TComplaint, TResolution, TLogin, TSuspiciousActivity,
-            TSmartCard, TRsaToken, TPasswordReset, TPageView, TLastLogin, TMessage, TAnOrder, TOrderNote, TOrderQualityCheck,
-            TOrderLine, TProduct, TProductDetail, TProductReview, TProductPhoto, TProductWebFeature, TSupplier, TSupplierLogo,
-            TSupplierInfo, TCustomerInfo, TComputer, TComputerDetail, TDriver, TLicense> : MonsterContext
+        TCustomer, TBarcode, TIncorrectScan, TBarcodeDetail, TComplaint, TResolution, TLogin, TSuspiciousActivity,
+        TSmartCard, TRsaToken, TPasswordReset, TPageView, TLastLogin, TMessage, TAnOrder, TOrderNote, TOrderQualityCheck,
+        TOrderLine, TProduct, TProductDetail, TProductReview, TProductPhoto, TProductWebFeature, TSupplier, TSupplierLogo,
+        TSupplierInfo, TCustomerInfo, TComputer, TComputerDetail, TDriver, TLicense, TConcurrencyInfo, TAuditInfo,
+        TContactDetails, TDimensions, TPhone, TBackOrderLine, TDiscontinuedProduct, TProductPageView> : MonsterContext
         where TCustomer : class, ICustomer, new()
         where TBarcode : class, IBarcode, new()
         where TIncorrectScan : class, IIncorrectScan, new()
@@ -43,6 +44,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
         where TComputerDetail : class, IComputerDetail, new()
         where TDriver : class, IDriver, new()
         where TLicense : class, ILicense, new()
+        where TConcurrencyInfo : class, IConcurrencyInfo, new()
+        where TAuditInfo : class, IAuditInfo, new()
+        where TContactDetails : class, IContactDetails, new()
+        where TDimensions : class, IDimensions, new()
+        where TPhone : class, IPhone, new()
+        where TBackOrderLine: class, TOrderLine, IBackOrderLine, new()
+        where TDiscontinuedProduct: class, TProduct, IDiscontinuedProduct, new()
+        where TProductPageView: class, TPageView, IProductPageView, new()
     {
         private readonly Action<ModelBuilder> _onModelCreating;
 
@@ -116,12 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // TODO: Complex types
-            modelBuilder.Ignore<AuditInfo>();
-            modelBuilder.Ignore<ConcurrencyInfo>();
-            modelBuilder.Ignore<ContactDetails>();
-            modelBuilder.Ignore<Dimensions>();
-
             modelBuilder.Entity<TBarcodeDetail>().HasKey(e => e.Code);
 
             modelBuilder.Entity<TSuspiciousActivity>();
@@ -145,6 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
                     b.HasMany(e => (IEnumerable<TOrderNote>)e.Notes).WithOne(e => (TAnOrder)e.Order)
                         .HasPrincipalKey(e => e.AlternateId);
+
+                    b.OwnsOne(e => (TConcurrencyInfo)e.Concurrency).Property(c => c.Token).IsConcurrencyToken();
                 });
 
             modelBuilder.Entity<TOrderQualityCheck>(b =>
@@ -163,6 +168,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
                     b.HasMany(e => (IEnumerable<TProductPhoto>)e.Photos).WithOne();
                     b.HasOne(e => (TProductDetail)e.Detail).WithOne(e => (TProduct)e.Product)
                         .HasForeignKey<TProductDetail>(e => e.ProductId);
+
+                    b.OwnsOne(e => (TConcurrencyInfo)e.ComplexConcurrency).Property(c => c.Token).IsConcurrencyToken();
+
+                    b.OwnsOne(e => (TAuditInfo)e.NestedComplexConcurrency,
+                        ab => ab.OwnsOne(a => (TConcurrencyInfo)a.Concurrency).Property(c => c.Token).IsConcurrencyToken());
+
+                    b.OwnsOne(e => (TDimensions)e.Dimensions);
+
                     b.Ignore(e => e.Suppliers);
                 });
 
@@ -187,6 +200,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
                     b.HasOne(e => (TCustomer)e.Husband).WithOne(e => (TCustomer)e.Wife)
                         .HasForeignKey<TCustomer>(e => e.HusbandId);
+
+                    b.OwnsOne(e => (TAuditInfo)e.Auditing,
+                        ab => ab.OwnsOne(a => (TConcurrencyInfo)a.Concurrency).Property(c => c.Token).IsConcurrencyToken());
+                    b.OwnsOne(e => (TContactDetails)e.ContactInfo,
+                        cb =>
+                            {
+                                cb.OwnsOne(c => (TPhone)c.HomePhone);
+                                cb.OwnsOne(c => (TPhone)c.MobilePhone);
+                                cb.OwnsOne(c => (TPhone)c.WorkPhone);
+                            });
                 });
 
             modelBuilder.Entity<TComplaint>(b =>
@@ -269,6 +292,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             modelBuilder.Entity<TComputer>().HasOne(e => (TComputerDetail)e.ComputerDetail).WithOne(e => (TComputer)e.Computer)
                 .HasForeignKey<TComputerDetail>(e => e.ComputerDetailId);
 
+            modelBuilder.Entity<TComputerDetail>().OwnsOne(cd => (TDimensions)cd.Dimensions);
+
             modelBuilder.Entity<TDriver>(b =>
                 {
                     b.HasKey(e => e.Name);
@@ -297,15 +322,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             // TODO: Many-to-many
             //modelBuilder.Entity<TSupplier>().ForeignKeys(fk => fk.HasForeignKey<TProduct>(e => e.SupplierId));
 
-            // TODO: Inheritance
-            //modelBuilder.Entity<TBackOrderLine>().ForeignKeys(fk => fk.HasForeignKey<TSupplier>(e => e.SupplierId));
-            //modelBuilder.Entity<TDiscontinuedProduct>().ForeignKeys(fk => fk.HasForeignKey<TProduct>(e => e.ReplacementProductId));
-            //modelBuilder.Entity<TProductPageView>().ForeignKeys(fk => fk.HasForeignKey<TProduct>(e => e.ProductId));
+            modelBuilder.Entity<TBackOrderLine>(bb => bb.HasOne(b => (TSupplier)b.Supplier)
+                .WithMany(s => (ICollection<TBackOrderLine>)s.BackOrderLines)
+                .HasForeignKey(e => e.SupplierId));
 
-            if (_onModelCreating != null)
-            {
-                _onModelCreating(modelBuilder);
-            }
+            modelBuilder.Entity<TDiscontinuedProduct>(db => db.HasOne(d => (TProduct)d.ReplacedBy)
+                .WithMany(p => (ICollection<TDiscontinuedProduct>)p.Replaces)
+                .HasForeignKey(e => e.ReplacementProductId));
+
+            modelBuilder.Entity<TProductPageView>(pb => pb.HasOne(p => (TProduct)p.Product)
+                .WithMany()
+                .HasForeignKey(e => e.ProductId));
+
+            _onModelCreating?.Invoke(modelBuilder);
         }
 
         public override void SeedUsingFKs(bool saveChanges = true)

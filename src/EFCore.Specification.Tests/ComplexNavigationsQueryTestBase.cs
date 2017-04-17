@@ -726,11 +726,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> levelTwos;
             using (var context = CreateContext())
             {
-                levelOnes = context.LevelOne
+                levelOnes = GetLevelOne(context)
                     .Include(e => e.OneToOne_Optional_FK)
                     .Include(e => e.OneToMany_Optional).ToList();
 
-                levelTwos = context.LevelTwo
+                levelTwos = GetLevelTwo(context)
                     .Include(e => e.OneToMany_Optional)
                     .Include(e => e.OneToOne_Optional_FK).ToList();
             }
@@ -739,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .Include(e => e.OneToOne_Optional_FK)
                     .ThenInclude(e => e.OneToMany_Optional)
                     .Include(e => e.OneToMany_Optional)
@@ -806,11 +806,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> levelTwos;
             using (var context = CreateContext())
             {
-                levelOnes = context.LevelOne
+                levelOnes = GetLevelOne(context)
                     .Include(e => e.OneToOne_Optional_FK)
                     .Include(e => e.OneToMany_Optional).ToList();
 
-                levelTwos = context.LevelTwo
+                levelTwos = GetLevelTwo(context)
                     .Include(e => e.OneToMany_Optional)
                     .Include(e => e.OneToOne_Optional_FK).ToList();
             }
@@ -819,7 +819,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .Select(e => e)
                     .Include(e => e.OneToOne_Optional_FK)
                     .ThenInclude(e => e.OneToMany_Optional)
@@ -1548,8 +1548,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             int expected;
             using (var context = CreateContext())
             {
-                var l1s = context.LevelOne.ToList();
-                var l2s = context.LevelTwo.ToList();
+                var l1s = GetLevelOne(context).ToList();
+                var l2s = GetLevelTwo(context).ToList();
 
                 expected = (from l1 in l1s
                             join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -1561,8 +1561,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var result = (from l1 in context.LevelOne
-                              join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var result = (from l1 in l1s
+                              join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                               from l2 in groupJoin.DefaultIfEmpty()
                               select l2).Sum(e => e == null ? 0 : e.Level1_Required_Id);
 
@@ -1576,7 +1579,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level1> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1 in context.LevelOne.Include(e => e.OneToOne_Optional_FK).ToList()
+                expected = (from l1 in GetLevelOne(context).Include(e => e.OneToOne_Optional_FK).ToList()
                             where l1.OneToOne_Optional_FK?.Name != "L2 05"
                             select l1).ToList();
             }
@@ -1585,7 +1588,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne.Include(e => e.OneToOne_Optional_FK)
+                var query = from l1 in GetLevelOne(context).Include(e => e.OneToOne_Optional_FK)
                             where l1.OneToOne_Optional_FK.Name != "L2 05"
                             select l1;
 
@@ -1608,7 +1611,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level1> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1 in context.LevelOne
+                expected = (from l1 in GetLevelOne(context)
                                 .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
                                 .ThenInclude(e => e.OneToOne_Required_FK).ToList()
                             where l1.OneToOne_Optional_FK?.Name != "L2 09"
@@ -1619,7 +1622,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
+                var query = from l1 in GetLevelOne(context)
                                 .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
                                 .ThenInclude(e => e.OneToOne_Required_FK)
                             where l1.OneToOne_Optional_FK.Name != "L2 09"
@@ -1655,14 +1658,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<KeyValuePair<Level1, IEnumerable<Level2>>> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1 in context.LevelOne
-                                .Include(e => e.OneToMany_Optional)
-                                .ThenInclude(e => e.OneToOne_Optional_FK)
-                                .ToList()
-                            join l2 in context.LevelTwo
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                expected = (from l1 in l1s
+                    .Include(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToOne_Optional_FK)
+                    .ToList()
+                            join l2 in l2s
                                 .Include(e => e.OneToOne_Required_PK)
                                 .ToList()
-                            on (int?)l1.Id equals l2 != null ? l2.Level1_Optional_Id : null into grouping
+                                on (int?)l1.Id equals l2 != null ? l2.Level1_Optional_Id : null into grouping
                             where l1.Name != "L1 03" || l1.Name == null
                             select new KeyValuePair<Level1, IEnumerable<Level2>>(l1, grouping)).ToList();
             }
@@ -1671,11 +1677,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = (from l1 in context.LevelOne
-                                 .Include(e => e.OneToMany_Optional)
-                                 .ThenInclude(e => e.OneToOne_Optional_FK)
-                             join l2 in context.LevelTwo.Include(e => e.OneToOne_Required_PK)
-                             on (int?)l1.Id equals l2 != null ? l2.Level1_Optional_Id : null into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = (from l1 in l1s
+                    .Include(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToOne_Optional_FK)
+                             join l2 in l2s.Include(e => e.OneToOne_Required_PK)
+                                 on (int?)l1.Id equals l2 != null ? l2.Level1_Optional_Id : null into grouping
                              where l1.Name != "L1 03"
                              select new { l1, grouping }).Skip(1).Take(5);
 
@@ -1718,11 +1727,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            join l1_Optional in context.LevelTwo on (int?)l1.Id equals l1_Optional.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            join l1_Optional in l2s on (int?)l1.Id equals l1_Optional.Level1_Optional_Id into grouping
                             from l1_Optional in grouping.DefaultIfEmpty()
-                            from l2 in context.LevelTwo
-                            join l2_Required_Reverse in context.LevelOne on l2.Level1_Required_Id equals l2_Required_Reverse.Id
+                            from l2 in l2s
+                            join l2_Required_Reverse in l1s on l2.Level1_Required_Id equals l2_Required_Reverse.Id
                             select new { l1_Optional, l2_Required_Reverse };
 
                 var result = query.ToList();
@@ -1886,7 +1898,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Required)
                     .ToList()
@@ -1900,7 +1912,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Required)
                     .OrderBy(t => t.Name)
@@ -1923,7 +1935,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(e => e.OneToOne_Optional_FK).ThenInclude(e => e.OneToMany_Optional)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Required)
                     .ToList()
@@ -1937,7 +1949,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .Include(e => e.OneToOne_Optional_FK).ThenInclude(e => e.OneToMany_Optional)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Required)
                     .OrderBy(t => t.Name)
@@ -1960,7 +1972,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(e => e.OneToOne_Optional_FK.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
                     .ToList()
                     .OrderBy(t => t.Name)
@@ -1973,7 +1985,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .Include(e => e.OneToOne_Optional_FK.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
                     .OrderBy(t => t.Name)
                     .Skip(0).Take(10);
@@ -1994,7 +2006,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level1> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToOne_Optional_FK)
                     .Include(e => e.OneToOne_Optional_FK).ThenInclude(e => e.OneToOne_Optional_FK)
@@ -2008,7 +2020,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToOne_Optional_FK)
                     .Include(e => e.OneToOne_Optional_FK).ThenInclude(e => e.OneToOne_Optional_FK)
@@ -2260,7 +2272,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<string> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne.Include(l1 => l1.OneToOne_Optional_FK).ThenInclude(l2 => l2.OneToOne_Optional_FK)
+                expected = GetLevelOne(context).Include(l1 => l1.OneToOne_Optional_FK).ThenInclude(l2 => l2.OneToOne_Optional_FK)
                     .ToList()
                     .Select(l1 => l1.OneToOne_Optional_FK)
                     .OrderBy(l2 => l2?.Id)
@@ -2273,7 +2285,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .Select(l1 => l1.OneToOne_Optional_FK)
                     .OrderBy(l2 => l2.Id)
                     .Take(10)
@@ -2336,7 +2348,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<string> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne.Include(l1 => l1.OneToOne_Required_FK).ToList()
+                expected = GetLevelOne(context).Include(l1 => l1.OneToOne_Required_FK).ToList()
                     .Where(l1 => l1.OneToOne_Required_FK?.Name == "L2 03")
                     .Take(3)
                     .Select(l1 => l1.Name)
@@ -2347,7 +2359,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .Where(l1 => l1.OneToOne_Required_FK.Name == "L2 03")
                     .Take(3)
                     .Select(l1 => l1.Name);
@@ -2368,7 +2380,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(l1 => l1.OneToMany_Optional)
                     .ThenInclude(l2 => l2.OneToMany_Optional)
                     .ToList()
@@ -2380,7 +2392,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .Include(l2 => l2.OneToMany_Optional);
 
@@ -2405,7 +2417,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(l1 => l1.OneToMany_Optional)
                     .ThenInclude(l2 => l2.OneToOne_Required_FK)
                     .ToList()
@@ -2417,7 +2429,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .Include(l2 => l2.OneToOne_Required_FK);
 
@@ -2438,7 +2450,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(l1 => l1.OneToMany_Optional)
                     .ThenInclude(l2 => l2.OneToOne_Required_FK)
                     .ThenInclude(l3 => l3.OneToMany_Optional)
@@ -2452,7 +2464,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .Include(l2 => l2.OneToOne_Required_FK)
                     .ThenInclude(l3 => l3.OneToMany_Optional);
@@ -2487,7 +2499,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level3> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(l1 => l1.OneToMany_Optional)
                     .ThenInclude(l2 => l2.OneToMany_Optional)
                     .ThenInclude(l3 => l3.OneToOne_Required_FK)
@@ -2504,7 +2516,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .SelectMany(l2 => l2.OneToMany_Optional)
                     .Include(l3 => l3.OneToOne_Required_FK)
@@ -2539,7 +2551,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(l1 => l1.OneToMany_Optional)
                     .ThenInclude(l2 => l2.OneToOne_Required_FK)
                     .ToList()
@@ -2552,7 +2564,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .Include("OneToOne_Required_FK");
 
@@ -2573,7 +2585,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(l1 => l1.OneToMany_Optional)
                     .ThenInclude(l2 => l2.OneToOne_Required_FK)
                     .ThenInclude(l3 => l3.OneToOne_Required_FK)
@@ -2587,7 +2599,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .Include("OneToOne_Required_FK.OneToOne_Required_FK");
 
@@ -2609,7 +2621,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level3> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(l1 => l1.OneToMany_Optional)
                     .ThenInclude(l2 => l2.OneToMany_Optional)
                     .ThenInclude(l3 => l3.OneToOne_Required_FK)
@@ -2624,7 +2636,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .Include("OneToOne_Required_FK");
@@ -2646,7 +2658,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelThree
+                expected = GetLevelThree(context)
                     .Include(l3 => l3.OneToOne_Required_FK_Inverse.OneToMany_Required_Inverse)
                     .ToList()
                     .Select(l3 => l3.OneToOne_Required_FK_Inverse)
@@ -2658,7 +2670,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelThree.Select(l3 => l3.OneToOne_Required_FK_Inverse).Include(l2 => l2.OneToMany_Required_Inverse);
+                var query = GetLevelThree(context).Select(l3 => l3.OneToOne_Required_FK_Inverse).Include(l2 => l2.OneToMany_Required_Inverse);
                 var result = query.ToList().OrderBy(l2 => l2.Id).ToList();
 
                 Assert.Equal(expected.Count, result.Count);
@@ -2676,7 +2688,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level3> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelFour
+                expected = GetLevelFour(context)
                     .Include(l4 => l4.OneToOne_Required_FK_Inverse.OneToMany_Required_Inverse.OneToMany_Optional_Inverse)
                     .ToList()
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse)
@@ -2688,7 +2700,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelFour
+                var query = GetLevelFour(context)
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse)
                     .Include(l3 => l3.OneToMany_Required_Inverse)
                     .ThenInclude(l2 => l2.OneToMany_Optional_Inverse);
@@ -2711,7 +2723,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelFour
+                expected = GetLevelFour(context)
                     .Include(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK)
                     .ToList()
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse)
@@ -2723,7 +2735,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelFour.Select(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse).Include(l2 => l2.OneToOne_Optional_FK);
+                var query = GetLevelFour(context).Select(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse).Include(l2 => l2.OneToOne_Optional_FK);
                 var result = query.ToList().OrderBy(l2 => l2.Id).ToList();
 
                 Assert.Equal(expected.Count, result.Count);
@@ -2741,7 +2753,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelFour
+                expected = GetLevelFour(context)
                     .Include(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK)
                     .ToList()
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse)
@@ -2754,7 +2766,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelFour
+                var query = GetLevelFour(context)
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse)
                     .Select(l3 => l3.OneToOne_Required_FK_Inverse)
                     .Include(l2 => l2.OneToOne_Optional_FK);
@@ -2776,7 +2788,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelFour
+                expected = GetLevelFour(context)
                     .Include(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK)
                     .ToList()
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse)
@@ -2788,7 +2800,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelFour.Select(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse).Include("OneToOne_Optional_FK");
+                var query = GetLevelFour(context).Select(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse).Include("OneToOne_Optional_FK");
                 var result = query.ToList().OrderBy(l2 => l2.Id).ToList();
 
                 Assert.Equal(expected.Count, result.Count);
@@ -2806,7 +2818,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelFour
+                expected = GetLevelFour(context)
                     .Include(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK)
                     .ToList()
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse)
@@ -2819,7 +2831,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelFour
+                var query = GetLevelFour(context)
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse)
                     .Select(l3 => l3.OneToOne_Required_FK_Inverse)
                     .Include("OneToOne_Optional_FK");
@@ -2841,7 +2853,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(l1 => l1.OneToOne_Optional_FK.OneToOne_Optional_FK)
                     .ToList()
                     .Select(l4 => l4.OneToOne_Optional_FK)
@@ -2853,7 +2865,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne.Select(l1 => l1.OneToOne_Optional_FK).Include(l2 => l2.OneToOne_Optional_FK);
+                var query = GetLevelOne(context).Select(l1 => l1.OneToOne_Optional_FK).Include(l2 => l2.OneToOne_Optional_FK);
                 var result = query.ToList().OrderBy(l2 => l2?.Id).ToList();
 
                 Assert.Equal(expected.Count, result.Count);
@@ -2871,7 +2883,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level2> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional).ThenInclude(l3 => l3.OneToOne_Optional_FK)
                     .ToList()
                     .Select(l4 => l4.OneToOne_Optional_FK)
@@ -2883,7 +2895,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .Select(l1 => l1.OneToOne_Optional_FK)
                     .Include(l2 => l2.OneToMany_Optional)
                     .ThenInclude(l3 => l3.OneToOne_Optional_FK);
@@ -2915,7 +2927,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level3> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(l1 => l1.OneToOne_Optional_FK.OneToOne_Optional_PK.OneToMany_Optional)
                     .ToList()
                     .Select(l1 => l1.OneToOne_Optional_FK?.OneToOne_Optional_PK)
@@ -2927,7 +2939,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .Select(l1 => l1.OneToOne_Optional_FK.OneToOne_Optional_PK)
                     .Include(l2 => l2.OneToMany_Optional);
 
@@ -2958,7 +2970,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Level3> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne
+                expected = GetLevelOne(context)
                     .Include(l1 => l1.OneToOne_Optional_FK.OneToOne_Optional_PK.OneToMany_Optional)
                     .ToList()
                     .Select(l1 => l1.OneToOne_Optional_FK)
@@ -2971,7 +2983,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .Select(l1 => l1.OneToOne_Optional_FK)
                     .Select(l2 => l2.OneToOne_Optional_PK)
                     .Include("OneToMany_Optional");
@@ -3138,19 +3150,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Select_join_with_key_selector_being_a_subquery()
         {
             List<string> expected;
-            using (var ctx = CreateContext())
+            using (var context = CreateContext())
             {
-                expected = (from l1 in ctx.LevelOne.ToList()
-                            join l2 in ctx.LevelTwo.ToList() on l1.Id equals ctx.LevelTwo.ToList().Select(l => l.Id).OrderBy(l => l).FirstOrDefault()
+                var l1s = GetLevelOne(context).ToList();
+                var l2s = GetLevelTwo(context).ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2s.Select(l => l.Id).OrderBy(l => l).FirstOrDefault()
                             select new { l1, l2 }).ToList().OrderBy(l => l.l1.Id).ThenBy(l => l.l2.Id).ToList().Select(r => r.l1.Name + " " + r.l2.Name).ToList();
             }
 
             ClearLog();
 
-            using (var ctx = CreateContext())
+            using (var context = CreateContext())
             {
-                var query = from l1 in ctx.LevelOne
-                            join l2 in ctx.LevelTwo on l1.Id equals ctx.LevelTwo.Select(l => l.Id).OrderBy(l => l).FirstOrDefault()
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2s.Select(l => l.Id).OrderBy(l => l).FirstOrDefault()
                             select new { l1, l2 };
 
                 var result = query.ToList().OrderBy(l => l.l1.Id).ThenBy(l => l.l2.Id).Select(r => r.l1.Name + " " + r.l2.Name).ToList();
@@ -3384,9 +3402,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<string> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1 in context.LevelOne.ToList()
-                            where (from l1_inner in context.LevelOne.ToList()
-                                   join l2_inner in context.LevelTwo.ToList() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context).ToList();
+                var l2s = GetLevelTwo(context).ToList();
+
+                expected = (from l1 in l1s
+                            where (from l1_inner in l1s
+                                   join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
                                    from l2_inner in grouping.DefaultIfEmpty()
                                    select l1_inner).Distinct().Count() > 7
                             where l1.Id < 3
@@ -3397,9 +3418,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            where (from l1_inner in context.LevelOne
-                                   join l2_inner in context.LevelTwo on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            where (from l1_inner in l1s
+                                   join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
                                    from l2_inner in grouping.DefaultIfEmpty()
                                    select l1_inner).Distinct().Count() > 7
                             where l1.Id < 3
@@ -3421,9 +3445,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<string> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1 in context.LevelOne.ToList()
-                            where (from l1_inner in context.LevelOne.ToList()
-                                   join l2_inner in context.LevelTwo.ToList() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context).ToList();
+                var l2s = GetLevelTwo(context).ToList();
+
+                expected = (from l1 in l1s
+                            where (from l1_inner in l1s
+                                   join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
                                    from l2_inner in grouping.DefaultIfEmpty()
                                    select l1_inner).Distinct().Count() > 7
                             where l1.Id < 3
@@ -3434,9 +3461,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            where (from l1_inner in context.LevelOne
-                                   join l2_inner in context.LevelTwo on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            where (from l1_inner in l1s
+                                   join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping
                                    from l2_inner in grouping.DefaultIfEmpty()
                                    select ClientStringMethod(l1_inner.Name)).Count() > 7
                             where l1.Id < 3
@@ -3458,12 +3488,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<string> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1_outer in context.LevelOne.ToList()
-                            where (from l1_middle in context.LevelOne.ToList()
-                                   join l2_middle in context.LevelTwo.ToList() on l1_middle.Id equals l2_middle.Level1_Optional_Id into grouping_middle
+                var l1s = GetLevelOne(context).ToList();
+                var l2s = GetLevelTwo(context).ToList();
+
+                expected = (from l1_outer in l1s
+                            where (from l1_middle in l1s
+                                   join l2_middle in l2s on l1_middle.Id equals l2_middle.Level1_Optional_Id into grouping_middle
                                    from l2_middle in grouping_middle.DefaultIfEmpty()
-                                   where (from l1_inner in context.LevelOne.ToList()
-                                          join l2_inner in context.LevelTwo.ToList() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                                   where (from l1_inner in l1s
+                                          join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
                                           from l2_inner in grouping_inner.DefaultIfEmpty()
                                           select ClientStringMethod(l1_inner.Name)).Count() > 7
                                    select l1_middle).Take(10).Count() > 4
@@ -3475,12 +3508,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1_outer in context.LevelOne
-                            where (from l1_middle in context.LevelOne
-                                   join l2_middle in context.LevelTwo on l1_middle.Id equals l2_middle.Level1_Optional_Id into grouping_middle
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1_outer in l1s
+                            where (from l1_middle in l1s
+                                   join l2_middle in l2s on l1_middle.Id equals l2_middle.Level1_Optional_Id into grouping_middle
                                    from l2_middle in grouping_middle.DefaultIfEmpty()
-                                   where (from l1_inner in context.LevelOne
-                                          join l2_inner in context.LevelTwo on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                                   where (from l1_inner in l1s
+                                          join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
                                           from l2_inner in grouping_inner.DefaultIfEmpty()
                                           select ClientStringMethod(l1_inner.Name)).Count() > 7
                                    select l1_middle).Take(10).Count() > 4
@@ -3503,12 +3539,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<string> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1_outer in context.LevelOne.ToList()
-                            where (from l1_middle in context.LevelOne.ToList()
-                                   join l2_middle in context.LevelTwo.ToList() on l1_middle.Id equals l2_middle.Level1_Optional_Id into grouping_middle
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+                expected = (from l1_outer in l1s.ToList()
+                            where (from l1_middle in l1s.ToList()
+                                   join l2_middle in l2s.ToList() on l1_middle.Id equals l2_middle.Level1_Optional_Id into grouping_middle
                                    from l2_middle in grouping_middle.DefaultIfEmpty()
-                                   where (from l1_inner in context.LevelOne.ToList()
-                                          join l2_inner in context.LevelTwo.ToList() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                                   where (from l1_inner in l1s.ToList()
+                                          join l2_inner in l2s.ToList() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
                                           from l2_inner in grouping_inner.DefaultIfEmpty()
                                           select l1_inner.Name).Count() > 7
                                    select ClientStringMethod(l1_middle.Name)).Count() > 4
@@ -3520,12 +3558,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1_outer in context.LevelOne
-                            where (from l1_middle in context.LevelOne
-                                   join l2_middle in context.LevelTwo on l1_middle.Id equals l2_middle.Level1_Optional_Id into grouping_middle
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+                var query = from l1_outer in l1s
+                            where (from l1_middle in l1s
+                                   join l2_middle in l2s on l1_middle.Id equals l2_middle.Level1_Optional_Id into grouping_middle
                                    from l2_middle in grouping_middle.DefaultIfEmpty()
-                                   where (from l1_inner in context.LevelOne
-                                          join l2_inner in context.LevelTwo on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                                   where (from l1_inner in l1s
+                                          join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
                                           from l2_inner in grouping_inner.DefaultIfEmpty()
                                           select l1_inner.Name).Count() > 7
                                    select ClientStringMethod(l1_middle.Name)).Count() > 4
@@ -3553,8 +3593,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<int> expected;
             using (var context = CreateContext())
             {
-                var l1s = context.LevelOne.ToList();
-                var l2s = context.LevelTwo.ToList();
+                var l1s = GetLevelOne(context).ToList();
+                var l2s = GetLevelTwo(context).ToList();
 
                 expected = (from l1 in l1s
                             join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -3567,8 +3607,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                             from l2 in groupJoin.DefaultIfEmpty()
                             orderby groupJoin.Count()
                             select l1.Id;
@@ -3589,8 +3632,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<Tuple<int, int>> expected;
             using (var context = CreateContext())
             {
-                var l1s = context.LevelOne.ToList();
-                var l2s = context.LevelTwo.ToList();
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context).ToList();
 
                 expected = (from l1 in l1s
                             join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -3602,8 +3645,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                             from l2 in groupJoin.DefaultIfEmpty()
                             select new { l1.Id, client = ClientMethodNullableInt(l1.Id) };
 
@@ -3623,8 +3669,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<int> expected;
             using (var context = CreateContext())
             {
-                var l1s = context.LevelOne.ToList();
-                var l2s = context.LevelTwo.ToList();
+                var l1s = GetLevelOne(context).ToList();
+                var l2s = GetLevelTwo(context).ToList();
 
                 expected = (from l1 in l1s
                             join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -3637,8 +3683,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                             from l2 in groupJoin.DefaultIfEmpty()
                             orderby ClientMethodNullableInt(l1.Id), ClientMethodNullableInt(l2 != null ? l2.Id : (int?)null)
                             select l1.Id;
@@ -3664,8 +3713,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<int> expected;
             using (var context = CreateContext())
             {
-                var l1s = context.LevelOne.ToList();
-                var l2s = context.LevelTwo.ToList();
+                var l1s = GetLevelOne(context).ToList();
+                var l2s = GetLevelTwo(context).ToList();
 
                 expected = (from l1 in l1s
                             join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -3677,8 +3726,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                             from l2 in groupJoin.Select(gg => gg)
                             select l1.Id;
 
@@ -3698,8 +3750,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<int> expected;
             using (var context = CreateContext())
             {
-                var l1s = context.LevelOne.ToList();
-                var l2s = context.LevelTwo.ToList();
+                var l1s = GetLevelOne(context).ToList();
+                var l2s = GetLevelTwo(context).ToList();
 
                 expected = (from l1 in l1s
                             join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -3712,8 +3764,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                             from l2 in groupJoin.Where(gg => gg.Id > 0).Take(10).DefaultIfEmpty()
                             select l1.Id;
 
@@ -3733,8 +3788,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<int> expected;
             using (var context = CreateContext())
             {
-                var l1s = context.LevelOne.ToList();
-                var l2s = context.LevelTwo.ToList();
+                var l1s = GetLevelOne(context).ToList();
+                var l2s = GetLevelTwo(context).ToList();
 
                 expected = (from l1 in l1s
                             join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -3746,8 +3801,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                             from l2 in groupJoin.Where(gg => gg.Id > 0).Take(10)
                             select l1.Id;
 
@@ -3767,7 +3825,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<int> expected;
             using (var context = CreateContext())
             {
-                expected = context.LevelOne.Include(l1 => l1.OneToOne_Optional_FK)
+                expected = GetLevelOne(context).Include(l1 => l1.OneToOne_Optional_FK)
                     .ToList()
                     .Where(l1 => l1.OneToOne_Optional_FK?.Name != "Foo")
                     .Take(15)
@@ -3778,7 +3836,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne
+                var query = GetLevelOne(context)
                     .Where(l1 => l1.OneToOne_Optional_FK.Name != "Foo")
                     .Take(15)
                     .Select(l1 => l1.Id);
@@ -3799,8 +3857,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<int> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1 in (from l1 in context.LevelOne.ToList()
-                                        join l2 in context.LevelTwo.ToList() on l1.Id equals l2.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                expected = (from l1 in (from l1 in l1s.ToList()
+                                        join l2 in l2s.ToList() on l1.Id equals l2.Level1_Optional_Id into grouping
                                         from l2 in grouping.DefaultIfEmpty()
                                         where l2?.Name != "Foo"
                                         select l1).Take(15)
@@ -3811,8 +3872,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in (from l1 in context.LevelOne
-                                        join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in (from l1 in l1s
+                                        join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
                                         from l2 in grouping.DefaultIfEmpty()
                                         where (l2 != null ? l2.Name : null) != "Foo"
                                         select l1).Take(15)
@@ -3834,8 +3898,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<int> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1 in (from l1 in context.LevelOne.ToList()
-                                        join l2 in context.LevelTwo.ToList() on l1.Id equals l2.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                expected = (from l1 in (from l1 in l1s.ToList()
+                                        join l2 in l2s.ToList() on l1.Id equals l2.Level1_Optional_Id into grouping
                                         from l2 in grouping.DefaultIfEmpty()
                                         where l2?.Name != "Foo"
                                         select l1).Distinct()
@@ -3846,8 +3913,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in (from l1 in context.LevelOne
-                                        join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in (from l1 in l1s
+                                        join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
                                         from l2 in grouping.DefaultIfEmpty()
                                         where (l2 != null ? l2.Name : null) != "Foo"
                                         select l1).Distinct()
@@ -3869,8 +3939,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<int> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1 in (from l1 in context.LevelOne.ToList()
-                                        join l2 in context.LevelTwo.ToList() on l1.Id equals l2.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                expected = (from l1 in (from l1 in l1s.ToList()
+                                        join l2 in l2s.ToList() on l1.Id equals l2.Level1_Optional_Id into grouping
                                         from l2 in grouping.DefaultIfEmpty()
                                         where l2?.Name != "Foo"
                                         select l1.Id).Distinct()
@@ -3881,8 +3954,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in (from l1 in context.LevelOne
-                                        join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in (from l1 in l1s
+                                        join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
                                         from l2 in grouping.DefaultIfEmpty()
                                         where (l2 != null ? l2.Name : null) != "Foo"
                                         select l1.Id).Distinct()
@@ -3904,8 +3980,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<int> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1 in (from l1 in context.LevelOne.ToList()
-                                        join l2 in context.LevelTwo.ToList() on l1.Id equals l2.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                expected = (from l1 in (from l1 in l1s.ToList()
+                                        join l2 in l2s.ToList() on l1.Id equals l2.Level1_Optional_Id into grouping
                                         from l2 in grouping.DefaultIfEmpty()
                                         where l2?.Name != "Foo"
                                         select l1.Id).Distinct().Take(20)
@@ -3916,8 +3995,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in (from l1 in context.LevelOne
-                                        join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in (from l1 in l1s
+                                        join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
                                         from l2 in grouping.DefaultIfEmpty()
                                         where (l2 != null ? l2.Name : null) != "Foo"
                                         select l1.Id).Distinct().Take(20)
@@ -3939,9 +4021,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<int> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1 in context.LevelOne.ToList()
-                            where (from l1_inner in context.LevelOne.ToList()
-                                   join l2 in context.LevelTwo on l1_inner.Id equals l2.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context).ToList();
+                var l2s = GetLevelTwo(context).ToList();
+
+                expected = (from l1 in l1s
+                            where (from l1_inner in l1s
+                                   join l2 in l2s on l1_inner.Id equals l2.Level1_Optional_Id into grouping
                                    from l2 in grouping.DefaultIfEmpty()
                                    select l1_inner).Count() > 4
                             select l1.Id).ToList();
@@ -3951,9 +4036,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            where (from l1_inner in context.LevelOne
-                                   join l2 in context.LevelTwo on l1_inner.Id equals l2.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            where (from l1_inner in l1s
+                                   join l2 in l2s on l1_inner.Id equals l2.Level1_Optional_Id into grouping
                                    from l2 in grouping.DefaultIfEmpty()
                                    select l1_inner).Count() > 4
                             select l1;
@@ -3974,9 +4062,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             List<int> expected;
             using (var context = CreateContext())
             {
-                expected = (from l1 in context.LevelOne.ToList()
-                            where (from l1_inner in context.LevelOne.ToList()
-                                   join l2 in context.LevelTwo on l1_inner.Id equals l2.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context).ToList();
+                var l2s = GetLevelTwo(context).ToList();
+
+                expected = (from l1 in l1s
+                            where (from l1_inner in l1s
+                                   join l2 in l2s on l1_inner.Id equals l2.Level1_Optional_Id into grouping
                                    from l2 in grouping.DefaultIfEmpty()
                                    select l1_inner).Distinct().Count() > 4
                             select l1.Id).ToList();
@@ -3986,9 +4077,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            where (from l1_inner in context.LevelOne
-                                   join l2 in context.LevelTwo on l1_inner.Id equals l2.Level1_Optional_Id into grouping
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            where (from l1_inner in l1s
+                                   join l2 in l2s on l1_inner.Id equals l2.Level1_Optional_Id into grouping
                                    from l2 in grouping.DefaultIfEmpty()
                                    select l1_inner).Distinct().Count() > 4
                             select l1;
@@ -4020,8 +4114,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            join l2 in context.LevelTwo
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            join l2 in l2s
                             on new
                             {
                                 A = EF.Property<int?>(l1, "OneToMany_Optional_Self_InverseId"),
@@ -4044,8 +4141,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                var query = from l1 in context.LevelOne
-                            join l2 in context.LevelTwo
+                var l1s = GetLevelOne(context);
+                var l2s = GetLevelTwo(context);
+
+                var query = from l1 in l1s
+                            join l2 in l2s
                             on new
                             {
                                 A = EF.Property<int?>(l1, "OneToMany_Optional_Self_InverseId"),
@@ -4142,9 +4242,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                        select l3.Id,
                 l3s => from l3 in l3s
                        where Maybe(
-                           l3.OneToMany_Optional_Inverse, 
+                           l3.OneToMany_Optional_Inverse,
                            () => Maybe(
-                               l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse, 
+                               l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse,
                                () => l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse.Name)) != "L1 07"
                        where Maybe(l3.OneToMany_Optional_Inverse, () => l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse) != null
                        select l3.Id);
@@ -4186,9 +4286,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                        select l2.Name,
                 l2s => from l2 in l2s
                        where MaybeScalar(
-                           l2.OneToOne_Required_FK, 
+                           l2.OneToOne_Required_FK,
                            () => MaybeScalar<bool>(
-                               l2.OneToOne_Required_FK.OneToMany_Optional, 
+                               l2.OneToOne_Required_FK.OneToMany_Optional,
                                () => l2.OneToOne_Required_FK.OneToMany_Optional.Select(i => i.OneToOne_Optional_PK_Inverse == l2.OneToOne_Required_FK).Any())) == true
                        select l2.Name);
         }
@@ -4229,6 +4329,96 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             return expression();
         }
 
+        protected IQueryable<T> ExpectedSet<T>()
+        {
+            if (typeof(T) == typeof(Level1))
+            {
+                return (IQueryable<T>)GetExpectedLevelOne();
+            }
+
+            if (typeof(T) == typeof(Level2))
+            {
+                return (IQueryable<T>)GetExpectedLevelTwo();
+            }
+
+            if (typeof(T) == typeof(Level3))
+            {
+                return (IQueryable<T>)GetExpectedLevelThree();
+            }
+
+            if (typeof(T) == typeof(Level4))
+            {
+                return (IQueryable<T>)GetExpectedLevelFour();
+            }
+
+            throw new NotImplementedException();
+        }
+
+        protected virtual IQueryable<Level1> GetExpectedLevelOne()
+        {
+            return ComplexNavigationsData.LevelOnes.AsQueryable();
+        }
+
+        protected virtual IQueryable<Level2> GetExpectedLevelTwo()
+        {
+            return ComplexNavigationsData.LevelTwos.AsQueryable();
+        }
+
+        protected virtual IQueryable<Level3> GetExpectedLevelThree()
+        {
+            return ComplexNavigationsData.LevelThrees.AsQueryable();
+        }
+
+        protected virtual IQueryable<Level4> GetExpectedLevelFour()
+        {
+            return ComplexNavigationsData.LevelFours.AsQueryable();
+        }
+
+        protected IQueryable<T> Set<T>(ComplexNavigationsContext context)
+        {
+            if (typeof(T) == typeof(Level1))
+            {
+                return (IQueryable<T>)GetLevelOne(context);
+            }
+
+            if (typeof(T) == typeof(Level2))
+            {
+                return (IQueryable<T>)GetLevelTwo(context);
+            }
+
+            if (typeof(T) == typeof(Level3))
+            {
+                return (IQueryable<T>)GetLevelThree(context);
+            }
+
+            if (typeof(T) == typeof(Level4))
+            {
+                return (IQueryable<T>)GetLevelFour(context);
+            }
+
+            throw new NotImplementedException();
+        }
+
+        protected virtual IQueryable<Level1> GetLevelOne(ComplexNavigationsContext context)
+        {
+            return context.LevelOne;
+        }
+
+        protected virtual IQueryable<Level2> GetLevelTwo(ComplexNavigationsContext context)
+        {
+            return context.LevelTwo;
+        }
+
+        protected virtual IQueryable<Level3> GetLevelThree(ComplexNavigationsContext context)
+        {
+            return context.LevelThree;
+        }
+
+        protected virtual IQueryable<Level4> GetLevelFour(ComplexNavigationsContext context)
+        {
+            return context.LevelFour;
+        }
+
         #region AssertQuery
 
         private void AssertQuery<TItem1>(
@@ -4249,9 +4439,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var actual = efQuery(Set<TItem1>(context)).ToArray();
+                var expected = l2oQuery(ExpectedSet<TItem1>()).ToArray();
                 TestHelpers.AssertResults(
-                    l2oQuery(ComplexNavigationsData.Set<TItem1>()).ToArray(),
-                    efQuery(context.Set<TItem1>()).ToArray(),
+                    expected,
+                    actual,
                     elementSorter ?? (e => e),
                     elementAsserter ?? ((e, a) => Assert.Equal(e, a)),
                     verifyOrdered);
@@ -4278,9 +4470,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var actual = efQuery(Set<TItem1>(context), Set<TItem2>(context)).ToArray();
+                var expected = l2oQuery(ExpectedSet<TItem1>(), ExpectedSet<TItem2>()).ToArray();
                 TestHelpers.AssertResults(
-                    l2oQuery(ComplexNavigationsData.Set<TItem1>(), ComplexNavigationsData.Set<TItem2>()).ToArray(),
-                    efQuery(context.Set<TItem1>(), context.Set<TItem2>()).ToArray(),
+                    expected,
+                    actual,
                     elementSorter ?? (e => e),
                     elementAsserter ?? ((e, a) => Assert.Equal(e, a)),
                     verifyOrdered);
@@ -4309,9 +4503,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var actual = efQuery(Set<TItem1>(context), Set<TItem2>(context), Set<TItem3>(context)).ToArray();
+                var expected = l2oQuery(ExpectedSet<TItem1>(), ExpectedSet<TItem2>(), ExpectedSet<TItem3>()).ToArray();
                 TestHelpers.AssertResults(
-                    l2oQuery(ComplexNavigationsData.Set<TItem1>(), ComplexNavigationsData.Set<TItem2>(), ComplexNavigationsData.Set<TItem3>()).ToArray(),
-                    efQuery(context.Set<TItem1>(), context.Set<TItem2>(), context.Set<TItem3>()).ToArray(),
+                    expected,
+                    actual,
                     elementSorter ?? (e => e),
                     elementAsserter ?? ((e, a) => Assert.Equal(e, a)),
                     verifyOrdered);
@@ -4338,9 +4534,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var actual = efQuery(Set<TItem1>(context)).ToArray();
+                var expected = l2oQuery(ExpectedSet<TItem1>()).ToArray();
                 TestHelpers.AssertResults(
-                    l2oQuery(ComplexNavigationsData.Set<TItem1>()).ToArray(),
-                    efQuery(context.Set<TItem1>()).ToArray(),
+                    expected,
+                    actual,
                     e => e,
                     Assert.Equal,
                     verifyOrdered);
@@ -4365,9 +4563,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var actual = efQuery(Set<TItem1>(context), Set<TItem2>(context)).ToArray();
+                var expected = l2oQuery(ExpectedSet<TItem1>(), ExpectedSet<TItem2>()).ToArray();
                 TestHelpers.AssertResults(
-                    l2oQuery(ComplexNavigationsData.Set<TItem1>(), ComplexNavigationsData.Set<TItem2>()).ToArray(),
-                    efQuery(context.Set<TItem1>(), context.Set<TItem2>()).ToArray(),
+                    expected,
+                    actual,
                     e => e,
                     Assert.Equal,
                     verifyOrdered);
@@ -4384,9 +4584,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var actual = query(Set<TItem1>(context), Set<TItem2>(context), Set<TItem3>(context)).ToArray();
+                var expected = query(ExpectedSet<TItem1>(), ExpectedSet<TItem2>(), ExpectedSet<TItem3>()).ToArray();
                 TestHelpers.AssertResults(
-                    query(ComplexNavigationsData.Set<TItem1>(), ComplexNavigationsData.Set<TItem2>(), ComplexNavigationsData.Set<TItem3>()).ToArray(),
-                    query(context.Set<TItem1>(), context.Set<TItem2>(), context.Set<TItem3>()).ToArray(),
+                    expected,
+                    actual,
                     e => e,
                     Assert.Equal,
                     verifyOrdered);
@@ -4404,9 +4606,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var actual = efQuery(Set<TItem1>(context), Set<TItem2>(context), Set<TItem3>(context)).ToArray();
+                var expected = l2oQuery(ExpectedSet<TItem1>(), ExpectedSet<TItem2>(), ExpectedSet<TItem3>()).ToArray();
                 TestHelpers.AssertResults(
-                    l2oQuery(ComplexNavigationsData.Set<TItem1>(), ComplexNavigationsData.Set<TItem2>(), ComplexNavigationsData.Set<TItem3>()).ToArray(),
-                    efQuery(context.Set<TItem1>(), context.Set<TItem2>(), context.Set<TItem3>()).ToArray(),
+                    expected,
+                    actual,
                     e => e,
                     Assert.Equal,
                     verifyOrdered);
@@ -4433,9 +4637,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var actual = efQuery(Set<TItem1>(context)).ToArray();
+                var expected = l2oQuery(ExpectedSet<TItem1>()).ToArray();
                 TestHelpers.AssertResultsNullable(
-                    l2oQuery(ComplexNavigationsData.Set<TItem1>()).ToArray(),
-                    efQuery(context.Set<TItem1>()).ToArray(),
+                    expected,
+                    actual,
                     e => e,
                     Assert.Equal,
                     verifyOrdered);
@@ -4460,9 +4666,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var actual = efQuery(Set<TItem1>(context), Set<TItem2>(context)).ToArray();
+                var expected = l2oQuery(ExpectedSet<TItem1>(), ExpectedSet<TItem2>()).ToArray();
                 TestHelpers.AssertResultsNullable(
-                    l2oQuery(ComplexNavigationsData.Set<TItem1>(), ComplexNavigationsData.Set<TItem2>()).ToArray(),
-                    efQuery(context.Set<TItem1>(), context.Set<TItem2>()).ToArray(),
+                    expected,
+                    actual,
                     e => e,
                     Assert.Equal,
                     verifyOrdered);

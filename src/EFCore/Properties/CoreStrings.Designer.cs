@@ -1422,7 +1422,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 service);
 
         /// <summary>
-        ///     An exception occured while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
+        ///     An exception occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
         /// </summary>
         public static string ErrorMaterializingProperty([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
@@ -1430,7 +1430,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, property);
 
         /// <summary>
-        ///     An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
+        ///     An exception occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
         /// </summary>
         public static string ErrorMaterializingPropertyInvalidCast([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType, [CanBeNull] object actualType)
             => string.Format(
@@ -1438,7 +1438,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, property, expectedType, actualType);
 
         /// <summary>
-        ///     An exception occured while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.
+        ///     An exception occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.
         /// </summary>
         public static string ErrorMaterializingPropertyNullReference([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object expectedType)
             => string.Format(
@@ -1446,13 +1446,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, property, expectedType);
 
         /// <summary>
-        ///     An exception occured while reading a database value. See the inner exception for more information.
+        ///     An exception occurred while reading a database value. See the inner exception for more information.
         /// </summary>
         public static string ErrorMaterializingValue
             => GetString("ErrorMaterializingValue");
 
         /// <summary>
-        ///     An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
+        ///     An exception occurred while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.
         /// </summary>
         public static string ErrorMaterializingValueInvalidCast([CanBeNull] object expectedType, [CanBeNull] object actualType)
             => string.Format(
@@ -1460,7 +1460,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 expectedType, actualType);
 
         /// <summary>
-        ///     An exception occured while reading a database value. The expected type was '{expectedType}' but the actual value was null.
+        ///     An exception occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.
         /// </summary>
         public static string ErrorMaterializingValueNullReference([CanBeNull] object expectedType)
             => string.Format(

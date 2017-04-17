@@ -17,25 +17,26 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
         SnapshotMonsterContext.ProductPhoto, SnapshotMonsterContext.ProductWebFeature, SnapshotMonsterContext.Supplier,
         SnapshotMonsterContext.SupplierLogo, SnapshotMonsterContext.SupplierInfo, SnapshotMonsterContext.CustomerInfo,
         SnapshotMonsterContext.Computer, SnapshotMonsterContext.ComputerDetail, SnapshotMonsterContext.Driver,
-        SnapshotMonsterContext.License>
+        SnapshotMonsterContext.License, SnapshotMonsterContext.ConcurrencyInfo, SnapshotMonsterContext.AuditInfo,
+        SnapshotMonsterContext.ContactDetails, SnapshotMonsterContext.Dimensions, SnapshotMonsterContext.Phone,
+        SnapshotMonsterContext.BackOrderLine, SnapshotMonsterContext.DiscontinuedProduct, SnapshotMonsterContext.ProductPageView>
     {
         public SnapshotMonsterContext(DbContextOptions options, Action<ModelBuilder> onModelCreating)
             : base(options, onModelCreating)
         {
         }
 
-        // TODO: Inheritance
-        //public class BackOrderLine2 : BackOrderLine
-        //{
-        //}
+        public class BackOrderLine2 : BackOrderLine
+        {
+        }
 
-        //public class BackOrderLine : OrderLine
-        //{
-        //    public DateTime ETA { get; set; }
+        public class BackOrderLine : OrderLine, IBackOrderLine
+        {
+            public DateTime ETA { get; set; }
 
-        //    public int SupplierId { get; set; }
-        //    public virtual ISupplier Supplier { get; set; }
-        //}
+            public int SupplierId { get; set; }
+            public virtual ISupplier Supplier { get; set; }
+        }
 
         public class BarcodeDetail : IBarcodeDetail
         {
@@ -85,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             public string Specifications { get; set; }
             public DateTime PurchaseDate { get; set; }
 
-            public Dimensions Dimensions { get; set; }
+            public IDimensions Dimensions { get; set; }
 
             public virtual IComputer Computer { get; set; }
         }
@@ -98,19 +99,48 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             public virtual IComputerDetail ComputerDetail { get; set; }
         }
 
+        public class ConcurrencyInfo : IConcurrencyInfo
+        {
+            public string Token { get; set; }
+            public DateTime? QueriedDateTime { get; set; }
+        }
+
+        public class ContactDetails : IContactDetails
+        {
+            public ContactDetails()
+            {
+                HomePhone = new Phone();
+                WorkPhone = new Phone();
+                MobilePhone = new Phone();
+            }
+
+            public string Email { get; set; }
+
+            public IPhone HomePhone { get; set; }
+            public IPhone WorkPhone { get; set; }
+            public IPhone MobilePhone { get; set; }
+        }
+
         public class CustomerInfo : ICustomerInfo
         {
             public int CustomerInfoId { get; set; }
             public string Information { get; set; }
         }
 
-        //public class DiscontinuedProduct : Product
-        //{
-        //    public DateTime Discontinued { get; set; }
-        //    public int? ReplacementProductId { get; set; }
+        public class Dimensions : IDimensions
+        {
+            public decimal Width { get; set; }
+            public decimal Height { get; set; }
+            public decimal Depth { get; set; }
+        }
 
-        //    public virtual IProduct ReplacedBy { get; set; }
-        //}
+        public class DiscontinuedProduct : Product, IDiscontinuedProduct
+        {
+            public DateTime Discontinued { get; set; }
+            public int? ReplacementProductId { get; set; }
+
+            public virtual IProduct ReplacedBy { get; set; }
+        }
 
         public class Driver : IDriver
         {
@@ -207,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             public int AlternateId { get; set; }
             public int? CustomerId { get; set; }
 
-            public ConcurrencyInfo Concurrency { get; set; }
+            public IConcurrencyInfo Concurrency { get; set; }
 
             public virtual ICustomer Customer { get; set; }
             public virtual ICollection<IOrderLine> OrderLines { get; set; }
@@ -275,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             public void InitializeCollections()
             {
                 Suppliers = Suppliers ?? new HashSet<ISupplier>();
-                //Replaces = Replaces ?? new HashSet<DiscontinuedProduct>();
+                Replaces = Replaces ?? new HashSet<IDiscontinuedProduct>();
                 Reviews = Reviews ?? new HashSet<IProductReview>();
                 Photos = Photos ?? new HashSet<IProductPhoto>();
                 Barcodes = Barcodes ?? new HashSet<IBarcode>();
@@ -285,19 +315,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             public string Description { get; set; }
             public string BaseConcurrency { get; set; }
 
-            public Dimensions Dimensions { get; set; }
-            public ConcurrencyInfo ComplexConcurrency { get; set; }
-            public AuditInfo NestedComplexConcurrency { get; set; }
+            public IDimensions Dimensions { get; set; }
+            public IConcurrencyInfo ComplexConcurrency { get; set; }
+            public IAuditInfo NestedComplexConcurrency { get; set; }
 
             public virtual ICollection<ISupplier> Suppliers { get; set; }
-            //public virtual ICollection<DiscontinuedProduct> Replaces { get; set; }
+            public virtual ICollection<IDiscontinuedProduct> Replaces { get; set; }
             public virtual IProductDetail Detail { get; set; }
             public virtual ICollection<IProductReview> Reviews { get; set; }
             public virtual ICollection<IProductPhoto> Photos { get; set; }
             public virtual ICollection<IBarcode> Barcodes { get; set; }
         }
 
-        public class ProductPageView : PageView
+        public class ProductPageView : PageView, IProductPageView
         {
             public int ProductId { get; set; }
 
@@ -392,14 +422,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             public void InitializeCollections()
             {
                 Products = Products ?? new HashSet<IProduct>();
-                //BackOrderLines = new HashSet<BackOrderLine>();
+                BackOrderLines = new HashSet<IBackOrderLine>();
             }
 
             public int SupplierId { get; set; }
             public string Name { get; set; }
 
             public virtual ICollection<IProduct> Products { get; set; }
-            //public virtual ICollection<BackOrderLine> BackOrderLines { get; set; }
+            public virtual ICollection<IBackOrderLine> BackOrderLines { get; set; }
             public virtual ISupplierLogo Logo { get; set; }
         }
 
@@ -409,6 +439,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             public string Activity { get; set; }
 
             public string Username { get; set; }
+        }
+
+        public class AuditInfo : IAuditInfo
+        {
+            public AuditInfo()
+            {
+                Concurrency = new ConcurrencyInfo();
+            }
+
+            public DateTime ModifiedDate { get; set; }
+            public string ModifiedBy { get; set; }
+
+            public IConcurrencyInfo Concurrency { get; set; }
         }
 
         public class Customer : ICustomer
@@ -429,8 +472,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             public int? HusbandId { get; set; }
             public string Name { get; set; }
 
-            public ContactDetails ContactInfo { get; set; }
-            public AuditInfo Auditing { get; set; }
+            public IContactDetails ContactInfo { get; set; }
+            public IAuditInfo Auditing { get; set; }
 
             public virtual ICollection<IAnOrder> Orders { get; set; }
             public virtual ICollection<ILogin> Logins { get; set; }
@@ -457,6 +500,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             public virtual ICollection<IMessage> SentMessages { get; set; }
             public virtual ICollection<IMessage> ReceivedMessages { get; set; }
             public virtual ICollection<IAnOrder> Orders { get; set; }
+        }
+
+        public class Phone : IPhone
+        {
+            public Phone()
+            {
+                Extension = "None";
+            }
+
+            public string PhoneNumber { get; set; }
+            public string Extension { get; set; }
+            public PhoneType PhoneType { get; set; }
         }
     }
 }

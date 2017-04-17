@@ -7,12 +7,13 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
-    public class ComplexNavigationsQueryInMemoryTest : ComplexNavigationsQueryTestBase<InMemoryTestStore, ComplexNavigationsQueryInMemoryFixture>
+    public class ComplexNavigationsOwnedQueryInMemoryTest :
+        ComplexNavigationsOwnedQueryTestBase<InMemoryTestStore, ComplexNavigationsOwnedQueryInMemoryFixture>
     {
-        public ComplexNavigationsQueryInMemoryTest(ComplexNavigationsQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
+        public ComplexNavigationsOwnedQueryInMemoryTest(ComplexNavigationsOwnedQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            //TestLoggerFactory.TestOutputHelper = testOutputHelper;
+           //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
         [ConditionalFact(Skip = "issue #4311")]

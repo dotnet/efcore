@@ -1,9 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.ResultOperators;
 using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -19,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         void Optimize(
-            [NotNull] IReadOnlyCollection<IQueryAnnotation> queryAnnotations,
+            [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] QueryModel queryModel);
     }
 }

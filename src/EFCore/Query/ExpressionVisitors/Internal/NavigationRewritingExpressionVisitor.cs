@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -418,26 +417,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(node, nameof(node));
 
-            var result =
-                _queryModelVisitor.BindNavigationPathPropertyExpression(
-                    node,
-                    (ps, qs) =>
+            var result = _queryModelVisitor.BindNavigationPathPropertyExpression(
+                node,
+                (ps, qs) =>
+                    {
+                        if (qs != null)
                         {
-                            if (qs != null)
-                            {
-                                return RewriteNavigationProperties(
-                                    ps,
-                                    qs,
-                                    node,
-                                    node.Expression,
-                                    node.Member.Name,
-                                    node.Type,
-                                    e => Expression.MakeMemberAccess(e, node.Member),
-                                    e => new NullConditionalExpression(e, e, Expression.MakeMemberAccess(e, node.Member)));
-                            }
+                            return RewriteNavigationProperties(
+                                ps,
+                                qs,
+                                node,
+                                node.Expression,
+                                node.Member.Name,
+                                node.Type,
+                                e => Expression.MakeMemberAccess(e, node.Member),
+                                e => new NullConditionalExpression(e, e, Expression.MakeMemberAccess(e, node.Member)));
+                        }
 
-                            return null;
-                        });
+                        return null;
+                    });
 
             if (result != null)
             {
@@ -593,9 +591,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     if (additionalFromClauseBeingProcessed.FromExpression is SubQueryExpression fromSubqueryExpression)
                     {
                         return RewriteSelectManyInsideSubqueryIntoJoins(
-                            fromSubqueryExpression, 
-                            outerQuerySourceReferenceExpression, 
-                            navigations, 
+                            fromSubqueryExpression,
+                            outerQuerySourceReferenceExpression,
+                            navigations,
                             additionalFromClauseBeingProcessed);
                     }
 
@@ -605,7 +603,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         additionalFromClauseBeingProcessed);
                 }
 
-                if (navigations.Count == 1 && navigations[0].IsDependentToPrincipal())
+                if (navigations.Count == 1
+                    && navigations[0].IsDependentToPrincipal())
                 {
                     var foreignKeyMemberAccess = TryCreateForeignKeyMemberAccess(propertyName, declaringExpression, navigations[0]);
                     if (foreignKeyMemberAccess != null)
@@ -666,7 +665,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             protected override Expression VisitMember(MemberExpression node)
             {
-                if (!_navigationFound && node.Member.Name == _navigation.Name)
+                if (!_navigationFound
+                    && node.Member.Name == _navigation.Name)
                 {
                     _navigationFound = true;
 
@@ -891,7 +891,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (navigation.IsCollection())
                 {
-                    _queryModel.MainFromClause.FromExpression 
+                    _queryModel.MainFromClause.FromExpression
                         = NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(targetEntityType.ClrType);
 
                     var innerQuerySourceReferenceExpression
@@ -1013,7 +1013,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 groupJoinSubqueryModel.ResultOperators.Add(groupJoinSubqueryResultOperator);
             }
 
-            if (groupJoinSubqueryMainFromClause != null && (groupJoinSubqueryBodyClauses.Any() || groupJoinSubqueryResultOperators.Any()))
+            if (groupJoinSubqueryMainFromClause != null
+                && (groupJoinSubqueryBodyClauses.Any() || groupJoinSubqueryResultOperators.Any()))
             {
                 var querySourceMapping = new QuerySourceMapping();
                 querySourceMapping.AddMapping(groupJoinSubqueryMainFromClause, newQuerySourceReferenceExpression);
@@ -1103,10 +1104,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 QuerySourceReferenceExpression innerQuerySourceReferenceExpression;
                 var joinClause = BuildJoinFromNavigation(
-                    outerQuerySourceReferenceExpression, 
-                    navigation, 
-                    targetEntityType, 
-                    false, 
+                    outerQuerySourceReferenceExpression,
+                    navigation,
+                    targetEntityType,
+                    false,
                     out innerQuerySourceReferenceExpression);
 
                 if (navigation == collectionNavigation)
@@ -1336,6 +1337,31 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 TransformingVisitor._innerKeySelectorRequiresNullRefProtection = false;
                 joinClause.InnerSequence = TransformingVisitor.Visit(joinClause.InnerSequence);
                 TransformingVisitor._insideInnerSequence = oldInsideInnerSequence;
+
+                var queryCompilationContext = TransformingVisitor._queryModelVisitor.QueryCompilationContext;
+                if (queryCompilationContext.FindEntityType(joinClause) == null
+                    && joinClause.InnerSequence is SubQueryExpression subQuery)
+                {
+                    IEntityType entityType = null;
+                    var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
+                        subQuery.QueryModel.SelectClause.Selector, queryCompilationContext, out var qsre);
+                    if (properties.Count > 0)
+                    {
+                        if (properties[properties.Count - 1] is INavigation navigation)
+                        {
+                            entityType = navigation.GetTargetType();
+                        }
+                    }
+                    else if (qsre != null)
+                    {
+                        entityType = queryCompilationContext.FindEntityType(qsre.ReferencedQuerySource);
+                    }
+
+                    if (entityType != null)
+                    {
+                        queryCompilationContext.AddOrUpdateMapping(joinClause, entityType);
+                    }
+                }
 
                 joinClause.OuterKeySelector = TransformingVisitor.Visit(joinClause.OuterKeySelector);
 

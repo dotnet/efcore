@@ -112,6 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public virtual IEntityType FindEntityType([NotNull] IQuerySource querySource)
         {
+            Check.NotNull(querySource, nameof(querySource));
+
             _querySourceEntityTypeMapping.TryGetValue(querySource, out var entityType);
             return entityType;
         }
@@ -120,7 +122,29 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Gets the entity type mapped to the given query source
         /// </summary>
         public virtual void AddOrUpdateMapping([NotNull] IQuerySource querySource, [NotNull] IEntityType entityType)
-            => _querySourceEntityTypeMapping[querySource] = entityType;
+            => _querySourceEntityTypeMapping[Check.NotNull(querySource, nameof(querySource))] = entityType;
+
+        /// <summary>
+        ///     Updates the query source mappings to the new query sources
+        /// </summary>
+        /// <param name="querySourceMapping"> The new query source mapping </param>
+        public virtual void UpdateMapping([NotNull] QuerySourceMapping querySourceMapping)
+        {
+            Check.NotNull(querySourceMapping, nameof(querySourceMapping));
+
+            foreach (var entityTypeMapping in _querySourceEntityTypeMapping.ToList())
+            {
+                if (querySourceMapping.ContainsMapping(entityTypeMapping.Key))
+                {
+                    var newQuerySource = (querySourceMapping.GetExpression(entityTypeMapping.Key) as QuerySourceReferenceExpression)
+                        ?.ReferencedQuerySource;
+                    if (newQuerySource != null)
+                    {
+                        _querySourceEntityTypeMapping[newQuerySource] = entityTypeMapping.Value;
+                    }
+                }
+            }
+        }
 
         /// <summary>
         ///     Adds or updates the expression mapped to a query source.

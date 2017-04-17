@@ -1,9 +1,8 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             fixture.TestSqlLoggerFactory.Clear();
         }
-        
+
         private bool SupportsOffset => TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
 
         public override void Entity_equality_empty()

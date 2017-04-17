@@ -27,8 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] EntityType relatedEntityType,
             [NotNull] InternalRelationshipBuilder builder)
             : base(builder,
-                new ReferenceReferenceBuilderBase(declaringEntityType, relatedEntityType, builder),
-                requiredSet: true)
+                new ReferenceReferenceBuilderBase(declaringEntityType, relatedEntityType, builder))
         {
         }
 

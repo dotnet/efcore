@@ -51,10 +51,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 return (string)Annotations.GetAnnotation(
                            RelationalFullAnnotationNames.Instance.TableName,
                            ProviderFullAnnotationNames?.TableName)
-                       ?? EntityType.ShortName();
+                       ?? GetDefaultTableName();
             }
             [param: CanBeNull] set { SetTableName(value); }
         }
+
+        private string GetDefaultTableName()
+            => EntityType.HasDelegatedIdentity()
+                ? $"{GetAnnotations(EntityType.DefiningEntityType).TableName}_{EntityType.DefiningNavigationName}"
+                : EntityType.ShortName();
 
         protected virtual bool SetTableName([CanBeNull] string value)
             => Annotations.SetAnnotation(

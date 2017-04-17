@@ -38,12 +38,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the foreign key constraint. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         /// <typeparam name="TEntity"> The entity type on one end of the relationship. </typeparam>
-        /// <typeparam name="TReferencedEntity"> The entity type on the other end of the relationship. </typeparam>
-        public static ReferenceReferenceBuilder<TEntity, TReferencedEntity> ForSqliteHasConstraintName<TEntity, TReferencedEntity>(
-            [NotNull] this ReferenceReferenceBuilder<TEntity, TReferencedEntity> builder,
+        /// <typeparam name="TRelatedEntity"> The entity type on the other end of the relationship. </typeparam>
+        public static ReferenceReferenceBuilder<TEntity, TRelatedEntity> ForSqliteHasConstraintName<TEntity, TRelatedEntity>(
+            [NotNull] this ReferenceReferenceBuilder<TEntity, TRelatedEntity> builder,
             [CanBeNull] string name)
             where TEntity : class
-            where TReferencedEntity : class
-            => (ReferenceReferenceBuilder<TEntity, TReferencedEntity>)((ReferenceReferenceBuilder)builder).ForSqliteHasConstraintName(name);
+            where TRelatedEntity : class
+            => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)((ReferenceReferenceBuilder)builder).ForSqliteHasConstraintName(name);
     }
 }

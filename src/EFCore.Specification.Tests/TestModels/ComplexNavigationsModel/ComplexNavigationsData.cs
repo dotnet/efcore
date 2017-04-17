@@ -3,25 +3,24 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel
 {
     public static class ComplexNavigationsData
     {
-        private static readonly Level1[] _levelOnes;
-        private static readonly Level2[] _levelTwos;
-        private static readonly Level3[] _levelThrees;
-        private static readonly Level4[] _levelFours;
+        public static IReadOnlyList<Level1> LevelOnes { get; }
+        public static IReadOnlyList<Level2> LevelTwos { get; }
+        public static IReadOnlyList<Level3> LevelThrees { get; }
+        public static IReadOnlyList<Level4> LevelFours { get; }
 
         static ComplexNavigationsData()
         {
-            _levelOnes = CreateLevelOnes();
-            _levelTwos = CreateLevelTwos();
-            _levelThrees = CreateLevelThrees();
-            _levelFours = CreateLevelFours();
+            LevelOnes = CreateLevelOnes();
+            LevelTwos = CreateLevelTwos();
+            LevelThrees = CreateLevelThrees();
+            LevelFours = CreateLevelFours();
 
-            foreach (var l1 in _levelOnes)
+            foreach (var l1 in LevelOnes)
             {
                 l1.OneToMany_Optional = new List<Level2>();
                 l1.OneToMany_Optional_Self = new List<Level1>();
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
                 l1.OneToMany_Required_Self = new List<Level1>();
             }
 
-            foreach (var l2 in _levelTwos)
+            foreach (var l2 in LevelTwos)
             {
                 l2.OneToMany_Optional = new List<Level3>();
                 l2.OneToMany_Optional_Self = new List<Level2>();
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
                 l2.OneToMany_Required_Self = new List<Level2>();
             }
 
-            foreach (var l3 in _levelThrees)
+            foreach (var l3 in LevelThrees)
             {
                 l3.OneToMany_Optional = new List<Level4>();
                 l3.OneToMany_Optional_Self = new List<Level3>();
@@ -45,17 +44,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
                 l3.OneToMany_Required_Self = new List<Level3>();
             }
 
-            foreach (var l4 in _levelFours)
+            foreach (var l4 in LevelFours)
             {
                 l4.OneToMany_Optional_Self = new List<Level4>();
                 l4.OneToMany_Required_Self = new List<Level4>();
             }
 
-            WireUpPart1(_levelOnes, _levelTwos, _levelThrees, _levelFours);
-            WireUpInversePart1(_levelOnes, _levelTwos, _levelThrees, _levelFours);
+            WireUpPart1(LevelOnes, LevelTwos, LevelThrees, LevelFours);
+            WireUpInversePart1(LevelOnes, LevelTwos, LevelThrees, LevelFours);
 
-            WireUpPart2(_levelOnes, _levelTwos, _levelThrees, _levelFours);
-            WireUpInversePart2(_levelOnes, _levelTwos, _levelThrees, _levelFours);
+            WireUpPart2(LevelOnes, LevelTwos, LevelThrees, LevelFours);
+            WireUpInversePart2(LevelOnes, LevelTwos, LevelThrees, LevelFours);
         }
 
         public static Level1[] CreateLevelOnes() =>
@@ -73,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
                 new Level1 { Id = 10, Name = "L1 10", Date = new DateTime(2010, 10, 10) },
                 new Level1 { Id = 11, Name = "L1 11", Date = new DateTime(2009, 11, 11) },
                 new Level1 { Id = 12, Name = "L1 12", Date = new DateTime(2008, 12, 12) },
-                new Level1 { Id = 13, Name = "L1 13", Date = new DateTime(2007, 1, 1) },
+                new Level1 { Id = 13, Name = "L1 13", Date = new DateTime(2007, 1, 1) }
             };
 
         public static Level2[] CreateLevelTwos() =>
@@ -89,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
                 new Level2 { Id = 8, Name = "L2 08", Date = new DateTime(2003, 3, 3) },
                 new Level2 { Id = 9, Name = "L2 09", Date = new DateTime(2009, 9, 9) },
                 new Level2 { Id = 10, Name = "L2 10", Date = new DateTime(2001, 1, 1) },
-                new Level2 { Id = 11, Name = "L2 11", Date = new DateTime(2000, 1, 1) },
+                new Level2 { Id = 11, Name = "L2 11", Date = new DateTime(2000, 1, 1) }
             };
 
         public static Level3[] CreateLevelThrees() =>
@@ -104,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
                 new Level3 { Id = 7, Name = "L3 07" },
                 new Level3 { Id = 8, Name = "L3 08" },
                 new Level3 { Id = 9, Name = "L3 09" },
-                new Level3 { Id = 10, Name = "L3 10" },
+                new Level3 { Id = 10, Name = "L3 10" }
             };
 
         public static Level4[] CreateLevelFours() =>
@@ -119,10 +118,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
                 new Level4 { Id = 7, Name = "L4 07" },
                 new Level4 { Id = 8, Name = "L4 08" },
                 new Level4 { Id = 9, Name = "L4 09" },
-                new Level4 { Id = 10, Name = "L4 10" },
+                new Level4 { Id = 10, Name = "L4 10" }
             };
 
-        public static void WireUpPart1(Level1[] l1s, Level2[] l2s, Level3[] l3s, Level4[] l4s)
+        public static void WireUpPart1(
+            IReadOnlyList<Level1> l1s, IReadOnlyList<Level2> l2s, IReadOnlyList<Level3> l3s, IReadOnlyList<Level4> l4s)
         {
             l1s[0].OneToOne_Required_PK = l2s[0];
             l1s[1].OneToOne_Required_PK = l2s[1];
@@ -247,7 +247,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
             l4s[9].OneToMany_Required_Self = new List<Level4>();
         }
 
-        public static void WireUpInversePart1(Level1[] l1s, Level2[] l2s, Level3[] l3s, Level4[] l4s)
+        public static void WireUpInversePart1(
+            IReadOnlyList<Level1> l1s, IReadOnlyList<Level2> l2s, IReadOnlyList<Level3> l3s, IReadOnlyList<Level4> l4s)
         {
             l2s[0].OneToOne_Required_PK_Inverse = l1s[0];
             l2s[1].OneToOne_Required_PK_Inverse = l1s[1];
@@ -435,7 +436,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
             l4s[9].OneToMany_Required_Self_Inverse = l4s[8];
         }
 
-        public static void WireUpPart2(Level1[] l1s, Level2[] l2s, Level3[] l3s, Level4[] l4s)
+        public static void WireUpPart2(
+            IReadOnlyList<Level1> l1s, IReadOnlyList<Level2> l2s, IReadOnlyList<Level3> l3s, IReadOnlyList<Level4> l4s)
         {
             l1s[0].OneToOne_Optional_PK = l2s[0];
             l1s[2].OneToOne_Optional_PK = l2s[2];
@@ -523,7 +525,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
             l4s[9].OneToMany_Optional_Self = new List<Level4> { l4s[8] };
         }
 
-        public static void WireUpInversePart2(Level1[] l1s, Level2[] l2s, Level3[] l3s, Level4[] l4s)
+        public static void WireUpInversePart2(
+            IReadOnlyList<Level1> l1s, IReadOnlyList<Level2> l2s, IReadOnlyList<Level3> l3s, IReadOnlyList<Level4> l4s)
         {
             l2s[0].OneToOne_Optional_PK_Inverse = l1s[0];
             l2s[2].OneToOne_Optional_PK_Inverse = l1s[2];
@@ -620,31 +623,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
             l4s[4].OneToMany_Optional_Self_Inverse = l4s[5];
             l4s[6].OneToMany_Optional_Self_Inverse = l4s[7];
             l4s[8].OneToMany_Optional_Self_Inverse = l4s[9];
-        }
-
-        public static IQueryable<T> Set<T>()
-        {
-            if (typeof(T) == typeof(Level1))
-            {
-                return new List<T>(_levelOnes.Cast<T>()).AsQueryable();
-            }
-
-            if (typeof(T) == typeof(Level2))
-            {
-                return new List<T>(_levelTwos.Cast<T>()).AsQueryable();
-            }
-
-            if (typeof(T) == typeof(Level3))
-            {
-                return new List<T>(_levelThrees.Cast<T>()).AsQueryable();
-            }
-
-            if (typeof(T) == typeof(Level4))
-            {
-                return new List<T>(_levelFours.Cast<T>()).AsQueryable();
-            }
-
-            throw new NotImplementedException();
         }
     }
 }
