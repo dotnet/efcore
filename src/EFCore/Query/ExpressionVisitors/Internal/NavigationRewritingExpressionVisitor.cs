@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class NavigationRewritingExpressionVisitor : RelinqExpressionVisitor
     {
         private readonly EntityQueryModelVisitor _queryModelVisitor;
-        private readonly List<NavigationJoin> _navigationJoins = new List<NavigationJoin>();
+        private readonly NavigationJoins _navigationJoins = new NavigationJoins();
         private readonly NavigationRewritingQueryModelVisitor _navigationRewritingQueryModelVisitor;
         private QueryModel _queryModel;
         private QueryModel _parentQueryModel;
@@ -43,16 +44,50 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private bool _insideOrderBy;
         private bool _insideMaterializeCollectionNavigation;
 
+        private class NavigationJoins : IEnumerable<NavigationJoin>
+        {
+            private readonly Dictionary<NavigationJoin, int> _navigationJoins = new Dictionary<NavigationJoin, int>();
+
+            public void Add(NavigationJoin navigationJoin)
+            {
+                _navigationJoins.TryGetValue(navigationJoin, out var count);
+                _navigationJoins[navigationJoin] = ++count;
+            }
+
+            public bool Remove(NavigationJoin navigationJoin)
+            {
+                if (_navigationJoins.TryGetValue(navigationJoin, out var count))
+                {
+                    if (count > 1)
+                    {
+                        _navigationJoins[navigationJoin] = --count;
+                    }
+                    else
+                    {
+                        _navigationJoins.Remove(navigationJoin);
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            public IEnumerator<NavigationJoin> GetEnumerator() => _navigationJoins.Keys.GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => _navigationJoins.Keys.GetEnumerator();
+        };
+
         private class NavigationJoin
         {
             public static void RemoveNavigationJoin(
-                ICollection<NavigationJoin> navigationJoins, NavigationJoin navigationJoin)
+                NavigationJoins navigationJoins, NavigationJoin navigationJoin)
             {
                 if (!navigationJoins.Remove(navigationJoin))
                 {
                     foreach (var nj in navigationJoins)
                     {
-                        nj.Remove(navigationJoin);
+                        nj.Children.Remove(navigationJoin);
                     }
                 }
             }
@@ -117,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             public GroupJoinClause GroupJoinClause { get; }
             public bool DependentToPrincipal { get; }
             public QuerySourceReferenceExpression QuerySourceReferenceExpression { get; }
-            public readonly List<NavigationJoin> NavigationJoins = new List<NavigationJoin>();
+            public readonly NavigationJoins Children = new NavigationJoins();
 
             private IEnumerable<IBodyClause> AdditionalBodyClauses { get; }
 
@@ -127,14 +162,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 yield return this;
 
-                foreach (var navigationJoin in NavigationJoins.SelectMany(nj => nj.Iterate()))
+                foreach (var navigationJoin in Children.SelectMany(nj => nj.Iterate()))
                 {
                     yield return navigationJoin;
                 }
             }
-
-            private void Remove(NavigationJoin navigationJoin)
-                => RemoveNavigationJoin(NavigationJoins, navigationJoin);
 
             public void Insert(QueryModel queryModel)
             {
@@ -270,65 +302,49 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var leftJoin = leftNavigationJoin?.JoinClause ?? leftNavigationJoin?.GroupJoinClause?.JoinClause;
             var rightJoin = rightNavigationJoin?.JoinClause ?? rightNavigationJoin?.GroupJoinClause?.JoinClause;
 
-            if (leftNavigationJoin != null
-                && rightNavigationJoin != null)
+            if (leftNavigationJoin != null)
             {
-                if (leftNavigationJoin.DependentToPrincipal
-                    && rightNavigationJoin.DependentToPrincipal)
+                if (newRight.IsNullConstantExpression())
                 {
-                    newLeft = leftJoin?.OuterKeySelector;
-                    newRight = rightJoin?.OuterKeySelector;
+                    if (leftNavigationJoin.DependentToPrincipal)
+                    {
+                        newLeft = leftJoin?.OuterKeySelector;
 
-                    NavigationJoin.RemoveNavigationJoin(_navigationJoins, leftNavigationJoin);
-                    NavigationJoin.RemoveNavigationJoin(_navigationJoins, rightNavigationJoin);
+                        NavigationJoin.RemoveNavigationJoin(_navigationJoins, leftNavigationJoin);
+
+                        if (newLeft != null
+                            && IsCompositeKey(newLeft.Type))
+                        {
+                            newRight = CreateNullCompositeKey(newLeft);
+                        }
+                    }
+                }
+                else
+                {
+                    newLeft = leftJoin?.InnerKeySelector;
                 }
             }
-            else
+
+            if (rightNavigationJoin != null)
             {
-                if (leftNavigationJoin != null)
+                if (newLeft.IsNullConstantExpression())
                 {
-                    if (newRight.IsNullConstantExpression())
+                    if (rightNavigationJoin.DependentToPrincipal)
                     {
-                        if (leftNavigationJoin.DependentToPrincipal)
+                        newRight = rightJoin?.OuterKeySelector;
+
+                        NavigationJoin.RemoveNavigationJoin(_navigationJoins, rightNavigationJoin);
+
+                        if (newRight != null
+                            && IsCompositeKey(newRight.Type))
                         {
-                            newLeft = leftJoin?.OuterKeySelector;
-
-                            NavigationJoin.RemoveNavigationJoin(_navigationJoins, leftNavigationJoin);
-
-                            if (newLeft != null
-                                && IsCompositeKey(newLeft.Type))
-                            {
-                                newRight = CreateNullCompositeKey(newLeft);
-                            }
+                            newLeft = CreateNullCompositeKey(newRight);
                         }
-                    }
-                    else
-                    {
-                        newLeft = leftJoin?.InnerKeySelector;
                     }
                 }
-
-                if (rightNavigationJoin != null)
+                else
                 {
-                    if (newLeft.IsNullConstantExpression())
-                    {
-                        if (rightNavigationJoin.DependentToPrincipal)
-                        {
-                            newRight = rightJoin?.OuterKeySelector;
-
-                            NavigationJoin.RemoveNavigationJoin(_navigationJoins, rightNavigationJoin);
-
-                            if (newRight != null
-                                && IsCompositeKey(newRight.Type))
-                            {
-                                newLeft = CreateNullCompositeKey(newRight);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        newRight = rightJoin?.InnerKeySelector;
-                    }
+                    newRight = rightJoin?.InnerKeySelector;
                 }
             }
 
@@ -741,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var principalKeyProperty = principalKey.Properties[0];
                 if (principalKeyProperty.Name == propertyName
-                    && principalKeyProperty.ClrType == navigation.ForeignKey.Properties[0].ClrType)
+                    && principalKeyProperty.ClrType == navigation.ForeignKey.Properties[0].ClrType.UnwrapNullableType())
                 {
                     var declaringMethodCallExpression = declaringExpression as MethodCallExpression;
                     var parentDeclaringExpression = declaringMethodCallExpression != null
@@ -927,25 +943,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             new List<IBodyClause>(),
                             new List<ResultOperatorBase> { new DefaultIfEmptyResultOperator(null) },
                             out navigationJoin);
-
-                        navigationJoins.Add(navigationJoin);
                     }
                     else
                     {
-                        navigationJoins.Add(
-                            navigationJoin
-                                = new NavigationJoin(
-                                    querySourceReferenceExpression.ReferencedQuerySource,
-                                    navigation,
-                                    joinClause,
-                                    new List<IBodyClause>(),
-                                    navigation.IsDependentToPrincipal(),
-                                    innerQuerySourceReferenceExpression));
+                        navigationJoin
+                            = new NavigationJoin(
+                                querySourceReferenceExpression.ReferencedQuerySource,
+                                navigation,
+                                joinClause,
+                                new List<IBodyClause>(),
+                                navigation.IsDependentToPrincipal(),
+                                innerQuerySourceReferenceExpression);
                     }
                 }
 
+                navigationJoins.Add(navigationJoin);
+
                 querySourceReferenceExpression = navigationJoin.QuerySourceReferenceExpression;
-                navigationJoins = navigationJoin.NavigationJoins;
+                navigationJoins = navigationJoin.Children;
             }
 
             if (_insideInnerSequence && optionalNavigationInChain)

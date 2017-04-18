@@ -4111,6 +4111,104 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                               select Maybe(l2_outer, () => l2_outer.Name));
         }
 
+        [ConditionalFact]
+        public virtual void Navigation_with_same_navigation_compared_to_null()
+        {
+            AssertQueryScalar<Level2, int>(
+                l2s => from l2 in l2s
+                       where l2.OneToMany_Required_Inverse.Name != "L1 07" && l2.OneToMany_Required_Inverse != null
+                       select l2.Id);
+        }
+
+        [ConditionalFact]
+        public virtual void Multi_level_navigation_compared_to_null()
+        {
+            AssertQueryScalar<Level3, int>(
+                l3s => from l3 in l3s
+                       where l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse != null
+                       select l3.Id,
+                l3s => from l3 in l3s
+                       where Maybe(l3.OneToMany_Optional_Inverse, () => l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse) != null
+                       select l3.Id);
+        }
+
+        [ConditionalFact]
+        public virtual void Multi_level_navigation_with_same_navigation_compared_to_null()
+        {
+            AssertQueryScalar<Level3, int>(
+                l3s => from l3 in l3s
+                       where l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse.Name != "L1 07"
+                       where l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse != null
+                       select l3.Id,
+                l3s => from l3 in l3s
+                       where Maybe(
+                           l3.OneToMany_Optional_Inverse, 
+                           () => Maybe(
+                               l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse, 
+                               () => l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse.Name)) != "L1 07"
+                       where Maybe(l3.OneToMany_Optional_Inverse, () => l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse) != null
+                       select l3.Id);
+        }
+
+        [ConditionalFact]
+        public virtual void Navigations_compared_to_each_other1()
+        {
+            AssertQuery<Level2>(
+                l2s => from l2 in l2s
+                       where l2.OneToMany_Required_Inverse == l2.OneToMany_Required_Inverse
+                       select l2.Name);
+        }
+
+        [ConditionalFact]
+        public virtual void Navigations_compared_to_each_other2()
+        {
+            AssertQuery<Level2>(
+                l2s => from l2 in l2s
+                       where l2.OneToMany_Required_Inverse == l2.OneToOne_Optional_PK_Inverse
+                       select l2.Name);
+        }
+
+        [ConditionalFact]
+        public virtual void Navigations_compared_to_each_other3()
+        {
+            AssertQuery<Level2>(
+                l2s => from l2 in l2s
+                       where l2.OneToMany_Optional.Select(i => i.OneToOne_Optional_PK_Inverse == l2).Any()
+                       select l2.Name);
+        }
+
+        [ConditionalFact]
+        public virtual void Navigations_compared_to_each_other4()
+        {
+            AssertQuery<Level2>(
+                l2s => from l2 in l2s
+                       where l2.OneToOne_Required_FK.OneToMany_Optional.Select(i => i.OneToOne_Optional_PK_Inverse == l2.OneToOne_Required_FK).Any()
+                       select l2.Name,
+                l2s => from l2 in l2s
+                       where MaybeScalar(
+                           l2.OneToOne_Required_FK, 
+                           () => MaybeScalar<bool>(
+                               l2.OneToOne_Required_FK.OneToMany_Optional, 
+                               () => l2.OneToOne_Required_FK.OneToMany_Optional.Select(i => i.OneToOne_Optional_PK_Inverse == l2.OneToOne_Required_FK).Any())) == true
+                       select l2.Name);
+        }
+
+        [ConditionalFact]
+        public virtual void Navigations_compared_to_each_other5()
+        {
+            AssertQuery<Level2>(
+                l2s => from l2 in l2s
+                       where l2.OneToOne_Required_FK.OneToMany_Optional.Select(i => i.OneToOne_Optional_PK_Inverse == l2.OneToOne_Optional_PK).Any()
+                       select l2.Name,
+                l2s => from l2 in l2s
+                       where MaybeScalar(
+                                 l2.OneToOne_Required_FK,
+                                 () => MaybeScalar<bool>(
+                                     l2.OneToOne_Required_FK.OneToMany_Optional,
+                                     () => l2.OneToOne_Required_FK.OneToMany_Optional.Select(i => i.OneToOne_Optional_PK_Inverse == l2.OneToOne_Optional_PK).Any())) == true
+                       select l2.Name);
+        }
+
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
         {
             if (caller == null)
