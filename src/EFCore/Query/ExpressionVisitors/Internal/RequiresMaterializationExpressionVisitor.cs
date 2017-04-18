@@ -1,8 +1,10 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -121,13 +123,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
                 else
                 {
-                    _queryModelVisitor.BindMemberExpression(node, (property, querySource) =>
-                    {
-                        if (querySource != null)
-                        {
-                            DemoteQuerySource(querySource);
-                        }
-                    });
+                    _queryModelVisitor.BindMemberExpression(
+                        node, (property, querySource) =>
+                            {
+                                if (querySource != null)
+                                {
+                                    DemoteQuerySource(querySource);
+                                }
+                            });
                 }
             }
 
@@ -142,15 +145,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var newExpression = (MethodCallExpression)base.VisitMethodCall(node);
 
-            _queryModelVisitor.BindMethodCallExpression(node, (property, querySource) =>
-            {
-                if (querySource != null)
-                {
-                    DemoteQuerySource(querySource);
-                }
-            });
+            _queryModelVisitor.BindMethodCallExpression(
+                node, (property, querySource) =>
+                    {
+                        if (querySource != null)
+                        {
+                            DemoteQuerySource(querySource);
+                        }
+                    });
 
-            if (AnonymousObject.IsGetValueExpression(node , out QuerySourceReferenceExpression querySourceReferenceExpression))
+            if (AnonymousObject.IsGetValueExpression(node, out QuerySourceReferenceExpression querySourceReferenceExpression))
             {
                 DemoteQuerySource(querySourceReferenceExpression.ReferencedQuerySource);
             }
@@ -186,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 || comparison == ExpressionType.NotEqual)
             {
                 var isEntityTypeExpression = _model.FindEntityType(operand.Type) != null
-                    || _model.IsDelegatedIdentityEntityType(operand.Type);
+                                             || _model.IsDelegatedIdentityEntityType(operand.Type);
 
                 if (isEntityTypeExpression)
                 {
@@ -238,21 +242,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (referencedQuerySource != null)
             {
                 var parentQuerySource = parentQueryModel.SelectClause.Selector.TryGetReferencedQuerySource();
+                var resultSetOperators = GetSetResultOperatorSourceExpressions(parentQueryModel);
 
-                var parentQueryModelResultType
-                    = parentQueryModel.ResultTypeOverride?.TryGetSequenceType()
-                      ?? ((CastResultOperator)parentQueryModel.ResultOperators.LastOrDefault(r => r is CastResultOperator))?.CastItemType
-                      ?? parentQuerySource?.ItemType;
-
-                if (parentQueryModelResultType?.GetTypeInfo().IsAssignableFrom(referencedQuerySource.ItemType.GetTypeInfo()) == true)
+                if (resultSetOperators.Any(r => r.Equals(expression))
+                    && _querySourceReferences[parentQuerySource] > 0)
                 {
-                    var resultSetOperators = GetSetResultOperatorSourceExpressions(parentQueryModel);
-
-                    if (resultSetOperators.Any(r => r.Equals(expression))
-                        && _querySourceReferences[parentQuerySource] > 0)
-                    {
-                        PromoteQuerySource(referencedQuerySource);
-                    }
+                    PromoteQuerySource(referencedQuerySource);
                 }
             }
 

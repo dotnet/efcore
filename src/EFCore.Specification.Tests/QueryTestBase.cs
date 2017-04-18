@@ -6749,6 +6749,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 19);
         }
 
+        [ConditionalFact(Skip = "Unable to bind group by. See Issue#6658")]
+        public virtual void Union_simple_groupby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(s => s.ContactTitle == "Owner")
+                    .Union(cs.Where(c => c.City == "México D.F."))
+                    .GroupBy(c => c.City)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Total = g.Count()
+                    }),
+                entryCount: 19);
+        }
+
         [ConditionalFact]
         public virtual void Union_nested()
         {
