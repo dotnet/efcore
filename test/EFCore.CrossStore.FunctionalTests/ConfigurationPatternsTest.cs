@@ -13,9 +13,6 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
 {
     [SqlServerConfiguredCondition]
-#if NETCOREAPP2_0
-    [OsSkipCondition(TestPlatform.Windows, WindowsVersions.Win2008R2, WindowsVersions.Win7, SkipReason = "SqlClient has issue with .netcoreapp2.0 on win7.")]
-#endif
     public class ConfigurationPatternsTest
     {
         [ConditionalFact]
@@ -229,9 +226,6 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
         }
 
         [SqlServerConfiguredCondition]
-#if NETCOREAPP2_0
-        [OsSkipCondition(TestPlatform.Windows, WindowsVersions.Win2008R2, WindowsVersions.Win7, SkipReason = "SqlClient has issue with .netcoreapp2.0 on win7.")]
-#endif
         public class NestedContextDifferentStores
         {
             [ConditionalFact]
