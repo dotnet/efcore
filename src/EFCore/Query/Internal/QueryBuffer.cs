@@ -195,7 +195,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             object entity,
             Func<IEnumerable<object>> relatedEntitiesFactory)
         {
-            if (!_includedCollections.TryGetValue(includeId, out IEnumerator<object> enumerator))
+            if (includeId == -1
+                || !_includedCollections.TryGetValue(includeId, out IEnumerator<object> enumerator))
             {
                 enumerator = relatedEntitiesFactory().GetEnumerator();
 
@@ -205,7 +206,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     enumerator = null;
                 }
 
-                _includedCollections.Add(includeId, enumerator);
+                if (includeId != -1)
+                {
+                    _includedCollections.Add(includeId, enumerator);
+                }
             }
 
             if (enumerator == null)
@@ -306,7 +310,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Func<IAsyncEnumerable<object>> relatedEntitiesFactory,
             CancellationToken cancellationToken)
         {
-            if (!_includedAsyncCollections.TryGetValue(includeId, out IAsyncEnumerator<object> asyncEnumerator))
+            if (includeId == -1
+                || !_includedAsyncCollections.TryGetValue(includeId, out IAsyncEnumerator<object> asyncEnumerator))
             {
                 asyncEnumerator = relatedEntitiesFactory().GetEnumerator();
 
@@ -316,7 +321,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     asyncEnumerator = null;
                 }
 
-                _includedAsyncCollections.Add(includeId, asyncEnumerator);
+                if (includeId != -1)
+                {
+                    _includedAsyncCollections.Add(includeId, asyncEnumerator);
+                }
             }
 
             if (asyncEnumerator == null)

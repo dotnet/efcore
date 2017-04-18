@@ -86,15 +86,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     continue;
                 }
 
-                var sequenceType = querySourceReferenceExpression.Type.TryGetSequenceType();
-
-                if (sequenceType != null
-                    && (_queryCompilationContext.Model.FindEntityType(sequenceType) != null
-                    || _queryCompilationContext.Model.IsDelegatedIdentityEntityType(sequenceType)))
-                {
-                    continue;
-                }
-
                 var includeLoadTree
                     = includeLoadTrees
                         .SingleOrDefault(

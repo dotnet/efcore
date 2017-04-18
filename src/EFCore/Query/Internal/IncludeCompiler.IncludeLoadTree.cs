@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Remotion.Linq;
+using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -29,13 +30,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 bool asyncQuery,
                 ref int collectionIncludeId)
             {
+                var querySourceReferenceExpression = QuerySourceReferenceExpression;
+
+                if (querySourceReferenceExpression.ReferencedQuerySource is GroupJoinClause groupJoinClause)
+                {
+                    // GJs expand to 'from e in [g] select e' so we can rewrite the projector
+
+                    var joinClause = groupJoinClause.JoinClause;
+
+                    var mainFromClause
+                        = new MainFromClause(joinClause.ItemName, joinClause.ItemType, QuerySourceReferenceExpression);
+
+                    querySourceReferenceExpression = new QuerySourceReferenceExpression(mainFromClause);
+
+                    var subQueryModel
+                        = new QueryModel(
+                            mainFromClause,
+                            new SelectClause(querySourceReferenceExpression));
+
+                    ApplyIncludeExpressionsToQueryModel(
+                        queryModel, QuerySourceReferenceExpression, new SubQueryExpression(subQueryModel));
+
+                    queryModel = subQueryModel;
+                }
+
                 Compile(
                     queryCompilationContext,
                     queryModel,
                     trackingQuery,
                     asyncQuery,
                     ref collectionIncludeId,
-                    QuerySourceReferenceExpression);
+                    querySourceReferenceExpression);
             }
         }
     }

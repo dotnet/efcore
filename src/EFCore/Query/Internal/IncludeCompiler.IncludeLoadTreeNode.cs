@@ -69,21 +69,35 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private Expression CompileCollectionInclude(
                 QueryCompilationContext queryCompilationContext,
-                Expression targetQuerySourceReferenceExpression,
+                Expression targetExpression,
                 Expression entityParameter,
                 bool trackingQuery,
                 bool asyncQuery,
                 ref int collectionIncludeId)
             {
+                int collectionId;
+
+                if (targetExpression is QuerySourceReferenceExpression targetQuerySourceReferenceExpression
+                    && targetQuerySourceReferenceExpression.ReferencedQuerySource is IFromClause fromClause
+                    && fromClause.FromExpression is QuerySourceReferenceExpression fromClauseQuerySourceReferenceExpression
+                    && fromClauseQuerySourceReferenceExpression.ReferencedQuerySource is GroupJoinClause)
+                {
+                    // -1 == unable to optimize (GJ)
+
+                    collectionId = -1;
+                }
+                else
+                {
+                    collectionId = collectionIncludeId++;
+                }
+
                 var targetType = Navigation.GetTargetType().ClrType;
 
                 var mainFromClause
                     = new MainFromClause(
                         targetType.Name.Substring(0, 1).ToLowerInvariant(),
                         targetType,
-                        Expression.Property(
-                            targetQuerySourceReferenceExpression,
-                            Navigation.PropertyInfo));
+                        Expression.Property(targetExpression, Navigation.PropertyInfo));
 
                 queryCompilationContext.AddQuerySourceRequiringMaterialization(mainFromClause);
 
@@ -130,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         collectionLambdaExpression,
                         includeCollectionMethodInfo,
                         cancellationTokenExpression,
-                        ref collectionIncludeId);
+                        collectionId);
             }
 
             private static Expression BuildCollectionIncludeExpressions(
@@ -140,13 +154,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Expression relatedCollectionFuncExpression,
                 MethodInfo includeCollectionMethodInfo,
                 Expression cancellationTokenExpression,
-                ref int collectionIncludeId)
+                int collectionIncludeId)
             {
                 var inverseNavigation = navigation.FindInverse();
 
                 var arguments = new List<Expression>
                 {
-                    Expression.Constant(collectionIncludeId++),
+                    Expression.Constant(collectionIncludeId),
                     Expression.Constant(navigation),
                     Expression.Constant(inverseNavigation, typeof(INavigation)),
                     Expression.Constant(navigation.GetTargetType()),

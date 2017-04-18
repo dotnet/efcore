@@ -86,8 +86,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             ref collectionIncludeId));
                 }
 
-                if (blockExpressions.Count > 0)
-                {
+                if (blockExpressions.Count > 1
+                    || blockExpressions.Count == 1
+                    && !trackingQuery)
+                { 
                     AwaitTaskExpressions(asyncQuery, blockExpressions);
 
                     var includeExpression
@@ -123,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            private static void ApplyIncludeExpressionsToQueryModel(
+            protected static void ApplyIncludeExpressionsToQueryModel(
                 QueryModel queryModel,
                 QuerySourceReferenceExpression querySourceReferenceExpression,
                 Expression expression)

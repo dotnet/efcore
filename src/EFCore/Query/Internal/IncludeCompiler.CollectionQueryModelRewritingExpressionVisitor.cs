@@ -47,7 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (typeof(IQueryBuffer).GetTypeInfo()
                         .IsAssignableFrom(methodCallExpression.Object?.Type.GetTypeInfo())
                     && methodCallExpression.Method.Name
-                        .StartsWith(nameof(IQueryBuffer.IncludeCollection), StringComparison.Ordinal))
+                        .StartsWith(nameof(IQueryBuffer.IncludeCollection), StringComparison.Ordinal)
+                        && (int)((ConstantExpression)methodCallExpression.Arguments[0]).Value != -1) // -1 == unable to optimize (GJ)
                 {
                     var lambaArgument = methodCallExpression.Arguments[8];
                     var convertExpression = lambaArgument as UnaryExpression;
