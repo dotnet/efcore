@@ -559,8 +559,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .GetExpression(querySource);
 
 
-                    if (querySource is GroupJoinClause groupJoinClause && QueryCompilationContext.QuerySourceMapping
-                            .ContainsMapping(groupJoinClause.JoinClause))
+                    if (querySource is GroupJoinClause groupJoinClause 
+                        && QueryCompilationContext.QuerySourceMapping.ContainsMapping(groupJoinClause.JoinClause))
                     {
                         previousMapping.Add(
                             groupJoinClause.JoinClause,

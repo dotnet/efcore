@@ -115,10 +115,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             public INavigation Navigation { get; }
             public JoinClause JoinClause { get; }
             public GroupJoinClause GroupJoinClause { get; }
-            public IEnumerable<IBodyClause> AdditionalBodyClauses { get; }
             public bool DependentToPrincipal { get; }
             public QuerySourceReferenceExpression QuerySourceReferenceExpression { get; }
             public readonly List<NavigationJoin> NavigationJoins = new List<NavigationJoin>();
+
+            private IEnumerable<IBodyClause> AdditionalBodyClauses { get; }
+
+            private bool IsInserted { get; set; }
 
             public IEnumerable<NavigationJoin> Iterate()
             {
@@ -132,6 +135,42 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             private void Remove(NavigationJoin navigationJoin)
                 => RemoveNavigationJoin(NavigationJoins, navigationJoin);
+
+            public void Insert(QueryModel queryModel)
+            {
+                var insertionIndex = 0;
+
+                if (QuerySource is IBodyClause bodyClause)
+                {
+                    insertionIndex = queryModel.BodyClauses.IndexOf(bodyClause) + 1;
+                }
+
+                if (queryModel.MainFromClause == QuerySource
+                    || insertionIndex > 0)
+                {
+                    foreach (var nj in Iterate())
+                    {
+                        nj.Insert(queryModel, ref insertionIndex);
+                    }
+                }
+            }
+
+            private void Insert(QueryModel queryModel, ref int insertionIndex)
+            {
+                if (IsInserted)
+                {
+                    return;
+                }
+
+                queryModel.BodyClauses.Insert(insertionIndex++, JoinClause ?? (IBodyClause)GroupJoinClause);
+
+                foreach (var additionalBodyClause in AdditionalBodyClauses)
+                {
+                    queryModel.BodyClauses.Insert(insertionIndex++, additionalBodyClause);
+                }
+
+                IsInserted = true;
+            }
         }
 
         /// <summary>
@@ -170,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             foreach (var navigationJoin in _navigationJoins)
             {
-                InsertNavigationJoin(navigationJoin);
+                navigationJoin.Insert(_queryModel);
             }
 
             if (parentQueryModel != null)
@@ -190,28 +229,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return node.NodeType == ExpressionType.Convert && newOperand.Type == node.Type
                 ? newOperand
                 : node.Update(newOperand);
-        }
-
-        private void InsertNavigationJoin(NavigationJoin navigationJoin)
-        {
-            var insertionIndex = 0;
-            if (navigationJoin.QuerySource is IBodyClause bodyClause)
-            {
-                insertionIndex = _queryModel.BodyClauses.IndexOf(bodyClause) + 1;
-            }
-
-            if (_queryModel.MainFromClause == navigationJoin.QuerySource
-                || insertionIndex > 0)
-            {
-                foreach (var nj in navigationJoin.Iterate())
-                {
-                    _queryModel.BodyClauses.Insert(insertionIndex++, nj.JoinClause ?? (IBodyClause)nj.GroupJoinClause);
-                    foreach (var additionalBodyClause in nj.AdditionalBodyClauses)
-                    {
-                        _queryModel.BodyClauses.Insert(insertionIndex++, additionalBodyClause);
-                    }
-                }
-            }
         }
 
         /// <summary>

@@ -306,8 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
 
-            new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger)
-                .VisitQueryModel(queryModel);
+            new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger).VisitQueryModel(queryModel);
 
             // Rewrite includes/navigations
 
@@ -317,9 +316,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             queryModel.TransformExpressions(new CollectionNavigationSubqueryInjector(this).Visit);
 
-            _navigationRewritingExpressionVisitorFactory
-                .Create(this)
-                .Rewrite(queryModel, parentQueryModel: null);
+            var navigationRewritingExpressionVisitor = _navigationRewritingExpressionVisitorFactory.Create(this);
+            
+            navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
+
+            includeCompiler.CompileIncludes(queryModel, includeResultOperators, TrackResults(queryModel), asyncQuery);
+
+            navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
             includeCompiler.RewriteCollectionQueries(queryModel);
 

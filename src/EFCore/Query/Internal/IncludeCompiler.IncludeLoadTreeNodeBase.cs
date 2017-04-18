@@ -65,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             _queryBufferStartTrackingMethodInfo,
                             entityParameter,
                             Expression.Constant(
-                                queryCompilationContext.Model
-                                    .FindEntityType(entityParameter.Type))));
+                                queryCompilationContext.FindEntityType(targetQuerySourceReferenceExpression.ReferencedQuerySource)
+                                ?? queryCompilationContext.Model.FindEntityType(entityParameter.Type))));
                 }
 
                 var includedIndex = 0;
