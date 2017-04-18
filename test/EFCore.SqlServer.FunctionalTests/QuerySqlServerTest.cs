@@ -7644,6 +7644,36 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10300");
         }
 
+        public override void Subquery_is_null_translated_correctly()
+        {
+            base.Subquery_is_null_translated_correctly();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID] DESC
+) IS NULL");
+        }
+
+        public override void Subquery_is_not_null_translated_correctly()
+        {
+            base.Subquery_is_not_null_translated_correctly();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID] DESC
+) IS NOT NULL");
+        }
+
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private void AssertSql(params string [] expected)

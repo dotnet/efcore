@@ -7677,6 +7677,34 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Order>(os => os.Where(o => o.OrderID == parameter), entryCount: 1);
         }
 
+        [ConditionalFact]
+        public virtual void Subquery_is_null_translated_correctly()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c in cs
+                    let lastOrder = c.Orders.OrderByDescending(o => o.OrderID)
+                        .Select(o => o.CustomerID)
+                        .FirstOrDefault()
+                    where lastOrder == null
+                    select c,
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_is_not_null_translated_correctly()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c in cs
+                    let lastOrder = c.Orders.OrderByDescending(o => o.OrderID)
+                        .Select(o => o.CustomerID)
+                        .FirstOrDefault()
+                    where lastOrder != null
+                    select c,
+                entryCount: 89);
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected QueryTestBase(TFixture fixture)
