@@ -7634,6 +7634,16 @@ LEFT JOIN [Order Details] AS [orderDetail0] ON [order0].[OrderID] = [orderDetail
 ORDER BY [order0].[OrderID]");
         }
 
+        public override void Int16_parameter_can_be_used_for_int_column()
+        {
+            base.Int16_parameter_can_be_used_for_int_column();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] = 10300");
+        }
+
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private void AssertSql(params string [] expected)

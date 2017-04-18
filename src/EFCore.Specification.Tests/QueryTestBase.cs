@@ -7670,6 +7670,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 });
         }
 
+        [ConditionalFact]
+        public virtual void Int16_parameter_can_be_used_for_int_column()
+        {
+            const ushort parameter = 10300;
+            AssertQuery<Order>(os => os.Where(o => o.OrderID == parameter), entryCount: 1);
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected QueryTestBase(TFixture fixture)
