@@ -29,27 +29,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
 
             context.SaveChanges();
 
+            var globalizations = new List<ComplexNavigationGlobalization>();
             for (var i = 0; i < 10; i++)
             {
                 var language = new ComplexNavigationLanguage { Name = "Language" + i, CultureString = "Foo" + i };
+                var globalization = new ComplexNavigationGlobalization { Text = "Globalization" + i, Language = language };
+                globalizations.Add(globalization);
 
                 context.Languages.Add(language);
-            }
-
-            context.SaveChanges();
-
-            var ii = 0;
-            foreach (var l in context.Languages)
-            {
-                var globalization = new ComplexNavigationGlobalization { Text = "Globalization" + ii, Language = l };
-                ii++;
-
                 context.Globalizations.Add(globalization);
             }
 
             context.SaveChanges();
-
-            var globalizations = context.Globalizations.ToList();
 
             var mls1 = new ComplexNavigationString { DefaultText = "MLS1", Globalizations = globalizations.Take(3).ToList() };
             var mls2 = new ComplexNavigationString { DefaultText = "MLS2", Globalizations = globalizations.Skip(3).Take(3).ToList() };
