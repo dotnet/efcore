@@ -30,6 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AddSingleton<ConfigurationFactory>()
                 .AddSingleton<DbContextWriter>()
                 .AddSingleton<EntityTypeWriter>()
-                .AddSingleton<CodeWriter, StringBuilderCodeWriter>();
+                .AddSingleton<CodeWriter, StringBuilderCodeWriter>()
+                .AddSingleton<ILoggingOptions, LoggingOptions>()
+                .AddSingleton(typeof(IInterceptingLogger<>), typeof(InterceptingLogger<>));
     }
 }
