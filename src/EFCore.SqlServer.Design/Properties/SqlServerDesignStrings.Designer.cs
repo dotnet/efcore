@@ -16,22 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.SqlServerDesignStrings", typeof(SqlServerDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
-        ///     For column {columnId} unable to interpret computed value {computedValue}. Will not generate code setting a computed value for the property {propertyName} on entity type {entityTypeName}.
-        /// </summary>
-        public static string CannotInterpretComputedValue([CanBeNull] object columnId, [CanBeNull] object computedValue, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)
-            => string.Format(
-                GetString("CannotInterpretComputedValue", nameof(columnId), nameof(computedValue), nameof(propertyName), nameof(entityTypeName)),
-                columnId, computedValue, propertyName, entityTypeName);
-
-        /// <summary>
-        ///     For column {columnId} unable to interpret default value {defaultValue}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.
-        /// </summary>
-        public static string CannotInterpretDefaultValue([CanBeNull] object columnId, [CanBeNull] object defaultValue, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)
-            => string.Format(
-                GetString("CannotInterpretDefaultValue", nameof(columnId), nameof(defaultValue), nameof(propertyName), nameof(entityTypeName)),
-                columnId, defaultValue, propertyName, entityTypeName);
-
-        /// <summary>
         ///     Found a column on foreign key [{schemaName}].[{tableName}].[{fkName}] with an empty or null name. Not including column in foreign key
         /// </summary>
         public static string ColumnNameEmptyOnForeignKey([CanBeNull] object schemaName, [CanBeNull] object tableName, [CanBeNull] object fkName)

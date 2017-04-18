@@ -21,7 +21,7 @@ namespace E2ETest.Namespace
         {
             modelBuilder.Entity<PrimaryKeyWithSequence>(entity =>
             {
-                entity.Property(e => e.PrimaryKeyWithSequenceId).HasDefaultValueSql("NEXT VALUE FOR [PrimaryKeyWithSequenceSequence]");
+                entity.Property(e => e.PrimaryKeyWithSequenceId).HasDefaultValueSql("(NEXT VALUE FOR [PrimaryKeyWithSequenceSequence])");
             });
 
             modelBuilder.HasSequence<int>("PrimaryKeyWithSequenceSequence");

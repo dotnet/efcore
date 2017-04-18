@@ -61,11 +61,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Cannot interpret default value.
+        ///     Note: no longer used.
         /// </summary>
         CannotInterpretDefaultValueWarning,
 
         /// <summary>
         ///     Cannot interpret computed value.
+        ///     Note: no longer used.
         /// </summary>
         CannotInterpretComputedValueWarning
     }

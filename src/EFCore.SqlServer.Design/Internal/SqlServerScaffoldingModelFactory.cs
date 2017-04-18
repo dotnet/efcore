@@ -250,28 +250,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 propertyBuilder.Metadata.Relational().DefaultValueSql = null;
 
-                var defaultExpression = ConvertSqlServerDefaultValue(column.DefaultValue);
-                if (defaultExpression != null)
+                if (!(column.DefaultValue == "(NULL)"
+                        && propertyBuilder.Metadata.ClrType.IsNullableType()))
                 {
-                    if (!(defaultExpression == "NULL"
-                          && propertyBuilder.Metadata.ClrType.IsNullableType()))
-                    {
-                        propertyBuilder.HasDefaultValueSql(defaultExpression);
-                    }
-                    else
-                    {
-                        ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
-                    }
+                    propertyBuilder.HasDefaultValueSql(column.DefaultValue);
                 }
                 else
                 {
-                    Logger.LogWarning(
-                        SqlServerDesignEventId.CannotInterpretDefaultValueWarning,
-                        () => SqlServerDesignStrings.CannotInterpretDefaultValue(
-                            column.DisplayName,
-                            column.DefaultValue,
-                            propertyBuilder.Metadata.Name,
-                            propertyBuilder.Metadata.DeclaringEntityType.DisplayName()));
+                    ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
                 }
             }
         }
@@ -282,46 +268,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 propertyBuilder.Metadata.Relational().ComputedColumnSql = null;
 
-                var computedExpression = ConvertSqlServerDefaultValue(column.ComputedValue);
-                if (computedExpression != null)
+                if (!(column.ComputedValue == "(NULL)"
+                        && propertyBuilder.Metadata.ClrType.IsNullableType()))
                 {
-                    if (!(computedExpression == "NULL"
-                          && propertyBuilder.Metadata.ClrType.IsNullableType()))
-                    {
-                        propertyBuilder.HasComputedColumnSql(computedExpression);
-                    }
-                    else
-                    {
-                        ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
-                    }
+                    propertyBuilder.HasComputedColumnSql(column.ComputedValue);
                 }
                 else
                 {
-                    Logger.LogWarning(
-                        SqlServerDesignEventId.CannotInterpretComputedValueWarning,
-                        () => SqlServerDesignStrings.CannotInterpretComputedValue(
-                            column.DisplayName,
-                            column.ComputedValue,
-                            propertyBuilder.Metadata.Name,
-                            propertyBuilder.Metadata.DeclaringEntityType.DisplayName()));
+                    ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
                 }
             }
-        }
-
-        private static string ConvertSqlServerDefaultValue(string sqlServerDefaultValue)
-        {
-            if (sqlServerDefaultValue.Length < 2)
-            {
-                return null;
-            }
-
-            while (sqlServerDefaultValue[0] == '('
-                   && sqlServerDefaultValue[sqlServerDefaultValue.Length - 1] == ')')
-            {
-                sqlServerDefaultValue = sqlServerDefaultValue.Substring(1, sqlServerDefaultValue.Length - 2);
-            }
-
-            return sqlServerDefaultValue;
         }
     }
 }
