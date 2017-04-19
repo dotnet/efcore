@@ -8,7 +8,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class NorthwindQueryFixtureBase
     {
+        private DbContextOptions _options;
+
         public abstract DbContextOptions BuildOptions(IServiceCollection additionalServices = null);
+
+        public virtual NorthwindContext CreateContext(
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll,
+            bool enableFilters = false)
+        {
+            EnableFilters = enableFilters;
+
+            return new NorthwindContext(_options ?? (_options = BuildOptions()), queryTrackingBehavior);
+        }
+
+        private bool EnableFilters { get; set; }
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -58,9 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     });
 
             modelBuilder.Entity<OrderDetail>(e => { e.HasKey(od => new { od.OrderID, od.ProductID }); });
-        }
 
-        public abstract NorthwindContext CreateContext(
-            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll);
+            if (EnableFilters)
+            {
+                new NorthwindContext().ConfigureFilters(modelBuilder);
+            }
+        }
     }
 }

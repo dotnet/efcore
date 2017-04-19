@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -50,6 +51,26 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private class D : C
         {
+        }
+
+        [Fact]
+        public void Invalid_filter_expressions_throws()
+        {
+            var model = new Model();
+
+            var entityTypeA = model.AddEntityType(typeof(A).Name);
+
+            Expression<Func<B, bool>> badExpression1 = b => false;
+
+            Assert.Equal(
+                CoreStrings.BadFilterExpression(badExpression1, entityTypeA.DisplayName(), entityTypeA.ClrType),
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.Filter = badExpression1).Message);
+
+            Expression<Func<A, string>> badExpression2 = a => "";
+
+            Assert.Equal(
+                CoreStrings.BadFilterExpression(badExpression2, entityTypeA.DisplayName(), entityTypeA.ClrType),
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.Filter = badExpression2).Message);
         }
 
         [Fact]

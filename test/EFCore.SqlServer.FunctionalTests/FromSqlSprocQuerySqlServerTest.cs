@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.From_sql_queryable_stored_procedure();
 
             Assert.Equal(
-                @"[dbo].[Ten Most Expensive Products]",
+                "[dbo].[Ten Most Expensive Products]",
                 Sql);
         }
 
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.From_sql_queryable_stored_procedure_projection();
 
             Assert.Equal(
-                @"[dbo].[Ten Most Expensive Products]",
+                "[dbo].[Ten Most Expensive Products]",
                 Sql);
         }
 
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.From_sql_queryable_stored_procedure_reprojection();
 
             Assert.Equal(
-                @"[dbo].[Ten Most Expensive Products]",
+                "[dbo].[Ten Most Expensive Products]",
                 Sql);
         }
 
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.From_sql_queryable_stored_procedure_composed();
 
             Assert.Equal(
-                @"[dbo].[Ten Most Expensive Products]",
+                "[dbo].[Ten Most Expensive Products]",
                 Sql);
         }
 
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.From_sql_queryable_stored_procedure_take();
 
             Assert.Equal(
-                @"[dbo].[Ten Most Expensive Products]",
+                "[dbo].[Ten Most Expensive Products]",
                 Sql);
         }
 
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.From_sql_queryable_stored_procedure_min();
 
             Assert.Equal(
-                @"[dbo].[Ten Most Expensive Products]",
+                "[dbo].[Ten Most Expensive Products]",
                 Sql);
         }
 
@@ -142,7 +142,6 @@ FROM (
         }
 
         protected override string TenMostExpensiveProductsSproc => "[dbo].[Ten Most Expensive Products]";
-
         protected override string CustomerOrderHistorySproc => "[dbo].[CustOrderHist] @CustomerID = {0}";
 
         private const string FileLineEnding = @"

@@ -10,32 +10,36 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class NorthwindQueryInMemoryFixture : NorthwindQueryFixtureBase
     {
-        private readonly DbContextOptions _options;
-
         private readonly TestLoggerFactory _testLoggerFactory = new TestLoggerFactory();
 
-        public NorthwindQueryInMemoryFixture()
+        public override NorthwindContext CreateContext(
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll,
+            bool enableFilters = false)
         {
-            _options = BuildOptions();
-
-            using (var context = CreateContext())
+            if (!IsSeeded)
             {
-                NorthwindData.Seed(context);
+                using (var context = base.CreateContext(queryTrackingBehavior, enableFilters))
+                {
+                    NorthwindData.Seed(context);
+                }
+
+                IsSeeded = true;
             }
+
+            return base.CreateContext(queryTrackingBehavior, enableFilters);
         }
+
+        private bool IsSeeded { get; set; }
 
         public override DbContextOptions BuildOptions(IServiceCollection serviceCollection = null)
             => new DbContextOptionsBuilder()
                 .UseInMemoryDatabase(nameof(NorthwindQueryInMemoryFixture))
                 .UseInternalServiceProvider(
                     (serviceCollection ?? new ServiceCollection())
-                        .AddEntityFrameworkInMemoryDatabase()
-                        .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                        .AddSingleton<ILoggerFactory>(_testLoggerFactory)
-                        .BuildServiceProvider()).Options;
-
-        public override NorthwindContext CreateContext(
-            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
-            => new NorthwindContext(_options, queryTrackingBehavior);
+                    .AddEntityFrameworkInMemoryDatabase()
+                    .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
+                    .AddSingleton<ILoggerFactory>(_testLoggerFactory)
+                    .BuildServiceProvider())
+                .Options;
     }
 }

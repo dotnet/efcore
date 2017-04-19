@@ -1653,6 +1653,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("UntrackedDelegatedIdentityEntity", nameof(entityType), nameof(targetEntryCall)),
                 entityType, targetEntryCall);
 
+        /// <summary>
+        ///     The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}', return bool, and may not contain references to navigation properties.
+        /// </summary>
+        public static string BadFilterExpression([CanBeNull] object filter, [CanBeNull] object entityType, [CanBeNull] object clrType)
+            => string.Format(
+                GetString("BadFilterExpression", nameof(filter), nameof(entityType), nameof(clrType)),
+                filter, entityType, clrType);
+
+        /// <summary>
+        ///     The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the root entity type in a hierarchy.
+        /// </summary>
+        public static string BadFilterDerivedType([CanBeNull] object filter, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("BadFilterDerivedType", nameof(filter), nameof(entityType)),
+                filter, entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Logging;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
@@ -30,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class QueryCompiler : IQueryCompiler
     {
         private static MethodInfo CompileQueryMethod { get; }
-        = typeof(IDatabase).GetTypeInfo()
-            .GetDeclaredMethod(nameof(IDatabase.CompileQuery));
+            = typeof(IDatabase).GetTypeInfo()
+                .GetDeclaredMethod(nameof(IDatabase.CompileQuery));
 
         private static readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter
             = new EvaluatableExpressionFilter();
@@ -42,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IDatabase _database;
         private readonly IInterceptingLogger<LoggerCategory.Query> _logger;
         private readonly INodeTypeProviderFactory _nodeTypeProviderFactory;
+
         private readonly Type _contextType;
 
         private INodeTypeProvider _nodeTypeProvider;
@@ -65,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(database, nameof(database));
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(currentContext, nameof(currentContext));
-
+            
             _queryContextFactory = queryContextFactory;
             _compiledQueryCache = compiledQueryCache;
             _compiledQueryCacheKeyGenerator = compiledQueryCacheKeyGenerator;
@@ -95,7 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var compiledQuery
                 = _compiledQueryCache
-                    .GetOrAddQuery(_compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: false),
+                    .GetOrAddQuery(
+                        _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: false),
                         () => CompileQueryCore<TResult>(query, NodeTypeProvider, _database, _logger, _contextType));
 
             return compiledQuery(queryContext);
@@ -269,12 +272,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(query, nameof(query));
 
             return _compiledQueryCache
-                .GetOrAddAsyncQuery(_compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: true),
+                .GetOrAddAsyncQuery(
+                    _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: true),
                     () => CompileAsyncQueryCore<TResult>(query, NodeTypeProvider, _database));
         }
 
         private static Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQueryCore<TResult>(
-            Expression query, INodeTypeProvider nodeTypeProvider, IDatabase database)
+            Expression query,
+            INodeTypeProvider nodeTypeProvider,
+            IDatabase database)
         {
             var queryModel
                 = CreateQueryParser(nodeTypeProvider)
@@ -295,24 +301,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(query, nameof(query));
             Check.NotNull(queryContext, nameof(queryContext));
 
-            return ParameterExtractingExpressionVisitor
-                .ExtractParameters(
-                    query,
-                    queryContext,
+            var visitor
+                = new ParameterExtractingExpressionVisitor(
                     _evaluatableExpressionFilter,
+                    queryContext,
                     _logger,
                     parameterize);
+
+            return visitor.ExtractParameters(query);
         }
 
         private static QueryParser CreateQueryParser(INodeTypeProvider nodeTypeProvider)
             => new QueryParser(
                 new ExpressionTreeParser(
                     nodeTypeProvider,
-                    new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
-                    {
-                        new PartialEvaluatingExpressionTreeProcessor(_evaluatableExpressionFilter),
-                        new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
-                    })));
+                    new CompoundExpressionTreeProcessor(
+                        new IExpressionTreeProcessor[]
+                        {
+                            new PartialEvaluatingExpressionTreeProcessor(_evaluatableExpressionFilter),
+                            new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
+                        })));
 
         private INodeTypeProvider NodeTypeProvider
             => _nodeTypeProvider
