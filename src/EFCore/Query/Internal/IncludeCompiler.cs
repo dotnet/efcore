@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Remotion.Linq;
@@ -41,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IQuerySourceTracingExpressionVisitorFactory _querySourceTracingExpressionVisitorFactory;
+        private readonly List<IncludeResultOperator> _includeResultOperators;
 
         private int _collectionIncludeId;
 
@@ -54,10 +54,54 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             _queryCompilationContext = queryCompilationContext;
             _querySourceTracingExpressionVisitorFactory = querySourceTracingExpressionVisitorFactory;
+
+            _includeResultOperators
+                = _queryCompilationContext.QueryAnnotations
+                    .OfType<IncludeResultOperator>()
+                    .ToList();
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void CompileIncludes(
+            [NotNull] QueryModel queryModel,
+            bool trackingQuery,
+            bool asyncQuery)
+        {
+            if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo)
+            {
+                return;
+            }
+
+            foreach (var includeLoadTree
+                in CreateIncludeLoadTrees(queryModel.SelectClause.Selector))
+            {
+                includeLoadTree.Compile(
+                    _queryCompilationContext,
+                    queryModel,
+                    trackingQuery,
+                    asyncQuery,
+                    ref _collectionIncludeId);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void RewriteCollectionQueries([NotNull] QueryModel queryModel)
+        {
+            var collectionQueryModelRewritingExpressionVisitor
+                = new CollectionQueryModelRewritingExpressionVisitor(_queryCompilationContext, queryModel, this);
+
+            queryModel.TransformExpressions(collectionQueryModelRewritingExpressionVisitor.Visit);
+
+            ApplyParentOrderings(queryModel, collectionQueryModelRewritingExpressionVisitor.ParentOrderings);
         }
 
         private IEnumerable<IncludeLoadTree> CreateIncludeLoadTrees(
-            ICollection<IncludeResultOperator> includeResultOperators,
             Expression targetExpression)
         {
             var querySourceTracingExpressionVisitor
@@ -65,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var includeLoadTrees = new List<IncludeLoadTree>();
 
-            foreach (var includeResultOperator in includeResultOperators.ToArray())
+            foreach (var includeResultOperator in _includeResultOperators.ToArray())
             {
                 var navigationPath = includeResultOperator.GetNavigationPath(_queryCompilationContext);
 
@@ -105,52 +149,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         () => CoreStrings.LogIncludingNavigation(
                             $"{includeResultOperator.PathFromQuerySource}.{includeResultOperator.NavigationPropertyPaths.Join(".")}"));
 
-                // TODO: Hack until new Include fully implemented
-                includeResultOperators.Remove(includeResultOperator);
+                _includeResultOperators.Remove(includeResultOperator);
             }
 
             return includeLoadTrees;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void CompileIncludes(
-            [NotNull] QueryModel queryModel,
-            [NotNull] ICollection<IncludeResultOperator> includeResultOperators,
-            bool trackingQuery,
-            bool asyncQuery)
-        {
-            if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo)
-            {
-                return;
-            }
-
-            foreach (var includeLoadTree
-                in CreateIncludeLoadTrees(includeResultOperators, queryModel.SelectClause.Selector))
-            {
-                includeLoadTree.Compile(
-                    _queryCompilationContext,
-                    queryModel,
-                    trackingQuery,
-                    asyncQuery,
-                    ref _collectionIncludeId);
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void RewriteCollectionQueries([NotNull] QueryModel queryModel)
-        {
-            var collectionQueryModelRewritingExpressionVisitor
-                = new CollectionQueryModelRewritingExpressionVisitor(_queryCompilationContext, queryModel, this);
-
-            queryModel.TransformExpressions(collectionQueryModelRewritingExpressionVisitor.Visit);
-
-            ApplyParentOrderings(queryModel, collectionQueryModelRewritingExpressionVisitor.ParentOrderings);
         }
 
         private static void ApplyParentOrderings(

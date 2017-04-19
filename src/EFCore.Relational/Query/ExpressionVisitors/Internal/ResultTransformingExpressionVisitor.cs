@@ -44,10 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (node.Method.MethodIsClosedFormOf(
                 _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
             {
-                var queryArguments = node.Arguments.ToList();
-
-                queryArguments[2] = Expression.Default(typeof(int?));
-
+                var queryArguments = node.Arguments.Take(2).ToList();
+                
                 return ResultOperatorHandler
                     .CallWithPossibleCancellationToken(
                         _relationalQueryCompilationContext.QueryMethodProvider

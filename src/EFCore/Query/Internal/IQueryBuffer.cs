@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public interface IQueryBuffer
+    public interface IQueryBuffer : IDisposable
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -80,29 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             bool tracking,
             [NotNull] object instance,
             [NotNull] Func<IAsyncEnumerable<object>> valuesFactory,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        void Include(
-            [NotNull] QueryContext queryContext,
-            [CanBeNull] object entity,
-            [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
-            bool queryStateManager);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        Task IncludeAsync(
-            [NotNull] QueryContext queryContext,
-            [CanBeNull] object entity,
-            [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] IReadOnlyList<IAsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
-            bool queryStateManager,
             CancellationToken cancellationToken);
     }
 }

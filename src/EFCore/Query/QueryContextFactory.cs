@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The new query buffer.
         /// </returns>
         protected virtual IQueryBuffer CreateQueryBuffer()
-            => new QueryBuffer(Dependencies.StateManager, Dependencies.ChangeDetector);
+            => new QueryBuffer(Dependencies.StateManager);
 
         /// <summary>
         ///     Creates a new QueryContext.

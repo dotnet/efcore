@@ -22,9 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IInMemoryStore store)
             : base(dependencies, queryBufferFactory)
-        {
-            Store = store;
-        }
+            => Store = store;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

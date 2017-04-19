@@ -381,10 +381,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
 
-            public DefaultIfEmptyExpressionVisitor(RelationalQueryCompilationContext relationalQueryCompilationContext)
-            {
-                _relationalQueryCompilationContext = relationalQueryCompilationContext;
-            }
+            public DefaultIfEmptyExpressionVisitor(RelationalQueryCompilationContext relationalQueryCompilationContext) 
+                => _relationalQueryCompilationContext = relationalQueryCompilationContext;
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {

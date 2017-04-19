@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -193,12 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 ExtractQueryAnnotations(queryModel);
 
-                var includeResultOperators
-                    = QueryCompilationContext.QueryAnnotations
-                        .OfType<IncludeResultOperator>()
-                        .ToList();
-
-                OptimizeQueryModel(queryModel, includeResultOperators, asyncQuery: false);
+                OptimizeQueryModel(queryModel, asyncQuery: false);
 
                 QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
                 QueryCompilationContext.DetermineQueryBufferRequirement(queryModel);
@@ -206,8 +200,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 VisitQueryModel(queryModel);
 
                 SingleResultToSequence(queryModel);
-
-                IncludeNavigations(queryModel, includeResultOperators);
 
                 TrackEntitiesInResults<TResult>(queryModel);
 
@@ -239,12 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 ExtractQueryAnnotations(queryModel);
 
-                var includeResultOperators
-                    = QueryCompilationContext.QueryAnnotations
-                        .OfType<IncludeResultOperator>()
-                        .ToList();
-
-                OptimizeQueryModel(queryModel, includeResultOperators, asyncQuery: true);
+                OptimizeQueryModel(queryModel, asyncQuery: true);
 
                 QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
                 QueryCompilationContext.DetermineQueryBufferRequirement(queryModel);
@@ -252,8 +239,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 VisitQueryModel(queryModel);
 
                 SingleResultToSequence(queryModel, _expression.Type.GetTypeInfo().GenericTypeArguments[0]);
-
-                IncludeNavigations(queryModel, includeResultOperators);
 
                 TrackEntitiesInResults<TResult>(queryModel);
 
@@ -292,15 +277,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Applies optimizations to the query.
         /// </summary>
         /// <param name="queryModel"> The query. </param>
-        /// <param name="includeResultOperators">TODO: This parameter is to be removed.</param>
         /// <param name="asyncQuery">True if we are compiling an async query; otherwise false.</param>
         protected virtual void OptimizeQueryModel(
             [NotNull] QueryModel queryModel,
-            [NotNull] ICollection<IncludeResultOperator> includeResultOperators,
             bool asyncQuery)
         {
             Check.NotNull(queryModel, nameof(queryModel));
-            Check.NotNull(includeResultOperators, nameof(includeResultOperators));
 
             // First pass of optimizations
 
@@ -312,15 +294,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var includeCompiler = new IncludeCompiler(QueryCompilationContext, _querySourceTracingExpressionVisitorFactory);
 
-            includeCompiler.CompileIncludes(queryModel, includeResultOperators, TrackResults(queryModel), asyncQuery);
+            includeCompiler.CompileIncludes(queryModel, TrackResults(queryModel), asyncQuery);
 
             queryModel.TransformExpressions(new CollectionNavigationSubqueryInjector(this).Visit);
 
             var navigationRewritingExpressionVisitor = _navigationRewritingExpressionVisitorFactory.Create(this);
-            
+
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
-            includeCompiler.CompileIncludes(queryModel, includeResultOperators, TrackResults(queryModel), asyncQuery);
+            includeCompiler.CompileIncludes(queryModel, TrackResults(queryModel), asyncQuery);
 
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
@@ -344,9 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly IInterceptingLogger<LoggerCategory.Query> _logger;
 
             public NondeterministicResultCheckingVisitor([NotNull] IInterceptingLogger<LoggerCategory.Query> logger)
-            {
-                _logger = logger;
-            }
+                => _logger = logger;
 
             public override void VisitQueryModel(QueryModel queryModel)
             {
@@ -400,121 +380,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .MakeGenericMethod(type ?? _expression.Type),
                         _expression);
             }
-        }
-
-        /// <summary>
-        ///     Includes related data requested in the LINQ query.
-        /// </summary>
-        /// <param name="queryModel"> The query. </param>
-        /// <param name="includeResultOperators"></param>
-        protected virtual void IncludeNavigations(
-            [NotNull] QueryModel queryModel,
-            [NotNull] ICollection<IncludeResultOperator> includeResultOperators)
-        {
-            Check.NotNull(queryModel, nameof(queryModel));
-
-            if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo)
-            {
-                return;
-            }
-
-            var includeSpecifications
-                = includeResultOperators
-                    .Select(
-                        includeResultOperator =>
-                            {
-                                var navigationPath = includeResultOperator.GetNavigationPath(QueryCompilationContext);
-
-                                return new
-                                {
-                                    specification = new IncludeSpecification(includeResultOperator.QuerySource, navigationPath),
-                                    order = string.Concat(navigationPath.Select(n => n.IsCollection() ? "1" : "0"))
-                                };
-                            })
-                    .OrderByDescending(e => e.order)
-                    .ThenBy(e => e.specification.NavigationPath.First().IsDependentToPrincipal())
-                    .Select(e => e.specification)
-                    .ToList();
-
-            IncludeNavigations(queryModel, includeSpecifications);
-        }
-
-        /// <summary>
-        ///     Includes related data requested in the LINQ query.
-        /// </summary>
-        /// <param name="queryModel"> The query. </param>
-        /// <param name="includeSpecifications"> Related data to be included. </param>
-        protected virtual void IncludeNavigations(
-            [NotNull] QueryModel queryModel,
-            [NotNull] IReadOnlyCollection<IncludeSpecification> includeSpecifications)
-        {
-            Check.NotNull(queryModel, nameof(queryModel));
-            Check.NotNull(includeSpecifications, nameof(includeSpecifications));
-
-            foreach (var includeSpecification in includeSpecifications)
-            {
-                var resultQuerySourceReferenceExpression
-                    = _querySourceTracingExpressionVisitorFactory
-                        .Create()
-                        .FindResultQuerySourceReferenceExpression(
-                            queryModel.SelectClause.Selector,
-                            includeSpecification.QuerySource);
-
-                if (resultQuerySourceReferenceExpression != null)
-                {
-                    var accessorExpression = QueryCompilationContext.QuerySourceMapping.GetExpression(
-                        resultQuerySourceReferenceExpression.ReferencedQuerySource);
-
-                    var sequenceType = resultQuerySourceReferenceExpression.Type.TryGetSequenceType();
-
-                    if (sequenceType != null
-                        && (QueryCompilationContext.Model.FindEntityType(sequenceType) != null
-                            || QueryCompilationContext.Model.IsDelegatedIdentityEntityType(sequenceType)))
-                    {
-                        includeSpecification.IsEnumerableTarget = true;
-                    }
-
-                    QueryCompilationContext.Logger
-                        .LogDebug(
-                            CoreEventId.IncludingNavigation,
-                            () => CoreStrings.LogIncludingNavigation(includeSpecification));
-
-                    IncludeNavigations(
-                        includeSpecification,
-                        _expression.Type.GetSequenceType(),
-                        accessorExpression,
-                        QueryCompilationContext.IsTrackingQuery);
-
-                    QueryCompilationContext
-                        .AddTrackableInclude(
-                            resultQuerySourceReferenceExpression.ReferencedQuerySource,
-                            includeSpecification.NavigationPath);
-                }
-                else
-                {
-                    QueryCompilationContext.Logger
-                        .LogWarning(
-                            CoreEventId.IncludeIgnoredWarning,
-                            () => CoreStrings.LogIgnoredInclude(includeSpecification));
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Includes a specific navigation property requested in the LINQ query.
-        /// </summary>
-        /// <param name="includeSpecification"> The navigation property to be included. </param>
-        /// <param name="resultType"> The type of results returned by the query. </param>
-        /// <param name="accessorExpression"> Expression for the navigation property to be included. </param>
-        /// <param name="querySourceRequiresTracking"> A value indicating whether results of this query are to be tracked. </param>
-        protected virtual void IncludeNavigations(
-            [NotNull] IncludeSpecification includeSpecification,
-            [NotNull] Type resultType,
-            [NotNull] Expression accessorExpression,
-            bool querySourceRequiresTracking)
-        {
-            // template method
-            throw new NotImplementedException(CoreStrings.IncludeNotImplemented);
         }
 
         /// <summary>
@@ -652,13 +517,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression selector)
             => (from entityTrackingInfo in entityTrackingInfos
                 select
-                    (Func<TResult, object>)
-                        AccessorFindingExpressionVisitor
-                            .FindAccessorLambda(
-                                entityTrackingInfo.QuerySourceReferenceExpression,
-                                selector,
-                                Expression.Parameter(typeof(TResult), "result"))
-                            .Compile())
+                (Func<TResult, object>)
+                AccessorFindingExpressionVisitor
+                    .FindAccessorLambda(
+                        entityTrackingInfo.QuerySourceReferenceExpression,
+                        selector,
+                        Expression.Parameter(typeof(TResult), "result"))
+                    .Compile())
                 .ToList();
 
         /// <summary>
@@ -1007,7 +872,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (index == 0
                         ? LinqOperatorProvider.OrderBy
                         : LinqOperatorProvider.ThenBy)
-                        .MakeGenericMethod(CurrentParameter.Type, expression.Type),
+                    .MakeGenericMethod(CurrentParameter.Type, expression.Type),
                     _expression,
                     Expression.Lambda(expression, CurrentParameter),
                     Expression.Constant(ordering.OrderingDirection));

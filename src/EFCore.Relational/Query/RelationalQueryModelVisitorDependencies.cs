@@ -20,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///     </para>
     ///     <para>
     ///         Do not construct instances of this class directly from either provider or application code as the
-    ///         constructor signature may change as new dependencies are added. Instead, use this type in 
-    ///         your constructor so that an instance will be created and injected automatically by the 
-    ///         dependency injection container. To create an instance with some dependent services replaced, 
-    ///         first resolve the object from the dependency injection container, then replace selected 
+    ///         constructor signature may change as new dependencies are added. Instead, use this type in
+    ///         your constructor so that an instance will be created and injected automatically by the
+    ///         dependency injection container. To create an instance with some dependent services replaced,
+    ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
@@ -38,18 +38,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         directly from your code. This API may change or be removed in future releases.
         ///     </para>
         ///     <para>
-        ///         Do not call this constructor directly from either provider or application code as it may change 
-        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance 
-        ///         will be created and injected automatically by the dependency injection container. To create 
-        ///         an instance with some dependent services replaced, first resolve the object from the dependency 
-        ///         injection container, then replace selected services using the 'With...' methods. Do not call 
+        ///         Do not call this constructor directly from either provider or application code as it may change
+        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance
+        ///         will be created and injected automatically by the dependency injection container. To create
+        ///         an instance with some dependent services replaced, first resolve the object from the dependency
+        ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
         public RelationalQueryModelVisitorDependencies(
             [NotNull] IRelationalResultOperatorHandler relationalResultOperatorHandler,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
-            [NotNull] IIncludeExpressionVisitorFactory includeExpressionVisitorFactory,
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory,
@@ -57,7 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(relationalResultOperatorHandler, nameof(relationalResultOperatorHandler));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
-            Check.NotNull(includeExpressionVisitorFactory, nameof(includeExpressionVisitorFactory));
             Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(conditionalRemovingExpressionVisitorFactory, nameof(conditionalRemovingExpressionVisitorFactory));
@@ -65,7 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             RelationalResultOperatorHandler = relationalResultOperatorHandler;
             RelationalAnnotationProvider = relationalAnnotationProvider;
-            IncludeExpressionVisitorFactory = includeExpressionVisitorFactory;
             SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
             CompositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
             ConditionalRemovingExpressionVisitorFactory = conditionalRemovingExpressionVisitorFactory;
@@ -81,11 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Gets the relational annotation provider.
         /// </summary>
         public IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
-
-        /// <summary>
-        ///     Gets the include expression visitor factory.
-        /// </summary>
-        public IIncludeExpressionVisitorFactory IncludeExpressionVisitorFactory { get; }
 
         /// <summary>
         ///     Gets the SQL translating expression visitor factory.
@@ -116,7 +108,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new RelationalQueryModelVisitorDependencies(
                 relationalResultOperatorHandler,
                 RelationalAnnotationProvider,
-                IncludeExpressionVisitorFactory,
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
@@ -131,22 +122,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new RelationalQueryModelVisitorDependencies(
                 RelationalResultOperatorHandler,
                 relationalAnnotationProvider,
-                IncludeExpressionVisitorFactory,
-                SqlTranslatingExpressionVisitorFactory,
-                CompositePredicateExpressionVisitorFactory,
-                ConditionalRemovingExpressionVisitorFactory,
-                ContextOptions);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="includeExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalQueryModelVisitorDependencies With([NotNull] IIncludeExpressionVisitorFactory includeExpressionVisitorFactory)
-            => new RelationalQueryModelVisitorDependencies(
-                RelationalResultOperatorHandler,
-                RelationalAnnotationProvider,
-                includeExpressionVisitorFactory,
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
@@ -161,7 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new RelationalQueryModelVisitorDependencies(
                 RelationalResultOperatorHandler,
                 RelationalAnnotationProvider,
-                IncludeExpressionVisitorFactory,
                 sqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
@@ -176,7 +150,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new RelationalQueryModelVisitorDependencies(
                 RelationalResultOperatorHandler,
                 RelationalAnnotationProvider,
-                IncludeExpressionVisitorFactory,
                 SqlTranslatingExpressionVisitorFactory,
                 compositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
@@ -191,7 +164,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new RelationalQueryModelVisitorDependencies(
                 RelationalResultOperatorHandler,
                 RelationalAnnotationProvider,
-                IncludeExpressionVisitorFactory,
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 conditionalRemovingExpressionVisitorFactory,
@@ -206,7 +178,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new RelationalQueryModelVisitorDependencies(
                 RelationalResultOperatorHandler,
                 RelationalAnnotationProvider,
-                IncludeExpressionVisitorFactory,
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,

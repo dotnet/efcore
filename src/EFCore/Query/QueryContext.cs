@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <summary>
     ///     The principal data structure used by a compiled query during execution.
     /// </summary>
-    public class QueryContext
+    public class QueryContext : IDisposable
     {
         private readonly Func<IQueryBuffer> _queryBufferFactory;
 
@@ -130,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entity"> The entity. </param>
         /// <param name="entityTrackingInfo"> Information describing how to track the entity. </param>
         public virtual void StartTracking(
-            [NotNull] object entity, [NotNull] EntityTrackingInfo entityTrackingInfo)
+            [NotNull] object entity,
+            [NotNull] EntityTrackingInfo entityTrackingInfo)
         {
             if (_queryBuffer != null)
             {
@@ -140,6 +141,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 entityTrackingInfo.StartTracking(StateManager.Value, entity, ValueBuffer.Empty);
             }
+        }
+
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public virtual void Dispose()
+        {
+            _queryBuffer?.Dispose();
         }
     }
 }

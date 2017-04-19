@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -42,8 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             foreach (var valueBuffer
                 in new QueryingEnumerable(
                     (RelationalQueryContext)queryContext,
-                    shaperCommandContext,
-                    queryIndex: null))
+                    shaperCommandContext))
             {
                 yield return shaper.Shape(queryContext, valueBuffer);
             }
@@ -72,10 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var valueBuffer
-                in new QueryingEnumerable(
-                    (RelationalQueryContext)queryContext,
-                    shaperCommandContext,
-                    queryIndex: null))
+                in new QueryingEnumerable((RelationalQueryContext)queryContext, shaperCommandContext))
             {
                 if (!checkedEmpty)
                 {
@@ -98,8 +93,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        // TODO: Pass shaper to underlying enumerable
-
         /// <summary>
         ///     Gets the query method.
         /// </summary>
@@ -116,12 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         // ReSharper disable once InconsistentNaming
         private static IEnumerable<ValueBuffer> _Query(
             QueryContext queryContext,
-            ShaperCommandContext shaperCommandContext,
-            int? queryIndex)
+            ShaperCommandContext shaperCommandContext)
             => new QueryingEnumerable(
                 (RelationalQueryContext)queryContext,
-                shaperCommandContext,
-                queryIndex);
+                shaperCommandContext);
 
         /// <summary>
         ///     Gets the get result method.
@@ -161,7 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static readonly MethodInfo _groupByMethodInfo
             = typeof(QueryMethodProvider)
-                .GetTypeInfo().GetDeclaredMethod(nameof(_GroupBy));
+                .GetTypeInfo()
+                .GetDeclaredMethod(nameof(_GroupBy));
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
@@ -204,49 +196,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Gets the type of the group join include.
-        /// </summary>
-        /// <value>
-        ///     The type of the group join include.
-        /// </value>
-        public virtual Type GroupJoinIncludeType => typeof(GroupJoinInclude);
-
-        /// <summary>
-        ///     Creates a group join include used to describe an Include operation that should
-        ///     be performed as part of a GroupJoin.
-        /// </summary>
-        /// <param name="navigationPath"> The included navigation path. </param>
-        /// <param name="querySourceRequiresTracking"> true if this query source requires tracking. </param>
-        /// <param name="existingGroupJoinInclude"> A possibly null existing group join include. </param>
-        /// <param name="relatedEntitiesLoaders"> The related entities loaders. </param>
-        /// <returns>
-        ///     A new group join include.
-        /// </returns>
-        public virtual object CreateGroupJoinInclude(
-            IReadOnlyList<INavigation> navigationPath,
-            bool querySourceRequiresTracking,
-            object existingGroupJoinInclude,
-            object relatedEntitiesLoaders)
-        {
-            var previousGroupJoinInclude
-                = new GroupJoinInclude(
-                    navigationPath,
-                    (IReadOnlyList<Func<QueryContext, IRelatedEntitiesLoader>>)relatedEntitiesLoaders,
-                    querySourceRequiresTracking);
-
-            var groupJoinInclude = existingGroupJoinInclude as GroupJoinInclude;
-
-            if (groupJoinInclude != null)
-            {
-                groupJoinInclude.SetPrevious(previousGroupJoinInclude);
-
-                return null;
-            }
-
-            return previousGroupJoinInclude;
-        }
-
-        /// <summary>
         ///     Gets the group join method.
         /// </summary>
         /// <value>
@@ -256,7 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static readonly MethodInfo _groupJoinMethodInfo
             = typeof(QueryMethodProvider)
-                .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
+                .GetTypeInfo()
+                .GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
@@ -266,263 +216,77 @@ namespace Microsoft.EntityFrameworkCore.Query
             IShaper<TOuter> outerShaper,
             IShaper<TInner> innerShaper,
             Func<TInner, TKey> innerKeySelector,
-            Func<TOuter, IEnumerable<TInner>, TResult> resultSelector,
-            GroupJoinInclude outerGroupJoinInclude,
-            GroupJoinInclude innerGroupJoinInclude)
+            Func<TOuter, IEnumerable<TInner>, TResult> resultSelector)
         {
-            var outerGroupJoinIncludeContext = outerGroupJoinInclude?.CreateIncludeContext(queryContext);
-            var innerGroupJoinIncludeContext = innerGroupJoinInclude?.CreateIncludeContext(queryContext);
-            var outerAccessor = outerGroupJoinInclude?.EntityAccessor as Func<TOuter, object>;
-            var innerAccessor = innerGroupJoinInclude?.EntityAccessor as Func<TInner, object>;
-
-            try
+            using (var sourceEnumerator = source.GetEnumerator())
             {
-                using (var sourceEnumerator = source.GetEnumerator())
+                var comparer = EqualityComparer<TKey>.Default;
+                var hasNext = sourceEnumerator.MoveNext();
+                var nextOuter = default(TOuter);
+
+                while (hasNext)
                 {
-                    var comparer = EqualityComparer<TKey>.Default;
-                    var hasNext = sourceEnumerator.MoveNext();
-                    var nextOuter = default(TOuter);
+                    var outer
+                        = Equals(nextOuter, default(TOuter))
+                            ? outerShaper.Shape(queryContext, sourceEnumerator.Current)
+                            : nextOuter;
 
-                    while (hasNext)
+                    nextOuter = default(TOuter);
+
+                    var inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
+                    var inners = new List<TInner>();
+
+                    if (inner == null)
                     {
-                        var outer
-                            = Equals(nextOuter, default(TOuter))
-                                ? outerShaper.Shape(queryContext, sourceEnumerator.Current)
-                                : nextOuter;
+                        yield return resultSelector(outer, inners);
 
-                        nextOuter = default(TOuter);
+                        hasNext = sourceEnumerator.MoveNext();
+                    }
+                    else
+                    {
+                        var currentGroupKey = innerKeySelector(inner);
 
-                        outerGroupJoinIncludeContext?.Include(outerAccessor != null ? outerAccessor(outer) : outer);
+                        inners.Add(inner);
 
-                        var inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
-                        var inners = new List<TInner>();
-
-                        if (inner == null)
+                        while (true)
                         {
-                            yield return resultSelector(outer, inners);
-
                             hasNext = sourceEnumerator.MoveNext();
-                        }
-                        else
-                        {
-                            var currentGroupKey = innerKeySelector(inner);
 
-                            innerGroupJoinIncludeContext?.Include(innerAccessor != null ? innerAccessor(inner) : inner);
-
-                            inners.Add(inner);
-
-                            while (true)
+                            if (!hasNext)
                             {
-                                hasNext = sourceEnumerator.MoveNext();
-
-                                if (!hasNext)
-                                {
-                                    break;
-                                }
-
-                                nextOuter = outerShaper.Shape(queryContext, sourceEnumerator.Current);
-
-                                if (!Equals(outer, nextOuter))
-                                {
-                                    break;
-                                }
-
-                                nextOuter = default(TOuter);
-
-                                inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
-
-                                if (inner == null)
-                                {
-                                    break;
-                                }
-
-                                var innerKey = innerKeySelector(inner);
-
-                                if (!comparer.Equals(currentGroupKey, innerKey))
-                                {
-                                    break;
-                                }
-
-                                innerGroupJoinIncludeContext?.Include(inner);
-
-                                inners.Add(inner);
+                                break;
                             }
 
-                            yield return resultSelector(outer, inners);
+                            nextOuter = outerShaper.Shape(queryContext, sourceEnumerator.Current);
+
+                            if (!Equals(outer, nextOuter))
+                            {
+                                break;
+                            }
+
+                            nextOuter = default(TOuter);
+
+                            inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
+
+                            if (inner == null)
+                            {
+                                break;
+                            }
+
+                            var innerKey = innerKeySelector(inner);
+
+                            if (!comparer.Equals(currentGroupKey, innerKey))
+                            {
+                                break;
+                            }
+
+                            inners.Add(inner);
                         }
+
+                        yield return resultSelector(outer, inners);
                     }
                 }
             }
-            finally
-            {
-                innerGroupJoinIncludeContext?.Dispose();
-                outerGroupJoinIncludeContext?.Dispose();
-            }
-        }
-
-        /// <summary>
-        ///     Gets the include method.
-        /// </summary>
-        /// <value>
-        ///     The include method.
-        /// </value>
-        public virtual MethodInfo IncludeMethod => _includeMethodInfo;
-
-        private static readonly MethodInfo _includeMethodInfo
-            = typeof(QueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod(nameof(_Include));
-
-        [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
-        private static IEnumerable<T> _Include<T>(
-            RelationalQueryContext queryContext,
-            IEnumerable<T> innerResults,
-            Func<T, object> entityAccessor,
-            IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<Func<QueryContext, IRelatedEntitiesLoader>> relatedEntitiesLoaderFactories,
-            bool querySourceRequiresTracking)
-        {
-            queryContext.BeginIncludeScope();
-
-            var relatedEntitiesLoaders
-                = relatedEntitiesLoaderFactories.Select(f => f(queryContext))
-                    .ToArray();
-
-            try
-            {
-                foreach (var innerResult in innerResults)
-                {
-                    queryContext.QueryBuffer
-                        .Include(
-                            queryContext,
-                            entityAccessor == null
-                                ? innerResult
-                                : entityAccessor(innerResult), // TODO: Compile time?
-                            navigationPath,
-                            relatedEntitiesLoaders,
-                            querySourceRequiresTracking);
-
-                    yield return innerResult;
-                }
-            }
-            finally // Need this to run even if innerResults is not fully consumed.
-            {
-                foreach (var relatedEntitiesLoader in relatedEntitiesLoaders)
-                {
-                    relatedEntitiesLoader.Dispose();
-                }
-
-                queryContext.EndIncludeScope();
-            }
-        }
-
-        /// <summary>
-        ///     Gets the type of the related entities loader.
-        /// </summary>
-        /// <value>
-        ///     The type of the related entities loader.
-        /// </value>
-        public virtual Type RelatedEntitiesLoaderType => typeof(IRelatedEntitiesLoader);
-
-        /// <summary>
-        ///     Gets the create reference related entities loader method.
-        /// </summary>
-        /// <value>
-        ///     The create reference related entities loader method.
-        /// </value>
-        public virtual MethodInfo CreateReferenceRelatedEntitiesLoaderMethod
-            => _createReferenceRelatedEntitiesLoaderMethod;
-
-        private static readonly MethodInfo _createReferenceRelatedEntitiesLoaderMethod
-            = typeof(QueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod(nameof(_CreateReferenceRelatedEntitiesLoader));
-
-        [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
-        private static IRelatedEntitiesLoader _CreateReferenceRelatedEntitiesLoader(
-            int valueBufferOffset,
-            int queryIndex,
-            Func<ValueBuffer, object> materializer)
-            => new ReferenceRelatedEntitiesLoader(valueBufferOffset, queryIndex, materializer);
-
-        private class ReferenceRelatedEntitiesLoader : IRelatedEntitiesLoader
-        {
-            private readonly int _valueBufferOffset;
-            private readonly int _queryIndex;
-            private readonly Func<ValueBuffer, object> _materializer;
-
-            public ReferenceRelatedEntitiesLoader(
-                int valueBufferOffset,
-                int queryIndex,
-                Func<ValueBuffer, object> materializer)
-            {
-                _valueBufferOffset = valueBufferOffset;
-                _queryIndex = queryIndex;
-                _materializer = materializer;
-            }
-
-            public IEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
-            {
-                var valueBuffer
-                    = ((RelationalQueryContext)queryContext)
-                        .GetIncludeValueBuffer(_queryIndex).WithOffset(_valueBufferOffset);
-
-                yield return new EntityLoadInfo(valueBuffer, _materializer);
-            }
-
-            public void Dispose()
-            {
-                // no-op
-            }
-        }
-
-        /// <summary>
-        ///     Gets the create collection related entities loader method.
-        /// </summary>
-        /// <value>
-        ///     The create collection related entities loader method.
-        /// </value>
-        public virtual MethodInfo CreateCollectionRelatedEntitiesLoaderMethod
-            => _createCollectionRelatedEntitiesLoaderMethod;
-
-        private static readonly MethodInfo _createCollectionRelatedEntitiesLoaderMethod
-            = typeof(QueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod(nameof(_CreateCollectionRelatedEntitiesLoader));
-
-        [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
-        private static IRelatedEntitiesLoader _CreateCollectionRelatedEntitiesLoader(
-            QueryContext queryContext,
-            ShaperCommandContext shaperCommandContext,
-            int queryIndex,
-            Func<ValueBuffer, object> materializer)
-            => new CollectionRelatedEntitiesLoader(queryContext, shaperCommandContext, queryIndex, materializer);
-
-        private class CollectionRelatedEntitiesLoader : IRelatedEntitiesLoader
-        {
-            private readonly IncludeCollectionIterator _includeCollectionIterator;
-            private readonly Func<ValueBuffer, object> _materializer;
-
-            public CollectionRelatedEntitiesLoader(
-                QueryContext queryContext,
-                ShaperCommandContext shaperCommandContext,
-                int queryIndex,
-                Func<ValueBuffer, object> materializer)
-            {
-                _includeCollectionIterator
-                    = new IncludeCollectionIterator(
-                        _Query(queryContext, shaperCommandContext, queryIndex)
-                            .GetEnumerator());
-
-                _materializer = materializer;
-            }
-
-            public IEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
-                => _includeCollectionIterator
-                    .GetRelatedValues(keyComparer)
-                    .Select(vr => new EntityLoadInfo(vr, _materializer));
-
-            public void Dispose() => _includeCollectionIterator?.Dispose();
         }
 
         /// <summary>
@@ -533,7 +297,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static readonly MethodInfo _injectParametersMethodInfo
             = typeof(QueryMethodProvider)
-                .GetTypeInfo().GetDeclaredMethod(nameof(_InjectParameters));
+                .GetTypeInfo()
+                .GetDeclaredMethod(nameof(_InjectParameters));
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming

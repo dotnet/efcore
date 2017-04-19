@@ -12,20 +12,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class InMemoryQueryModelVisitorFactory : EntityQueryModelVisitorFactory
     {
-        private readonly IMaterializerFactory _materializerFactory;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InMemoryQueryModelVisitorFactory(
-            [NotNull] EntityQueryModelVisitorDependencies dependencies,
-            [NotNull] IMaterializerFactory materializerFactory)
+            [NotNull] EntityQueryModelVisitorDependencies dependencies)
             : base(dependencies)
         {
-            Check.NotNull(materializerFactory, nameof(materializerFactory));
-
-            _materializerFactory = materializerFactory;
         }
 
         /// <summary>
@@ -37,7 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => new InMemoryQueryModelVisitor(
                 Dependencies,
-                _materializerFactory,
                 Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)));
     }
 }

@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly ShaperCommandContext _shaperCommandContext;
-        private readonly int? _queryIndex;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -28,12 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public QueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
-            [NotNull] ShaperCommandContext shaperCommandContext,
-            int? queryIndex)
+            [NotNull] ShaperCommandContext shaperCommandContext)
         {
             _relationalQueryContext = relationalQueryContext;
             _shaperCommandContext = shaperCommandContext;
-            _queryIndex = queryIndex;
         }
 
         /// <summary>
@@ -58,10 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private ValueBuffer _current;
 
-            public Enumerator(QueryingEnumerable queryingEnumerable)
-            {
-                _queryingEnumerable = queryingEnumerable;
-            }
+            public Enumerator(QueryingEnumerable queryingEnumerable) 
+                => _queryingEnumerable = queryingEnumerable;
 
             public bool MoveNext()
             {
@@ -93,8 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             = _queryingEnumerable._shaperCommandContext
                                 .GetRelationalCommand(_queryingEnumerable._relationalQueryContext.ParameterValues);
 
-                        _queryingEnumerable._relationalQueryContext
-                            .RegisterValueBufferCursor(this, _queryingEnumerable._queryIndex);
+                        _queryingEnumerable._relationalQueryContext.RegisterValueBufferCursor(this);
 
                         _dataReader
                             = relationalCommand.ExecuteReader(
@@ -153,10 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            public Task BufferAllAsync(CancellationToken cancellationToken)
-            {
-                throw new NotImplementedException();
-            }
+            public Task BufferAllAsync(CancellationToken cancellationToken) 
+                => throw new NotImplementedException();
 
             object IEnumerator.Current => Current;
 

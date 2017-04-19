@@ -165,7 +165,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                 }
 
-                public void Dispose() => _innerEnumerator.Dispose();
+                public void Dispose()
+                {
+                    _innerEnumerator.Dispose();
+                    _exceptionInterceptor._queryContext.Dispose();
+                }
             }
         }
 

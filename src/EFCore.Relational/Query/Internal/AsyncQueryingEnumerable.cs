@@ -19,7 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly ShaperCommandContext _shaperCommandContext;
-        private readonly int? _queryIndex;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -27,12 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public AsyncQueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
-            [NotNull] ShaperCommandContext shaperCommandContext,
-            int? queryIndex)
+            [NotNull] ShaperCommandContext shaperCommandContext)
         {
             _relationalQueryContext = relationalQueryContext;
             _shaperCommandContext = shaperCommandContext;
-            _queryIndex = queryIndex;
         }
 
         /// <summary>
@@ -104,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 .GetRelationalCommand(_queryingEnumerable._relationalQueryContext.ParameterValues);
 
                         await _queryingEnumerable._relationalQueryContext
-                            .RegisterValueBufferCursorAsync(this, _queryingEnumerable._queryIndex, cancellationToken);
+                            .RegisterValueBufferCursorAsync(this, cancellationToken);
 
                         _dataReader
                             = await relationalCommand.ExecuteReaderAsync(

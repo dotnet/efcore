@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,10 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class QueryBuffer : IQueryBuffer, IDisposable
+    public class QueryBuffer : IQueryBuffer
     {
         private readonly LazyRef<IStateManager> _stateManager;
-        private readonly LazyRef<IChangeDetector> _changeDetector;
 
         private IWeakReferenceIdentityMap _identityMap0;
         private IWeakReferenceIdentityMap _identityMap1;
@@ -33,30 +31,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ConditionalWeakTable<object, object> _valueBuffers
             = new ConditionalWeakTable<object, object>();
 
-        private readonly Dictionary<int, IEnumerator<object>> _includedCollections
-            = new Dictionary<int, IEnumerator<object>>();
-        
-        private readonly Dictionary<int, IAsyncEnumerator<object>> _includedAsyncCollections
-            = new Dictionary<int, IAsyncEnumerator<object>>();
+        private readonly Dictionary<int, IDisposable> _includedCollections
+            = new Dictionary<int, IDisposable>(); // IDisposable as IEnumerable/IAsyncEnumerable
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public QueryBuffer(
-            [NotNull] LazyRef<IStateManager> stateManager,
-            [NotNull] LazyRef<IChangeDetector> changeDetector)
-        {
-            _stateManager = stateManager;
-            _changeDetector = changeDetector;
-        }
+        public QueryBuffer([NotNull] LazyRef<IStateManager> stateManager)
+            => _stateManager = stateManager;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object GetEntity(
-            IKey key, EntityLoadInfo entityLoadInfo, bool queryStateManager, bool throwOnNullKey)
+            IKey key,
+            EntityLoadInfo entityLoadInfo,
+            bool queryStateManager,
+            bool throwOnNullKey)
         {
             if (queryStateManager)
             {
@@ -70,16 +63,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var identityMap = GetOrCreateIdentityMap(key);
 
-            bool hasNullKey;
-            var weakReference = identityMap.TryGetEntity(entityLoadInfo.ValueBuffer, throwOnNullKey, out hasNullKey);
+            var weakReference = identityMap.TryGetEntity(entityLoadInfo.ValueBuffer, throwOnNullKey, out var hasNullKey);
+
             if (hasNullKey)
             {
                 return null;
             }
 
-            object entity;
             if (weakReference == null
-                || !weakReference.TryGetTarget(out entity))
+                || !weakReference.TryGetTarget(out var entity))
             {
                 entity = entityLoadInfo.Materialize();
 
@@ -90,7 +82,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 else
                 {
                     identityMap.CollectGarbage();
-
                     identityMap.Add(entityLoadInfo.ValueBuffer, entity);
                 }
 
@@ -113,8 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return entry[property];
             }
 
-            object boxedValueBuffer;
-            var found = _valueBuffers.TryGetValue(entity, out boxedValueBuffer);
+            var found = _valueBuffers.TryGetValue(entity, out var boxedValueBuffer);
 
             Debug.Assert(found);
 
@@ -129,55 +119,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual void StartTracking(object entity, EntityTrackingInfo entityTrackingInfo)
         {
-            object boxedValueBuffer;
-            if (!_valueBuffers.TryGetValue(entity, out boxedValueBuffer))
+            if (!_valueBuffers.TryGetValue(entity, out var boxedValueBuffer))
             {
                 boxedValueBuffer = ValueBuffer.Empty;
             }
 
-            entityTrackingInfo
-                .StartTracking(_stateManager.Value, entity, (ValueBuffer)boxedValueBuffer);
-
-            foreach (var includedEntity
-                in entityTrackingInfo.GetIncludedEntities(_stateManager.Value, entity)
-                    .Where(includedEntity
-                        => _valueBuffers.TryGetValue(includedEntity.Entity, out boxedValueBuffer)))
-            {
-                includedEntity.StartTracking(_stateManager.Value, (ValueBuffer)boxedValueBuffer);
-            }
+            entityTrackingInfo.StartTracking(_stateManager.Value, entity, (ValueBuffer)boxedValueBuffer);
         }
-        
+
         /// <summary>
-         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-         ///     directly from your code. This API may change or be removed in future releases.
-         /// </summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void StartTracking(object entity, IEntityType entityType)
         {
-            object boxedValueBuffer;
-            if (!_valueBuffers.TryGetValue(entity, out boxedValueBuffer))
+            if (!_valueBuffers.TryGetValue(entity, out var boxedValueBuffer))
             {
                 boxedValueBuffer = ValueBuffer.Empty;
             }
 
             _stateManager.Value
                 .StartTrackingFromQuery(
-                    entityType, 
-                    entity, 
+                    entityType,
+                    entity,
                     (ValueBuffer)boxedValueBuffer,
                     handledForeignKeys: null);
-        }
-
-        void IDisposable.Dispose()
-        {
-            foreach (var enumerator in _includedCollections.Values)
-            {
-                enumerator.Dispose();
-            }
-
-            foreach (var asyncEnumerator in _includedAsyncCollections.Values)
-            {
-                asyncEnumerator.Dispose();
-            }
         }
 
         /// <summary>
@@ -195,8 +161,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             object entity,
             Func<IEnumerable<object>> relatedEntitiesFactory)
         {
+            IDisposable untypedEnumerator = null;
+            IEnumerator<object> enumerator = null;
+
             if (includeId == -1
-                || !_includedCollections.TryGetValue(includeId, out IEnumerator<object> enumerator))
+                || !_includedCollections.TryGetValue(includeId, out untypedEnumerator))
             {
                 enumerator = relatedEntitiesFactory().GetEnumerator();
 
@@ -214,9 +183,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (enumerator == null)
             {
-                clrCollectionAccessor.GetOrCreate(entity);
+                if (untypedEnumerator == null)
+                {
+                    clrCollectionAccessor.GetOrCreate(entity);
 
-                return;
+                    return;
+                }
+
+                enumerator = (IEnumerator<object>)untypedEnumerator;
             }
 
             var relatedEntities = new List<object>();
@@ -228,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 bool shouldInclude;
 
-                if (_valueBuffers.TryGetValue(enumerator.Current, out object relatedValueBuffer))
+                if (_valueBuffers.TryGetValue(enumerator.Current, out var relatedValueBuffer))
                 {
                     shouldInclude = keyComparer.ShouldInclude((ValueBuffer)relatedValueBuffer);
                 }
@@ -240,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     shouldInclude = keyComparer.ShouldInclude(entry);
                 }
-                
+
                 if (shouldInclude)
                 {
                     relatedEntities.Add(enumerator.Current);
@@ -310,8 +284,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Func<IAsyncEnumerable<object>> relatedEntitiesFactory,
             CancellationToken cancellationToken)
         {
+            IDisposable untypedAsyncEnumerator = null;
+            IAsyncEnumerator<object> asyncEnumerator = null;
+
             if (includeId == -1
-                || !_includedAsyncCollections.TryGetValue(includeId, out IAsyncEnumerator<object> asyncEnumerator))
+                || !_includedCollections.TryGetValue(includeId, out untypedAsyncEnumerator))
             {
                 asyncEnumerator = relatedEntitiesFactory().GetEnumerator();
 
@@ -323,15 +300,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (includeId != -1)
                 {
-                    _includedAsyncCollections.Add(includeId, asyncEnumerator);
+                    _includedCollections.Add(includeId, asyncEnumerator);
                 }
             }
 
             if (asyncEnumerator == null)
             {
-                clrCollectionAccessor.GetOrCreate(entity);
+                if (untypedAsyncEnumerator == null)
+                {
+                    clrCollectionAccessor.GetOrCreate(entity);
 
-                return;
+                    return;
+                }
+
+                asyncEnumerator = (IAsyncEnumerator<object>)untypedAsyncEnumerator;
             }
 
             var relatedEntities = new List<object>();
@@ -343,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 bool shouldInclude;
 
-                if (_valueBuffers.TryGetValue(asyncEnumerator.Current, out object relatedValueBuffer))
+                if (_valueBuffers.TryGetValue(asyncEnumerator.Current, out var relatedValueBuffer))
                 {
                     shouldInclude = keyComparer.ShouldInclude((ValueBuffer)relatedValueBuffer);
                 }
@@ -385,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         asyncEnumerator.Dispose();
 
-                        _includedAsyncCollections[includeId] = null;
+                        _includedCollections[includeId] = null;
 
                         break;
                     }
@@ -415,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var identityMap = GetOrCreateIdentityMap(navigation.ForeignKey.PrincipalKey);
 
-            if (!_valueBuffers.TryGetValue(entity, out object boxedValueBuffer))
+            if (!_valueBuffers.TryGetValue(entity, out var boxedValueBuffer))
             {
                 var entry = _stateManager.Value.TryGetEntry(entity);
 
@@ -425,271 +407,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return identityMap.CreateIncludeKeyComparer(navigation, (ValueBuffer)boxedValueBuffer);
-        }
-
-        #region Legacy Include
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void Include(
-            QueryContext queryContext,
-            object entity,
-            IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
-            bool queryStateManager)
-            => Include(
-                queryContext,
-                entity,
-                navigationPath,
-                relatedEntitiesLoaders,
-                currentNavigationIndex: 0,
-                queryStateManager: queryStateManager);
-
-        private void Include(
-            QueryContext queryContext,
-            object entity,
-            IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
-            int currentNavigationIndex,
-            bool queryStateManager)
-        {
-            if (entity == null
-                || currentNavigationIndex == navigationPath.Count)
-            {
-                return;
-            }
-
-            var navigation = navigationPath[currentNavigationIndex];
-            var keyComparer = IncludeCore(entity, navigation);
-            var key = navigation.GetTargetType().FindPrimaryKey();
-
-            LoadNavigationProperties(
-                entity,
-                navigationPath,
-                currentNavigationIndex,
-                relatedEntitiesLoaders[currentNavigationIndex]
-                    .Load(queryContext, keyComparer)
-                    .Select(eli =>
-                        {
-                            var targetEntity = GetEntity(key, eli, queryStateManager, throwOnNullKey: false);
-
-                            Include(
-                                queryContext,
-                                targetEntity,
-                                navigationPath,
-                                relatedEntitiesLoaders,
-                                currentNavigationIndex + 1,
-                                queryStateManager);
-
-                            return targetEntity;
-                        })
-                    .Where(e => e != null)
-                    .ToList(),
-                queryStateManager);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Task IncludeAsync(
-            QueryContext queryContext,
-            object entity,
-            IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<IAsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
-            bool queryStateManager,
-            CancellationToken cancellationToken)
-            => IncludeAsync(
-                queryContext,
-                entity,
-                navigationPath,
-                relatedEntitiesLoaders,
-                currentNavigationIndex: 0,
-                queryStateManager: queryStateManager,
-                cancellationToken: cancellationToken);
-
-        private async Task IncludeAsync(
-            QueryContext queryContext,
-            object entity,
-            IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<IAsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
-            int currentNavigationIndex,
-            bool queryStateManager,
-            CancellationToken cancellationToken)
-        {
-            if (entity == null
-                || currentNavigationIndex == navigationPath.Count)
-            {
-                return;
-            }
-
-            var navigation = navigationPath[currentNavigationIndex];
-            var keyComparer = IncludeCore(entity, navigation);
-            var key = navigation.GetTargetType().FindPrimaryKey();
-
-            var relatedEntityLoadInfos
-                = relatedEntitiesLoaders[currentNavigationIndex]
-                    .Load(queryContext, keyComparer);
-
-            var relatedObjects = new List<object>();
-
-            using (var asyncEnumerator = relatedEntityLoadInfos.GetEnumerator())
-            {
-                while (await asyncEnumerator.MoveNext(cancellationToken))
-                {
-                    var targetEntity
-                        = GetEntity(key, asyncEnumerator.Current, queryStateManager, throwOnNullKey: false);
-
-                    if (targetEntity != null)
-                    {
-                        await IncludeAsync(
-                            queryContext,
-                            targetEntity,
-                            navigationPath,
-                            relatedEntitiesLoaders,
-                            currentNavigationIndex + 1,
-                            queryStateManager,
-                            cancellationToken);
-
-                        relatedObjects.Add(targetEntity);
-                    }
-                }
-            }
-
-            LoadNavigationProperties(
-                entity,
-                navigationPath,
-                currentNavigationIndex,
-                relatedObjects,
-                queryStateManager);
-        }
-
-        private IIncludeKeyComparer IncludeCore(
-            object entity,
-            INavigation navigation)
-        {
-            var identityMap = GetOrCreateIdentityMap(navigation.ForeignKey.PrincipalKey);
-
-            object boxedValueBuffer;
-            if (!_valueBuffers.TryGetValue(entity, out boxedValueBuffer))
-            {
-                var entry = _stateManager.Value.TryGetEntry(entity);
-
-                Debug.Assert(entry != null);
-
-                return identityMap.CreateIncludeKeyComparer(navigation, entry);
-            }
-
-            return identityMap.CreateIncludeKeyComparer(navigation, (ValueBuffer)boxedValueBuffer);
-        }
-
-        private void LoadNavigationProperties(
-            object entity,
-            IReadOnlyList<INavigation> navigationPath,
-            int currentNavigationIndex,
-            IReadOnlyList<object> relatedEntities,
-            bool tracking)
-        {
-            if (tracking)
-            {
-                _changeDetector.Value.Suspend();
-            }
-
-            try
-            {
-                var navigation = navigationPath[currentNavigationIndex];
-                var inverseNavigation = navigation.FindInverse();
-
-                if (navigation.IsDependentToPrincipal()
-                    && relatedEntities.Any())
-                {
-                    var relatedEntity = relatedEntities[0];
-
-                    SetNavigation(entity, navigation, relatedEntity, tracking);
-
-                    if (inverseNavigation != null)
-                    {
-                        if (inverseNavigation.IsCollection())
-                        {
-                            AddToCollection(relatedEntity, inverseNavigation, entity, tracking);
-                        }
-                        else
-                        {
-                            SetNavigation(relatedEntity, inverseNavigation, entity, tracking);
-                        }
-                    }
-                }
-                else
-                {
-                    if (navigation.IsCollection())
-                    {
-                        AddRangeToCollection(entity, navigation, relatedEntities, tracking);
-
-                        if (inverseNavigation != null)
-                        {
-                            var setter = inverseNavigation.GetSetter();
-
-                            foreach (var relatedEntity in relatedEntities)
-                            {
-                                SetNavigation(relatedEntity, inverseNavigation, setter, entity, tracking);
-                            }
-                        }
-                    }
-                    else if (relatedEntities.Any())
-                    {
-                        var relatedEntity = relatedEntities[0];
-
-                        SetNavigation(entity, navigation, relatedEntity, tracking);
-
-                        if (inverseNavigation != null)
-                        {
-                            SetNavigation(relatedEntity, inverseNavigation, entity, tracking);
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                if (tracking)
-                {
-                    _changeDetector.Value.Resume();
-                }
-            }
-        }
-
-        private void SetNavigation(object entity, INavigation navigation, object value, bool tracking)
-            => SetNavigation(entity, navigation, navigation.GetSetter(), value, tracking);
-
-        private void SetNavigation(object entity, INavigation navigation, IClrPropertySetter setter, object value, bool tracking)
-        {
-            setter.SetClrValue(entity, value);
-
-            if (tracking)
-            {
-                _stateManager.Value.TryGetEntry(entity)?.SetRelationshipSnapshotValue(navigation, value);
-            }
-        }
-
-        private void AddToCollection(object entity, INavigation navigation, object value, bool tracking)
-        {
-            navigation.GetCollectionAccessor().Add(entity, value);
-
-            if (tracking)
-            {
-                _stateManager.Value.TryGetEntry(entity)?.AddToCollectionSnapshot(navigation, value);
-            }
-        }
-
-        private void AddRangeToCollection(object entity, INavigation navigation, IEnumerable<object> values, bool tracking)
-        {
-            navigation.GetCollectionAccessor().AddRange(entity, values);
-
-            if (tracking)
-            {
-                _stateManager.Value.TryGetEntry(entity)?.AddRangeToCollectionSnapshot(navigation, values);
-            }
         }
 
         private IWeakReferenceIdentityMap GetOrCreateIdentityMap(IKey key)
@@ -697,6 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (_identityMap0 == null)
             {
                 _identityMap0 = key.GetWeakReferenceIdentityMapFactory()();
+
                 return _identityMap0;
             }
 
@@ -708,6 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (_identityMap1 == null)
             {
                 _identityMap1 = key.GetWeakReferenceIdentityMapFactory()();
+
                 return _identityMap1;
             }
 
@@ -721,15 +440,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _identityMaps = new Dictionary<IKey, IWeakReferenceIdentityMap>();
             }
 
-            IWeakReferenceIdentityMap identityMap;
-            if (!_identityMaps.TryGetValue(key, out identityMap))
+            if (!_identityMaps.TryGetValue(key, out var identityMap))
             {
                 identityMap = key.GetWeakReferenceIdentityMapFactory()();
+
                 _identityMaps[key] = identityMap;
             }
+
             return identityMap;
         }
 
-        #endregion
+        void IDisposable.Dispose()
+        {
+            for (var i = _includedCollections.Count - 1; i >= 0; i--)
+            {
+                _includedCollections[i]?.Dispose();
+            }
+        }
     }
 }
