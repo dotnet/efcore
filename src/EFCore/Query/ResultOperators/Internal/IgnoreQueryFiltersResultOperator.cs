@@ -1,11 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
+using System;
 using System.Linq.Expressions;
-using System.Reflection;
+using JetBrains.Annotations;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Parsing.Structure.IntermediateModel;
+using Remotion.Linq.Clauses.ResultOperators;
+using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
 {
@@ -13,24 +15,38 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class TrackingExpressionNode : ResultOperatorExpressionNodeBase
+    public class IgnoreQueryFiltersResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static readonly IReadOnlyCollection<MethodInfo> SupportedMethods = new[]
-        {
-            EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo,
-            EntityFrameworkQueryableExtensions.AsTrackingMethodInfo
-        };
+        public virtual IQuerySource QuerySource { get; [NotNull] set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public TrackingExpressionNode(MethodCallExpressionParseInfo parseInfo)
-            : base(parseInfo, null, null)
+        public virtual QueryModel QueryModel { get; [NotNull] set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override string ToString() => "IgnoreQueryFilters()";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override ResultOperatorBase Clone([NotNull] CloneContext cloneContext)
+            => new IgnoreQueryFiltersResultOperator();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override void TransformExpressions([NotNull] Func<Expression, Expression> transformation)
         {
         }
 
@@ -38,19 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
-            => new TrackingResultOperator(
-                tracking: ParsedExpression.Method.GetGenericMethodDefinition()
-                    .Equals(EntityFrameworkQueryableExtensions.AsTrackingMethodInfo));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override Expression Resolve(
-            ParameterExpression inputParameter,
-            Expression expressionToBeResolved,
-            ClauseGenerationContext clauseGenerationContext)
-            => Source.Resolve(inputParameter, expressionToBeResolved, clauseGenerationContext);
+        public override StreamedSequence ExecuteInMemory<T>([NotNull] StreamedSequence input) => input;
     }
 }

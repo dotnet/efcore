@@ -2,33 +2,23 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Inheritance;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class InheritanceInMemoryFixture : InheritanceFixtureBase
     {
-        private readonly DbContextOptionsBuilder _optionsBuilder = new DbContextOptionsBuilder();
-
-        public InheritanceInMemoryFixture()
+        public override DbContextOptions BuildOptions()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .BuildServiceProvider();
-
-            _optionsBuilder
-                .UseInMemoryDatabase(nameof(InheritanceInMemoryFixture))
-                .UseInternalServiceProvider(serviceProvider);
-
-            using (var context = CreateContext())
-            {
-                SeedData(context);
-            }
+            return
+                new DbContextOptionsBuilder()
+                    .UseInMemoryDatabase(nameof(InheritanceInMemoryFixture))
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkInMemoryDatabase()
+                            .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
+                            .BuildServiceProvider())
+                    .Options;
         }
-
-        public override InheritanceContext CreateContext()
-            => new InheritanceContext(_optionsBuilder.Options);
     }
 }

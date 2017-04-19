@@ -532,5 +532,20 @@
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextFactory<T0> where T0 : Microsoft.EntityFrameworkCore.DbContext",
     "MemberId": "T0 Create(System.String[] args)",
     "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
+    "MemberId": "System.Linq.Expressions.LambdaExpression get_Filter()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+    "MemberId": "System.Linq.Expressions.LambdaExpression get_Filter()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+    "MemberId": "System.Void set_Filter(System.Linq.Expressions.LambdaExpression value)",
+    "Kind": "Addition"
   }
 ]
