@@ -241,9 +241,9 @@ FROM [Customers] AS [c]
 WHERE (CHARINDEX(@__LocalMethod1_0, [c].[ContactName]) > 0) OR (@__LocalMethod1_0 = N'')");
         }
 
-        public override void OrderBy_skip_take_level_1()
+        public override void OrderBy_skip_take()
         {
-            base.OrderBy_skip_take_level_1();
+            base.OrderBy_skip_take();
 
             AssertSql(
                 @"@__p_0: 5
@@ -257,9 +257,9 @@ FROM (
 WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
-        public override void OrderBy_skip_take_level_2()
+        public override void OrderBy_skip_take_take()
         {
-            base.OrderBy_skip_take_level_2();
+            base.OrderBy_skip_take_take();
 
             AssertSql(
                 @"@__p_2: 3
@@ -278,28 +278,9 @@ FROM (
 ORDER BY [t].[ContactTitle], [t].[ContactName]");
         }
 
-        public override void OrderBy_skip_take_distinct()
+        public override void OrderBy_skip_take_take_take_take()
         {
-            base.OrderBy_skip_take_distinct();
-
-            AssertSql(
-                @"@__p_0: 5
-@__p_1: 15
-
-SELECT DISTINCT [t].*
-FROM (
-    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
-    FROM (
-        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactTitle], [c].[ContactName]) AS [__RowNumber__]
-        FROM [Customers] AS [c]
-    ) AS [t0]
-    WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
-) AS [t]");
-        }
-
-        public override void OrderBy_skip_take_level_3()
-        {
-            base.OrderBy_skip_take_level_3();
+            base.OrderBy_skip_take_take_take_take();
 
             AssertSql(
                 @"@__p_4: 5
@@ -326,6 +307,136 @@ FROM (
     ORDER BY [t0].[ContactTitle], [t0].[ContactName]
 ) AS [t1]
 ORDER BY [t1].[ContactTitle], [t1].[ContactName]");
+        }
+        
+        public override void OrderBy_skip_take_skip_take_skip()
+        {
+            base.OrderBy_skip_take_skip_take_skip();
+
+            AssertSql(
+                @"@__p_0: 5
+@__p_1: 15
+@__p_2: 2
+@__p_3: 8
+@__p_4: 5
+
+SELECT [t3].*
+FROM (
+    SELECT [t0].*, ROW_NUMBER() OVER(ORDER BY [t0].[ContactTitle], [t0].[ContactName]) AS [__RowNumber__2]
+    FROM (
+        SELECT [t2].*
+        FROM (
+            SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[ContactTitle], [t].[ContactName]) AS [__RowNumber__1]
+            FROM (
+                SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+                FROM (
+                    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactTitle], [c].[ContactName]) AS [__RowNumber__]
+                    FROM [Customers] AS [c]
+                ) AS [t1]
+                WHERE ([t1].[__RowNumber__] > @__p_0) AND ([t1].[__RowNumber__] <= (@__p_0 + @__p_1))
+            ) AS [t]
+        ) AS [t2]
+        WHERE ([t2].[__RowNumber__1] > @__p_2) AND ([t2].[__RowNumber__1] <= (@__p_2 + @__p_3))
+    ) AS [t0]
+) AS [t3]
+WHERE [t3].[__RowNumber__2] > @__p_4");
+        }
+
+        public override void OrderBy_skip_take_distinct()
+        {
+            base.OrderBy_skip_take_distinct();
+
+            AssertSql(
+                @"@__p_0: 5
+@__p_1: 15
+
+SELECT DISTINCT [t].*
+FROM (
+    SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactTitle], [c].[ContactName]) AS [__RowNumber__]
+        FROM [Customers] AS [c]
+    ) AS [t0]
+    WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
+) AS [t]");
+        }
+
+        public override void OrderBy_coalesce_take_distinct()
+        {
+            base.OrderBy_coalesce_take_distinct();
+
+            AssertSql(
+                @"@__p_0: 15
+
+SELECT DISTINCT [t].*
+FROM (
+    SELECT TOP(@__p_0) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+    FROM [Products] AS [p]
+    ORDER BY COALESCE([p].[UnitPrice], 0.0)
+) AS [t]");
+        }
+
+        public override void OrderBy_coalesce_skip_take_distinct()
+        {
+            base.OrderBy_coalesce_skip_take_distinct();
+
+            AssertSql(
+                @"@__p_0: 5
+@__p_1: 15
+
+SELECT DISTINCT [t].*
+FROM (
+    SELECT [t0].[ProductID], [t0].[Discontinued], [t0].[ProductName], [t0].[UnitPrice], [t0].[UnitsInStock]
+    FROM (
+        SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock], ROW_NUMBER() OVER(ORDER BY COALESCE([p].[UnitPrice], 0.0)) AS [__RowNumber__]
+        FROM [Products] AS [p]
+    ) AS [t0]
+    WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
+) AS [t]");
+        }
+
+        public override void OrderBy_coalesce_skip_take_distinct_take()
+        {
+            base.OrderBy_coalesce_skip_take_distinct_take();
+
+            AssertSql(
+                @"@__p_2: 5
+@__p_0: 5
+@__p_1: 15
+
+SELECT DISTINCT TOP(@__p_2) [t].*
+FROM (
+    SELECT [t0].[ProductID], [t0].[Discontinued], [t0].[ProductName], [t0].[UnitPrice], [t0].[UnitsInStock]
+    FROM (
+        SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock], ROW_NUMBER() OVER(ORDER BY COALESCE([p].[UnitPrice], 0.0)) AS [__RowNumber__]
+        FROM [Products] AS [p]
+    ) AS [t0]
+    WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
+) AS [t]");
+        }
+
+        public override void OrderBy_skip_take_distinct_orderby_take()
+        {
+            base.OrderBy_skip_take_distinct_orderby_take();
+
+            AssertSql(
+                @"@__p_2: 8
+@__p_0: 5
+@__p_1: 15
+
+SELECT TOP(@__p_2) [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+FROM (
+    SELECT DISTINCT [t].*
+    FROM (
+        SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+        FROM (
+            SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactTitle], [c].[ContactName]) AS [__RowNumber__]
+            FROM [Customers] AS [c]
+        ) AS [t1]
+        WHERE ([t1].[__RowNumber__] > @__p_0) AND ([t1].[__RowNumber__] <= (@__p_0 + @__p_1))
+    ) AS [t]
+) AS [t0]
+ORDER BY [t0].[ContactTitle]");
         }
 
         public override void Skip_Take_Any()

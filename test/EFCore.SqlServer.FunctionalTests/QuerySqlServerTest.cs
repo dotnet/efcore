@@ -1743,9 +1743,12 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT TOP(@__p_0) [o].*
-    FROM [Orders] AS [o]
-) AS [t]");
+    SELECT DISTINCT [t].*
+    FROM (
+        SELECT TOP(@__p_0) [o].*
+        FROM [Orders] AS [o]
+    ) AS [t]
+) AS [t0]");
         }
 
         public override void Take_Where_Distinct_Count()
@@ -1757,10 +1760,13 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT TOP(@__p_0) [o].*
-    FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] = N'FRANK'
-) AS [t]");
+    SELECT DISTINCT [t].*
+    FROM (
+        SELECT TOP(@__p_0) [o].*
+        FROM [Orders] AS [o]
+        WHERE [o].[CustomerID] = N'FRANK'
+    ) AS [t]
+) AS [t0]");
         }
 
         public override void Null_conditional_simple()
@@ -4000,9 +4006,12 @@ ORDER BY [t].[CustomerID]");
             AssertSql(
                 @"@__p_0: 5
 
-SELECT DISTINCT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-ORDER BY [o].[OrderID]");
+SELECT DISTINCT [t].*
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t]");
         }
 
         public override void OrderBy_shadow()
@@ -7049,9 +7058,9 @@ WHERE ([c].[City] = N'Seattle') AND ([t0].[OrderID] IS NOT NULL AND [t2].[OrderI
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
-        public override void OrderBy_skip_take_level_1()
+        public override void OrderBy_skip_take()
         {
-            base.OrderBy_skip_take_level_1();
+            base.OrderBy_skip_take();
 
             AssertSql(
                 @"@__p_0: 5
@@ -7064,9 +7073,9 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
-        public override void OrderBy_skip_take_level_2()
+        public override void OrderBy_skip_take_take()
         {
-            base.OrderBy_skip_take_level_2();
+            base.OrderBy_skip_take_take();
 
             AssertSql(
                 @"@__p_2: 3
@@ -7084,27 +7093,9 @@ ORDER BY [t].[ContactTitle], [t].[ContactName]");
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
-        public override void OrderBy_skip_take_distinct()
+        public override void OrderBy_skip_take_take_take_take()
         {
-            base.OrderBy_skip_take_distinct();
-
-            AssertSql(
-                @"@__p_0: 5
-@__p_1: 15
-
-SELECT DISTINCT [t].*
-FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Customers] AS [c]
-    ORDER BY [c].[ContactTitle], [c].[ContactName]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
-) AS [t]");
-        }
-
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
-        public override void OrderBy_skip_take_level_3()
-        {
-            base.OrderBy_skip_take_level_3();
+            base.OrderBy_skip_take_take_take_take();
 
             AssertSql(
                 @"@__p_4: 5
@@ -7129,6 +7120,129 @@ FROM (
     ORDER BY [t0].[ContactTitle], [t0].[ContactName]
 ) AS [t1]
 ORDER BY [t1].[ContactTitle], [t1].[ContactName]");
+        }
+
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void OrderBy_skip_take_skip_take_skip()
+        {
+            base.OrderBy_skip_take_skip_take_skip();
+
+            AssertSql(
+                @"@__p_0: 5
+@__p_1: 15
+@__p_2: 2
+@__p_3: 8
+@__p_4: 5
+
+SELECT [t0].*
+FROM (
+    SELECT [t].*
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        FROM [Customers] AS [c]
+        ORDER BY [c].[ContactTitle], [c].[ContactName]
+        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    ) AS [t]
+    ORDER BY [t].[ContactTitle], [t].[ContactName]
+    OFFSET @__p_2 ROWS FETCH NEXT @__p_3 ROWS ONLY
+) AS [t0]
+ORDER BY [t0].[ContactTitle], [t0].[ContactName]
+OFFSET @__p_4 ROWS");
+        }
+
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void OrderBy_skip_take_distinct()
+        {
+            base.OrderBy_skip_take_distinct();
+
+            AssertSql(
+                @"@__p_0: 5
+@__p_1: 15
+
+SELECT DISTINCT [t].*
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[ContactTitle], [c].[ContactName]
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t]");
+        }
+
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void OrderBy_coalesce_take_distinct()
+        {
+            base.OrderBy_coalesce_take_distinct();
+
+            AssertSql(
+                @"@__p_0: 15
+
+SELECT DISTINCT [t].*
+FROM (
+    SELECT TOP(@__p_0) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+    FROM [Products] AS [p]
+    ORDER BY COALESCE([p].[UnitPrice], 0.0)
+) AS [t]");
+        }
+
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void OrderBy_coalesce_skip_take_distinct()
+        {
+            base.OrderBy_coalesce_skip_take_distinct();
+
+            AssertSql(
+                @"@__p_0: 5
+@__p_1: 15
+
+SELECT DISTINCT [t].*
+FROM (
+    SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+    FROM [Products] AS [p]
+    ORDER BY COALESCE([p].[UnitPrice], 0.0)
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t]");
+
+        }
+
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void OrderBy_coalesce_skip_take_distinct_take()
+        {
+            base.OrderBy_coalesce_skip_take_distinct_take();
+
+            AssertSql(
+                @"@__p_2: 5
+@__p_0: 5
+@__p_1: 15
+
+SELECT DISTINCT TOP(@__p_2) [t].*
+FROM (
+    SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+    FROM [Products] AS [p]
+    ORDER BY COALESCE([p].[UnitPrice], 0.0)
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t]");
+        }
+
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void OrderBy_skip_take_distinct_orderby_take()
+        {
+            base.OrderBy_skip_take_distinct_orderby_take();
+
+            AssertSql(
+                @"@__p_2: 8
+@__p_0: 5
+@__p_1: 15
+
+SELECT TOP(@__p_2) [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+FROM (
+    SELECT DISTINCT [t].*
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        FROM [Customers] AS [c]
+        ORDER BY [c].[ContactTitle], [c].[ContactName]
+        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    ) AS [t]
+) AS [t0]
+ORDER BY [t0].[ContactTitle]");
         }
 
         public override void No_orderby_added_for_fully_translated_manually_constructed_LOJ()
@@ -7362,8 +7476,12 @@ WHERE [outer].[CustomerID] = N'ALFKI'",
             SELECT 1
             FROM [Customers] AS [cc1]
             WHERE EXISTS (
-                SELECT DISTINCT TOP(10) 1
-                FROM [Customers] AS [inner1])))
+                SELECT DISTINCT 1
+                FROM (
+                    SELECT TOP(10) [inner1].*
+                    FROM [Customers] AS [inner1]
+                    ORDER BY [inner1].[CustomerID]
+                ) AS [t1])))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END");
         }

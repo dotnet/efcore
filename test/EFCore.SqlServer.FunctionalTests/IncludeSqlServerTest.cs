@@ -282,12 +282,16 @@ ORDER BY [o.Customer].[CustomerID]",
                 @"SELECT [o.Customer.Orders].[OrderID], [o.Customer.Orders].[CustomerID], [o.Customer.Orders].[EmployeeID], [o.Customer.Orders].[OrderDate]
 FROM [Orders] AS [o.Customer.Orders]
 INNER JOIN (
-    SELECT DISTINCT TOP(1) [o.Customer0].[CustomerID]
-    FROM [Orders] AS [o0]
-    LEFT JOIN [Customers] AS [o.Customer0] ON [o0].[CustomerID] = [o.Customer0].[CustomerID]
-    WHERE [o0].[OrderID] = 10248
-) AS [t] ON [o.Customer.Orders].[CustomerID] = [t].[CustomerID]
-ORDER BY [t].[CustomerID]");
+    SELECT DISTINCT [t].*
+    FROM (
+        SELECT TOP(1) [o.Customer0].[CustomerID]
+        FROM [Orders] AS [o0]
+        LEFT JOIN [Customers] AS [o.Customer0] ON [o0].[CustomerID] = [o.Customer0].[CustomerID]
+        WHERE [o0].[OrderID] = 10248
+        ORDER BY [o.Customer0].[CustomerID]
+    ) AS [t]
+) AS [t0] ON [o.Customer.Orders].[CustomerID] = [t0].[CustomerID]
+ORDER BY [t0].[CustomerID]");
         }
 
         public override void Include_multi_level_collection_and_then_include_reference_predicate(bool useString)
@@ -826,20 +830,24 @@ ORDER BY [t].[CustomerID], [t0].[CustomerID]",
 SELECT [c1.Orders].[OrderID], [c1.Orders].[CustomerID], [c1.Orders].[EmployeeID], [c1.Orders].[OrderDate]
 FROM [Orders] AS [c1.Orders]
 INNER JOIN (
-    SELECT DISTINCT TOP(@__p_1) [t1].[CustomerID]
+    SELECT DISTINCT [t3].*
     FROM (
-        SELECT TOP(@__p_0) [c1].*
-        FROM [Customers] AS [c1]
-        ORDER BY [c1].[CustomerID]
-    ) AS [t1]
-    CROSS JOIN (
-        SELECT [c2].*
-        FROM [Customers] AS [c2]
-        ORDER BY [c2].[CustomerID]
-        OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
-    ) AS [t2]
-) AS [t3] ON [c1.Orders].[CustomerID] = [t3].[CustomerID]
-ORDER BY [t3].[CustomerID]",
+        SELECT TOP(@__p_1) [t1].[CustomerID]
+        FROM (
+            SELECT TOP(@__p_0) [c1].*
+            FROM [Customers] AS [c1]
+            ORDER BY [c1].[CustomerID]
+        ) AS [t1]
+        CROSS JOIN (
+            SELECT [c2].*
+            FROM [Customers] AS [c2]
+            ORDER BY [c2].[CustomerID]
+            OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+        ) AS [t2]
+        ORDER BY [t1].[CustomerID]
+    ) AS [t3]
+) AS [t4] ON [c1.Orders].[CustomerID] = [t4].[CustomerID]
+ORDER BY [t4].[CustomerID]",
                     //
                     @"@__p_1: 1
 @__p_0: 2
@@ -847,20 +855,24 @@ ORDER BY [t3].[CustomerID]",
 SELECT [c2.Orders].[OrderID], [c2.Orders].[CustomerID], [c2.Orders].[EmployeeID], [c2.Orders].[OrderDate]
 FROM [Orders] AS [c2.Orders]
 INNER JOIN (
-    SELECT DISTINCT TOP(@__p_1) [t5].[CustomerID], [t4].[CustomerID] AS [c0]
+    SELECT DISTINCT [t7].*
     FROM (
-        SELECT TOP(@__p_0) [c3].*
-        FROM [Customers] AS [c3]
-        ORDER BY [c3].[CustomerID]
-    ) AS [t4]
-    CROSS JOIN (
-        SELECT [c4].*
-        FROM [Customers] AS [c4]
-        ORDER BY [c4].[CustomerID]
-        OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
-    ) AS [t5]
-) AS [t6] ON [c2.Orders].[CustomerID] = [t6].[CustomerID]
-ORDER BY [t6].[c0], [t6].[CustomerID]");
+        SELECT TOP(@__p_1) [t6].[CustomerID], [t5].[CustomerID] AS [c0]
+        FROM (
+            SELECT TOP(@__p_0) [c3].*
+            FROM [Customers] AS [c3]
+            ORDER BY [c3].[CustomerID]
+        ) AS [t5]
+        CROSS JOIN (
+            SELECT [c4].*
+            FROM [Customers] AS [c4]
+            ORDER BY [c4].[CustomerID]
+            OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+        ) AS [t6]
+        ORDER BY [t5].[CustomerID], [t6].[CustomerID]
+    ) AS [t7]
+) AS [t8] ON [c2.Orders].[CustomerID] = [t8].[CustomerID]
+ORDER BY [t8].[c0], [t8].[CustomerID]");
             }
         }
 
@@ -971,20 +983,24 @@ ORDER BY [t].[CustomerID]",
 SELECT [c1.Orders].[OrderID], [c1.Orders].[CustomerID], [c1.Orders].[EmployeeID], [c1.Orders].[OrderDate]
 FROM [Orders] AS [c1.Orders]
 INNER JOIN (
-    SELECT DISTINCT TOP(@__p_1) [t1].[CustomerID]
+    SELECT DISTINCT [t3].*
     FROM (
-        SELECT TOP(@__p_0) [c1].*
-        FROM [Customers] AS [c1]
-        ORDER BY [c1].[CustomerID]
-    ) AS [t1]
-    CROSS JOIN (
-        SELECT [c2].*
-        FROM [Customers] AS [c2]
-        ORDER BY [c2].[CustomerID]
-        OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
-    ) AS [t2]
-) AS [t3] ON [c1.Orders].[CustomerID] = [t3].[CustomerID]
-ORDER BY [t3].[CustomerID]");
+        SELECT TOP(@__p_1) [t1].[CustomerID]
+        FROM (
+            SELECT TOP(@__p_0) [c1].*
+            FROM [Customers] AS [c1]
+            ORDER BY [c1].[CustomerID]
+        ) AS [t1]
+        CROSS JOIN (
+            SELECT [c2].*
+            FROM [Customers] AS [c2]
+            ORDER BY [c2].[CustomerID]
+            OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+        ) AS [t2]
+        ORDER BY [t1].[CustomerID]
+    ) AS [t3]
+) AS [t4] ON [c1.Orders].[CustomerID] = [t4].[CustomerID]
+ORDER BY [t4].[CustomerID]");
             }
         }
 

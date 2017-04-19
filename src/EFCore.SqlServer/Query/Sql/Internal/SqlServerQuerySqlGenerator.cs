@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -21,9 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
     /// </summary>
     public class SqlServerQuerySqlGenerator : DefaultQuerySqlGenerator, ISqlServerExpressionVisitor
     {
-        private const string RowNumberColumnName = "__RowNumber__";
-        private readonly RowNumberPagingExpressionVisitor _rowNumberPagingExpressionVisitor;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -36,15 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         {
             if (rowNumberPagingEnabled)
             {
-                _rowNumberPagingExpressionVisitor = new RowNumberPagingExpressionVisitor();
+                var rowNumberPagingExpressionVisitor = new RowNumberPagingExpressionVisitor();
+                rowNumberPagingExpressionVisitor.Visit(selectExpression);
             }
-        }
-
-        public override Expression VisitSelect(SelectExpression selectExpression)
-        {
-            _rowNumberPagingExpressionVisitor?.Visit(selectExpression);
-
-            return base.VisitSelect(selectExpression);
         }
 
         /// <summary>
@@ -128,6 +120,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 
         private class RowNumberPagingExpressionVisitor : ExpressionVisitorBase
         {
+            private const string RowNumberColumnName = "__RowNumber__";
+            private int _counter;
+
             public override Expression Visit(Expression expression)
             {
                 if (expression is ExistsExpression existsExpression)
@@ -167,8 +162,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                 }
 
                 var innerRowNumberExpression = new AliasExpression(
-                    RowNumberColumnName,
+                    RowNumberColumnName + (_counter != 0 ? $"{_counter}" : ""),
                     new RowNumberExpression(subQuery.OrderBy));
+
+                _counter++;
 
                 subQuery.ClearOrderBy();
                 subQuery.AddToProjection(innerRowNumberExpression, resetProjectStar: false);

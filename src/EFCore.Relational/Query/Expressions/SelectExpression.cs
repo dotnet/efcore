@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             get => _isDistinct;
             set
             {
-                if (_offset != null)
+                if (_offset != null || _limit != null)
                 {
                     PushDownSubquery();
                 }
