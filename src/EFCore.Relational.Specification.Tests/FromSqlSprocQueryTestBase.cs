@@ -221,17 +221,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext() => Fixture.CreateContext(QueryTrackingBehavior.NoTracking);
 
-        protected FromSqlSprocQueryTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
+        protected FromSqlSprocQueryTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
         protected abstract string TenMostExpensiveProductsSproc { get; }
-
         protected abstract string CustomerOrderHistorySproc { get; }
     }
 }

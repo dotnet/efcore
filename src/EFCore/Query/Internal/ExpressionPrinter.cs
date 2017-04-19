@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (!_parametersInScope.ContainsKey(variable))
                 {
-                    _parametersInScope.Add(variable, "var" + _parametersInScope.Count);
+                    _parametersInScope.Add(variable, variable.Name);
                 }
             }
 

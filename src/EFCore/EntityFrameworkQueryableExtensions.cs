@@ -2444,6 +2444,39 @@ namespace Microsoft.EntityFrameworkCore
 
         #endregion
 
+        #region Query Filters
+
+        internal static readonly MethodInfo IgnoreQueryFiltersMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethod(nameof(IgnoreQueryFilters));
+
+        /// <summary>
+        ///     Specifies that the current Entity Framework LINQ query should not have any
+        ///     model-level entity query filters applied.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <returns>
+        ///     A new query that will not apply any model-level entity query filters.
+        /// </returns>
+        public static IQueryable<TEntity> IgnoreQueryFilters<TEntity>(
+            [NotNull] this IQueryable<TEntity> source)
+            where TEntity : class
+        {
+            Check.NotNull(source, nameof(source));
+
+            return
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TEntity>(
+                        Expression.Call(
+                            instance: null,
+                            method: IgnoreQueryFiltersMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                            arguments: source.Expression))
+                    : source;
+        }
+
+        #endregion
+
         #region Tracking
 
         internal static readonly MethodInfo AsNoTrackingMethodInfo

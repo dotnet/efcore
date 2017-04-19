@@ -58,10 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             private readonly IEnumerable<TResult> _results;
 
-            public OrderedEnumerableAdapter(IEnumerable<TResult> results)
-            {
-                _results = results;
-            }
+            public OrderedEnumerableAdapter(IEnumerable<TResult> results) => _results = results;
 
             public IOrderedEnumerable<TResult> CreateOrderedEnumerable<TKey>(
                 Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending) => !descending

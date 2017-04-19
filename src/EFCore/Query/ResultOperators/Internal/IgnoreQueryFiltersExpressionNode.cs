@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class TrackingExpressionNode : ResultOperatorExpressionNodeBase
+    public class IgnoreQueryFiltersExpressionNode : ResultOperatorExpressionNodeBase
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -21,15 +21,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         public static readonly IReadOnlyCollection<MethodInfo> SupportedMethods = new[]
         {
-            EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo,
-            EntityFrameworkQueryableExtensions.AsTrackingMethodInfo
+            EntityFrameworkQueryableExtensions.IgnoreQueryFiltersMethodInfo
         };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public TrackingExpressionNode(MethodCallExpressionParseInfo parseInfo)
+        public IgnoreQueryFiltersExpressionNode(MethodCallExpressionParseInfo parseInfo)
             : base(parseInfo, null, null)
         {
         }
@@ -39,9 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
-            => new TrackingResultOperator(
-                tracking: ParsedExpression.Method.GetGenericMethodDefinition()
-                    .Equals(EntityFrameworkQueryableExtensions.AsTrackingMethodInfo));
+            => new IgnoreQueryFiltersResultOperator();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

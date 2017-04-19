@@ -4,15 +4,69 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
+using System;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
 {
     public class CoreModelValidatorTest : ModelValidatorTest
     {
+        [Fact]
+        public virtual void Detects_filter_on_derived_type()
+        {
+            var model = new Model();
+            var entityTypeA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityTypeA);
+            var entityTypeD = model.AddEntityType(typeof(D));
+            entityTypeD.HasBaseType(entityTypeA);
+
+            Expression<Func<D, bool>> filter = _ => true;
+
+            entityTypeD.Filter = filter;
+
+            VerifyError(CoreStrings.BadFilterDerivedType(entityTypeD.Filter, entityTypeD.DisplayName()), model);
+        }
+
+        [Fact]
+        public virtual void Detects_filter_with_navs()
+        {
+            var customerClrType = typeof(Customer);
+            var orderClrType = typeof(Order);
+
+            var model = new Model();
+            var customerType = model.AddEntityType(customerClrType);
+            var customerIdProperty = customerType.GetOrAddProperty(customerClrType.GetProperty("CustomerID"));
+            customerIdProperty.IsNullable = false;
+            var customerKey = customerType.SetPrimaryKey(customerIdProperty);
+
+            var orderType = model.AddEntityType(orderClrType);
+            var orderIdProperty = orderType.GetOrAddProperty(orderClrType.GetProperty("OrderID"));
+            orderType.SetPrimaryKey(orderIdProperty);
+            
+            var foreignKeyProperty = orderType.GetOrAddProperty(orderClrType.GetProperty("CustomerID"));
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
+
+            customerForeignKey.HasDependentToPrincipal(orderClrType.GetProperty("Customer"));
+
+            Expression<Func<Order, bool>> badExpression3 = o => o.Customer.CustomerID == "ALFKI";
+
+            orderType.Filter = badExpression3;
+
+            VerifyError(CoreStrings.BadFilterExpression(badExpression3, orderType.DisplayName(), orderType.ClrType), model);
+
+            Expression<Func<Order, bool>> badExpression4 = o => EF.Property<Customer>(o, "Customer").CustomerID == "ALFKI";
+
+            orderType.Filter = badExpression4;
+
+            VerifyError(CoreStrings.BadFilterExpression(badExpression4, orderType.DisplayName(), orderType.ClrType), model);
+        }
+
         [Fact]
         public virtual void Detects_shadow_entities()
         {
