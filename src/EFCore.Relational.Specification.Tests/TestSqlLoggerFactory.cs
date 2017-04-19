@@ -72,7 +72,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         // ReSharper disable once ClassNeverInstantiated.Local
         private class SqlLogger : ILogger
         {
-            private readonly static AsyncLocal<SqlLoggerData> _loggerData = new AsyncLocal<SqlLoggerData>();
+            private static readonly AsyncLocal<SqlLoggerData> _loggerData
+                = new AsyncLocal<SqlLoggerData>(
+                    asyncLocalValueChangedArgs =>
+                        {
+                            if (asyncLocalValueChangedArgs.CurrentValue == null
+                                && asyncLocalValueChangedArgs.PreviousValue != null)
+                            {
+                                _loggerData.Value = asyncLocalValueChangedArgs.PreviousValue;
+                            }
+                        });
 
             // ReSharper disable once MemberCanBeMadeStatic.Local
             public SqlLoggerData SqlLoggerData

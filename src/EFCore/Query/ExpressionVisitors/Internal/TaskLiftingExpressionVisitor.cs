@@ -21,13 +21,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static readonly ParameterExpression _resultsParameter
             = Expression.Parameter(typeof(object[]), name: "results");
 
+        private static readonly ParameterExpression _defaultCancellationTokenParameter
+            = Expression.Parameter(typeof(CancellationToken), name: "ct");
+
         private readonly List<Expression> _taskExpressions = new List<Expression>();
+
+        private ParameterExpression _cancellationTokenParameter;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ParameterExpression CancellationTokenParameter { get; private set; }
+        public virtual ParameterExpression CancellationTokenParameter
+        {
+            get => _cancellationTokenParameter ?? _defaultCancellationTokenParameter;
+            private set => _cancellationTokenParameter = value;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

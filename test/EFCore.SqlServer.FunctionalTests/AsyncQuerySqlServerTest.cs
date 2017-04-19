@@ -23,6 +23,40 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
+        public override async Task ToList_on_nav_in_projection_is_async()
+        {
+            await base.ToList_on_nav_in_projection_is_async();
+
+            Assert.Contains(
+                @"_SelectAsync(
+            source: IAsyncEnumerable<Customer> _ShapedQuery(
+                queryContext: queryContext, 
+                shaperCommandContext: SelectExpression: 
+                    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                    FROM [Customers] AS [c]
+                    WHERE [c].[CustomerID] = N'ALFKI', 
+                shaper: BufferedEntityShaper<Customer>), 
+            selector: (Customer c | CancellationToken Param_0) => Task<<>f__AnonymousType3<Customer, List<Order>>> _ExecuteAsync(
+                taskFactories: new Func<Task<object>>[]{ () => Task<object> _ToObjectTask(Task<List<Order>> ToList((IAsyncEnumerable<Order>) EnumerableAdapter<Order> _ToEnumerable(IAsyncEnumerable<Order> _InjectParameters(
+                                    queryContext: queryContext, 
+                                    source: IAsyncEnumerable<Order> _ShapedQuery(
+                                        queryContext: queryContext, 
+                                        shaperCommandContext: SelectExpression: 
+                                            SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                                            FROM [Orders] AS [o]
+                                            WHERE @_outer_CustomerID = [o].[CustomerID], 
+                                        shaper: BufferedEntityShaper<Order>), 
+                                    parameterNames: new string[]{ ""_outer_CustomerID"" }, 
+                                    parameterValues: new object[]{ string GetValueFromEntity(
+                                            clrPropertyGetter: ClrPropertyGetter<Customer, string>, 
+                                            entity: c) })))) }, 
+                selector: (Object[] results) => new <>f__AnonymousType3<Customer, List<Order>>(
+                    c, 
+                    (List<Order>) results[0]
+                )))",
+                TestSqlLoggerFactory.Log);
+        }
+
         [ConditionalFact]
         public async Task Query_compiler_concurrency()
         {

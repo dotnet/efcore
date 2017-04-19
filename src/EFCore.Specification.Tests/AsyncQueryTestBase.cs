@@ -24,13 +24,32 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [ConditionalFact]
+        public virtual async Task ToList_on_nav_in_projection_is_async()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = await context.Customers
+                        .Where(c => c.CustomerID == "ALFKI")
+                        .Select(c => new
+                        {
+                            c,
+                            Orders = ((IAsyncEnumerable<Order>)(from o in c.Orders select o)).ToList().Result
+                        })
+                        .ToListAsync();
+
+                Assert.Equal(1, results.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual async Task ToListAsync_can_be_canceled()
         {
             for (var i = 0; i < 10; i++)
             {
                 // without fix, this usually throws within 2 or three iterations
 
-                using (var context = Fixture.CreateContext())
+                using (var context = CreateContext())
                 {
                     var tokenSource = new CancellationTokenSource();
                     var query = context.Employees.AsNoTracking().ToListAsync(tokenSource.Token);
