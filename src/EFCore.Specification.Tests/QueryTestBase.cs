@@ -2513,7 +2513,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             from o in os.Where(o => o.OrderID < 10300)
                                         .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
                                         .Distinct()
-                            select new {c, o}
+                            select new { c, o }
                             );
         }
 
@@ -4407,6 +4407,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Sum_on_float_column()
+        {
+            AssertQuery<OrderDetail>(ods => ods.Where(od => od.ProductID == 1).Sum(od => od.Discount));
+        }
+
+        [ConditionalFact]
+        public virtual void Sum_on_float_column_in_subquery()
+        {
+            AssertQuery<Order>(os => os.Where(o => o.OrderID < 10300).Select(o => new { o.OrderID, Sum = o.OrderDetails.Sum(od => od.Discount) }));
+        }
+
+        [ConditionalFact]
         public virtual void Average_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Average());
@@ -4460,6 +4472,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Average_over_subquery_is_client_eval()
         {
             AssertQuery<Customer>(cs => cs.Average(c => c.Orders.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual void Average_on_float_column()
+        {
+            AssertQuery<OrderDetail>(ods => ods.Where(od => od.ProductID == 1).Average(od => od.Discount));
+        }
+
+        [ConditionalFact]
+        public virtual void Average_on_float_column_in_subquery()
+        {
+            AssertQuery<Order>(os => os.Where(o => o.OrderID < 10300).Select(o => new { o.OrderID, Sum = o.OrderDetails.Average(od => od.Discount) }));
         }
 
         [ConditionalFact]

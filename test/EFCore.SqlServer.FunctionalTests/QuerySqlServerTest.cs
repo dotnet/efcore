@@ -1376,6 +1376,30 @@ WHERE [p].[ProductID] < 40");
 FROM [Customers] AS [c]");
         }
 
+        public override void Sum_on_float_column()
+        {
+            base.Sum_on_float_column();
+
+            AssertSql(
+                @"SELECT CAST(SUM([od].[Discount]) AS real)
+FROM [Order Details] AS [od]
+WHERE [od].[ProductID] = 1");
+        }
+
+        public override void Sum_on_float_column_in_subquery()
+        {
+            base.Sum_on_float_column_in_subquery();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], (
+    SELECT CAST(SUM([od].[Discount]) AS real)
+    FROM [Order Details] AS [od]
+    WHERE [o].[OrderID] = [od].[OrderID]
+)
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
+        }
+
         public override void Average_with_no_arg()
         {
             base.Average_with_no_arg();
@@ -1451,6 +1475,30 @@ WHERE [p].[ProductID] < 40");
     WHERE [c].[CustomerID] = [o].[CustomerID]
 )
 FROM [Customers] AS [c]");
+        }
+
+        public override void Average_on_float_column()
+        {
+            base.Average_on_float_column();
+
+            AssertSql(
+                @"SELECT CAST(AVG(CAST([od].[Discount] AS real)) AS real)
+FROM [Order Details] AS [od]
+WHERE [od].[ProductID] = 1");
+        }
+
+        public override void Average_on_float_column_in_subquery()
+        {
+            base.Average_on_float_column_in_subquery();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], (
+    SELECT CAST(AVG(CAST([od].[Discount] AS real)) AS real)
+    FROM [Order Details] AS [od]
+    WHERE [o].[OrderID] = [od].[OrderID]
+)
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
         }
 
         public override void Min_with_no_arg()

@@ -232,7 +232,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     expression = new ExplicitCastExpression(expression, outputType);
-                    var averageExpression = new SqlFunctionExpression("AVG", outputType, new [] { expression });
+                    Expression averageExpression = new SqlFunctionExpression("AVG", outputType, new [] { expression });
+
+                    if (nonNullableInputType == typeof(float))
+                    {
+                        averageExpression = new ExplicitCastExpression(averageExpression, inputType);
+                    }
 
                     handlerContext.SelectExpression.SetProjectionExpression(averageExpression);
 
@@ -694,7 +699,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
-                    var sumExpression = new SqlFunctionExpression("SUM", handlerContext.QueryModel.SelectClause.Selector.Type, new [] { expression });
+                    var inputType = handlerContext.QueryModel.SelectClause.Selector.Type;
+
+                    Expression sumExpression = new SqlFunctionExpression("SUM", inputType, new [] { expression });
+                    if (inputType.UnwrapNullableType() == typeof(float))
+                    {
+                        sumExpression = new ExplicitCastExpression(sumExpression, inputType);
+                    }
 
                     handlerContext.SelectExpression.SetProjectionExpression(sumExpression);
 
