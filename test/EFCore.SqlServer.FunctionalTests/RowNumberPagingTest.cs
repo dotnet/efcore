@@ -97,9 +97,9 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
                 @"@__p_0: 10
 @__p_1: 5
 
-SELECT [t].[c], [t].[OrderID]
+SELECT [t].[Contact], [t].[OrderID]
 FROM (
-    SELECT ([c].[ContactName] + N' ') + [c].[ContactTitle] AS [c], [o].[OrderID], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+    SELECT ([c].[ContactName] + N' ') + [c].[ContactTitle] AS [Contact], [o].[OrderID], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
     FROM [Customers] AS [c]
     INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]
@@ -114,9 +114,9 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
                 @"@__p_0: 10
 @__p_1: 5
 
-SELECT [t].[OrderID], [t].[CustomerID], [t].[CustomerID0], [t].[ContactName], [t].[ContactName0]
+SELECT [t].[OrderID], [t].[CustomerIDA], [t].[CustomerIDB], [t].[ContactNameA], [t].[ContactNameB]
 FROM (
-    SELECT [o].[OrderID], [ca].[CustomerID], [cb].[CustomerID] AS [CustomerID0], [ca].[ContactName], [cb].[ContactName] AS [ContactName0], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+    SELECT [o].[OrderID], [ca].[CustomerID] AS [CustomerIDA], [cb].[CustomerID] AS [CustomerIDB], [ca].[ContactName] AS [ContactNameA], [cb].[ContactName] AS [ContactNameB], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
     FROM [Orders] AS [o]
     INNER JOIN [Customers] AS [ca] ON [o].[CustomerID] = [ca].[CustomerID]
     INNER JOIN [Customers] AS [cb] ON [o].[CustomerID] = [cb].[CustomerID]
@@ -200,11 +200,11 @@ FROM (
 
 SELECT [t0].*
 FROM (
-    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[c]) AS [__RowNumber__]
+    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[Region]) AS [__RowNumber__]
     FROM (
-        SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [c]
+        SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Region]
         FROM [Customers] AS [c]
-        ORDER BY [c]
+        ORDER BY [Region]
     ) AS [t]
 ) AS [t0]
 WHERE [t0].[__RowNumber__] > @__p_1");

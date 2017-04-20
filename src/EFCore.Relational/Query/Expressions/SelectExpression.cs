@@ -482,23 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     .LiftExpressionFromSubquery(table)
                 : new ColumnExpression(_relationalAnnotationProvider.For(property).ColumnName, property, table);
 
-            return IsProjectStar
-                ? GetOrAddToStarProjection(projectedExpressionToSearch)
-                : (_projection.Find(e => _expressionEqualityComparer.Equals(e, projectedExpressionToSearch)) ?? projectedExpressionToSearch);
-        }
-
-        private Expression GetOrAddToStarProjection([NotNull] Expression expression)
-        {
-            var projectedExpression = _starProjection.Find(e => _expressionEqualityComparer.Equals(e, expression));
-
-            if (projectedExpression != null)
-            {
-                return projectedExpression;
-            }
-
-            _starProjection.Add(expression);
-
-            return expression;
+            return projectedExpressionToSearch;
         }
 
         /// <summary>
@@ -544,7 +528,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             var projectionIndex
-                = _projection.FindIndex(e => _expressionEqualityComparer.Equals(e, expression));
+                = _projection.FindIndex(
+                    e => _expressionEqualityComparer.Equals(e, expression)
+                         || _expressionEqualityComparer.Equals((e as AliasExpression)?.Expression, expression));
 
             if (projectionIndex != -1)
             {
@@ -705,7 +691,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var projectedExpressionToSearch = BindProperty(property, querySource);
 
             return _projection
-                .FindIndex(e => _expressionEqualityComparer.Equals(e, projectedExpressionToSearch));
+                .FindIndex(
+                    e => _expressionEqualityComparer.Equals(e, projectedExpressionToSearch)
+                         || _expressionEqualityComparer.Equals((e as AliasExpression)?.Expression, projectedExpressionToSearch));
         }
 
         /// <summary>
@@ -782,7 +770,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(memberInfo, nameof(memberInfo));
             Check.NotNull(projection, nameof(projection));
 
-            _memberInfoProjectionMapping[memberInfo] = projection;
+            _memberInfoProjectionMapping[memberInfo] = CreateUniqueProjection(projection, memberInfo.Name);
         }
 
         /// <summary>

@@ -1230,7 +1230,7 @@ ORDER BY [t].[CustomerID]");
             base.Include_with_complex_projection(useString);
 
             AssertSql(
-                @"SELECT [o].[CustomerID]
+                @"SELECT [o].[CustomerID] AS [Id]
 FROM [Orders] AS [o]");
         }
 
