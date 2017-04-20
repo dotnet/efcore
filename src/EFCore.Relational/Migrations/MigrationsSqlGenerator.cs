@@ -927,10 +927,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(" ")
                 .Append(type ?? GetColumnType(schema, table, name, clrType, unicode, maxLength, rowVersion, model));
 
-            if (!nullable)
-            {
-                builder.Append(" NOT NULL");
-            }
+            builder.Append(nullable ? " NULL" : " NOT NULL");
 
             DefaultValue(defaultValue, defaultValueSql, builder);
         }

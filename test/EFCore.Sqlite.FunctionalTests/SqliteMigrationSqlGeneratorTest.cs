@@ -139,8 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 (pkName != null ? $" CONSTRAINT \"{pkName}\"" : "")
                 + " PRIMARY KEY" +
                 (autoincrement ? " AUTOINCREMENT," : ",") + EOL +
-                "    \"EmployerId\" int," + EOL +
-                "    \"SSN\" char(11)," + EOL +
+                "    \"EmployerId\" int NULL," + EOL +
+                "    \"SSN\" char(11) NULL," + EOL +
                 "    UNIQUE (\"SSN\")," + EOL +
                 "    FOREIGN KEY (\"EmployerId\") REFERENCES \"Companies\" (\"Id\")" + EOL +
                 ");" + EOL,
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 });
 
             Assert.Equal(
-                @"ALTER TABLE ""People"" ADD ""Age"" int DEFAULT (10);" + EOL,
+                @"ALTER TABLE ""People"" ADD ""Age"" int NULL DEFAULT (10);" + EOL,
                 Sql);
         }
 
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
             // See issue #3698
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" TEXT;" + EOL,
+                "ALTER TABLE \"Person\" ADD \"Name\" TEXT NULL;" + EOL,
                 Sql);
         }
 
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
             // See issue #3698
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" TEXT;" + EOL,
+                "ALTER TABLE \"Person\" ADD \"Name\" TEXT NULL;" + EOL,
                 Sql);
         }
 
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
             // See issue #3698
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" TEXT;" + EOL,
+                "ALTER TABLE \"Person\" ADD \"Name\" TEXT NULL;" + EOL,
                 Sql);
         }
 
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             base.AddColumnOperation_with_shared_column();
 
             Assert.Equal(
-                "ALTER TABLE \"Base\" ADD \"Foo\" TEXT;" + EOL,
+                "ALTER TABLE \"Base\" ADD \"Foo\" TEXT NULL;" + EOL,
                 Sql);
         }
 
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             base.AddColumnOperation_with_computed_column_SQL();
 
             Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Birthday\" date;" + EOL,
+                "ALTER TABLE \"People\" ADD \"Birthday\" date NULL;" + EOL,
                 Sql);
         }
 
