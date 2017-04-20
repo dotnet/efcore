@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public DbFunctionsSqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void String_Like_Literal()
@@ -52,6 +52,6 @@ WHERE [c].[ContactName] LIKE N'!%' ESCAPE '!'",
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

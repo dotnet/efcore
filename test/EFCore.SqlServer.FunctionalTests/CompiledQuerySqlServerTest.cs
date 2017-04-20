@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public CompiledQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void DbSet_query()
@@ -175,6 +175,6 @@ WHERE [c].[CustomerID] = N'ALFKI'",
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

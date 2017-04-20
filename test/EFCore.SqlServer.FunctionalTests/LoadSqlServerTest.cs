@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public LoadSqlServerTest(LoadSqlServerFixture fixture)
             : base(fixture)
         {
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         [Theory]
@@ -1535,32 +1536,28 @@ WHERE 0 = 1",
             }
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            TestSqlLoggerFactory.Reset();
-        }
+        public override void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();
 
-        public override void ClearLog() => TestSqlLoggerFactory.Reset();
-
-        public override void RecordLog() => Sql = TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        public override void RecordLog() => Sql = Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
 
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql { get; set; }
+        private string Sql { get; set; }
 
         public class LoadSqlServerFixture : LoadFixtureBase
         {
             private const string DatabaseName = "LoadTest";
             private readonly DbContextOptions _options;
 
+            public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
             public LoadSqlServerFixture()
             {
                 var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory, TestSqlLoggerFactory>()
+                    .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                     .BuildServiceProvider();
 
                 _options = new DbContextOptionsBuilder()
@@ -1578,7 +1575,6 @@ WHERE 0 = 1",
                         {
                             context.Database.EnsureCreated();
                             Seed(context);
-                            TestSqlLoggerFactory.Reset();
                         }
                     });
             }

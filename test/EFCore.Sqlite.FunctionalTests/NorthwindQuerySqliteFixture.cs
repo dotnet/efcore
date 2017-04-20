@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Threading;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
@@ -17,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         private readonly DbContextOptions _options;
 
         private readonly SqliteTestStore _testStore = SqliteNorthwindContext.GetSharedStore();
-        private readonly TestSqlLoggerFactory _testSqlLoggerFactory = new TestSqlLoggerFactory();
+
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
 
         public NorthwindQuerySqliteFixture()
         {
@@ -26,12 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
             => ConfigureOptions(
-                new DbContextOptionsBuilder()
-                    .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
-                        .AddEntityFrameworkSqlite()
-                        .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                        .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
-                        .BuildServiceProvider()))
+                    new DbContextOptionsBuilder()
+                        .UseInternalServiceProvider(
+                            (additionalServices ?? new ServiceCollection())
+                            .AddEntityFrameworkSqlite()
+                            .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
+                            .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
+                            .BuildServiceProvider()))
                 .UseSqlite(
                     _testStore.ConnectionString,
                     b => ConfigureOptions(b).SuppressForeignKeyEnforcement())
@@ -48,7 +49,5 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             => new SqliteNorthwindContext(_options, queryTrackingBehavior);
 
         public void Dispose() => _testStore.Dispose();
-
-        public override CancellationToken CancelQuery() => _testSqlLoggerFactory.CancelQuery();
     }
 }

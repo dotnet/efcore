@@ -3,122 +3,172 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
+using Xunit;
 using Xunit.Abstractions;
 
 #pragma warning disable 618
+
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public class TestSqlLoggerFactory : ILoggerFactory
     {
-        private static SqlLogger _logger;
-        private static readonly string EOL = Environment.NewLine;
+        private const string FileLineEnding = @"
+";
 
-        public ILogger CreateLogger(string name) => Logger;
+        private static readonly string _newLine = Environment.NewLine;
 
-        private static SqlLogger Logger => LazyInitializer.EnsureInitialized(ref _logger);
-
-        public void AddProvider(ILoggerProvider provider)
+        public void AssertBaseline(string[] expected, bool assertOrder = true)
         {
-            throw new NotImplementedException();
+            var sqlStatements
+                = _logger.SqlStatements
+                    .Select(sql => sql.Replace(Environment.NewLine, FileLineEnding))
+                    .ToList();
+
+            try
+            {
+                if (assertOrder)
+                {
+                    for (var i = 0; i < expected.Length; i++)
+                    {
+                        Assert.Equal(expected[i], sqlStatements[i]);
+                    }
+                }
+                else
+                {
+                    foreach (var expectedFragment in expected)
+                    {
+                        Assert.Contains(expectedFragment, sqlStatements);
+                    }
+                }
+            }
+            catch
+            {
+                var methodCallLine = Environment.StackTrace.Split(
+                        new[] { Environment.NewLine },
+                        StringSplitOptions.RemoveEmptyEntries)[4]
+                    .Substring(6);
+
+                var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
+                var lineIndex = methodCallLine.LastIndexOf("line", StringComparison.Ordinal);
+                var lineNumber = lineIndex > 0 ? methodCallLine.Substring(lineIndex) : "";
+
+                const string indent = FileLineEnding + "                ";
+
+                var currentDirectory = Directory.GetCurrentDirectory();
+                var logFile = currentDirectory.Substring(
+                                  0,
+                                  currentDirectory.LastIndexOf("\\test\\", StringComparison.Ordinal) + 1)
+                              + "QueryBaseline.cs";
+
+                var testInfo = $"{testName + " : " + lineNumber}" + FileLineEnding;
+
+                var newBaseLine = $@"            AssertSql(
+                {string.Join("," + indent + "//" + indent, sqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
+
+";
+
+                if (sqlStatements.Count > 9)
+                {
+                    newBaseLine += "Output truncated.";
+                }
+
+                _logger.TestOutputHelper?.WriteLine(newBaseLine);
+
+                var contents = testInfo + newBaseLine + FileLineEnding + FileLineEnding;
+
+                File.AppendAllText(logFile, contents);
+
+                throw;
+            }
         }
+
+        private readonly Logger _logger = new Logger();
+
+        public void Clear()
+        {
+            _logger.Clear();
+        }
+
+        public string Log => _logger.LogBuilder.ToString();
+
+        public IReadOnlyList<string> SqlStatements => _logger.SqlStatements;
+
+        public string Sql => string.Join(_newLine + _newLine, SqlStatements);
+
+        public IReadOnlyList<DbCommandLogData> CommandLogData => _logger.LogData;
 
         public CancellationToken CancelQuery()
         {
-            Logger.SqlLoggerData._cancellationTokenSource = new CancellationTokenSource();
-
-            return Logger.SqlLoggerData._cancellationTokenSource.Token;
+            return _logger.CancelQuery();
         }
 
-        public static void Reset() => Logger.ResetLoggerData();
+        public void SetTestOutputHelper(ITestOutputHelper testOutputHelper)
+        {
+            _logger.TestOutputHelper = testOutputHelper;
+        }
 
-        public static void CaptureOutput(ITestOutputHelper testOutputHelper)
-            => Logger.SqlLoggerData._testOutputHelper = testOutputHelper;
+        ILogger ILoggerFactory.CreateLogger(string categoryName) => _logger;
 
-        public void Dispose()
+        void ILoggerFactory.AddProvider(ILoggerProvider provider) => throw new NotImplementedException();
+
+        void IDisposable.Dispose()
         {
         }
 
-        public static string Log => Logger.SqlLoggerData.LogText;
-
-        public static string Sql
-            => string.Join(EOL + EOL, Logger.SqlLoggerData._sqlStatements);
-
-        public static IReadOnlyList<string> SqlStatements => Logger.SqlLoggerData._sqlStatements;
-
-        public static IReadOnlyList<DbCommandLogData> CommandLogData => Logger.SqlLoggerData._logData;
-
-        private class SqlLoggerData
+        private sealed class Logger : ILogger
         {
-            public string LogText => _log.ToString();
+            public List<DbCommandLogData> LogData { get; } = new List<DbCommandLogData>();
+            public IndentedStringBuilder LogBuilder { get; } = new IndentedStringBuilder();
+            public List<string> SqlStatements { get; } = new List<string>();
 
-            // ReSharper disable InconsistentNaming
-            public readonly IndentedStringBuilder _log = new IndentedStringBuilder();
-            public readonly List<string> _sqlStatements = new List<string>();
-            public readonly List<DbCommandLogData> _logData = new List<DbCommandLogData>();
+            private CancellationTokenSource _cancellationTokenSource;
 
-            public ITestOutputHelper _testOutputHelper;
+            public ITestOutputHelper TestOutputHelper { get; set; }
 
-            public CancellationTokenSource _cancellationTokenSource;
+            private readonly object _sync = new object();
 
-            // ReSharper restore InconsistentNaming
-        }
-
-        // ReSharper disable once ClassNeverInstantiated.Local
-        private class SqlLogger : ILogger
-        {
-            private static readonly AsyncLocal<SqlLoggerData> _loggerData
-                = new AsyncLocal<SqlLoggerData>(
-                    asyncLocalValueChangedArgs =>
-                        {
-                            if (asyncLocalValueChangedArgs.CurrentValue == null
-                                && asyncLocalValueChangedArgs.PreviousValue != null)
-                            {
-                                _loggerData.Value = asyncLocalValueChangedArgs.PreviousValue;
-                            }
-                        });
-
-            // ReSharper disable once MemberCanBeMadeStatic.Local
-            public SqlLoggerData SqlLoggerData
+            public void Clear()
             {
-                get
+                lock (_sync) // Guard against tests with explicit concurrency
                 {
-                    var loggerData = _loggerData.Value;
-                    return loggerData ?? CreateLoggerData();
+                    SqlStatements.Clear();
+                    LogBuilder.Clear();
+                    LogData.Clear();
+
+                    _cancellationTokenSource = null;
                 }
             }
 
-            private static SqlLoggerData CreateLoggerData()
+            public CancellationToken CancelQuery()
             {
-                var loggerData = new SqlLoggerData();
-                _loggerData.Value = loggerData;
-                return loggerData;
+                lock (_sync) // Guard against tests with explicit concurrency
+                {
+                    _cancellationTokenSource = new CancellationTokenSource();
+
+                    return _cancellationTokenSource.Token;
+                }
             }
 
-            public void Log<TState>(
-                LogLevel logLevel,
-                EventId eventId,
-                TState state,
-                Exception exception,
-                Func<TState, Exception, string> formatter)
+            void ILogger.Log<TState>(
+                LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             {
                 var format = formatter(state, exception)?.Trim();
 
-                if (format != null)
+                lock (_sync) // Guard against tests with explicit concurrency
                 {
-                    var sqlLoggerData = SqlLoggerData;
-
-                    lock (sqlLoggerData) // Concurrency tests may end up sharing this.
+                    if (format != null)
                     {
-                        if (sqlLoggerData._cancellationTokenSource != null)
+                        if (_cancellationTokenSource != null)
                         {
-                            sqlLoggerData._cancellationTokenSource.Cancel();
-                            sqlLoggerData._cancellationTokenSource = null;
+                            _cancellationTokenSource.Cancel();
+                            _cancellationTokenSource = null;
                         }
 
                         var commandLogData = state as DbCommandLogData;
@@ -131,34 +181,35 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             {
                                 parameters
                                     = string.Join(
-                                          EOL,
+                                          _newLine,
                                           commandLogData.Parameters
                                               .Select(p => $"{p.Name}: {p.FormatParameter(quoteValues: false)}"))
-                                      + EOL + EOL;
+                                      + _newLine + _newLine;
                             }
 
-                            sqlLoggerData._sqlStatements.Add(parameters + commandLogData.CommandText);
+                            SqlStatements.Add(parameters + commandLogData.CommandText);
 
-                            sqlLoggerData._logData.Add(commandLogData);
+                            LogData.Add(commandLogData);
                         }
-
                         else
                         {
-                            sqlLoggerData._log.AppendLine(format);
+                            LogBuilder.AppendLine(format);
                         }
 
-                        sqlLoggerData._testOutputHelper?.WriteLine(format + Environment.NewLine);
+                        TestOutputHelper?.WriteLine(format + Environment.NewLine);
                     }
                 }
             }
 
-            public bool IsEnabled(LogLevel logLevel) => true;
+            bool ILogger.IsEnabled(LogLevel logLevel) => true;
 
-            public IDisposable BeginScope<TState>(TState state) => SqlLoggerData._log.Indent();
-
-            // ReSharper disable once MemberCanBeMadeStatic.Local
-            public void ResetLoggerData() =>
-                _loggerData.Value = null;
+            IDisposable ILogger.BeginScope<TState>(TState state)
+            {
+                lock (_sync) // Guard against tests with explicit concurrency
+                {
+                    return LogBuilder.Indent();
+                }
+            }
         }
     }
 }

@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private readonly DbContextOptions _options;
         private readonly SqlServerTestStore _testStore;
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public OneToOneQuerySqlServerFixture()
         {
             _testStore = SqlServerTestStore.Create("OneToOneQueryTest");
@@ -23,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .UseInternalServiceProvider(new ServiceCollection()
                     .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                    .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                     .BuildServiceProvider())
                 .Options;
 

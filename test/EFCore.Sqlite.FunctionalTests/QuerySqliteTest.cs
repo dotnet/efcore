@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public QuerySqliteTest(NorthwindQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void Take_Skip()
@@ -127,6 +127,6 @@ WHERE ""p"".""ProductID"" < 40",
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

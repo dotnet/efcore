@@ -13,12 +13,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     {
         private readonly IServiceProvider _serviceProvider;
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public InheritanceRelationshipsQuerySqliteFixture()
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
         }
 
@@ -50,8 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                         {
                             context.Database.EnsureClean();
                             InheritanceRelationshipsModelInitializer.Seed(context);
-
-                            TestSqlLoggerFactory.Reset();
                         }
                     });
     }

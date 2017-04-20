@@ -12,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     {
         private readonly DbContextOptions _options;
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public InheritanceSqliteFixture()
         {
             _options = new DbContextOptionsBuilder()
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 .UseInternalServiceProvider(new ServiceCollection()
                     .AddEntityFrameworkSqlite()
                     .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                    .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                     .BuildServiceProvider())
                 .Options;
 
@@ -28,8 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 context.Database.EnsureClean();
                 SeedData(context);
             }
-
-            TestSqlLoggerFactory.Reset();
         }
 
         public override InheritanceContext CreateContext() => new InheritanceContext(_options);

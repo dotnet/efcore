@@ -10,8 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
     [SqlServerRequired]
     public class FuncletizationTests : IClassFixture<FuncletizationTests.FuncletizationFixture>
     {
+        private const int FuncletizationIterationCount = 100;
+
         private readonly FuncletizationFixture _fixture;
-        private static readonly int _funcletizationIterationCount = 100;
 
         public FuncletizationTests(FuncletizationFixture fixture)
         {
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
                 using (collector.StartCollection())
                 {
                     var val = 11;
-                    for (var i = 0; i < _funcletizationIterationCount; i++)
+                    for (var i = 0; i < FuncletizationIterationCount; i++)
                     {
                         var result = context.Products.Where(p => p.ProductId < val).ToList();
 
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
                     var val = 11;
                     var query = context.Products.Where(p => p.ProductId < val);
 
-                    for (var i = 0; i < _funcletizationIterationCount; i++)
+                    for (var i = 0; i < FuncletizationIterationCount; i++)
                     {
                         var result = query.ToList();
 
@@ -64,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
                 using (collector.StartCollection())
                 {
                     var valueHolder = new ValueHolder();
-                    for (var i = 0; i < _funcletizationIterationCount; i++)
+                    for (var i = 0; i < FuncletizationIterationCount; i++)
                     {
                         var result = context.Products.Where(p => p.ProductId < valueHolder.SecondLevelProperty).ToList();
 

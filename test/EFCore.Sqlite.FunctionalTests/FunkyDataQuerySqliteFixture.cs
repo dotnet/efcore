@@ -17,12 +17,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         private readonly string _connectionString = SqliteTestStore.CreateConnectionString(DatabaseName);
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public FunkyDataQuerySqliteFixture()
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
         }
 
@@ -38,8 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                     {
                         context.Database.EnsureClean();
                         FunkyDataModelInitializer.Seed(context);
-
-                        TestSqlLoggerFactory.Reset();
                     }
                 });
         }

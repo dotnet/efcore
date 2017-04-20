@@ -12,11 +12,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     public class QueryNavigationsSqlServerTest : QueryNavigationsTestBase<NorthwindQuerySqlServerFixture>
     {
         public QueryNavigationsSqlServerTest(
-            // ReSharper disable once UnusedParameter.Local
             NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void Join_with_nav_projected_in_subquery_when_client_eval()
@@ -1295,11 +1294,11 @@ LEFT JOIN (
                 Sql);
         }
 
-        protected override void ClearLog() => TestSqlLoggerFactory.Reset();
+        protected override void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();
 
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

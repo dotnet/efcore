@@ -15,12 +15,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private readonly DbContextOptions _options;
         private readonly SqlServerTestStore _testStore;
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public InheritanceSqlServerFixture()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
 
             _testStore = SqlServerTestStore.Create("InheritanceSqlServerTest");

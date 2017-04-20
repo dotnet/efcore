@@ -11,13 +11,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<NorthwindQuerySqlServerFixture>
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
         public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            _testOutputHelper = testOutputHelper;
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void From_sql_queryable_simple()
@@ -458,13 +455,6 @@ ORDER BY [t].[OrderID]");
             };
 
         private void AssertSql(params string[] expected)
-        {
-            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ true, expected);
-        }
-
-        private void AssertContainsSql(params string[] expected)
-        {
-            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ false, expected);
-        }
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

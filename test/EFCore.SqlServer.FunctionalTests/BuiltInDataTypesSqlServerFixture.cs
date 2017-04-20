@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     {
         private readonly DbContextOptions _options;
         private readonly SqlServerTestStore _testStore;
-        private readonly TestSqlLoggerFactory _testSqlLoggerFactory = new TestSqlLoggerFactory();
+
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
 
         public BuiltInDataTypesSqlServerFixture()
         {
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()

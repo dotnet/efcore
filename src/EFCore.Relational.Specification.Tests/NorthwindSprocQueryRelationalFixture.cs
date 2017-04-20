@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class NorthwindSprocQueryRelationalFixture : NorthwindQueryFixtureBase
     {
-        public override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 

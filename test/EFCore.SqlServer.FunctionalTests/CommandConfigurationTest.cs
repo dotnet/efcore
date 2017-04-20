@@ -68,11 +68,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 context.SaveChanges();
             }
 
-            Assert.Equal(expected, CountSqlLinesContaining("SELECT NEXT VALUE FOR"));
+            Assert.Equal(expected, CountSqlLinesContaining("SELECT NEXT VALUE FOR", loggerFactory.Sql));
         }
 
-        public int CountSqlLinesContaining(string searchTerm)
-            => CountLinesContaining(Sql, searchTerm);
+        public int CountSqlLinesContaining(string searchTerm, string sql)
+            => CountLinesContaining(sql, searchTerm);
 
         public int CountLinesContaining(string source, string searchTerm)
         {
@@ -134,7 +134,5 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                             b.CommandTimeout(77);
                         }));
         }
-
-        private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }

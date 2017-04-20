@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public AsyncQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override async Task ToList_on_nav_in_projection_is_async()
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     FROM [Customers] AS [c]
                     WHERE [c].[CustomerID] = N'ALFKI', 
                 shaper: BufferedEntityShaper<Customer>), 
-            selector: (Customer c | CancellationToken Param_0) => Task<<>f__AnonymousType3<Customer, List<Order>>> _ExecuteAsync(
+            selector: (Customer c | CancellationToken ct) => Task<<>f__AnonymousType3<Customer, List<Order>>> _ExecuteAsync(
                 taskFactories: new Func<Task<object>>[]{ () => Task<object> _ToObjectTask(Task<List<Order>> ToList((IAsyncEnumerable<Order>) EnumerableAdapter<Order> _ToEnumerable(IAsyncEnumerable<Order> _InjectParameters(
                                     queryContext: queryContext, 
                                     source: IAsyncEnumerable<Order> _ShapedQuery(
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     c, 
                     (List<Order>) results[0]
                 )))",
-                TestSqlLoggerFactory.Log);
+                Fixture.TestSqlLoggerFactory.Log);
         }
 
         [ConditionalFact]
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public async Task Single_Predicate_Cancellation()
             => await Assert.ThrowsAsync<TaskCanceledException>(async () =>
-                await Single_Predicate_Cancellation(Fixture.CancelQuery()));
+                await Single_Predicate_Cancellation(Fixture.TestSqlLoggerFactory.CancelQuery()));
 
         [Fact]
         public async Task Concurrent_async_queries_are_serialized()

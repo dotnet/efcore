@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
         protected DbContextOptions Options { get; }
         protected IServiceProvider Services { get; }
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public SqlAzureFixture()
         {
             SqlServerTestStore.GetOrCreateShared(
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
 
             Services = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory()).BuildServiceProvider();
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory).BuildServiceProvider();
 
             Options = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(Services)

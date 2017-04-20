@@ -14,11 +14,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private readonly DbContextOptions _options;
         private readonly SqlServerTestStore _testDatabase;
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public MappingQuerySqlServerFixture()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
 
             _testDatabase = SqlServerNorthwindContext.GetSharedStore();

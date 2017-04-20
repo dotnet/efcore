@@ -4,12 +4,10 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Xunit;
-
 #if NETCOREAPP2_0
-using System.Threading;
+
 #endif
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
@@ -34,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 select [<generated>_0]'
     Optimized query model: 
 'from Customer <generated>_0 in DbSet<Customer>",
-                    TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
+                    _fixture.TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
             }
         }
 
@@ -52,7 +50,7 @@ select [<generated>_0]'
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.Contains(CoreStrings.SensitiveDataLoggingEnabled, TestSqlLoggerFactory.Log);
+                Assert.Contains(CoreStrings.SensitiveDataLoggingEnabled, _fixture.TestSqlLoggerFactory.Log);
             }
         }
 
@@ -68,7 +66,7 @@ select [<generated>_0]'
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.Contains(CoreStrings.LogIgnoredInclude("c.Orders"), TestSqlLoggerFactory.Log);
+                Assert.Contains(CoreStrings.LogIgnoredInclude("c.Orders"), _fixture.TestSqlLoggerFactory.Log);
             }
         }
 
@@ -83,14 +81,15 @@ select [<generated>_0]'
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.StartsWith(@"    Compiling query model: 
+                Assert.StartsWith(
+                    @"    Compiling query model: 
 '(from Customer c in DbSet<Customer>
 select [c]).Include(""Orders"")'
     Including navigation: '[c].Orders'
     Optimized query model: 
 'from Customer c in DbSet<Customer>"
-,
-                    TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
+                    ,
+                    _fixture.TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
             }
         }
 
@@ -99,6 +98,7 @@ select [c]).Include(""Orders"")'
         public QueryLoggingSqlServerTest(NorthwindQuerySqlServerFixture fixture)
         {
             _fixture = fixture;
+            _fixture.TestSqlLoggerFactory.Clear();
         }
 
         protected NorthwindContext CreateContext() => _fixture.CreateContext();

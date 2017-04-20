@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public FunkyDataQuerySqlServerTest(FunkyDataQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void String_ends_with_equals_nullable_column()
@@ -47,11 +47,12 @@ END <> [c].[NullableBool]) OR [c].[NullableBool] IS NULL",
                 Sql);
         }
 
-        protected override void ClearLog() => TestSqlLoggerFactory.Reset();
+        protected override void ClearLog()
+            => Fixture.TestSqlLoggerFactory.Clear();
 
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

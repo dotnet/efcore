@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public IncludeOneToOneSqliteTest(OneToOneQuerySqliteFixture fixture)
         {
             _fixture = fixture;
+            _fixture.TestSqlLoggerFactory.Clear();
         }
 
         protected override DbContext CreateContext() => _fixture.CreateContext();
@@ -22,6 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.SqlStatements.Last().Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => _fixture.TestSqlLoggerFactory.SqlStatements.Last().Replace(Environment.NewLine, FileLineEnding);
     }
 }

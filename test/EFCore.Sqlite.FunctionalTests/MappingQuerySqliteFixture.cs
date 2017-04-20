@@ -13,11 +13,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         private readonly DbContextOptions _options;
         private readonly SqliteTestStore _testDatabase;
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public MappingQuerySqliteFixture()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
 
             _testDatabase = SqliteNorthwindContext.GetSharedStore();

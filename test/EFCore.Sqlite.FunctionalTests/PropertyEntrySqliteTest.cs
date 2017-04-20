@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public PropertyEntrySqliteTest(F1SqliteFixture fixture)
             : base(fixture)
         {
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void Property_entry_original_value_is_set()
@@ -34,6 +35,6 @@ SELECT changes();",
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
@@ -20,13 +19,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
         public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            _testOutputHelper = testOutputHelper;
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void Lifting_when_subquery_nested_order_by_anonymous()
@@ -2497,7 +2493,7 @@ FROM [Employees] AS [e]
 WHERE 0 = 1");
 
             Assert.True(
-                TestSqlLoggerFactory.Log.Contains(
+                Fixture.TestSqlLoggerFactory.Log.Contains(
                     "Possible unintended use of method Equals(object) for arguments of different types: 'e.EmployeeID', '__longPrm_0'. This comparison will always return 'false'."));
         }
 
@@ -2545,11 +2541,11 @@ FROM [Employees] AS [e]
 WHERE 0 = 1");
 
             Assert.True(
-                TestSqlLoggerFactory.Log.Contains(
+                Fixture.TestSqlLoggerFactory.Log.Contains(
                     "Possible unintended use of method Equals(object) for arguments of different types: 'e.ReportsTo', '__longPrm_0'. This comparison will always return 'false'."));
 
             Assert.True(
-                TestSqlLoggerFactory.Log.Contains(
+                Fixture.TestSqlLoggerFactory.Log.Contains(
                     "Possible unintended use of method Equals(object) for arguments of different types: '__longPrm_0', 'e.ReportsTo'. This comparison will always return 'false'."));
         }
 
@@ -2567,11 +2563,11 @@ FROM [Employees] AS [e]
 WHERE 0 = 1");
 
             Assert.True(
-                TestSqlLoggerFactory.Log.Contains(
+                Fixture.TestSqlLoggerFactory.Log.Contains(
                     "Possible unintended use of method Equals(object) for arguments of different types: '__nullableLongPrm_0', 'e.ReportsTo'. This comparison will always return 'false'."));
 
             Assert.True(
-                TestSqlLoggerFactory.Log.Contains(
+                Fixture.TestSqlLoggerFactory.Log.Contains(
                     "Possible unintended use of method Equals(object) for arguments of different types: 'e.ReportsTo', '__nullableLongPrm_0'. This comparison will always return 'false'."));
         }
 
@@ -7840,16 +7836,13 @@ WHERE (
 ) IS NOT NULL");
         }
 
-        protected override void ClearLog() => TestSqlLoggerFactory.Reset();
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+        
+        private void AssertContainsSql(params string[] expected) 
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
-        private void AssertSql(params string [] expected)
-        {
-            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ true, expected);
-        }
-
-        private void AssertContainsSql(params string[] expected)
-        {
-            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ false, expected);
-        }
+        protected override void ClearLog() 
+            => Fixture.TestSqlLoggerFactory.Clear();
     }
 }

@@ -30,8 +30,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public QueryBugsTest(SqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         {
             _fixture = fixture;
-
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+            _fixture.TestSqlLoggerFactory.Clear();
         }
 
         #region Bug6901
@@ -415,6 +414,8 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
                         context.Customers.AddRange(customer1, customer2);
                         context.Orders.AddRange(order11, order12, order21, order22, order23);
                         context.SaveChanges();
+
+                        _fixture.TestSqlLoggerFactory.Clear();
                     });
 
         public class Customer
@@ -1763,16 +1764,14 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 context.Database.EnsureCreated();
                 contextInitializer?.Invoke(context);
             }
-
-            TestSqlLoggerFactory.Reset();
             return testStore;
         }
 
         private const string FileLineEnding = @"
 ";
+        
+        protected virtual void ClearLog() => _fixture.TestSqlLoggerFactory.Clear();
 
-        protected virtual void ClearLog() => TestSqlLoggerFactory.Reset();
-
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => _fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

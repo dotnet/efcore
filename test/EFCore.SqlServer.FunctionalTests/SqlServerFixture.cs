@@ -12,11 +12,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     {
         public readonly IServiceProvider ServiceProvider;
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public SqlServerFixture()
         {
             ServiceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
         }
     }

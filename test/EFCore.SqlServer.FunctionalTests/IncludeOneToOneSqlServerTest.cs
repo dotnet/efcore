@@ -66,6 +66,6 @@ LEFT JOIN [Address2] AS [p.Address] ON [p].[Id] = [p.Address].[PersonId]",
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.SqlStatements.Last().Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => _fixture.TestSqlLoggerFactory.SqlStatements.Last().Replace(Environment.NewLine, FileLineEnding);
     }
 }

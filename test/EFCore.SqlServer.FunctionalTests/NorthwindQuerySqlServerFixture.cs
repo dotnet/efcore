@@ -15,24 +15,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class NorthwindQuerySqlServerFixture : NorthwindQueryRelationalFixture, IDisposable
     {
-        private readonly DbContextOptions _options;
-
         private readonly SqlServerTestStore _testStore = SqlServerNorthwindContext.GetSharedStore();
-        private readonly TestSqlLoggerFactory _testSqlLoggerFactory = new TestSqlLoggerFactory();
-
-        public NorthwindQuerySqlServerFixture()
-        {
-            _options = BuildOptions();
-        }
+        
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
 
         public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
             => ConfigureOptions(
                     new DbContextOptionsBuilder()
                         .EnableSensitiveDataLogging()
-                        .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
+                        .UseInternalServiceProvider(
+                            (additionalServices ?? new ServiceCollection())
                             .AddEntityFrameworkSqlServer()
                             .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                            .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
+                            .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                             .BuildServiceProvider()))
                 .UseSqlServer(
                     _testStore.ConnectionString,
@@ -41,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                             b.ApplyConfiguration();
                             ConfigureOptions(b);
                             b.ApplyConfiguration();
-                        }).Options;
+                        })
+                .Options;
 
         protected virtual DbContextOptionsBuilder ConfigureOptions(DbContextOptionsBuilder dbContextOptionsBuilder)
             => dbContextOptionsBuilder;
@@ -50,22 +46,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
         }
 
-        public override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<OrderDetail>()
-                .Property(od => od.UnitPrice).ForSqlServerHasColumnType("money");
+                .Property(od => od.UnitPrice)
+                .ForSqlServerHasColumnType("money");
+
             modelBuilder.Entity<Product>()
-                .Property(p => p.UnitPrice).ForSqlServerHasColumnType("money");
+                .Property(p => p.UnitPrice)
+                .ForSqlServerHasColumnType("money");
         }
 
         public override NorthwindContext CreateContext(
-                QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
-            => new SqlServerNorthwindContext(_options, queryTrackingBehavior);
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+            => new SqlServerNorthwindContext(BuildOptions(), queryTrackingBehavior);
 
         public void Dispose() => _testStore.Dispose();
-
-        public override CancellationToken CancelQuery() => _testSqlLoggerFactory.CancelQuery();
     }
 }

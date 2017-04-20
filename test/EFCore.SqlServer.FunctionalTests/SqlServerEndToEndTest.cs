@@ -428,6 +428,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     await CreateBlogDatabaseAsync<Blog>(db);
                 }
 
+                loggingFactory.Clear();
+
                 using (var db = new BloggingContext(optionsBuilder.Options))
                 {
                     var toUpdate = db.Blogs.Single(b => b.Name == "Blog1");
@@ -463,13 +465,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
-                    Assert.Equal(3, TestSqlLoggerFactory.SqlStatements.Count);
-                    Assert.Contains("SELECT", TestSqlLoggerFactory.SqlStatements[0]);
-                    Assert.Contains("SELECT", TestSqlLoggerFactory.SqlStatements[1]);
-                    Assert.Contains("@p0: " + deletedId, TestSqlLoggerFactory.SqlStatements[2]);
-                    Assert.Contains("DELETE", TestSqlLoggerFactory.SqlStatements[2]);
-                    Assert.Contains("UPDATE", TestSqlLoggerFactory.SqlStatements[2]);
-                    Assert.Contains("INSERT", TestSqlLoggerFactory.SqlStatements[2]);
+                    Assert.Equal(3, loggingFactory.SqlStatements.Count);
+                    Assert.Contains("SELECT", loggingFactory.SqlStatements[0]);
+                    Assert.Contains("SELECT", loggingFactory.SqlStatements[1]);
+                    Assert.Contains("@p0: " + deletedId, loggingFactory.SqlStatements[2]);
+                    Assert.Contains("DELETE", loggingFactory.SqlStatements[2]);
+                    Assert.Contains("UPDATE", loggingFactory.SqlStatements[2]);
+                    Assert.Contains("INSERT", loggingFactory.SqlStatements[2]);
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
                         $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {updatedId} AND Name = 'Blog is Updated'");
@@ -915,13 +917,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             return new[] { blog1, blog2 };
         }
 
-        private readonly string DatabaseName = "SqlServerEndToEndTest";
+        private const string DatabaseName = "SqlServerEndToEndTest";
 
         private readonly SqlServerFixture _fixture;
 
         public SqlServerEndToEndTest(SqlServerFixture fixture)
         {
             _fixture = fixture;
+            _fixture.TestSqlLoggerFactory.Clear();
         }
 
         private class NorthwindContext : DbContext

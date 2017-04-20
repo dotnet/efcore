@@ -208,7 +208,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     using (var context = CreateContext())
                     {
                         context.Database.EnsureCreated();
-                        TestSqlLoggerFactory.Reset();
                     }
                 });
         }
@@ -229,11 +228,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             private readonly DbContextOptions _baseOptions;
             private readonly DbContextOptions _options;
 
+            public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
             public ExecutionStrategyFixture()
             {
                 var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlServer()
-                    .AddSingleton<ILoggerFactory, TestSqlLoggerFactory>()
+                    .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                     .AddScoped<ISqlServerConnection, TestSqlServerConnection>()
                     .AddScoped<IRelationalCommandBuilderFactory, TestRelationalCommandBuilderFactory>()
                     .BuildServiceProvider();

@@ -11,13 +11,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class InheritanceSqlServerTest : InheritanceTestBase<InheritanceSqlServerFixture>
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
         public InheritanceSqlServerTest(InheritanceSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            _testOutputHelper = testOutputHelper;
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         [Fact]
@@ -382,13 +379,6 @@ WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) 
         }
 
         private void AssertSql(params string[] expected)
-        {
-            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ true, expected);
-        }
-
-        private void AssertContainsSql(params string[] expected)
-        {
-            RelationalTestHelpers.AssertBaseline(_testOutputHelper, /*assertOrder:*/ false, expected);
-        }
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

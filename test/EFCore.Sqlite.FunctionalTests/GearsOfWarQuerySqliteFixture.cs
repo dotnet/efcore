@@ -16,12 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         private readonly string _connectionString = SqliteTestStore.CreateConnectionString(DatabaseName);
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public GearsOfWarQuerySqliteFixture()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()
@@ -38,8 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                     {
                         context.Database.EnsureClean();
                         GearsOfWarModelInitializer.Seed(context);
-
-                        TestSqlLoggerFactory.Reset();
                     }
                 });
         }

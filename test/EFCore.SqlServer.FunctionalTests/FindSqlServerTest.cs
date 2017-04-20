@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         protected FindSqlServerTest(FindSqlServerFixture fixture)
             : base(fixture)
         {
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         public class FindSqlServerTestSet : FindSqlServerTest
@@ -313,28 +314,24 @@ FROM [ShadowKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql);
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            TestSqlLoggerFactory.Reset();
-        }
-
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
 
         public class FindSqlServerFixture : FindFixtureBase
         {
             private const string DatabaseName = "FindTest";
             private readonly DbContextOptions _options;
 
+            public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
             public FindSqlServerFixture()
             {
                 var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory, TestSqlLoggerFactory>()
+                    .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                     .BuildServiceProvider();
 
                 _options = new DbContextOptionsBuilder()
@@ -352,8 +349,6 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
                         {
                             context.Database.EnsureCreated();
                             Seed(context);
-
-                            TestSqlLoggerFactory.Reset();
                         }
                     });
             }

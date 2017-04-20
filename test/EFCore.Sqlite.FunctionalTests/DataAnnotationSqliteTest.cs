@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public DataAnnotationSqliteTest(DataAnnotationSqliteFixture fixture)
             : base(fixture)
         {
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
@@ -214,6 +215,6 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

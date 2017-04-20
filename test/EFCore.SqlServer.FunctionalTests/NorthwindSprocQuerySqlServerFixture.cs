@@ -16,6 +16,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private readonly DbContextOptions _options;
         private readonly SqlServerTestStore _testStore;
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public NorthwindSprocQuerySqlServerFixture()
         {
             _testStore = SqlServerNorthwindContext.GetSharedStore();
@@ -29,11 +31,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
                     .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                    .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                     .BuildServiceProvider())
                 .UseSqlServer(_testStore.ConnectionString, b => b.ApplyConfiguration()).Options;
 
-        public override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 

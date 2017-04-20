@@ -13,12 +13,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         private readonly DbContextOptions _options;
         private readonly SqliteTestStore _testStore;
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public OneToOneQuerySqliteFixture()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
 
             _testStore = SqliteTestStore.CreateScratch();

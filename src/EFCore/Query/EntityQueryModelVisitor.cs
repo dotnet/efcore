@@ -913,8 +913,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         t => t == typeof(GroupResultOperator)
                              || t == typeof(AllResultOperator)))
             {
+                var asyncSelector = selector;
                 var taskLiftingExpressionVisitor = new TaskLiftingExpressionVisitor();
-                var asyncSelector = taskLiftingExpressionVisitor.LiftTasks(selector);
+
+                if (_expression.Type.TryGetElementType(typeof(IAsyncEnumerable<>)) != null)
+                {
+                    asyncSelector = taskLiftingExpressionVisitor.LiftTasks(selector);
+                }
 
                 _expression
                     = asyncSelector == selector
@@ -930,7 +935,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Expression.Lambda(
                                 asyncSelector,
                                 CurrentParameter,
-                                taskLiftingExpressionVisitor.CancellationTokenParameter));
+                                taskLiftingExpressionVisitor.CancellationTokenParameter
+                                    ?? Expression.Parameter(typeof(CancellationToken), name: "ct")));
             }
         }
 
@@ -1195,8 +1201,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (elementType != null)
                 {
-                    var asyncLinqOperatorProvider = LinqOperatorProvider as AsyncLinqOperatorProvider;
-                    if (asyncLinqOperatorProvider != null)
+                    if (LinqOperatorProvider is AsyncLinqOperatorProvider asyncLinqOperatorProvider)
                     {
                         return
                             Expression.Call(

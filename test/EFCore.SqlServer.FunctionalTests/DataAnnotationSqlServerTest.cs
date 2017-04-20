@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public DataAnnotationSqlServerTest(DataAnnotationSqlServerFixture fixture)
             : base(fixture)
         {
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
@@ -296,6 +297,6 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

@@ -17,12 +17,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         private readonly string _connectionString = SqliteTestStore.CreateConnectionString(DatabaseName);
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public NullSemanticsQuerySqliteFixture()
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
         }
 
@@ -39,8 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                         // TODO: Delete DB if model changed
                         context.Database.EnsureClean();
                         NullSemanticsModelInitializer.Seed(context);
-
-                        TestSqlLoggerFactory.Reset();
                     }
                 });
         }

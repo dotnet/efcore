@@ -16,12 +16,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private readonly string _connectionString = SqlServerTestStore.CreateConnectionString(DatabaseName);
         private readonly DbContextOptions _options;
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public DataAnnotationSqlServerFixture()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()
@@ -45,8 +47,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     {
                         context.Database.EnsureCreated();
                         DataAnnotationModelInitializer.Seed(context);
-
-                        TestSqlLoggerFactory.Reset();
                     }
                 });
 

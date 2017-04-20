@@ -34,7 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         protected DataAnnotationTestBase(TFixture fixture)
         {
             Fixture = fixture;
-
             TestStore = Fixture.CreateTestStore();
         }
 

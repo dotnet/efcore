@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public NullSemanticsQuerySqlServerTest(NullSemanticsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void Compare_bool_with_bool_equal()
@@ -1215,12 +1215,12 @@ FROM [NullSemanticsEntity1] AS [e]",
 FROM [NullSemanticsEntity1] AS [e]",
                 Sql);
         }
-
-        protected override void ClearLog() => TestSqlLoggerFactory.Reset();
+        
+        protected override void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();
 
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

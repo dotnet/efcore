@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public BuiltInDataTypesSqlServerTest(BuiltInDataTypesSqlServerFixture fixture)
             : base(fixture)
         {
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         [Fact]
@@ -311,7 +312,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedDataTypes>().Add(CreateMappedDataTypes(77));
@@ -359,10 +359,10 @@ WHERE [e].[Time] = @__timeSpan_0",
             }
         }
 
-        private static string DumpParameters()
+        private string DumpParameters()
             => string.Join(
                 FileLineEnding,
-                TestSqlLoggerFactory.CommandLogData.Single().Parameters
+                Fixture.TestSqlLoggerFactory.CommandLogData.Single().Parameters
                     .Select(p => p.Name + ": " + p.FormatParameter(quoteValues: false)));
 
         private static void AssertMappedDataTypes(MappedDataTypes entity, int id)
@@ -437,7 +437,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypes>().Add(CreateMappedNullableDataTypes(77));
@@ -557,7 +556,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypes>().Add(new MappedNullableDataTypes { Int = 78 });
@@ -642,7 +640,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_sized_data_types()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedSizedDataTypes>().Add(CreateMappedSizedDataTypes(77));
@@ -714,7 +711,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedSizedDataTypes>().Add(new MappedSizedDataTypes { Id = 78 });
@@ -767,7 +763,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedScaledDataTypes>().Add(CreateMappedScaledDataTypes(77));
@@ -821,7 +816,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedPrecisionAndScaledDataTypes>().Add(CreateMappedPrecisionAndScaledDataTypes(77));
@@ -863,7 +857,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_identity()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedDataTypesWithIdentity>().Add(CreateMappedDataTypesWithIdentity(77));
@@ -983,7 +976,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_with_identity()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypesWithIdentity>().Add(CreateMappedNullableDataTypesWithIdentity(77));
@@ -1103,7 +1095,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_with_identity()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypesWithIdentity>().Add(new MappedNullableDataTypesWithIdentity { Int = 78 });
@@ -1189,7 +1180,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_with_identity()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedSizedDataTypesWithIdentity>().Add(CreateMappedSizedDataTypesWithIdentity(77));
@@ -1261,7 +1251,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_with_identity()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedSizedDataTypesWithIdentity>().Add(new MappedSizedDataTypesWithIdentity { Int = 78 });
@@ -1314,7 +1303,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_with_identity()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedScaledDataTypesWithIdentity>().Add(CreateMappedScaledDataTypesWithIdentity(77));
@@ -1368,7 +1356,6 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_with_identity()
         {
-            TestSqlLoggerFactory.Reset();
             using (var context = CreateContext())
             {
                 context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(
@@ -2029,7 +2016,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         private const string FileLineEnding = @"
 ";
 
-        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
 
         private class ColumnInfo
         {
