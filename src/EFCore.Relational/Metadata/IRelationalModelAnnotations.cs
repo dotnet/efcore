@@ -13,6 +13,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IReadOnlyList<ISequence> Sequences { get; }
 
         string DefaultSchema { get; }
-        string DatabaseName { get; }
     }
 }

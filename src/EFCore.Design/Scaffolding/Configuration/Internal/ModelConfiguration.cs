@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         /// </summary>
         public virtual string ClassName()
         {
-            var annotatedName = AnnotationProvider.For(Model).DatabaseName;
+            var annotatedName = Model.Scaffolding().DatabaseName;
             if (!string.IsNullOrEmpty(annotatedName))
             {
                 return CSharpUtilities.GenerateCSharpIdentifier(annotatedName + DbContextSuffix, null);
