@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             if (!string.IsNullOrEmpty(databaseModel.DatabaseName))
             {
-                modelBuilder.Model.Relational().DatabaseName = databaseModel.DatabaseName;
+                modelBuilder.Model.Scaffolding().DatabaseName = databaseModel.DatabaseName;
             }
 
             VisitSequences(modelBuilder, databaseModel.Sequences);

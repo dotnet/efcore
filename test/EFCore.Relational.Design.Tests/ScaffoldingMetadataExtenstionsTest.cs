@@ -49,5 +49,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
             Assert.Equal("Blogs", entity.Scaffolding().DbSetName);
         }
+
+        [Fact]
+        public void It_sets_gets_database_name()
+        {
+            var model = new Model();
+            var extensions = model.Scaffolding();
+
+            Assert.Null(extensions.DatabaseName);
+
+            extensions.DatabaseName = "Northwind";
+
+            Assert.Equal("Northwind", extensions.DatabaseName);
+
+            extensions.DatabaseName = null;
+
+            Assert.Null(extensions.DatabaseName);
+        }
     }
 }

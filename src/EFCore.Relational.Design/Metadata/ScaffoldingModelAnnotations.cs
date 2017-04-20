@@ -53,5 +53,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
                     Check.NotNull(value, nameof(value)));
             }
         }
+
+        public virtual string DatabaseName
+        {
+            get { return (string)Annotations.GetAnnotation(ScaffoldingFullAnnotationNames.Instance.DatabaseName, null); }
+            [param: CanBeNull]
+            set
+            {
+                Annotations.SetAnnotation(
+                    ScaffoldingFullAnnotationNames.Instance.DatabaseName,
+                    null,
+                    Check.NullButNotEmpty(value, nameof(value)));
+            }
+        }
     }
 }

@@ -19,12 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         protected ScaffoldingFullAnnotationNames(string prefix)
             : base(prefix)
         {
-            UseProviderMethodName = ScaffoldingAnnotationNames.UseProviderMethodName;
-            ColumnOrdinal = ScaffoldingAnnotationNames.ColumnOrdinal;
-            DependentEndNavigation = ScaffoldingAnnotationNames.DependentEndNavigation;
-            PrincipalEndNavigation = ScaffoldingAnnotationNames.PrincipalEndNavigation;
-            EntityTypeErrors = ScaffoldingAnnotationNames.EntityTypeErrors;
-            DbSetName = ScaffoldingAnnotationNames.DbSetName;
+            UseProviderMethodName = prefix + ScaffoldingAnnotationNames.UseProviderMethodName;
+            ColumnOrdinal = prefix + ScaffoldingAnnotationNames.ColumnOrdinal;
+            DependentEndNavigation = prefix + ScaffoldingAnnotationNames.DependentEndNavigation;
+            PrincipalEndNavigation = prefix + ScaffoldingAnnotationNames.PrincipalEndNavigation;
+            EntityTypeErrors = prefix + ScaffoldingAnnotationNames.EntityTypeErrors;
+            DbSetName = prefix + ScaffoldingAnnotationNames.DbSetName;
+            DatabaseName = prefix + ScaffoldingAnnotationNames.DatabaseName;
         }
 
         /// <summary>
@@ -69,5 +70,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public readonly string DbSetName;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public readonly string DatabaseName;
     }
 }

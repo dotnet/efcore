@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             DefaultValueSql = prefix + RelationalAnnotationNames.DefaultValueSql;
             ComputedColumnSql = prefix + RelationalAnnotationNames.ComputedColumnSql;
             DefaultValue = prefix + RelationalAnnotationNames.DefaultValue;
-            DatabaseName = prefix + RelationalAnnotationNames.DatabaseName;
             TableName = prefix + RelationalAnnotationNames.TableName;
             Schema = prefix + RelationalAnnotationNames.Schema;
             DefaultSchema = prefix + RelationalAnnotationNames.DefaultSchema;
@@ -68,12 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public readonly string DefaultValue;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public readonly string DatabaseName;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -72,22 +72,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 RelationalFullAnnotationNames.Instance.DefaultSchema,
                 ProviderFullAnnotationNames?.DefaultSchema,
                 Check.NullButNotEmpty(value, nameof(value)));
-
-        public virtual string DatabaseName
-        {
-            get
-            {
-                return (string)Annotations.GetAnnotation(
-                    RelationalFullAnnotationNames.Instance.DatabaseName,
-                    ProviderFullAnnotationNames?.DatabaseName);
-            }
-            [param: CanBeNull] set { SetDatabaseName(value); }
-        }
-
-        protected virtual bool SetDatabaseName([CanBeNull] string value)
-            => Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.DatabaseName,
-                ProviderFullAnnotationNames?.DatabaseName,
-                Check.NullButNotEmpty(value, nameof(value)));
     }
 }
