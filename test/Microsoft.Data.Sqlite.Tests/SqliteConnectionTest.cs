@@ -1,7 +1,8 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using Microsoft.Data.Sqlite.Properties;
@@ -307,6 +308,78 @@ namespace Microsoft.Data.Sqlite
                     Assert.Same(connection, command.Connection);
                     Assert.Same(transaction, command.Transaction);
                 }
+            }
+        }
+
+        [Fact]
+        public void CreateCollation_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateCollation("MY_NOCASE", (s1, s2) => string.Compare(s1, s2, StringComparison.OrdinalIgnoreCase));
+
+                Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
+            }
+        }
+
+        [Fact]
+        public void CreateCollation_with_null_comparer_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateCollation("MY_NOCASE", (s1, s2) => string.Compare(s1, s2, StringComparison.OrdinalIgnoreCase));
+                connection.CreateCollation("MY_NOCASE", null);
+
+                var ex = Assert.Throws<SqliteException>(
+                    () => connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
+
+                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
+            }
+        }
+
+        [Fact]
+        public void CreateCollation_throws_when_closed()
+        {
+            var connection = new SqliteConnection();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCollation("NOCOL", (s1, s2) => -1));
+
+            Assert.Equal(Resources.CallRequiresOpenConnection("CreateCollation"), ex.Message);
+        }
+
+        [Fact]
+        public void CreateCollation_throws_with_empty_name()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                var ex = Assert.Throws<ArgumentNullException>(() => connection.CreateCollation(null, null));
+
+                Assert.Equal("name", ex.ParamName);
+            }
+        }
+
+        [Fact]
+        public void CreateCollation_works_with_state()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                var list = new List<string>();
+                connection.CreateCollation<List<string>>(
+                    "MY_NOCASE",
+                    list,
+                    (l, s1, s2) =>
+                    {
+                        l.Add("Invoked");
+                        return string.Compare(s1, s2, StringComparison.OrdinalIgnoreCase);
+                    });
+
+                Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
+                Assert.Equal(1, list.Count);
+                Assert.Equal("Invoked", list[0]);
             }
         }
 

@@ -265,6 +265,38 @@ namespace Microsoft.Data.Sqlite
             => CreateCommand();
 
         /// <summary>
+        /// Create custom collation.
+        /// </summary>
+        /// <param name="name">Name of the collation.</param>
+        /// <param name="comparison">Method that compares two strings.</param>
+        public virtual void CreateCollation(string name, Comparison<string> comparison)
+            => CreateCollation<object>(name, null, comparison != null ? (_, s1, s2) => comparison(s1, s2) : (Func<object, string, string, int>)null);
+
+        /// <summary>
+        /// Create custom collation.
+        /// </summary>
+        /// <typeparam name="T">The type of the state object.</typeparam>
+        /// <param name="name">Name of the collation.</param>
+        /// <param name="state">State object passed to each invokation of the collation.</param>
+        /// <param name="comparison">Method that compares two strings, using additional state.</param>
+        public virtual void CreateCollation<T>(string name, T state, Func<T, string, string, int> comparison)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (State != ConnectionState.Open)
+            {
+                throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(CreateCollation)));
+            }
+
+            delegate_collation collation = comparison != null ? (v, s1, s2) => comparison((T)v, s1, s2) : (delegate_collation)null;
+            var rc = raw.sqlite3_create_collation(_db, name, state, collation);
+            SqliteException.ThrowExceptionForRC(rc, _db);
+        }
+
+        /// <summary>
         /// Begins a transaction on the connection.
         /// </summary>
         /// <returns>The transaction.</returns>
