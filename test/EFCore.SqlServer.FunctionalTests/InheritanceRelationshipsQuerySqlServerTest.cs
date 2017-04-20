@@ -847,7 +847,7 @@ ORDER BY [t].[Id], [e.BaseCollectionOnBase].[Id]",
                 @"SELECT [e.BaseCollectionOnBase.NestedCollection].[Id], [e.BaseCollectionOnBase.NestedCollection].[Discriminator], [e.BaseCollectionOnBase.NestedCollection].[Name], [e.BaseCollectionOnBase.NestedCollection].[ParentCollectionId], [e.BaseCollectionOnBase.NestedCollection].[ParentReferenceId]
 FROM [NestedCollectionBase] AS [e.BaseCollectionOnBase.NestedCollection]
 INNER JOIN (
-    SELECT DISTINCT [e.BaseCollectionOnBase0].[Id], [t0].[Id] AS [c0]
+    SELECT DISTINCT [e.BaseCollectionOnBase0].[Id], [t0].[Id] AS [Id0]
     FROM [BaseCollectionOnBase] AS [e.BaseCollectionOnBase0]
     INNER JOIN (
         SELECT [e1].[Id]
@@ -857,7 +857,7 @@ INNER JOIN (
     WHERE [e.BaseCollectionOnBase0].[Discriminator] IN (N'DerivedCollectionOnBase', N'BaseCollectionOnBase')
 ) AS [t1] ON [e.BaseCollectionOnBase.NestedCollection].[ParentCollectionId] = [t1].[Id]
 WHERE [e.BaseCollectionOnBase.NestedCollection].[Discriminator] IN (N'NestedCollectionDerived', N'NestedCollectionBase')
-ORDER BY [t1].[c0], [t1].[Id]");
+ORDER BY [t1].[Id0], [t1].[Id]");
         }
 
         public override void Nested_include_with_inheritance_collection_collection2()

@@ -117,9 +117,9 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
                 @"@__p_0: 10
 @__p_1: 5
 
-SELECT [t].[OrderID], [t].[CustomerID], [t].[c0], [t].[ContactName], [t].[c1]
+SELECT [t].[OrderID], [t].[CustomerID], [t].[CustomerID0], [t].[ContactName], [t].[ContactName0]
 FROM (
-    SELECT [o].[OrderID], [ca].[CustomerID], [cb].[CustomerID] AS [c0], [ca].[ContactName], [cb].[ContactName] AS [c1], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+    SELECT [o].[OrderID], [ca].[CustomerID], [cb].[CustomerID] AS [CustomerID0], [ca].[ContactName], [cb].[ContactName] AS [ContactName0], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
     FROM [Orders] AS [o]
     INNER JOIN [Customers] AS [ca] ON [o].[CustomerID] = [ca].[CustomerID]
     INNER JOIN [Customers] AS [cb] ON [o].[CustomerID] = [cb].[CustomerID]

@@ -228,9 +228,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                         if (sqlExpression is ColumnExpression)
                         {
-                            selectExpression.AddToProjection(sqlExpression);
+                            var index = selectExpression.AddToProjection(sqlExpression);
 
-                            _sourceExpressionProjectionMapping[expression] = sqlExpression;
+                            _sourceExpressionProjectionMapping[expression] = selectExpression.Projection[index];
 
                             return expression;
                         }
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         {
                             var index = selectExpression.AddToProjection(sqlExpression);
 
-                            _sourceExpressionProjectionMapping[expression] = sqlExpression;
+                            _sourceExpressionProjectionMapping[expression] = selectExpression.Projection[index];
 
                             var readValueExpression
                                 = _entityMaterializerSource
