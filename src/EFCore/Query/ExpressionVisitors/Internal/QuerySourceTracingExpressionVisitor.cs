@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
@@ -124,7 +124,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitMember(MemberExpression node) => node;
+        protected override Expression VisitMember(MemberExpression node)
+            => node.Expression.RemoveConvert() is QuerySourceReferenceExpression
+                ? node
+                : base.VisitMember(node);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
