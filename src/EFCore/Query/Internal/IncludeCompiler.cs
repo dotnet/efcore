@@ -101,6 +101,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ApplyParentOrderings(queryModel, collectionQueryModelRewritingExpressionVisitor.ParentOrderings);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void LogIgnoredIncludes()
+        {
+            foreach (var includeResultOperator in _includeResultOperators)
+            {
+                _queryCompilationContext.Logger
+                    .LogWarning(
+                        CoreEventId.IncludeIgnoredWarning,
+                        () => CoreStrings.LogIgnoredInclude(includeResultOperator.DisplayString()));
+            }
+        }
+
         private IEnumerable<IncludeLoadTree> CreateIncludeLoadTrees(
             Expression targetExpression)
         {
@@ -121,12 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (querySourceReferenceExpression == null)
                 {
-                    _queryCompilationContext.Logger
-                        .LogWarning(
-                            CoreEventId.IncludeIgnoredWarning,
-                            () => CoreStrings.LogIgnoredInclude(
-                                $"{includeResultOperator.QuerySource.ItemName}.{navigationPath.Select(n => n.Name).Join(".")}"));
-
                     continue;
                 }
 
@@ -146,8 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _queryCompilationContext.Logger
                     .LogDebug(
                         CoreEventId.IncludingNavigation,
-                        () => CoreStrings.LogIncludingNavigation(
-                            $"{includeResultOperator.PathFromQuerySource}.{includeResultOperator.NavigationPropertyPaths.Join(".")}"));
+                        () => CoreStrings.LogIncludingNavigation(includeResultOperator.DisplayString()));
 
                 _includeResultOperators.Remove(includeResultOperator);
             }

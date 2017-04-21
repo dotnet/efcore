@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         public virtual IQuerySource QuerySource
         {
-            get { return _querySource ?? (_querySource = GetQuerySource(PathFromQuerySource)); }
-            set { _querySource = value; }
+            get => _querySource ?? (_querySource = GetQuerySource(PathFromQuerySource));
+            set => _querySource = value;
         }
 
         private static IQuerySource GetQuerySource(Expression expression)
@@ -138,6 +138,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         public override string ToString()
             => $@"Include(""{NavigationPropertyPaths.Join(".")}"")";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual string DisplayString()
+            => $"{PathFromQuerySource}.{_navigationPropertyPaths.Join(".")}";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

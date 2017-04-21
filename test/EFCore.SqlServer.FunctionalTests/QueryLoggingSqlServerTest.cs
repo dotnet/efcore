@@ -66,7 +66,7 @@ select [<generated>_0]'
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.Contains(CoreStrings.LogIgnoredInclude("c.Orders"), _fixture.TestSqlLoggerFactory.Log);
+                Assert.Contains(CoreStrings.LogIgnoredInclude("[c].Orders"), _fixture.TestSqlLoggerFactory.Log);
             }
         }
 

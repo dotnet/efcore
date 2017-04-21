@@ -308,6 +308,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             includeCompiler.RewriteCollectionQueries(queryModel);
 
+            includeCompiler.LogIgnoredIncludes();
+
             // Second pass of optimizations
 
             _queryOptimizer.Optimize(QueryCompilationContext, queryModel);
