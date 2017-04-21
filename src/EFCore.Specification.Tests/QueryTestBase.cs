@@ -5249,6 +5249,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 1662);
         }
 
+        [ConditionalFact]
+        public virtual void Select_math_round_int()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Round((double)o.OrderID)}));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_math_truncate_int()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }));
+        }
+
         public virtual void Where_math_round2()
         {
             AssertQuery<OrderDetail>(

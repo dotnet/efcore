@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), new[] { typeof(int) }), "SIGN" },
             { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), new[] { typeof(long) }), "SIGN" },
             { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), new[] { typeof(sbyte) }), "SIGN" },
-            { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), new[] { typeof(short) }), "SIGN" },
+            { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), new[] { typeof(short) }), "SIGN" }
         };
 
         private static readonly IEnumerable<MethodInfo> _truncateMethodInfos = new[]
@@ -81,20 +81,34 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 
             if (_truncateMethodInfos.Contains(method))
             {
+                var firstArgument = methodCallExpression.Arguments[0];
+
+                if (firstArgument.NodeType == ExpressionType.Convert)
+                {
+                    firstArgument = new ExplicitCastExpression(firstArgument, firstArgument.Type);
+                }
+
                 return new SqlFunctionExpression(
                     "ROUND",
                     methodCallExpression.Type,
-                    new[] { methodCallExpression.Arguments[0], Expression.Constant(0), Expression.Constant(1) });
+                    new[] { firstArgument, Expression.Constant(0), Expression.Constant(1) });
             }
 
             if (_roundMethodInfos.Contains(method))
             {
+                var firstArgument = methodCallExpression.Arguments[0];
+
+                if (firstArgument.NodeType == ExpressionType.Convert)
+                {
+                    firstArgument = new ExplicitCastExpression(firstArgument, firstArgument.Type);
+                }
+
                 return new SqlFunctionExpression(
                     "ROUND",
                     methodCallExpression.Type,
                     methodCallExpression.Arguments.Count == 1
-                        ? new[] { methodCallExpression.Arguments[0], Expression.Constant(0) }
-                        : new[] { methodCallExpression.Arguments[0], methodCallExpression.Arguments[1] });
+                        ? new[] { firstArgument, Expression.Constant(0) }
+                        : new[] { firstArgument, methodCallExpression.Arguments[1] });
             }
 
             return null;

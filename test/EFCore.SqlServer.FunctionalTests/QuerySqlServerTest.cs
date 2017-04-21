@@ -5050,6 +5050,26 @@ FROM [Order Details] AS [od]
 WHERE ROUND([od].[UnitPrice], 0) > 10.0");
         }
 
+        public override void Select_math_round_int()
+        {
+            base.Select_math_round_int();
+
+            AssertSql(
+                @"SELECT ROUND(CAST([o].[OrderID] AS float), 0)
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10250");
+        }
+
+        public override void Select_math_truncate_int()
+        {
+            base.Select_math_truncate_int();
+
+            AssertSql(
+                @"SELECT ROUND(CAST([o].[OrderID] AS float), 0, 1)
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10250");
+        }
+
         public override void Where_math_round2()
         {
             base.Where_math_round2();
