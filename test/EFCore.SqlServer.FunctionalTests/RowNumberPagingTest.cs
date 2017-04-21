@@ -477,78 +477,6 @@ SELECT CASE
 END");
         }
 
-        public override void Skip_Count()
-        {
-            base.Skip_Count();
-
-            AssertSql(
-                @"@__p_0: 7
-
-SELECT COUNT(*)
-FROM (
-    SELECT [t0].*
-    FROM (
-        SELECT [c].*, ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
-        FROM [Customers] AS [c]
-    ) AS [t0]
-    WHERE [t0].[__RowNumber__] > @__p_0
-) AS [t]");
-        }
-
-        public override void Skip_LongCount()
-        {
-            base.Skip_LongCount();
-
-            AssertSql(
-                @"@__p_0: 7
-
-SELECT COUNT_BIG(*)
-FROM (
-    SELECT [t0].*
-    FROM (
-        SELECT [c].*, ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
-        FROM [Customers] AS [c]
-    ) AS [t0]
-    WHERE [t0].[__RowNumber__] > @__p_0
-) AS [t]");
-        }
-
-        public override void OrderBy_Skip_Count()
-        {
-            base.OrderBy_Skip_Count();
-
-            AssertSql(
-                @"@__p_0: 7
-
-SELECT COUNT(*)
-FROM (
-    SELECT [t0].*
-    FROM (
-        SELECT [c].*, ROW_NUMBER() OVER(ORDER BY [c].[Country]) AS [__RowNumber__]
-        FROM [Customers] AS [c]
-    ) AS [t0]
-    WHERE [t0].[__RowNumber__] > @__p_0
-) AS [t]");
-        }
-
-        public override void OrderBy_Skip_LongCount()
-        {
-            base.OrderBy_Skip_LongCount();
-
-            AssertSql(
-                @"@__p_0: 7
-
-SELECT COUNT_BIG(*)
-FROM (
-    SELECT [t0].*
-    FROM (
-        SELECT [c].*, ROW_NUMBER() OVER(ORDER BY [c].[Country]) AS [__RowNumber__]
-        FROM [Customers] AS [c]
-    ) AS [t0]
-    WHERE [t0].[__RowNumber__] > @__p_0
-) AS [t]");
-        }
-
         public override void Include_with_orderby_skip_preserves_ordering()
         {
             base.Include_with_orderby_skip_preserves_ordering();
@@ -598,6 +526,268 @@ FROM (
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[City], [t].[CustomerID]");
+        }
+
+        public override void Select_take_average()
+        {
+            base.Select_take_average();
+
+            AssertSql(
+                @"@__p_0: 10
+
+SELECT AVG(CAST([t].[OrderID] AS float))
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t]");
+        }
+
+        public override void Select_take_count()
+        {
+            base.Select_take_count();
+
+            AssertSql(
+                @"@__p_0: 7
+
+SELECT COUNT(*)
+FROM (
+    SELECT TOP(@__p_0) [c].*
+    FROM [Customers] AS [c]
+) AS [t]");
+        }
+
+        public override void Select_orderBy_take_count()
+        {
+            base.Select_orderBy_take_count();
+
+            AssertSql(
+                @"@__p_0: 7
+
+SELECT COUNT(*)
+FROM (
+    SELECT TOP(@__p_0) [c].*
+    FROM [Customers] AS [c]
+    ORDER BY [c].[Country]
+) AS [t]");
+        }
+
+        public override void Select_take_long_count()
+        {
+            base.Select_take_long_count();
+
+            AssertSql(
+                @"@__p_0: 7
+
+SELECT COUNT_BIG(*)
+FROM (
+    SELECT TOP(@__p_0) [c].*
+    FROM [Customers] AS [c]
+) AS [t]");
+        }
+
+        public override void Select_orderBy_take_long_count()
+        {
+            base.Select_orderBy_take_long_count();
+
+            AssertSql(
+                @"@__p_0: 7
+
+SELECT COUNT_BIG(*)
+FROM (
+    SELECT TOP(@__p_0) [c].*
+    FROM [Customers] AS [c]
+    ORDER BY [c].[Country]
+) AS [t]");
+        }
+
+        public override void Select_take_max()
+        {
+            base.Select_take_max();
+
+            AssertSql(
+                @"@__p_0: 10
+
+SELECT MAX([t].[OrderID])
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t]");
+        }
+
+        public override void Select_take_min()
+        {
+            base.Select_take_min();
+
+            AssertSql(
+                @"@__p_0: 10
+
+SELECT MIN([t].[OrderID])
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t]");
+        }
+
+        public override void Select_take_sum()
+        {
+            base.Select_take_sum();
+
+            AssertSql(
+                @"@__p_0: 10
+
+SELECT SUM([t].[OrderID])
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t]");
+        }
+
+        public override void Select_skip_average()
+        {
+            base.Select_skip_average();
+
+            AssertSql(
+                @"@__p_0: 10
+
+SELECT AVG(CAST([t].[OrderID] AS float))
+FROM (
+    SELECT [t0].[OrderID]
+    FROM (
+        SELECT [o].[OrderID], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+        FROM [Orders] AS [o]
+    ) AS [t0]
+    WHERE [t0].[__RowNumber__] > @__p_0
+) AS [t]");
+        }
+
+        public override void Select_skip_count()
+        {
+            base.Select_skip_count();
+
+            AssertSql(
+                @"@__p_0: 7
+
+SELECT COUNT(*)
+FROM (
+    SELECT [t0].*
+    FROM (
+        SELECT [c].*, ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
+        FROM [Customers] AS [c]
+    ) AS [t0]
+    WHERE [t0].[__RowNumber__] > @__p_0
+) AS [t]");
+        }
+
+        public override void Select_orderBy_skip_count()
+        {
+            base.Select_orderBy_skip_count();
+
+            AssertSql(
+                @"@__p_0: 7
+
+SELECT COUNT(*)
+FROM (
+    SELECT [t0].*
+    FROM (
+        SELECT [c].*, ROW_NUMBER() OVER(ORDER BY [c].[Country]) AS [__RowNumber__]
+        FROM [Customers] AS [c]
+    ) AS [t0]
+    WHERE [t0].[__RowNumber__] > @__p_0
+) AS [t]");
+        }
+
+        public override void Select_skip_long_count()
+        {
+            base.Select_skip_long_count();
+
+            AssertSql(
+                @"@__p_0: 7
+
+SELECT COUNT_BIG(*)
+FROM (
+    SELECT [t0].*
+    FROM (
+        SELECT [c].*, ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
+        FROM [Customers] AS [c]
+    ) AS [t0]
+    WHERE [t0].[__RowNumber__] > @__p_0
+) AS [t]");
+        }
+
+        public override void Select_orderBy_skip_long_count()
+        {
+            base.Select_orderBy_skip_long_count();
+
+            AssertSql(
+                @"@__p_0: 7
+
+SELECT COUNT_BIG(*)
+FROM (
+    SELECT [t0].*
+    FROM (
+        SELECT [c].*, ROW_NUMBER() OVER(ORDER BY [c].[Country]) AS [__RowNumber__]
+        FROM [Customers] AS [c]
+    ) AS [t0]
+    WHERE [t0].[__RowNumber__] > @__p_0
+) AS [t]");
+        }
+
+        public override void Select_skip_max()
+        {
+            base.Select_skip_max();
+
+            AssertSql(
+                @"@__p_0: 10
+
+SELECT MAX([t].[OrderID])
+FROM (
+    SELECT [t0].[OrderID]
+    FROM (
+        SELECT [o].[OrderID], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+        FROM [Orders] AS [o]
+    ) AS [t0]
+    WHERE [t0].[__RowNumber__] > @__p_0
+) AS [t]");
+        }
+
+        public override void Select_skip_min()
+        {
+            base.Select_skip_min();
+
+            AssertSql(
+                @"@__p_0: 10
+
+SELECT MIN([t].[OrderID])
+FROM (
+    SELECT [t0].[OrderID]
+    FROM (
+        SELECT [o].[OrderID], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+        FROM [Orders] AS [o]
+    ) AS [t0]
+    WHERE [t0].[__RowNumber__] > @__p_0
+) AS [t]");
+        }
+
+        public override void Select_skip_sum()
+        {
+            base.Select_skip_sum();
+
+            AssertSql(
+                @"@__p_0: 10
+
+SELECT SUM([t].[OrderID])
+FROM (
+    SELECT [t0].[OrderID]
+    FROM (
+        SELECT [o].[OrderID], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+        FROM [Orders] AS [o]
+    ) AS [t0]
+    WHERE [t0].[__RowNumber__] > @__p_0
+) AS [t]");
         }
 
         private void AssertSql(params string[] expected)

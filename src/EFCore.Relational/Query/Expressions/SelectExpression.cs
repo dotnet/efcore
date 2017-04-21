@@ -599,11 +599,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(expression, nameof(expression));
 
-            if (_limit != null || _isDistinct)
-            {
-                PushDownSubquery();
-            }
-
             ClearProjection();
             AddToProjection(expression);
         }

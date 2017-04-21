@@ -217,6 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (!handlerContext.QueryModelVisitor.RequiresClientProjection
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
+                PrepareSelectExpressionForAggregate(handlerContext.SelectExpression);
+
                 var expression = handlerContext.SelectExpression.Projection.First();
 
                 if (!(expression.RemoveConvert() is SelectExpression))
@@ -327,10 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleCount(HandlerContext handlerContext)
         {
-            if (handlerContext.SelectExpression.Offset != null)
-            {
-                handlerContext.SelectExpression.PushDownSubquery();
-            }
+            PrepareSelectExpressionForAggregate(handlerContext.SelectExpression);
 
             handlerContext.SelectExpression
                 .SetProjectionExpression(
@@ -593,15 +592,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 || !((LastResultOperator)handlerContext.ResultOperator).ReturnDefaultWhenEmpty
                   && handlerContext.QueryModelVisitor.ParentQueryModelVisitor != null;
 
-            return handlerContext.EvalOnClient(requiresClientResultOperator: requiresClientResultOperator);
+            return handlerContext.EvalOnClient(requiresClientResultOperator);
         }
 
         private static Expression HandleLongCount(HandlerContext handlerContext)
         {
-            if (handlerContext.SelectExpression.Offset != null)
-            {
-                handlerContext.SelectExpression.PushDownSubquery();
-            }
+            PrepareSelectExpressionForAggregate(handlerContext.SelectExpression);
 
             handlerContext.SelectExpression
                 .SetProjectionExpression(
@@ -620,6 +616,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (!handlerContext.QueryModelVisitor.RequiresClientProjection
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
+                PrepareSelectExpressionForAggregate(handlerContext.SelectExpression);
                 var expression = handlerContext.SelectExpression.Projection.First();
 
                 if (!(expression.RemoveConvert() is SelectExpression))
@@ -642,6 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (!handlerContext.QueryModelVisitor.RequiresClientProjection
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
+                PrepareSelectExpressionForAggregate(handlerContext.SelectExpression);
                 var expression = handlerContext.SelectExpression.Projection.First();
 
                 if (!(expression.RemoveConvert() is SelectExpression))
@@ -697,6 +695,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (!handlerContext.QueryModelVisitor.RequiresClientProjection
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
+                PrepareSelectExpressionForAggregate(handlerContext.SelectExpression);
                 var expression = handlerContext.SelectExpression.Projection.First();
 
                 if (!(expression.RemoveConvert() is SelectExpression))
@@ -749,6 +748,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     Expression.Constant(true),
                     Expression.Constant(false),
                     typeof(bool)));
+        }
+
+        private static void PrepareSelectExpressionForAggregate(SelectExpression selectExpression)
+        {
+            if (selectExpression.IsDistinct
+                || selectExpression.Limit != null
+                || selectExpression.Offset != null)
+            {
+                selectExpression.PushDownSubquery();
+                selectExpression.ExplodeStarProjection();
+            }
         }
 
         private static readonly MethodInfo _transformClientExpressionMethodInfo

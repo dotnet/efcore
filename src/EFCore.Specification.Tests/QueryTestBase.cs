@@ -477,15 +477,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalFact]
         public virtual void Distinct_Take_Count()
         {
-            AssertQuery<Order>(
-                os => os.Distinct().Take(5).Count());
+            AssertQuery<Order>(os => os.Distinct().Take(5).Count());
         }
 
         [ConditionalFact]
         public virtual void Take_Distinct_Count()
         {
-            AssertQuery<Order>(
-                os => os.Take(5).Distinct().Count());
+            AssertQuery<Order>(os => os.Take(5).Distinct().Count());
         }
 
         [ConditionalFact]
@@ -498,22 +496,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalFact]
         public virtual void Any_simple()
         {
-            AssertQuery<Customer>(
-                cs => cs.Any());
+            AssertQuery<Customer>(cs => cs.Any());
         }
 
         [ConditionalFact]
         public virtual void OrderBy_Take_Count()
         {
-            AssertQuery<Order>(
-                os => os.OrderBy(o => o.OrderID).Take(5).Count());
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Take(5).Count());
         }
 
         [ConditionalFact]
         public virtual void Take_OrderBy_Count()
         {
-            AssertQuery<Order>(
-                os => os.Take(5).OrderBy(o => o.OrderID).Count());
+            AssertQuery<Order>(os => os.Take(5).OrderBy(o => o.OrderID).Count());
         }
 
         [ConditionalFact]
@@ -4751,13 +4746,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Select_Distinct_Count()
-        {
-            AssertQuery<Customer>(
-                cs => cs.Select(c => c.City).Distinct().Count());
-        }
-
-        [ConditionalFact]
         public virtual void Select_Select_Distinct_Count()
         {
             AssertQuery<Customer>(
@@ -7484,34 +7472,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Skip_Count()
-        {
-            AssertQuery<Customer>(
-                cs => cs.Skip(7).Count());
-        }
-
-        [ConditionalFact]
-        public virtual void Skip_LongCount()
-        {
-            AssertQuery<Customer>(
-                cs => cs.Skip(7).LongCount());
-        }
-
-        [ConditionalFact]
-        public virtual void OrderBy_Skip_Count()
-        {
-            AssertQuery<Customer>(
-                cs => cs.OrderBy(c => c.Country).Skip(7).Count());
-        }
-
-        [ConditionalFact]
-        public virtual void OrderBy_Skip_LongCount()
-        {
-            AssertQuery<Customer>(
-                cs => cs.OrderBy(c => c.Country).Skip(7).LongCount());
-        }
-
-        [ConditionalFact]
         public virtual void Contains_with_DateTime_Date()
         {
             var dates = new[] { new DateTime(1996, 07, 04), new DateTime(1996, 07, 16) };
@@ -7824,6 +7784,139 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 89);
         }
 
+        [ConditionalFact]
+        public virtual void Select_take_average()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Take(10).Average());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_count()
+        {
+            AssertQuery<Customer>(cs => cs.Take(7).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_orderBy_take_count()
+        {
+            AssertQuery<Customer>(cs => cs.OrderBy(c => c.Country).Take(7).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_long_count()
+        {
+            AssertQuery<Customer>(cs => cs.Take(7).LongCount());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_orderBy_take_long_count()
+        {
+            AssertQuery<Customer>(cs => cs.OrderBy(c => c.Country).Take(7).LongCount());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_max()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Take(10).Max());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_min()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Take(10).Min());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_sum()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Take(10).Sum());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_skip_average()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Skip(10).Average());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_skip_count()
+        {
+            AssertQuery<Customer>(cs => cs.Skip(7).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_orderBy_skip_count()
+        {
+            AssertQuery<Customer>(cs => cs.OrderBy(c => c.Country).Skip(7).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_skip_long_count()
+        {
+            AssertQuery<Customer>(cs => cs.Skip(7).LongCount());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_orderBy_skip_long_count()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.Country).Skip(7).LongCount());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_skip_max()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Skip(10).Max());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_skip_min()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Skip(10).Min());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_skip_sum()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Skip(10).Sum());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_distinct_average()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID).Distinct().Average());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_distinct_count()
+        {
+            AssertQuery<Customer>(cs => cs.Distinct().Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_distinct_long_count()
+        {
+            AssertQuery<Customer>(cs => cs.Distinct().LongCount());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_distinct_max()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID).Distinct().Max());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_distinct_min()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID).Distinct().Min());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_distinct_sum()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID).Distinct().Sum());
+        }
+        
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected QueryTestBase(TFixture fixture)
