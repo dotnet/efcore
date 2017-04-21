@@ -93,6 +93,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual Annotation OnModelAnnotationSet(
+            [NotNull] InternalModelBuilder modelBuilder,
+            [NotNull] string name,
+            [CanBeNull] Annotation annotation,
+            [CanBeNull] Annotation oldAnnotation)
+            => _scope.OnModelAnnotationSet(
+                Check.NotNull(modelBuilder, nameof(modelBuilder)),
+                Check.NotNull(name, nameof(name)),
+                annotation,
+                oldAnnotation);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder OnForeignKeyAdded([NotNull] InternalRelationshipBuilder relationshipBuilder)
             => _scope.OnForeignKeyAdded(Check.NotNull(relationshipBuilder, nameof(relationshipBuilder)));
 

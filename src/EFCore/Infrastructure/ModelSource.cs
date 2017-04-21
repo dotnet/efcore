@@ -77,8 +77,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             internalModelBuilder.Metadata.SetProductVersion(ProductInfo.GetVersion());
 
-            FindSets(modelBuilder, context);
-
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 
             internalModelBuilder.Validate();
@@ -96,18 +94,5 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The convention set to be used. </returns>
         protected virtual ConventionSet CreateConventionSet([NotNull] IConventionSetBuilder conventionSetBuilder)
             => conventionSetBuilder.AddConventions(Dependencies.CoreConventionSetBuilder.CreateConventionSet());
-
-        /// <summary>
-        ///     Adds the entity types found in <see cref="DbSet{TEntity}" /> properties on the context to the model.
-        /// </summary>
-        /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> being used to build the model. </param>
-        /// <param name="context"> The context to find <see cref="DbSet{TEntity}" /> properties on. </param>
-        protected virtual void FindSets([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context)
-        {
-            foreach (var setInfo in Dependencies.SetFinder.FindSets(context))
-            {
-                modelBuilder.Entity(setInfo.ClrType);
-            }
-        }
     }
 }

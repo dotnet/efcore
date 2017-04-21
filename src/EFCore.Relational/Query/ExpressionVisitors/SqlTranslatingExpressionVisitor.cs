@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             };
 
         private readonly IExpressionFragmentTranslator _compositeExpressionFragmentTranslator;
-        private readonly IMethodCallTranslator _methodCallTranslator;
+        private readonly ICompositeMethodCallTranslator _methodCallTranslator;
         private readonly IMemberTranslator _memberTranslator;
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
         private readonly IRelationalTypeMapper _relationalTypeMapper;
@@ -606,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             ? Expression.Call(operand, methodCallExpression.Method, arguments)
                             : Expression.Call(methodCallExpression.Method, arguments);
 
-                    var translatedExpression = _methodCallTranslator.Translate(boundExpression);
+                    var translatedExpression = _methodCallTranslator.Translate(boundExpression, _queryModelVisitor.QueryCompilationContext.Model);
 
                     if (translatedExpression != null)
                     {

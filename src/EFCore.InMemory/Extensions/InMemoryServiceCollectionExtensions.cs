@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -64,6 +65,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IQueryContextFactory, InMemoryQueryContextFactory>()
                 .TryAdd<IEntityQueryModelVisitorFactory, InMemoryQueryModelVisitorFactory>()
                 .TryAdd<IEntityQueryableExpressionVisitorFactory, InMemoryEntityQueryableExpressionVisitorFactory>()
+                .TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>()
                 .TryAddProviderSpecificServices(b => b
                     .TryAddSingleton<IInMemoryStoreCache, InMemoryStoreCache>()
                     .TryAddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()

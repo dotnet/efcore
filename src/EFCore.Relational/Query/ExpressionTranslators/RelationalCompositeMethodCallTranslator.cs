@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
@@ -14,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
     ///     A base composite method call translator that dispatches to multiple specialized
     ///     method call translators.
     /// </summary>
-    public abstract class RelationalCompositeMethodCallTranslator : IMethodCallTranslator
+    public abstract class RelationalCompositeMethodCallTranslator : ICompositeMethodCallTranslator
     {
         private readonly List<IMethodCallTranslator> _methodCallTranslators;
 
@@ -48,13 +49,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         ///     Translates the given method call expression.
         /// </summary>
         /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <param name="model"> The current model. </param>
         /// <returns>
         ///     A SQL expression representing the translated MethodCallExpression.
         /// </returns>
-        public virtual Expression Translate(MethodCallExpression methodCallExpression)
-            => _methodCallTranslators
-                .Select(translator => translator.Translate(methodCallExpression))
-                .FirstOrDefault(translatedMethodCall => translatedMethodCall != null);
+        public virtual Expression Translate(MethodCallExpression methodCallExpression, IModel model)
+            => ((IMethodCallTranslator)model.Relational().FindDbFunction(methodCallExpression.Method))?.Translate(methodCallExpression)
+                    ?? _methodCallTranslators
+                        .Select(translator => translator.Translate(methodCallExpression))
+                        .FirstOrDefault(translatedMethodCall => translatedMethodCall != null);
 
         /// <summary>
         ///     Adds additional translators to the dispatch list.

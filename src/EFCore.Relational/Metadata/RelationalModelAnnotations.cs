@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -42,6 +43,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         private static string BuildAnnotationName(string annotationPrefix, string name, string schema)
             => annotationPrefix + schema + "." + name;
+
+        public virtual IReadOnlyList<IDbFunction> DbFunctions
+            => DbFunction.GetDbFunctions(Model, RelationalAnnotationNames.DbFunction).ToList();
+
+        public virtual IDbFunction FindDbFunction(MethodInfo methodInfo)
+            => DbFunction.FindDbFunction(Model, RelationalAnnotationNames.DbFunction, methodInfo);
+
+        public virtual DbFunction GetOrAddDbFunction([NotNull] MethodInfo methodInfo, ConfigurationSource configurationSource, [CanBeNull] string name = null, [CanBeNull] string schema = null)
+           => DbFunction.GetOrAddDbFunction((IMutableModel)Model, methodInfo, RelationalAnnotationNames.DbFunction, configurationSource, name, schema);
 
         public virtual string DefaultSchema
         {

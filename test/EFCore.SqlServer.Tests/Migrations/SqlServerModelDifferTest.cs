@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -807,6 +809,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         Assert.Equal("Bravo", operation.Name);
                         Assert.Equal(2, operation.IncrementBy);
                     });
+        }
+
+        [Fact]
+        public void Add_dbfunction_ignore()
+        {
+            var mi = typeof(string).GetRuntimeMethod(nameof(string.ToLower), new Type[] { });
+
+            Execute(
+                 _ => { },
+                modelBuilder => modelBuilder.HasDbFunction(mi, null, "dbo"),
+                operations =>
+                {
+                    Assert.Equal(0, operations.Count);
+                });
         }
 
         [Fact]

@@ -111,6 +111,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
+            public virtual Annotation OnModelAnnotationSet(
+                [NotNull] InternalModelBuilder modelBuilder,
+                [NotNull] string name,
+                [CanBeNull] Annotation annotation,
+                [CanBeNull] Annotation oldAnnotation)
+            {
+                Add(new OnModelAnnotationSetNode(modelBuilder, name, annotation, oldAnnotation));
+                return annotation;
+            }
+
             public virtual InternalRelationshipBuilder OnForeignKeyAdded([NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyAddedNode(relationshipBuilder));
@@ -318,6 +328,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 foreach (var entityTypeAnnotationSetConvention in _conventionSet.EntityTypeAnnotationChangedConventions)
                 {
                     var newAnnotation = entityTypeAnnotationSetConvention.Apply(entityTypeBuilder, name, annotation, oldAnnotation);
+                    if (newAnnotation != annotation)
+                    {
+                        return newAnnotation;
+                    }
+                }
+
+                return annotation;
+            }
+
+            public override Annotation OnModelAnnotationSet(
+                InternalModelBuilder modelBuilder,
+                string name,
+                Annotation annotation,
+                Annotation oldAnnotation)
+            {
+                if (modelBuilder.Metadata.Builder == null)
+                {
+                    return null;
+                }
+
+                foreach (var modelAnnotationSetConvention in _conventionSet.ModelAnnotationChangedConventions)
+                {
+                    var newAnnotation = modelAnnotationSetConvention.Apply(modelBuilder, name, annotation, oldAnnotation);
                     if (newAnnotation != annotation)
                     {
                         return newAnnotation;
@@ -765,6 +798,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public Annotation OldAnnotation { get; }
 
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnEntityTypeAnnotationSet(this);
+        }
+
+        private class OnModelAnnotationSetNode : ConventionNode
+        {
+            public OnModelAnnotationSetNode(
+                InternalModelBuilder modelBuilder,
+                string name,
+                Annotation annotation,
+                Annotation oldAnnotation)
+            {
+                ModelBuilder = modelBuilder;
+                Name = name;
+                Annotation = annotation;
+                OldAnnotation = oldAnnotation;
+            }
+
+            public InternalModelBuilder ModelBuilder { get; }
+            public string Name { get; }
+            public Annotation Annotation { get; }
+            public Annotation OldAnnotation { get; }
+
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnModelAnnotationSet(this);
         }
 
         private class OnForeignKeyAddedNode : ConventionNode
