@@ -79,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _diagnosticSource.WriteDataReaderDisposing(
                     _connection.DbConnection,
                     _connection.ConnectionId,
+                    _connection.CurrentTransaction,
                     _reader,
                     _reader.RecordsAffected,
                     _startTimestamp,

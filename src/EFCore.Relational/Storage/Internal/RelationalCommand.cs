@@ -193,6 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 dbCommand,
                 executeMethod,
                 instanceId,
+                connection.CurrentTransaction,
                 startTimestamp,
                 async: false);
 
@@ -255,6 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     executeMethod,
                     result,
                     instanceId,
+                    connection.CurrentTransaction,
                     startTimestamp,
                     currentTimestamp);
 
@@ -274,6 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     dbCommand,
                     executeMethod,
                     instanceId,
+                    connection.CurrentTransaction,
                     startTimestamp,
                     currentTimestamp,
                     exception,
@@ -317,6 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 dbCommand,
                 executeMethod,
                 instanceId,
+                connection.CurrentTransaction,
                 startTimestamp,
                 async: true);
 
@@ -378,6 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     executeMethod,
                     result,
                     instanceId,
+                    connection.CurrentTransaction,
                     startTimestamp,
                     currentTimestamp,
                     async: true);
@@ -398,6 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     dbCommand,
                     executeMethod,
                     instanceId,
+                    connection.CurrentTransaction,
                     startTimestamp,
                     currentTimestamp,
                     exception,

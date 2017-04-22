@@ -48,6 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
 
         private class NonRelationalTransaction : IDbContextTransaction
         {
+            public Guid TransactionId { get; } = Guid.NewGuid();
+
             public void Commit()
             {
                 throw new NotImplementedException();
