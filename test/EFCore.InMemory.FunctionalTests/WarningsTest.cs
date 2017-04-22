@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         $"{nameof(CoreEventId)}.{nameof(CoreEventId.IncludeIgnoredWarning)}",
-                        CoreStrings.LogIgnoredInclude("e.Nav")),
+                        CoreStrings.LogIgnoredInclude("[e].Nav")),
                     Assert.Throws<InvalidOperationException>(()
                         => context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList()).Message);
             }
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         $"{nameof(CoreEventId)}.{nameof(CoreEventId.IncludeIgnoredWarning)}",
-                        CoreStrings.LogIgnoredInclude("e.Nav")),
+                        CoreStrings.LogIgnoredInclude("[e].Nav")),
                     Assert.Throws<InvalidOperationException>(()
                         => context.WarningAsErrorEntities.Include(e => e.Nav).Skip(1).Select(e => e.Id).ToList()).Message);
             }
