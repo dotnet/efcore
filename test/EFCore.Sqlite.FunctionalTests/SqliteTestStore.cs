@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     {
         private static int _scratchCount;
 
+        public static SqliteTestStore GetNorthwindStore() => GetOrCreateShared("northwind", () => { });
+
         public static SqliteTestStore GetOrCreateShared(string name, bool useTransaction, bool sharedCache, Action initializeDatabase = null) =>
             new SqliteTestStore(name).CreateShared(initializeDatabase, useTransaction, sharedCache);
 

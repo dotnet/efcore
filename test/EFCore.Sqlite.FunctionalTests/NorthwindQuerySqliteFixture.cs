@@ -5,7 +5,6 @@ using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests.TestModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -15,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     {
         private readonly DbContextOptions _options;
 
-        private readonly SqliteTestStore _testStore = SqliteNorthwindContext.GetSharedStore();
+        private readonly SqliteTestStore _testStore = SqliteTestStore.GetNorthwindStore();
 
         public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
 
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override NorthwindContext CreateContext(
             QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
-            => new SqliteNorthwindContext(_options, queryTrackingBehavior);
+            => new NorthwindContext(_options, queryTrackingBehavior);
 
         public void Dispose() => _testStore.Dispose();
     }

@@ -5,7 +5,6 @@ using System;
 using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .AddDbContext<StringInOnConfiguringContext>()
                     .BuildServiceProvider();
 
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var context = serviceProvider.GetRequiredService<StringInOnConfiguringContext>())
                 {
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_specify_connection_string_in_OnConfiguring_with_default_service_provider()
         {
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var context = new StringInOnConfiguringContext())
                 {
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private class StringInOnConfiguringContext : NorthwindContextBase
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
         }
 
         [Fact]
@@ -54,10 +53,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             var serviceProvider
                 = new ServiceCollection()
-                    .AddScoped(p => new SqlConnection(SqlServerNorthwindContext.ConnectionString))
+                    .AddScoped(p => new SqlConnection(SqlServerTestStore.NorthwindConnectionString))
                     .AddDbContext<ConnectionInOnConfiguringContext>().BuildServiceProvider();
 
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var context = serviceProvider.GetRequiredService<ConnectionInOnConfiguringContext>())
                 {
@@ -69,9 +68,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_specify_connection_in_OnConfiguring_with_default_service_provider()
         {
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
-                using (var context = new ConnectionInOnConfiguringContext(new SqlConnection(SqlServerNorthwindContext.ConnectionString)))
+                using (var context = new ConnectionInOnConfiguringContext(new SqlConnection(SqlServerTestStore.NorthwindConnectionString)))
                 {
                     Assert.True(context.Customers.Any());
                 }
@@ -142,11 +141,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             var serviceProvider
                 = new ServiceCollection()
-                    .AddScoped(p => new SqlConnection(SqlServerNorthwindContext.ConnectionString))
+                    .AddScoped(p => new SqlConnection(SqlServerTestStore.NorthwindConnectionString))
                     .AddDbContext<OptionsContext>()
                     .BuildServiceProvider();
 
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var context = serviceProvider.GetRequiredService<OptionsContext>())
                 {
@@ -158,11 +157,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_depend_on_DbContextOptions_with_default_service_provider()
         {
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var context = new OptionsContext(
                     new DbContextOptions<OptionsContext>(),
-                    new SqlConnection(SqlServerNorthwindContext.ConnectionString)))
+                    new SqlConnection(SqlServerTestStore.NorthwindConnectionString)))
                 {
                     Assert.True(context.Customers.Any());
                 }
@@ -205,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .AddDbContext<NonGenericOptionsContext>()
                     .BuildServiceProvider();
 
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var context = serviceProvider.GetRequiredService<NonGenericOptionsContext>())
                 {
@@ -217,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_depend_on_non_generic_options_when_only_one_context_with_default_service_provider()
         {
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var context = new NonGenericOptionsContext(new DbContextOptions<DbContext>()))
                 {
@@ -240,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
+                optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }
