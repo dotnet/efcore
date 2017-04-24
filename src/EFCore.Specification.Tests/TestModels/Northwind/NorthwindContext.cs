@@ -5,8 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
 {
     public class NorthwindContext : DbContext
     {
-        public static readonly string StoreName = "Northwind";
-
         public NorthwindContext(
             DbContextOptions options,
             QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)

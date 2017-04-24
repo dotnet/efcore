@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests.TestModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
 
-            _testDatabase = SqliteNorthwindContext.GetSharedStore();
+            _testDatabase = SqliteTestStore.GetNorthwindStore();
 
             _options = new DbContextOptionsBuilder()
                 .UseModel(CreateModel())

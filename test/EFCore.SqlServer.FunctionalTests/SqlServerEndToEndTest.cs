@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Linq;
@@ -13,7 +12,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -323,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_run_linq_query_on_entity_set()
         {
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var db = new NorthwindContext(_fixture.ServiceProvider))
                 {
@@ -349,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_run_linq_query_on_entity_set_with_value_buffer_reader()
         {
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 var serviceCollection = new ServiceCollection();
                 serviceCollection
@@ -390,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_enumerate_entity_set()
         {
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var db = new NorthwindContext(_fixture.ServiceProvider))
                 {
@@ -686,7 +684,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
         {
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var db = new NorthwindContext(_fixture.ServiceProvider))
                 {
@@ -940,7 +938,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration())
+                    .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

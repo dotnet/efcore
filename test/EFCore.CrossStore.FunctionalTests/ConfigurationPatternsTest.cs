@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
                 .AddDbContext<MultipleContext2>()
                 .BuildServiceProvider();
 
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var context = serviceProvider.GetRequiredService<MultipleContext1>())
                 {
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
         [ConditionalFact]
         public void Can_register_multiple_context_types_with_default_service_provider()
         {
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var context = new MultipleContext1(new DbContextOptions<MultipleContext1>()))
                 {
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
+                optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }
@@ -103,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
                     .AddDbContext<MultipleProvidersContext>()
                     .BuildServiceProvider();
 
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 MultipleProvidersContext context1;
                 MultipleProvidersContext context2;
@@ -150,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
         [ConditionalFact]
         public void Can_select_appropriate_provider_when_multiple_registered_with_default_service_provider()
         {
-            using (SqlServerNorthwindContext.GetSharedStore())
+            using (SqlServerTestStore.GetNorthwindStore())
             {
                 using (var context = new MultipleProvidersContext())
                 {
@@ -206,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             {
                 if (UseSqlServer)
                 {
-                    optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
+                    optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
                 }
                 else
                 {
@@ -231,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             [ConditionalFact]
             public async Task Can_use_one_context_nested_inside_another_of_a_different_type()
             {
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     var inMemoryServiceProvider = new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
@@ -250,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             [ConditionalFact]
             public async Task Can_use_one_context_nested_inside_another_of_a_different_type_with_implicit_services()
             {
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     await NestedContextTest(() => new BlogContext(), () => new NorthwindContext());
                 }
@@ -329,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                     => optionsBuilder
-                        .UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration())
+                        .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration())
                         .UseInternalServiceProvider(_serviceProvider);
             }
         }

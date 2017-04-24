@@ -20,9 +20,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
     public class SqlServerTestStore : RelationalTestStore
     {
+        private const string Northwind = "Northwind";
+
         public const int CommandTimeout = 600;
 
         private static string BaseDirectory => AppContext.BaseDirectory;
+        
+        public static readonly string NorthwindConnectionString = CreateConnectionString(Northwind);
+
+        public static SqlServerTestStore GetNorthwindStore()
+            => GetOrCreateShared(
+                Northwind,
+                () => ExecuteScript(Northwind, "Northwind.sql"),
+                cleanDatabase: false);
 
         public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase, bool cleanDatabase = true)
             => new SqlServerTestStore(name, cleanDatabase: cleanDatabase).CreateShared(initializeDatabase);
@@ -35,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
         private SqlConnection _connection;
         private readonly string _fileName;
-        private string _connectionString;
         private readonly bool _cleanDatabase;
+        private string _connectionString;
         private bool _deleteDatabase;
 
         public string Name { get; }
@@ -161,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                             catch (SqlException e)
                             {
                                 if (++retryCount >= 30
-                                    || (e.Number != 233 && e.Number != -2 && e.Number != 4060 && e.Number != 1832 && e.Number != 5120))
+                                    || e.Number != 233 && e.Number != -2 && e.Number != 4060 && e.Number != 1832 && e.Number != 5120)
                                 {
                                     throw;
                                 }
@@ -248,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                        || File.Exists(Path.Combine(userFolder, name + "_log.ldf")));
         }
 
-        private void DeleteDatabase(string name)
+        private static void DeleteDatabase(string name)
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_query_with_implicit_services_and_OnConfiguring()
             {
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     using (var context = new NorthwindContext())
                     {
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -46,11 +45,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_query_with_implicit_services_and_explicit_config()
             {
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     using (var context = new NorthwindContext(
                         new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration()).Options))
+                            .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration()).Options))
                     {
                         Assert.Equal(91, await context.Customers.CountAsync());
                     }
@@ -76,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_query_with_explicit_services_and_OnConfiguring()
             {
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     using (var context = new NorthwindContext(
                         new DbContextOptionsBuilder().UseInternalServiceProvider(
@@ -99,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -111,10 +110,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_query_with_explicit_services_and_explicit_config()
             {
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     using (var context = new NorthwindContext(new DbContextOptionsBuilder()
-                        .UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration())
+                        .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration())
                         .UseInternalServiceProvider(new ServiceCollection()
                             .AddEntityFrameworkSqlServer()
                             .BuildServiceProvider()).Options))
@@ -143,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             [Fact]
             public void Throws_on_attempt_to_use_SQL_Server_without_providing_connection_string()
             {
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     Assert.Equal(
                         CoreStrings.NoProviderConfigured,
@@ -179,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             [Fact]
             public void Throws_on_attempt_to_use_context_with_no_store()
             {
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     Assert.Equal(
                         CoreStrings.NoProviderConfigured,
@@ -211,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     Assert.Equal(
                         CoreStrings.NoProviderConfigured,
@@ -237,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
-                    optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
+                    optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -256,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .AddSingleton(p => new DbContextOptionsBuilder().UseInternalServiceProvider(p).Options)
                     .BuildServiceProvider();
 
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     await serviceProvider.GetRequiredService<MyController>().TestAsync();
                 }
@@ -288,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -304,9 +303,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .AddTransient<MyController>()
                     .AddTransient<NorthwindContext>()
                     .AddSingleton(new DbContextOptionsBuilder()
-                        .UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration()).Options).BuildServiceProvider();
+                        .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration()).Options).BuildServiceProvider();
 
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     await serviceProvider.GetRequiredService<MyController>().TestAsync();
                 }
@@ -347,10 +346,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_pass_context_options_to_constructor_and_use_in_builder()
             {
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     using (var context = new NorthwindContext(new DbContextOptionsBuilder()
-                        .UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration()).Options))
+                        .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration()).Options))
                     {
                         Assert.Equal(91, await context.Customers.CountAsync());
                     }
@@ -376,9 +375,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_pass_connection_string_to_constructor_and_use_in_OnConfiguring()
             {
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
-                    using (var context = new NorthwindContext(SqlServerNorthwindContext.ConnectionString))
+                    using (var context = new NorthwindContext(SqlServerTestStore.NorthwindConnectionString))
                     {
                         Assert.Equal(91, await context.Customers.CountAsync());
                     }
@@ -409,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_use_one_context_nested_inside_another_of_the_same_type()
             {
-                using (SqlServerNorthwindContext.GetSharedStore())
+                using (SqlServerTestStore.GetNorthwindStore())
                 {
                     var serviceProvider = new ServiceCollection()
                         .AddEntityFrameworkSqlServer()
@@ -452,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder
                     .UseInternalServiceProvider(_serviceProvider)
-                    .UseSqlServer(SqlServerNorthwindContext.ConnectionString, b => b.ApplyConfiguration());
+                    .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
             }
         }
 

@@ -4,7 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public NorthwindSprocQuerySqlServerFixture()
         {
-            _testStore = SqlServerNorthwindContext.GetSharedStore();
+            _testStore = SqlServerTestStore.GetNorthwindStore();
 
             _options = BuildOptions();
         }
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public override NorthwindContext CreateContext(
             QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
         {
-            var context = new SqlServerNorthwindContext(_options, queryTrackingBehavior);
+            var context = new NorthwindContext(_options, queryTrackingBehavior);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

@@ -5,7 +5,6 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var store = SqlServerNorthwindContext.GetSharedStore())
+            using (var store = SqlServerTestStore.GetNorthwindStore())
             {
                 Assert.Equal(ConnectionState.Closed, store.Connection.State);
 

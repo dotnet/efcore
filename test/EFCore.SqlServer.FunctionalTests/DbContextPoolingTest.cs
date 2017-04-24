@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         => new ServiceCollection()
             .AddEntityFrameworkSqlServer()
             .AddDbContextPool<TContext>(
-                ob => ob.UseSqlServer(SqlServerNorthwindContext.GetSharedStore().ConnectionString),
+                ob => ob.UseSqlServer(SqlServerTestStore.NorthwindConnectionString),
                 poolSize)
             .BuildServiceProvider();
 

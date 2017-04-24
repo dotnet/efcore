@@ -6,7 +6,6 @@ using System.Threading;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class NorthwindQuerySqlServerFixture : NorthwindQueryRelationalFixture, IDisposable
     {
-        private readonly SqlServerTestStore _testStore = SqlServerNorthwindContext.GetSharedStore();
+        private readonly SqlServerTestStore _testStore = SqlServerTestStore.GetNorthwindStore();
         
         public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
 
@@ -61,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override NorthwindContext CreateContext(
             QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
-            => new SqlServerNorthwindContext(BuildOptions(), queryTrackingBehavior);
+            => new NorthwindContext(BuildOptions(), queryTrackingBehavior);
 
         public void Dispose() => _testStore.Dispose();
     }
