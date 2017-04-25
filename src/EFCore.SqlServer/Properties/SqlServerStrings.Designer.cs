@@ -87,6 +87,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("NonKeyValueGeneration", nameof(property), nameof(entityType)),
                 property, entityType);
 
+        /// <summary>
+        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.
+        /// </summary>
+        public static string IncompatibleTableMemoryOptimizedMismatch([CanBeNull] object table, [CanBeNull] object entityType, [CanBeNull] object otherEntityType, [CanBeNull] object memoryOptimizedEntityType, [CanBeNull] object nonMemoryOptimizedEntityType)
+            => string.Format(
+                GetString("IncompatibleTableMemoryOptimizedMismatch", nameof(table), nameof(entityType), nameof(otherEntityType), nameof(memoryOptimizedEntityType), nameof(nonMemoryOptimizedEntityType)),
+                table, entityType, otherEntityType, memoryOptimizedEntityType, nonMemoryOptimizedEntityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

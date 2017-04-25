@@ -39,6 +39,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "nvarchar(max)", "int"), modelBuilder.Model);
         }
 
+        public override void Detects_incompatible_shared_columns_with_shared_table()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().Property(a => a.P0).HasColumnType("someInt");
+            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "int"), modelBuilder.Model);
+        }
+
         public override void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
@@ -94,6 +107,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal("IX_Animal_Name", index1.SqlServer().Name);
             Assert.Equal("IX_Animal_Name", index2.Relational().Name);
             Assert.Equal("IX_Animal_Name0", index2.SqlServer().Name);
+        }
+
+        [Fact]
+        public virtual void Detects_incompatible_momory_optimized_shared_table()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().ToTable("Table").ForSqlServerIsMemoryOptimized();
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            VerifyError(SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch("Table", nameof(B), nameof(A), nameof(A), nameof(B)),
+                modelBuilder.Model);
         }
 
         [Fact]

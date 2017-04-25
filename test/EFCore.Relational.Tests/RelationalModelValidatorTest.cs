@@ -45,21 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
-        public virtual void Detects_duplicate_table_names()
-        {
-            var model = new Model();
-            var entityA = model.AddEntityType(typeof(A));
-            SetPrimaryKey(entityA);
-            var entityB = model.AddEntityType(typeof(B));
-            SetPrimaryKey(entityB);
-            entityA.Relational().TableName = "Table";
-            entityB.Relational().TableName = "Table";
-
-            VerifyError(RelationalStrings.DuplicateTableName("Table", null, entityB.DisplayName()), model);
-        }
-
-        [Fact]
-        public virtual void Detects_duplicate_table_names_with_schema()
+        public virtual void Detects_duplicate_table_names_without_identifying_relationship()
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
@@ -71,7 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             entityB.Relational().TableName = "Table";
             entityB.Relational().Schema = "Schema";
 
-            VerifyError(RelationalStrings.DuplicateTableName("Table", "Schema", entityB.DisplayName()), model);
+            VerifyError(RelationalStrings.IncompatibleTableNoRelationship(
+                "Schema.Table", entityB.DisplayName(), entityA.DisplayName(), "{'Id'}", "{'Id'}"),
+                model);
         }
 
         [Fact]
@@ -100,6 +88,73 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             SetBaseType(entityC, entityA);
 
             Validate(model);
+        }
+
+        [Fact]
+        public virtual void Detects_incompatible_primary_keys_with_shared_table()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().HasKey(a => a.Id).HasName("Key");
+            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            VerifyError(RelationalStrings.IncompatibleTableKeyNameMismatch(
+                "Table", nameof(B), nameof(A), "PK_Table", "{'Id'}", "Key", "{'Id'}"),
+                modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_incompatible_primary_key_columns_with_shared_table()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().Property(a => a.Id).HasColumnName("Key");
+            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            VerifyError(RelationalStrings.DuplicateKeyColumnMismatch(
+                "{'Id'}",nameof(B), "{'Id'}", nameof(A), "Table", "PK_Table", "{'Id'}", "{'Key'}"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_incompatible_shared_columns_with_shared_table()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().Property(a => a.P0).HasColumnType("someInt");
+            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "default_int_mapping"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Passes_for_compatible_shared_table()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            Validate(modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Passes_for_compatible_shared_table_inverted()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            Validate(modelBuilder.Model);
         }
 
         [Fact]

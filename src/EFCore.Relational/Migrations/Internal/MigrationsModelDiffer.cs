@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -97,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasDifferences(IModel source, IModel target)
-            => Diff(source, target, new DiffContext()).Any();
+            => Diff(source, target, new DiffContext(source, target, Annotations)).Any();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -105,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         public virtual IReadOnlyList<MigrationOperation> GetDifferences(IModel source, IModel target)
         {
-            var diffContext = new DiffContext();
+            var diffContext = new DiffContext(source, target, Annotations);
 
             return Sort(Diff(source, target, diffContext), diffContext);
         }
@@ -221,15 +222,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 foreach (var addForeignKeyOperation in createTableOperation.ForeignKeys)
                 {
-                    if ((addForeignKeyOperation.Table == addForeignKeyOperation.PrincipalTable)
-                        && (addForeignKeyOperation.Schema == addForeignKeyOperation.PrincipalSchema))
+                    if (addForeignKeyOperation.Table == addForeignKeyOperation.PrincipalTable
+                        && addForeignKeyOperation.Schema == addForeignKeyOperation.PrincipalSchema)
                     {
                         continue;
                     }
 
                     var principalCreateTableOperation = createTableOperations.FirstOrDefault(
-                        o => (o.Name == addForeignKeyOperation.PrincipalTable)
-                             && (o.Schema == addForeignKeyOperation.PrincipalSchema));
+                        o => o.Name == addForeignKeyOperation.PrincipalTable
+                             && o.Schema == addForeignKeyOperation.PrincipalSchema);
                     if (principalCreateTableOperation != null)
                     {
                         createTableGraph.AddEdge(principalCreateTableOperation, createTableOperation, addForeignKeyOperation);
@@ -252,23 +253,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             dropTableGraph.AddVertices(dropTableOperations);
             foreach (var dropTableOperation in dropTableOperations)
             {
-                var entityType = diffContext.GetMetadata(dropTableOperation);
-                foreach (var foreignKey in GetForeignKeysInHierarchy(entityType))
+                var table = diffContext.FindTable(dropTableOperation);
+                foreach (var foreignKey in table.GetForeignKeys())
                 {
-                    var principalRootEntityType = foreignKey.PrincipalEntityType.RootType();
-                    if (entityType == principalRootEntityType)
-                    {
-                        continue;
-                    }
-
+                    var principalRootEntityType = foreignKey.PrincipalEntityType;
                     var principalDropTableOperation = diffContext.FindDrop(principalRootEntityType);
-                    if (principalDropTableOperation != null)
+                    if (principalDropTableOperation != null
+                        && principalDropTableOperation != dropTableOperation)
                     {
                         dropTableGraph.AddEdge(dropTableOperation, principalDropTableOperation, foreignKey);
                     }
                 }
             }
-            var newDiffContext = new DiffContext();
+            var newDiffContext = new DiffContext(null, null, Annotations);
             dropTableOperations = dropTableGraph.TopologicalSort(
                 (dropTableOperation, principalDropTableOperation, foreignKeys) =>
                 {
@@ -307,17 +304,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [CanBeNull] IModel source,
             [CanBeNull] IModel target,
             [NotNull] DiffContext diffContext)
-            => (source != null) && (target != null)
+            => source != null && target != null
                 ? DiffAnnotations(source, target)
                     .Concat(Diff(GetSchemas(source), GetSchemas(target)))
-                    .Concat(Diff(source.GetRootEntityTypes(), target.GetRootEntityTypes(), diffContext))
-                    .Concat(
-                        Diff(Annotations.For(source).Sequences, Annotations.For(target).Sequences))
-                    .Concat(
-                        Diff(
-                            source.GetRootEntityTypes().SelectMany(GetForeignKeysInHierarchy),
-                            target.GetRootEntityTypes().SelectMany(GetForeignKeysInHierarchy),
-                            diffContext))
+                    .Concat(Diff(diffContext.GetSourceTables(), diffContext.GetTargetTables(), diffContext))
+                    .Concat(Diff(Annotations.For(source).Sequences, Annotations.For(target).Sequences))
+                    .Concat(Diff(
+                        diffContext.GetSourceTables().SelectMany(s => s.GetForeignKeys()),
+                        diffContext.GetTargetTables().SelectMany(t => t.GetForeignKeys()),
+                        diffContext))
                 : target != null
                     ? Add(target, diffContext)
                     : source != null
@@ -371,9 +366,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IModel target, [NotNull] DiffContext diffContext)
             => DiffAnnotations(null, target)
                 .Concat(GetSchemas(target).SelectMany(Add))
-                .Concat(target.GetRootEntityTypes().SelectMany(t => Add(t, diffContext)))
+                .Concat(diffContext.GetTargetTables().SelectMany(t => Add(t, diffContext)))
                 .Concat(Annotations.For(target).Sequences.SelectMany(Add))
-                .Concat(target.GetRootEntityTypes().SelectMany(GetForeignKeysInHierarchy).SelectMany(k => Add(k, diffContext)));
+                .Concat(diffContext.GetTargetTables().SelectMany(t => t.GetForeignKeys()).SelectMany(k => Add(k, diffContext)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -381,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IModel source, [NotNull] DiffContext diffContext)
             => DiffAnnotations(source, null)
-                .Concat(source.GetRootEntityTypes().SelectMany(t => Remove(t, diffContext)))
+                .Concat(diffContext.GetSourceTables().SelectMany(t => Remove(t, diffContext)))
                 .Concat(Annotations.For(source).Sequences.SelectMany(Remove));
 
         #endregion
@@ -433,8 +428,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<IEntityType> source,
-            [NotNull] IEnumerable<IEntityType> target,
+            [NotNull] IEnumerable<TableMapping> source,
+            [NotNull] IEnumerable<TableMapping> target,
             [NotNull] DiffContext diffContext)
             => DiffCollection(
                 source,
@@ -447,18 +442,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 },
                 t => Add(t, diffContext),
                 s => Remove(s, diffContext),
-                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
+                (s, t) => s.EntityTypes.Any(se => t.EntityTypes.Any(te => string.Equals(se.Name, te.Name, StringComparison.OrdinalIgnoreCase))),
                 (s, t) => string.Equals(
-                    Annotations.For(s).Schema,
-                    Annotations.For(t).Schema,
+                    s.Schema,
+                    t.Schema,
                     StringComparison.OrdinalIgnoreCase)
                           && string.Equals(
-                              Annotations.For(s).TableName,
-                              Annotations.For(t).TableName,
+                              s.Name,
+                              t.Name,
                               StringComparison.OrdinalIgnoreCase),
                 (s, t) => string.Equals(
-                    Annotations.For(s).TableName,
-                    Annotations.For(t).TableName,
+                    s.Name,
+                    t.Name,
                     StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
@@ -466,30 +461,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEntityType source,
-            [NotNull] IEntityType target,
+            [NotNull] TableMapping source,
+            [NotNull] TableMapping target,
             [NotNull] DiffContext diffContext)
         {
-            var sourceAnnotations = Annotations.For(source);
-            var targetAnnotations = Annotations.For(target);
-
-            var schemaChanged = sourceAnnotations.Schema != targetAnnotations.Schema;
-            var renamed = sourceAnnotations.TableName != targetAnnotations.TableName;
+            var schemaChanged = source.Schema != target.Schema;
+            var renamed = source.Name != target.Name;
             if (schemaChanged || renamed)
             {
                 yield return new RenameTableOperation
                 {
-                    Schema = sourceAnnotations.Schema,
-                    Name = sourceAnnotations.TableName,
-                    NewSchema = schemaChanged ? targetAnnotations.Schema : null,
-                    NewName = renamed ? targetAnnotations.TableName : null
+                    Schema = source.Schema,
+                    Name = source.Name,
+                    NewSchema = schemaChanged ? target.Schema : null,
+                    NewName = renamed ? target.Name : null
                 };
             }
 
             var operations = DiffAnnotations(source, target)
-                .Concat(Diff(GetPropertiesInHierarchy(source), GetPropertiesInHierarchy(target), diffContext))
+                .Concat(Diff(source.GetProperties(), target.GetProperties(), diffContext))
                 .Concat(Diff(source.GetKeys(), target.GetKeys(), diffContext))
-                .Concat(Diff(GetIndexesInHierarchy(source), GetIndexesInHierarchy(target), diffContext));
+                .Concat(Diff(source.GetIndexes(), target.GetIndexes(), diffContext));
             foreach (var operation in operations)
             {
                 yield return operation;
@@ -497,18 +489,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         private IEnumerable<MigrationOperation> DiffAnnotations(
-            [NotNull] IEntityType source,
-            [NotNull] IEntityType target)
+            [NotNull] TableMapping source,
+            [NotNull] TableMapping target)
         {
-            var sourceMigrationsAnnotations = MigrationsAnnotations.For(source).ToList();
-            var targetMigrationsAnnotations = MigrationsAnnotations.For(target).ToList();
+            // Validation should ensure that all the relevant annotations for the colocated entity types are the same
+            var sourceMigrationsAnnotations = MigrationsAnnotations.For(source.EntityTypes[0]).ToList();
+            var targetMigrationsAnnotations = MigrationsAnnotations.For(target.EntityTypes[0]).ToList();
             if (HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
-                var targetAnnotations = Annotations.For(target);
                 var alterTableOperation = new AlterTableOperation
                 {
-                    Name = targetAnnotations.TableName,
-                    Schema = targetAnnotations.Schema
+                    Name = target.Name,
+                    Schema = target.Schema
                 };
                 alterTableOperation.AddAnnotations(targetMigrationsAnnotations);
 
@@ -521,30 +513,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Add([NotNull] IEntityType target, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Add(
+            [NotNull] TableMapping target, [NotNull] DiffContext diffContext)
         {
-            var targetAnnotations = Annotations.For(target);
-
             var createTableOperation = new CreateTableOperation
             {
-                Schema = targetAnnotations.Schema,
-                Name = targetAnnotations.TableName
+                Schema = target.Schema,
+                Name = target.Name
             };
-            createTableOperation.AddAnnotations(MigrationsAnnotations.For(target));
+            createTableOperation.AddAnnotations(MigrationsAnnotations.For(target.EntityTypes[0]));
 
             createTableOperation.Columns.AddRange(
-                GetPropertiesInHierarchy(target).SelectMany(p => Add(p, diffContext, inline: true)).Cast<AddColumnOperation>());
-            var primaryKey = target.FindPrimaryKey();
+                target.GetProperties().SelectMany(p => Add(p, diffContext, inline: true)).Cast<AddColumnOperation>());
+            var primaryKey = target.EntityTypes[0].FindPrimaryKey();
             createTableOperation.PrimaryKey = Add(primaryKey, diffContext).Cast<AddPrimaryKeyOperation>().Single();
             createTableOperation.UniqueConstraints.AddRange(
-                target.GetKeys().Where(k => k != primaryKey).SelectMany(k => Add(k, diffContext))
+                target.GetKeys().Where(k => !k.IsPrimaryKey()).SelectMany(k => Add(k, diffContext))
                     .Cast<AddUniqueConstraintOperation>());
 
-            diffContext.AddCreate(target, createTableOperation);
+            foreach (var targetEntityType in target.EntityTypes)
+            {
+                diffContext.AddCreate(targetEntityType, createTableOperation);
+            }
 
             yield return createTableOperation;
 
-            foreach (var operation in GetIndexesInHierarchy(target).SelectMany(i => Add(i, diffContext)))
+            foreach (var operation in target.GetIndexes().SelectMany(i => Add(i, diffContext)))
             {
                 yield return operation;
             }
@@ -555,32 +549,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove(
-            [NotNull] IEntityType source, [NotNull] DiffContext diffContext)
+            [NotNull] TableMapping source, [NotNull] DiffContext diffContext)
         {
-            var sourceAnnotations = Annotations.For(source);
-
             var operation = new DropTableOperation
             {
-                Schema = sourceAnnotations.Schema,
-                Name = sourceAnnotations.TableName
+                Schema = source.Schema,
+                Name = source.Name
             };
-            operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
+            operation.AddAnnotations(MigrationsAnnotations.ForRemove(source.EntityTypes[0]));
+
             diffContext.AddDrop(source, operation);
 
             yield return operation;
         }
-
-        private IEnumerable<IForeignKey> GetForeignKeysInHierarchy(IEntityType entityType)
-            => entityType.GetDerivedTypesInclusive().SelectMany(t => t.GetDeclaredForeignKeys())
-                .Distinct((x, y) => Annotations.For(x).Name == Annotations.For(y).Name);
-
-        private IEnumerable<IIndex> GetIndexesInHierarchy(IEntityType entityType)
-            => entityType.GetDerivedTypesInclusive().SelectMany(t => t.GetDeclaredIndexes())
-                .Distinct((x, y) => Annotations.For(x).Name == Annotations.For(y).Name);
-
-        private IEnumerable<IProperty> GetPropertiesInHierarchy(IEntityType entityType)
-            => entityType.GetDerivedTypesInclusive().SelectMany(t => t.GetDeclaredProperties())
-                .Distinct((x, y) => Annotations.For(x).ColumnName == Annotations.For(y).ColumnName);
 
         #endregion
 
@@ -884,9 +865,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 s => Remove(s, diffContext),
                 (s, t) => (Annotations.For(s).Name == Annotations.For(t).Name)
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
-                          && (diffContext.FindTarget(s.PrincipalEntityType.RootType()) == t.PrincipalEntityType.RootType())
+                          && diffContext.FindTarget(diffContext.FindSourceTable(s.PrincipalEntityType))
+                            == diffContext.FindTargetTable(t.PrincipalEntityType)
                           && s.PrincipalKey.Properties.Select(diffContext.FindTarget).SequenceEqual(t.PrincipalKey.Properties)
-                          && (s.DeleteBehavior == t.DeleteBehavior)
+                          && s.DeleteBehavior == t.DeleteBehavior
                           && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t)));
 
         /// <summary>
@@ -1297,10 +1279,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected class DiffContext
         {
-            private readonly IDictionary<IEntityType, IEntityType> _entityTypeMap = new Dictionary<IEntityType, IEntityType>();
-            private readonly IDictionary<IEntityType, IEntityType> _reverseEntityTypeMap = new Dictionary<IEntityType, IEntityType>();
+            private readonly IReadOnlyList<TableMapping> _sourceTables;
+            private readonly IReadOnlyList<TableMapping> _targetTables;
+
+            private readonly IDictionary<IEntityType, TableMapping> _sourceEntitiesMap
+                = new Dictionary<IEntityType, TableMapping>();
+
+            private readonly IDictionary<IEntityType, TableMapping> _targetEntitiesMap
+                = new Dictionary<IEntityType, TableMapping>();
+
+            private readonly IDictionary<TableMapping, TableMapping> _tableMappingMap = new Dictionary<TableMapping, TableMapping>();
             private readonly IDictionary<IProperty, IProperty> _propertyMap = new Dictionary<IProperty, IProperty>();
-            private readonly IDictionary<IProperty, IProperty> _reversePropertyMap = new Dictionary<IProperty, IProperty>();
 
             private readonly IDictionary<IEntityType, CreateTableOperation> _createTableOperations
                 = new Dictionary<IEntityType, CreateTableOperation>();
@@ -1308,28 +1297,65 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             private readonly IDictionary<IEntityType, DropTableOperation> _dropTableOperations
                 = new Dictionary<IEntityType, DropTableOperation>();
 
-            private readonly IDictionary<DropTableOperation, IEntityType> _removedEntityTypes
-                = new Dictionary<DropTableOperation, IEntityType>();
+            private readonly IDictionary<DropTableOperation, TableMapping> _removedTables
+                = new Dictionary<DropTableOperation, TableMapping>();
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            public virtual void AddMapping([NotNull] IEntityType source, [NotNull] IEntityType target)
+            public DiffContext([CanBeNull] IModel source, [CanBeNull] IModel target, [NotNull] IRelationalAnnotationProvider annotations)
             {
-                _entityTypeMap.Add(source, target);
-                _reverseEntityTypeMap.Add(target, source);
+                if (source != null)
+                {
+                    _sourceTables = TableMapping.GetTableMappings(source, annotations);
+                    foreach (var table in _sourceTables)
+                    {
+                        foreach (var entityType in table.EntityTypes)
+                        {
+                            _sourceEntitiesMap.Add(entityType, table);
+                        }
+                    }
+                }
+
+                if (target != null)
+                {
+                    _targetTables = TableMapping.GetTableMappings(target, annotations);
+                    foreach (var table in _targetTables)
+                    {
+                        foreach (var entityType in table.EntityTypes)
+                        {
+                            _targetEntitiesMap.Add(entityType, table);
+                        }
+                    }
+                }
             }
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public virtual IEnumerable<TableMapping> GetSourceTables() => _sourceTables;
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public virtual IEnumerable<TableMapping> GetTargetTables() => _targetTables;
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public virtual void AddMapping([NotNull] TableMapping source, [NotNull] TableMapping target)
+                => _tableMappingMap.Add(source, target);
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             public virtual void AddMapping([NotNull] IProperty source, [NotNull] IProperty target)
-            {
-                _propertyMap.Add(source, target);
-                _reversePropertyMap.Add(target, source);
-            }
+                => _propertyMap.Add(source, target);
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1342,95 +1368,77 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            public virtual void AddDrop([NotNull] IEntityType source, [NotNull] DropTableOperation operation)
+            public virtual void AddDrop([NotNull] TableMapping source, [NotNull] DropTableOperation operation)
             {
-                _dropTableOperations.Add(source, operation);
-                _removedEntityTypes.Add(operation, source);
+                foreach (var sourceEntityType in source.EntityTypes)
+                {
+                    _dropTableOperations.Add(sourceEntityType, operation);
+                }
+                _removedTables.Add(operation, source);
             }
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            public virtual IEntityType FindTarget([NotNull] IEntityType source)
-            {
-                IEntityType target;
-                _entityTypeMap.TryGetValue(source, out target);
+            public virtual TableMapping FindSourceTable(IEntityType entityType)
+                => _sourceEntitiesMap.TryGetValue(entityType, out var table)
+                    ? table
+                    : null;
 
-                return target;
-            }
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public virtual TableMapping FindTargetTable(IEntityType entityType)
+                => _targetEntitiesMap.TryGetValue(entityType, out var table)
+                    ? table
+                    : null;
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public virtual TableMapping FindTarget([NotNull] TableMapping source)
+                => _tableMappingMap.TryGetValue(source, out var target)
+                    ? target
+                    : null;
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             public virtual IProperty FindTarget([NotNull] IProperty source)
-            {
-                IProperty target;
-                _propertyMap.TryGetValue(source, out target);
-
-                return target;
-            }
-
-            /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            public virtual IEntityType FindSource([NotNull] IEntityType target)
-            {
-                IEntityType source;
-                _reverseEntityTypeMap.TryGetValue(target, out source);
-
-                return source ?? target;
-            }
-
-            /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            public virtual IProperty FindSource([NotNull] IProperty target)
-            {
-                IProperty source;
-                _reversePropertyMap.TryGetValue(target, out source);
-
-                return source ?? target;
-            }
+                => _propertyMap.TryGetValue(source, out var target)
+                    ? target
+                    : null;
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             public virtual CreateTableOperation FindCreate([NotNull] IEntityType target)
-            {
-                CreateTableOperation operation;
-                _createTableOperations.TryGetValue(target, out operation);
-
-                return operation;
-            }
+                => _createTableOperations.TryGetValue(target, out var operation)
+                    ? operation
+                    : null;
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             public virtual DropTableOperation FindDrop([NotNull] IEntityType source)
-            {
-                DropTableOperation operation;
-                _dropTableOperations.TryGetValue(source, out operation);
-
-                return operation;
-            }
+                => _dropTableOperations.TryGetValue(source, out var operation)
+                    ? operation
+                    : null;
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            public virtual IEntityType GetMetadata([NotNull] DropTableOperation operation)
-            {
-                IEntityType source;
-                _removedEntityTypes.TryGetValue(operation, out source);
-
-                return source;
-            }
+            public virtual TableMapping FindTable([NotNull] DropTableOperation operation)
+                => _removedTables.TryGetValue(operation, out var source)
+                    ? source
+                    : null;
         }
     }
 }

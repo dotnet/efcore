@@ -44,6 +44,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
         }
 
         [Fact]
+        public override void Detects_incompatible_shared_columns_with_shared_table()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().Property(a => a.P0).HasColumnType("someInt");
+            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "INTEGER"), modelBuilder.Model);
+        }
+
+        [Fact]
         public void Detects_schemas()
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());

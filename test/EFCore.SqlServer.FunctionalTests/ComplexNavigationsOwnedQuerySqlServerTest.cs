@@ -55,29 +55,5 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             base.Explicit_GroupJoin_in_subquery_with_unrelated_projection4();
         }
-
-        [ConditionalFact(Skip = "issue #8255")]
-        public override void Multiple_required_navigation_using_multiple_selects_with_string_based_Include()
-        {
-            base.Multiple_required_navigation_using_multiple_selects_with_string_based_Include();
-        }
-
-        [ConditionalFact(Skip = "issue #8255")]
-        public override void Multiple_required_navigations_with_Include()
-        {
-            base.Multiple_required_navigations_with_Include();
-        }
-
-        [ConditionalFact(Skip = "issue #8255")]
-        public override void Multiple_required_navigation_with_string_based_Include()
-        {
-            base.Multiple_required_navigation_with_string_based_Include();
-        }
-
-        [ConditionalFact(Skip = "issue #8255")]
-        public override void Multiple_required_navigation_using_multiple_selects_with_Include()
-        {
-            base.Multiple_required_navigation_using_multiple_selects_with_Include();
-        }
     }
 }

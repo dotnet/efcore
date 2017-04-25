@@ -1,7 +1,8 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -23,12 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             base.Validate(model);
 
-            EnsureNoDefaultDecimalMapping(model);
-            EnsureNoByteIdentityMapping(model);
-            EnsureNoNonKeyValueGeneration(model);
+            ValidateDefaultDecimalMapping(model);
+            ValidateByteIdentityMapping(model);
+            ValidateNonKeyValueGeneration(model);
         }
 
-        protected virtual void EnsureNoDefaultDecimalMapping([NotNull] IModel model)
+        protected virtual void ValidateDefaultDecimalMapping([NotNull] IModel model)
         {
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
@@ -40,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        protected virtual void EnsureNoByteIdentityMapping([NotNull] IModel model)
+        protected virtual void ValidateByteIdentityMapping([NotNull] IModel model)
         {
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
@@ -52,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        protected virtual void EnsureNoNonKeyValueGeneration([NotNull] IModel model)
+        protected virtual void ValidateNonKeyValueGeneration([NotNull] IModel model)
         {
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
@@ -64,6 +65,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 ShowError(SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));
             }
+        }
+
+        protected override void ValidateSharedTableCompatibility(
+            IEntityType newEntityType, List<IEntityType> otherMappedTypes, string tableName)
+        {
+            var isMemoryOptimized = newEntityType.SqlServer().IsMemoryOptimized;
+
+            foreach (var otherMappedType in otherMappedTypes)
+            {
+                if (isMemoryOptimized != otherMappedType.SqlServer().IsMemoryOptimized)
+                {
+                    ShowError(SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch(
+                        tableName, newEntityType.DisplayName(), otherMappedType.DisplayName(),
+                        isMemoryOptimized ? newEntityType.DisplayName() : otherMappedType.DisplayName(),
+                        !isMemoryOptimized ? newEntityType.DisplayName() : otherMappedType.DisplayName()));
+                }
+            }
+
+            base.ValidateSharedTableCompatibility(newEntityType, otherMappedTypes, tableName);
         }
     }
 }
