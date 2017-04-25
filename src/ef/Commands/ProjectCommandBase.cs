@@ -12,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandOption _startupAssembly;
         private CommandOption _dataDir;
         private CommandOption _projectDir;
-        private CommandOption _contentRoot;
         private CommandOption _rootNamespace;
         private CommandOption _noAppDomain;
 
@@ -23,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _startupAssembly = command.Option("-s|--startup-assembly <PATH>", Resources.StartupAssemblyDescription);
             _dataDir = command.Option("--data-dir <PATH>", Resources.DataDirDescription);
             _projectDir = command.Option("--project-dir <PATH>", Resources.ProjectDirDescription);
-            _contentRoot = command.Option("--content-root <PATH>", Resources.ContentRootDescription);
             _rootNamespace = command.Option("--root-namespace <NAMESPACE>", Resources.RootNamespaceDescription);
 
             base.Configure(command);
@@ -49,7 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     _assembly.Value(),
                     _startupAssembly.Value(),
                     _projectDir.Value(),
-                    _contentRoot.Value(),
                     _dataDir.Value(),
                     _rootNamespace.Value(),
                     Environment.Value());
@@ -62,7 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 _assembly.Value(),
                 _startupAssembly.Value(),
                 _projectDir.Value(),
-                _contentRoot.Value(),
                 _dataDir.Value(),
                 _rootNamespace.Value(),
                 Environment.Value());

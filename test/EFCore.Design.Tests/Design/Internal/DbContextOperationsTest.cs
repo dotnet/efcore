@@ -18,8 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new TestOperationReporter(),
                 assembly,
                 assembly,
-                "Environment1",
-                @"X:\ContentRoot1");
+                "Environment1");
 
             operations.CreateContext(typeof(TestContext).FullName);
         }

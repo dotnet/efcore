@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -22,28 +23,24 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly Assembly _assembly;
         private readonly Assembly _startupAssembly;
         private readonly string _environment;
-        private readonly string _contentRootPath;
         private readonly IServiceProvider _runtimeServices;
 
         public DbContextOperations(
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
-            [CanBeNull] string environment,
-            [NotNull] string contentRootPath)
+            [CanBeNull] string environment)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
-            Check.NotEmpty(contentRootPath, nameof(contentRootPath));
 
             _reporter = reporter;
             _assembly = assembly;
             _startupAssembly = startupAssembly;
             _environment = environment;
-            _contentRootPath = contentRootPath;
 
-            var startup = new StartupInvoker(reporter, startupAssembly, environment, contentRootPath);
+            var startup = new StartupInvoker(reporter, startupAssembly, environment);
             _runtimeServices = startup.ConfigureServices();
         }
 
@@ -249,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             => new DbContextFactoryOptions
             {
                 ApplicationBasePath = AppContext.BaseDirectory,
-                ContentRootPath = _contentRootPath,
+                ContentRootPath = Directory.GetCurrentDirectory(),
                 EnvironmentName = !string.IsNullOrEmpty(_environment)
                     ? _environment
                     : "Development"

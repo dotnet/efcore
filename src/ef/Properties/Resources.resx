@@ -123,9 +123,6 @@
   <data name="ConnectionDescription" xml:space="preserve">
     <value>The connection string to the database.</value>
   </data>
-  <data name="ContentRootDescription" xml:space="preserve">
-    <value>The content root path. Defaults to the startup assembly directory.</value>
-  </data>
   <data name="ContextDescription" xml:space="preserve">
     <value>The DbContext to use.</value>
   </data>
@@ -282,9 +279,6 @@
   <data name="UsingConfigurationFile" xml:space="preserve">
     <value>Using configuration file '{config}'.</value>
   </data>
-  <data name="UsingContentRoot" xml:space="preserve">
-    <value>Using content root '{contentRoot}'.</value>
-  </data>
   <data name="UsingDataDir" xml:space="preserve">
     <value>Using data directory '{dataDir}'.</value>
   </data>
@@ -302,5 +296,8 @@
   </data>
   <data name="WritingFile" xml:space="preserve">
     <value>Writing '{file}'...</value>
+  </data>
+  <data name="UsingWorkingDirectory" xml:space="preserve">
+    <value>Using working directory '{workingDirectory}'.</value>
   </data>
 </root>

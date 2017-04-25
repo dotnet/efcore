@@ -32,14 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string projectDir,
-            [NotNull] string contentRootPath,
             [NotNull] string rootNamespace)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
-            Check.NotEmpty(contentRootPath, nameof(contentRootPath));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
 
             _reporter = reporter;
@@ -50,10 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 reporter,
                 assembly,
                 startupAssembly,
-                environment,
-                contentRootPath);
+                environment);
 
-            var startup = new StartupInvoker(reporter, startupAssembly, environment, contentRootPath);
+            var startup = new StartupInvoker(reporter, startupAssembly, environment);
             _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 

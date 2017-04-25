@@ -165,10 +165,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
             args.Add(startupTargetPath);
             args.Add("--project-dir");
             args.Add(project.ProjectDir);
-            args.Add("--content-root");
-            args.Add(startupProject.ProjectDir);
-            args.Add("--data-dir");
-            args.Add(targetDir);
 
             if (Reporter.IsVerbose)
             {
@@ -191,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 args.Add(project.RootNamespace);
             }
 
-            return Exe.Run(executable, args);
+            return Exe.Run(executable, args, startupProject.ProjectDir);
         }
 
         private static string FindProjects(

@@ -9,19 +9,24 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     internal static class Exe
     {
-        public static int Run(string executable, IReadOnlyList<string> args)
+        public static int Run(string executable, IReadOnlyList<string> args, string workingDirectory = null)
         {
             var arguments = ToArguments(args);
 
             Reporter.WriteVerbose(executable + " " + arguments);
 
-            var build = Process.Start(
-                new ProcessStartInfo
-                {
-                    FileName = executable,
-                    Arguments = arguments,
-                    UseShellExecute = false
-                });
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = executable,
+                Arguments = arguments,
+                UseShellExecute = false
+            };
+            if (workingDirectory != null)
+            {
+                startInfo.WorkingDirectory = workingDirectory;
+            }
+
+            var build = Process.Start(startInfo);
             build.WaitForExit();
 
             return build.ExitCode;

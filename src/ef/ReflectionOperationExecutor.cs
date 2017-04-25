@@ -24,11 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string assembly,
             string startupAssembly,
             string projectDir,
-            string contentRootPath,
             string dataDirectory,
             string rootNamespace,
             string environment)
-            : base(assembly, startupAssembly, projectDir, contentRootPath, dataDirectory, rootNamespace, environment)
+            : base(assembly, startupAssembly, projectDir, dataDirectory, rootNamespace, environment)
         {
 #if NET46
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
@@ -55,7 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     { "targetName", AssemblyFileName },
                     { "startupTargetName", StartupAssemblyFileName },
                     { "projectDir", ProjectDirectory },
-                    { "contentRootPath", ContentRootPath },
                     { "rootNamespace", RootNamespace },
                     { "environment", EnvironmentName }
                 });
