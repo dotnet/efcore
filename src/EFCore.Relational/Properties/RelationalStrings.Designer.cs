@@ -306,12 +306,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 column);
 
         /// <summary>
-        ///     Cannot use table '{table}' in schema '{schema}' for entity '{entityType}' since it is being used for another entity.
+        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the name '{keyName}' of the primary key {primaryKey} does not match the name '{otherName}' of the primary key {otherPrimaryKey}.
         /// </summary>
-        public static string DuplicateTableName([CanBeNull] object table, [CanBeNull] object schema, [CanBeNull] object entityType)
+        public static string IncompatibleTableKeyNameMismatch([CanBeNull] object table, [CanBeNull] object entityType, [CanBeNull] object otherEntityType, [CanBeNull] object keyName, [CanBeNull] object primaryKey, [CanBeNull] object otherName, [CanBeNull] object otherPrimaryKey)
             => string.Format(
-                GetString("DuplicateTableName", nameof(table), nameof(schema), nameof(entityType)),
-                table, schema, entityType);
+                GetString("IncompatibleTableKeyNameMismatch", nameof(table), nameof(entityType), nameof(otherEntityType), nameof(keyName), nameof(primaryKey), nameof(otherName), nameof(otherPrimaryKey)),
+                table, entityType, otherEntityType, keyName, primaryKey, otherName, otherPrimaryKey);
+
+        /// <summary>
+        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between the primary key {primaryKey} and the primary key {otherPrimaryKey}.
+        /// </summary>
+        public static string IncompatibleTableNoRelationship([CanBeNull] object table, [CanBeNull] object entityType, [CanBeNull] object otherEntityType, [CanBeNull] object primaryKey, [CanBeNull] object otherPrimaryKey)
+            => string.Format(
+                GetString("IncompatibleTableNoRelationship", nameof(table), nameof(entityType), nameof(otherEntityType), nameof(primaryKey), nameof(otherPrimaryKey)),
+                table, entityType, otherEntityType, primaryKey, otherPrimaryKey);
 
         /// <summary>
         ///     Property '{property}' on entity type '{entityType}' is part of a primary or alternate key but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unqiue values.
@@ -532,6 +540,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("DuplicateIndexUniquenessMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
                 index1, entityType1, index2, entityType2, table, indexName);
+
+        /// <summary>
+        ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different columns ({columnNames1} and {columnNames2}).
+        /// </summary>
+        public static string DuplicateKeyColumnMismatch([CanBeNull] object key1, [CanBeNull] object entityType1, [CanBeNull] object key2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object keyName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
+            => string.Format(
+                GetString("DuplicateKeyColumnMismatch", nameof(key1), nameof(entityType1), nameof(key2), nameof(entityType2), nameof(table), nameof(keyName), nameof(columnNames1), nameof(columnNames2)),
+                key1, entityType1, key2, entityType2, table, keyName, columnNames1, columnNames2);
 
         /// <summary>
         ///     No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.
