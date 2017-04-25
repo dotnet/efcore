@@ -1,0 +1,30 @@
+[
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsAnnotationProvider : Microsoft.EntityFrameworkCore.Migrations.MigrationsAnnotationProvider",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder, Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqliteOptionsExtension>",
+    "MemberId": "protected override Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqliteOptionsExtension CloneExtension()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder, Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqliteOptionsExtension>",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder SuppressForeignKeyEnforcement()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteConventionSetBuilder : Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.RelationalConventionSetBuilder",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext currentContext, Microsoft.EntityFrameworkCore.Internal.IDbSetFinder setFinder)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.Extensions.DependencyInjection.SqliteServiceCollectionExtensions",
+    "MemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlite(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
+    "Kind": "Removal"
+  }
+]

@@ -7,7 +7,6 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />

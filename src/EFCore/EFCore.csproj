@@ -10,7 +10,6 @@ Microsoft.EntityFrameworkCore.DbSet</Description>
     <AssemblyName>Microsoft.EntityFrameworkCore</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />

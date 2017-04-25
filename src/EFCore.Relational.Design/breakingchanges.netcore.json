@@ -1,0 +1,12 @@
+[
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.RelationalScaffoldingModelFactory : Microsoft.EntityFrameworkCore.Scaffolding.IScaffoldingModelFactory",
+    "MemberId": "protected virtual Microsoft.Extensions.Logging.ILogger get_Logger()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.RelationalScaffoldingModelFactory : Microsoft.EntityFrameworkCore.Scaffolding.IScaffoldingModelFactory",
+    "MemberId": "public .ctor(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, Microsoft.EntityFrameworkCore.Scaffolding.IDatabaseModelFactory databaseModelFactory, Microsoft.EntityFrameworkCore.Scaffolding.Internal.CandidateNamingService candidateNamingService)",
+    "Kind": "Removal"
+  }
+]

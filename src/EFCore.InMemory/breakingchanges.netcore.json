@@ -1,0 +1,17 @@
+[
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.InMemoryDbContextOptionsExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseInMemoryDatabase(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.InMemoryDbContextOptionsExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<T0> UseInMemoryDatabase<T0>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<T0> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null) where T0 : Microsoft.EntityFrameworkCore.DbContext",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.Extensions.DependencyInjection.InMemoryServiceCollectionExtensions",
+    "MemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkInMemoryDatabase(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
+    "Kind": "Removal"
+  }
+]
