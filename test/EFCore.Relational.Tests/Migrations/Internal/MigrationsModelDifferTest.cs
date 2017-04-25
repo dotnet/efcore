@@ -239,6 +239,224 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
         }
 
         [Fact]
+        public void Create_shared_table_with_two_types()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity(
+                            "Cat",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.Property<string>("MouseId");
+                                    x.HasKey("Id");
+                                    x.ToTable("Animal");
+                                });
+                        modelBuilder.Entity(
+                            "Dog",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.Property<string>("BoneId");
+                                    x.HasKey("Id");
+                                    x.HasOne("Cat").WithOne().HasForeignKey("Dog", "Id");
+                                    x.ToTable("Animal");
+                                });
+                    },
+                operations =>
+                    {
+                        Assert.Equal(1, operations.Count);
+
+                        var createTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
+                        Assert.Equal("Animal", createTableOperation.Name);
+                        Assert.Equal("Id", createTableOperation.PrimaryKey.Columns.Single());
+                        Assert.Equal(new[] { "Id", "MouseId", "BoneId" }, createTableOperation.Columns.Select(c => c.Name));
+                        Assert.Equal(0, createTableOperation.ForeignKeys.Count);
+                        Assert.Equal(0, createTableOperation.UniqueConstraints.Count);
+                    });
+        }
+
+        [Fact]
+        public void Drop_shared_table_with_two_types()
+        {
+            Execute(
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity(
+                            "Cat",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.Property<string>("MouseId");
+                                    x.HasKey("Id");
+                                    x.ToTable("Animal");
+                                });
+                        modelBuilder.Entity(
+                            "Dog",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.Property<string>("BoneId");
+                                    x.HasKey("Id");
+                                    x.HasOne("Cat").WithOne().HasForeignKey("Dog", "Id");
+                                    x.ToTable("Animal");
+                                });
+                    },
+                _ => { },
+                operations =>
+                    {
+                        Assert.Equal(1, operations.Count);
+
+                        var dropTableOperation = Assert.IsType<DropTableOperation>(operations[0]);
+                        Assert.Equal("Animal", dropTableOperation.Name);
+                    });
+        }
+
+        [Fact]
+        public void Add_type_to_shared_table()
+        {
+            Execute(
+                modelBuilder => {
+                         modelBuilder.Entity(
+                             "Cat",
+                             x =>
+                                 {
+                                     x.Property<int>("Id");
+                                     x.Property<string>("MouseId");
+                                     x.HasKey("Id");
+                                     x.ToTable("Animal");
+                                 });
+                },
+                _ => { },
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity(
+                            "Dog",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.Property<string>("BoneId");
+                                    x.HasKey("Id");
+                                    x.HasOne("Cat").WithOne().HasForeignKey("Dog", "Id");
+                                    x.ToTable("Animal");
+                                });
+                    },
+                operations =>
+                    {
+                        Assert.Equal(1, operations.Count);
+
+                        var alterTableOperation = Assert.IsType<AddColumnOperation>(operations[0]);
+                        Assert.Equal("BoneId", alterTableOperation.Name);
+                    });
+        }
+
+        [Fact]
+        public void Remove_type_from_shared_table()
+        {
+            Execute(
+                modelBuilder => {
+                                    modelBuilder.Entity(
+                                        "Cat",
+                                        x =>
+                                            {
+                                                x.Property<int>("Id");
+                                                x.Property<string>("MouseId");
+                                                x.HasKey("Id");
+                                                x.ToTable("Animal");
+                                            });
+                },
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity(
+                            "Dog",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.Property<string>("BoneId");
+                                    x.HasKey("Id");
+                                    x.HasOne("Cat").WithOne().HasForeignKey("Dog", "Id");
+                                    x.ToTable("Animal");
+                                });
+                    },
+                _ => { },
+                operations =>
+                    {
+                        Assert.Equal(1, operations.Count);
+
+                        var alterTableOperation = Assert.IsType<DropColumnOperation>(operations[0]);
+                        Assert.Equal("BoneId", alterTableOperation.Name);
+                    });
+        }
+
+        [Fact]
+        public void Move_type_from_one_shared_table_to_another()
+        {
+            Execute(
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity(
+                            "Cat",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.Property<string>("MouseId");
+                                    x.HasKey("Id");
+                                });
+                        modelBuilder.Entity(
+                            "Dog",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.Property<string>("BoneId");
+                                    x.HasKey("Id");
+                                });
+                        modelBuilder.Entity(
+                            "Animal",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.Property<string>("HandlerId");
+                                    x.HasKey("Id");
+                                });
+                    },
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity(
+                            "Animal",
+                            x =>
+                                {
+                                    x.HasOne("Dog").WithOne().HasForeignKey("Dog", "Id");
+                                    x.ToTable("Dog");
+                                });
+                    },
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity(
+                            "Animal",
+                            x =>
+                                {
+                                    x.HasOne("Cat").WithOne().HasForeignKey("Cat", "Id");
+                                    x.ToTable("Cat");
+                                });
+                    },
+                operations =>
+                    {
+                        Assert.Equal(2, operations.Count);
+
+                        var dropColumnOperation = Assert.IsType<DropColumnOperation>(operations[0]);
+                        Assert.Equal("HandlerId", dropColumnOperation.Name);
+                        Assert.Equal("Dog", dropColumnOperation.Table);
+
+
+                        var addColumnOperation = Assert.IsType<AddColumnOperation>(operations[1]);
+                        Assert.Equal("HandlerId", addColumnOperation.Name);
+                        Assert.Equal("Cat", addColumnOperation.Table);
+                    });
+        }
+
+        [Fact]
         public void Add_column()
         {
             Execute(

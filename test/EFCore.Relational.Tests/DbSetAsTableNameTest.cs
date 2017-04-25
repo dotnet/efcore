@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
     public abstract class DbSetAsTableNameTest
     {
         [Fact]
-        public void DbSet_names_are_used_as_table_names()
+        public virtual void DbSet_names_are_used_as_table_names()
         {
             using (var context = CreateContext())
             {
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
-        public void DbSet_name_of_base_type_is_used_as_table_name_for_TPH()
+        public virtual void DbSet_name_of_base_type_is_used_as_table_name_for_TPH()
         {
             using (var context = CreateContext())
             {
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
-        public void Type_name_of_base_type_is_used_as_table_name_for_TPH_if_not_added_as_set()
+        public virtual void Type_name_of_base_type_is_used_as_table_name_for_TPH_if_not_added_as_set()
         {
             using (var context = CreateContext())
             {
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
-        public void DbSet_names_of_derived_types_are_used_as_table_names_when_base_type_not_mapped()
+        public virtual void DbSet_names_of_derived_types_are_used_as_table_names_when_base_type_not_mapped()
         {
             using (var context = CreateContext())
             {
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
-        public void Name_of_duplicate_DbSet_is_not_used_as_table_name()
+        public virtual void Name_of_duplicate_DbSet_is_not_used_as_table_name()
         {
             using (var context = CreateContext())
             {
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
-        public void Explicit_names_can_be_used_as_table_names()
+        public virtual void Explicit_names_can_be_used_as_table_names()
         {
             using (var context = CreateNamedTablesContext())
             {
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
-        public void Explicit_name_of_base_type_can_be_used_as_table_name_for_TPH()
+        public virtual void Explicit_name_of_base_type_can_be_used_as_table_name_for_TPH()
         {
             using (var context = CreateNamedTablesContext())
             {
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
-        public void Explicit_name_of_base_type_can_be_used_as_table_name_for_TPH_if_not_added_as_set()
+        public virtual void Explicit_name_of_base_type_can_be_used_as_table_name_for_TPH_if_not_added_as_set()
         {
             using (var context = CreateNamedTablesContext())
             {
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
-        public void Explicit_names_of_derived_types_can_be_used_as_table_names_when_base_type_not_mapped()
+        public virtual void Explicit_names_of_derived_types_can_be_used_as_table_names_when_base_type_not_mapped()
         {
             using (var context = CreateNamedTablesContext())
             {
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
-        public void Explicit_name_can_be_used_for_type_with_duplicated_sets()
+        public virtual void Explicit_name_can_be_used_for_type_with_duplicated_sets()
         {
             using (var context = CreateNamedTablesContext())
             {

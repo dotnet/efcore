@@ -7,7 +7,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -63,16 +62,16 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             Check.NotNull(entry, nameof(entry));
 
-            if ((entry.EntityState != EntityState.Added)
-                && (entry.EntityState != EntityState.Modified)
-                && (entry.EntityState != EntityState.Deleted))
+            if (entry.EntityState != EntityState.Added
+                && entry.EntityState != EntityState.Modified
+                && entry.EntityState != EntityState.Deleted)
             {
                 throw new ArgumentException(RelationalStrings.ModificationFunctionInvalidEntityState(entry.EntityState));
             }
 
             var firstEntry = _entries.FirstOrDefault();
-            if ((firstEntry != null)
-                && (firstEntry.EntityState != entry.EntityState))
+            if (firstEntry != null
+                && firstEntry.EntityState != entry.EntityState)
             {
                 throw new InvalidOperationException(RelationalStrings.ConflictingRowUpdates);
 
