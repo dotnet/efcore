@@ -15,6 +15,6 @@
     <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(InternalAspNetCoreSdkVersion)" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' And '$(OutputType)' == 'library' And '$(DisableImplicitFrameworkReferences)' != 'true'">
-    <PackageReference Include="NETStandard.Library" Version="$(NetStandardImplicitPackageVersion)" />
+    <PackageReference Include="NETStandard.Library" Version="$(BundledNETStandardPackageVersion)" />
   </ItemGroup>
 </Project>
