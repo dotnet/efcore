@@ -5,10 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
@@ -82,6 +79,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual bool IsLateralJoinSupported => false;
 
         /// <summary>
+        ///     Max length of the table alias supported by provider.
+        /// </summary>
+        public virtual int MaxTableAliasLength => 128;
+
+        /// <summary>
         ///     Creates query model visitor.
         /// </summary>
         /// <param name="parentEntityQueryModelVisitor"> The parent entity query model visitor. </param>
@@ -140,6 +142,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (currentAlias.Length == 0)
             {
                 return currentAlias;
+            }
+
+            while(currentAlias.Length > MaxTableAliasLength - 3)
+            {
+                var index = currentAlias.IndexOf(".", StringComparison.OrdinalIgnoreCase);
+                currentAlias = index > 0 ? currentAlias.Substring(index + 1) : currentAlias.Substring(0, MaxTableAliasLength - 3);
             }
 
             var counter = 0;

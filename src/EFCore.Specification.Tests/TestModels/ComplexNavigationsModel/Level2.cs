@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+// ReSharper disable NonReadonlyMemberInGetHashCode
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel
 {
@@ -38,5 +39,39 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
         public ICollection<Level2> OneToMany_Optional_Self { get; set; }
         public Level2 OneToMany_Required_Self_Inverse { get; set; }
         public Level2 OneToMany_Optional_Self_Inverse { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((Level2)obj);
+        }
+
+        private bool Equals(Level2 other)
+        {
+            return Id == other.Id && string.Equals(Name, other.Name) && Date.Equals(other.Date) && Level1_Required_Id == other.Level1_Required_Id && Level1_Optional_Id == other.Level1_Optional_Id;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Id;
+                hashCode = (hashCode * 397) ^ (Name?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ Date.GetHashCode();
+                hashCode = (hashCode * 397) ^ Level1_Required_Id;
+                hashCode = (hashCode * 397) ^ (Level1_Optional_Id?.GetHashCode() ?? 0);
+
+                return hashCode;
+            }
+        }
     }
 }

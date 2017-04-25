@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+// ReSharper disable NonReadonlyMemberInGetHashCode
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel
 {
@@ -27,5 +28,37 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
         public ICollection<Level1> OneToMany_Optional_Self { get; set; }
         public Level1 OneToMany_Required_Self_Inverse { get; set; }
         public Level1 OneToMany_Optional_Self_Inverse { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((Level1)obj);
+        }
+
+        private bool Equals(Level1 other)
+        {
+            return Id == other.Id && string.Equals(Name, other.Name) && Date.Equals(other.Date);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Id;
+                hashCode = (hashCode * 397) ^ (Name?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ Date.GetHashCode();
+
+                return hashCode;
+            }
+        }
     }
 }

@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (!_dietReferenceMap.TryGetValue(entityType, out var entries))
                     {
-                        entries = new Dictionary<object, InternalEntityEntry>();
+                        entries = new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
                         _dietReferenceMap[entityType] = entries;
                     }
 

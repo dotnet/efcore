@@ -2987,6 +2987,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                        select l2.Name);
         }
 
+        [ConditionalFact]
+        public virtual void Level4_Include()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s.Select(l1 => l1.OneToOne_Required_PK)
+                    .Where(t => t != null)
+                    .Select(l2 => l2.OneToOne_Required_PK)
+                    .Where(t => t != null)
+                    .Select(l3 => l3.OneToOne_Required_PK)
+                    .Where(t => t != null)
+                    .Select(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse)
+                    .Include(l2 => l2.OneToOne_Optional_FK),
+                expectedIncludes: new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK, "OneToOne_Optional_FK")
+                },
+                elementSorter: e => e.Id);
+        }
+
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
         {
             if (caller == null)
