@@ -357,6 +357,60 @@ CREATE INDEX Unicorn_Filtered_Index
             }
         }
 
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsHiddenColumns)]
+        public void Hidden_Column()
+        {
+            using (var scratch = SqlServerTestStore.Create("WithHiddenColumns"))
+            {
+                scratch.ExecuteNonQuery(@"
+CREATE TABLE dbo.SystemVersioned
+(
+     Id int NOT NULL PRIMARY KEY CLUSTERED,
+     Name varchar(50) NOT NULL,
+     SysStartTime datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
+     SysEndTime datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+     PERIOD FOR SYSTEM_TIME(SysStartTime, SysEndTime)
+)
+WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.History));
+");
+
+                var configuration = new ReverseEngineeringConfiguration
+                {
+                    ConnectionString = scratch.ConnectionString,
+                    ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
+                    ProjectRootNamespace = TestNamespace,
+                    ContextClassName = "SystemVersionedContext",
+                    UseFluentApiOnly = true
+                };
+                var expectedFileSet = new FileSet(new FileSystemFileService(),
+                    Path.Combine("ReverseEngineering", "Expected"),
+                    contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
+                {
+                    Files = new List<string>
+                    {
+                        "SystemVersionedContext.expected",
+                        "SystemVersioned.expected",
+                    }
+                };
+
+                var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+
+                scratch.ExecuteNonQuery(@"
+ALTER TABLE dbo.SystemVersioned SET (SYSTEM_VERSIONING = OFF);
+DROP TABLE dbo.History;
+");
+
+                var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
+                {
+                    Files = new[] { filePaths.ContextFile }.Concat(filePaths.EntityTypeFiles).Select(Path.GetFileName).ToList()
+                };
+
+                AssertEqualFileContents(expectedFileSet, actualFileSet);
+                AssertCompile(actualFileSet);
+            }
+        }
+
         protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
 #if NET46

@@ -148,6 +148,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private string TemporalTableWhereClause =>
             _serverVersion?.Major >= 13 ? " AND t.temporal_type <> 1" : string.Empty;
 
+        private string IsHiddenColumnWhereClause =>
+            _serverVersion?.Major >= 13 ? " AND c.is_hidden = 0" : string.Empty;
+
         private void GetDefaultSchema()
         {
             var command = _connection.CreateCommand();
@@ -338,7 +341,8 @@ FROM sys.index_columns ic
     LEFT JOIN sys.computed_columns cc ON cc.object_id = c.object_id AND cc.column_id = c.column_id
     JOIN sys.tables AS t ON t.object_id = c.object_id
 WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
-                                  TemporalTableWhereClause;
+            TemporalTableWhereClause +
+            IsHiddenColumnWhereClause;
 
             using (var reader = command.ExecuteReader())
             {

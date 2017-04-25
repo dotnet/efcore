@@ -5,7 +5,8 @@
         "ElasticPoolName": "",
         "SupportsSequences": true,
         "SupportsOffset": true,
-        "SupportsMemoryOptimized": false
+        "SupportsMemoryOptimized": false,
+        "SupportsHiddenColumns": false
       }
     }
 }

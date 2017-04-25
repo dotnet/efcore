@@ -33,6 +33,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 {
                     isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
                 }
+                if (Conditions.HasFlag(SqlServerCondition.SupportsHiddenColumns))
+                {
+                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsHiddenColumns)) ?? false;
+                }
                 if (Conditions.HasFlag(SqlServerCondition.SupportsMemoryOptimized))
                 {
                     isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsMemoryOptimized)) ?? false;
@@ -72,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         IsSqlAzure = 1 << 2,
         IsNotSqlAzure = 1 << 3,
         SupportsMemoryOptimized = 1 << 4,
-        SupportsAttach = 1 << 5
+        SupportsAttach = 1 << 5,
+        SupportsHiddenColumns = 1 << 6
     }
 }
