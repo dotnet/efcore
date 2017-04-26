@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.4",
-    "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.2"
+    "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.3"
   },
   "frameworks": {
     "net451": {},
