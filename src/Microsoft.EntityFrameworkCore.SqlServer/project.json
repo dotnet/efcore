@@ -33,7 +33,7 @@
     "net451": {},
     "netstandard1.3": {
       "dependencies": {
-        "System.Data.SqlClient": "4.3.0-*",
+        "System.Data.SqlClient": "4.3.1",
         "System.Threading.Thread": "4.3.0-*"
       }
     }
