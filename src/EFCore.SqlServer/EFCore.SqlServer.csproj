@@ -16,7 +16,13 @@
     <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="$(CoreFxVersion)" />
+    <!--
+      * Use 4.4.0-* instead of $(CoreFxVersion) to workaround "SqlClient fails with netcoreapp2.0 on Win7/Server2008"
+      * https://github.com/dotnet/corefx/issues/18406
+      * Revert when $(CoreFxVersion) is upgraded to 4.4.0-*
+      * See https://github.com/aspnet/EntityFramework/issues/8294
+    -->
+    <PackageReference Include="System.Data.SqlClient" Version="4.4.0-*" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Threading.Thread" Version="$(CoreFxVersion)" />

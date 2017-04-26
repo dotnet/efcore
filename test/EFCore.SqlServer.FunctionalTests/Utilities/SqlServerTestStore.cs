@@ -54,6 +54,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
         private SqlServerTestStore(string name, bool useFileName = false, bool cleanDatabase = true)
         {
+            //TODO: See https://github.com/aspnet/EntityFramework/issues/8294
+            AppContext.SetSwitch("System.Data.SqlClient.UseLegacyNetworkingOnWindows", true);
+
             Name = name;
 
             if (useFileName)

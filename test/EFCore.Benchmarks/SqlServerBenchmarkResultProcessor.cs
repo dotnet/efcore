@@ -95,6 +95,9 @@ ELSE IF NOT EXISTS (SELECT * FROM syscolumns WHERE name = 'Architecture')
 
         public void SaveSummary(BenchmarkRunSummary summary)
         {
+            //TODO: See https://github.com/aspnet/EntityFramework/issues/8294
+            AppContext.SetSwitch("System.Data.SqlClient.UseLegacyNetworkingOnWindows", true);
+
             using (var conn = new SqlConnection(_connectionString))
             {
                 conn.Open();
