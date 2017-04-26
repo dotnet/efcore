@@ -341,17 +341,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Guid connectionId,
             DbDataReader dataReader,
             int recordsAffected,
+            Guid instanceId,
             long startTimestamp,
             long currentTimestamp)
         {
             if (diagnosticSource.IsEnabled(DataReaderDisposing))
             {
                 diagnosticSource.Write(DataReaderDisposing,
-                    new
+                    new RelationalDiagnosticSourceDataReaderDisposingMessage
                     {
                         Connection = connection,
                         ConnectionId = connectionId,
                         DataReader = dataReader,
+                        InstanceId = instanceId,
                         RecordsAffected = recordsAffected,
                         Timestamp = currentTimestamp,
                         Duration = currentTimestamp - startTimestamp
