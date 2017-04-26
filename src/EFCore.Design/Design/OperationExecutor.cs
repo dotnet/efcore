@@ -34,7 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             var targetName = (string)args["targetName"];
             var startupTargetName = (string)args["startupTargetName"];
-            var environment = (string)args["environment"];
             _projectDir = (string)args["projectDir"];
             var rootNamespace = (string)args["rootNamespace"];
 
@@ -59,13 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Design
                 () => new DbContextOperations(
                     reporter,
                     assembly.Value,
-                    startupAssembly.Value,
-                    environment));
+                    startupAssembly.Value));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     reporter,
                     startupAssembly.Value,
-                    environment,
                     _projectDir,
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
@@ -73,7 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                     reporter,
                     assembly.Value,
                     startupAssembly.Value,
-                    environment,
                     _projectDir,
                     rootNamespace));
         }

@@ -17,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var operations = new DbContextOperations(
                 new TestOperationReporter(),
                 assembly,
-                assembly,
-                "Environment1");
+                assembly);
 
             operations.CreateContext(typeof(TestContext).FullName);
         }

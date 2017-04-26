@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -21,15 +20,13 @@ namespace Microsoft.EntityFrameworkCore.Tools
         protected string StartupAssemblyFileName { get; set; }
         protected string ProjectDirectory { get; }
         protected string RootNamespace { get; }
-        protected string EnvironmentName { get; }
 
         protected OperationExecutorBase(
             string assembly,
             string startupAssembly,
             string projectDir,
             string dataDirectory,
-            string rootNamespace,
-            string environment)
+            string rootNamespace)
         {
             AssemblyFileName = Path.GetFileNameWithoutExtension(assembly);
             StartupAssemblyFileName = startupAssembly == null
@@ -44,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
             RootNamespace = rootNamespace ?? AssemblyFileName;
             ProjectDirectory = projectDir ?? Directory.GetCurrentDirectory();
-            EnvironmentName = environment;
 
             Reporter.WriteVerbose(Resources.UsingAssembly(AssemblyFileName));
             Reporter.WriteVerbose(Resources.UsingStartupAssembly(StartupAssemblyFileName));
