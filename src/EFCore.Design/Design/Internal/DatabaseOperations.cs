@@ -21,18 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly string _rootNamespace;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
 
-        // This obsolete constructor maintains compatibility with Scaffolding
-        public DatabaseOperations(
-            [NotNull] IOperationReporter reporter,
-            [NotNull] Assembly startupAssembly,
-            [CanBeNull] string environment,
-            [NotNull] string projectDir,
-            [NotNull] string rootNamespace,
-            [CanBeNull] string contentRootPath)
-            : this(reporter, startupAssembly, environment, projectDir, rootNamespace)
-        {
-        }
-
         public DatabaseOperations(
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly startupAssembly,
