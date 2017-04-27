@@ -11,9 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks.TestHel
     {
         private static readonly Lazy<bool> _databaseExists = new Lazy<bool>(() =>
             {
-                //TODO: See https://github.com/aspnet/EntityFramework/issues/8294
-                AppContext.SetSwitch("System.Data.SqlClient.UseLegacyNetworkingOnWindows", true);
-
                 using (var connection = new SqlConnection(AdventureWorksFixtureBase.ConnectionString))
                 {
                     try
