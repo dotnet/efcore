@@ -25,6 +25,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly string _environment;
         private readonly IServiceProvider _runtimeServices;
 
+        // This obsolete constructor maintains compatibility with Scaffolding
+        public DbContextOperations(
+            [NotNull] IOperationReporter reporter,
+            [NotNull] Assembly assembly,
+            [NotNull] Assembly startupAssembly,
+            [CanBeNull] string environment,
+            [CanBeNull] string contentRootPath)
+            : this(reporter, assembly, startupAssembly, environment)
+        {
+        }
+
         public DbContextOperations(
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly assembly,
