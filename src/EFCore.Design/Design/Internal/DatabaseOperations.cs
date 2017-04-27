@@ -58,7 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var services = _servicesBuilder.Build(provider);
 
             var loggerFactory = services.GetService<ILoggerFactory>();
+#pragma warning disable CS0618 // Type or member is obsolete
             loggerFactory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, _reporter)));
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var generator = services.GetRequiredService<ReverseEngineeringGenerator>();
             var tableSelectionSet = new TableSelectionSet(tables, schemas);
