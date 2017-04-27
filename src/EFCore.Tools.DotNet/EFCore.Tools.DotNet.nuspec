@@ -13,15 +13,15 @@
       <packageType name="DotnetCliTool" />
     </packageTypes>
     <dependencies>
-      <group targetFramework=".NETCoreApp1.0">
-        <dependency id="Microsoft.NETCore.App" version="1.0.0" exclude="Build,Analyzers" />
-        <dependency id="Newtonsoft.Json" version="10.0.1" exclude="Build,Analyzers" />
+      <group targetFramework=".NETCoreApp2.0">
+        <dependency id="Microsoft.NETCore.App" version="$runtimeFrameworkVersion$" exclude="Build,Analyzers" />
+        <dependency id="Newtonsoft.Json" version="$jsonNetVersion$" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="../dotnet-ef/bin/$configuration$/netcoreapp1.0/dotnet-ef.dll" target="lib/netcoreapp1.0/" />
-    <file src="../dotnet-ef/bin/$configuration$/netcoreapp1.0/dotnet-ef.runtimeconfig.json" target="lib/netcoreapp1.0/" />
+    <file src="../dotnet-ef/bin/$configuration$/netcoreapp2.0/dotnet-ef.dll" target="lib/netcoreapp2.0/" />
+    <file src="../dotnet-ef/bin/$configuration$/netcoreapp2.0/dotnet-ef.runtimeconfig.json" target="lib/netcoreapp2.0/" />
     <file src="../ef/bin/$configuration$/net46/ef.exe" target="tools/net46/" />
     <file src="../ef/bin/x86/$configuration$/net46/ef.x86.exe" target="tools/net46/" />
     <file src="../ef/bin/$configuration$/netcoreapp1.0/ef.dll" target="tools/netcoreapp1.0/" />

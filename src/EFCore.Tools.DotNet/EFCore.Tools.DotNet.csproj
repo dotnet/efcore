@@ -2,22 +2,39 @@
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <Import Project="..\..\build\common.props" />
 
+  <UsingTask TaskName="Microsoft.NET.Build.Tasks.ResolvePackageDependencies"
+             AssemblyFile="$(MicrosoftNETBuildTasksAssembly)" />
+
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\dotnet-ef\dotnet-ef.csproj" />
     <ProjectReference Include="..\ef\ef.csproj" />
   </ItemGroup>
 
-  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
+  </ItemGroup>
+
+  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">  
+    <ResolvePackageDependencies ProjectPath="$(MSBuildProjectFullPath)"
+                                ProjectAssetsFile="$(ProjectAssetsFile)"
+                                ProjectLanguage="$(Language)">
+      <Output TaskParameter="PackageDefinitions" ItemName="_PackageDefinitions" />
+    </ResolvePackageDependencies>
     <PropertyGroup>
-      <NuspecProperties>version=$(PackageVersion);configuration=$(Configuration)</NuspecProperties>
+      <NuspecProperties>
+        version=$(PackageVersion);
+        configuration=$(Configuration);
+        runtimeFrameworkVersion=@(_PackageDefinitions->WithMetadataValue('Name', 'Microsoft.NETCore.App')->Metadata('Version'));
+        jsonNetVersion=@(_PackageDefinitions->WithMetadataValue('Name', 'Newtonsoft.Json')->Metadata('Version'))
+      </NuspecProperties>
     </PropertyGroup>
   </Target>
 
