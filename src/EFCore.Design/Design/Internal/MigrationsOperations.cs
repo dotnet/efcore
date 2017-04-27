@@ -30,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
-            [CanBeNull] string environment,
             [NotNull] string projectDir,
             [NotNull] string rootNamespace)
         {
@@ -47,10 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _contextOperations = new DbContextOperations(
                 reporter,
                 assembly,
-                startupAssembly,
-                environment);
+                startupAssembly);
 
-            var startup = new StartupInvoker(reporter, startupAssembly, environment);
+            var startup = new StartupInvoker(reporter, startupAssembly);
             _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Tools.Properties;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
-    internal abstract class ProjectCommandBase : EnvironmentCommandBase
+    internal abstract class ProjectCommandBase : EFCommandBase
     {
         private CommandOption _assembly;
         private CommandOption _startupAssembly;
@@ -48,8 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     _startupAssembly.Value(),
                     _projectDir.Value(),
                     _dataDir.Value(),
-                    _rootNamespace.Value(),
-                    Environment.Value());
+                    _rootNamespace.Value());
             }
 #elif NETCOREAPP1_0
 #else
@@ -60,8 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 _startupAssembly.Value(),
                 _projectDir.Value(),
                 _dataDir.Value(),
-                _rootNamespace.Value(),
-                Environment.Value());
+                _rootNamespace.Value());
         }
     }
 }

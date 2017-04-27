@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         private readonly Type _startupType;
         private readonly Type _designTimeServicesType;
-        private readonly string _environment;
         private readonly string _startupAssemblyName;
         private readonly IOperationReporter _reporter;
 
@@ -32,22 +31,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public StartupInvoker(
             [NotNull] IOperationReporter reporter,
-            [NotNull] Assembly startupAssembly,
-            [CanBeNull] string environment)
+            [NotNull] Assembly startupAssembly)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
 
             _reporter = reporter;
 
-            _environment = !string.IsNullOrEmpty(environment)
-                ? environment
-                : "Development";
-
             _startupAssemblyName = startupAssembly.GetName().Name;
 
             _startupType = startupAssembly.GetLoadableDefinedTypes().Where(t => typeof(IStartup).IsAssignableFrom(t.AsType()))
-                .Concat(startupAssembly.GetLoadableDefinedTypes().Where(t => t.Name == "Startup" + _environment))
                 .Concat(startupAssembly.GetLoadableDefinedTypes().Where(t => t.Name == "Startup"))
                 .Select(t => t.AsType())
                 .FirstOrDefault();
@@ -68,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             return Invoke(
                        _startupType,
-                       new[] { "Configure" + _environment + "Services", "ConfigureServices" },
+                       "ConfigureServices",
                        services) as IServiceProvider
                    ?? services.BuildServiceProvider();
         }
@@ -86,28 +79,18 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual IServiceCollection ConfigureDesignTimeServices([CanBeNull] Type type, [NotNull] IServiceCollection services)
         {
-            Invoke(type, new[] { "ConfigureDesignTimeServices" }, services);
+            Invoke(type, "ConfigureDesignTimeServices", services);
             return services;
         }
 
-        private object Invoke(Type type, string[] methodNames, IServiceCollection services)
+        private object Invoke(Type type, string methodName, IServiceCollection services)
         {
             if (type == null)
             {
                 return null;
             }
 
-            MethodInfo method = null;
-            // ReSharper disable once ForCanBeConvertedToForeach
-            for (var i = 0; i < methodNames.Length; i++)
-            {
-                method = type.GetTypeInfo().GetDeclaredMethod(methodNames[i]);
-                if (method != null)
-                {
-                    break;
-                }
-            }
-
+            var method = type.GetTypeInfo().GetDeclaredMethod(methodName);
             if (method == null)
             {
                 return null;
@@ -156,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new HostingEnvironment
                 {
                     ContentRootPath = Directory.GetCurrentDirectory(),
-                    EnvironmentName = _environment,
+                    EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development",
                     ApplicationName = _startupAssemblyName
                 });
 

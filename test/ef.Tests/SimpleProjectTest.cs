@@ -188,8 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     build.TargetPath,
                     build.TargetDir,
                     build.TargetDir,
-                    "SimpleProject",
-                    null);
+                    "SimpleProject");
             }
 
             public string TargetDir => _directory.Path;

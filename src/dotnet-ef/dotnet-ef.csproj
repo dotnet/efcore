@@ -17,7 +17,6 @@
     <Compile Include="..\ef\Commands\DatabaseCommand.cs" />
     <Compile Include="..\ef\Commands\DbContextCommand.cs" />
     <Compile Include="..\ef\Commands\EFCommandBase.cs" />
-    <Compile Include="..\ef\Commands\EnvironmentCommandBase.cs" />
     <Compile Include="..\ef\Commands\HelpCommandBase.cs" />
     <Compile Include="..\ef\Commands\MigrationsCommand.cs" />
     <Compile Include="..\ef\Commands\RootCommand.cs" />

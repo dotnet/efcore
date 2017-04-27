@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly IOperationReporter _reporter;
         private readonly Assembly _assembly;
         private readonly Assembly _startupAssembly;
-        private readonly string _environment;
         private readonly IServiceProvider _runtimeServices;
 
         // This obsolete constructor maintains compatibility with Scaffolding
@@ -32,15 +31,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [CanBeNull] string contentRootPath)
-            : this(reporter, assembly, startupAssembly, environment)
+            : this(reporter, assembly, startupAssembly)
         {
         }
 
         public DbContextOperations(
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly,
-            [CanBeNull] string environment)
+            [NotNull] Assembly startupAssembly)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
@@ -49,9 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _reporter = reporter;
             _assembly = assembly;
             _startupAssembly = startupAssembly;
-            _environment = environment;
 
-            var startup = new StartupInvoker(reporter, startupAssembly, environment);
+            var startup = new StartupInvoker(reporter, startupAssembly);
             _runtimeServices = startup.ConfigureServices();
         }
 
@@ -258,9 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 ApplicationBasePath = AppContext.BaseDirectory,
                 ContentRootPath = Directory.GetCurrentDirectory(),
-                EnvironmentName = !string.IsNullOrEmpty(_environment)
-                    ? _environment
-                    : "Development"
+                EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                    ?? "Development"
             };
     }
 }
