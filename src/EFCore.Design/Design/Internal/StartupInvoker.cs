@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -22,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly Type _startupType;
         private readonly Type _designTimeServicesType;
         private readonly string _environment;
-        private readonly string _contentRootPath;
         private readonly string _startupAssemblyName;
         private readonly IOperationReporter _reporter;
 
@@ -33,20 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public StartupInvoker(
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly startupAssembly,
-            [CanBeNull] string environment,
-            [NotNull] string contentRootPath)
+            [CanBeNull] string environment)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
-            Check.NotEmpty(contentRootPath, nameof(contentRootPath));
 
             _reporter = reporter;
 
             _environment = !string.IsNullOrEmpty(environment)
                 ? environment
                 : "Development";
-
-            _contentRootPath = contentRootPath;
 
             _startupAssemblyName = startupAssembly.GetName().Name;
 
@@ -159,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             services.AddSingleton<IHostingEnvironment>(
                 new HostingEnvironment
                 {
-                    ContentRootPath = _contentRootPath,
+                    ContentRootPath = Directory.GetCurrentDirectory(),
                     EnvironmentName = _environment,
                     ApplicationName = _startupAssemblyName
                 });

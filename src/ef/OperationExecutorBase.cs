@@ -11,7 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     internal abstract class OperationExecutorBase : IOperationExecutor
     {
-        private const string DataDirEnvName = "ADONET_DATA_DIR";
         public const string DesignAssemblyName = "Microsoft.EntityFrameworkCore.Design";
         protected const string ExecutorTypeName = "Microsoft.EntityFrameworkCore.Design.OperationExecutor";
 
@@ -20,7 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         protected string AssemblyFileName { get; set; }
         protected string StartupAssemblyFileName { get; set; }
-        protected string ContentRootPath { get; }
         protected string ProjectDirectory { get; }
         protected string RootNamespace { get; }
         protected string EnvironmentName { get; }
@@ -29,7 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string assembly,
             string startupAssembly,
             string projectDir,
-            string contentRootPath,
             string dataDirectory,
             string rootNamespace,
             string environment)
@@ -45,7 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 AppBasePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), AppBasePath));
             }
 
-            ContentRootPath = contentRootPath ?? AppBasePath;
             RootNamespace = rootNamespace ?? AssemblyFileName;
             ProjectDirectory = projectDir ?? Directory.GetCurrentDirectory();
             EnvironmentName = environment;
@@ -53,15 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
             Reporter.WriteVerbose(Resources.UsingAssembly(AssemblyFileName));
             Reporter.WriteVerbose(Resources.UsingStartupAssembly(StartupAssemblyFileName));
             Reporter.WriteVerbose(Resources.UsingApplicationBase(AppBasePath));
-            Reporter.WriteVerbose(Resources.UsingContentRoot(ContentRootPath));
+            Reporter.WriteVerbose(Resources.UsingWorkingDirectory(Directory.GetCurrentDirectory()));
             Reporter.WriteVerbose(Resources.UsingRootNamespace(RootNamespace));
             Reporter.WriteVerbose(Resources.UsingProjectDir(ProjectDirectory));
-
-            if (dataDirectory != null)
-            {
-                Reporter.WriteVerbose(Resources.UsingDataDir(dataDirectory));
-                Environment.SetEnvironmentVariable(DataDirEnvName, dataDirectory);
-            }
         }
 
         public virtual void Dispose()
@@ -84,16 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         {
             var resultHandler = CreateResultHandler();
 
-            var currentDirectory = Directory.GetCurrentDirectory();
-            Directory.SetCurrentDirectory(AppBasePath);
-            try
-            {
-                Execute(operationName, resultHandler, arguments);
-            }
-            finally
-            {
-                Directory.SetCurrentDirectory(currentDirectory);
-            }
+            Execute(operationName, resultHandler, arguments);
 
             if (resultHandler.ErrorType != null)
             {

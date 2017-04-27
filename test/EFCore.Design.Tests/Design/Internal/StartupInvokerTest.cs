@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -136,8 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Design.Internal
             => new StartupInvoker(
                 new TestOperationReporter(),
                 assembly,
-                environment,
-                "Irrelevant");
+                environment);
 
         [Fact]
         public void ConfigureDesignTimeServices_works_on_other_types()
@@ -186,8 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Design.Internal
             var startup = new StartupInvoker(
                 new TestOperationReporter(),
                 assembly,
-                "Injected",
-                @"C:\The\Right\Path");
+                "Injected");
 
             var services = startup.ConfigureServices();
             var service = services.GetRequiredService<TestService>();
@@ -199,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Design.Internal
         {
             public StartupInjected(IHostingEnvironment env)
             {
-                Assert.Equal(@"C:\The\Right\Path", env.ContentRootPath);
+                Assert.Equal(Directory.GetCurrentDirectory(), env.ContentRootPath);
                 Assert.Equal("Injected", env.EnvironmentName);
                 Assert.Equal("MockAssembly", env.ApplicationName);
             }
@@ -250,8 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Design.Internal
             var startup = new StartupInvoker(
                 reporter,
                 MockAssembly.Create(typeof(BadStartup)),
-                /*environment:*/ null,
-                "Irrelevant");
+                environment: null);
 
             var services = startup.ConfigureServices();
 

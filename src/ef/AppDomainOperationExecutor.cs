@@ -22,11 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string assembly,
             string startupAssembly,
             string projectDir,
-            string contentRootPath,
             string dataDirectory,
             string rootNamespace,
             string environment)
-            : base(assembly, startupAssembly, projectDir, contentRootPath, dataDirectory, rootNamespace, environment)
+            : base(assembly, startupAssembly, projectDir, dataDirectory, rootNamespace, environment)
         {
             var info = new AppDomainSetup { ApplicationBase = AppBasePath };
 
@@ -41,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
             if (dataDirectory != null)
             {
+                Reporter.WriteVerbose(Resources.UsingDataDir(dataDirectory));
                 _domain.SetData("DataDirectory", dataDirectory);
             }
 
@@ -64,7 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         { "targetName", AssemblyFileName },
                         { "startupTargetName", StartupAssemblyFileName },
                         { "projectDir", ProjectDirectory },
-                        { "contentRootPath", ContentRootPath },
                         { "rootNamespace", RootNamespace },
                         { "environment", EnvironmentName }
                     }

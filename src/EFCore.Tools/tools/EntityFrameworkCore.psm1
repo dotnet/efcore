@@ -282,7 +282,7 @@ function Scaffold-DbContext
     param(
         [Parameter(Position = 0, Mandatory = $true)]
         [string] $Connection,
-        [Parameter(Position = 1, Mandatory =  $true)]
+        [Parameter(Position = 1, Mandatory = $true)]
         [string] $Provider,
         [string] $OutputDir,
         [string] $Context,
@@ -821,25 +821,18 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     $targetPath = Join-Path $targetDir $targetFileName
     $rootNamespace = GetProperty $project.Properties 'RootNamespace'
 
-    if (IsWeb $startupProject)
-    {
-        $dataDir = Join-Path $startupProjectDir 'App_Data'
-    }
-    else
-    {
-        $dataDir = $targetDir
-    }
-
     $params += '--verbose',
         '--no-color',
         '--prefix-output',
         '--assembly', $targetPath,
         '--startup-assembly', $startupTargetPath,
-        '--project-dir', $projectDir,
-        '--content-root', $startupProjectDir,
-        '--data-dir', $dataDir
+        '--project-dir', $projectDir
 
-    if (IsUWP $startupProject)
+    if (IsWeb $startupProject)
+    {
+        $params += '--data-dir', (Join-Path $startupProjectDir 'App_Data')
+    }
+    elseif (IsUWP $startupProject)
     {
         $params += '--no-appdomain'
     }
@@ -857,6 +850,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
         CreateNoWindow = $true;
         RedirectStandardOutput = $true;
         StandardOutputEncoding = [Text.Encoding]::UTF8;
+        WorkingDirectory = $startupProjectDir;
     }
 
     Write-Verbose "$exePath $arguments"

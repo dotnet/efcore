@@ -28,12 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("ConnectionDescription");
 
         /// <summary>
-        ///     The content root path. Defaults to the startup assembly directory.
-        /// </summary>
-        public static string ContentRootDescription
-            => GetString("ContentRootDescription");
-
-        /// <summary>
         ///     The DbContext to use.
         /// </summary>
         public static string ContextDescription
@@ -364,14 +358,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 config);
 
         /// <summary>
-        ///     Using content root '{contentRoot}'.
-        /// </summary>
-        public static string UsingContentRoot([CanBeNull] object contentRoot)
-            => string.Format(
-                GetString("UsingContentRoot", nameof(contentRoot)),
-                contentRoot);
-
-        /// <summary>
         ///     Using data directory '{dataDir}'.
         /// </summary>
         public static string UsingDataDir([CanBeNull] object dataDir)
@@ -416,6 +402,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => string.Format(
                 GetString("WritingFile", nameof(file)),
                 file);
+
+        /// <summary>
+        ///     Using working directory '{workingDirectory}'.
+        /// </summary>
+        public static string UsingWorkingDirectory([CanBeNull] object workingDirectory)
+            => string.Format(
+                GetString("UsingWorkingDirectory", nameof(workingDirectory)),
+                workingDirectory);
 
         private static string GetString(string name, params string[] formatterNames)
         {
