@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     contexts.Add(
                         context,
                         () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).Create(
-                            CreateFactoryOptions()));
+                            Array.Empty<string>()));
                 }
             }
 
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             return () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory)).Create(
-                CreateFactoryOptions());
+                Array.Empty<string>());
         }
 
         private KeyValuePair<Type, Func<DbContext>> FindContextType(string name)
@@ -249,14 +249,5 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                          || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
                 .ToDictionary(t => t.Key, t => t.Value);
         }
-
-        private DbContextFactoryOptions CreateFactoryOptions()
-            => new DbContextFactoryOptions
-            {
-                ApplicationBasePath = AppContext.BaseDirectory,
-                ContentRootPath = Directory.GetCurrentDirectory(),
-                EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
-                    ?? "Development"
-            };
     }
 }
