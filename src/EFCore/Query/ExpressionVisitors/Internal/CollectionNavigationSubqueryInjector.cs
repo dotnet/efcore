@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -77,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (!EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+            if (!methodCallExpression.Method.IsEFPropertyMethod())
             {
                 _shouldInject = true;
             }

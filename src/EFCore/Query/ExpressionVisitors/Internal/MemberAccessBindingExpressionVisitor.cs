@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var methodCallExpression = nonNullExpression as MethodCallExpression;
                 if (methodCallExpression != null)
                 {
-                    if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+                    if (methodCallExpression.Method.IsEFPropertyMethod())
                     {
                         var firstArgument = methodCallExpression.Arguments[0];
                         var visitedArgument = Visit(firstArgument);
@@ -118,6 +118,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var newConversion = VisitAndConvert(node.Conversion, "VisitBinary");
 
             return node.Update(newLeft, newConversion, newRight);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitUnary(UnaryExpression node)
+        {
+            var newOperand = Visit(node.Operand);
+            if (node.NodeType == ExpressionType.Convert
+                && newOperand?.Type == typeof(ValueBuffer))
+            {
+                return newOperand;
+            }
+
+            return node.Update(newOperand);
         }
 
         private Expression ValueBufferNullComparisonCheck(Expression valueBufferExpression) => Expression.Not(
@@ -242,17 +258,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitMember(MemberExpression node)
         {
-            var expression = node.Expression.RemoveConvert();
+            var newExpression = Visit(node.Expression);
 
-            if (expression != node.Expression
-                && !(expression is QuerySourceReferenceExpression))
-            {
-                expression = node.Expression;
-            }
-
-            var newExpression = Visit(expression);
-
-            if (newExpression != expression)
+            if (newExpression != node.Expression)
             {
                 if (newExpression.Type == typeof(ValueBuffer))
                 {
@@ -286,13 +294,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             MethodCallExpression newExpression = null;
             Expression firstArgument = null;
 
-            if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+            if (methodCallExpression.Method.IsEFPropertyMethod())
             {
                 var newArguments
                     = VisitAndConvert(
                         new List<Expression>
                         {
-                            methodCallExpression.Arguments[0].RemoveConvert(),
+                            methodCallExpression.Arguments[0],
                             methodCallExpression.Arguments[1]
                         }.AsReadOnly(),
                         "VisitMethodCall");
@@ -377,10 +385,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var memberExpression = expression as MemberExpression;
             var methodCallExpression = expression as MethodCallExpression;
 
-            var innerExpression = memberExpression?.Expression
-                                  ?? (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression?.Method)
-                                      ? methodCallExpression?.Arguments[0]
-                                      : null);
+            var innerExpression
+                = memberExpression?.Expression
+                    ?? ((methodCallExpression?.Method).IsEFPropertyMethod()
+                        ? methodCallExpression?.Arguments[0]
+                        : null);
 
             if (innerExpression == null)
             {
@@ -430,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (property == null)
             {
-                if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression?.Method))
+                if ((methodCallExpression?.Method).IsEFPropertyMethod())
                 {
                     throw new InvalidOperationException(
                         CoreStrings.PropertyNotFound(propertyName, entityType.DisplayName()));

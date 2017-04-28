@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -319,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+                if (methodCallExpression.Method.IsEFPropertyMethod())
                 {
                     _requiresBuffering = true;
 
@@ -503,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 if (expression.RemoveConvert() is MethodCallExpression method
-                    && EntityQueryModelVisitor.IsPropertyMethod(method.Method))
+                    && method.Method.IsEFPropertyMethod())
                 {
                     return method.Arguments[0] as QuerySourceReferenceExpression;
                 }

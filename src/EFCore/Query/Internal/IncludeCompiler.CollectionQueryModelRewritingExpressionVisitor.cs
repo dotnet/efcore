@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -193,9 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
                 {
-                    var propertyExpression
-                        = EntityQueryModelVisitor
-                            .CreatePropertyExpression(querySourceReferenceExpression, property);
+                    var propertyExpression = querySourceReferenceExpression.CreateEFPropertyExpression(property);
 
                     if (!orderings.Any(
                         o =>
@@ -399,9 +398,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 Expression.Constant(subQueryProjection.Count)),
                             principalKeyProperty.ClrType.MakeNullable()));
 
-                    var propertyExpression
-                        = EntityQueryModelVisitor
-                            .CreatePropertyExpression(parentQuerySourceReferenceExpression, principalKeyProperty);
+                    var propertyExpression 
+                        = parentQuerySourceReferenceExpression.CreateEFPropertyExpression(principalKeyProperty);
 
                     subQueryProjection.Add(
                         Expression.Convert(
@@ -429,18 +427,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             // TODO: Unify this with other versions
             private static Expression CreateKeyAccessExpression(Expression target, IReadOnlyList<IProperty> properties)
                 => properties.Count == 1
-                    ? EntityQueryModelVisitor
-                        .CreatePropertyExpression(target, properties[0])
+                    ? target.CreateEFPropertyExpression(properties[0])
                     : Expression.New(
                         AnonymousObject.AnonymousObjectCtor,
                         Expression.NewArrayInit(
                             typeof(object),
                             properties
-                                .Select(
-                                    p =>
-                                        Expression.Convert(
-                                            EntityQueryModelVisitor.CreatePropertyExpression(target, p),
-                                            typeof(object)))
+                                .Select(p =>
+                                    Expression.Convert(
+                                        target.CreateEFPropertyExpression(p),
+                                        typeof(object)))
                                 .Cast<Expression>()
                                 .ToArray()));
 
@@ -464,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             .AdjustExpressionAfterCloning(ordering.Expression, querySourceMapping);
 
                     if (newExpression is MethodCallExpression methodCallExpression
-                        && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+                        && methodCallExpression.Method.IsEFPropertyMethod())
                     {
                         newExpression
                             = new NullConditionalExpression(

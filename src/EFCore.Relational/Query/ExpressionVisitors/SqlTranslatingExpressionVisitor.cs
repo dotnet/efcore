@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
@@ -375,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
 
                 if (expression is MethodCallExpression methodCallExpression
-                    && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+                    && methodCallExpression.Method.IsEFPropertyMethod())
                 {
                     if (methodCallExpression.Arguments[0] is QuerySourceReferenceExpression querySourceCaller)
                     {
@@ -421,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
-                if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
+                if (node.Method.IsEFPropertyMethod())
                 {
                     if (node.Arguments[1] is ConstantExpression propertyNameExpression && (string)propertyNameExpression.Value == _propertyName)
                     {
@@ -579,9 +580,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 var arguments
                     = methodCallExpression.Arguments
-                        .Where(e => !(e is QuerySourceReferenceExpression)
-                                    && !(e is SubQueryExpression))
-                        .Select(e => (e as ConstantExpression)?.Value is Array || e.Type == typeof(DbFunctions)
+                        .Where(e => !(e.RemoveConvert() is QuerySourceReferenceExpression)
+                                && !IsNonTranslatableSubquery(e.RemoveConvert()))
+                        .Select(e => (e.RemoveConvert() as ConstantExpression)?.Value is Array || e.RemoveConvert().Type == typeof(DbFunctions)
                             ? e
                             : Visit(e))
                         .Where(e => e != null)
@@ -625,6 +626,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
         }
 
+        private bool IsNonTranslatableSubquery(Expression expression)
+            => expression is SubQueryExpression subQueryExpression
+            && !(subQueryExpression.QueryModel.GetOutputDataInfo() is StreamedScalarValueInfo 
+                || subQueryExpression.QueryModel.GetOutputDataInfo() is StreamedSingleValueInfo streamedSingleValueInfo
+                    && IsStreamedSingleValueSupportedType(streamedSingleValueInfo));
+
         /// <summary>
         ///     Visit a member expression.
         /// </summary>
@@ -636,8 +643,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
 
-            if (!(memberExpression.Expression is QuerySourceReferenceExpression)
-                && !(memberExpression.Expression is SubQueryExpression))
+            if (!(memberExpression.Expression.RemoveConvert() is QuerySourceReferenceExpression)
+                && !(memberExpression.Expression.RemoveConvert() is SubQueryExpression))
             {
                 var newExpression = Visit(memberExpression.Expression);
 
@@ -842,18 +849,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
             else if (!(subQueryOutputDataInfo is StreamedSequenceInfo))
             {
-                var streamedSingleValueInfo = subQueryOutputDataInfo as StreamedSingleValueInfo;
-
-                var streamedSingleValueSupportedType
-                    = streamedSingleValueInfo != null
-                      && _relationalTypeMapper.FindMapping(
-                          streamedSingleValueInfo.DataType
-                              .UnwrapNullableType()
-                              .UnwrapEnumType()) != null;
-
                 if (_inProjection
                     && !(subQueryOutputDataInfo is StreamedScalarValueInfo)
-                    && !streamedSingleValueSupportedType)
+                    && !IsStreamedSingleValueSupportedType(subQueryOutputDataInfo))
                 {
                     return null;
                 }
@@ -900,6 +898,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             return null;
         }
+
+        private bool IsStreamedSingleValueSupportedType(IStreamedDataInfo outputDataInfo)
+            => outputDataInfo is StreamedSingleValueInfo streamedSingleValueInfo
+               && _relationalTypeMapper.FindMapping(
+                   streamedSingleValueInfo.DataType
+                       .UnwrapNullableType()
+                       .UnwrapEnumType()) != null;
 
         /// <summary>
         ///     Visits a constant expression.
@@ -1023,8 +1028,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     if (entityType != null)
                     {
                         return Visit(
-                            EntityQueryModelVisitor.CreatePropertyExpression(
-                                expression, entityType.FindPrimaryKey().Properties[0]));
+                            expression.CreateEFPropertyExpression(
+                                entityType.FindPrimaryKey().Properties[0]));
                     }
 
                     return null;

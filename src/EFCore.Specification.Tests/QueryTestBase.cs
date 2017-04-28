@@ -2832,6 +2832,34 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_query_composition2_FirstOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es.Take(3)
+                    where e1.FirstName ==
+                          (from e2 in es.OrderBy(e => e.EmployeeID)
+                           select e2)
+                          .FirstOrDefault().FirstName
+                    select e1,
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition2_FirstOrDefault_with_anonymous()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es.Take(3)
+                    where e1.FirstName ==
+                          (from e2 in es.OrderBy(e => e.EmployeeID)
+                           select new { Foo = e2 })
+                          .FirstOrDefault().Foo.FirstName
+                    select e1,
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
         public virtual void Where_query_composition3()
         {
             AssertQuery<Customer>(

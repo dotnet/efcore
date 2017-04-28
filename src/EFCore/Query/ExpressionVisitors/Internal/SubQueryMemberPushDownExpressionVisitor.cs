@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
@@ -60,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var newMethodCallExpression = (MethodCallExpression)base.VisitMethodCall(methodCallExpression);
 
-            if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+            if (methodCallExpression.Method.IsEFPropertyMethod())
             {
                 var subQueryExpression = newMethodCallExpression.Arguments[0] as SubQueryExpression;
                 if (subQueryExpression?.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression subSelector)

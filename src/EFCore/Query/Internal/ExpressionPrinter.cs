@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
@@ -256,6 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 case ExpressionType.Convert:
                 case ExpressionType.Throw:
                 case ExpressionType.Not:
+                case ExpressionType.TypeAs:
                     VisitUnary((UnaryExpression)expression);
                     break;
 
@@ -269,6 +271,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 case ExpressionType.Index:
                     VisitIndex((IndexExpression)expression);
+                    break;
+
+                case ExpressionType.TypeIs:
+                    VisitTypeBinary((TypeBinaryExpression)expression);
                     break;
 
                 case ExpressionType.Extension:
@@ -466,7 +472,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (memberExpression.Expression != null)
             {
-                Visit(memberExpression.Expression);
+                if (memberExpression.Expression.NodeType == ExpressionType.Convert)
+                {
+                    _stringBuilder.Append("(");
+                    Visit(memberExpression.Expression);
+                    _stringBuilder.Append(")");
+                }
+                else
+                {
+                    Visit(memberExpression.Expression);
+                }
             }
             else
             {
@@ -525,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (!EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+            if (!methodCallExpression.Method.IsEFPropertyMethod())
             {
                 _stringBuilder.Append(methodCallExpression.Method.ReturnType.ShortDisplayName() + " ");
             }
@@ -540,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var isSimpleMethodOrProperty = _simpleMethods.Contains(methodCallExpression.Method.Name)
                 || methodCallExpression.Arguments.Count < 2
-                || EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method);
+                || methodCallExpression.Method.IsEFPropertyMethod();
 
             var appendAction = isSimpleMethodOrProperty ? (Action<string>)Append : AppendLine;
 
@@ -643,7 +658,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             switch (unaryExpression.NodeType)
             {
                 case ExpressionType.Convert:
-                    _stringBuilder.Append("(" + unaryExpression.Type.ShortDisplayName() + ") ");
+                    _stringBuilder.Append("(" + unaryExpression.Type.ShortDisplayName() + ")");
                     Visit(unaryExpression.Operand);
                     break;
 
@@ -656,6 +671,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _stringBuilder.Append("!(");
                     Visit(unaryExpression.Operand);
                     _stringBuilder.Append(")");
+                    break;
+
+                case ExpressionType.TypeAs:
+                    _stringBuilder.Append("(");
+                    Visit(unaryExpression.Operand);
+                    _stringBuilder.Append(" as " + unaryExpression.Type.ShortDisplayName() + ")");
                     break;
 
                 default:
@@ -707,6 +728,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _stringBuilder.Append("]");
 
             return indexExpression;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
+        {
+            _stringBuilder.Append("(");
+            Visit(typeBinaryExpression.Expression);
+            _stringBuilder.Append(" is " + typeBinaryExpression.TypeOperand.ShortDisplayName() + ")");
+
+            return typeBinaryExpression;
         }
 
         /// <summary>

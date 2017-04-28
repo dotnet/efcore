@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     WHERE [c].[CustomerID] = N'ALFKI', 
                 shaper: BufferedEntityShaper<Customer>), 
             selector: (Customer c | CancellationToken ct) => Task<<>f__AnonymousType3<Customer, List<Order>>> _ExecuteAsync(
-                taskFactories: new Func<Task<object>>[]{ () => Task<object> _ToObjectTask(Task<List<Order>> ToList((IAsyncEnumerable<Order>) EnumerableAdapter<Order> _ToEnumerable(IAsyncEnumerable<Order> _InjectParameters(
+                taskFactories: new Func<Task<object>>[]{ () => Task<object> _ToObjectTask(Task<List<Order>> ToList((IAsyncEnumerable<Order>)EnumerableAdapter<Order> _ToEnumerable(IAsyncEnumerable<Order> _InjectParameters(
                                     queryContext: queryContext, 
                                     source: IAsyncEnumerable<Order> _ShapedQuery(
                                         queryContext: queryContext, 
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                                             entity: c) })))) }, 
                 selector: (Object[] results) => new <>f__AnonymousType3<Customer, List<Order>>(
                     c, 
-                    (List<Order>) results[0]
+                    (List<Order>)results[0]
                 )))",
                 Fixture.TestSqlLoggerFactory.Log);
         }

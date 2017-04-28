@@ -452,6 +452,51 @@ FROM [Employees] AS [e0]
 ORDER BY [e0].[EmployeeID]");
         }
 
+        public override void Where_query_composition2_FirstOrDefault()
+        {
+            base.Where_query_composition2_FirstOrDefault();
+
+            AssertSql(
+                @"@__p_0: 3
+
+SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
+FROM (
+    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+) AS [t]
+WHERE [t].[FirstName] = (
+    SELECT TOP(1) [e0].[FirstName]
+    FROM [Employees] AS [e0]
+    ORDER BY [e0].[EmployeeID]
+)");
+        }
+
+        public override void Where_query_composition2_FirstOrDefault_with_anonymous()
+        {
+            base.Where_query_composition2_FirstOrDefault_with_anonymous();
+
+            AssertSql(
+                @"@__p_0: 3
+
+SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
+FROM (
+    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+) AS [t]",
+                //
+                @"SELECT TOP(1) [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+FROM [Employees] AS [e0]
+ORDER BY [e0].[EmployeeID]",
+                //
+                @"SELECT TOP(1) [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+FROM [Employees] AS [e0]
+ORDER BY [e0].[EmployeeID]",
+                //
+                @"SELECT TOP(1) [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+FROM [Employees] AS [e0]
+ORDER BY [e0].[EmployeeID]");
+        }
+
         public override void Where_shadow_subquery_FirstOrDefault()
         {
             base.Where_shadow_subquery_FirstOrDefault();

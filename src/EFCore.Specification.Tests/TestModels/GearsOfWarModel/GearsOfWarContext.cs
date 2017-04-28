@@ -19,5 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
         public DbSet<City> Cities { get; set; }
         public DbSet<Mission> Missions { get; set; }
         public DbSet<SquadMission> SquadMissions { get; set; }
+        public DbSet<Faction> Factions { get; set; }
+        public DbSet<LocustLeader> LocustLeaders { get; set; }
     }
 }
