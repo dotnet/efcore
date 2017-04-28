@@ -7,15 +7,18 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
     public class ModificationCommand
     {
-        private readonly Func<IProperty, IRelationalPropertyAnnotations> _getPropertyExtensions;
+        private readonly IRelationalAnnotationProvider _annotationProvider;
         private readonly Func<string> _generateParameterName;
+        private readonly bool _sensitiveLoggingEnabled;
 
         private readonly List<IUpdateEntry> _entries = new List<IUpdateEntry>();
         private IReadOnlyList<ColumnModification> _columnModifications;
@@ -25,16 +28,18 @@ namespace Microsoft.EntityFrameworkCore.Update
             [NotNull] string name,
             [CanBeNull] string schema,
             [NotNull] Func<string> generateParameterName,
-            [NotNull] Func<IProperty, IRelationalPropertyAnnotations> getPropertyExtensions)
+            [NotNull] IRelationalAnnotationProvider annotationProvider,
+            bool sensitiveLoggingEnabled)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(generateParameterName, nameof(generateParameterName));
-            Check.NotNull(getPropertyExtensions, nameof(getPropertyExtensions));
+            Check.NotNull(annotationProvider, nameof(annotationProvider));
 
             TableName = name;
             Schema = schema;
             _generateParameterName = generateParameterName;
-            _getPropertyExtensions = getPropertyExtensions;
+            _annotationProvider = annotationProvider;
+            _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         }
 
         public virtual string TableName { get; }
@@ -62,20 +67,40 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             Check.NotNull(entry, nameof(entry));
 
-            if (entry.EntityState != EntityState.Added
-                && entry.EntityState != EntityState.Modified
-                && entry.EntityState != EntityState.Deleted)
+            switch (entry.EntityState)
             {
-                throw new ArgumentException(RelationalStrings.ModificationFunctionInvalidEntityState(entry.EntityState));
+                case EntityState.Deleted:
+                case EntityState.Modified:
+                case EntityState.Added:
+                    break;
+                default:
+                    throw new ArgumentException(RelationalStrings.ModificationCommandInvalidEntityState(entry.EntityState));
             }
 
-            var firstEntry = _entries.FirstOrDefault();
-            if (firstEntry != null
-                && firstEntry.EntityState != entry.EntityState)
+            if (_entries.Count > 0)
             {
-                throw new InvalidOperationException(RelationalStrings.ConflictingRowUpdates);
+                var lastEntry = _entries[_entries.Count - 1];
+                if (lastEntry.EntityState != entry.EntityState)
+                {
+                    if (_sensitiveLoggingEnabled)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.ConflictingRowUpdateTypesSensitive(
+                                entry.EntityType.DisplayName(),
+                                entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                                entry.EntityState,
+                                lastEntry.EntityType.DisplayName(),
+                                lastEntry.BuildCurrentValuesString(lastEntry.EntityType.FindPrimaryKey().Properties),
+                                lastEntry.EntityState));
+                    }
 
-                // TODO: Check for any other conflicts between the two entries
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingRowUpdateTypes(
+                            entry.EntityType.DisplayName(),
+                            entry.EntityState,
+                            lastEntry.EntityType.DisplayName(),
+                            lastEntry.EntityState));
+                }
             }
 
             _entries.Add(entry);
@@ -86,6 +111,15 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var adding = EntityState == EntityState.Added;
             var columnModifications = new List<ColumnModification>();
+
+            _entries.Sort(EntryComparer.Instance);
+
+            var columnMap = _entries.Count == 1
+                ? null
+                : new Dictionary<string, ColumnModification>();
+
+            Dictionary<IUpdateEntry, List<ColumnModification>> conflictingColumnValues = null;
+            Dictionary<IUpdateEntry, List<ColumnModification>> conflictingOriginalColumnValues = null;
 
             foreach (var entry in _entries)
             {
@@ -108,21 +142,133 @@ namespace Microsoft.EntityFrameworkCore.Update
                             _requiresResultPropagation = true;
                         }
 
-                        columnModifications.Add(new ColumnModification(
+                        var columnModification = new ColumnModification(
                             entry,
                             property,
-                            _getPropertyExtensions(property),
+                            _annotationProvider.For(property),
                             _generateParameterName,
                             readValue,
                             writeValue,
                             isKey,
                             isCondition,
-                            isConcurrencyToken));
+                            isConcurrencyToken);
+
+                        if (columnMap != null)
+                        {
+                            if (columnMap.TryGetValue(columnModification.ColumnName, out var existingColumn))
+                            {
+                                if (columnModification.UseCurrentValueParameter
+                                    && !Equals(columnModification.Value, existingColumn.Value))
+                                {
+                                    conflictingColumnValues = AddConflictingColumnValues(
+                                        conflictingColumnValues, columnModification, existingColumn);
+                                }
+                                else if (columnModification.UseOriginalValueParameter
+                                         && !Equals(columnModification.OriginalValue, existingColumn.OriginalValue))
+                                {
+                                    conflictingOriginalColumnValues = AddConflictingColumnValues(
+                                        conflictingOriginalColumnValues, columnModification, existingColumn);
+                                }
+
+                                continue;
+                            }
+
+                            columnMap.Add(columnModification.ColumnName, columnModification);
+                        }
+
+                        columnModifications.Add(columnModification);
                     }
                 }
             }
 
+            if (conflictingColumnValues != null)
+            {
+                var firstPair = conflictingColumnValues.First();
+                var firstEntry = firstPair.Key;
+                var firstProperties = firstPair.Value.Select(c => c.Property).ToList();
+                var lastPair = conflictingColumnValues.Last();
+                var lastEntry = lastPair.Key;
+                var lastProperties = lastPair.Value.Select(c => c.Property);
+
+                if (_sensitiveLoggingEnabled)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingRowValuesSensitive(
+                            firstEntry.EntityType.DisplayName(),
+                            lastEntry.EntityType.DisplayName(),
+                            firstEntry.BuildCurrentValuesString(firstEntry.EntityType.FindPrimaryKey().Properties),
+                            firstEntry.BuildCurrentValuesString(firstProperties),
+                            lastEntry.BuildCurrentValuesString(lastProperties),
+                            _annotationProvider.FormatColumns(firstProperties)));
+                }
+
+                throw new InvalidOperationException(
+                    RelationalStrings.ConflictingRowValues(
+                        firstEntry.EntityType.DisplayName(),
+                        lastEntry.EntityType.DisplayName(),
+                        Property.Format(firstProperties),
+                        Property.Format(lastProperties),
+                        _annotationProvider.FormatColumns(firstProperties)));
+            }
+
+            if (conflictingOriginalColumnValues != null)
+            {
+                var firstPair = conflictingOriginalColumnValues.First();
+                var firstEntry = firstPair.Key;
+                var firstProperties = firstPair.Value.Select(c => c.Property);
+                var lastPair = conflictingOriginalColumnValues.Last();
+                var lastEntry = lastPair.Key;
+                var lastProperties = lastPair.Value.Select(c => c.Property);
+
+                if (_sensitiveLoggingEnabled)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingOriginalRowValuesSensitive(
+                            firstEntry.EntityType.DisplayName(),
+                            lastEntry.EntityType.DisplayName(),
+                            firstEntry.BuildCurrentValuesString(firstEntry.EntityType.FindPrimaryKey().Properties),
+                            firstEntry.BuildOriginalValuesString(firstProperties),
+                            lastEntry.BuildOriginalValuesString(lastProperties),
+                            _annotationProvider.FormatColumns(firstProperties)));
+                }
+
+                throw new InvalidOperationException(
+                    RelationalStrings.ConflictingOriginalRowValues(
+                        firstEntry.EntityType.DisplayName(),
+                        lastEntry.EntityType.DisplayName(),
+                        Property.Format(firstProperties),
+                        Property.Format(lastProperties),
+                        _annotationProvider.FormatColumns(firstProperties)));
+            }
+
             return columnModifications;
+        }
+
+        private static Dictionary<IUpdateEntry, List<ColumnModification>> AddConflictingColumnValues(
+            Dictionary<IUpdateEntry, List<ColumnModification>> conflictingColumnValues,
+            ColumnModification columnModification,
+            ColumnModification existingColumn)
+        {
+            if (conflictingColumnValues == null)
+            {
+                conflictingColumnValues = new Dictionary<IUpdateEntry, List<ColumnModification>>();
+            }
+
+            if (!conflictingColumnValues.TryGetValue(columnModification.Entry, out var conflictList))
+            {
+                conflictList = new List<ColumnModification>();
+                conflictingColumnValues.Add(columnModification.Entry, conflictList);
+            }
+            conflictList.Add(columnModification);
+
+            if (!conflictingColumnValues.TryGetValue(existingColumn.Entry, out var otherConflictList))
+            {
+                otherConflictList = new List<ColumnModification>();
+                conflictingColumnValues.Add(existingColumn.Entry, otherConflictList);
+            }
+            otherConflictList.Add(existingColumn);
+
+            return conflictingColumnValues;
         }
 
         public virtual void PropagateResults(ValueBuffer valueBuffer)
@@ -136,6 +282,18 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 modification.Value = valueBuffer[index++];
             }
+        }
+
+        private class EntryComparer : IComparer<IUpdateEntry>
+        {
+            private EntryComparer()
+            {
+            }
+
+            public static EntryComparer Instance = new EntryComparer();
+
+            public int Compare(IUpdateEntry x, IUpdateEntry y)
+                => StringComparer.Ordinal.Compare(x.EntityType.RootType().Name, y.EntityType.RootType().Name);
         }
     }
 }

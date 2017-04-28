@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                     {
                         var optionsBuilder = new DbContextOptionsBuilder()
                             .UseSqlite(_connectionString)
-                            .UseInternalServiceProvider(_serviceProvider);
+                            .UseInternalServiceProvider(_serviceProvider)
+                            .EnableSensitiveDataLogging();
 
                         using (var context = new ComplexNavigationsContext(optionsBuilder.Options))
                         {

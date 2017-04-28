@@ -4,6 +4,8 @@
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.Update;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -19,6 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Update
                 new UpdateSqlGeneratorDependencies(
                     new SqliteSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies())));
+
+        protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
 
         protected override string RowsAffected => "changes()";
         protected override string Identity => "last_insert_rowid()";

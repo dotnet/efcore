@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 expression);
 
         /// <summary>
-        ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for '{keyProperties}' is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+        ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
         /// </summary>
         public static string IdentityConflict([CanBeNull] object entityType, [CanBeNull] object keyProperties)
             => string.Format(
