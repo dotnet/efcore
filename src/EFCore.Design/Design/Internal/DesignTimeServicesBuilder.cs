@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -24,15 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class DesignTimeServicesBuilder
     {
-        private readonly StartupInvoker _startup;
+        private readonly Assembly _startupAssembly;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public DesignTimeServicesBuilder([NotNull] StartupInvoker startupInvoker)
+        public DesignTimeServicesBuilder([NotNull] Assembly startupAssembly)
         {
-            _startup = startupInvoker;
+            _startupAssembly = startupAssembly;
         }
 
         /// <summary>
@@ -80,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .AddLogging();
 
         private IServiceCollection ConfigureProviderServices(string provider, IServiceCollection services, bool throwOnError = false)
-            => _startup.ConfigureDesignTimeServices(GetProviderDesignTimeServices(provider, throwOnError), services);
+            => ConfigureDesignTimeServices(GetProviderDesignTimeServices(provider, throwOnError), services);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -105,7 +106,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .AddTransient(_ => contextServices.GetService<IModel>());
 
         private IServiceCollection ConfigureUserServices(IServiceCollection services)
-            => _startup.ConfigureDesignTimeServices(services);
+        {
+            var designTimeServicesType = _startupAssembly.GetLoadableDefinedTypes()
+                .Where(t => typeof(IDesignTimeServices).GetTypeInfo().IsAssignableFrom(t)).Select(t => t.AsType())
+                .FirstOrDefault();
+
+            return ConfigureDesignTimeServices(designTimeServicesType, services);
+        }
 
         private Type GetProviderDesignTimeServices(string provider, bool throwOnError)
         {
@@ -159,6 +166,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 providerServicesAttribute.TypeName,
                 throwOnError: true,
                 ignoreCase: false);
+        }
+
+        private static IServiceCollection ConfigureDesignTimeServices(
+            Type designTimeServicesType,
+            IServiceCollection services)
+        {
+            if (designTimeServicesType != null)
+            {
+                var designTimeServices = (IDesignTimeServices)Activator.CreateInstance(designTimeServicesType);
+                designTimeServices.ConfigureDesignTimeServices(services);
+            }
+
+            return services;
         }
     }
 }

@@ -14,9 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Relational.Design\EFCore.Relational.Design.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="$(AspNetCoreVersion)" />
-  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Collections.NonGeneric" Version="$(CoreFxVersion)" />
   </ItemGroup>

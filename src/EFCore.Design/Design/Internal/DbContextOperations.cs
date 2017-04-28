@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly IOperationReporter _reporter;
         private readonly Assembly _assembly;
         private readonly Assembly _startupAssembly;
-        private readonly IServiceProvider _runtimeServices;
 
         // This obsolete constructor maintains compatibility with Scaffolding
         public DbContextOperations(
@@ -47,9 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _reporter = reporter;
             _assembly = assembly;
             _startupAssembly = startupAssembly;
-
-            var startup = new StartupInvoker(reporter, startupAssembly);
-            _runtimeServices = startup.ConfigureServices();
         }
 
         public virtual void DropDatabase([CanBeNull] string contextType)
@@ -114,25 +110,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 }
             }
 
-            // Look for DbContext classes registered in the service provider
-            var registeredContexts = _runtimeServices.GetServices<DbContextOptions>()
-                .Select(o => o.ContextType);
-            foreach (var context in registeredContexts.Where(c => !contexts.ContainsKey(c)))
-            {
-                contexts.Add(
-                    context,
-                    FindContextFactory(context) ?? (() => (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(_runtimeServices, context)));
-            }
-
             // Look for DbContext classes in assemblies
             var types = _startupAssembly.GetConstructableTypes()
                 .Concat(_assembly.GetConstructableTypes())
-                .Select(i => i.AsType())
                 .ToList();
-            var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t))
+            var contextTypes = types.Where(t => typeof(DbContext).GetTypeInfo().IsAssignableFrom(t)).Select(
+                    t => t.AsType())
                 .Concat(
-                    types.Where(t => typeof(Migration).IsAssignableFrom(t))
-                        .Select(t => t.GetTypeInfo().GetCustomAttribute<DbContextAttribute>()?.ContextType)
+                    types.Where(t => typeof(Migration).GetTypeInfo().IsAssignableFrom(t))
+                        .Select(t => t.GetCustomAttribute<DbContextAttribute>()?.ContextType)
                         .Where(t => t != null))
                 .Distinct();
             foreach (var context in contextTypes.Where(c => !contexts.ContainsKey(c)))
@@ -173,14 +159,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var factoryInterface = typeof(IDbContextFactory<>).MakeGenericType(contextType).GetTypeInfo();
             var factory = contextType.GetTypeInfo().Assembly.GetConstructableTypes()
                 .Where(t => factoryInterface.IsAssignableFrom(t))
-                .Select(t => t.AsType())
                 .FirstOrDefault();
             if (factory == null)
             {
                 return null;
             }
 
-            return () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory)).Create(
+            return () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).Create(
                 Array.Empty<string>());
         }
 
