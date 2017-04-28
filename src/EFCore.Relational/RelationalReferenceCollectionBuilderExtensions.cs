@@ -28,7 +28,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(referenceCollectionBuilder, nameof(referenceCollectionBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            referenceCollectionBuilder.GetInfrastructure<InternalRelationshipBuilder>().Relational(ConfigurationSource.Explicit).HasConstraintName(name);
+            referenceCollectionBuilder.GetInfrastructure<InternalRelationshipBuilder>()
+                .Relational(ConfigurationSource.Explicit)
+                .HasConstraintName(name);
 
             return referenceCollectionBuilder;
         }

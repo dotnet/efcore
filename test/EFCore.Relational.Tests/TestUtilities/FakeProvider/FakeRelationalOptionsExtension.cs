@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
                 .TryAdd<IQuerySqlGeneratorFactory, TestQuerySqlGeneratorFactory>()
                 .TryAdd<IRelationalConnection, FakeRelationalConnection>()
                 .TryAdd<IHistoryRepository>(_ => null)
-                .TryAdd<IUpdateSqlGenerator>(_ => null)
-                .TryAdd<IModificationCommandBatchFactory>(_ => null)
+                .TryAdd<IUpdateSqlGenerator, FakeSqlGenerator>()
+                .TryAdd<IModificationCommandBatchFactory, TestModificationCommandBatchFactory>()
                 .TryAdd<IRelationalDatabaseCreator, FakeRelationalDatabaseCreator>();
 
             builder.TryAddCoreServices();

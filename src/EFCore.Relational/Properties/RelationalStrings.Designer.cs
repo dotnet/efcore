@@ -16,11 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.RelationalStrings", typeof(RelationalStrings).GetTypeInfo().Assembly);
 
         /// <summary>
-        ///     Cannot create a ModificationFunction for an entity in state '{entityState}'.
+        ///     Cannot save changes for an entity in state '{entityState}'.
         /// </summary>
-        public static string ModificationFunctionInvalidEntityState([CanBeNull] object entityState)
+        public static string ModificationCommandInvalidEntityState([CanBeNull] object entityState)
             => string.Format(
-                GetString("ModificationFunctionInvalidEntityState", nameof(entityState)),
+                GetString("ModificationCommandInvalidEntityState", nameof(entityState)),
                 entityState);
 
         /// <summary>
@@ -432,10 +432,68 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("NoActiveTransaction");
 
         /// <summary>
-        ///     Two entities cannot make conflicting updates to the same row.
+        ///     An instance of entity type '{firstEntityType}' is marked as '{firstState}', but an instance of entity type '{secondEntityType}' is marked as '{secondState}' and both are mapped to the same row. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
-        public static string ConflictingRowUpdates
-            => GetString("ConflictingRowUpdates");
+        public static string ConflictingRowUpdateTypes([CanBeNull] object firstEntityType, [CanBeNull] object firstState, [CanBeNull] object secondEntityType, [CanBeNull] object secondState)
+            => string.Format(
+                GetString("ConflictingRowUpdateTypes", nameof(firstEntityType), nameof(firstState), nameof(secondEntityType), nameof(secondState)),
+                firstEntityType, firstState, secondEntityType, secondState);
+
+        /// <summary>
+        ///     The instance of entity type '{firstEntityType}' with the key value '{firstKeyValue}' is marked as '{firstState}', but the instance of entity type '{secondEntityType}' with the key value '{secondKeyValue}' is marked as '{secondState}' and both are mapped to the same row.
+        /// </summary>
+        public static string ConflictingRowUpdateTypesSensitive([CanBeNull] object firstEntityType, [CanBeNull] object firstKeyValue, [CanBeNull] object firstState, [CanBeNull] object secondEntityType, [CanBeNull] object secondKeyValue, [CanBeNull] object secondState)
+            => string.Format(
+                GetString("ConflictingRowUpdateTypesSensitive", nameof(firstEntityType), nameof(firstKeyValue), nameof(firstState), nameof(secondEntityType), nameof(secondKeyValue), nameof(secondState)),
+                firstEntityType, firstKeyValue, firstState, secondEntityType, secondKeyValue, secondState);
+
+        /// <summary>
+        ///     An instance of entity type '{firstEntityType}' and an instance of entity type '{secondEntityType}' are mapped to the same row, but have different property values for the properties {firstProperties} and {secondProperties} mapped to {columns}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
+        /// </summary>
+        public static string ConflictingRowValues([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType, [CanBeNull] object firstProperties, [CanBeNull] object secondProperties, [CanBeNull] object columns)
+            => string.Format(
+                GetString("ConflictingRowValues", nameof(firstEntityType), nameof(secondEntityType), nameof(firstProperties), nameof(secondProperties), nameof(columns)),
+                firstEntityType, secondEntityType, firstProperties, secondProperties, columns);
+
+        /// <summary>
+        ///     The instance of entity type '{firstEntityType}' and the instance of entity type '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValues}' and '{secondConflictingValues}' mapped to {columns}.
+        /// </summary>
+        public static string ConflictingRowValuesSensitive([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType, [CanBeNull] object keyValue, [CanBeNull] object firstConflictingValues, [CanBeNull] object secondConflictingValues, [CanBeNull] object columns)
+            => string.Format(
+                GetString("ConflictingRowValuesSensitive", nameof(firstEntityType), nameof(secondEntityType), nameof(keyValue), nameof(firstConflictingValues), nameof(secondConflictingValues), nameof(columns)),
+                firstEntityType, secondEntityType, keyValue, firstConflictingValues, secondConflictingValues, columns);
+
+        /// <summary>
+        ///     An instance of entity type '{firstEntityType}' and an instance of entity type '{secondEntityType}' are mapped to the same row, but have different original property values for the properties {firstProperties} and {secondProperties} mapped to {columns}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
+        /// </summary>
+        public static string ConflictingOriginalRowValues([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType, [CanBeNull] object firstProperties, [CanBeNull] object secondProperties, [CanBeNull] object columns)
+            => string.Format(
+                GetString("ConflictingOriginalRowValues", nameof(firstEntityType), nameof(secondEntityType), nameof(firstProperties), nameof(secondProperties), nameof(columns)),
+                firstEntityType, secondEntityType, firstProperties, secondProperties, columns);
+
+        /// <summary>
+        ///     The instance of entity type '{firstEntityType}' and the instance of entity type '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different original property values '{firstConflictingValues}' and '{secondConflictingValues}' mapped to {columns}.
+        /// </summary>
+        public static string ConflictingOriginalRowValuesSensitive([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType, [CanBeNull] object keyValue, [CanBeNull] object firstConflictingValues, [CanBeNull] object secondConflictingValues, [CanBeNull] object columns)
+            => string.Format(
+                GetString("ConflictingOriginalRowValuesSensitive", nameof(firstEntityType), nameof(secondEntityType), nameof(keyValue), nameof(firstConflictingValues), nameof(secondConflictingValues), nameof(columns)),
+                firstEntityType, secondEntityType, keyValue, firstConflictingValues, secondConflictingValues, columns);
+
+        /// <summary>
+        ///     There are '{mappedEntityTypeCount}' entity types sharing the table '{tableName}', but only '{entryCount}' entries with the same key values have been marked as '{state}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+        /// </summary>
+        public static string SharedRowEntryCountMismatch([CanBeNull] object mappedEntityTypeCount, [CanBeNull] object tableName, [CanBeNull] object entryCount, [CanBeNull] object state)
+            => string.Format(
+                GetString("SharedRowEntryCountMismatch", nameof(mappedEntityTypeCount), nameof(tableName), nameof(entryCount), nameof(state)),
+                mappedEntityTypeCount, tableName, entryCount, state);
+
+        /// <summary>
+        ///     There are '{mappedEntityTypeCount}' entity types sharing the table '{tableName}', but only '{entryCount}' entries with the same key values '{keyValue}' have been marked as '{state}'.
+        /// </summary>
+        public static string SharedRowEntryCountMismatchSensitive([CanBeNull] object mappedEntityTypeCount, [CanBeNull] object tableName, [CanBeNull] object entryCount, [CanBeNull] object keyValue, [CanBeNull] object state)
+            => string.Format(
+                GetString("SharedRowEntryCountMismatchSensitive", nameof(mappedEntityTypeCount), nameof(tableName), nameof(entryCount), nameof(keyValue), nameof(state)),
+                mappedEntityTypeCount, tableName, entryCount, keyValue, state);
 
         /// <summary>
         ///     Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.

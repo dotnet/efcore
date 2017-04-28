@@ -117,8 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ModificationFunctionInvalidEntityState" xml:space="preserve">
-    <value>Cannot create a ModificationFunction for an entity in state '{entityState}'.</value>
+  <data name="ModificationCommandInvalidEntityState" xml:space="preserve">
+    <value>Cannot save changes for an entity in state '{entityState}'.</value>
   </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Database operation expected to affect {expectedRows} row(s) but actually affected {actualRows} row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.</value>
@@ -288,8 +288,29 @@
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>
   </data>
-  <data name="ConflictingRowUpdates" xml:space="preserve">
-    <value>Two entities cannot make conflicting updates to the same row.</value>
+  <data name="ConflictingRowUpdateTypes" xml:space="preserve">
+    <value>An instance of entity type '{firstEntityType}' is marked as '{firstState}', but an instance of entity type '{secondEntityType}' is marked as '{secondState}' and both are mapped to the same row. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
+  </data>
+  <data name="ConflictingRowUpdateTypesSensitive" xml:space="preserve">
+    <value>The instance of entity type '{firstEntityType}' with the key value '{firstKeyValue}' is marked as '{firstState}', but the instance of entity type '{secondEntityType}' with the key value '{secondKeyValue}' is marked as '{secondState}' and both are mapped to the same row.</value>
+  </data>
+  <data name="ConflictingRowValues" xml:space="preserve">
+    <value>An instance of entity type '{firstEntityType}' and an instance of entity type '{secondEntityType}' are mapped to the same row, but have different property values for the properties {firstProperties} and {secondProperties} mapped to {columns}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
+  </data>
+  <data name="ConflictingRowValuesSensitive" xml:space="preserve">
+    <value>The instance of entity type '{firstEntityType}' and the instance of entity type '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValues}' and '{secondConflictingValues}' mapped to {columns}.</value>
+  </data>
+  <data name="ConflictingOriginalRowValues" xml:space="preserve">
+    <value>An instance of entity type '{firstEntityType}' and an instance of entity type '{secondEntityType}' are mapped to the same row, but have different original property values for the properties {firstProperties} and {secondProperties} mapped to {columns}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
+  </data>
+  <data name="ConflictingOriginalRowValuesSensitive" xml:space="preserve">
+    <value>The instance of entity type '{firstEntityType}' and the instance of entity type '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different original property values '{firstConflictingValues}' and '{secondConflictingValues}' mapped to {columns}.</value>
+  </data>
+  <data name="SharedRowEntryCountMismatch" xml:space="preserve">
+    <value>There are '{mappedEntityTypeCount}' entity types sharing the table '{tableName}', but only '{entryCount}' entries with the same key values have been marked as '{state}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
+  </data>
+  <data name="SharedRowEntryCountMismatchSensitive" xml:space="preserve">
+    <value>There are '{mappedEntityTypeCount}' entity types sharing the table '{tableName}', but only '{entryCount}' entries with the same key values '{keyValue}' have been marked as '{state}'.</value>
   </data>
   <data name="IncorrectDefaultValueType" xml:space="preserve">
     <value>Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.</value>

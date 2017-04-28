@@ -968,6 +968,11 @@
     "Kind": "Removal"
   },
   {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Update.ModificationCommand",
+    "MemberId": "public .ctor(System.String name, System.String schema, System.Func<System.String> generateParameterName, System.Func<Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations> getPropertyExtensions)",
+    "Kind": "Removal"
+  },
+  {
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory",
     "MemberId": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitor Create(Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression targetSelectExpression = null, System.Linq.Expressions.Expression topLevelPredicate = null, System.Boolean inProjection = False)",
     "Kind": "Addition"

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -206,14 +207,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         throw new InvalidOperationException(
                             CoreStrings.IdentityConflictSensitive(
                                 entry.EntityType.DisplayName(),
-                                PrincipalKeyValueFactory.BuildKeyValuesString(entry)));
+                                entry.BuildCurrentValuesString(Key.Properties)));
 
                     }
 
                     throw new InvalidOperationException(
                         CoreStrings.IdentityConflict(
                             entry.EntityType.DisplayName(),
-                            string.Join(", ", Key.Properties.Select(p => p.Name))));
+                            Property.Format(Key.Properties)));
                 }
             }
             else
