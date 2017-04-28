@@ -130,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             targetExpression,
                             includeResultOperator.QuerySource);
 
-                if (querySourceReferenceExpression == null)
+                if (querySourceReferenceExpression == null
+                    || navigationPath == null)
                 {
                     continue;
                 }

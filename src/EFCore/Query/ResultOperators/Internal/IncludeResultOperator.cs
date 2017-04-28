@@ -114,6 +114,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
                 }
             }
 
+            if (entityType == null)
+            {
+                return null;
+            }
+
             var navigationPath = new INavigation[NavigationPropertyPaths.Count];
 
             for (var i = 0; i < NavigationPropertyPaths.Count; i++)

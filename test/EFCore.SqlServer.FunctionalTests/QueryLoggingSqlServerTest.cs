@@ -55,7 +55,7 @@ select [<generated>_0]'
         }
 
         [Fact]
-        public virtual void Query_with_ignored_include_should_log_warning()
+        public virtual void Query_with_ignored_include_should_log_warning1()
         {
             using (var context = CreateContext())
             {
@@ -67,6 +67,23 @@ select [<generated>_0]'
 
                 Assert.NotNull(customers);
                 Assert.Contains(CoreStrings.LogIgnoredInclude("[c].Orders"), _fixture.TestSqlLoggerFactory.Log);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_with_ignored_include_should_log_warning2()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = context.Customers
+                        .Select(c => new Tuple<Customer, int>( c, 5 ))
+                        .Include(t => t.Item1.Orders)
+                        .ToList();
+
+                Assert.NotNull(results);
+                Assert.True(results.All(t => t.Item1.Orders == null));
+                Assert.Contains(CoreStrings.LogIgnoredInclude("new Tuple`2(Item1 = [c], Item2 = 5).Item1.Orders"), _fixture.TestSqlLoggerFactory.Log);
             }
         }
 

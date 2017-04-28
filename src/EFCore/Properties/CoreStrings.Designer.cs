@@ -1352,7 +1352,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     The Include operation '{include}' was ignored because the target navigation is not reachable in the final query results.
+        ///     The Include operation '{include}' was ignored because the target navigation is not reachable in the final query results or the Include operation was specified on non-entity type.
         /// </summary>
         public static string LogIgnoredInclude([CanBeNull] object include)
             => string.Format(
