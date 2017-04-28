@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -26,11 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the defining entity type if this entity type with delegated identity.
         /// </summary>
         IEntityType DefiningEntityType { get; }
-
-        /// <summary>
-        ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
-        /// </summary>
-        LambdaExpression Filter { get; }
 
         /// <summary>
         ///     <para>

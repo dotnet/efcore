@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
             => new TrackingResultOperator(
                 tracking: ParsedExpression.Method.GetGenericMethodDefinition()
-                    .Equals(EntityFrameworkQueryableExtensions.AsTrackingMethodInfo));
+                            .Equals(EntityFrameworkQueryableExtensions.AsTrackingMethodInfo));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -28,11 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets or sets the base type of the entity. Returns null if this is not a derived type in an inheritance hierarchy.
         /// </summary>
         new IMutableEntityType BaseType { get; [param: CanBeNull] set; }
-
-        /// <summary>
-        ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
-        /// </summary>
-        new LambdaExpression Filter { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Sets the primary key for this entity.

@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -174,19 +173,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(propertyName, nameof(propertyName));
 
             Builder.Ignore(propertyName, ConfigurationSource.Explicit);
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
-        ///     this entity type.
-        /// </summary>
-        /// <param name="filter">The LINQ predicate expression.</param>
-        /// <returns></returns>
-        public virtual EntityTypeBuilder HasQueryFilter([CanBeNull] LambdaExpression filter)
-        {
-            Builder.HasQueryFilter(filter);
 
             return this;
         }

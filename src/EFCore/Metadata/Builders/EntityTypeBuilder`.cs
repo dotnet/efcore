@@ -139,15 +139,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (EntityTypeBuilder<TEntity>)base.Ignore(propertyName);
 
         /// <summary>
-        ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
-        ///     this entity type.
-        /// </summary>
-        /// <param name="filter">The LINQ predicate expression.</param>
-        /// <returns></returns>
-        public virtual EntityTypeBuilder<TEntity> HasQueryFilter([CanBeNull] Expression<Func<TEntity, bool>> filter)
-            => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filter);
-
-        /// <summary>
         ///     Configures an index on the specified properties. If there is an existing index on the given
         ///     set of properties, then the existing index will be returned for configuration.
         /// </summary>

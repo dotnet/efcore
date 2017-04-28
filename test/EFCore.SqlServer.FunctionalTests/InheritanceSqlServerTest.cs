@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Inheritance;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -13,8 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public InheritanceSqlServerTest(InheritanceSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            Fixture.TestSqlLoggerFactory.Clear();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         [Fact]

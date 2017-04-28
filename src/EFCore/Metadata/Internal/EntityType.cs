@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -38,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private Key _primaryKey;
         private EntityType _baseType;
-        private LambdaExpression _filter;
 
         private ChangeTrackingStrategy? _changeTrackingStrategy;
 
@@ -119,29 +117,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityType BaseType => _baseType;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual LambdaExpression Filter
-        {
-            get => _filter;
-            [param: CanBeNull]
-            set
-            {
-                if (value != null
-                    && (value.Parameters.Count != 1
-                        || value.Parameters[0].Type != ClrType
-                        || value.ReturnType != typeof(bool)))
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.BadFilterExpression(value, this.DisplayName(), ClrType));
-                }
-
-                _filter = value;
-            }
-        }
 
         /// <summary>
         ///     Gets the name of the defining navigation for this entity type with delegated identity.
@@ -334,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ChangeTrackingStrategy ChangeTrackingStrategy
         {
-            get => _changeTrackingStrategy ?? Model.ChangeTrackingStrategy;
+            get { return _changeTrackingStrategy ?? Model.ChangeTrackingStrategy; }
             set
             {
                 var errorMessage = this.CheckChangeTrackingStrategy(value);
@@ -484,8 +459,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return _baseType.FindPrimaryKey(properties);
             }
 
-            if (_primaryKey != null
-                && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0)
+            if ((_primaryKey != null)
+                && (PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0))
             {
                 return _primaryKey;
             }
@@ -1143,7 +1118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     duplicateProperty.DeclaringEntityType.DisplayName()));
             }
 
-            Debug.Assert(!GetNavigations().Any(n => n.ForeignKey == foreignKey && n.IsDependentToPrincipal() == pointsToPrincipal),
+            Debug.Assert(!GetNavigations().Any(n => (n.ForeignKey == foreignKey) && (n.IsDependentToPrincipal() == pointsToPrincipal)),
                 "There is another navigation corresponding to the same foreign key and pointing in the same direction.");
 
             Debug.Assert((pointsToPrincipal ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType) == this,
@@ -1774,16 +1749,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IMutableEntityType IMutableEntityType.BaseType
         {
-            get => _baseType;
-            set => HasBaseType((EntityType)value);
+            get { return _baseType; }
+            set { HasBaseType((EntityType)value); }
         }
 
-        LambdaExpression IMutableEntityType.Filter
-        {
-            get => Filter;
-            set => Filter = value;
-        }
-        
         IEntityType IEntityType.DefiningEntityType => DefiningEntityType;
 
         IMutableKey IMutableEntityType.SetPrimaryKey(IReadOnlyList<IMutableProperty> properties)
@@ -1867,16 +1836,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 // Neither property is part of the Primary Key
                 // Compare the property names
-                if (xIndex == -1
-                    && yIndex == -1)
+                if ((xIndex == -1)
+                    && (yIndex == -1))
                 {
                     return StringComparer.Ordinal.Compare(x, y);
                 }
 
                 // Both properties are part of the Primary Key
                 // Compare the indices
-                if (xIndex > -1
-                    && yIndex > -1)
+                if ((xIndex > -1)
+                    && (yIndex > -1))
                 {
                     return xIndex - yIndex;
                 }

@@ -241,17 +241,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Gets a value indicating whether this query should have model-level query filters applied.
-        /// </summary>
-        /// <value>
-        ///     true if query filters should be applied, false if not.
-        /// </value>
-        public virtual bool IgnoreQueryFilters
-            => QueryAnnotations
-                .OfType<IgnoreQueryFiltersResultOperator>()
-                .Any();
-
-        /// <summary>
         ///     The query has at least one Include operation.
         /// </summary>
         public virtual bool IsIncludeQuery => QueryAnnotations.OfType<IncludeResultOperator>().Any();

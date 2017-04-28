@@ -79,7 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     newBaseLine += "Output truncated.";
                 }
 
-                _logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
                 _logger.TestOutputHelper?.WriteLine(newBaseLine);
 
                 var contents = testInfo + newBaseLine + FileLineEnding + FileLineEnding;

@@ -4,15 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -44,80 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             EnsureChangeTrackingStrategy(model);
             ValidateDelegatedIdentityNavigations(model);
             EnsureFieldMapping(model);
-            ValidateQueryFilters(model);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual void ValidateQueryFilters([NotNull] IModel model)
-        {
-            Check.NotNull(model, nameof(model));
-            
-            var filterValidatingExppressionVisitor = new FilterValidatingExppressionVisitor();
-
-            foreach (var entityType in model.GetEntityTypes())
-            {
-                if (entityType.Filter != null)
-                {
-                    if (entityType.BaseType != null)
-                    {
-                        ShowError(CoreStrings.BadFilterDerivedType(entityType.Filter, entityType.DisplayName()));
-                    }
-
-                    if (!filterValidatingExppressionVisitor.IsValid(entityType))
-                    {
-                        ShowError(CoreStrings.BadFilterExpression(entityType.Filter, entityType.DisplayName(), entityType.ClrType));
-                    }
-                }
-            }
-        }
-
-        private sealed class FilterValidatingExppressionVisitor : ExpressionVisitor
-        {
-            private IEntityType _entityType;
-
-            private bool _valid = true;
-
-            public bool IsValid(IEntityType entityType)
-            {
-                _entityType = entityType;
-
-                Visit(entityType.Filter.Body);
-
-                return _valid;
-            }
-
-            protected override Expression VisitMember(MemberExpression memberExpression)
-            {
-                if (memberExpression.Expression == _entityType.Filter.Parameters[0]
-                    && memberExpression.Member is PropertyInfo propertyInfo
-                    && _entityType.FindNavigation(propertyInfo) != null)
-                {
-                    _valid = false;
-
-                    return memberExpression;
-                }
-
-                return base.VisitMember(memberExpression);
-            }
-
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                if (methodCallExpression.IsEFProperty()
-                    && methodCallExpression.Arguments[0] == _entityType.Filter.Parameters[0]
-                    && (!(methodCallExpression.Arguments[1] is ConstantExpression constantExpression)
-                        || !(constantExpression.Value is string propertyName)
-                        || _entityType.FindNavigation(propertyName) != null))
-                {
-                    _valid = false;
-
-                    return methodCallExpression;
-                }
-
-                return base.VisitMethodCall(methodCallExpression);
-            }
         }
 
         /// <summary>
@@ -126,8 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         protected virtual void EnsureNoShadowEntities([NotNull] IModel model)
         {
-            Check.NotNull(model, nameof(model));
-
             var firstShadowEntity = model.GetEntityTypes().FirstOrDefault(entityType => !entityType.HasClrType());
             if (firstShadowEntity != null)
             {
@@ -141,8 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         protected virtual void EnsureNoShadowKeys([NotNull] IModel model)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (var entityType in model.GetEntityTypes().Where(t => t.ClrType != null))
             {
                 foreach (var key in entityType.GetDeclaredKeys())
@@ -197,8 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         protected virtual void EnsureClrInheritance([NotNull] IModel model)
         {
-            Check.NotNull(model, nameof(model));
-
             var validEntityTypes = new HashSet<IEntityType>();
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -210,13 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void EnsureClrInheritance(
-            [NotNull] IModel model, [NotNull] IEntityType entityType, [NotNull] HashSet<IEntityType> validEntityTypes)
+        protected virtual void EnsureClrInheritance([NotNull] IModel model, [NotNull] IEntityType entityType, [NotNull] HashSet<IEntityType> validEntityTypes)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(validEntityTypes, nameof(validEntityTypes));
-
             if (validEntityTypes.Contains(entityType))
             {
                 return;
@@ -283,8 +195,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         protected virtual void ValidateDelegatedIdentityNavigations([NotNull] IModel model)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 if (entityType.DefiningEntityType != null)
@@ -323,8 +233,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         protected virtual void EnsureFieldMapping([NotNull] IModel model)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var propertyBase in entityType

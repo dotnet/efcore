@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
@@ -14,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     public class NorthwindQuerySqlServerFixture : NorthwindQueryRelationalFixture, IDisposable
     {
         private readonly SqlServerTestStore _testStore = SqlServerTestStore.GetNorthwindStore();
-
+        
         public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
 
         public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
@@ -56,6 +57,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .Property(p => p.UnitPrice)
                 .ForSqlServerHasColumnType("money");
         }
+
+        public override NorthwindContext CreateContext(
+            QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
+            => new NorthwindContext(BuildOptions(), queryTrackingBehavior);
 
         public void Dispose() => _testStore.Dispose();
     }
