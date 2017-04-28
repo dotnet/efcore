@@ -40,16 +40,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
         public virtual int? CommandTimeout
         {
-            get { return _realConnection.CommandTimeout; }
-            set { _realConnection.CommandTimeout = value; }
+            get => _realConnection.CommandTimeout;
+            set => _realConnection.CommandTimeout = value;
         }
 
         public virtual IDbContextTransaction CurrentTransaction { get; private set; }
 
         public virtual IValueBufferCursor ActiveCursor
         {
-            get { return _realConnection.ActiveCursor; }
-            set { _realConnection.ActiveCursor = value; }
+            get => _realConnection.ActiveCursor;
+            set => _realConnection.ActiveCursor = value;
         }
 
         public virtual bool IsMultipleActiveResultSetsEnabled => _realConnection.IsMultipleActiveResultSetsEnabled;

@@ -30,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Storage
                 TimeSpan.FromMilliseconds(1),
                 TimeSpan.FromMilliseconds(3),
                 TimeSpan.FromMilliseconds(7),
-                TimeSpan.FromMilliseconds(15)
+                TimeSpan.FromMilliseconds(15),
+                TimeSpan.FromMilliseconds(31)
             };
 
             Assert.Equal(expectedDelays.Count, delays.Count);

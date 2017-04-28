@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             public new static bool Suspended
             {
-                get { return ExecutionStrategy.Suspended; }
-                set { ExecutionStrategy.Suspended = value; }
+                get => ExecutionStrategy.Suspended;
+                set => ExecutionStrategy.Suspended = value;
             }
         }
 
@@ -71,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(3),
                 TimeSpan.FromSeconds(7),
-                TimeSpan.FromSeconds(15)
+                TimeSpan.FromSeconds(15),
+                TimeSpan.FromSeconds(31)
             };
 
             Assert.Equal(expectedDelays.Count, delays.Count);
@@ -113,8 +114,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Assert.Equal(
                     CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     Assert.Throws<InvalidOperationException>(
-                        () =>
-                            executeAsync(mockExecutionStrategy)).Message);
+                            () =>
+                                executeAsync(mockExecutionStrategy))
+                        .Message);
             }
         }
 
@@ -139,8 +141,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CallBase = true
             };
 
-            executionStrategyMock.Setup(m => m.ShouldRetryOn(It.IsAny<Exception>())).Returns<Exception>(
-                e => e is ArgumentOutOfRangeException);
+            executionStrategyMock.Setup(m => m.ShouldRetryOn(It.IsAny<Exception>()))
+                .Returns<Exception>(
+                    e => e is ArgumentOutOfRangeException);
 
             for (var i = 0; i < 2; i++)
             {
@@ -179,18 +182,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CallBase = true
             };
 
-            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
-                e =>
-                    {
-                        Assert.True(false);
-                        return null;
-                    });
-            executionStrategyMock.Protected().Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>()).Returns<Exception>(
-                e =>
-                    {
-                        Assert.True(false);
-                        return false;
-                    });
+            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>()))
+                .Returns<Exception>(
+                    e =>
+                        {
+                            Assert.True(false);
+                            return null;
+                        });
+            executionStrategyMock.Protected()
+                .Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>())
+                .Returns<Exception>(
+                    e =>
+                        {
+                            Assert.True(false);
+                            return false;
+                        });
 
             var executionCount = 0;
             execute(executionStrategyMock.Object, () => executionCount++);
@@ -217,27 +223,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CallBase = true
             };
 
-            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
-                e =>
-                    {
-                        Assert.True(false);
-                        return null;
-                    });
-            executionStrategyMock.Protected().Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>()).Returns<Exception>(
-                e =>
-                    {
-                        Assert.True(false);
-                        return true;
-                    });
+            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>()))
+                .Returns<Exception>(
+                    e =>
+                        {
+                            Assert.True(false);
+                            return null;
+                        });
+            executionStrategyMock.Protected()
+                .Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>())
+                .Returns<Exception>(
+                    e =>
+                        {
+                            Assert.True(false);
+                            return true;
+                        });
 
             TestExecutionStrategy.Suspended = true;
             var executionCount = 0;
-            Assert.Throws<DbUpdateException>(() =>
-                execute(executionStrategyMock.Object, () =>
-                    {
-                        executionCount++;
-                        throw new DbUpdateException("", new ArgumentOutOfRangeException());
-                    }));
+            Assert.Throws<DbUpdateException>(
+                () =>
+                    execute(
+                        executionStrategyMock.Object, () =>
+                            {
+                                executionCount++;
+                                throw new DbUpdateException("", new ArgumentOutOfRangeException());
+                            }));
             TestExecutionStrategy.Suspended = false;
 
             Assert.Equal(1, executionCount);
@@ -262,10 +273,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CallBase = true
             };
 
-            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
-                e => TimeSpan.FromTicks(0));
-            executionStrategyMock.Protected().Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>()).Returns<Exception>(
-                e => e is ArgumentOutOfRangeException);
+            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>()))
+                .Returns<Exception>(
+                    e => TimeSpan.FromTicks(0));
+            executionStrategyMock.Protected()
+                .Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>())
+                .Returns<Exception>(
+                    e => e is ArgumentOutOfRangeException);
 
             var executionCount = 0;
 
@@ -302,10 +316,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CallBase = true
             };
 
-            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
-                e => TimeSpan.FromTicks(0));
-            executionStrategyMock.Protected().Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>()).Returns<Exception>(
-                e => e is ArgumentOutOfRangeException);
+            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>()))
+                .Returns<Exception>(
+                    e => TimeSpan.FromTicks(0));
+            executionStrategyMock.Protected()
+                .Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>())
+                .Returns<Exception>(
+                    e => e is ArgumentOutOfRangeException);
 
             var executionCount = 0;
 
@@ -345,22 +362,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CallBase = true
             };
 
-            executionStrategyMock.Protected().Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>()).Returns<Exception>(
-                e => e is ArgumentOutOfRangeException);
+            executionStrategyMock.Protected()
+                .Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>())
+                .Returns<Exception>(
+                    e => e is ArgumentOutOfRangeException);
 
             Assert.IsType<ArgumentOutOfRangeException>(
                 Assert.Throws<RetryLimitExceededException>(
-                    () =>
-                        execute(
-                            executionStrategyMock.Object, () =>
-                                {
-                                    if (executionCount++ < 3)
+                        () =>
+                            execute(
+                                executionStrategyMock.Object, () =>
                                     {
-                                        throw new ArgumentOutOfRangeException();
-                                    }
-                                    Assert.True(false);
-                                    return 0;
-                                })).InnerException);
+                                        if (executionCount++ < 3)
+                                        {
+                                            throw new ArgumentOutOfRangeException();
+                                        }
+                                        Assert.True(false);
+                                        return 0;
+                                    }))
+                    .InnerException);
 
             Assert.Equal(3, executionCount);
         }
@@ -411,8 +431,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CallBase = true
             };
 
-            executionStrategyMock.Setup(m => m.ShouldRetryOn(It.IsAny<Exception>())).Returns<Exception>(
-                e => e is ArgumentOutOfRangeException);
+            executionStrategyMock.Setup(m => m.ShouldRetryOn(It.IsAny<Exception>()))
+                .Returns<Exception>(
+                    e => e is ArgumentOutOfRangeException);
 
             for (var i = 0; i < 2; i++)
             {
@@ -451,18 +472,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CallBase = true
             };
 
-            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
-                e =>
-                    {
-                        Assert.True(false);
-                        return null;
-                    });
-            executionStrategyMock.Protected().Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>()).Returns<Exception>(
-                e =>
-                    {
-                        Assert.True(false);
-                        return false;
-                    });
+            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>()))
+                .Returns<Exception>(
+                    e =>
+                        {
+                            Assert.True(false);
+                            return null;
+                        });
+            executionStrategyMock.Protected()
+                .Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>())
+                .Returns<Exception>(
+                    e =>
+                        {
+                            Assert.True(false);
+                            return false;
+                        });
 
             var executionCount = 0;
             await executeAsync(executionStrategyMock.Object, ct => Task.FromResult(executionCount++));
@@ -489,18 +513,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CallBase = true
             };
 
-            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
-                e =>
-                    {
-                        Assert.True(false);
-                        return null;
-                    });
-            executionStrategyMock.Protected().Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>()).Returns<Exception>(
-                e =>
-                    {
-                        Assert.True(false);
-                        return true;
-                    });
+            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>()))
+                .Returns<Exception>(
+                    e =>
+                        {
+                            Assert.True(false);
+                            return null;
+                        });
+            executionStrategyMock.Protected()
+                .Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>())
+                .Returns<Exception>(
+                    e =>
+                        {
+                            Assert.True(false);
+                            return true;
+                        });
 
             TestExecutionStrategy.Suspended = true;
             var executionCount = 0;
@@ -536,10 +563,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CallBase = true
             };
 
-            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
-                e => TimeSpan.FromTicks(0));
-            executionStrategyMock.Protected().Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>()).Returns<Exception>(
-                e => e is ArgumentOutOfRangeException);
+            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>()))
+                .Returns<Exception>(
+                    e => TimeSpan.FromTicks(0));
+            executionStrategyMock.Protected()
+                .Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>())
+                .Returns<Exception>(
+                    e => e is ArgumentOutOfRangeException);
 
             var executionCount = 0;
 
@@ -578,10 +608,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CallBase = true
             };
 
-            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>())).Returns<Exception>(
-                e => TimeSpan.FromTicks(0));
-            executionStrategyMock.Protected().Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>()).Returns<Exception>(
-                e => e is ArgumentOutOfRangeException);
+            executionStrategyMock.Setup(m => m.GetNextDelay(It.IsAny<Exception>()))
+                .Returns<Exception>(
+                    e => TimeSpan.FromTicks(0));
+            executionStrategyMock.Protected()
+                .Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>())
+                .Returns<Exception>(
+                    e => e is ArgumentOutOfRangeException);
 
             var executionCount = 0;
 
@@ -620,22 +653,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CallBase = true
             };
 
-            executionStrategyMock.Protected().Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>()).Returns<Exception>(
-                e => e is ArgumentOutOfRangeException);
+            executionStrategyMock.Protected()
+                .Setup<bool>("ShouldRetryOn", ItExpr.IsAny<Exception>())
+                .Returns<Exception>(
+                    e => e is ArgumentOutOfRangeException);
 
             Assert.IsType<ArgumentOutOfRangeException>(
-            (await Assert.ThrowsAsync<RetryLimitExceededException>(
-                () =>
-                    executeAsync(
-                        executionStrategyMock.Object, ct =>
-                            {
-                                if (executionCount++ < 3)
+                (await Assert.ThrowsAsync<RetryLimitExceededException>(
+                    () =>
+                        executeAsync(
+                            executionStrategyMock.Object, ct =>
                                 {
-                                    throw new DbUpdateException("", new ArgumentOutOfRangeException());
-                                }
-                                Assert.True(false);
-                                return Task.FromResult(0);
-                            }))).InnerException.InnerException);
+                                    if (executionCount++ < 3)
+                                    {
+                                        throw new DbUpdateException("", new ArgumentOutOfRangeException());
+                                    }
+                                    Assert.True(false);
+                                    return Task.FromResult(0);
+                                }))).InnerException.InnerException);
 
             Assert.Equal(3, executionCount);
         }

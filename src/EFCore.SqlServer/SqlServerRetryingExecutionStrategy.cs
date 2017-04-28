@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="context"> The context on which the operations will be invoked. </param>
         /// <remarks>
-        ///     The default retry limit is 5, which means that the total amount of time spent before failing is 26 seconds plus the random factor.
+        ///     The default retry limit is 6, which means that the total amount of time spent before failing is about a minute.
         /// </remarks>
         public SqlServerRetryingExecutionStrategy(
             [NotNull] DbContext context)

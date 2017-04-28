@@ -13,13 +13,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         {
             -1, // Physical connection is not usable
             -2, // Timeout
-            42008, // Mirroring (Only when a database is deleted and another one is crated in fast succession)
+            42008, // Mirroring (Only when a database is deleted and another one is created in fast succession)
             42019 // CREATE DATABASE operation failed
         };
 
         public TestSqlServerRetryingExecutionStrategy()
-            : base(new DbContext(new DbContextOptionsBuilder().UseSqlServer(TestEnvironment.DefaultConnection).Options),
-                  DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
+            : base(
+                new DbContext(new DbContextOptionsBuilder().UseSqlServer(TestEnvironment.DefaultConnection).Options),
+                DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
         {
         }
 
@@ -45,8 +46,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 return true;
             }
 
-            var sqlException = exception as SqlException;
-            if (sqlException != null)
+            if (exception is SqlException sqlException)
             {
                 var message = "Didn't retry on";
                 foreach (SqlError err in sqlException.Errors)
@@ -56,8 +56,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 throw new InvalidOperationException(message, exception);
             }
 
-            var invalidOperationException = exception as InvalidOperationException;
-            if (invalidOperationException != null
+            if (exception is InvalidOperationException invalidOperationException
                 && invalidOperationException.Message == "Internal .Net Framework Data Provider error 6.")
             {
                 return true;
@@ -74,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
         public new static bool Suspended
         {
-            get { return ExecutionStrategy.Suspended; }
-            set { ExecutionStrategy.Suspended = value; }
+            get => ExecutionStrategy.Suspended;
+            set => ExecutionStrategy.Suspended = value;
         }
     }
 }

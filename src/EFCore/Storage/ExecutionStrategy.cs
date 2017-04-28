@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The default number of retry attempts.
         /// </summary>
-        protected static readonly int DefaultMaxRetryCount = 5;
+        protected static readonly int DefaultMaxRetryCount = 6;
 
         /// <summary>
         ///     The default maximum time delay between retries, must be nonnegative.
@@ -105,8 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected static bool Suspended
         {
-            get { return _suspended.Value ?? false; }
-            set { _suspended.Value = value; }
+            get => _suspended.Value ?? false;
+            set => _suspended.Value = value;
         }
 
         /// <summary>
@@ -344,9 +344,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (Context?.Database.CurrentTransaction != null)
             {
-                throw new InvalidOperationException(CoreStrings.ExecutionStrategyExistingTransaction(
-                    GetType().Name,
-                    nameof(DbContext) + "." + nameof(DbContext.Database) + "." + nameof(DatabaseFacade.CreateExecutionStrategy) + "()"));
+                throw new InvalidOperationException(
+                    CoreStrings.ExecutionStrategyExistingTransaction(
+                        GetType().Name,
+                        nameof(DbContext) + "." + nameof(DbContext.Database) + "." + nameof(DatabaseFacade.CreateExecutionStrategy) + "()"));
             }
 
             ExceptionsEncountered.Clear();

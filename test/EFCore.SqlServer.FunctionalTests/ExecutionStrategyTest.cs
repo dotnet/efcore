@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
 
                 connection.ExecutionFailures.Enqueue(new bool?[] { true, null, true, true });
-                connection.CommitFailures.Enqueue(new bool?[] { true, true, true });
+                connection.CommitFailures.Enqueue(new bool?[] { true, true, true, true });
 
                 context.Products.Add(new Product());
                 Assert.Throws<RetryLimitExceededException>(() =>
@@ -172,8 +172,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                             context));
                 context.ChangeTracker.AcceptAllChanges();
 
-                Assert.Equal(6, connection.OpenCount);
-                Assert.Equal(6, connection.ExecutionCount);
+                Assert.Equal(7, connection.OpenCount);
+                Assert.Equal(7, connection.ExecutionCount);
             }
 
             using (var context = CreateContext())
