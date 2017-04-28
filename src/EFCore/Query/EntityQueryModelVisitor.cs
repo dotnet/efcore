@@ -47,38 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static readonly ParameterExpression QueryContextParameter
             = Expression.Parameter(typeof(QueryContext), "queryContext");
 
-        private static readonly string _efTypeName = typeof(EF).FullName;
-
-        /// <summary>
-        ///     Determines if a <see cref="MethodInfo" /> is referencing the <see cref="EF.Property{TProperty}(object, string)" /> method.
-        /// </summary>
-        /// <param name="methodInfo"> The method info to check. </param>
-        /// <returns>
-        ///     True if <paramref name="methodInfo" /> is referencing <see cref="EF.Property{TProperty}(object, string)" />; otherwise fale;
-        /// </returns>
-        public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
-            Equals(methodInfo, EF.PropertyMethod)
-            // fallback to string comparison because MethodInfo.Equals is not
-            // always true in .NET Native even if methods are the same
-            || methodInfo != null
-            && methodInfo.IsGenericMethod
-            && methodInfo.Name == nameof(EF.Property)
-            && methodInfo.DeclaringType?.FullName == _efTypeName;
-
-        /// <summary>
-        ///     Creates an expression to access the given property on an given entity.
-        /// </summary>
-        /// <param name="target"> The entity. </param>
-        /// <param name="property"> The property to be accessed. </param>
-        /// <returns> The newly created expression. </returns>
-        public static Expression CreatePropertyExpression(
-            [NotNull] Expression target,
-            [NotNull] IPropertyBase property)
-            => Expression.Call(
-                EF.PropertyMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
-                target,
-                Expression.Constant(property.Name));
-
         private readonly IQueryOptimizer _queryOptimizer;
         private readonly INavigationRewritingExpressionVisitorFactory _navigationRewritingExpressionVisitorFactory;
         private readonly IQuerySourceTracingExpressionVisitorFactory _querySourceTracingExpressionVisitorFactory;

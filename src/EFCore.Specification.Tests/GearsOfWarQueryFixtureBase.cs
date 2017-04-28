@@ -46,6 +46,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     b.HasOne(sm => sm.Mission).WithMany(m => m.ParticipatingSquads).HasForeignKey(sm => sm.MissionId);
                     b.HasOne(sm => sm.Squad).WithMany(s => s.Missions).HasForeignKey(sm => sm.SquadId);
                 });
+
+            modelBuilder.Entity<Faction>().HasKey(f => f.Id);
+            modelBuilder.Entity<LocustHorde>().HasBaseType<Faction>();
+            modelBuilder.Entity<LocustHorde>().HasMany(h => h.Leaders).WithOne();
+            modelBuilder.Entity<LocustHorde>().HasOne(h => h.Commander).WithOne(c => c.CommandingFaction);
+
+            modelBuilder.Entity<LocustLeader>().HasKey(l => l.Name);
+            modelBuilder.Entity<LocustCommander>().HasBaseType<LocustLeader>();
+            modelBuilder.Entity<LocustCommander>().HasOne(c => c.DefeatedBy).WithOne().HasForeignKey<LocustCommander>(c => new { c.DefeatedByNickname, c.DefeatedBySquadId });
         }
     }
 }

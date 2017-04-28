@@ -8,6 +8,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Remotion.Linq;
@@ -97,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     = new MainFromClause(
                         targetType.Name.Substring(0, 1).ToLowerInvariant(),
                         targetType,
-                        Expression.Property(targetExpression, Navigation.PropertyInfo));
+                        targetExpression.CreateEFPropertyExpression(Navigation.PropertyInfo));
 
                 queryCompilationContext.AddQuerySourceRequiringMaterialization(mainFromClause);
 
@@ -196,8 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 propertyExpressions.Add(
                     lastPropertyExpression
-                        = EntityQueryModelVisitor.CreatePropertyExpression(
-                            lastPropertyExpression, Navigation));
+                        = lastPropertyExpression.CreateEFPropertyExpression(Navigation));
 
                 var relatedArrayAccessExpression
                     = Expression.ArrayAccess(_includedParameter, Expression.Constant(includedIndex++));
@@ -234,11 +235,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 else
                 {
                     blockExpressions.Add(
-                        Expression.Assign(
-                            Expression.MakeMemberAccess(
-                                targetEntityExpression,
-                                Navigation.GetMemberInfo(false, true)),
-                            relatedEntityExpression));
+                        targetEntityExpression
+                            .MakeMemberAccess(Navigation.GetMemberInfo(false, true))
+                                .CreateAssignExpression(relatedEntityExpression));
                 }
 
                 var inverseNavigation = Navigation.FindInverse();
@@ -268,12 +267,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     _collectionAccessorAddMethodInfo,
                                     relatedArrayAccessExpression,
                                     targetEntityExpression)
-                                : Expression.Assign(
-                                    Expression.MakeMemberAccess(
-                                        relatedEntityExpression,
-                                        inverseNavigation
-                                            .GetMemberInfo(forConstruction: false, forSet: true)),
-                                    targetEntityExpression));
+                                : relatedEntityExpression.MakeMemberAccess(
+                                    inverseNavigation.GetMemberInfo(forConstruction: false, forSet: true))
+                                        .CreateAssignExpression(targetEntityExpression));
                     }
                 }
 

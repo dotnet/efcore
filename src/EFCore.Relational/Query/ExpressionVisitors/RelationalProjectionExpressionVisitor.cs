@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
@@ -106,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return methodCallExpression;
             }
 
-            if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+            if (methodCallExpression.Method.IsEFPropertyMethod())
             {
                 var newArg0 = Visit(methodCallExpression.Arguments[0]);
 

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -159,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             // If comparing with null then we need only first PK property
             return properties.Count == 1 || nullComparison
-                ? EntityQueryModelVisitor.CreatePropertyExpression(target, properties[0])
+                ? target.CreateEFPropertyExpression(properties[0])
                 : Expression.New(
                     AnonymousObject.AnonymousObjectCtor,
                     Expression.NewArrayInit(
@@ -167,8 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         properties
                             .Select(
                                 p => Expression.Convert(
-                                    EntityQueryModelVisitor
-                                        .CreatePropertyExpression(target, p), typeof(object)))
+                                    target.CreateEFPropertyExpression(p), 
+                                    typeof(object)))
                             .Cast<Expression>()
                             .ToArray()));
         }

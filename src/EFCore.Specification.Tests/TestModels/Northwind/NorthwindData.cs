@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -171,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
             private class ShadowStateAccessRewriter : ExpressionVisitorBase
             {
                 protected override Expression VisitMethodCall(MethodCallExpression expression)
-                    => EntityQueryModelVisitor.IsPropertyMethod(expression.Method)
+                    => expression.Method.IsEFPropertyMethod()
                         ? Expression.Property(
                             expression.Arguments[0].RemoveConvert(),
                             Expression.Lambda<Func<string>>(expression.Arguments[1]).Compile().Invoke())

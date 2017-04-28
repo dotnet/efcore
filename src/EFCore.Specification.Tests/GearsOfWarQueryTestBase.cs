@@ -817,6 +817,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_enum_has_flag_subquery_client_eval()
+        {
+            using (var context = CreateContext())
+            {
+                var gears = context.Gears
+                    .Where(g => g.Rank.HasFlag(context.Gears.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).First().Rank))
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Where_enum_has_flag_with_non_nullable_parameter()
         {
             using (var context = CreateContext())
@@ -2762,6 +2775,303 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         private static IEnumerable<Gear> Veterans(IEnumerable<Gear> gears)
         {
             return gears.Where(g => g.Nickname == "Marcus" || g.Nickname == "Dom" || g.Nickname == "Cole Train" || g.Nickname == "Baird");
+        }
+
+        [ConditionalFact]
+        public virtual void Member_access_on_derived_entity_using_cast()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from f in ctx.Factions
+                            where f is LocustHorde
+                            orderby ((LocustHorde)f).Name
+                            select new { ((LocustHorde)f).Name, ((LocustHorde)f).Eradicated };
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Locust", result[0].Name);
+                Assert.Equal(true, result[0].Eradicated);
+                Assert.Equal("Swarm", result[1].Name);
+                Assert.Equal(false, result[1].Eradicated);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Member_access_on_derived_materialized_entity_using_cast()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from f in ctx.Factions
+                            where f is LocustHorde
+                            orderby f.Name
+                            select new { f, ((LocustHorde)f).Eradicated };
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Locust", result[0].f.Name);
+                Assert.Equal(true, result[0].Eradicated);
+                Assert.Equal("Swarm", result[1].f.Name);
+                Assert.Equal(false, result[1].Eradicated);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Member_access_on_derived_entity_using_cast_and_let()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from f in ctx.Factions
+                            where f is LocustHorde
+                            let horde = (LocustHorde)f
+                            orderby horde.Name
+                            select new { horde.Name, horde.Eradicated };
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Locust", result[0].Name);
+                Assert.Equal(true, result[0].Eradicated);
+                Assert.Equal("Swarm", result[1].Name);
+                Assert.Equal(false, result[1].Eradicated);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Property_access_on_derived_entity_using_cast()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from f in ctx.Factions
+                            where f is LocustHorde
+                            let horde = (LocustHorde)f
+                            orderby f.Name
+                            select new { Name = EF.Property<string>(horde, "Name"), Eradicated = EF.Property<bool>((LocustHorde)f, "Eradicated") };
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Locust", result[0].Name);
+                Assert.Equal(true, result[0].Eradicated);
+                Assert.Equal("Swarm", result[1].Name);
+                Assert.Equal(false, result[1].Eradicated);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Navigation_access_on_derived_entity_using_cast()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from f in ctx.Factions
+                            where f is LocustHorde
+                            orderby f.Name
+                            select new { f.Name, Threat = ((LocustHorde)f).Commander.ThreatLevel };
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Locust", result[0].Name);
+                Assert.Equal(5, result[0].Threat);
+                Assert.Equal("Swarm", result[1].Name);
+                Assert.Equal(0, result[1].Threat);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Navigation_access_on_derived_materialized_entity_using_cast()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from f in ctx.Factions
+                            where f is LocustHorde
+                            orderby f.Name
+                            select new { f, f.Name, Threat = ((LocustHorde)f).Commander.ThreatLevel };
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Locust", result[0].Name);
+                Assert.Equal("Locust", result[0].f.Name);
+                Assert.Equal(5, result[0].Threat);
+                Assert.Equal("Swarm", result[1].Name);
+                Assert.Equal("Swarm", result[1].f.Name);
+                Assert.Equal(0, result[1].Threat);
+            }
+        }
+
+
+        [ConditionalFact]
+        public virtual void Navigation_access_via_EFProperty_on_derived_entity_using_cast()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from f in ctx.Factions
+                            where f is LocustHorde
+                            orderby f.Name
+                            select new { f.Name, Threat = EF.Property<LocustCommander>((LocustHorde)f, "Commander").ThreatLevel };
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Locust", result[0].Name);
+                Assert.Equal(5, result[0].Threat);
+                Assert.Equal("Swarm", result[1].Name);
+                Assert.Equal(0, result[1].Threat);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Navigation_access_fk_on_derived_entity_using_cast()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from f in ctx.Factions
+                            where f is LocustHorde
+                            orderby f.Name
+                            select new { f.Name, CommanderName = ((LocustHorde)f).Commander.Name };
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Locust", result[0].Name);
+                Assert.Equal("Queen Myrrah", result[0].CommanderName);
+                Assert.Equal("Swarm", result[1].Name);
+                Assert.Equal("Unknown", result[1].CommanderName);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_navigation_access_on_derived_entity_using_cast()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from f in ctx.Factions
+                            where f is LocustHorde
+                            orderby f.Name
+                            select new { f.Name, LeadersCount = ((LocustHorde)f).Leaders.Count };
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Locust", result[0].Name);
+                Assert.Equal(4, result[0].LeadersCount);
+                Assert.Equal("Swarm", result[1].Name);
+                Assert.Equal(1, result[1].LeadersCount);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_navigation_access_on_derived_entity_using_cast_in_SelectMany()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from f in ctx.Factions.Where(f => f is LocustHorde)
+                            from l in ((LocustHorde)f).Leaders
+                            orderby l.Name
+                            select new { f.Name, LeaderName = l.Name };
+
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+                Assert.Equal("Locust", result[0].Name);
+                Assert.Equal("Locust", result[1].Name);
+                Assert.Equal("Locust", result[2].Name);
+                Assert.Equal("Locust", result[3].Name);
+                Assert.Equal("Swarm", result[4].Name);
+                Assert.Equal("General Karn", result[0].LeaderName);
+                Assert.Equal("General RAAM", result[1].LeaderName);
+                Assert.Equal("High Priest Skorge", result[2].LeaderName);
+                Assert.Equal("Queen Myrrah", result[3].LeaderName);
+                Assert.Equal("The Speaker", result[4].LeaderName);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_derived_entity_using_OfType()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from lh in ctx.Factions.OfType<LocustHorde>().Include(h => h.Commander).Include(h => h.Leaders)
+                            orderby lh.Name
+                            select lh;
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Queen Myrrah", result[0].Commander.Name);
+                Assert.Equal(4, result[0].Leaders.Count);
+                Assert.Equal("Unknown", result[1].Commander.Name);
+                Assert.Equal(1, result[1].Leaders.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_derived_entity_using_subquery_with_cast()
+        {
+            using (var ctx = CreateContext())
+            {
+
+                var query = from lh in (from f in ctx.Factions
+                                       where f is LocustHorde
+                                       select (LocustHorde)f).Include(h => h.Commander).Include(h => h.Leaders)
+                            orderby lh.Name
+                            select lh;
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Queen Myrrah", result[0].Commander.Name);
+                Assert.Equal(4, result[0].Leaders.Count);
+                Assert.Equal("Unknown", result[1].Commander.Name);
+                Assert.Equal(1, result[1].Leaders.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_derived_entity_using_subquery_with_cast_AsNoTracking()
+        {
+            using (var ctx = CreateContext())
+            {
+
+                var query = from lh in (from f in ctx.Factions
+                                        where f is LocustHorde
+                                        select (LocustHorde)f).AsNoTracking().Include(h => h.Commander).Include(h => h.Leaders)
+                            orderby lh.Name
+                            select lh;
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Queen Myrrah", result[0].Commander.Name);
+                Assert.Equal(4, result[0].Leaders.Count);
+                Assert.Equal("Unknown", result[1].Commander.Name);
+                Assert.Equal(1, result[1].Leaders.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_derived_entity_using_subquery_with_cast_cross_product_base_entity()
+        {
+            using (var ctx = CreateContext())
+            {
+
+                var query = from lh in (from f2 in ctx.Factions
+                                        where f2 is LocustHorde
+                                        select (LocustHorde)f2).Include(h => h.Commander).Include(h => h.Leaders)
+                            from f in ctx.Factions.Include(ff => ff.Capital)
+                            orderby lh.Name, f.Name
+                            select new { lh, f };
+
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.Equal("Queen Myrrah", result[0].lh.Commander.Name);
+                Assert.Equal(4, result[0].lh.Leaders.Count);
+                Assert.Equal("Unknown", result[2].lh.Commander.Name);
+                Assert.Equal(1, result[2].lh.Leaders.Count);
+            }
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);

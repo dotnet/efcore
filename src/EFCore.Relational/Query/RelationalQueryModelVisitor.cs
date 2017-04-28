@@ -1049,7 +1049,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var discriminatorProperty
                         = _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorProperty;
 
-                    var discriminatorPropertyExpression = CreatePropertyExpression(typeBinaryExpression.Expression, discriminatorProperty);
+                    var discriminatorPropertyExpression
+                        = typeBinaryExpression.Expression.CreateEFPropertyExpression(discriminatorProperty);
 
                     var discriminatorPredicate
                         = concreteEntityTypes
@@ -1840,8 +1841,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     var querySourceReference = new QuerySourceReferenceExpression(querySource);
                     var propertyExpression = isMemberExpression
-                        ? Expression.Property(querySourceReference, property.PropertyInfo)
-                        : CreatePropertyExpression(querySourceReference, property);
+                        ? querySourceReference.CreateEFPropertyExpression(property.PropertyInfo)
+                        : querySourceReference.CreateEFPropertyExpression(property);
 
                     if (propertyExpression.Type.GetTypeInfo().IsValueType)
                     {

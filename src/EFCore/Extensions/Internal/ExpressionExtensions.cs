@@ -268,5 +268,42 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             return (expression as QuerySourceReferenceExpression)?.ReferencedQuerySource;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static BinaryExpression CreateAssignExpression(
+            [NotNull] this Expression left,
+            [NotNull] Expression right)
+        {
+            var leftType = left.Type;
+            if (leftType != right.Type
+                && right.Type.GetTypeInfo().IsAssignableFrom(leftType.GetTypeInfo()))
+            {
+                right = Expression.Convert(right, leftType);
+            }
+
+            return Expression.Assign(left, right);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static MemberExpression MakeMemberAccess(
+            [CanBeNull] this Expression expression,
+            [NotNull] MemberInfo member)
+        {
+            var memberDeclaringClrType = member.DeclaringType;
+            if (expression != null
+                && memberDeclaringClrType != expression.Type
+                && expression.Type.GetTypeInfo().IsAssignableFrom(memberDeclaringClrType.GetTypeInfo()))
+            {
+                expression = Expression.Convert(expression, memberDeclaringClrType);
+            }
+
+            return Expression.MakeMemberAccess(expression, member);
+        }
     }
 }
