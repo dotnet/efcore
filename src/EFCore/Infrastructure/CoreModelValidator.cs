@@ -66,30 +66,28 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 foreach (var key in entityType.GetDeclaredKeys())
                 {
-                    if (key.Properties.Any(p => p.IsShadowProperty))
+                    if (key.Properties.Any(p => p.IsShadowProperty)
+                        && key is Key concreteKey
+                        && ConfigurationSource.Convention.Overrides(concreteKey.GetConfigurationSource())
+                        && !key.IsPrimaryKey())
                     {
                         var referencingFk = key.GetReferencingForeignKeys().FirstOrDefault();
-                        var conventionalKey = key as Key;
-                        if (!key.IsPrimaryKey()
-                            && referencingFk != null
-                            && conventionalKey != null
-                            && ConfigurationSource.Convention.Overrides(conventionalKey.GetConfigurationSource()))
-                        {
-                            ShowError(CoreStrings.ReferencedShadowKey(
-                                referencingFk.DeclaringEntityType.DisplayName() +
-                                (referencingFk.DependentToPrincipal == null
-                                    ? ""
-                                    : "." + referencingFk.DependentToPrincipal.Name),
-                                entityType.DisplayName() +
-                                (referencingFk.PrincipalToDependent == null
-                                    ? ""
-                                    : "." + referencingFk.PrincipalToDependent.Name),
-                                Property.Format(referencingFk.Properties, includeTypes: true),
-                                Property.Format(entityType.FindPrimaryKey().Properties, includeTypes: true)));
-                            continue;
-                        }
 
-                        Dependencies.Logger.ModelValidationShadowKeyWarning(entityType, key);
+                        if (referencingFk != null)
+                        {
+                            ShowError(
+                                CoreStrings.ReferencedShadowKey(
+                                    referencingFk.DeclaringEntityType.DisplayName() +
+                                    (referencingFk.DependentToPrincipal == null
+                                        ? ""
+                                        : "." + referencingFk.DependentToPrincipal.Name),
+                                    entityType.DisplayName() +
+                                    (referencingFk.PrincipalToDependent == null
+                                        ? ""
+                                        : "." + referencingFk.PrincipalToDependent.Name),
+                                    Property.Format(referencingFk.Properties, includeTypes: true),
+                                    Property.Format(entityType.FindPrimaryKey().Properties, includeTypes: true)));
+                        }
                     }
                 }
             }
@@ -200,10 +198,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 if (entityType.DefiningEntityType != null)
                 {
                     if (entityType.FindDefiningNavigation() == null
-                         || (entityType.DefiningEntityType as EntityType)?.Builder == null)
+                        || (entityType.DefiningEntityType as EntityType)?.Builder == null)
                     {
-                        throw new InvalidOperationException(CoreStrings.NoDefiningNavigation(
-                            entityType.DefiningNavigationName, entityType.DefiningEntityType.DisplayName(), entityType.DisplayName()));
+                        throw new InvalidOperationException(
+                            CoreStrings.NoDefiningNavigation(
+                                entityType.DefiningNavigationName, entityType.DefiningEntityType.DisplayName(), entityType.DisplayName()));
                     }
 
                     if (entityType.GetForeignKeys().Count(fk => fk.IsOwnership) > 1)
@@ -218,10 +217,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         var ownershipNavigation = ownership.PrincipalToDependent == null
                             ? ""
                             : "." + ownership.PrincipalToDependent.Name;
-                        throw new InvalidOperationException(CoreStrings.NonDefiningOwnership(
-                            ownership.PrincipalEntityType.DisplayName() + ownershipNavigation,
-                            entityType.DefiningNavigationName,
-                            entityType.DisplayName()));
+                        throw new InvalidOperationException(
+                            CoreStrings.NonDefiningOwnership(
+                                ownership.PrincipalEntityType.DisplayName() + ownershipNavigation,
+                                entityType.DefiningNavigationName,
+                                entityType.DisplayName()));
                     }
                 }
             }
@@ -236,7 +236,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var propertyBase in entityType
-                    .GetDeclaredProperties().Where(e => !e.IsShadowProperty).Cast<IPropertyBase>()
+                    .GetDeclaredProperties()
+                    .Where(e => !e.IsShadowProperty)
+                    .Cast<IPropertyBase>()
                     .Concat(entityType.GetDeclaredNavigations()))
                 {
                     if (!propertyBase.TryGetMemberInfo(

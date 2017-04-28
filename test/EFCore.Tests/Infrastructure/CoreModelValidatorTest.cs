@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
         }
 
         [Fact]
-        public virtual void Detects_shadow_keys()
+        public virtual void Passes_on_shadow_key_created_explicitly()
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(A));
@@ -31,41 +31,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
             var keyProperty = entityType.AddProperty("Key", typeof(int));
             entityType.AddKey(keyProperty);
 
-            VerifyWarning(CoreStrings.ShadowKey("{'Key'}", typeof(A).Name, "{'Key'}"), model);
+            Validate(model);
         }
 
         [Fact]
-        public virtual void Detects_shadow_keys_by_convention()
+        public virtual void Passes_on_shadow_primary_key_created_by_convention_in_diet()
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(A));
-            SetPrimaryKey(entityType);
             var keyProperty = entityType.AddProperty("Key", typeof(int), configurationSource: ConfigurationSource.Convention);
-            entityType.AddKey(keyProperty);
+            entityType.SetPrimaryKey(keyProperty);
 
-            VerifyWarning(CoreStrings.ShadowKey("{'Key'}", typeof(A).Name, "{'Key'}"), model);
-        }
-
-        [Fact]
-        public virtual void Detects_shadow_key_referenced_by_foreign_key()
-        {
-            var modelBuilder = new InternalModelBuilder(new Model());
-            var dependentEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            dependentEntityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
-            dependentEntityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
-            var principalEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
-            principalEntityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
-            principalEntityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
-
-            dependentEntityBuilder.Property("Foo", typeof(string), ConfigurationSource.Convention);
-            principalEntityBuilder.Property("ReferencedFoo", typeof(string), ConfigurationSource.Convention);
-            dependentEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
-                dependentEntityBuilder.GetOrCreateProperties(new List<string> { "Foo" }, ConfigurationSource.Convention),
-                principalEntityBuilder.HasKey(new[] { "ReferencedFoo" }, ConfigurationSource.Convention).Metadata,
-                ConfigurationSource.Explicit);
-
-            VerifyWarning(CoreStrings.ShadowKey("{'ReferencedFoo'}", typeof(ReferencedEntity).Name, "{'ReferencedFoo'}"), modelBuilder.Metadata);
+            Validate(model);
         }
 
         [Fact]
