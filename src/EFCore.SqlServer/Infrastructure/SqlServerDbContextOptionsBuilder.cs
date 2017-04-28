@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
         /// </summary>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        /// <param name="maxRetryDelay"> The maximum delay in milliseconds between retries. </param>
+        /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
         /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(
             int maxRetryCount,

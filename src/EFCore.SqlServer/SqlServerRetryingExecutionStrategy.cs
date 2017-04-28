@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="context"> The context on which the operations will be invoked. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        /// <param name="maxRetryDelay"> The maximum delay in milliseconds between retries. </param>
+        /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
         /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
         public SqlServerRetryingExecutionStrategy(
             [NotNull] DbContext context,
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="context"> The required dependencies. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        /// <param name="maxRetryDelay"> The maximum delay in milliseconds between retries. </param>
+        /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
         /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
         public SqlServerRetryingExecutionStrategy(
             [NotNull] ExecutionStrategyContext context,

@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IIndexConvention> IndexAddedConventions { get; } = new List<IIndexConvention>();
 
         /// <summary>
-        ///     Conventions to run when an index is added.
+        ///     Conventions to run when an index is removed.
         /// </summary>
         public virtual IList<IIndexRemovedConvention> IndexRemovedConventions { get; } = new List<IIndexRemovedConvention>();
 

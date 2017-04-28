@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="context"> The required dependencies. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        /// <param name="maxRetryDelay"> The maximum delay in milliseconds between retries. </param>
+        /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
         protected ExecutionStrategy(
             [NotNull] ExecutionStrategyContext context,
             int maxRetryCount,
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual int MaxRetryCount { get; }
 
         /// <summary>
-        ///     The maximum delay in milliseconds between retries.
+        ///     The maximum delay between retries.
         /// </summary>
         protected virtual TimeSpan MaxRetryDelay { get; }
 
