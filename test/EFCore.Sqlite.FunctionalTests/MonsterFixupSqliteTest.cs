@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         protected override DbContextOptions CreateOptions(string databaseName)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(CreateConnectionString(databaseName));
+            optionsBuilder.UseSqlite(CreateConnectionString(databaseName))
+                .EnableSensitiveDataLogging();
 
             return optionsBuilder.Options;
         }

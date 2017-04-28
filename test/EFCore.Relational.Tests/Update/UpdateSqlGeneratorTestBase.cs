@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -9,9 +10,10 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using Moq;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal(
                 "DELETE FROM " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p0;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal(
                 "DELETE FROM " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p0 AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -106,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Computed" + CloseDelimeter + "" + Environment.NewLine +
                 "FROM " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL;" + Environment.NewLine + Environment.NewLine,
+                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = @p0;" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -193,10 +195,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.Equal(
                 "UPDATE " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " + OpenDelimeter + "Name" + CloseDelimeter +
                 " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3 AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Computed" + CloseDelimeter + "" + Environment.NewLine +
                 "FROM " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL;" + Environment.NewLine + Environment.NewLine,
+                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3;" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -212,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 "UPDATE " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " +
                 OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " +
                 OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -229,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 "UPDATE " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " +
                 OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " +
                 OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3 AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -251,10 +253,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 "UPDATE " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " +
                 OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " +
                 OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3;" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Computed" + CloseDelimeter + "" + Environment.NewLine +
                 "FROM " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL;" + Environment.NewLine + Environment.NewLine,
+                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3;" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -284,14 +286,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
         protected abstract string Identity { get; }
 
-        protected IProperty CreateMockProperty(string name, Type type)
-        {
-            var propertyMock = new Mock<IProperty>();
-            propertyMock.Setup(m => m.Name).Returns(name);
-            propertyMock.Setup(m => m.ClrType).Returns(type);
-            return propertyMock.Object;
-        }
-
         protected virtual string OpenDelimeter => "\"";
 
         protected virtual string CloseDelimeter => "\"";
@@ -305,15 +299,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
         protected ModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
         {
-            var duck = GetDuckType();
-            var entry = CreateInternalEntryMock(duck).Object;
+            var duckType = GetDuckType();
+            var stateManager = TestHelpers.CreateContextServices(duckType.Model).GetRequiredService<IStateManager>();
+            var entry = stateManager.GetOrCreateEntry(new Duck());
             var generator = new ParameterNameGenerator();
 
-            var idProperty = duck.FindProperty(nameof(Duck.Id));
-            var nameProperty = duck.FindProperty(nameof(Duck.Name));
-            var quacksProperty = duck.FindProperty(nameof(Duck.Quacks));
-            var computedProperty = duck.FindProperty(nameof(Duck.Computed));
-            var concurrencyProperty = duck.FindProperty(nameof(Duck.ConcurrencyToken));
+            var idProperty = duckType.FindProperty(nameof(Duck.Id));
+            var nameProperty = duckType.FindProperty(nameof(Duck.Name));
+            var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks));
+            var computedProperty = duckType.FindProperty(nameof(Duck.Computed));
+            var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
             var columnModifications = new[]
             {
                 new ColumnModification(
@@ -333,25 +328,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 columnModifications = columnModifications.Where(c => !c.IsWrite).ToArray();
             }
 
-            Func<IProperty, IRelationalPropertyAnnotations> func = p => p.TestProvider();
-            var commandMock = new Mock<ModificationCommand>(
-                "Ducks", Schema, new Func<string>(new ParameterNameGenerator().GenerateNext), func) { CallBase = true };
-            commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
-
-            return commandMock.Object;
+            return new FakeModificationCommand(
+                "Ducks", Schema, new ParameterNameGenerator().GenerateNext, new TestAnnotationProvider(), false, columnModifications);
         }
 
         protected ModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
         {
-            var duck = GetDuckType();
-            var entry = CreateInternalEntryMock(duck).Object;
+            var duckType = GetDuckType();
+            var stateManager = TestHelpers.CreateContextServices(duckType.Model).GetRequiredService<IStateManager>();
+            var entry = stateManager.GetOrCreateEntry(new Duck());
             var generator = new ParameterNameGenerator();
 
-            var idProperty = duck.FindProperty(nameof(Duck.Id));
-            var nameProperty = duck.FindProperty(nameof(Duck.Name));
-            var quacksProperty = duck.FindProperty(nameof(Duck.Quacks));
-            var computedProperty = duck.FindProperty(nameof(Duck.Computed));
-            var concurrencyProperty = duck.FindProperty(nameof(Duck.ConcurrencyToken));
+            var idProperty = duckType.FindProperty(nameof(Duck.Id));
+            var nameProperty = duckType.FindProperty(nameof(Duck.Name));
+            var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks));
+            var computedProperty = duckType.FindProperty(nameof(Duck.Computed));
+            var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
             var columnModifications = new[]
             {
                 new ColumnModification(
@@ -366,22 +358,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                     entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, true, false, concurrencyToken, concurrencyToken)
             };
 
-            Func<IProperty, IRelationalPropertyAnnotations> func = p => p.TestProvider();
-            var commandMock = new Mock<ModificationCommand>(
-                "Ducks", Schema, new Func<string>(new ParameterNameGenerator().GenerateNext), func) { CallBase = true };
-            commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
-
-            return commandMock.Object;
+            return new FakeModificationCommand(
+                "Ducks", Schema, new ParameterNameGenerator().GenerateNext, new TestAnnotationProvider(), false, columnModifications);
         }
 
         protected ModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
         {
-            var duck = GetDuckType();
-            var entry = CreateInternalEntryMock(duck).Object;
+            var duckType = GetDuckType();
+            var stateManager = TestHelpers.CreateContextServices(duckType.Model).GetRequiredService<IStateManager>();
+            var entry = stateManager.GetOrCreateEntry(new Duck());
             var generator = new ParameterNameGenerator();
 
-            var idProperty = duck.FindProperty(nameof(Duck.Id));
-            var concurrencyProperty = duck.FindProperty(nameof(Duck.ConcurrencyToken));
+            var idProperty = duckType.FindProperty(nameof(Duck.Id));
+            var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
             var columnModifications = new[]
             {
                 new ColumnModification(
@@ -390,16 +379,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                     entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, false, false, concurrencyToken, concurrencyToken)
             };
 
-            Func<IProperty, IRelationalPropertyAnnotations> func = p => p.TestProvider();
-            var commandMock = new Mock<ModificationCommand>(
-                "Ducks", Schema, new Func<string>(new ParameterNameGenerator().GenerateNext), func) { CallBase = true };
-            commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
-
-            return commandMock.Object;
+            return new FakeModificationCommand(
+                "Ducks", Schema, new ParameterNameGenerator().GenerateNext, new TestAnnotationProvider(), false, columnModifications);
         }
 
-        private static Mock<InternalEntityEntry> CreateInternalEntryMock(EntityType entityType)
-            => new Mock<InternalEntityEntry>(Mock.Of<IStateManager>(), entityType);
+        protected abstract TestHelpers TestHelpers { get; }
 
         private EntityType GetDuckType()
         {

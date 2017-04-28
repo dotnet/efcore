@@ -349,6 +349,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             var product2 = Add(new TProduct { Description = "Chocolate Donuts", BaseConcurrency = "US Dollars" }).Entity;
             var product3 = Add(new TProduct { Description = "Assorted Dog Treats", BaseConcurrency = "Stuffy Money" }).Entity;
 
+            product1.Dimensions = new TDimensions { Depth = 3, Width = 3, Height = 0.5M };
+            product2.Dimensions = new TDimensions { Depth = 2, Width = 2, Height = 1 };
+            product3.Dimensions = new TDimensions { Depth = 3, Width = 1, Height = 4 };
+
             var barcode1 = Add(new TBarcode { Code = new byte[] { 1, 2, 3, 4 }, ProductId = product1.ProductId, Text = "Barcode 1 2 3 4" }).Entity;
             var barcode2 = Add(new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, ProductId = product2.ProductId, Text = "Barcode 2 2 3 4" }).Entity;
             var barcode3 = Add(new TBarcode { Code = new byte[] { 3, 2, 3, 4 }, ProductId = product3.ProductId, Text = "Barcode 3 2 3 4" }).Entity;
@@ -589,6 +593,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             var product1 = Add(new TProduct { Description = "Mrs Koalie's Famous Waffles", BaseConcurrency = "Pounds Sterling" }).Entity;
             var product2 = Add(new TProduct { Description = "Chocolate Donuts", BaseConcurrency = "US Dollars" }).Entity;
             var product3 = Add(new TProduct { Description = "Assorted Dog Treats", BaseConcurrency = "Stuffy Money" }).Entity;
+
+            product1.Dimensions = new TDimensions { Depth = 3, Width = 3, Height = 0.5M };
+            product2.Dimensions = new TDimensions { Depth = 2, Width = 2, Height = 1 };
+            product3.Dimensions = new TDimensions { Depth = 3, Width = 1, Height = 4 };
 
             var barcode1 = Add(new TBarcode { Code = new byte[] { 1, 2, 3, 4 }, Product = dependentNavs ? product1 : null, Text = "Barcode 1 2 3 4" }).Entity;
             var barcode2 = Add(new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, Product = dependentNavs ? product2 : null, Text = "Barcode 2 2 3 4" }).Entity;
@@ -977,6 +985,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             var product1 = toAdd[0].AddEx(new TProduct { Description = "Mrs Koalie's Famous Waffles", BaseConcurrency = "Pounds Sterling" });
             var product2 = toAdd[0].AddEx(new TProduct { Description = "Chocolate Donuts", BaseConcurrency = "US Dollars" });
             var product3 = toAdd[0].AddEx(new TProduct { Description = "Assorted Dog Treats", BaseConcurrency = "Stuffy Money" });
+
+            product1.Dimensions = new TDimensions { Depth = 3, Width = 3, Height = 0.5M };
+            product2.Dimensions = new TDimensions { Depth = 2, Width = 2, Height = 1 };
+            product3.Dimensions = new TDimensions { Depth = 3, Width = 1, Height = 4 };
 
             var barcode1 = toAdd[1].AddEx(new TBarcode { Code = new byte[] { 1, 2, 3, 4 }, Text = "Barcode 1 2 3 4" });
             var barcode2 = toAdd[1].AddEx(new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, Text = "Barcode 2 2 3 4" });

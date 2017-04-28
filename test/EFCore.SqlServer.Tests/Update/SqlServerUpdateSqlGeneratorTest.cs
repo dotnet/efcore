@@ -4,6 +4,8 @@
 using System;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Relational.Tests.Update;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -22,6 +24,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 new SqlServerTypeMapper(
                     new RelationalTypeMapperDependencies()));
 
+        protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
+
         [Fact]
         public void AppendBatchHeader_should_append_SET_NOCOUNT_ON()
         {
@@ -39,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine +
                 "SELECT [Computed]" + Environment.NewLine +
                 "FROM [dbo].[Ducks]" + Environment.NewLine +
-                "WHERE @@ROWCOUNT = 1 AND [Id] IS NULL;" + Environment.NewLine + Environment.NewLine,
+                "WHERE @@ROWCOUNT = 1 AND [Id] = @p0;" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }
 

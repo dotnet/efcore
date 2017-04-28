@@ -3,6 +3,8 @@
 
 using System;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
@@ -11,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
     public class UpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
     {
         protected override IUpdateSqlGenerator CreateSqlGenerator() => new ConcreteSqlGenerator();
+
+        protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
 
         protected override string RowsAffected => "provider_specific_rowcount()";
 

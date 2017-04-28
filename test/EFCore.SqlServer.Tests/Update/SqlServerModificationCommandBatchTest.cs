@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -38,8 +39,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                     new RelationalValueBufferFactoryDependencies()),
                 1);
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.SqlServer())));
-            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.SqlServer())));
+            Assert.True(batch.AddCommand(
+                new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, new SqlServerAnnotationProvider(), false, null)));
+            Assert.False(batch.AddCommand(
+                new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, new SqlServerAnnotationProvider(), false, null)));
         }
     }
 }

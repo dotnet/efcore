@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
 
                 Assert.Equal(
-                    CoreStrings.IdentityConflict("SingleKey", "Id"),
+                    CoreStrings.IdentityConflict("SingleKey", "{'Id'}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(new SingleKey { Id = 77, AlternateId = 67 })).Message);
             }
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
 
                 Assert.Equal(
-                    CoreStrings.IdentityConflict("SingleKey", "AlternateId"),
+                    CoreStrings.IdentityConflict("SingleKey", "{'AlternateId'}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(new SingleKey { Id = 78, AlternateId = 66 })).Message);
             }
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 context.Attach(new CompositeKey { Id1 = 77, Id2 = 78, AlternateId1 = 66, AlternateId2 = 67 });
 
                 Assert.Equal(
-                    CoreStrings.IdentityConflict("CompositeKey", "Id1, Id2"),
+                    CoreStrings.IdentityConflict("CompositeKey", "{'Id1', 'Id2'}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(
                             new CompositeKey { Id1 = 77, Id2 = 78, AlternateId1 = 66, AlternateId2 = 68 })).Message);
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 context.Attach(new CompositeKey { Id1 = 77, Id2 = 78, AlternateId1 = 66, AlternateId2 = 67 });
 
                 Assert.Equal(
-                    CoreStrings.IdentityConflict("CompositeKey", "AlternateId1, AlternateId2"),
+                    CoreStrings.IdentityConflict("CompositeKey", "{'AlternateId1', 'AlternateId2'}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(
                             new CompositeKey { Id1 = 77, Id2 = 79, AlternateId1 = 66, AlternateId2 = 67 })).Message);

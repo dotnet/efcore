@@ -3,11 +3,11 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
@@ -30,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             entry.SetEntityState(EntityState.Added);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }).ToArray();
-            Assert.Equal(1, commandBatches.Count());
-            Assert.Equal(1, commandBatches.First().ModificationCommands.Count());
+            Assert.Equal(1, commandBatches.Length);
+            Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
             Assert.Equal(EntityState.Added, command.EntityState);
@@ -69,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             entry.SetPropertyModified(entry.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }).ToArray();
-            Assert.Equal(1, commandBatches.Count());
-            Assert.Equal(1, commandBatches.First().ModificationCommands.Count());
+            Assert.Equal(1, commandBatches.Length);
+            Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
             Assert.Equal(EntityState.Modified, command.EntityState);
@@ -107,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             entry.SetEntityState(EntityState.Deleted);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }).ToArray();
-            Assert.Equal(1, commandBatches.Count());
-            Assert.Equal(1, commandBatches.First().ModificationCommands.Count());
+            Assert.Equal(1, commandBatches.Length);
+            Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
             Assert.Equal(EntityState.Deleted, command.EntityState);
@@ -149,7 +149,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var configuration = CreateContextServices(CreateSimpleFKModel());
             var stateManager = configuration.GetRequiredService<IStateManager>();
-            var model = configuration.GetRequiredService<IModel>();
 
             var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
             entry.SetEntityState(EntityState.Added);
@@ -412,29 +411,326 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                         new[] { anotherFakeEntry, fakeEntry, relatedFakeEntry }).ToArray()).Message);
         }
 
-        private static IServiceProvider CreateContextServices(IModel model)
+        [Fact]
+        public void BatchCommands_creates_valid_batch_for_shared_table_added_entities()
         {
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(model);
-            optionsBuilder.UseTransientInMemoryDatabase();
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
 
-            return new DbContext(optionsBuilder.Options).GetInfrastructure<IServiceProvider>();
+            var first = new FakeEntity { Id = 42, Value = "Test" };
+            var firstEntry = stateManager.GetOrCreateEntry(first);
+            firstEntry.SetEntityState(EntityState.Added);
+            var second = new RelatedFakeEntity { Id = 42 };
+            var secondEntry = stateManager.GetOrCreateEntry(second);
+            secondEntry.SetEntityState(EntityState.Added);
+
+            var commandBatches = CreateCommandBatchPreparer(currentDbContext: currentDbContext).BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
+            Assert.Equal(1, commandBatches.Length);
+            Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
+
+            var command = commandBatches.First().ModificationCommands.Single();
+            Assert.Equal(EntityState.Added, command.EntityState);
+            Assert.Equal(3, command.ColumnModifications.Count);
+
+            var columnMod = command.ColumnModifications[0];
+
+            Assert.Equal(nameof(FakeEntity.Id), columnMod.ColumnName);
+            Assert.Equal(first.Id, columnMod.Value);
+            Assert.Equal(first.Id, columnMod.OriginalValue);
+            Assert.False(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal(nameof(FakeEntity.RelatedId), columnMod.ColumnName);
+            Assert.Equal(first.RelatedId, columnMod.Value);
+            Assert.Equal(first.RelatedId, columnMod.OriginalValue);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal(nameof(FakeEntity.Value), columnMod.ColumnName);
+            Assert.Equal(first.Value, columnMod.Value);
+            Assert.Equal(first.Value, columnMod.OriginalValue);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
         }
 
-        private static ICommandBatchPreparer CreateCommandBatchPreparer(IModificationCommandBatchFactory modificationCommandBatchFactory = null)
+        [Fact]
+        public void BatchCommands_creates_valid_batch_for_shared_table_modified_entities()
+        {
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+
+            var entity = new FakeEntity { Id = 42, Value = "Null"};
+            var entry = stateManager.GetOrCreateEntry(entity);
+
+            entry.SetEntityState(EntityState.Modified);
+            entry.SetPropertyModified(entry.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
+
+            var commandBatches = CreateCommandBatchPreparer(currentDbContext: currentDbContext).BatchCommands(new[] { entry }).ToArray();
+            Assert.Equal(1, commandBatches.Length);
+            Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
+
+            var command = commandBatches.First().ModificationCommands.Single();
+            Assert.Equal(EntityState.Modified, command.EntityState);
+            Assert.Equal(3, command.ColumnModifications.Count);
+
+            var columnMod = command.ColumnModifications[0];
+
+            Assert.Equal(nameof(FakeEntity.Id), columnMod.ColumnName);
+            Assert.Equal(entity.Id, columnMod.Value);
+            Assert.Equal(entity.Id, columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal(nameof(FakeEntity.RelatedId), columnMod.ColumnName);
+            Assert.Equal(entity.RelatedId, columnMod.Value);
+            Assert.Equal(entity.RelatedId, columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal(nameof(FakeEntity.Value), columnMod.ColumnName);
+            Assert.Equal(entity.Value, columnMod.Value);
+            Assert.Equal(entity.Value, columnMod.OriginalValue);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+        }
+
+        [Fact]
+        public void BatchCommands_creates_valid_batch_for_shared_table_deleted_entities()
+        {
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+
+            var first = new FakeEntity { Id = 42, Value = "Test" };
+            var firstEntry = stateManager.GetOrCreateEntry(first);
+            firstEntry.SetEntityState(EntityState.Deleted);
+            var second = new RelatedFakeEntity { Id = 42 };
+            var secondEntry = stateManager.GetOrCreateEntry(second);
+            secondEntry.SetEntityState(EntityState.Deleted);
+
+            var commandBatches = CreateCommandBatchPreparer(currentDbContext: currentDbContext)
+                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
+
+            Assert.Equal(1, commandBatches.Length);
+            Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
+
+            var command = commandBatches.First().ModificationCommands.Single();
+            Assert.Equal(EntityState.Deleted, command.EntityState);
+            Assert.Equal(2, command.ColumnModifications.Count);
+
+            var columnMod = command.ColumnModifications[0];
+
+            Assert.Equal(nameof(FakeEntity.Id), columnMod.ColumnName);
+            Assert.Equal(first.Id, columnMod.Value);
+            Assert.Equal(first.Id, columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal(nameof(FakeEntity.RelatedId), columnMod.ColumnName);
+            Assert.Equal(first.RelatedId, columnMod.Value);
+            Assert.Equal(first.RelatedId, columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+        }
+
+        [InlineData(true)]
+        [InlineData(false)]
+        [Theory]
+        public void BatchCommands_throws_on_conflicting_updates_for_shared_table_added_entities(bool sensitiveLogging)
+        {
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+
+            var first = new FakeEntity { Id = 42, Value = "Test" };
+            var firstEntry = stateManager.GetOrCreateEntry(first);
+            firstEntry.SetEntityState(EntityState.Added);
+            var second = new RelatedFakeEntity { Id = 42 };
+            var secondEntry = stateManager.GetOrCreateEntry(second);
+            secondEntry.SetEntityState(EntityState.Deleted);
+
+            if (sensitiveLogging)
+            {
+                Assert.Equal(
+                    RelationalStrings.ConflictingRowUpdateTypesSensitive(
+                        nameof(RelatedFakeEntity), "Id:42", EntityState.Deleted,
+                        nameof(FakeEntity), "Id:42", EntityState.Added),
+                    Assert.Throws<InvalidOperationException>(
+                        () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                        .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+            }
+            else
+            {
+                Assert.Equal(
+                    RelationalStrings.ConflictingRowUpdateTypes(
+                        nameof(RelatedFakeEntity), EntityState.Deleted,
+                        nameof(FakeEntity), EntityState.Added),
+                    Assert.Throws<InvalidOperationException>(
+                        () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+            }
+        }
+
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        [Theory]
+        public void BatchCommands_throws_on_conflicting_values_for_shared_table_added_entities(bool useCurrentValues, bool sensitiveLogging)
+        {
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+
+            var first = new FakeEntity { Id = 42, Value = "Test" };
+            var firstEntry = stateManager.GetOrCreateEntry(first);
+            firstEntry.SetEntityState(EntityState.Modified);
+            firstEntry.SetPropertyModified(firstEntry.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
+            var second = new RelatedFakeEntity { Id = 42 };
+            var secondEntry = stateManager.GetOrCreateEntry(second);
+            secondEntry.SetEntityState(EntityState.Modified);
+            secondEntry.SetPropertyModified(secondEntry.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
+
+            if (useCurrentValues)
+            {
+                first.RelatedId = 1;
+                second.RelatedId = 2;
+            }
+            else
+            {
+                new EntityEntry<FakeEntity>(firstEntry).Property(e => e.RelatedId).OriginalValue = 1;
+                new EntityEntry<RelatedFakeEntity>(secondEntry).Property(e => e.RelatedId).OriginalValue = 2;
+            }
+
+            if (useCurrentValues)
+            {
+                if (sensitiveLogging)
+                {
+                    Assert.Equal(
+                        RelationalStrings.ConflictingRowValuesSensitive(
+                            nameof(RelatedFakeEntity), nameof(FakeEntity), "Id:42",
+                            "RelatedId:2", "RelatedId:1", "{'RelatedId'}"),
+                        Assert.Throws<InvalidOperationException>(
+                            () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                }
+                else
+                {
+                    Assert.Equal(
+                        RelationalStrings.ConflictingRowValues(
+                            nameof(RelatedFakeEntity), nameof(FakeEntity),
+                            "{'RelatedId'}", "{'RelatedId'}", "{'RelatedId'}"),
+                        Assert.Throws<InvalidOperationException>(
+                            () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                }
+            }
+            else
+            {
+                if (sensitiveLogging)
+                {
+                    Assert.Equal(
+                        RelationalStrings.ConflictingOriginalRowValuesSensitive(
+                            nameof(RelatedFakeEntity), nameof(FakeEntity), "Id:42",
+                            "RelatedId:2", "RelatedId:1", "{'RelatedId'}"),
+                        Assert.Throws<InvalidOperationException>(
+                            () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                }
+                else
+                {
+                    Assert.Equal(
+                        RelationalStrings.ConflictingOriginalRowValues(
+                            nameof(RelatedFakeEntity), nameof(FakeEntity),
+                            "{'RelatedId'}", "{'RelatedId'}", "{'RelatedId'}"),
+                        Assert.Throws<InvalidOperationException>(
+                            () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                }
+            }
+        }
+
+        [InlineData(EntityState.Added, true)]
+        [InlineData(EntityState.Added, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [Theory]
+        public void BatchCommands_throws_on_incomplete_updates_for_shared_table(EntityState state, bool sensitiveLogging)
+        {
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+
+            var first = new FakeEntity { Id = 42, Value = "Test" };
+            var firstEntry = stateManager.GetOrCreateEntry(first);
+            firstEntry.SetEntityState(state);
+
+            if (sensitiveLogging)
+            {
+                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatchSensitive(2, "FakeEntity", 1, "Id:42", state, "{'RelatedFakeEntity'}"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                            .BatchCommands(new[] { firstEntry }).ToArray()).Message);
+            }
+            else
+            {
+                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatch(2, "FakeEntity", 1, state, "{'RelatedFakeEntity'}"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                            .BatchCommands(new[] { firstEntry }).ToArray()).Message);
+            }
+        }
+
+        private static IServiceProvider CreateContextServices(IModel model)
+            => RelationalTestHelpers.Instance.CreateContextServices(model);
+
+        private static ICommandBatchPreparer CreateCommandBatchPreparer(
+            IModificationCommandBatchFactory modificationCommandBatchFactory = null,
+            ICurrentDbContext currentDbContext = null,
+            bool sensitiveLogging = false)
         {
             modificationCommandBatchFactory =
-                modificationCommandBatchFactory ?? new TestModificationCommandBatchFactory(
-                    Mock.Of<IRelationalCommandBuilderFactory>(),
-                    Mock.Of<ISqlGenerationHelper>(),
-                    Mock.Of<IUpdateSqlGenerator>(),
-                    Mock.Of<IRelationalValueBufferFactoryFactory>());
+                modificationCommandBatchFactory
+                ?? RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModificationCommandBatchFactory>();
+
+            currentDbContext = currentDbContext
+                ?? RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<ICurrentDbContext>();
+
+            var loggingOptions = new LoggingOptions();
+            if (sensitiveLogging)
+            {
+                loggingOptions.Initialize(new DbContextOptionsBuilder<DbContext>().EnableSensitiveDataLogging().Options);
+            }
 
             return new CommandBatchPreparer(modificationCommandBatchFactory,
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()),
                 new ModificationCommandComparer(),
                 new TestAnnotationProvider(),
-                new KeyValueIndexFactorySource());
+                new KeyValueIndexFactorySource(),
+                currentDbContext,
+                loggingOptions);
         }
 
         private static IModel CreateSimpleFKModel()
@@ -534,6 +830,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                     b.HasOne<RelatedFakeEntity>()
                         .WithOne()
                         .HasForeignKey<AnotherFakeEntity>(c => c.AnotherId);
+                });
+
+            return modelBuilder.Model;
+        }
+
+        private static IModel CreateSharedTableModel()
+        {
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+
+            modelBuilder.Entity<FakeEntity>(b =>
+                {
+                    b.Ignore(c => c.UniqueValue);
+                    b.Property(c => c.RelatedId).IsConcurrencyToken();
+                });
+
+            modelBuilder.Entity<RelatedFakeEntity>(b =>
+            {
+                b.Property(c => c.RelatedId).IsConcurrencyToken();
+                b.HasOne<FakeEntity>()
+                        .WithOne()
+                        .HasForeignKey<RelatedFakeEntity>(c => c.Id);
+                    b.ToTable(nameof(FakeEntity));
                 });
 
             return modelBuilder.Model;

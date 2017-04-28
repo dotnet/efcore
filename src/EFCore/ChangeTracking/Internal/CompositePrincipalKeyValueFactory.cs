@@ -39,10 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object CreateFromBuffer(ValueBuffer valueBuffer)
-        {
-            object[] values;
-            return TryCreateFromBuffer(valueBuffer, out values) ? values : null;
-        }
+            => TryCreateFromBuffer(valueBuffer, out var values) ? values : null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -64,13 +61,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual IProperty FindNullPropertyInCurrentValues(InternalEntityEntry entry)
             => Properties.FirstOrDefault(p => entry.GetCurrentValue(p) == null);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual string BuildKeyValuesString(InternalEntityEntry entry)
-            => string.Join(", ", Properties.Select(p => p.Name + ":" + entry.GetCurrentValue(p)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -133,7 +133,7 @@
     <value>The expression '{expression}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.</value>
   </data>
   <data name="IdentityConflict" xml:space="preserve">
-    <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for '{keyProperties}' is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.</value>
+    <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.</value>
   </data>
   <data name="IdentityConflictSensitive" xml:space="preserve">
     <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the key value '{keyValue}' is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached.</value>

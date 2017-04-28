@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     public abstract class TestHelpers
     {
         /// <summary>
-        ///     Tests that calling the 'With' method for each constructor-injected service creates a clone 
+        ///     Tests that calling the 'With' method for each constructor-injected service creates a clone
         ///     of TDependencies with only that service replaced.
         /// </summary>
         public void TestDependenciesClone<TDependencies>(params string[] ignoreProperties)
@@ -69,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class FakeCurrentDbContext : ICurrentDbContext
         {
             public DbContext Context { get; }
@@ -107,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     loggerMethod = loggerMethod.MakeGenericMethod(category);
                 }
 
-                var eventId = ((EventId)eventIdField.GetValue(null));
+                var eventId = (EventId)eventIdField.GetValue(null);
 
                 var categoryName = Activator.CreateInstance(category).ToString();
                 Assert.Equal(categoryName + "." + eventName, eventId.Name);
