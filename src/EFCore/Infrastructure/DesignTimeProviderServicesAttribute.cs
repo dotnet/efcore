@@ -26,8 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="typeName">
         ///     The name of the type that can be used to add the database providers design time services to a <see cref="ServiceCollection" />.
-        ///     This type should contain a method with the following signature
-        ///     <code>public IServiceCollection ConfigureDesignTimeServices(IServiceCollection serviceCollection)</code>.
+        ///     This type should implement <see cref="IDesignTimeServices" />.
         /// </param>
         /// <param name="assemblyName">
         ///     The name of the assembly that contains the design time services.
@@ -49,8 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Gets the name of the type that can be used to add the database providers design time services to a <see cref="ServiceCollection" />.
-        ///     This type should contain a method with the following signature
-        ///     <code>public IServiceCollection ConfigureDesignTimeServices(IServiceCollection serviceCollection)</code>.
+        ///     This type should implement <see cref="IDesignTimeServices"/>.
         /// </summary>
         public string TypeName { get; }
 

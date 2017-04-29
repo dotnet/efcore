@@ -518,5 +518,19 @@
     "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor : Remotion.Linq.QueryModelVisitorBase",
     "MemberId": "public static System.Boolean IsPropertyMethod(System.Reflection.MethodInfo methodInfo)",
     "Kind": "Removal"
-  }  
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.DbContextFactoryOptions",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextFactory<T0> where T0 : Microsoft.EntityFrameworkCore.DbContext",
+    "MemberId": "T0 Create(Microsoft.EntityFrameworkCore.Infrastructure.DbContextFactoryOptions options)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextFactory<T0> where T0 : Microsoft.EntityFrameworkCore.DbContext",
+    "MemberId": "T0 Create(System.String[] args)",
+    "Kind": "Addition"
+  }
 ]
