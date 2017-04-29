@@ -3074,6 +3074,34 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Distinct_on_subquery_doesnt_get_lifted()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g in (from ig in ctx.Gears
+                                       select ig).Distinct()
+                            select g.HasSoulPatch;
+
+                var result = query.ToList();
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Cast_result_operator_on_subquery_is_properly_lifted_to_a_convert()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from lh in (from f in ctx.Factions
+                                        select f).Cast<LocustHorde>()
+                            select lh.Eradicated;
+
+                var result = query.ToList();
+                Assert.Equal(2, result.Count);
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

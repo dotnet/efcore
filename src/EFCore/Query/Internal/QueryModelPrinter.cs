@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -197,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (resultOperators.Count == 1)
                 {
-                    TransformingVisitor.StringBuilder.Append($".{resultOperators[0]}");
+                    TransformingVisitor.StringBuilder.Append($".{ResultOperatorString(resultOperators[0])}");
                 }
                 else
                 {
@@ -208,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
             {
                 AppendLine("");
-                TransformingVisitor.StringBuilder.Append($".{resultOperator}");
+                TransformingVisitor.StringBuilder.Append($".{ResultOperatorString(resultOperator)}");
             }
 
             public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
@@ -216,6 +217,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 AppendLine();
                 TransformingVisitor.StringBuilder.Append("select ");
                 base.VisitSelectClause(selectClause, queryModel);
+            }
+
+            private string ResultOperatorString(ResultOperatorBase resultOperator)
+            {
+                switch(resultOperator)
+                {
+                    case CastResultOperator cast:
+                        return "Cast<" + cast.CastItemType.ShortDisplayName() + ">()";
+
+                    case OfTypeResultOperator ofType:
+                        return "OfType<" + ofType.SearchedItemType.ShortDisplayName() + ">()";
+
+                    default:
+                        return resultOperator.ToString();
+                }
             }
 
             private void AppendLine()

@@ -2921,6 +2921,29 @@ WHERE [f2.Leaders].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
 ORDER BY [t1].[Name], [t1].[Name0], [t1].[Id]");
         }
 
+        public override void Distinct_on_subquery_doesnt_get_lifted()
+        {
+            base.Distinct_on_subquery_doesnt_get_lifted();
+
+            AssertSql(
+                @"SELECT [t].[HasSoulPatch]
+FROM (
+    SELECT DISTINCT [ig].*
+    FROM [Gear] AS [ig]
+    WHERE [ig].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t]");
+        }
+
+        public override void Cast_result_operator_on_subquery_is_properly_lifted_to_a_convert()
+        {
+            base.Cast_result_operator_on_subquery_is_properly_lifted_to_a_convert();
+
+            AssertSql(
+                @"SELECT [f].[Eradicated]
+FROM [Faction] AS [f]
+WHERE [f].[Discriminator] = N'LocustHorde'");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

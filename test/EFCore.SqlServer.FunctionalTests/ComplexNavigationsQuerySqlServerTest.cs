@@ -2182,6 +2182,7 @@ WHERE 1 IN (
     FROM [Level3] AS [l3]
     WHERE [l1.OneToOne_Optional_FK].[Id] = [l3].[OneToMany_Optional_InverseId]
 )");
+
         }
 
         public override void Complex_query_with_optional_navigations_and_client_side_evaluation()
@@ -2526,10 +2527,13 @@ WHERE ([l2].[Name] <> N'Foo') OR [l2].[Name] IS NULL");
             base.Explicit_GroupJoin_in_subquery_with_unrelated_projection2();
 
             AssertSql(
-                @"SELECT DISTINCT [l1].[Id]
-FROM [Level1] AS [l1]
-LEFT JOIN [Level2] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]
-WHERE ([l2].[Name] <> N'Foo') OR [l2].[Name] IS NULL");
+                @"SELECT [t].[Id]
+FROM (
+    SELECT DISTINCT [l1].*
+    FROM [Level1] AS [l1]
+    LEFT JOIN [Level2] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]
+    WHERE ([l2].[Name] <> N'Foo') OR [l2].[Name] IS NULL
+) AS [t]");
         }
 
         public override void Explicit_GroupJoin_in_subquery_with_unrelated_projection3()
