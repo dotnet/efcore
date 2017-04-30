@@ -116,7 +116,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
 
             if (entityType == null)
             {
-                return null;
+                throw new NotSupportedException(
+                    CoreStrings.IncludeNotSpecifiedDirectlyOnEntityType(
+                        ToString(), 
+                        NavigationPropertyPaths.FirstOrDefault()));
             }
 
             var navigationPath = new INavigation[NavigationPropertyPaths.Count];

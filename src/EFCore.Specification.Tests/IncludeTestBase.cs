@@ -3081,6 +3081,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_specified_on_non_entity_not_supported(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    CoreStrings.IncludeNotSpecifiedDirectlyOnEntityType(@"Include(""Item1.Orders"")", "Item1"),
+                    Assert.Throws<NotSupportedException>(
+                        () => useString
+                                ? context.Customers
+                                    .Select(c => new Tuple<Customer, int>(c, 5))
+                                    .Include(t => t.Item1.Orders)
+                                    .ToList()
+                                : context.Customers
+                                    .Select(c => new Tuple<Customer, int>(c, 5))
+                                    .Include("Item1.Orders")
+                                    .ToList()).Message);
+            }
+        }
+
         private static void CheckIsLoaded(
             NorthwindContext context,
             Customer customer,

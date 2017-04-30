@@ -1352,7 +1352,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     The Include operation '{include}' was ignored because the target navigation is not reachable in the final query results or the Include operation was specified on non-entity type.
+        ///     The Include operation '{include}' was ignored because the target navigation is not reachable in the final query results.
         /// </summary>
         public static string LogIgnoredInclude([CanBeNull] object include)
             => string.Format(
@@ -1636,6 +1636,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("BadFilterDerivedType", nameof(filter), nameof(entityType)),
                 filter, entityType);
+
+        /// <summary>
+        ///     The Include operation '{include}' was invalid. '{invalidNavigation}' is not a navigation property defined on an entity type.
+        /// </summary>
+        public static string IncludeNotSpecifiedDirectlyOnEntityType([CanBeNull] object include, [CanBeNull] object invalidNavigation)
+            => string.Format(
+                GetString("IncludeNotSpecifiedDirectlyOnEntityType", nameof(include), nameof(invalidNavigation)),
+                include, invalidNavigation);
 
         private static string GetString(string name, params string[] formatterNames)
         {
