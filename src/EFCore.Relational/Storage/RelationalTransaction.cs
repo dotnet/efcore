@@ -61,6 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _transactionOwned = transactionOwned;
         }
 
+        public virtual Guid TransactionId { get; } = Guid.NewGuid();
+
         /// <summary>
         ///     Commits all changes made to the database in the current transaction.
         /// </summary>
@@ -77,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _logger.TransactionCommitted(
                     _relationalConnection,
                     _dbTransaction,
+                    TransactionId,
                     startTimestamp,
                     currentTimestamp);
             }
@@ -86,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 _logger.TransactionError(
                     _relationalConnection,
-                    _dbTransaction, 
+                    _dbTransaction,
+                    TransactionId,
                     "Commit",
                     e,
                     startTimestamp,
@@ -113,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _logger.TransactionRolledBack(
                     _relationalConnection,
                     _dbTransaction,
+                    TransactionId,
                     startTimestamp,
                     currentTimestamp);
             }
@@ -123,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _logger.TransactionError(
                     _relationalConnection,
                     _dbTransaction,
+                    TransactionId,
                     "Rollback",
                     e,
                     startTimestamp,
@@ -147,8 +153,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _dbTransaction.Dispose();
 
                     _logger.TransactionDisposed(
-                        _relationalConnection, 
-                        _dbTransaction);
+                        _relationalConnection,
+                        _dbTransaction,
+                        TransactionId,
+                        Stopwatch.GetTimestamp());
                 }
 
                 ClearTransaction();

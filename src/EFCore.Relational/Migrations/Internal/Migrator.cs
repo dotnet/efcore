@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         public virtual void Migrate(string targetMigration = null)
         {
-            _logger.MigrateUsingConnection(this, _connection, targetMigration);
+            _logger.MigrateUsingConnection(this, _connection);
 
             if (!_historyRepository.Exists())
             {
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             string targetMigration = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            _logger.MigrateUsingConnection(this, _connection, targetMigration);
+            _logger.MigrateUsingConnection(this, _connection);
 
             if (!await _historyRepository.ExistsAsync(cancellationToken))
             {
@@ -134,12 +134,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IReadOnlyList<HistoryRow> appliedMigrationEntries,
             string targetMigration = null)
         {
-            IReadOnlyList<Migration> migrationsToApply, migrationsToRevert;
             PopulateMigrations(
                 appliedMigrationEntries.Select(t => t.MigrationId),
                 targetMigration,
-                out migrationsToApply,
-                out migrationsToRevert);
+                out var migrationsToApply,
+                out var migrationsToRevert);
 
             for (var i = 0; i < migrationsToRevert.Count; i++)
             {
@@ -148,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var index = i;
                 yield return () =>
                     {
-                        _logger.MigrationReverting(this, migration, targetMigration);
+                        _logger.MigrationReverting(this, migration);
 
                         return GenerateDownSql(
                             migration,
@@ -162,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 yield return () =>
                     {
-                        _logger.MigrationApplying(this, migration, targetMigration);
+                        _logger.MigrationApplying(this, migration);
 
                         return GenerateUpSql(migration);
                     };
@@ -242,12 +241,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .Select(t => t.Key);
             }
 
-            IReadOnlyList<Migration> migrationsToApply, migrationsToRevert;
             PopulateMigrations(
                 appliedMigrations,
                 toMigration,
-                out migrationsToApply,
-                out migrationsToRevert);
+                out var migrationsToApply,
+                out var migrationsToRevert);
 
             var builder = new IndentedStringBuilder();
 

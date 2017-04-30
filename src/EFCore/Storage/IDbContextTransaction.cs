@@ -18,6 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public interface IDbContextTransaction : IDisposable
     {
         /// <summary>
+        ///     Gets the transaction identifier.
+        /// </summary>
+        Guid TransactionId { get; }
+
+        /// <summary>
         ///     Commits all changes made to the database in the current transaction.
         /// </summary>
         void Commit();

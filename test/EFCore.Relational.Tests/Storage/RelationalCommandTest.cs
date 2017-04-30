@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
@@ -347,48 +348,48 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         }
 
         public static TheoryData CommandActions
-            => new TheoryData<Delegate, string, bool>
+            => new TheoryData<Delegate, DbCommandMethod, bool>
             {
                 {
                     new CommandAction(
                         (connection, command, parameterValues)
                             => command.ExecuteNonQuery(connection, parameterValues)),
-                    "ExecuteNonQuery",
+                    DbCommandMethod.ExecuteNonQuery,
                     false
                 },
                 {
                     new CommandAction(
                         (connection, command, parameterValues)
                             => command.ExecuteScalar(connection, parameterValues)),
-                    "ExecuteScalar",
+                    DbCommandMethod.ExecuteScalar,
                     false
                 },
                 {
                     new CommandAction(
                         (connection, command, parameterValues)
                             => command.ExecuteReader(connection, parameterValues)),
-                    "ExecuteReader",
+                    DbCommandMethod.ExecuteReader,
                     false
                 },
                 {
                     new CommandFunc(
                         (connection, command, parameterValues)
                             => command.ExecuteNonQueryAsync(connection, parameterValues)),
-                    "ExecuteNonQuery",
+                    DbCommandMethod.ExecuteNonQuery,
                     true
                 },
                 {
                     new CommandFunc(
                         (connection, command, parameterValues)
                             => command.ExecuteScalarAsync(connection, parameterValues)),
-                    "ExecuteScalar",
+                    DbCommandMethod.ExecuteScalar,
                     true
                 },
                 {
                     new CommandFunc(
                         (connection, command, parameterValues)
                             => command.ExecuteReaderAsync(connection, parameterValues)),
-                    "ExecuteReader",
+                    DbCommandMethod.ExecuteReader,
                     true
                 }
             };
@@ -998,7 +999,7 @@ Logged Command",
         [MemberData(nameof(CommandActions))]
         public async Task Reports_command_diagnostic(
             Delegate commandDelegate,
-            string diagnosticName,
+            DbCommandMethod diagnosticName,
             bool async)
         {
             var options = CreateOptions();
@@ -1032,8 +1033,8 @@ Logged Command",
             Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[0].Item1);
             Assert.Equal(RelationalEventId.CommandExecuted.Name, diagnostic[1].Item1);
 
-            var beforeData = (RelationalDiagnosticSourceBeforeMessage)diagnostic[0].Item2;
-            var afterData = (RelationalDiagnosticSourceAfterMessage)diagnostic[1].Item2;
+            var beforeData = (CommandData)diagnostic[0].Item2;
+            var afterData = (CommandExecutedData)diagnostic[1].Item2;
 
             Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], beforeData.Command);
             Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], afterData.Command);
@@ -1041,15 +1042,15 @@ Logged Command",
             Assert.Equal(diagnosticName, beforeData.ExecuteMethod);
             Assert.Equal(diagnosticName, afterData.ExecuteMethod);
 
-            Assert.Equal(async, beforeData.IsAsync);
-            Assert.Equal(async, afterData.IsAsync);
+            Assert.Equal(async, beforeData.Async);
+            Assert.Equal(async, afterData.Async);
         }
 
         [Theory]
         [MemberData(nameof(CommandActions))]
         public async Task Reports_command_diagnostic_on_exception(
             Delegate commandDelegate,
-            string diagnosticName,
+            DbCommandMethod diagnosticName,
             bool async)
         {
             var exception = new InvalidOperationException();
@@ -1101,8 +1102,8 @@ Logged Command",
             Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[0].Item1);
             Assert.Equal(RelationalEventId.CommandError.Name, diagnostic[1].Item1);
 
-            var beforeData = (RelationalDiagnosticSourceBeforeMessage)diagnostic[0].Item2;
-            var afterData = (RelationalDiagnosticSourceAfterMessage)diagnostic[1].Item2;
+            var beforeData = (CommandData)diagnostic[0].Item2;
+            var afterData = (CommandErrorData)diagnostic[1].Item2;
 
             Assert.Equal(fakeDbConnection.DbCommands[0], beforeData.Command);
             Assert.Equal(fakeDbConnection.DbCommands[0], afterData.Command);
@@ -1110,8 +1111,8 @@ Logged Command",
             Assert.Equal(diagnosticName, beforeData.ExecuteMethod);
             Assert.Equal(diagnosticName, afterData.ExecuteMethod);
 
-            Assert.Equal(async, beforeData.IsAsync);
-            Assert.Equal(async, afterData.IsAsync);
+            Assert.Equal(async, beforeData.Async);
+            Assert.Equal(async, afterData.Async);
 
             Assert.Equal(exception, afterData.Exception);
         }

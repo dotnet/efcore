@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public static readonly EventId ForeignKeyColumnMissingWarning = MakeScaffoldingId(Id.ForeignKeyColumnMissingWarning);
 
         /// <summary>
-        ///     A foreign key column was not found.
+        ///     A column referenced by a foreign key constraint was not found.
         ///     This event is in the <see cref="LoggerCategory.Scaffolding" /> category.
         /// </summary>
         public static readonly EventId ForeignKeyPrincipalColumnMissingWarning = MakeScaffoldingId(Id.ForeignKeyPrincipalColumnMissingWarning);
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public static readonly EventId IndexNotNamedWarning = MakeScaffoldingId(Id.IndexNotNamedWarning);
 
         /// <summary>
-        ///     The table references by an index was not found.
+        ///     The table referened by an index was not found.
         ///     This event is in the <see cref="LoggerCategory.Scaffolding" /> category.
         /// </summary>
         public static readonly EventId IndexTableMissingWarning = MakeScaffoldingId(Id.IndexTableMissingWarning);

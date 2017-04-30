@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -74,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             IReadOnlyDictionary<string, object> parameterValues)
             => (int)Execute(
                 Check.NotNull(connection, nameof(connection)),
-                nameof(ExecuteNonQuery),
+                DbCommandMethod.ExecuteNonQuery,
                 parameterValues);
 
         int IRelationalCommand.ExecuteNonQuery(
@@ -91,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
-                nameof(ExecuteNonQuery),
+                DbCommandMethod.ExecuteNonQuery,
                 parameterValues,
                 cancellationToken: cancellationToken).Cast<object, int>();
 
@@ -108,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             IReadOnlyDictionary<string, object> parameterValues)
             => Execute(
                 Check.NotNull(connection, nameof(connection)),
-                nameof(ExecuteScalar),
+                DbCommandMethod.ExecuteScalar,
                 parameterValues);
 
         object IRelationalCommand.ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
@@ -124,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
-                nameof(ExecuteScalar),
+                DbCommandMethod.ExecuteScalar,
                 parameterValues,
                 cancellationToken: cancellationToken);
 
@@ -141,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             IReadOnlyDictionary<string, object> parameterValues)
             => (RelationalDataReader)Execute(
                 Check.NotNull(connection, nameof(connection)),
-                nameof(ExecuteReader),
+                DbCommandMethod.ExecuteReader,
                 parameterValues,
                 closeConnection: false);
 
@@ -159,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
-                nameof(ExecuteReader),
+                DbCommandMethod.ExecuteReader,
                 parameterValues,
                 closeConnection: false,
                 cancellationToken: cancellationToken).Cast<object, RelationalDataReader>();
@@ -174,34 +175,33 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected virtual object Execute(
             [NotNull] IRelationalConnection connection,
-            [NotNull] string executeMethod,
+            DbCommandMethod executeMethod,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
             bool closeConnection = true)
         {
             Check.NotNull(connection, nameof(connection));
-            Check.NotEmpty(executeMethod, nameof(executeMethod));
 
             var dbCommand = CreateCommand(connection, parameterValues);
 
             connection.Open();
 
             var startTimestamp = Stopwatch.GetTimestamp();
-            var instanceId = Guid.NewGuid();
+            var commandId = Guid.NewGuid();
 
             SqlLogger.CommandExecuting(
-                connection.ConnectionId,
                 dbCommand,
                 executeMethod,
-                instanceId,
-                startTimestamp,
-                async: false);
+                commandId,
+                connection.ConnectionId,
+                async: false, 
+                startTimestamp: startTimestamp);
 
             object result;
             try
             {
                 switch (executeMethod)
                 {
-                    case nameof(ExecuteNonQuery):
+                    case DbCommandMethod.ExecuteNonQuery:
                     {
                         using (dbCommand)
                         {
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                         break;
                     }
-                    case nameof(ExecuteScalar):
+                    case DbCommandMethod.ExecuteScalar:
                     {
                         using (dbCommand)
                         {
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                         break;
                     }
-                    case nameof(ExecuteReader):
+                    case DbCommandMethod.ExecuteReader:
                     {
                         try
                         {
@@ -228,6 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                                     connection,
                                     dbCommand,
                                     dbCommand.ExecuteReader(),
+                                    commandId,
                                     ReaderLogger);
                         }
                         catch
@@ -248,11 +249,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
                 SqlLogger.CommandExecuted(
-                    connection.ConnectionId,
                     dbCommand,
                     executeMethod,
+                    commandId,
+                    connection.ConnectionId,
                     result,
-                    instanceId,
+                    false,
                     startTimestamp,
                     currentTimestamp);
 
@@ -266,14 +268,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
                 SqlLogger.CommandError(
-                    connection.ConnectionId,
                     dbCommand,
                     executeMethod,
-                    instanceId,
-                    startTimestamp,
-                    currentTimestamp,
+                    commandId,
+                    connection.ConnectionId,
                     exception,
-                    async: false);
+                    false,
+                    startTimestamp,
+                    currentTimestamp);
 
                 connection.Close();
 
@@ -293,35 +295,34 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected virtual async Task<object> ExecuteAsync(
             [NotNull] IRelationalConnection connection,
-            [NotNull] string executeMethod,
+            DbCommandMethod executeMethod,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
             bool closeConnection = true,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, nameof(connection));
-            Check.NotEmpty(executeMethod, nameof(executeMethod));
 
             var dbCommand = CreateCommand(connection, parameterValues);
 
             await connection.OpenAsync(cancellationToken);
 
             var startTimestamp = Stopwatch.GetTimestamp();
-            var instanceId = Guid.NewGuid();
+            var commandId = Guid.NewGuid();
 
             SqlLogger.CommandExecuting(
-                connection.ConnectionId,
                 dbCommand,
                 executeMethod,
-                instanceId,
-                startTimestamp,
-                async: true);
+                commandId,
+                connection.ConnectionId,
+                async: true, 
+                startTimestamp: startTimestamp);
 
             object result;
             try
             {
                 switch (executeMethod)
                 {
-                    case nameof(ExecuteNonQuery):
+                    case DbCommandMethod.ExecuteNonQuery:
                     {
                         using (dbCommand)
                         {
@@ -330,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                         break;
                     }
-                    case nameof(ExecuteScalar):
+                    case DbCommandMethod.ExecuteScalar:
                     {
                         using (dbCommand)
                         {
@@ -339,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                         break;
                     }
-                    case nameof(ExecuteReader):
+                    case DbCommandMethod.ExecuteReader:
                     {
                         try
                         {
@@ -347,6 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                                 connection,
                                 dbCommand,
                                 await dbCommand.ExecuteReaderAsync(cancellationToken),
+                                commandId,
                                 ReaderLogger);
                         }
                         catch
@@ -367,14 +369,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
                 SqlLogger.CommandExecuted(
-                    connection.ConnectionId,
                     dbCommand,
                     executeMethod,
+                    commandId,
+                    connection.ConnectionId,
                     result,
-                    instanceId,
+                    true,
                     startTimestamp,
-                    currentTimestamp,
-                    async: true);
+                    currentTimestamp);
 
                 if (closeConnection)
                 {
@@ -386,14 +388,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
                 SqlLogger.CommandError(
-                    connection.ConnectionId,
                     dbCommand,
                     executeMethod,
-                    instanceId,
-                    startTimestamp,
-                    currentTimestamp,
+                    commandId,
+                    connection.ConnectionId,
                     exception,
-                    async: true);
+                    true,
+                    startTimestamp,
+                    currentTimestamp);
 
                 connection.Close();
 
@@ -436,9 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                 foreach (var parameter in Parameters)
                 {
-                    object parameterValue;
-
-                    if (parameterValues.TryGetValue(parameter.InvariantName, out parameterValue))
+                    if (parameterValues.TryGetValue(parameter.InvariantName, out object parameterValue))
                     {
                         parameter.AddDbParameter(command, parameterValue);
                     }

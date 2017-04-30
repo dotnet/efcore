@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly IRelationalConnection _connection;
         private readonly DbCommand _command;
         private readonly DbDataReader _reader;
+        private readonly Guid _commandId;
         private readonly IDiagnosticsLogger<LoggerCategory.Database.DataReader> _logger;
         private readonly long _startTimestamp;
 
@@ -37,11 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="connection"> The connection. </param>
         /// <param name="command"> The command that was executed. </param>
         /// <param name="reader"> The underlying reader for the result set. </param>
+        /// <param name="commandId"> A correlation ID that identifies the <see cref="DbCommand" /> instance being used. </param>
         /// <param name="logger"> The diagnostic source. </param>
         public RelationalDataReader(
             [CanBeNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [NotNull] DbDataReader reader,
+            Guid commandId,
             [NotNull] IDiagnosticsLogger<LoggerCategory.Database.DataReader> logger)
         {
             Check.NotNull(command, nameof(command));
@@ -51,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _connection = connection;
             _command = command;
             _reader = reader;
+            _commandId = commandId;
             _logger = logger;
             _startTimestamp = Stopwatch.GetTimestamp();
         }
@@ -80,7 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 _logger.DataReaderDisposing(
                     _connection,
+                    _command,
                     _reader,
+                    _commandId,
                     _reader.RecordsAffected,
                     _startTimestamp,
                     currentTimestamp);

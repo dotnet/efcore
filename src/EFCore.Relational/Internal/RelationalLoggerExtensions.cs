@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -31,13 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void CommandExecuting(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics,
-            Guid connectionId,
+            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics, 
             [NotNull] DbCommand command,
-            [NotNull] string executeMethod,
-            Guid instanceId,
-            long startTimestamp,
-            bool async)
+            DbCommandMethod executeMethod,
+            Guid commandId, 
+            Guid connectionId, 
+            bool async, 
+            long startTimestamp)
         {
             var eventId = RelationalEventId.CommandExecuting;
 
@@ -62,15 +63,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     eventId.Name,
-                    new RelationalDiagnosticSourceBeforeMessage
-                    {
-                        ConnectionId = connectionId,
-                        Command = command,
-                        ExecuteMethod = executeMethod,
-                        InstanceId = instanceId,
-                        Timestamp = startTimestamp,
-                        IsAsync = async
-                    });
+                    new CommandData(
+                        command,
+                        executeMethod,
+                        commandId,
+                        connectionId,
+                        async,
+                        startTimestamp));
             }
         }
 
@@ -80,14 +79,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void CommandExecuted(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics,
-            Guid connectionId,
             [NotNull] DbCommand command,
-            [NotNull] string executeMethod,
+            DbCommandMethod executeMethod,
+            Guid commandId,
+            Guid connectionId,
             [CanBeNull] object methodResult,
-            Guid instanceId,
+            bool async,
             long startTimestamp,
-            long currentTimestamp,
-            bool async = false)
+            long currentTimestamp)
         {
             var eventId = RelationalEventId.CommandExecuted;
 
@@ -115,17 +114,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     eventId.Name,
-                    new RelationalDiagnosticSourceAfterMessage
-                    {
-                        ConnectionId = connectionId,
-                        Command = command,
-                        ExecuteMethod = executeMethod,
-                        Result = methodResult,
-                        InstanceId = instanceId,
-                        Timestamp = currentTimestamp,
-                        Duration = currentTimestamp - startTimestamp,
-                        IsAsync = async
-                    });
+                    new CommandExecutedData(
+                        command,
+                        executeMethod,
+                        commandId,
+                        connectionId,
+                        methodResult,
+                        async,
+                        currentTimestamp,
+                        currentTimestamp - startTimestamp));
             }
         }
 
@@ -135,14 +132,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void CommandError(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics,
-            Guid connectionId,
             [NotNull] DbCommand command,
-            [NotNull] string executeMethod,
-            Guid instanceId,
-            long startTimestamp,
-            long currentTimestamp,
+            DbCommandMethod executeMethod,
+            Guid commandId,
+            Guid connectionId,
             [NotNull] Exception exception,
-            bool async)
+            bool async,
+            long startTimestamp,
+            long currentTimestamp)
         {
             var eventId = RelationalEventId.CommandError;
 
@@ -170,17 +167,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     eventId.Name,
-                    new RelationalDiagnosticSourceAfterMessage
-                    {
-                        ConnectionId = connectionId,
-                        Command = command,
-                        ExecuteMethod = executeMethod,
-                        InstanceId = instanceId,
-                        Timestamp = currentTimestamp,
-                        Duration = currentTimestamp - startTimestamp,
-                        Exception = exception,
-                        IsAsync = async
-                    });
+                    new CommandErrorData(
+                        command,
+                        executeMethod,
+                        commandId,
+                        connectionId,
+                        exception,
+                        async,
+                        currentTimestamp,
+                        currentTimestamp - startTimestamp));
             }
         }
 
@@ -232,7 +227,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ConnectionOpening(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
-            Guid instanceId,
             long startTimestamp,
             bool async)
         {
@@ -243,21 +237,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.Logger.LogDebug(
                     eventId,
                     RelationalStrings.RelationalLoggerOpeningConnection(
-                        connection.DbConnection.Database, 
+                        connection.DbConnection.Database,
                         connection.DbConnection.DataSource));
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        InstanceId = instanceId,
-                        Timestamp = startTimestamp,
-                        IsAsync = async
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new ConnectionData(
+                        connection.DbConnection, 
+                        connection.ConnectionId, 
+                        async, 
+                        startTimestamp));
             }
         }
 
@@ -268,7 +260,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ConnectionOpened(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
-            Guid instanceId,
             long startTimestamp,
             long currentTimestamp,
             bool async)
@@ -283,19 +274,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         connection.DbConnection.Database,
                         connection.DbConnection.DataSource));
             }
-            
+
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        InstanceId = instanceId,
-                        Timestamp = currentTimestamp,
-                        Duration = currentTimestamp - startTimestamp,
-                        IsAsync = async
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new ConnectionEndData(
+                        connection.DbConnection,
+                        connection.ConnectionId,
+                        async,
+                        currentTimestamp,
+                        currentTimestamp - startTimestamp));
             }
         }
 
@@ -306,9 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ConnectionClosing(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
-            Guid instanceId,
-            long startTimestamp,
-            bool async)
+            long startTimestamp)
         {
             var eventId = RelationalEventId.ConnectionClosing;
 
@@ -323,15 +310,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        InstanceId = instanceId,
-                        Timestamp = startTimestamp,
-                        IsAsync = async
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new ConnectionData(
+                        connection.DbConnection, 
+                        connection.ConnectionId, 
+                        false,
+                        startTimestamp));
             }
         }
 
@@ -342,10 +327,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ConnectionClosed(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
-            Guid instanceId,
             long startTimestamp,
-            long currentTimestamp,
-            bool async)
+            long currentTimestamp)
         {
             var eventId = RelationalEventId.ConnectionClosed;
 
@@ -360,16 +343,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        InstanceId = instanceId,
-                        Timestamp = currentTimestamp,
-                        Duration = currentTimestamp - startTimestamp,
-                        IsAsync = async
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new ConnectionEndData(
+                        connection.DbConnection,
+                        connection.ConnectionId,
+                        false,
+                        currentTimestamp,
+                        currentTimestamp - startTimestamp));
             }
         }
 
@@ -381,7 +362,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] Exception exception,
-            Guid instanceId,
             long startTimestamp,
             long currentTimestamp,
             bool async)
@@ -400,17 +380,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        Exception = exception,
-                        InstanceId = instanceId,
-                        Timestamp = currentTimestamp,
-                        Duration = currentTimestamp - startTimestamp,
-                        IsAsync = async
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new ConnectionErrorData(
+                        connection.DbConnection,
+                        connection.ConnectionId,
+                        exception,
+                        async,
+                        currentTimestamp,
+                        currentTimestamp - startTimestamp));
             }
         }
 
@@ -421,7 +399,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void TransactionStarted(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction)
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            long timestamp)
         {
             var eventId = RelationalEventId.TransactionStarted;
 
@@ -434,13 +414,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        Transaction = transaction
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new TransactionData(
+                        transaction,
+                        transactionId,
+                        connection.ConnectionId,
+                        timestamp));
             }
         }
 
@@ -451,7 +431,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void TransactionUsed(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction)
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            long timestamp)
         {
             var eventId = RelationalEventId.TransactionUsed;
 
@@ -464,13 +446,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        Transaction = transaction
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new TransactionData(
+                        transaction,
+                        transactionId,
+                        connection.ConnectionId,
+                        timestamp));
             }
         }
 
@@ -482,6 +464,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
+            Guid transactionId,
             long startTimestamp,
             long currentTimestamp)
         {
@@ -496,15 +479,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        Transaction = transaction,
-                        Timestamp = currentTimestamp,
-                        Duration = currentTimestamp - startTimestamp
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new TransactionEndData(
+                        transaction,
+                        transactionId,
+                        connection.ConnectionId,
+                        currentTimestamp,
+                        currentTimestamp - startTimestamp));
             }
         }
 
@@ -516,6 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
+            Guid transactionId,
             long startTimestamp,
             long currentTimestamp)
         {
@@ -530,15 +513,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        Transaction = transaction,
-                        Timestamp = currentTimestamp,
-                        Duration = currentTimestamp - startTimestamp
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new TransactionEndData(
+                        transaction,
+                        transactionId,
+                        connection.ConnectionId,
+                        currentTimestamp,
+                        currentTimestamp - startTimestamp));
             }
         }
 
@@ -549,7 +531,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void TransactionDisposed(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction)
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            long timestamp)
         {
             var eventId = RelationalEventId.TransactionDisposed;
 
@@ -562,13 +546,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        Transaction = transaction
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new TransactionData(
+                        transaction,
+                        transactionId,
+                        connection.ConnectionId,
+                        timestamp));
             }
         }
 
@@ -580,6 +564,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
+            Guid transactionId,
             [NotNull] string action,
             [NotNull] Exception exception,
             long startTimestamp,
@@ -597,16 +582,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        Transaction = transaction,
-                        Exception = exception,
-                        Timestamp = currentTimestamp,
-                        Duration = currentTimestamp - startTimestamp
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new TransactionErrorData(
+                        transaction,
+                        connection.ConnectionId,
+                        transactionId,
+                        action,
+                        exception,
+                        currentTimestamp,
+                        currentTimestamp - startTimestamp));
             }
         }
 
@@ -616,7 +601,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void AmbientTransactionWarning(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection)
+            [NotNull] IRelationalConnection connection,
+            long timestamp)
         {
             var eventId = RelationalEventId.AmbientTransactionWarning;
 
@@ -629,12 +615,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new ConnectionData(
+                        connection.DbConnection,
+                        connection.ConnectionId,
+                        false,
+                        timestamp));
             }
         }
 
@@ -645,7 +632,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void DataReaderDisposing(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.DataReader> diagnostics,
             [NotNull] IRelationalConnection connection,
+            [NotNull] DbCommand command,
             [NotNull] DbDataReader dataReader,
+            Guid commandId,
             int recordsAffected,
             long startTimestamp,
             long currentTimestamp)
@@ -658,19 +647,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     eventId,
                     RelationalStrings.DisposingDataReader);
             }
-            
+
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        DataReader = dataReader,
-                        RecordsAffected = recordsAffected,
-                        Timestamp = currentTimestamp,
-                        Duration = currentTimestamp - startTimestamp
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new DataReaderDisposingData(
+                        command,
+                        dataReader,
+                        commandId,
+                        connection.ConnectionId,
+                        recordsAffected,
+                        currentTimestamp,
+                        currentTimestamp - startTimestamp));
             }
         }
 
@@ -681,8 +670,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void MigrateUsingConnection(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] string targetMigration)
+            [NotNull] IRelationalConnection connection)
         {
             var eventId = RelationalEventId.MigrateUsingConnection;
 
@@ -696,14 +684,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Migrator = migrator,
-                        Connection = connection.DbConnection,
-                        ConnectionId = connection.ConnectionId,
-                        TargetMigration = targetMigration
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new MigratorConnectionData(
+                        migrator,
+                        connection.DbConnection,
+                        connection.ConnectionId));
             }
         }
 
@@ -714,8 +700,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void MigrationReverting(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
-            [NotNull] Migration migration,
-            [CanBeNull] string targetMigration)
+            [NotNull] Migration migration)
         {
             var eventId = RelationalEventId.MigrationReverting;
 
@@ -728,13 +713,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Migrator = migrator,
-                        Migration = migration,
-                        TargetMigration = targetMigration
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new MigrationData(
+                        migrator,
+                        migration));
             }
         }
 
@@ -745,8 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void MigrationApplying(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
-            [NotNull] Migration migration,
-            [CanBeNull] string targetMigration)
+            [NotNull] Migration migration)
         {
             var eventId = RelationalEventId.MigrationApplying;
 
@@ -759,13 +741,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Migrator = migrator,
-                        Migration = migration,
-                        TargetMigration = targetMigration
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new MigrationData(
+                        migrator,
+                        migration));
             }
         }
 
@@ -792,15 +772,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Migrator = migrator,
-                        Migration = migration,
-                        FromMigration= fromMigration,
-                        ToMigration = toMigration,
-                        Idempotent = idempotent
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new MigrationScriptingData(
+                        migrator,
+                        migration,
+                        fromMigration,
+                        toMigration,
+                        idempotent));
             }
         }
 
@@ -827,15 +806,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
-                    new
-                    {
-                        Migrator = migrator,
-                        Migration = migration,
-                        FromMigration = fromMigration,
-                        ToMigration = toMigration,
-                        Idempotent = idempotent
-                    });
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new MigrationScriptingData(
+                        migrator,
+                        migration,
+                        fromMigration,
+                        toMigration,
+                        idempotent));
             }
         }
 
@@ -859,7 +837,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
                     new
                     {
                         QueryModel = queryModel,
@@ -890,7 +869,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
                     new
                     {
                         MethodCallExpression = methodCallExpression,
@@ -918,7 +898,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name,
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
                     new
                     {
                         Property = property
@@ -926,7 +907,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static readonly double _timestampToMilliseconds 
+        private static readonly double _timestampToMilliseconds
             = (double)TimeSpan.TicksPerSecond / (Stopwatch.Frequency * TimeSpan.TicksPerMillisecond);
 
         private static long DeriveTimespan(long startTimestamp, long currentTimestamp)

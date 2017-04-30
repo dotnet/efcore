@@ -1,5 +1,10 @@
 [
   {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction : System.IDisposable",
+    "MemberId": "System.Guid get_TransactionId()",
+    "Kind": "Addition"
+  },
+  {
     "TypeId": "public enum Microsoft.EntityFrameworkCore.Infrastructure.CoreEventId",
     "Kind": "Removal"
   },
