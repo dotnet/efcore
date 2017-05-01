@@ -1,6 +1,9 @@
 <Project>
-  <ItemGroup>
-    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks.EF6\*.csproj" Condition="'$(OS)' != 'Windows_NT'" />
-    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks\*.csproj" />
-  </ItemGroup>
+    <PropertyGroup>
+        <CoreOnly Condition="'$(CoreOnly)' == ''">False</CoreOnly>
+    </PropertyGroup>
+    <ItemGroup>
+        <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks.EF6\*.csproj" Condition="'$(OS)' != 'Windows_NT' OR '$(CoreOnly)' == 'True'" />
+        <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks\*.csproj" />
+    </ItemGroup>
 </Project>
