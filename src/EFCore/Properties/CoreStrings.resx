@@ -742,6 +742,6 @@
     <value>The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the root entity type in a hierarchy.</value>
   </data>
   <data name="IncludeNotSpecifiedDirectlyOnEntityType" xml:space="preserve">
-    <value>The Include operation '{include}' was invalid. '{invalidNavigation}' is not a navigation property defined on an entity type.</value>
+    <value>The Include operation '{include}' is not supported. '{invalidNavigation}' must be a navigation property defined on an entity type.</value>
   </data>
 </root>

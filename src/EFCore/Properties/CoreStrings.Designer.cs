@@ -1638,7 +1638,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 filter, entityType);
 
         /// <summary>
-        ///     The Include operation '{include}' was invalid. '{invalidNavigation}' is not a navigation property defined on an entity type.
+        ///     The Include operation '{include}' is not supported. '{invalidNavigation}' must be a navigation property defined on an entity type.
         /// </summary>
         public static string IncludeNotSpecifiedDirectlyOnEntityType([CanBeNull] object include, [CanBeNull] object invalidNavigation)
             => string.Format(

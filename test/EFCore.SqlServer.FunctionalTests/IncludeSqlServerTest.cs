@@ -1369,11 +1369,6 @@ INNER JOIN (
 ORDER BY [t].[c], [t].[CustomerID]");
         }
 
-        public override void Include_specified_on_non_entity_not_supported(bool useString)
-        {
-            base.Include_specified_on_non_entity_not_supported(useString);
-        }
-
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
         
