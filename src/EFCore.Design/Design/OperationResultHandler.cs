@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     public partial class OperationResultHandler : MarshalByRefObject
     {
     }
-#elif NETSTANDARD1_3 || NETCOREAPP1_0
+#elif NETSTANDARD1_3 || NETCOREAPP1_0 || NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif

@@ -26,5 +26,7 @@
     <file src="../ef/bin/x86/$configuration$/net46/ef.x86.exe" target="tools/net46/" />
     <file src="../ef/bin/$configuration$/netcoreapp1.0/ef.dll" target="tools/netcoreapp1.0/" />
     <file src="../ef/bin/$configuration$/netcoreapp1.0/ef.runtimeconfig.json" target="tools/netcoreapp1.0/" />
+    <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.dll" target="tools/netcoreapp2.0/" />
+    <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.runtimeconfig.json" target="tools/netcoreapp2.0/" />
   </files>
 </package>

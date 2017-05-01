@@ -784,7 +784,17 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
         $projectAssetsFile = GetCsproj2Property $startupProject 'ProjectAssetsFile'
         $runtimeConfig = Join-Path $targetDir ($startupTargetName + '.runtimeconfig.json')
         $runtimeFrameworkVersion = GetCsproj2Property $startupProject 'RuntimeFrameworkVersion'
-        $efPath = Join-Path $PSScriptRoot 'netcoreapp1.0\ef.dll'
+
+        if ($frameworkName.Version -lt [version]'2.0')
+        {
+            $efFramework = "netcoreapp1.0"
+        }
+        else
+        {
+            $efFramework = "netcoreapp2.0"
+        }
+
+        $efPath = Join-Path $PSScriptRoot ($efFramework + '\ef.dll')
 
         $dotnetParams = 'exec', '--depsfile', $depsFile
 
