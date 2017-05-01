@@ -8,13 +8,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     internal class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
+        #region Bug3595
+
         [Fact]
         public void GroupBy_with_uninitialized_datetime_projection_3595()
         {
@@ -92,6 +93,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase(DatabaseName);
         }
+
+        #endregion
+
+        #region Bug3101
 
         [Fact]
         public virtual void Repro3101_simple_coalesce1()
@@ -269,8 +274,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
                     var result = query.ToList();
 
-                    var foo = ctx.ChangeTracker.Entries().ToList();
-                    Assert.True(ctx.ChangeTracker.Entries().Count() > 0);
+                    Assert.True(ctx.ChangeTracker.Entries().Any());
                 }
             }
         }
@@ -334,20 +338,25 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public string Name { get; set; }
         }
 
+        #endregion
+
+        #region Bug5456
+
         [Fact]
         public virtual void Repro5456_include_group_join_is_per_query_context()
         {
             using (CreateScratch<MyContext5456>(Seed5456))
             {
-                Parallel.For(0, 10, i =>
-                    {
-                        using (var ctx = new MyContext5456())
+                Parallel.For(
+                    0, 10, i =>
                         {
-                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToList();
+                            using (var ctx = new MyContext5456())
+                            {
+                                var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToList();
 
-                            Assert.Equal(198, result.Count);
-                        }
-                    });
+                                Assert.Equal(198, result.Count);
+                            }
+                        });
             }
         }
 
@@ -356,15 +365,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             using (CreateScratch<MyContext5456>(Seed5456))
             {
-                Parallel.For(0, 10, async i =>
-                    {
-                        using (var ctx = new MyContext5456())
+                Parallel.For(
+                    0, 10, async i =>
                         {
-                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
+                            using (var ctx = new MyContext5456())
+                            {
+                                var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
 
-                            Assert.Equal(198, result.Count);
-                        }
-                    });
+                                Assert.Equal(198, result.Count);
+                            }
+                        });
             }
         }
 
@@ -373,15 +383,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             using (CreateScratch<MyContext5456>(Seed5456))
             {
-                Parallel.For(0, 10, i =>
-                    {
-                        using (var ctx = new MyContext5456())
+                Parallel.For(
+                    0, 10, i =>
                         {
-                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
+                            using (var ctx = new MyContext5456())
+                            {
+                                var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
 
-                            Assert.Equal(198, result.Count);
-                        }
-                    });
+                                Assert.Equal(198, result.Count);
+                            }
+                        });
             }
         }
 
@@ -390,15 +401,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             using (CreateScratch<MyContext5456>(Seed5456))
             {
-                Parallel.For(0, 10, async i =>
-                    {
-                        using (var ctx = new MyContext5456())
+                Parallel.For(
+                    0, 10, async i =>
                         {
-                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
+                            using (var ctx = new MyContext5456())
+                            {
+                                var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
 
-                            Assert.Equal(198, result.Count);
-                        }
-                    });
+                                Assert.Equal(198, result.Count);
+                            }
+                        });
             }
         }
 
@@ -407,15 +419,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             using (CreateScratch<MyContext5456>(Seed5456))
             {
-                Parallel.For(0, 10, i =>
-                    {
-                        using (var ctx = new MyContext5456())
+                Parallel.For(
+                    0, 10, i =>
                         {
-                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
+                            using (var ctx = new MyContext5456())
+                            {
+                                var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
 
-                            Assert.Equal(198, result.Count);
-                        }
-                    });
+                                Assert.Equal(198, result.Count);
+                            }
+                        });
             }
         }
 
@@ -424,15 +437,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             using (CreateScratch<MyContext5456>(Seed5456))
             {
-                Parallel.For(0, 10, async i =>
-                    {
-                        using (var ctx = new MyContext5456())
+                Parallel.For(
+                    0, 10, async i =>
                         {
-                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
+                            using (var ctx = new MyContext5456())
+                            {
+                                var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
 
-                            Assert.Equal(198, result.Count);
-                        }
-                    });
+                                Assert.Equal(198, result.Count);
+                            }
+                        });
             }
         }
 
@@ -443,6 +457,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 context.Add(
                     new Blog5456
                     {
+                        Id = i + 1,
                         Posts = new List<Post5456>
                         {
                             new Post5456
@@ -461,8 +476,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             context.SaveChanges();
         }
 
-        private const string DatabaseName = "QueryBugs";
-
         public class MyContext5456 : DbContext
         {
             public DbSet<Blog5456> Blogs { get; set; }
@@ -472,6 +485,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase(DatabaseName);
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog5456>().Property(e => e.Id).ValueGeneratedNever();
+            }
         }
 
         public class Blog5456
@@ -500,6 +518,53 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public Post5456 Blog { get; set; }
         }
 
+        #endregion
+
+        #region Bug8282
+
+        [Fact]
+        public virtual void Entity_passed_to_DTO_constructor_works()
+        {
+            using (CreateScratch<MyContext8282>(e => { }))
+            {
+                using (var context = new MyContext8282())
+                {
+                    var query = context.Entity.Select(e => new EntityDto8282(e)).ToList();
+
+                    Assert.Equal(0, query.Count);
+                }
+            }
+        }
+
+        private class MyContext8282 : DbContext
+        {
+            public DbSet<Entity8282> Entity { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(DatabaseName);
+        }
+
+        public class Entity8282
+        {
+            public int Id { get; set; }
+        }
+
+        public class EntityDto8282
+        {
+            public EntityDto8282(Entity8282 entity)
+            {
+                Id = entity.Id;
+            }
+
+            public int Id { get; set; }
+        }
+
+        #endregion
+
+        #region SharedHelper
+
+        private const string DatabaseName = "QueryBugs";
+
         private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> Seed)
             where TContext : DbContext, new()
             => InMemoryTestStore.CreateScratch(
@@ -512,10 +577,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                     },
                 () =>
                     {
-                        using (var context = new Context3595())
+                        using (var context = new TContext())
                         {
                             context.GetService<IInMemoryStoreSource>().GetPersistentStore(DatabaseName).Clear();
                         }
                     });
+
+        #endregion
     }
 }

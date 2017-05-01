@@ -1743,6 +1743,58 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #endregion
 
+        #region Bug8282
+
+        [Fact]
+        public virtual void Entity_passed_to_DTO_constructor_works()
+        {
+            using (CreateDatabase8282())
+            {
+                using (var context = new MyContext8282(_options))
+                {
+                    var query = context.Entity.Select(e => new EntityDto8282(e)).ToList();
+
+                    Assert.Equal(1, query.Count);
+                }
+            }
+        }
+
+        public class Entity8282
+        {
+            public int Id { get; set; }
+        }
+
+        public class EntityDto8282
+        {
+            public EntityDto8282(Entity8282 entity)
+            {
+                Id = entity.Id;
+            }
+
+            public int Id { get; set; }
+        }
+
+        private class MyContext8282 : DbContext
+        {
+            public MyContext8282(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Entity8282> Entity { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase8282()
+            => CreateTestStore(() => new MyContext8282(_options),
+                context =>
+                    {
+                        context.AddRange(
+                            new Entity8282()
+                        );
+                        context.SaveChanges();
+                    });
+
+        #endregion
 
         private DbContextOptions _options;
 

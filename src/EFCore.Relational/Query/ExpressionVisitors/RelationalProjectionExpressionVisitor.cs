@@ -77,12 +77,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         {
                             var memberInfo = memberAssignment.Member;
 
-                            if (memberInfo != null)
-                            {
-                                selectExpression.SetProjectionForMemberInfo(
-                                    memberInfo,
-                                    sqlExpression);
-                            }
+                            selectExpression.SetProjectionForMemberInfo(
+                                memberInfo,
+                                sqlExpression);
                         }
                     }
                 }
@@ -161,8 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                     if (_sourceExpressionProjectionMapping.TryGetValue(sourceExpression, out var sqlExpression))
                     {
-                        var memberInfo = newExpression.Members?[i]
-                                         ?? (newExpression.Arguments[i] as MemberExpression)?.Member;
+                        var memberInfo = newExpression.Members?[i];
 
                         if (memberInfo != null)
                         {
