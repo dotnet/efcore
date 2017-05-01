@@ -3006,6 +3006,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 elementSorter: e => e.Id);
         }
 
+        [ConditionalFact]
+        public virtual void Comparing_collection_navigation_on_optional_reference_to_null()
+        {
+            AssertQueryScalar<Level1, int>(
+                l1s => l1s.Where(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional == null).Select(l1 => l1.Id),
+                l1s => l1s.Where(l1 => Maybe(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.OneToMany_Optional) == null).Select(l1 => l1.Id));
+        }
+
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
         {
             if (caller == null)

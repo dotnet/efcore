@@ -143,6 +143,26 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [Fact]
+        public virtual void Comparing_collection_navigation_to_null_issues_possible_unintended_consequences_warning()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.Where(c => c.Orders != null).ToList();
+                Assert.Equal(91, query.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Comparing_two_collections_together_issues_possible_unintended_reference_comparison_warning()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.Where(c => c.Orders == c.Orders).ToList();
+                Assert.Equal(91, query.Count);
+            }
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected WarningsTestBase(TFixture fixture)

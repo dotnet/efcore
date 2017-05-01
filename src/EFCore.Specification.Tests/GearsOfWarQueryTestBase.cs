@@ -3102,6 +3102,61 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Comparing_two_collection_navigations_composite_key()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g1 in ctx.Gears
+                            from g2 in ctx.Gears
+                            where g1.Weapons == g2.Weapons
+                            orderby g1.Nickname
+                            select new { Nickname1 = g1.Nickname, Nickname2 = g2.Nickname };
+
+                var result = query.ToList();
+                Assert.Equal(5, result.Count);
+                Assert.Equal(5, result.Count(r => r.Nickname1 == r.Nickname2));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_two_collection_navigations_inheritance()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from f in ctx.Factions
+                            from o in ctx.Gears.OfType<Officer>()
+                            where f is LocustHorde && o.HasSoulPatch
+                            where ((LocustHorde)f).Commander.DefeatedBy.Weapons == o.Weapons
+                            select new { f.Name, o.Nickname };
+
+                var result = query.ToList();
+                Assert.Equal(1, result.Count);
+                Assert.Equal("Locust", result[0].Name);
+                Assert.Equal("Marcus", result[0].Nickname);
+            }
+        }
+
+        [ConditionalFact(Skip = "issue #8375")]
+        public virtual void Comparing_entities_using_Equals_inheritance()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from g in ctx.Gears
+                            from o in ctx.Gears.OfType<Officer>()
+                            where g.Equals(o)
+                            orderby g.Nickname
+                            select new { Nickname1 = g.Nickname, Nickname2 = o.Nickname };
+
+                var result = query.ToList();
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Baird", result[0].Nickname1);
+                Assert.Equal("Baird", result[0].Nickname2);
+                Assert.Equal("Marcus", result[1].Nickname1);
+                Assert.Equal("Marcus", result[1].Nickname2);
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

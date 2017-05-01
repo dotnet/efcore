@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override void Lifting_when_subquery_nested_order_by_anonymous()
@@ -8193,6 +8194,151 @@ FROM (
     SELECT DISTINCT [o].[OrderID]
     FROM [Orders] AS [o]
 ) AS [t]");
+        }
+        public override void Comparing_entities_using_Equals()
+        {
+            base.Comparing_entities_using_Equals();
+
+            AssertSql(
+                @"SELECT [c1].[CustomerID] AS [Id1], [c2].[CustomerID] AS [Id2]
+FROM [Customers] AS [c1]
+CROSS JOIN [Customers] AS [c2]
+WHERE ([c1].[CustomerID] LIKE N'ALFKI' + N'%' AND (LEFT([c1].[CustomerID], LEN(N'ALFKI')) = N'ALFKI')) AND ([c1].[CustomerID] = [c2].[CustomerID])
+ORDER BY [Id1]");
+        }
+
+        public override void Comparing_different_entity_types_using_Equals()
+        {
+            base.Comparing_different_entity_types_using_Equals();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+CROSS JOIN [Orders] AS [o]
+WHERE ([c].[CustomerID] = N' ALFKI') AND ([o].[CustomerID] = N'ALFKI')");
+        }
+
+        public override void Comparing_entity_to_null_using_Equals()
+        {
+            base.Comparing_entity_to_null_using_Equals();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override void Comparing_navigations_using_Equals()
+        {
+            base.Comparing_navigations_using_Equals();
+
+            AssertSql(
+                @"SELECT [o1].[OrderID] AS [Id1], [o2].[OrderID] AS [Id2]
+FROM [Orders] AS [o1]
+CROSS JOIN [Orders] AS [o2]
+WHERE ([o1].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o1].[CustomerID], LEN(N'A')) = N'A')) AND (([o1].[CustomerID] = [o2].[CustomerID]) OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))
+ORDER BY [Id1], [Id2]");
+        }
+
+        public override void Comparing_navigations_using_static_Equals()
+        {
+            base.Comparing_navigations_using_static_Equals();
+
+            AssertSql(
+                @"SELECT [o1].[OrderID] AS [Id1], [o2].[OrderID] AS [Id2]
+FROM [Orders] AS [o1]
+CROSS JOIN [Orders] AS [o2]
+WHERE ([o1].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o1].[CustomerID], LEN(N'A')) = N'A')) AND (([o1].[CustomerID] = [o2].[CustomerID]) OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))
+ORDER BY [Id1], [Id2]");
+        }
+
+        public override void Comparing_non_matching_entities_using_Equals()
+        {
+            base.Comparing_non_matching_entities_using_Equals();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] AS [Id1], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID] AS [Id2], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+CROSS JOIN [Orders] AS [o]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
+        public override void Comparing_non_matching_collection_navigations_using_Equals()
+        {
+            base.Comparing_non_matching_collection_navigations_using_Equals();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] AS [Id1], [o].[OrderID] AS [Id2]
+FROM [Customers] AS [c]
+CROSS JOIN [Orders] AS [o]
+WHERE 0 = 1");
+        }
+
+        public override void Comparing_collection_navigation_to_null()
+        {
+            base.Comparing_collection_navigation_to_null();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IS NULL");
+        }
+
+        public override void Comparing_collection_navigation_to_null_complex()
+        {
+            base.Comparing_collection_navigation_to_null_complex();
+
+            AssertSql(
+                @"SELECT [od].[ProductID], [od].[OrderID]
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
+WHERE ([od].[OrderID] < 10250) AND [od.Order].[CustomerID] IS NOT NULL
+ORDER BY [od].[OrderID], [od].[ProductID]");
+        }
+
+        public override void Compare_collection_navigation_with_itself()
+        {
+            base.Compare_collection_navigation_with_itself();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE ([c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')) AND ([c].[CustomerID] = [c].[CustomerID])");
+        }
+
+        public override void Compare_two_collection_navigations_with_different_query_sources()
+        {
+            base.Compare_two_collection_navigations_with_different_query_sources();
+
+            AssertSql(
+                @"SELECT [c1].[CustomerID] AS [Id1], [c2].[CustomerID] AS [Id2]
+FROM [Customers] AS [c1]
+CROSS JOIN [Customers] AS [c2]
+WHERE (([c1].[CustomerID] = N'ALFKI') AND ([c2].[CustomerID] = N'ALFKI')) AND ([c1].[CustomerID] = [c2].[CustomerID])");
+        }
+
+        public override void Compare_two_collection_navigations_using_equals()
+        {
+            base.Compare_two_collection_navigations_using_equals();
+
+            AssertSql(
+                @"SELECT [c1].[CustomerID] AS [Id1], [c2].[CustomerID] AS [Id2]
+FROM [Customers] AS [c1]
+CROSS JOIN [Customers] AS [c2]
+WHERE (([c1].[CustomerID] = N'ALFKI') AND ([c2].[CustomerID] = N'ALFKI')) AND ([c1].[CustomerID] = [c2].[CustomerID])");
+        }
+
+        public override void Compare_two_collection_navigations_with_different_property_chains()
+        {
+            base.Compare_two_collection_navigations_with_different_property_chains();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] AS [Id1], [o].[OrderID] AS [Id2]
+FROM [Customers] AS [c]
+CROSS JOIN [Orders] AS [o]
+WHERE ([c].[CustomerID] = N'ALFKI') AND ([c].[CustomerID] = [o].[CustomerID])
+ORDER BY [Id1], [Id2]");
         }
 
         private void AssertSql(params string[] expected)

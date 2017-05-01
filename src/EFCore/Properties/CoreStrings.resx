@@ -744,4 +744,10 @@
   <data name="IncludeNotSpecifiedDirectlyOnEntityType" xml:space="preserve">
     <value>The Include operation '{include}' is not supported. '{invalidNavigation}' must be a navigation property defined on an entity type.</value>
   </data>
+  <data name="PossibleUnintendedCollectionNavigationNullComparison" xml:space="preserve">
+    <value>Collection navigations are only considered null if their parent entity is null. Use '.Any()' to check whether collection navigation '{navigationPath}' is empty.</value>
+  </data>
+  <data name="PossibleUnintendedReferenceComparison" xml:space="preserve">
+    <value>Possible unintended reference comparison between '{left}' and '{right}'.</value>
+  </data>
 </root>

@@ -2944,6 +2944,47 @@ FROM [Faction] AS [f]
 WHERE [f].[Discriminator] = N'LocustHorde'");
         }
 
+        public override void Comparing_two_collection_navigations_composite_key()
+        {
+            base.Comparing_two_collection_navigations_composite_key();
+
+            AssertSql(
+                @"SELECT [g1].[Nickname] AS [Nickname1], [g2].[Nickname] AS [Nickname2]
+FROM [Gear] AS [g1]
+CROSS JOIN [Gear] AS [g2]
+WHERE [g1].[Discriminator] IN (N'Officer', N'Gear') AND (([g1].[Nickname] = [g2].[Nickname]) AND ([g1].[SquadId] = [g2].[SquadId]))
+ORDER BY [Nickname1]");
+        }
+
+        public override void Comparing_two_collection_navigations_inheritance()
+        {
+            base.Comparing_two_collection_navigations_inheritance();
+
+            AssertSql(
+                @"SELECT [f].[Name], [o].[Nickname]
+FROM [Faction] AS [f]
+LEFT JOIN (
+    SELECT [f.Commander].*
+    FROM [LocustLeader] AS [f.Commander]
+    WHERE [f.Commander].[Discriminator] = N'LocustCommander'
+) AS [t] ON [f].[CommanderName] = [t].[Name]
+LEFT JOIN (
+    SELECT [f.Commander.DefeatedBy].*
+    FROM [Gear] AS [f.Commander.DefeatedBy]
+    WHERE [f.Commander.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON ([t].[DefeatedByNickname] = [t0].[Nickname]) AND ([t].[DefeatedBySquadId] = [t0].[SquadId])
+CROSS JOIN [Gear] AS [o]
+WHERE (([f].[Discriminator] = N'LocustHorde') AND (([f].[Discriminator] = N'LocustHorde') AND ([o].[HasSoulPatch] = 1))) AND (([t0].[Nickname] = [o].[Nickname]) AND ([t0].[SquadId] = [o].[SquadId]))");
+        }
+
+        public override void Comparing_entities_using_Equals_inheritance()
+        {
+            base.Comparing_entities_using_Equals_inheritance();
+
+            AssertSql(
+                @"");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

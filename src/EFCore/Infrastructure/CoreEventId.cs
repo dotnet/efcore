@@ -65,6 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             NavigationIncluded,
             IncludeIgnoredWarning,
             QueryExecutionPlanned,
+            PossibleUnintendedCollectionNavigationNullComparisonWarning,
+            PossibleUnintendedReferenceComparisonWarning,
 
             // Model validation events
             ModelValidationShadowKeyWarning = CoreBaseId + 300,
@@ -130,10 +132,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public static readonly EventId IncludeIgnoredWarning = MakeQueryId(Id.IncludeIgnoredWarning);
 
         /// <summary>
-        ///     A navigation was ignored while compiling a query.
+        ///     A query is planned for execution.
         ///     This event is in the <see cref="LoggerCategory.Query" /> category.
         /// </summary>
         public static readonly EventId QueryExecutionPlanned = MakeQueryId(Id.QueryExecutionPlanned);
+
+        /// <summary>
+        ///     Possible uninteded comparison of collection navigation to null.
+        ///     This event is in the <see cref="LoggerCategory.Query" /> category.
+        /// </summary>
+        public static readonly EventId PossibleUnintendedCollectionNavigationNullComparisonWarning
+            = MakeQueryId(Id.PossibleUnintendedCollectionNavigationNullComparisonWarning);
+
+        /// <summary>
+        ///     Possible uninteded reference comparison.
+        ///     This event is in the <see cref="LoggerCategory.Query" /> category.
+        /// </summary>
+        public static readonly EventId PossibleUnintendedReferenceComparisonWarning
+            = MakeQueryId(Id.PossibleUnintendedReferenceComparisonWarning);
 
         private static readonly string _validationPrefix = LoggerCategory.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);

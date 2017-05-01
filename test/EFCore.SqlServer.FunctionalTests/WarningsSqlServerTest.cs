@@ -59,6 +59,22 @@ WHERE [x].[OrderID] = 10248",
                 @"(from Customer c in DbSet<Customer> where c.CustomerID == ""ALFKI"" select c).Single()")));
         }
 
+        public override void Comparing_collection_navigation_to_null_issues_possible_unintended_consequences_warning()
+        {
+            base.Comparing_collection_navigation_to_null_issues_possible_unintended_consequences_warning();
+
+            Assert.True(Fixture.TestSqlLoggerFactory.Log.Contains(
+                CoreStrings.PossibleUnintendedCollectionNavigationNullComparison("Orders")));
+        }
+
+        public override void Comparing_two_collections_together_issues_possible_unintended_reference_comparison_warning()
+        {
+            base.Comparing_two_collections_together_issues_possible_unintended_reference_comparison_warning();
+
+            Assert.True(Fixture.TestSqlLoggerFactory.Log.Contains(
+                CoreStrings.PossibleUnintendedReferenceComparison("[c].Orders", "[c].Orders")));
+        }
+
         private const string FileLineEnding = @"
 ";
 

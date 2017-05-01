@@ -2770,6 +2770,17 @@ LEFT JOIN [Level3] AS [OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Requir
 WHERE ([l1.OneToOne_Required_PK].[Id] IS NOT NULL AND [l1.OneToOne_Required_PK.OneToOne_Required_PK].[Id] IS NOT NULL) AND [l1.OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_PK].[Id] IS NOT NULL");
         }
 
+        public override void Comparing_collection_navigation_on_optional_reference_to_null()
+        {
+            base.Comparing_collection_navigation_on_optional_reference_to_null();
+
+            AssertSql(
+                @"SELECT [l1].[Id]
+FROM [Level1] AS [l1]
+LEFT JOIN [Level2] AS [l1.OneToOne_Optional_FK] ON [l1].[Id] = [l1.OneToOne_Optional_FK].[Level1_Optional_Id]
+WHERE [l1.OneToOne_Optional_FK].[Id] IS NULL");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

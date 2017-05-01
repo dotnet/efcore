@@ -1645,6 +1645,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("IncludeNotSpecifiedDirectlyOnEntityType", nameof(include), nameof(invalidNavigation)),
                 include, invalidNavigation);
 
+        /// <summary>
+        ///     Collection navigations are only considered null if their parent entity is null. Use '.Any()' to check whether collection navigation '{navigationPath}' is empty.
+        /// </summary>
+        public static string PossibleUnintendedCollectionNavigationNullComparison([CanBeNull] object navigationPath)
+            => string.Format(
+                GetString("PossibleUnintendedCollectionNavigationNullComparison", nameof(navigationPath)),
+                navigationPath);
+
+        /// <summary>
+        ///     Possible unintended reference comparison between '{left}' and '{right}'.
+        /// </summary>
+        public static string PossibleUnintendedReferenceComparison([CanBeNull] object left, [CanBeNull] object right)
+            => string.Format(
+                GetString("PossibleUnintendedReferenceComparison", nameof(left), nameof(right)),
+                left, right);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

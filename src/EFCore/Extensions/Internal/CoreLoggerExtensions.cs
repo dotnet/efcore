@@ -318,6 +318,64 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static void PossibleUnintendedCollectionNavigationNullComparisonWarning(
+            [NotNull] this IDiagnosticsLogger<LoggerCategory.Query> diagnostics,
+            [NotNull] string navigationPath)
+        {
+            var eventId = CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning;
+
+            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
+            {
+                diagnostics.Logger.LogWarning(
+                    eventId,
+                    CoreStrings.PossibleUnintendedCollectionNavigationNullComparison(navigationPath));
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new
+                    {
+                        NavigationPath = navigationPath
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void PossibleUnintendedReferenceComparisonWarning(
+            [NotNull] this IDiagnosticsLogger<LoggerCategory.Query> diagnostics,
+            [NotNull] Expression left,
+            [NotNull] Expression right)
+        {
+            var eventId = CoreEventId.PossibleUnintendedReferenceComparisonWarning;
+
+            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
+            {
+                diagnostics.Logger.LogWarning(
+                    eventId,
+                    CoreStrings.PossibleUnintendedReferenceComparison(left, right));
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    eventId.Name,
+                    new
+                    {
+                        Left = left,
+                        Right = right
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static void ModelValidationShadowKeyWarning(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Model.Validation> diagnostics,
             [NotNull] IEntityType entityType,

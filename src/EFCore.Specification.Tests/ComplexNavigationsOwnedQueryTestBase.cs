@@ -281,6 +281,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
         }
 
+        // #8172 - One-to-many not supported yet
+        public override void Comparing_collection_navigation_on_optional_reference_to_null()
+        {
+        }
+
         protected override IQueryable<Level2> GetExpectedLevelTwo()
             => GetExpectedLevelOne().Select(t => t.OneToOne_Required_PK).Where(t => t != null);
 

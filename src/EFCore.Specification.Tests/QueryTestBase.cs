@@ -7944,7 +7944,149 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Distinct().Sum());
         }
-        
+
+        [ConditionalFact]
+        public virtual void Comparing_entities_using_Equals()
+        {
+            AssertQuery<Customer, Customer>(
+                (cs1, cs2) => from c1 in cs1
+                              from c2 in cs2
+                              where c1.CustomerID.StartsWith("ALFKI")
+                              where c1.Equals(c2)
+                              orderby c1.CustomerID
+                              select new { Id1 = c1.CustomerID, Id2 = c2.CustomerID });
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_different_entity_types_using_Equals()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            from o in os
+                            where c.CustomerID == " ALFKI" && o.CustomerID == "ALFKI"
+                            where c.Equals(o)
+                            select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_entity_to_null_using_Equals()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.CustomerID.StartsWith("A")
+                      where !Equals(null, c)
+                      orderby c.CustomerID
+                      select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_navigations_using_Equals()
+        {
+            AssertQuery<Order, Order>(
+                (os1, os2) => from o1 in os1
+                              from o2 in os2
+                              where o1.CustomerID.StartsWith("A")
+                              where o1.Customer.Equals(o2.Customer)
+                              orderby o1.OrderID, o2.OrderID
+                              select new { Id1 = o1.OrderID, Id2 = o2.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_navigations_using_static_Equals()
+        {
+            AssertQuery<Order, Order>(
+                (os1, os2) => from o1 in os1
+                              from o2 in os2
+                              where o1.CustomerID.StartsWith("A")
+                              where Equals(o1.Customer, o2.Customer)
+                              orderby o1.OrderID, o2.OrderID
+                              select new { Id1 = o1.OrderID, Id2 = o2.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_non_matching_entities_using_Equals()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            from o in os
+                            where c.CustomerID == "ALFKI"
+                            where Equals(c, o)
+                            select new { Id1 = c.CustomerID, Id2 = o.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_non_matching_collection_navigations_using_Equals()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            from o in os
+                            where c.CustomerID == "ALFKI"
+                            where c.Orders.Equals(o.OrderDetails)
+                            select new { Id1 = c.CustomerID, Id2 = o.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_collection_navigation_to_null()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.Orders == null).Select(c => c.CustomerID));
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_collection_navigation_to_null_complex()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods
+                    .Where(od => od.OrderID < 10250)
+                    .Where(od => od.Order.Customer.Orders != null)
+                    .OrderBy(od => od.OrderID)
+                    .ThenBy(od => od.ProductID)
+                    .Select(od => new { od.ProductID, od.OrderID }));
+        }
+
+        [ConditionalFact]
+        public virtual void Compare_collection_navigation_with_itself()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.CustomerID.StartsWith("A")
+                      where c.Orders == c.Orders
+                      select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Compare_two_collection_navigations_with_different_query_sources()
+        {
+            AssertQuery<Customer, Customer>(
+                (cs1, cs2) => from c1 in cs1
+                              from c2 in cs2
+                              where c1.CustomerID == "ALFKI" && c2.CustomerID == "ALFKI"
+                              where c1.Orders == c2.Orders
+                              select new { Id1 = c1.CustomerID, Id2 = c2.CustomerID });
+        }
+
+        [ConditionalFact(Skip = "issue #8366")]
+        public virtual void Compare_two_collection_navigations_using_equals()
+        {
+            AssertQuery<Customer, Customer>(
+                (cs1, cs2) => from c1 in cs1
+                              from c2 in cs2
+                              where c1.CustomerID == "ALFKI" && c2.CustomerID == "ALFKI"
+                              where Equals(c1.Orders, c2.Orders)
+                              select new { Id1 = c1.CustomerID, Id2 = c2.CustomerID });
+        }
+
+        [ConditionalFact]
+        public virtual void Compare_two_collection_navigations_with_different_property_chains()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            from o in os
+                            where c.CustomerID == "ALFKI"
+                            where c.Orders == o.Customer.Orders
+                            orderby c.CustomerID, o.OrderID
+                            select new { Id1 = c.CustomerID, Id2 = o.OrderID });
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected QueryTestBase(TFixture fixture)
