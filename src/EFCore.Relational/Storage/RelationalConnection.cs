@@ -14,10 +14,14 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using IsolationLevel = System.Data.IsolationLevel;
+
 #if NET46
 using System.Transactions;
-
+#elif NETSTANDARD1_3
+#else
+#error target frameworks need to be updated.
 #endif
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>

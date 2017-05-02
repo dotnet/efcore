@@ -18,8 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
 #if NET46
             BuildReference.ByName("mscorlib"),
             BuildReference.ByName("System.Runtime, Version=4.0.20.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-#elif NETSTANDARD1_6
-            BuildReference.ByName("System.Runtime")
 #elif NETCOREAPP2_0
             BuildReference.ByName("netstandard"),
             BuildReference.ByName("System.Runtime")
@@ -102,21 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
                         $"Build failed. Diagnostics: {string.Join(Environment.NewLine, result.Diagnostics)}");
                 }
 
-#if NET46
                 assembly = Assembly.Load(stream.ToArray());
-#elif NETSTANDARD1_6 || NETCOREAPP2_0
-                assembly = (Assembly)typeof(Assembly).GetTypeInfo().GetDeclaredMethods("Load")
-                    .First(
-                        m =>
-                        {
-                            var parameters = m.GetParameters();
-
-                            return parameters.Length == 1 && parameters[0].ParameterType == typeof(byte[]);
-                        })
-                    .Invoke(null, new[] { stream.ToArray() });
-#else
-#error target frameworks need to be updated.
-#endif
             }
 
             return assembly;

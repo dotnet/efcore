@@ -6,9 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Xunit;
-#if NETCOREAPP2_0
 
-#endif
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFixture>

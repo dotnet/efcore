@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
             {
                 return false;
             }
-#elif NETSTANDARD1_3
+#elif NETCOREAPP2_0
             if (excludedFrameworks.HasFlag(RuntimeFrameworks.CoreCLR))
             {
                 return false;

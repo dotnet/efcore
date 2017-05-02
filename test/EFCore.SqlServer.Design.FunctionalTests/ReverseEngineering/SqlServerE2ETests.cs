@@ -16,11 +16,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-#if NETCOREAPP2_0
-using System.Reflection;
-using Microsoft.CodeAnalysis;
-#endif
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.ReverseEngineering
 {
     public class SqlServerE2ETests : E2ETestBase, IClassFixture<SqlServerE2EFixture>
@@ -419,7 +414,6 @@ DROP TABLE dbo.History;
             BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
             BuildReference.ByName("System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"),
 #elif NETCOREAPP2_0
-            BuildReference.ByName("netstandard"),
             BuildReference.ByName("System.Collections"),
             BuildReference.ByName("System.Data.Common"),
             BuildReference.ByName("System.Linq.Expressions"),

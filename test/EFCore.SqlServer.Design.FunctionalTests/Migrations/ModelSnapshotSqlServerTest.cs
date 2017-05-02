@@ -9,10 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Xunit;
 
-#if NETCOREAPP2_0
-using System.Reflection;
-#endif
-
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class ModelSnapshotSqlServerTest : ModelSnapshotTest

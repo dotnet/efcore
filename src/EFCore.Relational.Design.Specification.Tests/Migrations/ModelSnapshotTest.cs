@@ -1827,7 +1827,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
             BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
             BuildReference.ByName("System.Linq.Expressions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
             BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-#elif NETSTANDARD1_6
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif

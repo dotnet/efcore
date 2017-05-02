@@ -12,11 +12,15 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+
 #if NET46
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Internal;
-
+#elif NETSTANDARD1_3
+#else
+#error target frameworks need to be updated.
 #endif
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>

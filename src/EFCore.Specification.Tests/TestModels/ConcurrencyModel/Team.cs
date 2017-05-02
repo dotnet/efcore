@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Concurren
     {
 #if NET46
         private readonly ObservableCollection<Driver> _drivers = new ObservableCollectionListSource<Driver>();
-#elif NETSTANDARD1_3
+#elif NETCOREAPP2_0
         private readonly ObservableCollection<Driver> _drivers = new ObservableCollection<Driver>();
 #else
 #error target frameworks need to be updated.

@@ -741,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.False(ferrari.Drivers.Contains(alonso)); // But has been removed from nav prop
             }
         }
-#elif NETSTANDARD1_3
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif
