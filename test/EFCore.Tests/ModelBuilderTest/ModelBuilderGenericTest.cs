@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         protected class GenericTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>
-            : TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>
+            : TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>, IInfrastructure<ReferenceOwnershipBuilder<TEntity, TRelatedEntity>>
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -462,6 +462,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> UsePropertyAccessMode(
                 PropertyAccessMode propertyAccessMode)
                 => Wrap(ReferenceOwnershipBuilder.UsePropertyAccessMode(propertyAccessMode));
+
+            ReferenceOwnershipBuilder<TEntity, TRelatedEntity> IInfrastructure<ReferenceOwnershipBuilder<TEntity, TRelatedEntity>>.Instance
+                => ReferenceOwnershipBuilder;
         }
     }
 }

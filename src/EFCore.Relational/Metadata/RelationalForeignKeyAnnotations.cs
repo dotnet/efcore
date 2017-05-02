@@ -15,8 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     {
         protected const string DefaultForeignKeyNamePrefix = "FK";
 
-        protected readonly RelationalFullAnnotationNames ProviderFullAnnotationNames;
-
         public RelationalForeignKeyAnnotations([NotNull] IForeignKey foreignKey,
             [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
             : this(new RelationalAnnotations(foreignKey), providerFullAnnotationNames)
@@ -29,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Annotations = annotations;
             ProviderFullAnnotationNames = providerFullAnnotationNames;
         }
+
+        public virtual RelationalFullAnnotationNames ProviderFullAnnotationNames { get; }
 
         protected virtual RelationalAnnotations Annotations { get; }
         protected virtual IForeignKey ForeignKey => (IForeignKey)Annotations.Metadata;

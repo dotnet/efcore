@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     break;
                 }
                 root = root.DefiningEntityType;
-                path.Push("->");
+                path.Push("#");
                 path.Push(definingNavigationName);
                 path.Push(".");
                 path.Push(((ITypeBase)root).DisplayName());

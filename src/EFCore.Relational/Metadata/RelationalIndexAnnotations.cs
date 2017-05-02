@@ -15,8 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     {
         protected const string DefaultIndexNamePrefix = "IX";
 
-        protected readonly RelationalFullAnnotationNames ProviderFullAnnotationNames;
-
         public RelationalIndexAnnotations([NotNull] IIndex index,
             [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
             : this(new RelationalAnnotations(index), providerFullAnnotationNames)
@@ -29,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Annotations = annotations;
             ProviderFullAnnotationNames = providerFullAnnotationNames;
         }
+
+        public virtual RelationalFullAnnotationNames ProviderFullAnnotationNames { get; }
 
         protected virtual RelationalAnnotations Annotations { get; }
         protected virtual IIndex Index => (IIndex)Annotations.Metadata;

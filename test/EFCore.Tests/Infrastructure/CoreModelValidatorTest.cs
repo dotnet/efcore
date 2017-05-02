@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
             var orderType = model.AddEntityType(orderClrType);
             var orderIdProperty = orderType.GetOrAddProperty(orderClrType.GetProperty("OrderID"));
             orderType.SetPrimaryKey(orderIdProperty);
-            
+
             var foreignKeyProperty = orderType.GetOrAddProperty(orderClrType.GetProperty("CustomerID"));
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
 
             VerifyError(CoreStrings.NoDefiningNavigation(
                 nameof(SampleEntity.ReferencedEntity), nameof(SampleEntity),
-                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "->" + nameof(ReferencedEntity)),
+                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
                 modelBuilder.Metadata);
         }
 
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
                 .Metadata.IsOwnership = true;
 
             VerifyError(CoreStrings.MultipleOwnerships(
-                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "->" + nameof(ReferencedEntity)),
+                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
                 modelBuilder.Metadata);
         }
 
@@ -354,7 +354,30 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
             VerifyError(CoreStrings.NonDefiningOwnership(
                 nameof(SampleEntity),
                 nameof(SampleEntity.ReferencedEntity),
-                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "->" + nameof(ReferencedEntity)),
+                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
+                modelBuilder.Metadata);
+        }
+
+        [Fact]
+        public virtual void Detects_delegated_identity_entity_type_without_ownership()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
+            var ownershipBuilder = entityTypeBuilder.Owns(
+                typeof(ReferencedEntity), nameof(SampleEntity.ReferencedEntity), ConfigurationSource.Convention);
+            var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
+            ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+            var anotherEntityTypeBuilder = modelBuilder.Entity(typeof(AnotherSampleEntity), ConfigurationSource.Convention);
+            anotherEntityTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntity.Id) }, ConfigurationSource.Convention);
+            var nonOwnedTypeBuilder = modelBuilder.Metadata.AddDelegatedIdentityEntityType(
+                typeof(ReferencedEntity), nameof(AnotherSampleEntity.ReferencedEntity), anotherEntityTypeBuilder.Metadata).Builder;
+            nonOwnedTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntity.Id) }, ConfigurationSource.Convention);
+            anotherEntityTypeBuilder.Navigation(nonOwnedTypeBuilder, nameof(AnotherSampleEntity.ReferencedEntity), ConfigurationSource.Convention);
+
+            VerifyError(CoreStrings.InconsistentOwnership(
+                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity),
+                nameof(AnotherSampleEntity) + "." + nameof(AnotherSampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
                 modelBuilder.Metadata);
         }
 

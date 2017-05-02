@@ -348,20 +348,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         {
                             Metadata.HasPrincipalToDependent(navigationToDependentName, configurationSource.Value);
                         }
-
-                        if (dependentEntityType.HasDelegatedIdentity()
-                            && dependentEntityType.FindDefiningNavigation() == null
-                            && Metadata.GetPrincipalEndConfigurationSource().HasValue)
-                        {
-                            IsOwnership(true, ConfigurationSource.Convention);
-                        }
-                    }
-
-                    if (dependentEntityType.HasDelegatedIdentity()
-                        && dependentEntityType.FindDefiningNavigation() == null
-                        && Metadata.GetPrincipalEndConfigurationSource().HasValue)
-                    {
-                        IsOwnership(true, ConfigurationSource.Convention);
                     }
 
                     builder = batch.Run(builder);

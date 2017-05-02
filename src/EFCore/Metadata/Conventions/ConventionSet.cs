@@ -113,6 +113,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IForeignKeyUniquenessConvention> ForeignKeyUniquenessConventions { get; } = new List<IForeignKeyUniquenessConvention>();
 
         /// <summary>
+        ///     Conventions to run when the ownership of a foreign key is changed.
+        /// </summary>
+        public virtual IList<IForeignKeyOwnershipConvention> ForeignKeyOwnershipConventions { get; } = new List<IForeignKeyOwnershipConvention>();
+
+        /// <summary>
         ///     Conventions to run when a property is added.
         /// </summary>
         public virtual IList<IPropertyConvention> PropertyAddedConventions { get; } = new List<IPropertyConvention>();

@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 {
                     using (var context = new ComplexNavigationsContext(_options))
                     {
-                        ComplexNavigationsModelInitializer.Seed(context);
+                        ComplexNavigationsModelInitializer.Seed(context, tableSplitting: true);
                     }
                 });
         }

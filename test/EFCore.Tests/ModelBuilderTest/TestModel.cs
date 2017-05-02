@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public int SelfRefId { get; set; }
         }
 
-        private class Book
+        protected class Book
         {
             public static readonly PropertyInfo BookDetailsNavigation = typeof(Book).GetProperty("Details");
 
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public BookDetails Details { get; set; }
         }
 
-        private abstract class BookDetailsBase
+        protected abstract class BookDetailsBase
         {
             public int Id { get; set; }
 
@@ -245,13 +245,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public Book AnotherBook { get; set; }
         }
 
-        private class BookDetails : BookDetailsBase
+        protected class BookDetails : BookDetailsBase
         {
             [NotMapped]
             public Book Book { get; set; }
         }
 
-        private class BookLabel
+        protected class BookLabel
         {
             public int Id { get; set; }
 
@@ -265,16 +265,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public AnotherBookLabel AnotherBookLabel { get; set; }
         }
 
-        private class SpecialBookLabel : BookLabel
+        protected class SpecialBookLabel : BookLabel
         {
             public BookLabel BookLabel { get; set; }
         }
 
-        private class ExtraSpecialBookLabel : SpecialBookLabel
+        protected class ExtraSpecialBookLabel : SpecialBookLabel
         {
         }
 
-        private class AnotherBookLabel : BookLabel
+        protected class AnotherBookLabel : BookLabel
         {
         }
 

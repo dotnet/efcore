@@ -187,12 +187,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<Book>()
-                    .OwnsOne(b => b.Label)
-                    .OwnsOne(l => l.AnotherBookLabel);
-                modelBuilder.Entity<Book>()
-                    .OwnsOne(b => b.AlternateLabel)
-                    .OwnsOne(l => l.SpecialBookLabel);
+                var bookOwnershipBuilder1 = modelBuilder.Entity<Book>().OwnsOne(b => b.Label);
+                var bookLabel1OwnershipBuilder1 = bookOwnershipBuilder1.OwnsOne(l => l.AnotherBookLabel);
+                bookLabel1OwnershipBuilder1.OwnsOne(l => l.SpecialBookLabel);
+                var bookLabel1OwnershipBuilder2 = bookOwnershipBuilder1.OwnsOne(l => l.SpecialBookLabel);
+                bookLabel1OwnershipBuilder2.OwnsOne(l => l.AnotherBookLabel);
+                var bookOwnershipBuilder2 = modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel);
+                var bookLabel2OwnershipBuilder1 = bookOwnershipBuilder2.OwnsOne(l => l.AnotherBookLabel);
+                bookLabel2OwnershipBuilder1.OwnsOne(l => l.SpecialBookLabel);
+                var bookLabel2OwnershipBuilder2 = bookOwnershipBuilder2.OwnsOne(l => l.SpecialBookLabel);
+                bookLabel2OwnershipBuilder2.OwnsOne(l => l.AnotherBookLabel);
 
                 modelBuilder.Validate();
 

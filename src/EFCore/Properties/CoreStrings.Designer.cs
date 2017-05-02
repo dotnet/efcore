@@ -1606,6 +1606,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ownershipNavigation, definingNavigation, entityType);
 
         /// <summary>
+        ///     The entity type '{ownedEntityType}' is configured as owned, but the entity type '{nonOwnedEntityType}' is not.
+        /// </summary>
+        public static string InconsistentOwnership([CanBeNull] object ownedEntityType, [CanBeNull] object nonOwnedEntityType)
+            => string.Format(
+                GetString("InconsistentOwnership", nameof(ownedEntityType), nameof(nonOwnedEntityType)),
+                ownedEntityType, nonOwnedEntityType);
+
+        /// <summary>
         ///     The entity type '{entityType}' has delegated identity and the given entity is currently referenced from several owner entities. To access the entry for a particular reference to this entity call '{targetEntryCall}' on the owner entry.
         /// </summary>
         public static string AmbiguousDelegatedIdentityEntity([CanBeNull] object entityType, [CanBeNull] object targetEntryCall)

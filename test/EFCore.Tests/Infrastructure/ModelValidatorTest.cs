@@ -90,6 +90,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
             public ReferencedEntity ReferencedEntity { get; set; }
         }
 
+        public class AnotherSampleEntity
+        {
+            public int Id { get; set; }
+            public ReferencedEntity ReferencedEntity { get; set; }
+        }
+
         public class ReferencedEntity
         {
             public int Id { get; set; }

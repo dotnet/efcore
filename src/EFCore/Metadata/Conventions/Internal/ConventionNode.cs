@@ -46,8 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var scope = scopesToVisit.Dequeue();
                     foreach (var conventionNode in scope.Children)
                     {
-                        var nextScope = conventionNode as ConventionScope;
-                        if (nextScope != null)
+                        if (conventionNode is ConventionScope nextScope)
                         {
                             scopesToVisit.Enqueue(nextScope);
                         }
@@ -176,6 +175,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public virtual InternalRelationshipBuilder OnForeignKeyUniquenessChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyUniquenessChangedNode(relationshipBuilder));
+                return relationshipBuilder;
+            }
+
+            public virtual InternalRelationshipBuilder OnForeignKeyOwnershipChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            {
+                Add(new OnForeignKeyOwnershipChangedNode(relationshipBuilder));
                 return relationshipBuilder;
             }
 
@@ -525,6 +530,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 foreach (var uniquenessConvention in _conventionSet.ForeignKeyUniquenessConventions)
                 {
                     relationshipBuilder = uniquenessConvention.Apply(relationshipBuilder);
+                    if (relationshipBuilder?.Metadata.Builder == null)
+                    {
+                        return null;
+                    }
+                }
+
+                return relationshipBuilder;
+            }
+
+            public override InternalRelationshipBuilder OnForeignKeyOwnershipChanged(InternalRelationshipBuilder relationshipBuilder)
+            {
+                if (relationshipBuilder.Metadata.Builder == null)
+                {
+                    return null;
+                }
+
+                foreach (var ownershipConvention in _conventionSet.ForeignKeyOwnershipConventions)
+                {
+                    relationshipBuilder = ownershipConvention.Apply(relationshipBuilder);
                     if (relationshipBuilder?.Metadata.Builder == null)
                     {
                         return null;
@@ -911,6 +935,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public InternalRelationshipBuilder RelationshipBuilder { get; }
 
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyUniquenessChanged(this);
+        }
+
+        private class OnForeignKeyOwnershipChangedNode : ConventionNode
+        {
+            public OnForeignKeyOwnershipChangedNode(InternalRelationshipBuilder relationshipBuilder)
+            {
+                RelationshipBuilder = relationshipBuilder;
+            }
+
+            public InternalRelationshipBuilder RelationshipBuilder { get; }
+
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyOwnershipChanged(this);
         }
 
         private class OnPrincipalEndSetNode : ConventionNode

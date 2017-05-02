@@ -15,8 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected const string DefaultPrimaryKeyNamePrefix = "PK";
         protected const string DefaultAlternateKeyNamePrefix = "AK";
 
-        protected readonly RelationalFullAnnotationNames ProviderFullAnnotationNames;
-
         public RelationalKeyAnnotations([NotNull] IKey key,
             [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
             : this(new RelationalAnnotations(key), providerFullAnnotationNames)
@@ -29,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Annotations = annotations;
             ProviderFullAnnotationNames = providerFullAnnotationNames;
         }
+
+        public virtual RelationalFullAnnotationNames ProviderFullAnnotationNames { get; }
 
         protected virtual RelationalAnnotations Annotations { get; }
         protected virtual IKey Key => (IKey)Annotations.Metadata;

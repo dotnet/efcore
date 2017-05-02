@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,19 +12,24 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     {
         public static readonly string DatabaseName = "ComplexNavigations";
 
-        private readonly IServiceProvider _serviceProvider;
-
+        private readonly DbContextOptions _options;
         private readonly string _connectionString = SqliteTestStore.CreateConnectionString(DatabaseName);
 
         public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
 
         public ComplexNavigationsQuerySqliteFixture()
         {
-            _serviceProvider = new ServiceCollection()
+            var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
+
+            _options = new DbContextOptionsBuilder()
+                .UseSqlite(_connectionString)
+                .UseInternalServiceProvider(serviceProvider)
+                .EnableSensitiveDataLogging()
+                .Options;
         }
 
         public override SqliteTestStore CreateTestStore() =>
@@ -33,11 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 DatabaseName,
                 () =>
                     {
-                        var optionsBuilder = new DbContextOptionsBuilder()
-                            .UseSqlite(_connectionString)
-                            .UseInternalServiceProvider(_serviceProvider);
-
-                        using (var context = new ComplexNavigationsContext(optionsBuilder.Options))
+                        using (var context = new ComplexNavigationsContext(_options))
                         {
                             context.Database.EnsureClean();
                             ComplexNavigationsModelInitializer.Seed(context);
@@ -46,13 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override ComplexNavigationsContext CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .UseSqlite(
-                    testStore.Connection,
-                    b => b.SuppressForeignKeyEnforcement())
-                .UseInternalServiceProvider(_serviceProvider);
-
-            var context = new ComplexNavigationsContext(optionsBuilder.Options);
+            var context = new ComplexNavigationsContext(_options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

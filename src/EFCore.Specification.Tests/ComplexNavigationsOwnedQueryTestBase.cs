@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
         }
 
-        // One-to-many not supported yet
+        // #8172 - One-to-many not supported yet
         public override void Multiple_SelectMany_with_string_based_Include()
         {
         }
@@ -256,6 +256,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
         }
 
+        public override void Comparing_collection_navigation_on_optional_reference_to_null()
+        {
+        }
+
         // Self-ref not supported
         public override void Join_navigation_translated_to_subquery_self_ref()
         {
@@ -281,10 +285,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
         }
 
-        // #8172 - One-to-many not supported yet
-        public override void Comparing_collection_navigation_on_optional_reference_to_null()
-        {
-        }
+        protected override IQueryable<Level1> GetExpectedLevelOne()
+            => ComplexNavigationsData.SplitLevelOnes.AsQueryable();
 
         protected override IQueryable<Level2> GetExpectedLevelTwo()
             => GetExpectedLevelOne().Select(t => t.OneToOne_Required_PK).Where(t => t != null);

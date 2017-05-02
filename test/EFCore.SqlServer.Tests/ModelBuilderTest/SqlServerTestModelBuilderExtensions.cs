@@ -22,10 +22,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             this ModelBuilderTest.TestPropertyBuilder<TProperty> builder, string name)
         {
             var genericBuilder = (builder as IInfrastructure<PropertyBuilder<TProperty>>)?.Instance;
-            if (genericBuilder != null)
-            {
-                genericBuilder.ForSqlServerHasColumnName(name);
-            }
+            genericBuilder?.ForSqlServerHasColumnName(name);
+
+            return builder;
+        }
+
+        public static ModelBuilderTest.TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> ForSqlServerToTable<TEntity, TRelatedEntity>(
+            this ModelBuilderTest.TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> builder, string name)
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            var genericBuilder = (builder as IInfrastructure<ReferenceOwnershipBuilder<TEntity, TRelatedEntity>>)?.Instance;
+            genericBuilder?.ForSqlServerToTable(name);
 
             return builder;
         }

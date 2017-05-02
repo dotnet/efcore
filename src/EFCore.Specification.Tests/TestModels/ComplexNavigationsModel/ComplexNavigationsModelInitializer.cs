@@ -8,20 +8,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNa
 {
     public class ComplexNavigationsModelInitializer
     {
-        public static void Seed(ComplexNavigationsContext context)
+        public static void Seed(ComplexNavigationsContext context, bool tableSplitting = false)
         {
-            var l1s = ComplexNavigationsData.CreateLevelOnes();
-            var l2s = ComplexNavigationsData.CreateLevelTwos();
-            var l3s = ComplexNavigationsData.CreateLevelThrees();
-            var l4s = ComplexNavigationsData.CreateLevelFours();
+            var l1s = ComplexNavigationsData.CreateLevelOnes(tableSplitting);
+            var l2s = ComplexNavigationsData.CreateLevelTwos(tableSplitting);
+            var l3s = ComplexNavigationsData.CreateLevelThrees(tableSplitting);
+            var l4s = ComplexNavigationsData.CreateLevelFours(tableSplitting);
 
             context.LevelOne.AddRange(l1s);
 
-            ComplexNavigationsData.WireUpPart1(l1s, l2s, l3s, l4s);
+            ComplexNavigationsData.WireUpPart1(l1s, l2s, l3s, l4s, tableSplitting);
 
             context.SaveChanges();
 
-            ComplexNavigationsData.WireUpPart2(l1s, l2s, l3s, l4s);
+            ComplexNavigationsData.WireUpPart2(l1s, l2s, l3s, l4s, tableSplitting);
 
             var globalizations = new List<ComplexNavigationGlobalization>();
             for (var i = 0; i < 10; i++)

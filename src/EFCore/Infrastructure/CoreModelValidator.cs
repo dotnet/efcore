@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -42,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             EnsureNoShadowKeys(model);
             EnsureClrInheritance(model);
             EnsureChangeTrackingStrategy(model);
+            ValidateOwnership(model);
             ValidateDelegatedIdentityNavigations(model);
             EnsureFieldMapping(model);
             ValidateQueryFilters(model);
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual void ValidateQueryFilters([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
-            
+
             var filterValidatingExppressionVisitor = new FilterValidatingExppressionVisitor();
 
             foreach (var entityType in model.GetEntityTypes())
@@ -279,6 +279,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        protected virtual void ValidateOwnership([NotNull] IModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                var ownerships = entityType.GetForeignKeys().Where(fk => fk.IsOwnership).ToList();
+                if (ownerships.Count > 1)
+                {
+                    throw new InvalidOperationException(CoreStrings.MultipleOwnerships(entityType.DisplayName()));
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void ValidateDelegatedIdentityNavigations([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
@@ -295,23 +313,29 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 entityType.DefiningNavigationName, entityType.DefiningEntityType.DisplayName(), entityType.DisplayName()));
                     }
 
-                    if (entityType.GetForeignKeys().Count(fk => fk.IsOwnership) > 1)
-                    {
-                        throw new InvalidOperationException(CoreStrings.MultipleOwnerships(entityType.DisplayName()));
-                    }
-
                     var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
-                    if (ownership != null
-                        && ownership.PrincipalToDependent?.Name != entityType.DefiningNavigationName)
+                    if (ownership != null)
                     {
-                        var ownershipNavigation = ownership.PrincipalToDependent == null
-                            ? ""
-                            : "." + ownership.PrincipalToDependent.Name;
-                        throw new InvalidOperationException(
-                            CoreStrings.NonDefiningOwnership(
-                                ownership.PrincipalEntityType.DisplayName() + ownershipNavigation,
-                                entityType.DefiningNavigationName,
-                                entityType.DisplayName()));
+                        if (ownership.PrincipalToDependent?.Name != entityType.DefiningNavigationName)
+                        {
+                            var ownershipNavigation = ownership.PrincipalToDependent == null
+                                ? ""
+                                : "." + ownership.PrincipalToDependent.Name;
+                            throw new InvalidOperationException(
+                                CoreStrings.NonDefiningOwnership(
+                                    ownership.PrincipalEntityType.DisplayName() + ownershipNavigation,
+                                    entityType.DefiningNavigationName,
+                                    entityType.DisplayName()));
+                        }
+
+                        foreach (var otherEntityType in model.GetEntityTypes().Where(et => et.ClrType == entityType.ClrType && et != entityType))
+                        {
+                            if (!otherEntityType.GetForeignKeys().Any(fk => fk.IsOwnership))
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.InconsistentOwnership(entityType.DisplayName(), otherEntityType.DisplayName()));
+                            }
+                        }
                     }
                 }
             }

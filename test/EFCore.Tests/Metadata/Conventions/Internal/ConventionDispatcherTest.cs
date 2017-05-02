@@ -1807,6 +1807,99 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             }
         }
 
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        [Theory]
+        public void OnForeignKeyOwnershipChanged_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
+        {
+            var conventions = new ConventionSet();
+
+            var convention1 = new ForeignKeyOwnershipConvention(terminate: false);
+            var convention2 = new ForeignKeyOwnershipConvention(terminate: true);
+            var convention3 = new ForeignKeyOwnershipConvention(terminate: false);
+            conventions.ForeignKeyOwnershipConventions.Add(convention1);
+            conventions.ForeignKeyOwnershipConventions.Add(convention2);
+            conventions.ForeignKeyOwnershipConventions.Add(convention3);
+
+            var builder = new InternalModelBuilder(new Model(conventions));
+            var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
+            var foreignKey = dependentEntityBuilder.Relationship(principalEntityBuilder, ConfigurationSource.Convention).Metadata;
+
+            var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
+
+            if (useBuilder)
+            {
+                foreignKey.Builder.IsOwnership(true, ConfigurationSource.Convention);
+            }
+            else
+            {
+                foreignKey.IsOwnership = true;
+            }
+
+            if (useScope)
+            {
+                Assert.Empty(convention1.Calls);
+                Assert.Empty(convention2.Calls);
+                scope.Dispose();
+            }
+
+            Assert.Equal(new[] { true }, convention1.Calls);
+            Assert.Equal(new[] { true }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            if (useBuilder)
+            {
+                foreignKey.Builder.IsOwnership(true, ConfigurationSource.Convention);
+            }
+            else
+            {
+                foreignKey.IsOwnership = true;
+            }
+
+            Assert.Equal(new[] { true }, convention1.Calls);
+            Assert.Equal(new[] { true }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            if (useBuilder)
+            {
+                foreignKey.Builder.IsOwnership(false, ConfigurationSource.Convention);
+            }
+            else
+            {
+                foreignKey.IsOwnership = false;
+            }
+
+            Assert.Equal(new[] { true, false }, convention1.Calls);
+            Assert.Equal(new[] { true, false }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            Assert.Same(foreignKey,
+                dependentEntityBuilder.Metadata.RemoveForeignKey(foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
+        }
+
+        private class ForeignKeyOwnershipConvention : IForeignKeyOwnershipConvention
+        {
+            private readonly bool _terminate;
+            public readonly List<bool> Calls = new List<bool>();
+
+            public ForeignKeyOwnershipConvention(bool terminate)
+            {
+                _terminate = terminate;
+            }
+
+            public InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
+            {
+                Assert.NotNull(relationshipBuilder.Metadata.Builder);
+
+                Calls.Add(relationshipBuilder.Metadata.IsOwnership);
+
+                return _terminate ? null : relationshipBuilder;
+            }
+        }
+
         [InlineData(false)]
         [InlineData(true)]
         [Theory]

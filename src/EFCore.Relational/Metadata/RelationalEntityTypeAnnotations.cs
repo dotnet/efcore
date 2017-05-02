@@ -12,8 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalEntityTypeAnnotations : IRelationalEntityTypeAnnotations
     {
-        protected readonly RelationalFullAnnotationNames ProviderFullAnnotationNames;
-
         public RelationalEntityTypeAnnotations(
             [NotNull] IEntityType entityType,
             [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
@@ -28,6 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Annotations = annotations;
             ProviderFullAnnotationNames = providerFullAnnotationNames;
         }
+
+        public virtual RelationalFullAnnotationNames ProviderFullAnnotationNames { get; }
 
         protected virtual RelationalAnnotations Annotations { get; }
         protected virtual IEntityType EntityType => (IEntityType)Annotations.Metadata;
@@ -80,10 +80,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 return (string)Annotations.GetAnnotation(
                            RelationalFullAnnotationNames.Instance.Schema,
                            ProviderFullAnnotationNames?.Schema)
-                       ?? GetAnnotations((IMutableModel)EntityType.Model).DefaultSchema;
+                       ?? GetDefaultSchema();
             }
             [param: CanBeNull] set { SetSchema(value); }
         }
+
+        private string GetDefaultSchema()
+            => EntityType.HasDelegatedIdentity()
+            ? GetAnnotations(EntityType.DefiningEntityType).Schema
+            : GetAnnotations(EntityType.Model).DefaultSchema;
 
         protected virtual bool SetSchema([CanBeNull] string value)
             => Annotations.SetAnnotation(

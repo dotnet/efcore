@@ -4,15 +4,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalModelAnnotations : IRelationalModelAnnotations
     {
-        protected readonly RelationalFullAnnotationNames ProviderFullAnnotationNames;
-
         public RelationalModelAnnotations([NotNull] IModel model, [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
             : this(new RelationalAnnotations(model), providerFullAnnotationNames)
         {
@@ -25,6 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Annotations = annotations;
             ProviderFullAnnotationNames = providerFullAnnotationNames;
         }
+
+        public virtual RelationalFullAnnotationNames ProviderFullAnnotationNames { get; }
 
         protected virtual RelationalAnnotations Annotations { get; }
         protected virtual IModel Model => (IModel)Annotations.Metadata;

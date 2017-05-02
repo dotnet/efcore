@@ -16,9 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public static readonly string DatabaseName = "ComplexNavigationsOwned";
 
         private readonly DbContextOptions _options;
-
-        private readonly string _connectionString
-            = SqlServerTestStore.CreateConnectionString(DatabaseName);
+        private readonly string _connectionString = SqlServerTestStore.CreateConnectionString(DatabaseName);
 
         public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
 
@@ -43,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     using (var context = new ComplexNavigationsContext(_options))
                     {
                         context.Database.EnsureCreated();
-                        ComplexNavigationsModelInitializer.Seed(context);
+                        ComplexNavigationsModelInitializer.Seed(context, tableSplitting: true);
                     }
                 });
         }
@@ -57,27 +55,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             context.Database.UseTransaction(testStore.Transaction);
 
             return context;
-        }
-
-        protected override void Configure(ReferenceOwnershipBuilder<Level1, Level2> l2)
-        {
-            base.Configure(l2);
-
-            l2.ForSqlServerToTable("Level2");
-        }
-
-        protected override void Configure(ReferenceOwnershipBuilder<Level2, Level3> l3)
-        {
-            base.Configure(l3);
-
-            l3.ForSqlServerToTable("Level3");
-        }
-
-        protected override void Configure(ReferenceOwnershipBuilder<Level3, Level4> l4)
-        {
-            base.Configure(l4);
-
-            l4.ForSqlServerToTable("Level4");
         }
     }
 }

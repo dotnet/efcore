@@ -82,16 +82,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention();
             conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
 
+            var sharedTableConvention = new SharedTableConvention(Dependencies.AnnotationProvider);
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention());
+            conventionSet.EntityTypeAddedConventions.Add(sharedTableConvention);
 
             conventionSet.BaseEntityTypeSetConventions.Add(new DiscriminatorConvention());
 
             conventionSet.BaseEntityTypeSetConventions.Add(
                 new TableNameFromDbSetConvention(Dependencies.Context?.Context, Dependencies.SetFinder));
 
+            conventionSet.EntityTypeAnnotationSetConventions.Add(sharedTableConvention);
+
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
 
             conventionSet.PropertyAnnotationSetConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
+
+            conventionSet.ForeignKeyUniquenessConventions.Add(sharedTableConvention);
+            conventionSet.ForeignKeyOwnershipConventions.Add(sharedTableConvention);
 
             return conventionSet;
         }

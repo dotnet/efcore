@@ -499,8 +499,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ForeignKey SetIsOwnership(bool ownership, ConfigurationSource configurationSource)
         {
+            var isChanging = IsOwnership != ownership;
             _isOwnership = ownership;
             UpdateIsOwnershipConfigurationSource(configurationSource);
+
+            if (isChanging)
+            {
+                return DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyOwnershipChanged(Builder)?.Metadata;
+            }
 
             return this;
         }

@@ -120,17 +120,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(CoreStrings.ClashingDelegatedIdentityEntityType(typeof(Order).DisplayName(fullName: false)),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Order))).Message);
             Assert.Equal(CoreStrings.ClashingNonDelegatedIdentityEntityType(
-                nameof(Customer) + "." + nameof(Customer.Orders) + "->"
-                + nameof(Order) + "." + nameof(Order.Customer) + "->" + nameof(Customer)),
+                nameof(Customer) + "." + nameof(Customer.Orders) + "#"
+                + nameof(Order) + "." + nameof(Order.Customer) + "#" + nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(() => model.AddDelegatedIdentityEntityType(typeof(Customer), nameof(Order.Customer), delegatedOrderType)).Message);
 
             Assert.Equal(CoreStrings.ForeignKeySelfReferencingDelegatedIdentity(
-                nameof(Customer) + "." + nameof(Customer.Orders) + "->" + nameof(Order)),
+                nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
                 Assert.Throws<InvalidOperationException>(
                     () => delegatedOrderType.AddForeignKey(fkProperty, orderKey, delegatedOrderType)).Message);
 
             Assert.Equal(CoreStrings.EntityTypeInUseByForeignKey(
-                nameof(Customer) + "." + nameof(Customer.Orders) + "->" + nameof(Order),
+                nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order),
                 nameof(Customer), Property.Format(fk.Properties)),
                 Assert.Throws<InvalidOperationException>(() => model.RemoveDelegatedIdentityEntityType(delegatedOrderType)).Message);
 

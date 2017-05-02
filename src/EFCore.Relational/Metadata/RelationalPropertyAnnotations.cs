@@ -3,7 +3,9 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -33,6 +35,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected virtual bool ShouldThrowOnConflict => true;
         protected virtual bool ShouldThrowOnInvalidConfiguration => true;
 
+        protected virtual RelationalEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType)
+            => new RelationalEntityTypeAnnotations(entityType, ProviderFullAnnotationNames);
+
+        protected virtual RelationalPropertyAnnotations GetAnnotations([NotNull] IProperty property)
+            => new RelationalPropertyAnnotations(property, ProviderFullAnnotationNames);
+
         public virtual string ColumnName
         {
             get
@@ -40,9 +48,83 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 return (string)Annotations.GetAnnotation(
                            RelationalFullAnnotationNames.Instance.ColumnName,
                            ProviderFullAnnotationNames?.ColumnName)
-                       ?? Property.Name;
+                       ?? GetDefaultColumnName();
             }
             [param: CanBeNull] set { SetColumnName(value); }
+        }
+
+        private string GetDefaultColumnName()
+        {
+            var pk = Property.GetContainingPrimaryKey();
+            if (pk != null)
+            {
+                var entityType = Property.DeclaringEntityType;
+                var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
+                if (ownership != null)
+                {
+                    var ownerType = ownership.PrincipalEntityType;
+                    var entityTypeAnnotations = GetAnnotations(entityType);
+                    var ownerTypeAnnotations = GetAnnotations(ownerType);
+                    if (entityTypeAnnotations.TableName == ownerTypeAnnotations.TableName
+                        && entityTypeAnnotations.Schema == ownerTypeAnnotations.Schema)
+                    {
+                        var index = -1;
+                        for (var i = 0; i < pk.Properties.Count; i++)
+                        {
+                            if (pk.Properties[i] == Property)
+                            {
+                                index = i;
+                                break;
+                            }
+                        }
+
+                        return GetAnnotations(ownerType.FindPrimaryKey().Properties[index]).ColumnName;
+                    }
+                }
+            }
+            else
+            {
+                var entityType = Property.DeclaringEntityType;
+                StringBuilder builder = null;
+                do
+                {
+                    var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
+                    if (ownership == null)
+                    {
+                        entityType = null;
+                    }
+                    else
+                    {
+                        var ownerType = ownership.PrincipalEntityType;
+                        var entityTypeAnnotations = GetAnnotations(entityType);
+                        var ownerTypeAnnotations = GetAnnotations(ownerType);
+                        if (entityTypeAnnotations.TableName == ownerTypeAnnotations.TableName
+                            && entityTypeAnnotations.Schema == ownerTypeAnnotations.Schema)
+                        {
+                            if (builder == null)
+                            {
+                                builder = new StringBuilder();
+                            }
+                            builder.Insert(0, "_");
+                            builder.Insert(0, ownership.PrincipalToDependent.Name);
+                            entityType = ownerType;
+                        }
+                        else
+                        {
+                            entityType = null;
+                        }
+                    }
+                }
+                while (entityType != null);
+
+                if (builder != null)
+                {
+                    builder.Append(Property.Name);
+                    return builder.ToString();
+                }
+            }
+
+            return Property.Name;
         }
 
         protected virtual bool SetColumnName([CanBeNull] string value)

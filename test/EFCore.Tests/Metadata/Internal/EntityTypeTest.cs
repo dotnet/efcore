@@ -3065,10 +3065,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var derivedType = model.AddDelegatedIdentityEntityType(typeof(SpecialOrder), nameof(Customer.Orders), customerType);
 
             Assert.Equal(CoreStrings.DelegatedIdentityDerivedType(
-                nameof(Customer) + "." + nameof(Customer.Orders) + "->" + nameof(Order)),
+                nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => orderType.BaseType = baseType).Message);
             Assert.Equal(CoreStrings.DelegatedIdentityDerivedType(
-                nameof(Customer) + "." + nameof(Customer.Orders) + "->" + nameof(SpecialOrder)),
+                nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(SpecialOrder)),
                 Assert.Throws<InvalidOperationException>(() => derivedType.BaseType = orderType).Message);
         }
 
@@ -3082,10 +3082,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var derivedType = model.AddEntityType(typeof(SpecialOrder));
 
             Assert.Equal(CoreStrings.DelegatedIdentityDerivedType(
-                nameof(Customer) + "." + nameof(Customer.Orders) + "->" + nameof(Order)),
+                nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => orderType.BaseType = baseType).Message);
             Assert.Equal(CoreStrings.DelegatedIdentityBaseType(
-                typeof(SpecialOrder).DisplayName(fullName: false), nameof(Customer) + "." + nameof(Customer.Orders) + "->" + nameof(Order)),
+                typeof(SpecialOrder).DisplayName(fullName: false), nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => derivedType.BaseType = orderType).Message);
         }
 
