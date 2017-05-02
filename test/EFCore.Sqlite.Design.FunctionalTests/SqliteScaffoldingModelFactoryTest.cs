@@ -34,7 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
                 .BuildServiceProvider();
 
             _logger = new TestLogger();
-            serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(_logger));
+            var factory = serviceProvider.GetService<ILoggerFactory>();
+#pragma warning disable CS0618 // Type or member is obsolete
+            factory.AddProvider(new TestLoggerProvider(_logger));
+#pragma warning restore CS0618 // Type or member is obsolete
 
             _scaffoldingModelFactory = serviceProvider
                 .GetService<IScaffoldingModelFactory>() as RelationalScaffoldingModelFactory;

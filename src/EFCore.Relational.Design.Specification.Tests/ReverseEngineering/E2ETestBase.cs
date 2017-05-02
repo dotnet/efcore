@@ -40,7 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
                 .AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService()).BuildServiceProvider();
 
             _reporter = new InMemoryOperationReporter(_output);
-            serviceProvider.GetService<ILoggerFactory>().AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, _reporter)));
+            var factory = serviceProvider.GetService<ILoggerFactory>();
+#pragma warning disable CS0618 // Type or member is obsolete
+            factory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, _reporter)));
+#pragma warning restore CS0618 // Type or member is obsolete
 
             Generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
             ScaffoldingModelFactory = serviceProvider.GetRequiredService<IScaffoldingModelFactory>();
