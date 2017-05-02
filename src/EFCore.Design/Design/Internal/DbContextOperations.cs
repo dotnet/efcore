@@ -74,7 +74,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _reporter.WriteVerbose(DesignStrings.LogUseContext(context.GetType().ShortDisplayName()));
 
             var loggerFactory = context.GetService<ILoggerFactory>();
+#pragma warning disable CS0618 // Type or member is obsolete
             loggerFactory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, _reporter)));
+#pragma warning restore CS0618 // Type or member is obsolete
 
             return context;
         }

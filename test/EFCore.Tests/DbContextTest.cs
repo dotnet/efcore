@@ -4707,7 +4707,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 return _loggerFactory.CreateLogger(categoryName);
             }
 
-            public void AddProvider(ILoggerProvider provider) => _loggerFactory.AddProvider(provider);
+            public void AddProvider(ILoggerProvider provider)
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                _loggerFactory.AddProvider(provider);
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
         }
 
         private class ConstructorTestContext1A : DbContext
