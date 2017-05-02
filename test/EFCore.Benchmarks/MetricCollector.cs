@@ -7,19 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks
 {
-#if NET46
-    public partial class MetricCollector : MarshalByRefObject
-    {
-        private partial class Scope : MarshalByRefObject
-        {
-        }
-    }
-#elif NETSTANDARD1_6
-#else
-#error target frameworks need to be updated.
-#endif
-
-    public partial class MetricCollector : IMetricCollector
+    public class MetricCollector : MarshalByRefObject, IMetricCollector
     {
         private bool _collecting;
         private readonly Stopwatch _timer = new Stopwatch();
@@ -94,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
             info.AddValue(nameof(MemoryDelta), MemoryDelta);
         }
 
-        private partial class Scope : IDisposable
+        private class Scope : MarshalByRefObject, IDisposable
         {
             private readonly IMetricCollector _collector;
 

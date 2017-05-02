@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
-#if NET46
+#if NET46 || NETSTANDARD2_0
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Internal;
 #elif NETSTANDARD1_3
@@ -509,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-#if NET46
+#if NET46 || NETSTANDARD2_0
 
     public abstract partial class DbSet<TEntity> : IListSource
         where TEntity : class

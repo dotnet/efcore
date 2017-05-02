@@ -655,8 +655,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Sql);
         }
 
-#if NET46
-
         [Fact]
         public virtual void CreateDatabaseOperation_with_filename_and_datadirectory()
         {
@@ -700,10 +698,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;');" + EOL,
                 Sql);
         }
-#elif NETCOREAPP2_0
-#else
-#error target frameworks need to be updated.
-#endif
 
         [Fact]
         public virtual void AlterDatabaseOperationOperation()

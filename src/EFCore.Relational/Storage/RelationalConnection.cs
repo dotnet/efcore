@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using IsolationLevel = System.Data.IsolationLevel;
 
-#if NET46
+#if NET46 || NETSTANDARD2_0
 using System.Transactions;
 #elif NETSTANDARD1_3
 #else
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private void CheckForAmbientTransactions()
         {
-#if NET46
+#if NET46 || NETSTANDARD2_0
             if (Transaction.Current != null)
             {
                 Dependencies.TransactionLogger.AmbientTransactionWarning(this);

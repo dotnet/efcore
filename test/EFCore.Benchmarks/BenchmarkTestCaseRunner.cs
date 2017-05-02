@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
         {
 #if NET46
             return ".NET Framework";
-#elif NETSTANDARD1_6
+#elif NETCOREAPP2_0
             return ".NET Core";
 #else
 #error target frameworks need to be updated.

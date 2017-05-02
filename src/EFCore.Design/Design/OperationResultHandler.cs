@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
     }
 
-#if NET46
+#if NET46 || NETSTANDARD2_0
     public partial class OperationResultHandler : MarshalByRefObject
     {
     }
