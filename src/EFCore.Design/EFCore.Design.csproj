@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <Import Project="..\..\build\common.props" />
+
   <PropertyGroup>
     <Description>Shared design-time components for Entity Framework Core tools.</Description>
     <TargetFrameworks>net46;netstandard1.3</TargetFrameworks>
@@ -8,24 +10,30 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Relational.Design\EFCore.Relational.Design.csproj" />
   </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Collections.NonGeneric" Version="$(CoreFxVersion)" />
   </ItemGroup>
+
   <ItemGroup>
     <None Update="Properties\DesignStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DesignStrings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Update="Properties\DesignStrings.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -33,9 +41,11 @@
       <DependentUpon>DesignStrings.Designer.tt</DependentUpon>
     </Compile>
   </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Update="Properties\DesignStrings.resx">
       <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
     </EmbeddedResource>
   </ItemGroup>
+
 </Project>

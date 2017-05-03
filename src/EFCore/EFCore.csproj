@@ -1,19 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <Import Project="..\..\build\common.props" />
+
   <PropertyGroup>
     <Description>Entity Framework Core is a lightweight and extensible version of the popular Entity Framework data access technology.
 
 Commonly Used Types:
 Microsoft.EntityFrameworkCore.DbContext
-Microsoft.EntityFrameworkCore.DbSet</Description>
+Microsoft.EntityFrameworkCore.DbSet
+    </Description>
     <TargetFrameworks>net46;netstandard1.3</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(AspNetCoreVersion)" />
@@ -25,15 +30,18 @@ Microsoft.EntityFrameworkCore.DbSet</Description>
     <PackageReference Include="System.Interactive.Async" Version="$(SystemInteractiveAsyncVersion)" />
     <PackageReference Include="System.ValueTuple" Version="$(CoreFxVersion)" />
   </ItemGroup>
+
   <ItemGroup>
     <None Update="Properties\CoreStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>CoreStrings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Update="Properties\CoreStrings.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -41,9 +49,11 @@ Microsoft.EntityFrameworkCore.DbSet</Description>
       <DependentUpon>CoreStrings.Designer.tt</DependentUpon>
     </Compile>
   </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Update="Properties\CoreStrings.resx">
       <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
     </EmbeddedResource>
   </ItemGroup>
+
 </Project>

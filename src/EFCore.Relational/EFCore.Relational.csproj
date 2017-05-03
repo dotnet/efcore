@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <Import Project="..\..\build\common.props" />
+
   <PropertyGroup>
     <Description>Shared Entity Framework Core components for relational database providers.</Description>
     <TargetFrameworks>net46;netstandard1.3</TargetFrameworks>
@@ -8,33 +10,35 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\EFCore\EFCore.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="$(CoreFxVersion)" />
     <PackageReference Include="System.Data.Common" Version="$(CoreFxVersion)" />
   </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
     <Reference Include="System.Transactions" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\RelationalStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
-    </EmbeddedResource>
-  </ItemGroup>
+
   <ItemGroup>
     <None Update="Properties\RelationalStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>RelationalStrings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Update="Properties\RelationalStrings.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -42,4 +46,11 @@
       <DependentUpon>RelationalStrings.Designer.tt</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\RelationalStrings.resx">
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

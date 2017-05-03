@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <Import Project="..\..\build\common.props" />
+
   <PropertyGroup>
     <Description>Shared design-time test suite for Entity Framework Core relational database providers.</Description>
     <TargetFrameworks>net46;netcoreapp2.0</TargetFrameworks>
@@ -10,17 +12,21 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\EFCore.Relational.Design\EFCore.Relational.Design.csproj" />
     <ProjectReference Include="..\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="$(DependencyModelVersion)" />
     <PackageReference Include="System.Threading.Tasks.Parallel" Version="$(CoreFxVersion)" />
   </ItemGroup>
+
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
+
 </Project>

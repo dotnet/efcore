@@ -1,5 +1,7 @@
 ﻿<Project>
+
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
@@ -10,12 +12,12 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\ef\ef.csproj" />
   </ItemGroup>
 
-  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">  
+  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">
     <PropertyGroup>
       <NuspecProperties>version=$(PackageVersion);configuration=$(Configuration)</NuspecProperties>
     </PropertyGroup>

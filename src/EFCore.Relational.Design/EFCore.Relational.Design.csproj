@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <Import Project="..\..\build\common.props" />
+
   <PropertyGroup>
     <Description>Shared design-time Entity Framework Core components for relational database providers.</Description>
     <TargetFramework>netstandard1.3</TargetFramework>
@@ -8,26 +10,26 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\RelationalDesignStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
-    </EmbeddedResource>
-  </ItemGroup>
+
   <ItemGroup>
     <None Update="Properties\RelationalDesignStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>RelationalDesignStrings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Update="Properties\RelationalDesignStrings.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -35,4 +37,11 @@
       <DependentUpon>RelationalDesignStrings.Designer.tt</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\RelationalDesignStrings.resx">
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

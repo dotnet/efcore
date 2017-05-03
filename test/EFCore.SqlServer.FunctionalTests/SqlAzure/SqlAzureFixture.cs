@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
@@ -21,7 +23,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
         {
             SqlServerTestStore.GetOrCreateShared(
                 "adventureworks",
-                () => SqlServerTestStore.ExecuteScript("adventureworks", "SqlAzure/adventureworks.sql"),
+                () => SqlServerTestStore.ExecuteScript(
+                    "adventureworks",
+                    Path.Combine(
+                        Path.GetDirectoryName(typeof(SqlAzureFixture).GetTypeInfo().Assembly.Location),
+                        "SqlAzure",
+                        "adventureworks.sql")),
                 cleanDatabase: false);
 
             Services = new ServiceCollection()

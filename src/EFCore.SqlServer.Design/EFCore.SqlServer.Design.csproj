@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <Import Project="..\..\build\common.props" />
+
   <PropertyGroup>
     <Description>Design-time Entity Framework Core Functionality for Microsoft SQL Server.</Description>
     <TargetFramework>netstandard1.3</TargetFramework>
@@ -8,27 +10,27 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);SQL Server</PackageTags>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Relational.Design\EFCore.Relational.Design.csproj" />
     <ProjectReference Include="..\EFCore.SqlServer\EFCore.SqlServer.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\SqlServerDesignStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
-    </EmbeddedResource>
-  </ItemGroup>
+
   <ItemGroup>
     <None Update="Properties\SqlServerDesignStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>SqlServerDesignStrings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Update="Properties\SqlServerDesignStrings.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -36,4 +38,11 @@
       <DependentUpon>SqlServerDesignStrings.Designer.tt</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\SqlServerDesignStrings.resx">
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,13 +26,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         public const int CommandTimeout = 600;
 
         private static string BaseDirectory => AppContext.BaseDirectory;
-        
+
         public static readonly string NorthwindConnectionString = CreateConnectionString(Northwind);
 
         public static SqlServerTestStore GetNorthwindStore()
             => GetOrCreateShared(
                 Northwind,
-                () => ExecuteScript(Northwind, "Northwind.sql"),
+                () => ExecuteScript(
+                    Northwind,
+                    Path.Combine(
+                        Path.GetDirectoryName(typeof(SqlServerTestStore).GetTypeInfo().Assembly.Location),
+                        "Northwind.sql")),
                 cleanDatabase: false);
 
         public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase, bool cleanDatabase = true)
