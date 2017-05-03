@@ -16,18 +16,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
         private readonly List<FakeDbConnection> _dbConnections = new List<FakeDbConnection>();
 
         public FakeRelationalConnection(IDbContextOptions options)
-            : base(new RelationalConnectionDependencies(
-                options,
-                new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
-                    new InterceptingLogger<LoggerCategory.Database.Transaction>(
+            : base(
+                new RelationalConnectionDependencies(
+                    options,
+                    new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
                         new LoggerFactory(),
-                        new LoggingOptions()),
-                    new DiagnosticListener("FakeDiagnosticListener")),
-                new DiagnosticsLogger<LoggerCategory.Database.Connection>(
-                    new InterceptingLogger<LoggerCategory.Database.Connection>(
+                        new LoggingOptions(),
+                        new DiagnosticListener("FakeDiagnosticListener")),
+                    new DiagnosticsLogger<LoggerCategory.Database.Connection>(
                         new LoggerFactory(),
-                        new LoggingOptions()),
-                    new DiagnosticListener("FakeDiagnosticListener"))))
+                        new LoggingOptions(),
+                        new DiagnosticListener("FakeDiagnosticListener"))))
         {
         }
 

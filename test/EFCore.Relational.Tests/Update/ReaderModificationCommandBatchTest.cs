@@ -1,10 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -538,12 +536,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 IUpdateSqlGenerator sqlGenerator = null)
                 : base(
                     new RelationalCommandBuilderFactory(
-                        new DiagnosticsLogger<LoggerCategory.Database.Sql>(
-                            new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                            new DiagnosticListener("Fake")),
-                        new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
-                            new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
-                            new DiagnosticListener("Fake")),
+                        new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
+                        new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
                         new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                     new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                     sqlGenerator ?? new FakeSqlGenerator(

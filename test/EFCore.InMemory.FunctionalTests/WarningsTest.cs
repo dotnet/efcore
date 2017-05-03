@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         InMemoryEventId.TransactionIgnoredWarning,
-                        InMemoryStrings.TransactionsNotSupported),
+                        InMemoryStrings.LogTransactionsNotSupported.GenerateMessage()),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Database.BeginTransaction()).Message);
             }
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.IncludeIgnoredWarning.ToString(),
-                        CoreStrings.LogIgnoredInclude("[e].Nav")),
+                        CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav")),
                     Assert.Throws<InvalidOperationException>(()
                         => context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList()).Message);
             }
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.IncludeIgnoredWarning.ToString(),
-                        CoreStrings.LogIgnoredInclude("[e].Nav")),
+                        CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav")),
                     Assert.Throws<InvalidOperationException>(()
                         => context.WarningAsErrorEntities.Include(e => e.Nav).Skip(1).Select(e => e.Id).ToList()).Message);
             }

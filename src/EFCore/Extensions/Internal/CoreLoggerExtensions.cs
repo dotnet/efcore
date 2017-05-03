@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 
 // ReSharper disable once CheckNamespace
@@ -33,22 +31,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Type contextType,
             [NotNull] Exception exception)
         {
-            var eventId = CoreEventId.SaveChangesFailed;
+            var definition = CoreStrings.LogExceptionDuringSaveChanges;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Error))
-            {
-                diagnostics.Logger.Log(
-                    LogLevel.Error,
-                    eventId,
-                    new DatabaseErrorLogState(contextType),
-                    exception,
-                    (_, e) => CoreStrings.LogExceptionDuringSaveChanges(Environment.NewLine, e));
-            }
+            definition.Log(
+                diagnostics,
+                contextType, Environment.NewLine, exception,
+                exception);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ContextType = contextType,
@@ -66,22 +59,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Type contextType,
             [NotNull] Exception exception)
         {
-            var eventId = CoreEventId.QueryIterationFailed;
+            var definition = CoreStrings.LogExceptionDuringQueryIteration;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Error))
-            {
-                diagnostics.Logger.Log(
-                    LogLevel.Error,
-                    eventId,
-                    new DatabaseErrorLogState(contextType),
-                    exception,
-                    (_, e) => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
-            }
+            definition.Log(
+                diagnostics,
+                contextType, Environment.NewLine, exception,
+                exception);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ContextType = contextType,
@@ -98,19 +86,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Query> diagnostics,
             [NotNull] QueryModel queryModel)
         {
-            var eventId = CoreEventId.QueryModelCompiling;
+            var definition = CoreStrings.LogCompilingQueryModel;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            // Checking for enabled here to avoid printing query model if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    CoreStrings.LogCompilingQueryModel(Environment.NewLine, queryModel.Print()));
+                definition.Log(
+                    diagnostics,
+                    Environment.NewLine, queryModel.Print());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         QueryModel = queryModel
@@ -126,20 +115,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Query> diagnostics,
             [NotNull] QueryModel queryModel)
         {
-            var eventId = CoreEventId.RowLimitingOperationWithoutOrderByWarning;
+            var definition = CoreStrings.LogRowLimitingOperationWithoutOrderBy;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
+            // Checking for enabled here to avoid printing query model if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    CoreStrings.RowLimitingOperationWithoutOrderBy(
-                        queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit)));
+                definition.Log(
+                    diagnostics,
+                    queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         QueryModel = queryModel
@@ -155,20 +144,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Query> diagnostics,
             [NotNull] QueryModel queryModel)
         {
-            var eventId = CoreEventId.FirstWithoutOrderByAndFilterWarning;
+            var definition = CoreStrings.LogFirstWithoutOrderByAndFilter;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
+            // Checking for enabled here to avoid printing query model if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    CoreStrings.FirstWithoutOrderByAndFilter(
-                        queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit)));
+                definition.Log(
+                    diagnostics,
+                    queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         QueryModel = queryModel
@@ -184,19 +173,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Query> diagnostics,
             [NotNull] QueryModel queryModel)
         {
-            var eventId = CoreEventId.QueryModelOptimized;
+            var definition = CoreStrings.LogOptimizedQueryModel;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            // Checking for enabled here to avoid printing query model if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    CoreStrings.LogOptimizedQueryModel(Environment.NewLine, queryModel.Print()));
+                definition.Log(
+                    diagnostics,
+                    Environment.NewLine, queryModel.Print());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         QueryModel = queryModel
@@ -212,19 +202,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Query> diagnostics,
             [NotNull] string includeSpecification)
         {
-            var eventId = CoreEventId.NavigationIncluded;
+            var definition = CoreStrings.LogIncludingNavigation;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    CoreStrings.LogIncludingNavigation(includeSpecification));
-            }
+            definition.Log(
+                diagnostics,
+                includeSpecification);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         IncludeSpecification = includeSpecification
@@ -241,19 +228,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IExpressionPrinter expressionPrinter,
             [NotNull] Expression queryExecutorExpression)
         {
-            var eventId = CoreEventId.QueryExecutionPlanned;
+            var definition = CoreStrings.LogQueryExecutionPlanned;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            // Checking for enabled here to avoid printing query model if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
+                definition.Log(
+                    diagnostics,
                     expressionPrinter.Print(queryExecutorExpression));
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         QueryExecutorExpression = queryExecutorExpression
@@ -269,19 +257,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<TLoggerCategory> diagnostics)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
-            var eventId = CoreEventId.SensitiveDataLoggingEnabledWarning;
+            var definition = CoreStrings.LogSensitiveDataLoggingEnabled;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    CoreStrings.SensitiveDataLoggingEnabled);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     null);
             }
         }
@@ -294,19 +277,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Query> diagnostics,
             [NotNull] string includeSpecification)
         {
-            var eventId = CoreEventId.IncludeIgnoredWarning;
+            var definition = CoreStrings.LogIgnoredInclude;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    CoreStrings.LogIgnoredInclude(includeSpecification));
-            }
+            definition.Log(
+                diagnostics,
+                includeSpecification);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         IncludeSpecification = includeSpecification
@@ -322,19 +302,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Query> diagnostics,
             [NotNull] string navigationPath)
         {
-            var eventId = CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning;
+            var definition = CoreStrings.LogPossibleUnintendedCollectionNavigationNullComparison;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    CoreStrings.PossibleUnintendedCollectionNavigationNullComparison(navigationPath));
-            }
+            definition.Log(
+                diagnostics,
+                navigationPath);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         NavigationPath = navigationPath
@@ -351,19 +328,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Expression left,
             [NotNull] Expression right)
         {
-            var eventId = CoreEventId.PossibleUnintendedReferenceComparisonWarning;
+            var definition = CoreStrings.LogPossibleUnintendedReferenceComparison;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    CoreStrings.PossibleUnintendedReferenceComparison(left, right));
-            }
+            definition.Log(
+                diagnostics,
+                left,
+                right);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         Left = left,
@@ -381,22 +356,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IEntityType entityType,
             [NotNull] IKey key)
         {
-            var eventId = CoreEventId.ModelValidationShadowKeyWarning;
+            var definition = CoreStrings.LogShadowKey;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    CoreStrings.ShadowKey(
-                        Property.Format(key.Properties),
-                        entityType.DisplayName(),
-                        Property.Format(key.Properties)));
+                definition.Log(
+                    diagnostics,
+                    Property.Format(key.Properties),
+                    entityType.DisplayName(),
+                    Property.Format(key.Properties));
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         EntityType = entityType,
@@ -413,19 +388,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Infrastructure> diagnostics,
             [NotNull] IServiceProvider serviceProvider)
         {
-            var eventId = CoreEventId.ServiceProviderCreated;
+            var definition = CoreStrings.LogServiceProviderCreated;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    CoreStrings.ServiceProviderCreated);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         IServiceProvider = serviceProvider
@@ -441,60 +411,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Infrastructure> diagnostics,
             [NotNull] ICollection<IServiceProvider> serviceProviders)
         {
-            var eventId = CoreEventId.ManyServiceProvidersCreatedWarning;
+            var definition = CoreStrings.LogManyServiceProvidersCreated;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    CoreStrings.ManyServiceProvidersCreated);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         IServiceProviders = serviceProviders
                     });
             }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void LogDebug<TLoggerCategory>(
-            [NotNull] this IInterceptingLogger<TLoggerCategory> logger, EventId eventId, [NotNull] string message)
-            where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
-            => logger.Log<object>(LogLevel.Debug, eventId, null, null, (_, __) => message);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void LogWarning<TLoggerCategory>(
-            [NotNull] this IInterceptingLogger<TLoggerCategory> logger, EventId eventId, [NotNull] string message)
-            where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
-            => logger.Log<object>(LogLevel.Warning, eventId, null, null, (_, __) => message);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void LogError<TLoggerCategory>(
-            [NotNull] this IInterceptingLogger<TLoggerCategory> logger, EventId eventId, [NotNull] Exception exception, [NotNull] string message)
-            where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
-            => logger.Log<object>(LogLevel.Error, eventId, null, exception, (_, __) => message);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void LogInformation<TLoggerCategory>(
-            [NotNull] this IInterceptingLogger<TLoggerCategory> logger, EventId eventId, [NotNull] string message)
-            where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
-            => logger.Log<object>(LogLevel.Information, eventId, null, null, (_, __) => message);
     }
 }

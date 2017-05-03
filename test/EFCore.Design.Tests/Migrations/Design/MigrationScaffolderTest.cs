@@ -64,7 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                 new CSharpMigrationsGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpSnapshotGenerator(code)),
                 new MockHistoryRepository(),
                 new DiagnosticsLogger<LoggerCategory.Migrations>(
-                    new InterceptingLogger<LoggerCategory.Migrations>(new LoggerFactory(), new LoggingOptions()),
+                    new LoggerFactory(), 
+                    new LoggingOptions(),
                     new DiagnosticListener("Fake")),
                 new MockProvider());
         }

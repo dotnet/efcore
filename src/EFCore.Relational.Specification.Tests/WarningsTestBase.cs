@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.ClientEvalWarning("[c].IsLondon")),
+                        RelationalStrings.LogClientEvalWarning.GenerateMessage("[c].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Where(c => c.IsLondon).ToList()).Message);
             }
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.ClientEvalWarning("Last()")),
+                        RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Last()).Message);
             }
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.ClientEvalWarning("Last()")),
+                        RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Where(c => c.CustomerID == "ALFKI" && c.Orders.OrderBy(o => o.OrderID).Last().OrderID > 1000).ToList()).Message);
             }
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.ClientEvalWarning("LastOrDefault()")),
+                        RelationalStrings.LogClientEvalWarning.GenerateMessage("LastOrDefault()")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.LastOrDefault()).Message);
             }

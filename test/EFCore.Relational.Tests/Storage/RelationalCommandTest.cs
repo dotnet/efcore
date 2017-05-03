@@ -764,12 +764,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             var fakeDbConnection = new FakeDbConnection(
                 ConnectionString,
                 new FakeCommandExecutor(
-                    c => { throw exception; },
-                    c => { throw exception; },
-                    (c, cb) => { throw exception; },
-                    (c, ct) => { throw exception; },
-                    (c, ct) => { throw exception; },
-                    (c, cb, ct) => { throw exception; }));
+                    c => throw exception,
+                    c => throw exception,
+                    (c, cb) => throw exception,
+                    (c, ct) => throw exception,
+                    (c, ct) => throw exception,
+                    (c, cb, ct) => throw exception));
 
             var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
@@ -807,12 +807,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             var fakeDbConnection = new FakeDbConnection(
                 ConnectionString,
                 new FakeCommandExecutor(
-                    c => { throw exception; },
-                    c => { throw exception; },
-                    (c, cb) => { throw exception; },
-                    (c, ct) => { throw exception; },
-                    (c, ct) => { throw exception; },
-                    (c, cb, ct) => { throw exception; }));
+                    c => throw exception,
+                    c => throw exception,
+                    (c, cb) => throw exception,
+                    (c, ct) => throw exception,
+                    (c, ct) => throw exception,
+                    (c, cb, ct) => throw exception));
 
             var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
@@ -854,12 +854,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             var fakeDbConnection = new FakeDbConnection(
                 ConnectionString,
                 new FakeCommandExecutor(
-                    c => { throw exception; },
-                    c => { throw exception; },
-                    (c, cb) => { throw exception; },
-                    (c, ct) => { throw exception; },
-                    (c, ct) => { throw exception; },
-                    (c, cb, ct) => { throw exception; }));
+                    c => throw exception,
+                    c => throw exception,
+                    (c, cb) => throw exception,
+                    (c, ct) => throw exception,
+                    (c, ct) => throw exception,
+                    (c, cb, ct) => throw exception));
 
             var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
@@ -903,9 +903,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             var fakeConnection = new FakeRelationalConnection(options);
 
             var relationalCommand = CreateRelationalCommand(
-                logger: new InterceptingLogger<LoggerCategory.Database.Sql>(
+                new DiagnosticsLogger<LoggerCategory.Database.Sql>(
                     new ListLoggerFactory(log),
-                    new FakeLoggingOptions(false)),
+                    new FakeLoggingOptions(false),
+                    new DiagnosticListener("Fake")),
                 commandText: "Logged Command",
                 parameters: new[]
                 {
@@ -934,7 +935,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             foreach (var item in log)
             {
                 Assert.EndsWith(
-                    @"[Parameters=[FirstParameter='?'], CommandType='0', CommandTimeout='30']
+                    @"[Parameters=[FirstParameter: ?], CommandType='0', CommandTimeout='30']
 Logged Command",
                     item.Item2.Replace(Environment.NewLine, FileLineEnding));
             }
@@ -956,9 +957,10 @@ Logged Command",
             var fakeConnection = new FakeRelationalConnection(options);
 
             var relationalCommand = CreateRelationalCommand(
-                logger: new InterceptingLogger<LoggerCategory.Database.Sql>(
+                new DiagnosticsLogger<LoggerCategory.Database.Sql>(
                     new ListLoggerFactory(log),
-                    new FakeLoggingOptions(true)),
+                    new FakeLoggingOptions(true),
+                    new DiagnosticListener("Fake")),
                 commandText: "Logged Command",
                 parameters: new[]
                 {
@@ -981,7 +983,7 @@ Logged Command",
 
             Assert.Equal(3, log.Count);
             Assert.Equal(LogLevel.Warning, log[0].Item1);
-            Assert.Equal(CoreStrings.SensitiveDataLoggingEnabled, log[0].Item2);
+            Assert.Equal(CoreStrings.LogSensitiveDataLoggingEnabled.GenerateMessage(), log[0].Item2);
 
             Assert.Equal(LogLevel.Debug, log[1].Item1);
             Assert.Equal(LogLevel.Information, log[2].Item1);
@@ -989,7 +991,7 @@ Logged Command",
             foreach (var item in log.Skip(1))
             {
                 Assert.EndsWith(
-                    @"[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
+                    @"[Parameters=[FirstParameter: 17], CommandType='0', CommandTimeout='30']
 Logged Command",
                     item.Item2.Replace(Environment.NewLine, FileLineEnding));
             }
@@ -1009,7 +1011,10 @@ Logged Command",
             var diagnostic = new List<Tuple<string, object>>();
 
             var relationalCommand = CreateRelationalCommand(
-                diagnosticSource: new ListDiagnosticSource(diagnostic),
+                new DiagnosticsLogger<LoggerCategory.Database.Sql>(
+                    new ListLoggerFactory(new List<Tuple<LogLevel, string>>()),
+                    new FakeLoggingOptions(false),
+                    new ListDiagnosticSource(diagnostic)),
                 parameters: new[]
                 {
                     new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
@@ -1058,12 +1063,12 @@ Logged Command",
             var fakeDbConnection = new FakeDbConnection(
                 ConnectionString,
                 new FakeCommandExecutor(
-                    c => { throw exception; },
-                    c => { throw exception; },
-                    (c, cb) => { throw exception; },
-                    (c, ct) => { throw exception; },
-                    (c, ct) => { throw exception; },
-                    (c, cb, ct) => { throw exception; }));
+                    c => throw exception,
+                    c => throw exception,
+                    (c, cb) => throw exception,
+                    (c, ct) => throw exception,
+                    (c, ct) => throw exception,
+                    (c, cb, ct) => throw exception));
 
             var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
@@ -1074,7 +1079,10 @@ Logged Command",
             var fakeConnection = new FakeRelationalConnection(options);
 
             var relationalCommand = CreateRelationalCommand(
-                diagnosticSource: new ListDiagnosticSource(diagnostic),
+                new DiagnosticsLogger<LoggerCategory.Database.Sql>(
+                    new ListLoggerFactory(new List<Tuple<LogLevel, string>>()),
+                    new FakeLoggingOptions(false),
+                    new ListDiagnosticSource(diagnostic)),
                 parameters: new[]
                 {
                     new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
@@ -1156,17 +1164,12 @@ Logged Command",
         }
 
         private IRelationalCommand CreateRelationalCommand(
-            IInterceptingLogger<LoggerCategory.Database.Sql> logger = null,
-            DiagnosticSource diagnosticSource = null,
+            IDiagnosticsLogger<LoggerCategory.Database.Sql> logger = null,
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                new DiagnosticsLogger<LoggerCategory.Database.Sql>(
-                    logger ?? new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                    diagnosticSource ?? new DiagnosticListener("Fake")),
-                new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
-                    new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
-                    diagnosticSource ?? new DiagnosticListener("Fake")),
+                logger ?? new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
+                new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
                 commandText,
                 parameters ?? new IRelationalParameter[0]);
     }

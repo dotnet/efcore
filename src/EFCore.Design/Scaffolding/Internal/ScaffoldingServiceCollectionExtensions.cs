@@ -34,7 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AddSingleton<CodeWriter, StringBuilderCodeWriter>()
                 .AddSingleton<ILoggingOptions, LoggingOptions>()
                 .AddSingleton<DiagnosticSource>(new DiagnosticListener(LoggerCategory.Root))
-                .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
-                .AddSingleton(typeof(IInterceptingLogger<>), typeof(InterceptingLogger<>));
+                .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>));
     }
 }

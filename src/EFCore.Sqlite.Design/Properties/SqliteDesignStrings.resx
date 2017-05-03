@@ -117,13 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UsingSchemaSelectionsWarning" xml:space="preserve">
+  <data name="LogUsingSchemaSelectionsWarning" xml:space="preserve">
     <value>Scaffolding from a SQLite database will ignore any schema selection arguments. </value>
+    <comment>Warning SqliteDesignEventId.SchemasNotSupportedWarning</comment>
   </data>
-  <data name="FoundColumn" xml:space="preserve">
+  <data name="LogFoundColumn" xml:space="preserve">
     <value>Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, not nullable: {isNotNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}.</value>
+    <comment>Debug SqliteDesignEventId.ColumnFound string string string int? bool? int? string</comment>
   </data>
-  <data name="FoundForeignKeyColumn" xml:space="preserve">
+  <data name="LogFoundForeignKeyColumn" xml:space="preserve">
     <value>Found foreign key column on table: {tableName}, id: {id}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, delete action: {deleteAction}, ordinal: {ordinal}.</value>
+    <comment>Debug SqliteDesignEventId.ForeignKeyColumnFound string int string string string string int?</comment>
   </data>
 </root>

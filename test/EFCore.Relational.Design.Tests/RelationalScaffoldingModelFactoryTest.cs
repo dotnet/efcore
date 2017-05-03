@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Design
@@ -23,16 +24,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
     public class RelationalDatabaseModelFactoryTest
     {
         private readonly FakeScaffoldingModelFactory _factory;
-        private readonly DesignLogger<LoggerCategory.Scaffolding> _logger;
+        private readonly TestDesignLoggerFactory.DesignLogger _logger;
         private static ColumnModel IdColumn => new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0 };
 
         public RelationalDatabaseModelFactoryTest()
         {
-            _logger = new DesignLogger<LoggerCategory.Scaffolding>();
+            ILoggerFactory loggerFactory = new TestDesignLoggerFactory();
+            _logger = (TestDesignLoggerFactory.DesignLogger)loggerFactory.CreateLogger(LoggerCategory.Scaffolding.Name);
 
             _factory = new FakeScaffoldingModelFactory(
                 new DiagnosticsLogger<LoggerCategory.Scaffolding>(
-                    _logger,
+                    loggerFactory,
+                    new LoggingOptions(), 
                     new DiagnosticListener("Fake")));
         }
 
@@ -273,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     });
 
             Assert.Single(_factory.Create(info).FindEntityType("E").GetProperties());
-            Assert.Single(_logger.Statements, t => t.Contains(RelationalDesignStrings.CannotFindTypeMappingForColumn("E.Coli", dataType)));
+            Assert.Single(_logger.Statements, t => t.Contains(RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("E.Coli", dataType)));
         }
 
         [Theory]
@@ -609,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
             Assert.Single(
                 _logger.Statements, t => t.Contains(
                     "Warning: " +
-                    RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
+                    RelationalDesignStrings.LogForeignKeyScaffoldErrorPrincipalKeyNotFound.GenerateMessage(
                         childrenTable.ForeignKeys.ElementAt(0).DisplayName, "NotPkId", "Parent")));
         }
 
@@ -710,7 +713,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
             Assert.Single(
                 _logger.Statements, t => t.Contains(
                     "Warning: " +
-                    RelationalDesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
+                    RelationalDesignStrings.LogForeignKeyPrincipalEndContainsNullableColumns.GenerateMessage(
                         table.ForeignKeys.ElementAt(0).DisplayName, "FriendsNameUniqueIndex", "BuddyId")));
         }
 
@@ -900,7 +903,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
             var factory = new FakeScaffoldingModelFactory(
                 new DiagnosticsLogger<LoggerCategory.Scaffolding>(
-                    new DesignLogger<LoggerCategory.Scaffolding>(),
+                    new TestDesignLoggerFactory(),
+                    new LoggingOptions(), 
                     new DiagnosticListener("Fake")),
                 new FakePluralizer());
 
@@ -961,7 +965,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
             var factory = new FakeScaffoldingModelFactory(
                 new DiagnosticsLogger<LoggerCategory.Scaffolding>(
-                    new DesignLogger<LoggerCategory.Scaffolding>(),
+                    new TestDesignLoggerFactory(),
+                    new LoggingOptions(),
                     new DiagnosticListener("Fake")),
                 new FakePluralizer());
 

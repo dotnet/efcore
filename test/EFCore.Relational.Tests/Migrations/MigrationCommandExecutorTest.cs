@@ -3,10 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
@@ -299,17 +297,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
         }
 
         private IRelationalCommand CreateRelationalCommand(
-            IInterceptingLogger<LoggerCategory.Database.Sql> logger = null,
-            DiagnosticSource diagnosticSource = null,
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                new DiagnosticsLogger<LoggerCategory.Database.Sql>(
-                    logger ?? new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                    diagnosticSource ?? new DiagnosticListener("Fake")),
-                new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
-                    new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
-                    diagnosticSource ?? new DiagnosticListener("Fake")),
+                new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
+                new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
                 commandText,
                 parameters ?? new IRelationalParameter[0]);
     }

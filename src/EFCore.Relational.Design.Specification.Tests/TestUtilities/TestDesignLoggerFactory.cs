@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 
@@ -42,13 +43,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.TestUtil
         }
     }
 
-    public class DesignLogger<T> : TestDesignLoggerFactory.DesignLogger, IInterceptingLogger<T>
+    public class DesignLogger<T> : TestDesignLoggerFactory.DesignLogger, IDiagnosticsLogger<T>
         where T : LoggerCategory<T>, new()
     {
         public bool IsEnabled(EventId eventId, LogLevel logLevel) => true;
 
+        public WarningBehavior GetLogBehavior(EventId eventId, LogLevel logLevel) => WarningBehavior.Log;
+
         public ILoggingOptions Options { get; }
 
-        public bool ShouldLogSensitiveData(IDiagnosticsLogger<T> diagnostics) => false;
+        public bool ShouldLogSensitiveData() => false;
+
+        public ILogger Logger => this;
+
+        public DiagnosticSource DiagnosticSource { get; } = new DiagnosticListener("Fake");
     }
 }

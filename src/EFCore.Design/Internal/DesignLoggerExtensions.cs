@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -28,19 +27,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
             [NotNull] string migrationNamespace)
         {
-            var eventId = DesignEventId.ForeignMigrations;
+            var definition = DesignStrings.LogForeignMigrations;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    DesignStrings.ForeignMigrations(migrationNamespace));
-            }
+            definition.Log(
+                diagnostics,
+                migrationNamespace);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         MigrationNamespace = migrationNamespace
@@ -56,19 +52,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
             [NotNull] string lastModelSnapshotName)
         {
-            var eventId = DesignEventId.SnapshotNameReusing;
+            var definition = DesignStrings.LogReusingSnapshotName;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    DesignStrings.ReusingSnapshotName(lastModelSnapshotName));
-            }
+            definition.Log(
+                diagnostics,
+                lastModelSnapshotName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         LastModelSnapshotName = lastModelSnapshotName
@@ -84,19 +77,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
             [NotNull] IEnumerable<MigrationOperation> operations)
         {
-            var eventId = DesignEventId.DestructiveOperation;
+            var definition = DesignStrings.LogDestructiveOperation;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    DesignStrings.DestructiveOperation);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         Operations = (ICollection<MigrationOperation>)operations.ToList()
@@ -112,19 +100,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
             [NotNull] Migration migration)
         {
-            var eventId = DesignEventId.MigrationForceRemove;
+            var definition = DesignStrings.LogForceRemoveMigration;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    DesignStrings.ForceRemoveMigration(migration.GetId()));
+                definition.Log(
+                    diagnostics,
+                    migration.GetId());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         Migration = migration
@@ -140,19 +129,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
             [NotNull] Migration migration)
         {
-            var eventId = DesignEventId.MigrationRemoving;
+            var definition = DesignStrings.LogRemovingMigration;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Information))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogInformation(
-                    eventId,
-                    DesignStrings.RemovingMigration(migration.GetId()));
+                definition.Log(
+                    diagnostics,
+                    migration.GetId());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         Migration = migration
@@ -169,19 +159,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Migration migration,
             [NotNull] string fileName)
         {
-            var eventId = DesignEventId.MigrationFileNotFound;
+            var definition = DesignStrings.LogNoMigrationFile;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    DesignStrings.NoMigrationFile(fileName, migration.GetType().ShortDisplayName()));
+                definition.Log(
+                    diagnostics,
+                    fileName,
+                    migration.GetType().ShortDisplayName());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         Migration = migration,
@@ -199,19 +191,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Migration migration,
             [NotNull] string fileName)
         {
-            var eventId = DesignEventId.MigrationMetadataFileNotFound;
+            var definition = DesignStrings.LogNoMigrationMetadataFile;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    DesignStrings.NoMigrationMetadataFile(fileName));
-            }
+            definition.Log(diagnostics, fileName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         Migration = migration,
@@ -228,22 +215,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
             [NotNull] Migration migration)
         {
-            var eventId = DesignEventId.MigrationManuallyDeleted;
+            var definition = DesignStrings.LogManuallyDeleted;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    DesignStrings.ManuallyDeleted);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
-                        Migration = migration,
+                        Migration = migration
                     });
             }
         }
@@ -257,23 +239,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] ModelSnapshot modelSnapshot,
             [NotNull] string fileName)
         {
-            var eventId = DesignEventId.SnapshotRemoving;
+            var definition = DesignStrings.LogRemovingSnapshot;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Information))
-            {
-                diagnostics.Logger.LogInformation(
-                    eventId,
-                    DesignStrings.RemovingSnapshot);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ModelSnapshot = modelSnapshot,
-                        FileName = fileName,
+                        FileName = fileName
                     });
             }
         }
@@ -287,23 +264,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] ModelSnapshot modelSnapshot,
             [NotNull] string fileName)
         {
-            var eventId = DesignEventId.SnapshotFileNotFound;
+            var definition = DesignStrings.LogNoSnapshotFile;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    DesignStrings.NoSnapshotFile(fileName, modelSnapshot.GetType().ShortDisplayName()));
+                definition.Log(
+                    diagnostics,
+                    fileName,
+                    modelSnapshot.GetType().ShortDisplayName());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ModelSnapshot = modelSnapshot,
-                        FileName = fileName,
+                        FileName = fileName
                     });
             }
         }
@@ -317,23 +296,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] ModelSnapshot modelSnapshot,
             [NotNull] string fileName)
         {
-            var eventId = DesignEventId.SnapshotReverting;
+            var definition = DesignStrings.LogRevertingSnapshot;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Information))
-            {
-                diagnostics.Logger.LogInformation(
-                    eventId,
-                    DesignStrings.RevertingSnapshot);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ModelSnapshot = modelSnapshot,
-                        FileName = fileName,
+                        FileName = fileName
                     });
             }
         }
@@ -347,23 +321,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] ScaffoldedMigration scaffoldedMigration,
             [NotNull] string fileName)
         {
-            var eventId = DesignEventId.MigrationWriting;
+            var definition = DesignStrings.LogWritingMigration;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    DesignStrings.WritingMigration(fileName));
-            }
+            definition.Log(diagnostics, fileName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ScaffoldedMigration = scaffoldedMigration,
-                        FileName = fileName,
+                        FileName = fileName
                     });
             }
         }
@@ -377,23 +346,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] ScaffoldedMigration scaffoldedMigration,
             [NotNull] string fileName)
         {
-            var eventId = DesignEventId.SnapshotWriting;
+            var definition = DesignStrings.LogWritingSnapshot;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    DesignStrings.WritingSnapshot(fileName));
-            }
+            definition.Log(diagnostics, fileName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ScaffoldedMigration = scaffoldedMigration,
-                        FileName = fileName,
+                        FileName = fileName
                     });
             }
         }
@@ -406,19 +370,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
             [NotNull] Type type)
         {
-            var eventId = DesignEventId.NamespaceReusing;
+            var definition = DesignStrings.LogReusingNamespace;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    DesignStrings.ReusingNamespace(type.ShortDisplayName()));
+                definition.Log(diagnostics, type.ShortDisplayName());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         Type = type
@@ -434,19 +397,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
             [NotNull] string fileName)
         {
-            var eventId = DesignEventId.DirectoryReusing;
+            var definition = DesignStrings.LogReusingDirectory;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    DesignStrings.ReusingDirectory(fileName));
-            }
+            definition.Log(diagnostics, fileName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         FileName = fileName

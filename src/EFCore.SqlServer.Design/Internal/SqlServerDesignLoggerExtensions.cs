@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -33,21 +34,37 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] bool? identity,
             [CanBeNull] bool? computed)
         {
-            var eventId = SqlServerDesignEventId.ColumnFound;
+            var definition = SqlServerDesignStrings.LogFoundColumn;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            Debug.Assert(LogLevel.Debug == definition.Level);
+
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    SqlServerDesignStrings.FoundColumn(
-                        tableName, columnName, dataTypeName, ordinal, nullable,
-                        primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, identity, computed));
+                definition.Log(
+                    diagnostics,
+                    l => l.LogDebug(
+                        definition.EventId,
+                        null,
+                        definition.RawMessage,
+                        tableName,
+                        columnName,
+                        dataTypeName,
+                        ordinal,
+                        nullable,
+                        primaryKeyOrdinal,
+                        defaultValue,
+                        computedValue,
+                        precision,
+                        scale,
+                        maxLength,
+                        identity,
+                        computed));
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName,
@@ -82,21 +99,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string deleteAction,
             int? ordinal)
         {
-            var eventId = SqlServerDesignEventId.ForeignKeyColumnFound;
+            var definition = SqlServerDesignStrings.LogFoundForeignKeyColumn;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            Debug.Assert(LogLevel.Debug == definition.Level);
+
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    SqlServerDesignStrings.FoundForeignKeyColumn(
-                        tableName, foreignKeyName, principalTableName,
-                        columnName, principalColumnName, updateAction, deleteAction, ordinal));
+                definition.Log(
+                    diagnostics,
+                    l => l.LogDebug(
+                        definition.EventId,
+                        null,
+                        definition.RawMessage,
+                        tableName,
+                        foreignKeyName,
+                        principalTableName,
+                        columnName,
+                        principalColumnName,
+                        updateAction,
+                        deleteAction,
+                        ordinal));
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName,
@@ -119,19 +147,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string schemaName)
         {
-            var eventId = SqlServerDesignEventId.DefaultSchemaFound;
+            var definition = SqlServerDesignStrings.LogFoundDefaultSchema;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    SqlServerDesignStrings.FoundDefaultSchema(schemaName));
-            }
+            definition.Log(diagnostics, schemaName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         SchemaName = schemaName
@@ -148,19 +171,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string typeAliasName,
             [CanBeNull] string systemTypeName)
         {
-            var eventId = SqlServerDesignEventId.TypeAliasFound;
+            var definition = SqlServerDesignStrings.LogFoundTypeAlias;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    SqlServerDesignStrings.FoundTypeAlias(typeAliasName, systemTypeName));
-            }
+            definition.Log(diagnostics, typeAliasName, systemTypeName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TypeAliasName = typeAliasName,
@@ -178,19 +196,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string columnName,
             [CanBeNull] string typeName)
         {
-            var eventId = SqlServerDesignEventId.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning;
+            var definition = SqlServerDesignStrings.LogDataTypeDoesNotAllowSqlServerIdentityStrategy;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy(columnName, typeName));
-            }
+            definition.Log(diagnostics, columnName, typeName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ColumnName = columnName,

@@ -258,11 +258,13 @@
   <data name="SingletonOptionChanged" xml:space="preserve">
     <value>A call was made to '{optionCall}' that changed an option that must be constant within a service provider, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or ensure that the configuration for '{optionCall}' does not change for all uses of a given service provider passed to '{useInternalServiceProvider}'.</value>
   </data>
-  <data name="ServiceProviderCreated" xml:space="preserve">
+  <data name="LogServiceProviderCreated" xml:space="preserve">
     <value>An 'IServiceProvider' was created for internal use by Entity Framework.</value>
+    <comment>Debug CoreEventId.ServiceProviderCreated</comment>
   </data>
-  <data name="ManyServiceProvidersCreated" xml:space="preserve">
+  <data name="LogManyServiceProvidersCreated" xml:space="preserve">
     <value>More than twenty 'IServiceProvider' instances have been created for internal use by Entity Framework. Consider reviewing calls on 'DbContextOptionsBuilder' that may require new service providers to be built.</value>
+    <comment>Warning CoreEventId.ManyServiceProvidersCreatedWarning</comment>
   </data>
   <data name="NotAnEFService" xml:space="preserve">
     <value>The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by EF and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.</value>
@@ -289,10 +291,12 @@
     <value>The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
   </data>
   <data name="LogExceptionDuringQueryIteration" xml:space="preserve">
-    <value>An exception occurred in the database while iterating the results of a query.{newline}{error}</value>
+    <value>An exception occurred in the database while iterating the results of a query for context type '{contextType}'.{newline}{error}</value>
+    <comment>Error CoreEventId.QueryIterationFailed Type string Exception</comment>
   </data>
   <data name="LogExceptionDuringSaveChanges" xml:space="preserve">
-    <value>An exception occurred in the database while saving changes.{newline}{error}</value>
+    <value>An exception occurred in the database while saving changes for context type '{contextType}'.{newline}{error}</value>
+    <comment>Error CoreEventId.SaveChangesFailed Type string Exception</comment>
   </data>
   <data name="PropertyMethodInvoked" xml:space="preserve">
     <value>The EF.Property&lt;T&gt; method may only be used within LINQ queries.</value>
@@ -389,12 +393,19 @@
   </data>
   <data name="LogCompilingQueryModel" xml:space="preserve">
     <value>Compiling query model: {newline}'{queryModel}'</value>
+    <comment>Debug CoreEventId.QueryModelCompiling string string</comment>
   </data>
   <data name="LogOptimizedQueryModel" xml:space="preserve">
     <value>Optimized query model: {newline}'{queryModel}'</value>
+    <comment>Debug CoreEventId.QueryModelOptimized string string</comment>
   </data>
   <data name="LogIncludingNavigation" xml:space="preserve">
     <value>Including navigation: '{navigation}'</value>
+    <comment>Debug CoreEventId.NavigationIncluded string</comment>
+  </data>
+  <data name="LogQueryExecutionPlanned" xml:space="preserve">
+    <value>{plan}</value>
+    <comment>Debug CoreEventId.QueryExecutionPlanned string</comment>
   </data>
   <data name="CannotBeNullable" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
@@ -420,8 +431,9 @@
   <data name="ReferencedShadowKey" xml:space="preserve">
     <value>The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' with foreign key properties {foreignKeyPropertiesWithTypes} cannot target the primary key {primaryKeyPropertiesWithTypes} because it is not compatible. Configure a principal key or a set of compatible foreign key properties for this relationship.</value>
   </data>
-  <data name="ShadowKey" xml:space="preserve">
+  <data name="LogShadowKey" xml:space="preserve">
     <value>The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties}.</value>
+    <comment>Warning CoreEventId.ModelValidationShadowKeyWarning string string string</comment>
   </data>
   <data name="ExpressionParameterizationException" xml:space="preserve">
     <value>An exception was thrown while attempting to evaluate a LINQ query parameter expression. To show additional information call EnableSensitiveDataLogging() when overriding DbContext.OnConfiguring.</value>
@@ -573,8 +585,9 @@
   <data name="InvalidAlternateKeyValue" xml:space="preserve">
     <value>Unable to track an entity of type '{entityType}' because alternate key property '{keyProperty}' is null. If the alternate key is not used in a relationship, then consider using a unique index instead. Unique indexes may contain nulls, while alternate keys must not.</value>
   </data>
-  <data name="SensitiveDataLoggingEnabled" xml:space="preserve">
+  <data name="LogSensitiveDataLoggingEnabled" xml:space="preserve">
     <value>Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data, this mode should only be enabled during development.</value>
+    <comment>Warning CoreEventId.SensitiveDataLoggingEnabledWarning</comment>
   </data>
   <data name="ExpressionParameterizationExceptionSensitive" xml:space="preserve">
     <value>An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.</value>
@@ -632,6 +645,7 @@
   </data>
   <data name="LogIgnoredInclude" xml:space="preserve">
     <value>The Include operation '{include}' was ignored because the target navigation is not reachable in the final query results.</value>
+    <comment>Warning CoreEventId.IncludeIgnoredWarning string</comment>
   </data>
   <data name="ConflictingRelationshipNavigation" xml:space="preserve">
     <value>Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.</value>
@@ -675,8 +689,9 @@
   <data name="PropertyCalledOnNavigation" xml:space="preserve">
     <value>Cannot call Property for the property '{property}' on entity type '{entityType}' because it is configured as a navigation property. Property can only be used to configure scalar properties.</value>
   </data>
-  <data name="RowLimitingOperationWithoutOrderBy" xml:space="preserve">
+  <data name="LogRowLimitingOperationWithoutOrderBy" xml:space="preserve">
     <value>Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.</value>
+    <comment>Warning CoreEventId.RowLimitingOperationWithoutOrderByWarning string</comment>
   </data>
   <data name="PropertyInUseForeignKey" xml:space="preserve">
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the foreign key {foreignKey} on '{foreignKeyType}'. All containing foreign keys must be removed or redefined before the property can be removed.</value>
@@ -684,8 +699,9 @@
   <data name="PropertyInUseIndex" xml:space="preserve">
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index {index} on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.</value>
   </data>
-  <data name="FirstWithoutOrderByAndFilter" xml:space="preserve">
+  <data name="LogFirstWithoutOrderByAndFilter" xml:space="preserve">
     <value>Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.</value>
+    <comment>Warning CoreEventId.FirstWithoutOrderByAndFilterWarning string</comment>
   </data>
   <data name="InvalidPoolSize" xml:space="preserve">
     <value>The specified poolSize must be greater than 0.</value>
@@ -747,10 +763,12 @@
   <data name="IncludeNotSpecifiedDirectlyOnEntityType" xml:space="preserve">
     <value>The Include operation '{include}' is not supported. '{invalidNavigation}' must be a navigation property defined on an entity type.</value>
   </data>
-  <data name="PossibleUnintendedCollectionNavigationNullComparison" xml:space="preserve">
+  <data name="LogPossibleUnintendedCollectionNavigationNullComparison" xml:space="preserve">
     <value>Collection navigations are only considered null if their parent entity is null. Use '.Any()' to check whether collection navigation '{navigationPath}' is empty.</value>
+    <comment>Warning CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning string</comment>
   </data>
-  <data name="PossibleUnintendedReferenceComparison" xml:space="preserve">
+  <data name="LogPossibleUnintendedReferenceComparison" xml:space="preserve">
     <value>Possible unintended reference comparison between '{left}' and '{right}'.</value>
+    <comment>Warning CoreEventId.PossibleUnintendedReferenceComparisonWarning object object</comment>
   </data>
 </root>

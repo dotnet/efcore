@@ -114,13 +114,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(categoryName + "." + eventName, eventId.Name);
 
                 var testLogger = (TestLoggerBase)Activator.CreateInstance(typeof(TestLogger<>).MakeGenericType(category));
-                var testDiagnostics = new TestDiagnosticSource();
+                var testDiagnostics = (TestDiagnosticSource)testLogger.DiagnosticSource;
 
                 var args = new object[loggerParameters.Length];
-                args[0] = Activator.CreateInstance(
-                    typeof(DiagnosticsLogger<>).MakeGenericType(category),
-                    testLogger,
-                    testDiagnostics);
+                args[0] = testLogger;
 
                 for (var i = 1; i < args.Length; i++)
                 {
@@ -172,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         }
                     }
 
-                    Assert.True(logged);
+                    Assert.True(logged, "Failed for " + eventId.Name);
                 }
             }
         }
@@ -184,20 +181,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public LogLevel? LoggedAt { get; set; }
 
             public EventId LoggedEvent { get; set; }
+
+            public DiagnosticSource DiagnosticSource { get; } = new TestDiagnosticSource();
         }
 
-        private class TestLogger<TCategory> : TestLoggerBase, IInterceptingLogger<TCategory>
+        private class TestLogger<TCategory> : TestLoggerBase, IDiagnosticsLogger<TCategory>, ILogger
             where TCategory : LoggerCategory<TCategory>, new()
         {
             public ILoggingOptions Options => null;
 
-            public IDisposable BeginScope<TState>(TState state) => null;
-
-            public bool IsEnabled(EventId eventId, LogLevel logLevel)
+            public WarningBehavior GetLogBehavior(EventId eventId, LogLevel logLevel)
             {
                 LoggedEvent = eventId;
-                return EnabledFor == logLevel;
+                return EnabledFor == logLevel ? WarningBehavior.Log : WarningBehavior.Ignore;
             }
+
+            public bool IsEnabled(LogLevel logLevel) => EnabledFor == logLevel;
+
+            public IDisposable BeginScope<TState>(TState state) => null;
 
             public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             {
@@ -205,7 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(LoggedEvent, eventId);
             }
 
-            public bool ShouldLogSensitiveData(IDiagnosticsLogger<TCategory> diagnostics) => false;
+            public bool ShouldLogSensitiveData() => false;
+
+            public ILogger Logger => this;
         }
 
         private class TestDiagnosticSource : DiagnosticSource

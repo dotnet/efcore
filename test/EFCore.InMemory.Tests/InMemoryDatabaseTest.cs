@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
                 l => l.Log(
                     LogLevel.Information,
                     InMemoryEventId.ChangesSaved,
-                    null,
+                    It.IsAny<object>(),
                     null,
                     It.IsAny<Func<object, Exception, string>>()),
                 Times.Once);

@@ -228,12 +228,12 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     UseFluentApiOnly = UseFluentApiOnly,
                     TableSelectionSet = TableSelectionSet.All
                 });
-                var errorMessage = RelationalDesignStrings.UnableToGenerateEntityType("Alicia");
+                var errorMessage = RelationalDesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Alicia");
                 var expectedLog = new LoggerMessages
                 {
                     Warn =
                     {
-                        RelationalDesignStrings.MissingPrimaryKey("Alicia"),
+                        RelationalDesignStrings.LogMissingPrimaryKey.GenerateMessage("Alicia"),
                         errorMessage
                     }
                 };
@@ -267,9 +267,9 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
                 {
                     Warn =
                     {
-                        RelationalDesignStrings.MissingPrimaryKey("Principal"),
-                        RelationalDesignStrings.UnableToGenerateEntityType("Principal"),
-                        RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalTableScaffoldingError("Dependent(PrincipalId)", "Principal")
+                        RelationalDesignStrings.LogMissingPrimaryKey.GenerateMessage("Principal"),
+                        RelationalDesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Principal"),
+                        RelationalDesignStrings.LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError.GenerateMessage("Dependent(PrincipalId)", "Principal")
                     }
                 };
                 AssertLog(expectedLog);

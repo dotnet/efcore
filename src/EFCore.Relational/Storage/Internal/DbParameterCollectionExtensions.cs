@@ -3,9 +3,12 @@
 
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -13,24 +16,56 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public static class DbParameterLogDataExtensions
+    public static class DbParameterCollectionExtensions
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static string FormatParameters(
+            [NotNull] this DbParameterCollection parameters,
+            bool logParameterValues)
+            => parameters
+                .Cast<DbParameter>()
+                .Select(
+                    p => FormatParameter(
+                        p.ParameterName,
+                        logParameterValues ? p.Value : "?",
+                        logParameterValues,
+                        p.Direction,
+                        p.DbType,
+                        p.IsNullable,
+                        p.Size,
+                        p.Precision,
+                        p.Scale))
+                .Join();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static string FormatParameter(
-            [NotNull] this DbParameterLogData parameterData,
-            bool quoteValues = true)
+            [NotNull] string name,
+            [CanBeNull] object value,
+            bool hasValue,
+            ParameterDirection direction,
+            DbType dbType,
+            bool nullable,
+            int size,
+            byte precision,
+            byte scale)
         {
             var builder = new StringBuilder();
 
-            var value = parameterData.Value;
             var clrType = value?.GetType();
 
-            FormatParameterValue(builder, value, quoteValues);
+            builder
+                .Append(name)
+                .Append(": ");
 
-            if (parameterData.IsNullable
+            FormatParameterValue(builder, value);
+
+            if (nullable
                 && value != null
                 && !clrType.IsNullableType())
             {
@@ -38,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             else
             {
-                if (!parameterData.IsNullable
-                    && parameterData.HasValue
+                if (!nullable
+                    && hasValue
                     && (value == null
                         || clrType.IsNullableType()))
                 {
@@ -47,57 +82,52 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 }
             }
 
-            if (parameterData.Size != 0)
+            if (size != 0)
             {
                 builder
                     .Append(" (Size = ")
-                    .Append(parameterData.Size.ToString(CultureInfo.InvariantCulture))
+                    .Append(size.ToString(CultureInfo.InvariantCulture))
                     .Append(')');
             }
 
-            if (parameterData.Precision != 0)
+            if (precision != 0)
             {
                 builder
                     .Append(" (Precision = ")
-                    .Append(parameterData.Precision.ToString(CultureInfo.InvariantCulture))
+                    .Append(precision.ToString(CultureInfo.InvariantCulture))
                     .Append(')');
             }
 
-            if (parameterData.Scale != 0)
+            if (scale != 0)
             {
                 builder
                     .Append(" (Scale = ")
-                    .Append(parameterData.Scale.ToString(CultureInfo.InvariantCulture))
+                    .Append(scale.ToString(CultureInfo.InvariantCulture))
                     .Append(')');
             }
 
-            if (parameterData.Direction != ParameterDirection.Input)
+            if (direction != ParameterDirection.Input)
             {
                 builder
                     .Append(" (Direction = ")
-                    .Append(parameterData.Direction)
+                    .Append(direction)
                     .Append(')');
             }
 
-            if (parameterData.HasValue
-                && !IsNormalDbType(parameterData.DbType, clrType))
+            if (hasValue
+                && !IsNormalDbType(dbType, clrType))
             {
                 builder
                     .Append(" (DbType = ")
-                    .Append(parameterData.DbType)
+                    .Append(dbType)
                     .Append(')');
             }
 
             return builder.ToString();
         }
 
-        private static void FormatParameterValue(StringBuilder builder, object parameterValue, bool quoteValues)
+        private static void FormatParameterValue(StringBuilder builder, object parameterValue)
         {
-            if (quoteValues)
-            {
-                builder.Append('\'');
-            }
-
             if (parameterValue?.GetType() != typeof(byte[]))
             {
                 builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));
@@ -116,11 +146,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     }
                     builder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
                 }
-            }
-
-            if (quoteValues)
-            {
-                builder.Append('\'');
             }
         }
 

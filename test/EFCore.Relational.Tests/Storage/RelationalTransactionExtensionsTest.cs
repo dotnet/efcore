@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 connection,
                 dbTransaction,
                 new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
-                    new InterceptingLogger<LoggerCategory.Database.Transaction>(loggerFactory, new LoggingOptions()),
+                    loggerFactory,
+                    new LoggingOptions(),
                     new DiagnosticListener("Fake")),
                 false);
 

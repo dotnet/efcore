@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     ///     <para>
     ///         Use these types with <see cref="IDiagnosticsLogger{TLoggerCategory}" /> or
-    ///         <see cref="IInterceptingLogger{TLoggerCategory}" /> to create a logger.
+    ///         <see cref="IDiagnosticsLogger{TLoggerCategory}" /> to create a logger.
     ///     </para>
     /// </summary>
     public static class LoggerCategory

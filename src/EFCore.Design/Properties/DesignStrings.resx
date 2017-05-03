@@ -135,41 +135,48 @@
   <data name="NoContextWithName" xml:space="preserve">
     <value>No DbContext named '{name}' was found.</value>
   </data>
-  <data name="LogUseContext" xml:space="preserve">
+  <data name="UseContext" xml:space="preserve">
     <value>Using context '{name}'.</value>
   </data>
-  <data name="LogDroppingDatabase" xml:space="preserve">
+  <data name="DroppingDatabase" xml:space="preserve">
     <value>Dropping database '{name}'.</value>
   </data>
-  <data name="LogDatabaseDropped" xml:space="preserve">
+  <data name="DatabaseDropped" xml:space="preserve">
     <value>Successfully dropped database '{name}'.</value>
   </data>
   <data name="Cancelled" xml:space="preserve">
     <value>Cancelled.</value>
   </data>
-  <data name="ManuallyDeleted" xml:space="preserve">
+  <data name="LogManuallyDeleted" xml:space="preserve">
     <value>A manual migration deletion was detected.</value>
+    <comment>Debug DesignEventId.MigrationManuallyDeleted</comment>
   </data>
-  <data name="NoMigrationFile" xml:space="preserve">
+  <data name="LogNoMigrationFile" xml:space="preserve">
     <value>No file named '{file}' was found. You must manually remove the migration class '{migrationClass}'.</value>
+    <comment>Warning DesignEventId.MigrationFileNotFound string string</comment>
   </data>
-  <data name="NoMigrationMetadataFile" xml:space="preserve">
+  <data name="LogNoMigrationMetadataFile" xml:space="preserve">
     <value>No file named '{file}' was found.</value>
+    <comment>Debug DesignEventId.MigrationMetadataFileNotFound string</comment>
   </data>
   <data name="NoSnapshot" xml:space="preserve">
     <value>No ModelSnapshot was found.</value>
   </data>
-  <data name="NoSnapshotFile" xml:space="preserve">
+  <data name="LogNoSnapshotFile" xml:space="preserve">
     <value>No file named '{file}' was found. You must manually remove the model snapshot class '{snapshotClass}'.</value>
+    <comment>Warning DesignEventId.SnapshotFileNotFound string string</comment>
   </data>
-  <data name="RemovingMigration" xml:space="preserve">
+  <data name="LogRemovingMigration" xml:space="preserve">
     <value>Removing migration '{name}'.</value>
+    <comment>Warning DesignEventId.MigrationRemoving string</comment>
   </data>
-  <data name="RemovingSnapshot" xml:space="preserve">
+  <data name="LogRemovingSnapshot" xml:space="preserve">
     <value>Removing model snapshot.</value>
+    <comment>Information DesignEventId.SnapshotRemoving</comment>
   </data>
-  <data name="RevertingSnapshot" xml:space="preserve">
+  <data name="LogRevertingSnapshot" xml:space="preserve">
     <value>Reverting model snapshot.</value>
+    <comment>Information DesignEventId.SnapshotReverting</comment>
   </data>
   <data name="UnapplyMigration" xml:space="preserve">
     <value>The migration '{name}' has already been applied to the database. Unapply it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.</value>
@@ -183,26 +190,32 @@
   <data name="CannotFindRuntimeProviderAssembly" xml:space="preserve">
     <value>Unable to find provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.</value>
   </data>
-  <data name="DestructiveOperation" xml:space="preserve">
+  <data name="LogDestructiveOperation" xml:space="preserve">
     <value>An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.</value>
+    <comment>Warning DesignEventId.DestructiveOperation</comment>
   </data>
-  <data name="ReusingDirectory" xml:space="preserve">
+  <data name="LogReusingDirectory" xml:space="preserve">
     <value>Reusing directory of file '{file}'.</value>
+    <comment>Debug DesignEventId.DirectoryReusing string</comment>
   </data>
-  <data name="WritingMigration" xml:space="preserve">
+  <data name="LogWritingMigration" xml:space="preserve">
     <value>Writing migration to '{file}'.</value>
+    <comment>Debug DesignEventId.MigrationWriting string</comment>
   </data>
-  <data name="WritingSnapshot" xml:space="preserve">
+  <data name="LogWritingSnapshot" xml:space="preserve">
     <value>Writing model snapshot to '{file}'.</value>
+    <comment>Debug DesignEventId.SnapshotWriting string</comment>
   </data>
   <data name="Done" xml:space="preserve">
     <value>Done.</value>
   </data>
-  <data name="ReusingNamespace" xml:space="preserve">
+  <data name="LogReusingNamespace" xml:space="preserve">
     <value>Reusing namespace of type '{type}'.</value>
+    <comment>Debug DesignEventId.NamespaceReusing string</comment>
   </data>
-  <data name="ReusingSnapshotName" xml:space="preserve">
+  <data name="LogReusingSnapshotName" xml:space="preserve">
     <value>Reusing model snapshot name '{name}'.</value>
+    <comment>Debug DesignEventId.SnapshotNameReusing string</comment>
   </data>
   <data name="CannotFindDesignTimeProviderAssembly" xml:space="preserve">
     <value>Unable to find design-time provider assembly. Please install the {designTimeProviderAssemblyName} NuGet package and ensure that the package is referenced by the project.</value>
@@ -216,11 +229,12 @@
   <data name="UnreferencedAssembly" xml:space="preserve">
     <value>Could not load assembly '{assembly}'. Ensure it is referenced by the startup project '{startupProject}'.</value>
   </data>
-  <data name="LogFindingContexts" xml:space="preserve">
+  <data name="FindingContexts" xml:space="preserve">
     <value>Finding DbContext classes...</value>
   </data>
-  <data name="ForeignMigrations" xml:space="preserve">
+  <data name="LogForeignMigrations" xml:space="preserve">
     <value>The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.</value>
+    <comment>Warning DesignEventId.ForeignMigrations string</comment>
   </data>
   <data name="ConnectionStringRequired" xml:space="preserve">
     <value>ConnectionString is required to generate code.</value>
@@ -243,13 +257,14 @@ Change your target project to the migrations project by using the Package Manage
     <value>To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.</value>
     <comment>Localize the URL if we have localized docs.</comment>
   </data>
-  <data name="ForceRemoveMigration" xml:space="preserve">
+  <data name="LogForceRemoveMigration" xml:space="preserve">
     <value>Removing migration '{name}' without checking the database. If this migration has been applied to the database, you will need to manually reverse the changes it made.</value>
+    <comment>Warning DesignEventId.MigrationForceRemove string</comment>
   </data>
   <data name="NoParameterlessConstructor" xml:space="preserve">
     <value>No parameterless constructor was found on '{contextType}'. Either add a parameterless constructor to '{contextType}' or add an implementation of 'IDbContextFactory&lt;{contextType}&gt;' in the same assembly as '{contextType}'.</value>
   </data>
-  <data name="LogNotExistDatabase" xml:space="preserve">
+  <data name="NotExistDatabase" xml:space="preserve">
     <value>Database '{name}' did not exist, no action was taken.</value>
   </data>
   <data name="InvokeStartupMethodFailed" xml:space="preserve">

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
@@ -24,19 +25,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string schemaName)
         {
-            var eventId = RelationalDesignEventId.MissingSchemaWarning;
+            var definition = RelationalDesignStrings.LogMissingSchema;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.MissingSchema(schemaName));
-            }
+            definition.Log(diagnostics, schemaName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         SchemaName = schemaName
@@ -52,19 +48,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var eventId = RelationalDesignEventId.MissingTableWarning;
+            var definition = RelationalDesignStrings.LogMissingTable;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.MissingTable(tableName));
-            }
+            definition.Log(diagnostics, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName
@@ -79,18 +70,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void SequenceNotNamedWarning(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics)
         {
-            var eventId = RelationalDesignEventId.SequenceNotNamedWarning;
+            var definition = RelationalDesignStrings.LogSequencesRequireName;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.SequencesRequireName);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name, null);
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, null);
             }
         }
 
@@ -103,19 +89,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string sequenceName,
             [CanBeNull] string dataTypeName)
         {
-            var eventId = RelationalDesignEventId.SequenceTypeNotSupportedWarning;
+            var definition = RelationalDesignStrings.LogBadSequenceType;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.BadSequenceType(sequenceName, dataTypeName));
-            }
+            definition.Log(diagnostics, sequenceName, dataTypeName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         SequenceName = sequenceName,
@@ -132,19 +113,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var eventId = RelationalDesignEventId.UnableToGenerateEntityTypeWarning;
+            var definition = RelationalDesignStrings.LogUnableToGenerateEntityType;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.UnableToGenerateEntityType(tableName));
-            }
+            definition.Log(diagnostics, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName
@@ -161,19 +137,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string columnName,
             [CanBeNull] string dataTypeName)
         {
-            var eventId = RelationalDesignEventId.ColumnTypeNotMappedWarning;
+            var definition = RelationalDesignStrings.LogCannotFindTypeMappingForColumn;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.CannotFindTypeMappingForColumn(columnName, dataTypeName));
-            }
+            definition.Log(diagnostics, columnName, dataTypeName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ColumnName = columnName,
@@ -190,19 +161,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var eventId = RelationalDesignEventId.MissingPrimaryKeyWarning;
+            var definition = RelationalDesignStrings.LogMissingPrimaryKey;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.MissingPrimaryKey(tableName));
-            }
+            definition.Log(diagnostics, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName
@@ -219,21 +185,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string tableName,
             [NotNull] IList<string> unmappedColumnNames)
         {
-            var eventId = RelationalDesignEventId.PrimaryKeyColumnsNotMappedWarning;
+            var definition = RelationalDesignStrings.LogPrimaryKeyErrorPropertyNotFound;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound(
-                        tableName,
-                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnNames)));
-            }
+            definition.Log(
+                diagnostics,
+                tableName,
+                string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnNames));
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName,
@@ -251,21 +213,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string indexName,
             [NotNull] IList<string> unmappedColumnNames)
         {
-            var eventId = RelationalDesignEventId.IndexColumnsNotMappedWarning;
+            var definition = RelationalDesignStrings.LogUnableToScaffoldIndexMissingProperty;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.UnableToScaffoldIndexMissingProperty(
-                        indexName,
-                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnNames)));
-            }
+            definition.Log(
+                diagnostics,
+                indexName,
+                string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnNames));
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         IndexName = indexName,
@@ -282,19 +240,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName)
         {
-            var eventId = RelationalDesignEventId.ForeignKeyReferencesMissingTableWarning;
+            var definition = RelationalDesignStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalTableNotFound(foreignKeyName));
-            }
+            definition.Log(diagnostics, foreignKeyName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ForeignKeyName = foreignKeyName
@@ -311,19 +264,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string foreignKeyName,
             [NotNull] string principalTableName)
         {
-            var eventId = RelationalDesignEventId.ForeignKeyReferencesNotMappedTableWarning;
+            var definition = RelationalDesignStrings.LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalTableScaffoldingError(foreignKeyName, principalTableName));
-            }
+            definition.Log(diagnostics, foreignKeyName, principalTableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ForeignKeyName = foreignKeyName,
@@ -341,21 +289,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string foreignKeyName,
             [NotNull] IList<string> unmappedColumnNames)
         {
-            var eventId = RelationalDesignEventId.ForeignKeyColumnsNotMappedWarning;
+            var definition = RelationalDesignStrings.LogForeignKeyScaffoldErrorPropertyNotFound;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(
-                        foreignKeyName,
-                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnNames)));
-            }
+            definition.Log(
+                diagnostics,
+                foreignKeyName,
+                string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnNames));
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ForeignKeyName = foreignKeyName,
@@ -374,22 +318,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string principalEntityTypeName,
             [NotNull] IList<string> principalColumnNames)
         {
-            var eventId = RelationalDesignEventId.ForeignKeyReferencesMissingPrincipalKeyWarning;
+            var definition = RelationalDesignStrings.LogForeignKeyScaffoldErrorPrincipalKeyNotFound;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
-                        foreignKeyName, 
-                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, principalColumnNames), 
-                        principalEntityTypeName));
-            }
+            definition.Log(
+                diagnostics,
+                foreignKeyName,
+                string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, principalColumnNames),
+                principalEntityTypeName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ForeignKeyName = foreignKeyName,
@@ -409,22 +349,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string indexName,
             [CanBeNull] IList<string> nullablePropertyNames)
         {
-            var eventId = RelationalDesignEventId.ForeignKeyPrincipalEndContainsNullableColumnsWarning;
+            var definition = RelationalDesignStrings.LogForeignKeyPrincipalEndContainsNullableColumns;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
-                        foreignKeyName,
-                        indexName,
-                        nullablePropertyNames.Aggregate((a, b) => a + "," + b)));
-            }
+            definition.Log(
+                diagnostics,
+                foreignKeyName,
+                indexName,
+                nullablePropertyNames.Aggregate((a, b) => a + "," + b));
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ForeignKeyName = foreignKeyName,
@@ -448,21 +384,31 @@ namespace Microsoft.EntityFrameworkCore.Internal
             long? min,
             long? max)
         {
-            var eventId = RelationalDesignEventId.SequenceFound;
+            var definition = RelationalDesignStrings.LogFoundSequence;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            Debug.Assert(LogLevel.Debug == definition.Level);
+
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalDesignStrings.FoundSequence(
-                        sequenceName, sequenceTypeName, cyclic,
-                        increment, start, min, max));
+                definition.Log(
+                    diagnostics,
+                    l => l.LogDebug(
+                        definition.EventId,
+                        null,
+                        definition.RawMessage,
+                        sequenceName,
+                        sequenceTypeName,
+                        cyclic,
+                        increment,
+                        start,
+                        min,
+                        max));
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         SequenceName = sequenceName,
@@ -484,19 +430,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var eventId = RelationalDesignEventId.TableFound;
+            var definition = RelationalDesignStrings.LogFoundTable;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalDesignStrings.FoundTable(tableName));
-            }
+            definition.Log(diagnostics, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName
@@ -512,19 +453,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var eventId = RelationalDesignEventId.TableSkipped;
+            var definition = RelationalDesignStrings.LogTableNotInSelectionSet;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalDesignStrings.TableNotInSelectionSet(tableName));
-            }
+            definition.Log(diagnostics, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName
@@ -541,19 +477,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string tableName,
             [CanBeNull] string columnName)
         {
-            var eventId = RelationalDesignEventId.ColumnSkipped;
+            var definition = RelationalDesignStrings.LogColumnNotInSelectionSet;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalDesignStrings.ColumnNotInSelectionSet(columnName, tableName));
-            }
+            definition.Log(diagnostics, columnName, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName,
@@ -574,19 +505,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string columnName,
             int? ordinal)
         {
-            var eventId = RelationalDesignEventId.IndexColumnFound;
+            var definition = RelationalDesignStrings.LogFoundIndexColumn;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalDesignStrings.FoundIndexColumn(indexName, tableName, columnName, ordinal));
-            }
+            definition.Log(diagnostics, indexName, tableName, columnName, ordinal);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName,
@@ -606,19 +532,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var eventId = RelationalDesignEventId.ColumnNotNamedWarning;
+            var definition = RelationalDesignStrings.LogColumnNameEmptyOnTable;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.ColumnNameEmptyOnTable(tableName));
-            }
+            definition.Log(diagnostics, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName
@@ -636,19 +557,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string indexName,
             [CanBeNull] string columnName)
         {
-            var eventId = RelationalDesignEventId.IndexColumnSkipped;
+            var definition = RelationalDesignStrings.LogIndexColumnNotInSelectionSet;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.IndexColumnNotInSelectionSet(columnName, indexName, tableName));
-            }
+            definition.Log(diagnostics, columnName, indexName, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName,
@@ -666,19 +582,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var eventId = RelationalDesignEventId.IndexNotNamedWarning;
+            var definition = RelationalDesignStrings.LogIndexNameEmpty;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.IndexNameEmpty(tableName));
-            }
+            definition.Log(diagnostics, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName
@@ -695,19 +606,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string indexName,
             [CanBeNull] string tableName)
         {
-            var eventId = RelationalDesignEventId.IndexTableMissingWarning;
+            var definition = RelationalDesignStrings.LogUnableToFindTableForIndex;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.UnableToFindTableForIndex(indexName, tableName));
-            }
+            definition.Log(diagnostics, indexName, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         IndexName = indexName,
@@ -725,19 +631,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string indexName,
             [CanBeNull] string tableName)
         {
-            var eventId = RelationalDesignEventId.IndexColumnNotNamedWarning;
+            var definition = RelationalDesignStrings.LogColumnNameEmptyOnIndex;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.ColumnNameEmptyOnIndex(indexName, tableName));
-            }
+            definition.Log(diagnostics, indexName, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         IndexName = indexName,
@@ -754,19 +655,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var eventId = RelationalDesignEventId.ForeignKeyNotNamedWarning;
+            var definition = RelationalDesignStrings.LogForeignKeyNameEmpty;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.ForeignKeyNameEmpty(tableName));
-            }
+            definition.Log(diagnostics, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName
@@ -784,19 +680,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string tableName)
         {
-            var eventId = RelationalDesignEventId.ForeignKeyColumnMissingWarning;
+            var definition = RelationalDesignStrings.LogForeignKeyColumnNotInSelectionSet;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.ForeignKeyColumnNotInSelectionSet(columnName, foreignKeyName, tableName));
-            }
+            definition.Log(diagnostics, columnName, foreignKeyName, tableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ColumnName = columnName,
@@ -816,19 +707,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string tableName,
             [CanBeNull] string principalTableName)
         {
-            var eventId = RelationalDesignEventId.ForeignKeyReferencesMissingPrincipalTableWarning;
+            var definition = RelationalDesignStrings.LogPrincipalTableNotInSelectionSet;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.PrincipalTableNotInSelectionSet(foreignKeyName, tableName, principalTableName));
-            }
+            definition.Log(diagnostics, foreignKeyName, tableName, principalTableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ForeignKeyName = foreignKeyName,
@@ -847,19 +733,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string tableName)
         {
-            var eventId = RelationalDesignEventId.ForeignKeyColumnNotNamedWarning;
+            var definition = RelationalDesignStrings.LogColumnNameEmptyOnForeignKey;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.ColumnNameEmptyOnForeignKey(tableName, foreignKeyName));
-            }
+            definition.Log(diagnostics, tableName, foreignKeyName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ForeignKeyName = foreignKeyName,
@@ -878,19 +759,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string tableName,
             bool? unique)
         {
-            var eventId = RelationalDesignEventId.IndexFound;
+            var definition = RelationalDesignStrings.LogFoundIndex;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalDesignStrings.FoundIndex(indexName, tableName, unique));
-            }
+            definition.Log(diagnostics, indexName, tableName, unique);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         IndexName = indexName,
@@ -911,19 +787,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string principalColumnName,
             [CanBeNull] string principalTableName)
         {
-            var eventId = RelationalDesignEventId.ForeignKeyPrincipalColumnMissingWarning;
+            var definition = RelationalDesignStrings.LogPrincipalColumnNotFound;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalDesignStrings.PrincipalColumnNotFound(foreignKeyName, tableName, principalColumnName, principalTableName));
-            }
+            definition.Log(diagnostics, foreignKeyName, tableName, principalColumnName, principalTableName);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         ForeignKeyName = foreignKeyName,

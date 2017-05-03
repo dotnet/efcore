@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             if (keyBuilder == null)
             {
-                var errorMessage = RelationalDesignStrings.UnableToGenerateEntityType(table.DisplayName);
+                var errorMessage = RelationalDesignStrings.LogUnableToGenerateEntityType.GenerateMessage(table.DisplayName);
                 Logger.UnableToGenerateEntityTypeWarning(table.DisplayName);
 
                 var model = modelBuilder.Model;

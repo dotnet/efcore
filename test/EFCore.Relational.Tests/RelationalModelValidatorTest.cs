@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             SetPrimaryKey(entityA);
             entityA.FindProperty("Id").Relational().DefaultValue = 1;
 
-            VerifyWarning(RelationalStrings.KeyHasDefaultValue("Id", "A"), model);
+            VerifyWarning(RelationalStrings.LogKeyHasDefaultValue.GenerateMessage("Id", "A"), model);
         }
 
         [Fact]
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             entityA.AddKey(new[] { property });
             property.Relational().DefaultValue = 1;
 
-            VerifyWarning(RelationalStrings.KeyHasDefaultValue("P0", "A"), model);
+            VerifyWarning(RelationalStrings.LogKeyHasDefaultValue.GenerateMessage("P0", "A"), model);
         }
 
         [Fact]
@@ -670,9 +670,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             => new RelationalModelValidator(
                 new ModelValidatorDependencies(
                     new DiagnosticsLogger<LoggerCategory.Model.Validation>(
-                        new InterceptingLogger<LoggerCategory.Model.Validation>(
-                            new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
-                            new LoggingOptions()),
+                        new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
+                        new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
                     new TestAnnotationProvider(),

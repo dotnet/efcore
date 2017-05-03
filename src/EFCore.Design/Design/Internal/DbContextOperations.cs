@@ -53,14 +53,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             using (var context = CreateContext(contextType))
             {
                 var connection = context.Database.GetDbConnection();
-                _reporter.WriteInformation(DesignStrings.LogDroppingDatabase(connection.Database));
+                _reporter.WriteInformation(DesignStrings.DroppingDatabase(connection.Database));
                 if (context.Database.EnsureDeleted())
                 {
-                    _reporter.WriteInformation(DesignStrings.LogDatabaseDropped(connection.Database));
+                    _reporter.WriteInformation(DesignStrings.DatabaseDropped(connection.Database));
                 }
                 else
                 {
-                    _reporter.WriteInformation(DesignStrings.LogNotExistDatabase(connection.Database));
+                    _reporter.WriteInformation(DesignStrings.NotExistDatabase(connection.Database));
                 }
             }
         }
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private DbContext CreateContext(Func<DbContext> factory)
         {
             var context = factory();
-            _reporter.WriteVerbose(DesignStrings.LogUseContext(context.GetType().ShortDisplayName()));
+            _reporter.WriteVerbose(DesignStrings.UseContext(context.GetType().ShortDisplayName()));
 
             var loggerFactory = context.GetService<ILoggerFactory>();
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         private IDictionary<Type, Func<DbContext>> FindContextTypes()
         {
-            _reporter.WriteVerbose(DesignStrings.LogFindingContexts);
+            _reporter.WriteVerbose(DesignStrings.FindingContexts);
 
             var contexts = new Dictionary<Type, Func<DbContext>>();
 

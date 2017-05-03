@@ -117,19 +117,24 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DataTypeDoesNotAllowSqlServerIdentityStrategy" xml:space="preserve">
+  <data name="LogDataTypeDoesNotAllowSqlServerIdentityStrategy" xml:space="preserve">
     <value>For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.</value>
+    <comment>Warning SqlServerDesignEventId.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning string string</comment>
   </data>
-  <data name="FoundDefaultSchema" xml:space="preserve">
+  <data name="LogFoundDefaultSchema" xml:space="preserve">
     <value>Found default schema {defaultSchema}.</value>
+    <comment>Debug SqlServerDesignEventId.DefaultSchemaFound string</comment>
   </data>
-  <data name="FoundTypeAlias" xml:space="preserve">
+  <data name="LogFoundTypeAlias" xml:space="preserve">
     <value>Found type alias with name: {alias} which maps to underlying data type {dataType}.</value>
+    <comment>Debug SqlServerDesignEventId.TypeAliasFound string string</comment>
   </data>
-  <data name="FoundColumn" xml:space="preserve">
+  <data name="LogFoundColumn" xml:space="preserve">
     <value>Found column with table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.</value>
+    <comment>Debug SqlServerDesignEventId.ColumnFound string string string int? bool? int? string string int? int? int? bool? bool?</comment>
   </data>
-  <data name="FoundForeignKeyColumn" xml:space="preserve">
+  <data name="LogFoundForeignKeyColumn" xml:space="preserve">
     <value>Found foreign key column with table: {tableName}, foreign key name: {fkName}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, update action: {updateAction}, delete action: {deleteAction}, ordinal: {ordinal}.</value>
+    <comment>Debug SqlServerDesignEventId.ForeignKeyColumnFound string string string string string string string int?</comment>
   </data>
 </root>

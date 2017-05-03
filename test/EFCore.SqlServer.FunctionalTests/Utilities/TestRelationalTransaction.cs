@@ -25,8 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                     connection,
                     transaction,
                     new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
-                        new InterceptingLogger<LoggerCategory.Database.Transaction>(loggerFactory, new LoggingOptions()),
-                        diagnosticSource),
+                        loggerFactory, new LoggingOptions(), diagnosticSource),
                     transactionOwned))
         {
         }

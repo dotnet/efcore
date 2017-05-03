@@ -6,9 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
@@ -101,9 +100,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         public IReadOnlyList<string> SqlStatements => _logger.SqlStatements;
 
-        public string Sql => string.Join(_newLine + _newLine, SqlStatements);
+        public IReadOnlyList<string> Parameters => _logger.Parameters;
 
-        public IReadOnlyList<DbCommandLogData> CommandLogData => _logger.LogData;
+        public string Sql => string.Join(_newLine + _newLine, SqlStatements);
 
         public CancellationToken CancelQuery()
         {
@@ -125,9 +124,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private sealed class Logger : ILogger
         {
-            public List<DbCommandLogData> LogData { get; } = new List<DbCommandLogData>();
             public IndentedStringBuilder LogBuilder { get; } = new IndentedStringBuilder();
             public List<string> SqlStatements { get; } = new List<string>();
+            public List<string> Parameters { get; } = new List<string>();
 
             private CancellationTokenSource _cancellationTokenSource;
 
@@ -141,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 {
                     SqlStatements.Clear();
                     LogBuilder.Clear();
-                    LogData.Clear();
+                    Parameters.Clear();
 
                     _cancellationTokenSource = null;
                 }
@@ -172,25 +171,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             _cancellationTokenSource = null;
                         }
 
-                        var commandLogData = state as DbCommandLogData;
-
-                        if (commandLogData != null)
+                        if (eventId.Id == RelationalEventId.CommandExecuted.Id
+                            || eventId.Id == RelationalEventId.CommandError.Id)
                         {
-                            var parameters = "";
+                            var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
 
-                            if (commandLogData.Parameters.Any())
+                            var parameters = structure.Where(i => i.Key == "parameters").Select(i => (string)i.Value).First();
+                            var commandText = structure.Where(i => i.Key == "commandText").Select(i => (string)i.Value).First();
+
+                            if (!string.IsNullOrWhiteSpace(parameters))
                             {
-                                parameters
-                                    = string.Join(
-                                          _newLine,
-                                          commandLogData.Parameters
-                                              .Select(p => $"{p.Name}: {p.FormatParameter(quoteValues: false)}"))
-                                      + _newLine + _newLine;
+                                Parameters.Add(parameters);
+                                parameters = parameters.Replace(", ", _newLine) + _newLine + _newLine;
                             }
 
-                            SqlStatements.Add(parameters + commandLogData.CommandText);
-
-                            LogData.Add(commandLogData);
+                            SqlStatements.Add(parameters + commandText);
                         }
                         else
                         {

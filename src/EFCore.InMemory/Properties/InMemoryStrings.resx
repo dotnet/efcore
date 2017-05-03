@@ -119,9 +119,11 @@
   </resheader>
   <data name="LogSavedChanges" xml:space="preserve">
     <value>Saved {count} entities to in-memory store.</value>
+    <comment>Information InMemoryEventId.ChangesSaved int</comment>
   </data>
-  <data name="TransactionsNotSupported" xml:space="preserve">
+  <data name="LogTransactionsNotSupported" xml:space="preserve">
     <value>Transactions are not supported by the in-memory store. See http://go.microsoft.com/fwlink/?LinkId=800142</value>
+    <comment>Warning InMemoryEventId.TransactionIgnoredWarning</comment>
   </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Attempted to update or delete an entity that does not exist in the store.</value>

@@ -3,13 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
 {
-    public class InterceptingLoggerTest
+    public class DiagnosticsLoggerTest
     {
         [Fact]
         public void Can_filter_for_messages_of_one_category()
@@ -42,19 +43,19 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
 
             loggerFactory.AddProvider(loggerProvider);
 
-            var dbLogger = new InterceptingLogger<LoggerCategory.Database>(loggerFactory, new LoggingOptions());
-            var sqlLogger = new InterceptingLogger<LoggerCategory.Database.Sql>(loggerFactory, new LoggingOptions());
-            var queryLogger = new InterceptingLogger<LoggerCategory.Query>(loggerFactory, new LoggingOptions());
+            var dbLogger = new DiagnosticsLogger<LoggerCategory.Database>(loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
+            var sqlLogger = new DiagnosticsLogger<LoggerCategory.Database.Sql>(loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
+            var queryLogger = new DiagnosticsLogger<LoggerCategory.Query>(loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
             var randomLogger = loggerFactory.CreateLogger("Random");
 
-            dbLogger.LogInformation(1, "DB1");
-            sqlLogger.LogInformation(2, "SQL1");
-            queryLogger.LogInformation(3, "Query1");
+            dbLogger.Logger.LogInformation(1, "DB1");
+            sqlLogger.Logger.LogInformation(2, "SQL1");
+            queryLogger.Logger.LogInformation(3, "Query1");
             randomLogger.LogInformation(4, "Random1");
 
-            dbLogger.LogInformation(1, "DB2");
-            sqlLogger.LogInformation(2, "SQL2");
-            queryLogger.LogInformation(3, "Query2");
+            dbLogger.Logger.LogInformation(1, "DB2");
+            sqlLogger.Logger.LogInformation(2, "SQL2");
+            queryLogger.Logger.LogInformation(3, "Query2");
             randomLogger.LogInformation(4, "Random2");
 
             Assert.Equal(loggerProvider.Messages, expected);
@@ -71,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
 
             public List<string> Messages { get; } = new List<string>();
 
-            public ILogger CreateLogger(string categoryName) 
+            public ILogger CreateLogger(string categoryName)
                 => _filter(categoryName) ? new TestLogger(Messages) : new TestLogger(null);
 
             public void Dispose()
@@ -89,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
 
                 public bool IsEnabled(LogLevel logLevel) => true;
 
-                public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
+                public void Log<TState>(
+                    LogLevel logLevel, EventId eventId, TState state, Exception exception,
                     Func<TState, Exception, string> formatter)
                     => _messages?.Add(formatter(state, exception));
 

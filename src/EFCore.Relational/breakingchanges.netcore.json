@@ -1,5 +1,13 @@
 [
   {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.DbCommandLogData : System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<System.String, System.Object>>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.DbParameterLogData",
+    "Kind": "Removal"
+  },
+  {
     "TypeId": "public enum Microsoft.EntityFrameworkCore.Infrastructure.RelationalEventId",
     "Kind": "Removal"
   },

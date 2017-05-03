@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -20,19 +19,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IEntityType entityType,
             [NotNull] string schema)
         {
-            var eventId = SqliteEventId.SchemaConfiguredWarning;
+            var definition = SqliteStrings.LogSchemaConfigured;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    SqliteStrings.SchemaConfigured(entityType.DisplayName(), schema));
+                definition.Log(diagnostics, entityType.DisplayName(), schema);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         EntityType = entityType,
@@ -49,19 +47,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Model.Validation> diagnostics,
             [NotNull] ISequence sequence)
         {
-            var eventId = SqliteEventId.SequenceConfiguredWarning;
+            var definition = SqliteStrings.LogSequenceConfigured;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    SqliteStrings.SequenceConfigured(sequence.Name));
-            }
+            definition.Log(diagnostics, sequence.Name);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         Sequence = sequence

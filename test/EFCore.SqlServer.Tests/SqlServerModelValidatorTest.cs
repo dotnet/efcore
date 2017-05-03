@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>().Property<decimal>("Price");
 
-            VerifyWarning(SqlServerStrings.DefaultDecimalTypeColumn("Price", nameof(Animal)), modelBuilder.Model);
+            VerifyWarning(SqlServerStrings.LogDefaultDecimalTypeColumn.GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
         }
 
         [Fact]
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>().Property<decimal?>("Price");
 
-            VerifyWarning(SqlServerStrings.DefaultDecimalTypeColumn("Price", nameof(Animal)), modelBuilder.Model);
+            VerifyWarning(SqlServerStrings.LogDefaultDecimalTypeColumn.GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
         }
 
         [Fact]
@@ -218,9 +218,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             => new SqlServerModelValidator(
                 new ModelValidatorDependencies(
                     new DiagnosticsLogger<LoggerCategory.Model.Validation>(
-                        new InterceptingLogger<LoggerCategory.Model.Validation>(
-                            new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
-                            new LoggingOptions()),
+                        new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
+                        new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
                     new TestSqlServerAnnotationProvider(),

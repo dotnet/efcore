@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             catch (Exception exception)
             {
                 throw new InvalidOperationException(
-                    _logger.Logger.ShouldLogSensitiveData(_logger)
+                    _logger.ShouldLogSensitiveData()
                         ? CoreStrings.ExpressionParameterizationExceptionSensitive(expression)
                         : CoreStrings.ExpressionParameterizationException,
                     exception);

@@ -3,9 +3,7 @@
 
 using System;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -16,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -32,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void CommandExecuting(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics, 
+            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics,
             [NotNull] DbCommand command,
             DbCommandMethod executeMethod,
             Guid commandId, 
@@ -40,29 +37,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
             bool async, 
             DateTimeOffset startTime)
         {
-            var eventId = RelationalEventId.CommandExecuting;
+            var definition = RelationalStrings.LogRelationalLoggerExecutingCommand;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                var logData = CreateCommandLogData(diagnostics, command, TimeSpan.Zero);
-
-                var message = RelationalStrings.RelationalLoggerExecutingCommand(
-                    logData.Parameters
-                        // Interpolation okay here because value is always a string.
-                        .Select(p => $"{p.Name}={p.FormatParameter()}")
-                        .Join(),
-                    logData.CommandType,
-                    logData.CommandTimeout,
+                definition.Log(
+                    diagnostics,
+                    command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
+                    command.CommandType,
+                    command.CommandTimeout,
                     Environment.NewLine,
-                    logData.CommandText);
-
-                diagnostics.Logger.LogDebug(eventId, message);
+                    command.CommandText.TrimEnd());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new CommandData(
                         command,
                         executeMethod,
@@ -72,6 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         startTime));
             }
         }
+
+        private static bool ShouldLogParameterValues(
+            IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics,
+            DbCommand command)
+            => command.Parameters.Count > 0
+               && diagnostics.ShouldLogSensitiveData();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -88,30 +86,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var eventId = RelationalEventId.CommandExecuted;
+            var definition = RelationalStrings.LogRelationalLoggerExecutedCommand;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Information))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                var logData = CreateCommandLogData(diagnostics, command, duration);
-                
-                var message = RelationalStrings.RelationalLoggerExecutedCommand(
+                definition.Log(
+                    diagnostics,
                     string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.Milliseconds),
-                    logData.Parameters
-                        // Interpolation okay here because value is always a string.
-                        .Select(p => $"{p.Name}={p.FormatParameter()}")
-                        .Join(),
-                    logData.CommandType,
-                    logData.CommandTimeout,
+                    command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
+                    command.CommandType,
+                    command.CommandTimeout,
                     Environment.NewLine,
-                    logData.CommandText);
-
-                diagnostics.Logger.Log(LogLevel.Information, eventId, logData, null, (_, __) => message);
+                    command.CommandText.TrimEnd());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new CommandExecutedData(
                         command,
                         executeMethod,
@@ -139,30 +132,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var eventId = RelationalEventId.CommandError;
+            var definition = RelationalStrings.LogRelationalLoggerCommandFailed;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Error))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                var logData = CreateCommandLogData(diagnostics, command, duration);
-
-                var message = RelationalStrings.RelationalLoggerCommandFailed(
+                definition.Log(
+                    diagnostics,
                     string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.Milliseconds),
-                    logData.Parameters
-                        // Interpolation okay here because value is always a string.
-                        .Select(p => $"{p.Name}={p.FormatParameter()}")
-                        .Join(),
-                    logData.CommandType,
-                    logData.CommandTimeout,
+                    command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
+                    command.CommandType,
+                    command.CommandTimeout,
                     Environment.NewLine,
-                    logData.CommandText);
-
-                diagnostics.Logger.Log(LogLevel.Error, eventId, logData, null, (_, __) => message);
+                    command.CommandText.TrimEnd(),
+                    exception);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new CommandErrorData(
                         command,
                         executeMethod,
@@ -179,67 +168,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-#pragma warning disable 618
-        private static DbCommandLogData CreateCommandLogData(
-#pragma warning restore 618
-            this IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics,
-            DbCommand command,
-            TimeSpan duration)
-        {
-            var logParameterValues
-                = command.Parameters.Count > 0
-                  && diagnostics.Logger.ShouldLogSensitiveData(diagnostics);
-
-#pragma warning disable 618
-            var logData = new DbCommandLogData(
-#pragma warning restore 618
-                command.CommandText.TrimEnd(),
-                command.CommandType,
-                command.CommandTimeout,
-                command.Parameters
-                    .Cast<DbParameter>()
-                    .Select(
-                        p => new DbParameterLogData(
-                            p.ParameterName,
-                            logParameterValues ? p.Value : "?",
-                            logParameterValues,
-                            p.Direction,
-                            p.DbType,
-                            p.IsNullable,
-                            p.Size,
-                            p.Precision,
-                            p.Scale))
-                    .ToList(),
-                duration.Milliseconds);
-
-            return logData;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static void ConnectionOpening(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime,
             bool async)
         {
-            var eventId = RelationalEventId.ConnectionOpening;
+            var definition = RelationalStrings.LogRelationalLoggerOpeningConnection;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.RelationalLoggerOpeningConnection(
-                        connection.DbConnection.Database,
-                        connection.DbConnection.DataSource));
+                definition.Log(
+                    diagnostics,
+                    connection.DbConnection.Database,
+                    connection.DbConnection.DataSource);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new ConnectionData(
                         connection.DbConnection, 
                         connection.ConnectionId, 
@@ -259,21 +208,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
             TimeSpan duration,
             bool async)
         {
-            var eventId = RelationalEventId.ConnectionOpened;
+            var definition = RelationalStrings.LogRelationalLoggerOpenedConnection;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.RelationalLoggerOpenedConnection(
-                        connection.DbConnection.Database,
-                        connection.DbConnection.DataSource));
+                definition.Log(
+                    diagnostics,
+                    connection.DbConnection.Database,
+                    connection.DbConnection.DataSource);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new ConnectionEndData(
                         connection.DbConnection,
                         connection.ConnectionId,
@@ -292,24 +241,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime)
         {
-            var eventId = RelationalEventId.ConnectionClosing;
+            var definition = RelationalStrings.LogRelationalLoggerClosingConnection;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.RelationalLoggerClosingConnection(
-                        connection.DbConnection.Database,
-                        connection.DbConnection.DataSource));
+                definition.Log(
+                    diagnostics,
+                    connection.DbConnection.Database,
+                    connection.DbConnection.DataSource);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new ConnectionData(
-                        connection.DbConnection, 
-                        connection.ConnectionId, 
+                        connection.DbConnection,
+                        connection.ConnectionId,
                         false,
                         startTime));
             }
@@ -325,21 +274,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var eventId = RelationalEventId.ConnectionClosed;
+            var definition = RelationalStrings.LogRelationalLoggerClosedConnection;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.RelationalLoggerClosedConnection(
-                        connection.DbConnection.Database,
-                        connection.DbConnection.DataSource));
+                definition.Log(
+                    diagnostics,
+                    connection.DbConnection.Database,
+                    connection.DbConnection.DataSource);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new ConnectionEndData(
                         connection.DbConnection,
                         connection.ConnectionId,
@@ -361,22 +310,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             TimeSpan duration,
             bool async)
         {
-            var eventId = RelationalEventId.ConnectionError;
+            var definition = RelationalStrings.LogRelationalLoggerConnectionError;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Error))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogError(
-                    eventId,
-                    exception,
-                    RelationalStrings.RelationalLoggerConnectionError(
-                        connection.DbConnection.Database,
-                        connection.DbConnection.DataSource));
+                definition.Log(
+                    diagnostics,
+                    connection.DbConnection.Database,
+                    connection.DbConnection.DataSource,
+                    exception);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new ConnectionErrorData(
                         connection.DbConnection,
                         connection.ConnectionId,
@@ -398,19 +347,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Guid transactionId,
             DateTimeOffset startDate)
         {
-            var eventId = RelationalEventId.TransactionStarted;
+            var definition = RelationalStrings.LogRelationalLoggerBeginningTransaction;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.RelationalLoggerBeginningTransaction(transaction.IsolationLevel.ToString("G")));
-            }
+            definition.Log(
+                diagnostics,
+                transaction.IsolationLevel.ToString("G"));
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new TransactionData(
                         transaction,
                         transactionId,
@@ -430,19 +376,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Guid transactionId,
             DateTimeOffset startDate)
         {
-            var eventId = RelationalEventId.TransactionUsed;
+            var definition = RelationalStrings.LogRelationalLoggerUsingTransaction;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.RelationalLoggerUsingTransaction(transaction.IsolationLevel.ToString("G")));
-            }
+            definition.Log(
+                diagnostics,
+                transaction.IsolationLevel.ToString("G"));
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new TransactionData(
                         transaction,
                         transactionId,
@@ -463,19 +406,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var eventId = RelationalEventId.TransactionCommitted;
+            var definition = RelationalStrings.LogRelationalLoggerCommittingTransaction;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.RelationalLoggerCommittingTransaction);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new TransactionEndData(
                         transaction,
                         transactionId,
@@ -497,19 +435,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var eventId = RelationalEventId.TransactionRolledBack;
+            var definition = RelationalStrings.LogRelationalLoggerRollingbackTransaction;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.RelationalLoggerRollingbackTransaction);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new TransactionEndData(
                         transaction,
                         transactionId,
@@ -530,19 +463,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Guid transactionId,
             DateTimeOffset startDate)
         {
-            var eventId = RelationalEventId.TransactionDisposed;
+            var definition = RelationalStrings.LogRelationalLoggerDisposingTransaction;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.RelationalLoggerDisposingTransaction);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new TransactionData(
                         transaction,
                         transactionId,
@@ -565,20 +493,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var eventId = RelationalEventId.TransactionError;
+            var definition = RelationalStrings.LogRelationalLoggerTransactionError;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Error))
-            {
-                diagnostics.Logger.LogError(
-                    eventId,
-                    exception,
-                    RelationalStrings.RelationalLoggerTransactionError);
-            }
+            definition.Log(diagnostics, exception);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new TransactionErrorData(
                         transaction,
                         connection.ConnectionId,
@@ -599,19 +521,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startDate)
         {
-            var eventId = RelationalEventId.AmbientTransactionWarning;
+            var definition = RelationalStrings.LogAmbientTransaction;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalStrings.AmbientTransaction);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new ConnectionData(
                         connection.DbConnection,
                         connection.ConnectionId,
@@ -634,19 +551,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var eventId = RelationalEventId.DataReaderDisposing;
+            var definition = RelationalStrings.LogDisposingDataReader;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
-            {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.DisposingDataReader);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new DataReaderDisposingData(
                         command,
                         dataReader,
@@ -667,20 +579,23 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IMigrator migrator,
             [NotNull] IRelationalConnection connection)
         {
-            var eventId = RelationalEventId.MigrateUsingConnection;
+            var definition = RelationalStrings.LogUsingConnection;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
                 var dbConnection = connection.DbConnection;
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.UsingConnection(dbConnection.Database, dbConnection.DataSource));
+
+                definition.Log(
+                    diagnostics,
+                    dbConnection.Database, 
+                    dbConnection.DataSource);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new MigratorConnectionData(
                         migrator,
                         connection.DbConnection,
@@ -697,19 +612,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration)
         {
-            var eventId = RelationalEventId.MigrationReverting;
+            var definition = RelationalStrings.LogRevertingMigration;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Information))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogInformation(
-                    eventId,
-                    RelationalStrings.RevertingMigration(migration.GetId()));
+                definition.Log(
+                    diagnostics,
+                    migration.GetId());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new MigrationData(
                         migrator,
                         migration));
@@ -725,19 +641,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration)
         {
-            var eventId = RelationalEventId.MigrationApplying;
+            var definition = RelationalStrings.LogApplyingMigration;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Information))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogInformation(
-                    eventId,
-                    RelationalStrings.ApplyingMigration(migration.GetId()));
+                definition.Log(
+                    diagnostics,
+                    migration.GetId());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new MigrationData(
                         migrator,
                         migration));
@@ -756,19 +673,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string toMigration,
             bool idempotent)
         {
-            var eventId = RelationalEventId.MigrationGeneratingDownScript;
+            var definition = RelationalStrings.LogGeneratingDown;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.GeneratingDown(migration.GetId()));
+                definition.Log(
+                    diagnostics,
+                    migration.GetId());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new MigrationScriptingData(
                         migrator,
                         migration,
@@ -790,19 +708,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string toMigration,
             bool idempotent)
         {
-            var eventId = RelationalEventId.MigrationGeneratingUpScript;
+            var definition = RelationalStrings.LogGeneratingUp;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    RelationalStrings.GeneratingUp(migration.GetId()));
+                definition.Log(
+                    diagnostics,
+                    migration.GetId());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new MigrationScriptingData(
                         migrator,
                         migration,
@@ -821,19 +740,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] QueryModel queryModel,
             [NotNull] object expression)
         {
-            var eventId = RelationalEventId.QueryClientEvaluationWarning;
+            var definition = RelationalStrings.LogClientEvalWarning;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalStrings.ClientEvalWarning(expression.ToString()));
-            }
+            definition.Log(diagnostics, expression);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         QueryModel = queryModel,
@@ -851,21 +765,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Expression argument)
         {
-            var eventId = RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning;
+            var definition = RelationalStrings.LogPossibleUnintendedUseOfEquals;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalStrings.PossibleUnintendedUseOfEquals(
-                        methodCallExpression.Object.ToString(),
-                        argument));
-            }
+            definition.Log(
+                diagnostics,
+                methodCallExpression.Object,
+                argument);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         MethodCallExpression = methodCallExpression,
@@ -882,19 +792,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Model.Validation> diagnostics,
             [NotNull] IProperty property)
         {
-            var eventId = RelationalEventId.ModelValidationKeyDefaultValueWarning;
+            var definition = RelationalStrings.LogKeyHasDefaultValue;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    RelationalStrings.KeyHasDefaultValue(property.Name, property.DeclaringEntityType.DisplayName()));
+                definition.Log(
+                    diagnostics,
+                    property.Name, 
+                    property.DeclaringEntityType.DisplayName());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         Property = property

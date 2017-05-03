@@ -136,9 +136,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 new CoreModelValidator(
                         new ModelValidatorDependencies(
                             new DiagnosticsLogger<LoggerCategory.Model.Validation>(
-                                new InterceptingLogger<LoggerCategory.Model.Validation>(
-                                    new LoggerFactory(),
-                                    new LoggingOptions()),
+                                new LoggerFactory(),
+                                new LoggingOptions(),
                                 new DiagnosticListener("Fake"))))
                     .Validate(modelBuilder.Metadata);
 

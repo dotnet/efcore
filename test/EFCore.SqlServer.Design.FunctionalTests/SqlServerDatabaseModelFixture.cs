@@ -28,9 +28,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests
 
             return new SqlServerDatabaseModelFactory(
                     new DiagnosticsLogger<LoggerCategory.Scaffolding>(
-                        new InterceptingLogger<LoggerCategory.Scaffolding>(
-                            TestDesignLoggerFactory,
-                            new LoggingOptions()),
+                        TestDesignLoggerFactory,
+                        new LoggingOptions(),
                         new DiagnosticListener("Fake")))
                 .Create(TestStore.ConnectionString, selection ?? TableSelectionSet.All);
         }

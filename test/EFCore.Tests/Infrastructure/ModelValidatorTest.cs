@@ -106,9 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
         {
             Log = new List<Tuple<LogLevel, string>>();
             Logger = new DiagnosticsLogger<LoggerCategory.Model.Validation>(
-                new InterceptingLogger<LoggerCategory.Model.Validation>(
-                    new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
-                    new LoggingOptions()),
+                new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
+                new LoggingOptions(),
                 new DiagnosticListener("Fake"));
         }
 

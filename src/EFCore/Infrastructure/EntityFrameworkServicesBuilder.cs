@@ -75,7 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IQuerySourceTracingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IExpressionPrinter), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IProjectionExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IInterceptingLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IKeyPropagator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INavigationFixer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -222,7 +221,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IResultOperatorHandler, ResultOperatorHandler>();
             TryAdd<IProjectionExpressionVisitorFactory, ProjectionExpressionVisitorFactory>();
             TryAdd<ISingletonOptionsInitialzer, SingletonOptionsInitialzer>();
-            TryAdd(typeof(IInterceptingLogger<>), typeof(InterceptingLogger<>));
             TryAdd(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>));
             TryAdd<ILoggingOptions, LoggingOptions>();
             TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetService<ILoggingOptions>());

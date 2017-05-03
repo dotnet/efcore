@@ -118,15 +118,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
                 Warn =
                 {
                     indexWarn,
-                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"),
-                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"),
-                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
-                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
-                    RelationalDesignStrings.UnableToScaffoldIndexMissingProperty("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"),
-                    SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
-                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
-                    RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"),
-                    RelationalDesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn")
+                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geographyColumn", "geography"),
+                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geometryColumn", "geometry"),
+                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
+                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
+                    RelationalDesignStrings.LogUnableToScaffoldIndexMissingProperty.GenerateMessage("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"),
+                    SqlServerDesignStrings.LogDataTypeDoesNotAllowSqlServerIdentityStrategy.GenerateMessage("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
+                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
+                    RelationalDesignStrings.LogPrimaryKeyErrorPropertyNotFound.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"),
+                    RelationalDesignStrings.LogUnableToGenerateEntityType.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn")
                 }
             });
             AssertEqualFileContents(expectedFileSet, actualFileSet);
@@ -169,15 +169,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
                 Warn =
                 {
                     indexWarn,
-                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"),
-                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"),
-                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
-                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
-                    RelationalDesignStrings.UnableToScaffoldIndexMissingProperty("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"),
-                    SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
-                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
-                    RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"),
-                    RelationalDesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn")
+                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geographyColumn", "geography"),
+                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geometryColumn", "geometry"),
+                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
+                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
+                    RelationalDesignStrings.LogUnableToScaffoldIndexMissingProperty.GenerateMessage("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"),
+                    SqlServerDesignStrings.LogDataTypeDoesNotAllowSqlServerIdentityStrategy.GenerateMessage("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
+                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
+                    RelationalDesignStrings.LogPrimaryKeyErrorPropertyNotFound.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"),
+                    RelationalDesignStrings.LogUnableToGenerateEntityType.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn")
                 }
             });
             AssertEqualFileContents(expectedFileSet, actualFileSet);
@@ -245,8 +245,8 @@ CREATE SEQUENCE NumericSequence
                 {
                     Warn =
                     {
-                        RelationalDesignStrings.BadSequenceType("DecimalSequence", "decimal"),
-                        RelationalDesignStrings.BadSequenceType("NumericSequence", "numeric")
+                        RelationalDesignStrings.LogBadSequenceType.GenerateMessage("DecimalSequence", "decimal"),
+                        RelationalDesignStrings.LogBadSequenceType.GenerateMessage("NumericSequence", "numeric")
                     }
                 });
 

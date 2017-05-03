@@ -129,94 +129,124 @@
   <data name="ExistingFiles" xml:space="preserve">
     <value>The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.</value>
   </data>
-  <data name="ColumnNameEmptyOnIndex" xml:space="preserve">
+  <data name="LogColumnNameEmptyOnIndex" xml:space="preserve">
     <value>Found a column on index {indexName} on table {tableName} with an empty or null name. Not including column in index.</value>
+    <comment>Warning RelationalDesignEventId.IndexColumnNotNamedWarning string string</comment>
   </data>
-  <data name="PrincipalColumnNotFound" xml:space="preserve">
+  <data name="LogPrincipalColumnNotFound" xml:space="preserve">
     <value>For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.</value>
+    <comment>Warning RelationalDesignEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
   </data>
-  <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
+  <data name="LogCannotFindTypeMappingForColumn" xml:space="preserve">
     <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
+    <comment>Warning RelationalDesignEventId.ColumnTypeNotMappedWarning string string</comment>
   </data>
-  <data name="ForeignKeyScaffoldErrorPrincipalKeyNotFound" xml:space="preserve">
+  <data name="LogForeignKeyScaffoldErrorPrincipalKeyNotFound" xml:space="preserve">
     <value>Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.</value>
+    <comment>Warning RelationalDesignEventId.ForeignKeyReferencesMissingPrincipalKeyWarning string string string</comment>
   </data>
-  <data name="ForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
+  <data name="LogForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
     <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.</value>
+    <comment>Warning RelationalDesignEventId.ForeignKeyReferencesMissingTableWarning string</comment>
   </data>
-  <data name="ForeignKeyScaffoldErrorPrincipalTableScaffoldingError" xml:space="preserve">
+  <data name="LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError" xml:space="preserve">
     <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principaltableName}' could not be scaffolded.</value>
+    <comment>Warning RelationalDesignEventId.ForeignKeyReferencesNotMappedTableWarning string string</comment>
   </data>
-  <data name="ForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
+  <data name="LogForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
     <value>Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.</value>
+    <comment>Warning RelationalDesignEventId.ForeignKeyColumnsNotMappedWarning string string</comment>
   </data>
-  <data name="PrimaryKeyErrorPropertyNotFound" xml:space="preserve">
+  <data name="LogPrimaryKeyErrorPropertyNotFound" xml:space="preserve">
     <value>Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.</value>
+    <comment>Warning RelationalDesignEventId.PrimaryKeyColumnsNotMappedWarning string string</comment>
   </data>
-  <data name="MissingPrimaryKey" xml:space="preserve">
+  <data name="LogMissingPrimaryKey" xml:space="preserve">
     <value>Unable to identify the primary key for table '{tableName}'.</value>
+    <comment>Warning RelationalDesignEventId.MissingPrimaryKeyWarning string</comment>
   </data>
-  <data name="FoundTable" xml:space="preserve">
+  <data name="LogFoundTable" xml:space="preserve">
     <value>Found table with name: {name}.</value>
+    <comment>Debug RelationalDesignEventId.TableFound string</comment>
   </data>
-  <data name="TableNotInSelectionSet" xml:space="preserve">
+  <data name="LogTableNotInSelectionSet" xml:space="preserve">
     <value>Table {tableName} is not included in the selection set. Skipping.</value>
+    <comment>Debug RelationalDesignEventId.TableSkipped string</comment>
   </data>
-  <data name="ColumnNotInSelectionSet" xml:space="preserve">
+  <data name="LogColumnNotInSelectionSet" xml:space="preserve">
     <value>Column {columnName} belongs to table {tableName} which is not included in the selection set. Skipping.</value>
+    <comment>Debug RelationalDesignEventId.ColumnSkipped string string</comment>
   </data>
-  <data name="FoundIndex" xml:space="preserve">
+  <data name="LogFoundIndex" xml:space="preserve">
     <value>Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.</value>
+    <comment>Debug RelationalDesignEventId.IndexFound string string bool?</comment>
   </data>
-  <data name="FoundIndexColumn" xml:space="preserve">
+  <data name="LogFoundIndexColumn" xml:space="preserve">
     <value>Found index column on index {indexName} on table {tableName}, column name: {columnName}, ordinal: {ordinal}.</value>
+    <comment>Debug RelationalDesignEventId.IndexColumnFound string string string int?</comment>
   </data>
-  <data name="IndexColumnNotInSelectionSet" xml:space="preserve">
+  <data name="LogIndexColumnNotInSelectionSet" xml:space="preserve">
     <value>Index column {columnName} belongs to index {indexName} on table {tableName} which is not included in the selection set. Skipping.</value>
+    <comment>Warning RelationalDesignEventId.IndexColumnSkipped string string string</comment>
   </data>
-  <data name="FoundSequence" xml:space="preserve">
+  <data name="LogFoundSequence" xml:space="preserve">
     <value>Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.</value>
+    <comment>Debug RelationalDesignEventId.SequenceFound string string bool? int? long? long? long?</comment>
   </data>
-  <data name="ColumnNameEmptyOnForeignKey" xml:space="preserve">
+  <data name="LogColumnNameEmptyOnForeignKey" xml:space="preserve">
     <value>Found a column on foreign key {tableName}.{fkName} with an empty or null name. Not including column in foreign key</value>
+    <comment>Warning RelationalDesignEventId.ForeignKeyColumnNotNamedWarning string string</comment>
   </data>
-  <data name="ColumnNameEmptyOnTable" xml:space="preserve">
+  <data name="LogColumnNameEmptyOnTable" xml:space="preserve">
     <value>Found a column on table {tableName} with an empty or null name. Skipping column.</value>
+    <comment>Warning RelationalDesignEventId.ColumnNotNamedWarning string</comment>
   </data>
-  <data name="UnableToFindTableForIndex" xml:space="preserve">
+  <data name="LogUnableToFindTableForIndex" xml:space="preserve">
     <value>For index {indexName}. Unable to find parent table {tableName}. Skipping index.</value>
+    <comment>Warning RelationalDesignEventId.IndexTableMissingWarning string string</comment>
   </data>
-  <data name="IndexNameEmpty" xml:space="preserve">
+  <data name="LogIndexNameEmpty" xml:space="preserve">
     <value>Found an index on table {tableName} with an empty or null name. Skipping index.</value>
+    <comment>Warning RelationalDesignEventId.IndexNotNamedWarning string</comment>
   </data>
-  <data name="ForeignKeyNameEmpty" xml:space="preserve">
+  <data name="LogForeignKeyNameEmpty" xml:space="preserve">
     <value>Found a foreign key on table {tableName} with an empty or null name. Skipping foreign key.</value>
+    <comment>Warning RelationalDesignEventId.ForeignKeyNotNamedWarning string</comment>
   </data>
-  <data name="ForeignKeyColumnNotInSelectionSet" xml:space="preserve">
+  <data name="LogForeignKeyColumnNotInSelectionSet" xml:space="preserve">
     <value>Foreign key column {columnName} belongs to foreign key {fkName} on table {tableName} which is not included in the selection set. Skipping.</value>
+    <comment>Warning RelationalDesignEventId.ForeignKeyColumnMissingWarning string string string</comment>
   </data>
-  <data name="PrincipalTableNotInSelectionSet" xml:space="preserve">
+  <data name="LogPrincipalTableNotInSelectionSet" xml:space="preserve">
     <value>For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.</value>
+    <comment>Warning RelationalDesignEventId.ForeignKeyReferencesMissingPrincipalTableWarning string string string</comment>
   </data>
-  <data name="UnableToGenerateEntityType" xml:space="preserve">
+  <data name="LogUnableToGenerateEntityType" xml:space="preserve">
     <value>Unable to generate entity type for table '{tableName}'.</value>
+    <comment>Warning RelationalDesignEventId.UnableToGenerateEntityTypeWarning string</comment>
   </data>
-  <data name="UnableToScaffoldIndexMissingProperty" xml:space="preserve">
+  <data name="LogUnableToScaffoldIndexMissingProperty" xml:space="preserve">
     <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
+    <comment>Warning RelationalDesignEventId.IndexColumnsNotMappedWarning string string</comment>
   </data>
-  <data name="SequencesRequireName" xml:space="preserve">
+  <data name="LogSequencesRequireName" xml:space="preserve">
     <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
+    <comment>Warning RelationalDesignEventId.SequenceNotNamedWarning</comment>
   </data>
-  <data name="BadSequenceType" xml:space="preserve">
+  <data name="LogBadSequenceType" xml:space="preserve">
     <value>For sequence '{sequenceName}'. Unable to scaffold because it uses an unsupported type: '{typeName}'.</value>
+    <comment>Warning RelationalDesignEventId.SequenceTypeNotSupportedWarning string string</comment>
   </data>
-  <data name="MissingSchema" xml:space="preserve">
+  <data name="LogMissingSchema" xml:space="preserve">
     <value>Unable to find a schema in the database matching the selected schema {schema}.</value>
+    <comment>Warning RelationalDesignEventId.MissingSchemaWarning string</comment>
   </data>
-  <data name="MissingTable" xml:space="preserve">
+  <data name="LogMissingTable" xml:space="preserve">
     <value>Unable to find a table in the database matching the selected table {table}.</value>
+    <comment>Warning RelationalDesignEventId.MissingTableWarning string</comment>
   </data>
-  <data name="ForeignKeyPrincipalEndContainsNullableColumns" xml:space="preserve">
+  <data name="LogForeignKeyPrincipalEndContainsNullableColumns" xml:space="preserve">
     <value>The principal end of the foreign key '{foreignKeyName}' is supported by the unique index '{indexName}' and contains the following nullable columns '{columnNames}'. Entity Framework requires the properties representing those columns to be non-nullable.</value>
+    <comment>Warning RelationalDesignEventId.ForeignKeyPrincipalEndContainsNullableColumnsWarning string string string</comment>
   </data>
 </root>

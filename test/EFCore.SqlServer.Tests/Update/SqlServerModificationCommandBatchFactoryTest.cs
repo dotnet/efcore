@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -23,12 +21,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
-                    new DiagnosticsLogger<LoggerCategory.Database.Sql>(
-                        new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                        new DiagnosticListener("Fake")),
-                    new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
-                        new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
-                        new DiagnosticListener("Fake")),
+                    new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
+                    new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
                     new SqlServerTypeMapper(
                         new RelationalTypeMapperDependencies())),
                 new SqlServerSqlGenerationHelper(
@@ -57,12 +51,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
-                    new DiagnosticsLogger<LoggerCategory.Database.Sql>(
-                        new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                        new DiagnosticListener("Fake")),
-                    new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
-                        new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
-                        new DiagnosticListener("Fake")),
+                    new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
+                    new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
                     new SqlServerTypeMapper(
                         new RelationalTypeMapperDependencies())),
                 new SqlServerSqlGenerationHelper(

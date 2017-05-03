@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -19,29 +20,39 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void ColumnFound(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string tableName, 
-            [CanBeNull] string columnName, 
-            [CanBeNull] string dataTypeName, 
-            int? ordinal, 
-            bool? notNull, 
-            int? primaryKeyOrdinal, 
+            [CanBeNull] string tableName,
+            [CanBeNull] string columnName,
+            [CanBeNull] string dataTypeName,
+            int? ordinal,
+            bool? notNull,
+            int? primaryKeyOrdinal,
             [CanBeNull] string defaultValue)
         {
-            var eventId = SqliteDesignEventId.ColumnFound;
+            var definition = SqliteDesignStrings.LogFoundColumn;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            Debug.Assert(LogLevel.Debug == definition.Level);
+
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    SqliteDesignStrings.FoundColumn(
-                        tableName, columnName, dataTypeName, ordinal,
-                        notNull, primaryKeyOrdinal, defaultValue));
+                definition.Log(
+                    diagnostics,
+                    l => l.LogDebug(
+                        definition.EventId,
+                        null,
+                        definition.RawMessage,
+                        tableName,
+                        columnName,
+                        dataTypeName,
+                        ordinal,
+                        notNull,
+                        primaryKeyOrdinal,
+                        defaultValue));
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName,
@@ -61,29 +72,39 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void ForeignKeyColumnFound(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string tableName, 
-            int id, 
-            [CanBeNull] string principalTableName, 
-            [CanBeNull] string columnName, 
-            [CanBeNull] string principalColumnName, 
-            [CanBeNull] string deleteAction, 
+            [CanBeNull] string tableName,
+            int id,
+            [CanBeNull] string principalTableName,
+            [CanBeNull] string columnName,
+            [CanBeNull] string principalColumnName,
+            [CanBeNull] string deleteAction,
             int? ordinal)
         {
-            var eventId = SqliteDesignEventId.ForeignKeyColumnFound;
+            var definition = SqliteDesignStrings.LogFoundForeignKeyColumn;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
+            Debug.Assert(LogLevel.Debug == definition.Level);
+
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogDebug(
-                    eventId,
-                    SqliteDesignStrings.FoundForeignKeyColumn(
-                        tableName, id, principalTableName, columnName,
-                        principalColumnName, deleteAction, ordinal));
+                definition.Log(
+                    diagnostics,
+                    l => l.LogDebug(
+                        definition.EventId,
+                        null,
+                        definition.RawMessage,
+                        tableName,
+                        id,
+                        principalTableName,
+                        columnName,
+                        principalColumnName,
+                        deleteAction,
+                        ordinal));
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         TableName = tableName,
@@ -104,18 +125,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void SchemasNotSupportedWarning(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics)
         {
-            var eventId = SqliteDesignEventId.SchemasNotSupportedWarning;
+            var definition = SqliteDesignStrings.LogUsingSchemaSelectionsWarning;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    SqliteDesignStrings.UsingSchemaSelectionsWarning);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name, null);
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, null);
             }
         }
     }

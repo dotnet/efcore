@@ -5,10 +5,13 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public static class SqlServerLoggerExtensions
     {
         /// <summary>
@@ -19,19 +22,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Model.Validation> diagnostics,
             [NotNull] IProperty property)
         {
-            var eventId = SqlServerEventId.DecimalTypeDefaultWarning;
+            var definition = SqlServerStrings.LogDefaultDecimalTypeColumn;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    SqlServerStrings.DefaultDecimalTypeColumn(property.Name, property.DeclaringEntityType.DisplayName()));
+                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         Property = property
@@ -47,19 +49,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Model.Validation> diagnostics,
             [NotNull] IProperty property)
         {
-            var eventId = SqlServerEventId.ByteIdentityColumnWarning;
+            var definition = SqlServerStrings.LogByteIdentityColumn;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    SqlServerStrings.ByteIdentityColumn(property.Name, property.DeclaringEntityType.DisplayName()));
+                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         Property = property

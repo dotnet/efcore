@@ -1587,9 +1587,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var modelValidator = new CoreModelValidator(
                 new ModelValidatorDependencies(
                     new DiagnosticsLogger<LoggerCategory.Model.Validation>(
-                        new InterceptingLogger<LoggerCategory.Model.Validation>(
-                            new LoggerFactory(),
-                            new LoggingOptions()),
+                        new LoggerFactory(),
+                        new LoggingOptions(),
                         new DiagnosticListener("Fake"))));
 
             modelValidator.Validate(modelBuilder.Metadata);

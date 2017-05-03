@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -56,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 }
 
                 Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
-                Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.ContextType);
+                Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
                 Assert.EndsWith(ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
             }
         }
@@ -131,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
                 Assert.Equal("Jim said to throw from ctor!", ex.Message);
                 Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
-                Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.ContextType);
+                Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
                 Assert.EndsWith(ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
             }
         }
@@ -233,12 +235,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             {
                 public IDisposable BeginScope<TState>(TState state) => NullScope.Instance;
 
-                public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+                public void Log<TState>(
+                    LogLevel logLevel, 
+                    EventId eventId, 
+                    TState state, 
+                    Exception exception, 
+                    Func<TState, Exception, string> formatter)
                 {
-                    var error = state as DatabaseErrorLogState;
-                    if (error != null)
+                    if (eventId.Id == CoreEventId.SaveChangesFailed.Id
+                        || eventId.Id == CoreEventId.QueryIterationFailed.Id)
                     {
-                        LastDatabaseErrorState = error;
+                        LastDatabaseErrorState = (IReadOnlyList<KeyValuePair<string, object>>)state;
                         LastDatabaseErrorException = exception;
                         LastDatabaseErrorFormatter = (s, e) => formatter((TState)s, e);
                     }
@@ -246,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
                 public bool IsEnabled(LogLevel logLevel) => true;
 
-                public DatabaseErrorLogState LastDatabaseErrorState { get; private set; }
+                public IReadOnlyList<KeyValuePair<string, object>> LastDatabaseErrorState { get; private set; }
                 public Exception LastDatabaseErrorException { get; private set; }
                 public Func<object, Exception, string> LastDatabaseErrorFormatter { get; private set; }
 

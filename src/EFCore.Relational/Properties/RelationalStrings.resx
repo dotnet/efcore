@@ -150,41 +150,53 @@
   <data name="TransactionAssociatedWithDifferentConnection" xml:space="preserve">
     <value>The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.</value>
   </data>
-  <data name="RelationalLoggerOpeningConnection" xml:space="preserve">
+  <data name="LogRelationalLoggerOpeningConnection" xml:space="preserve">
     <value>Opening connection to database '{database}' on server '{server}'.</value>
+    <comment>Debug RelationalEventId.ConnectionOpening string string</comment>
   </data>
-  <data name="RelationalLoggerOpenedConnection" xml:space="preserve">
+  <data name="LogRelationalLoggerOpenedConnection" xml:space="preserve">
     <value>Opened connection to database '{database}' on server '{server}'.</value>
+    <comment>Debug RelationalEventId.ConnectionOpened string string</comment>
   </data>
-  <data name="RelationalLoggerClosingConnection" xml:space="preserve">
+  <data name="LogRelationalLoggerClosingConnection" xml:space="preserve">
     <value>Closing connection to database '{database}' on server '{server}'.</value>
+    <comment>Debug RelationalEventId.ConnectionClosing string string</comment>
   </data>
-  <data name="RelationalLoggerClosedConnection" xml:space="preserve">
+  <data name="LogRelationalLoggerClosedConnection" xml:space="preserve">
     <value>Closed connection to database '{database}' on server '{server}'.</value>
+    <comment>Debug RelationalEventId.ConnectionClosed string string</comment>
   </data>
-  <data name="RelationalLoggerConnectionError" xml:space="preserve">
+  <data name="LogRelationalLoggerConnectionError" xml:space="preserve">
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
+    <comment>Error RelationalEventId.ConnectionError string string</comment>
   </data>
-  <data name="RelationalLoggerBeginningTransaction" xml:space="preserve">
+  <data name="LogRelationalLoggerBeginningTransaction" xml:space="preserve">
     <value>Beginning transaction with isolation level '{isolationLevel}'.</value>
+    <comment>Debug RelationalEventId.TransactionStarted string</comment>
   </data>
-  <data name="RelationalLoggerUsingTransaction" xml:space="preserve">
+  <data name="LogRelationalLoggerUsingTransaction" xml:space="preserve">
     <value>Using an existing transaction with isolation level '{isolationLevel}'.</value>
+    <comment>Debug RelationalEventId.TransactionUsed string</comment>
   </data>
-  <data name="RelationalLoggerCommittingTransaction" xml:space="preserve">
+  <data name="LogRelationalLoggerCommittingTransaction" xml:space="preserve">
     <value>Committing transaction.</value>
+    <comment>Debug RelationalEventId.TransactionCommitted</comment>
   </data>
-  <data name="RelationalLoggerRollingbackTransaction" xml:space="preserve">
+  <data name="LogRelationalLoggerRollingbackTransaction" xml:space="preserve">
     <value>Rolling back transaction.</value>
+    <comment>Debug RelationalEventId.TransactionRolledBack</comment>
   </data>
-  <data name="RelationalLoggerDisposingTransaction" xml:space="preserve">
+  <data name="LogRelationalLoggerDisposingTransaction" xml:space="preserve">
     <value>Disposing transaction.</value>
+    <comment>Debug RelationalEventId.TransactionDisposed</comment>
   </data>
-  <data name="RelationalLoggerTransactionError" xml:space="preserve">
+  <data name="LogRelationalLoggerTransactionError" xml:space="preserve">
     <value>An error occurred using a transaction.</value>
+    <comment>Error RelationalEventId.TransactionError</comment>
   </data>
-  <data name="DisposingDataReader" xml:space="preserve">
+  <data name="LogDisposingDataReader" xml:space="preserve">
     <value>A data reader was disposed.</value>
+    <comment>Debug RelationalEventId.DataReaderDisposing</comment>
   </data>
   <data name="BadSequenceType" xml:space="preserve">
     <value>Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', and 'Byte'.</value>
@@ -213,29 +225,36 @@
   <data name="DiscriminatorPropertyNotFound" xml:space="preserve">
     <value>Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.</value>
   </data>
-  <data name="AmbientTransaction" xml:space="preserve">
+  <data name="LogAmbientTransaction" xml:space="preserve">
     <value>An ambient transaction has been detected. Entity Framework Core does not support ambient transactions. See http://go.microsoft.com/fwlink/?LinkId=800142</value>
+    <comment>Warning RelationalEventId.AmbientTransactionWarning</comment>
   </data>
-  <data name="PossibleUnintendedUseOfEquals" xml:space="preserve">
+  <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method Equals(object) for arguments of different types: '{left}', '{right}'. This comparison will always return 'false'.</value>
+    <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning object object</comment>
   </data>
   <data name="StoredProcedureIncludeNotSupported" xml:space="preserve">
     <value>The Include operation is not supported when calling a stored procedure.</value>
   </data>
-  <data name="GeneratingDown" xml:space="preserve">
+  <data name="LogGeneratingDown" xml:space="preserve">
     <value>Generating down script for migration '{migration}'.</value>
+    <comment>Debug RelationalEventId.MigrationGeneratingDownScript string</comment>
   </data>
-  <data name="GeneratingUp" xml:space="preserve">
+  <data name="LogGeneratingUp" xml:space="preserve">
     <value>Generating up script for migration '{migration}'.</value>
+    <comment>Debug RelationalEventId.MigrationGeneratingUpScript string</comment>
   </data>
-  <data name="ApplyingMigration" xml:space="preserve">
+  <data name="LogApplyingMigration" xml:space="preserve">
     <value>Applying migration '{migration}'.</value>
+    <comment>Information RelationalEventId.MigrationApplying string</comment>
   </data>
-  <data name="RevertingMigration" xml:space="preserve">
+  <data name="LogRevertingMigration" xml:space="preserve">
     <value>Reverting migration '{migration}'.</value>
+    <comment>Information RelationalEventId.MigrationReverting string</comment>
   </data>
-  <data name="UsingConnection" xml:space="preserve">
+  <data name="LogUsingConnection" xml:space="preserve">
     <value>Using database '{database}' on server '{dataSource}'.</value>
+    <comment>Debug RelationalEventId.MigrateUsingConnection string string</comment>
   </data>
   <data name="FromSqlMissingColumn" xml:space="preserve">
     <value>The required column '{column}' was not present in the results of a 'FromSql' operation.</value>
@@ -246,8 +265,9 @@
   <data name="IncompatibleTableNoRelationship" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between the primary key {primaryKey} and the primary key {otherPrimaryKey}.</value>
   </data>
-  <data name="KeyHasDefaultValue" xml:space="preserve">
+  <data name="LogKeyHasDefaultValue" xml:space="preserve">
     <value>Property '{property}' on entity type '{entityType}' is part of a primary or alternate key but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unqiue values.</value>
+    <comment>Warning RelationalEventId.ModelValidationKeyDefaultValueWarning string string</comment>
   </data>
   <data name="DiscriminatorEntityTypeNotDerived" xml:space="preserve">
     <value>Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.</value>
@@ -264,8 +284,9 @@
   <data name="NoDiscriminatorValue" xml:space="preserve">
     <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.</value>
   </data>
-  <data name="ClientEvalWarning" xml:space="preserve">
+  <data name="LogClientEvalWarning" xml:space="preserve">
     <value>The LINQ expression '{expression}' could not be translated and will be evaluated locally.</value>
+    <comment>Warning RelationalEventId.QueryClientEvaluationWarning object</comment>
   </data>
   <data name="MissingParameterValue" xml:space="preserve">
     <value>No value provided for required parameter '{parameter}'.</value>
@@ -273,14 +294,17 @@
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>
   </data>
-  <data name="RelationalLoggerExecutingCommand" xml:space="preserve">
+  <data name="LogRelationalLoggerExecutingCommand" xml:space="preserve">
     <value>Executing DbCommand [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
+    <comment>Debug RelationalEventId.CommandExecuting string System.Data.CommandType int string string</comment>
   </data>
-  <data name="RelationalLoggerExecutedCommand" xml:space="preserve">
+  <data name="LogRelationalLoggerExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
+    <comment>Information RelationalEventId.CommandExecuted string string System.Data.CommandType int string string</comment>
   </data>
-  <data name="RelationalLoggerCommandFailed" xml:space="preserve">
+  <data name="LogRelationalLoggerCommandFailed" xml:space="preserve">
     <value>Failed executing DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
+    <comment>Error RelationalEventId.CommandError string string System.Data.CommandType int string string</comment>
   </data>
   <data name="DuplicateColumnNameDataTypeMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different data types ('{dataType1}' and '{dataType2}').</value>

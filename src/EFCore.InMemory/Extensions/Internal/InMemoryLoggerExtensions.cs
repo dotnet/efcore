@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -23,18 +22,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void TransactionIgnoredWarning(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics)
         {
-            var eventId = InMemoryEventId.TransactionIgnoredWarning;
+            var definition = InMemoryStrings.LogTransactionsNotSupported;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Warning))
-            {
-                diagnostics.Logger.LogWarning(
-                    eventId,
-                    InMemoryStrings.TransactionsNotSupported);
-            }
+            definition.Log(diagnostics);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(eventId.Name, null);
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, null);
             }
         }
 
@@ -47,19 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IEnumerable<IUpdateEntry> entries,
             int rowsAffected)
         {
-            var eventId = InMemoryEventId.ChangesSaved;
+            var definition = InMemoryStrings.LogSavedChanges;
 
-            if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Information))
-            {
-                diagnostics.Logger.LogInformation(
-                    eventId,
-                    InMemoryStrings.LogSavedChanges(rowsAffected));
-            }
+            definition.Log(diagnostics, rowsAffected);
 
-            if (diagnostics.DiagnosticSource.IsEnabled(eventId.Name))
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    eventId.Name,
+                    definition.EventId.Name,
                     new
                     {
                         Entries = entries,

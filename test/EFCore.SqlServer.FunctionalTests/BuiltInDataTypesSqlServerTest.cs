@@ -8,7 +8,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
 // ReSharper disable UnusedParameter.Local
@@ -360,10 +359,7 @@ WHERE [e].[Time] = @__timeSpan_0",
         }
 
         private string DumpParameters()
-            => string.Join(
-                FileLineEnding,
-                Fixture.TestSqlLoggerFactory.CommandLogData.Single().Parameters
-                    .Select(p => p.Name + ": " + p.FormatParameter(quoteValues: false)));
+            => Fixture.TestSqlLoggerFactory.Parameters.Single().Replace(", ", FileLineEnding);
 
         private static void AssertMappedDataTypes(MappedDataTypes entity, int id)
         {

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -121,12 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
                     new SqliteMigrationsSqlGenerator(
                         new MigrationsSqlGeneratorDependencies(
                             new RelationalCommandBuilderFactory(
-                                new DiagnosticsLogger<LoggerCategory.Database.Sql>(
-                                    new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                                    new DiagnosticListener("Fake")),
-                                new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
-                                    new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
-                                    new DiagnosticListener("Fake")),
+                                new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
+                                new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
                                 typeMapper),
                             new SqliteSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                             typeMapper,

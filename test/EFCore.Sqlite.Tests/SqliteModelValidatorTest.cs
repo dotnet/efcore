@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>().ToTable("Animals", "pet");
 
-            VerifyWarning(SqliteStrings.SchemaConfigured("Animal", "pet"), modelBuilder.Model);
+            VerifyWarning(SqliteStrings.LogSchemaConfigured.GenerateMessage("Animal", "pet"), modelBuilder.Model);
         }
 
         [Fact]
@@ -72,16 +72,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.HasSequence("Fibonacci");
 
-            VerifyWarning(SqliteStrings.SequenceConfigured("Fibonacci"), modelBuilder.Model);
+            VerifyWarning(SqliteStrings.LogSequenceConfigured.GenerateMessage("Fibonacci"), modelBuilder.Model);
         }
 
         protected override ModelValidator CreateModelValidator()
             => new SqliteModelValidator(
                 new ModelValidatorDependencies(
                     new DiagnosticsLogger<LoggerCategory.Model.Validation>(
-                        new InterceptingLogger<LoggerCategory.Model.Validation>(
-                            new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
-                            new LoggingOptions()),
+                        new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
+                        new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
                     new TestSqliteAnnotationProvider(),

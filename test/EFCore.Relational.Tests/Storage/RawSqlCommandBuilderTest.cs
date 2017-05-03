@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -18,12 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
-                    new DiagnosticsLogger<LoggerCategory.Database.Sql>(
-                        new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                        new DiagnosticListener("Fake")),
-                    new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
-                        new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
-                        new DiagnosticListener("Fake")),
+                    new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
+                    new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
@@ -39,12 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
-                    new DiagnosticsLogger<LoggerCategory.Database.Sql>(
-                        new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                        new DiagnosticListener("Fake")),
-                    new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
-                        new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
-                        new DiagnosticListener("Fake")),
+                    new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
+                    new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
@@ -61,12 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
-                    new DiagnosticsLogger<LoggerCategory.Database.Sql>(
-                        new FakeInterceptingLogger<LoggerCategory.Database.Sql>(),
-                        new DiagnosticListener("Fake")),
-                    new DiagnosticsLogger<LoggerCategory.Database.DataReader>(
-                        new FakeInterceptingLogger<LoggerCategory.Database.DataReader>(),
-                        new DiagnosticListener("Fake")),
+                    new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
+                    new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));

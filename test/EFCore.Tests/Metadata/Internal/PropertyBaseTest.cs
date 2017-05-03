@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -615,11 +614,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             try
             {
-                new CoreModelValidator(new ModelValidatorDependencies(
-                        new DiagnosticsLogger<LoggerCategory.Model.Validation>(
-                            new FakeLogger(),
-                            new DiagnosticListener("Fake"))))
+                new CoreModelValidator(new ModelValidatorDependencies(new FakeLogger()))
                     .Validate(propertyBase.DeclaringType.Model);
+
                 Assert.Null(failMessage);
             }
             catch (InvalidOperationException ex)
@@ -628,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             }
         }
 
-        private class FakeLogger : IInterceptingLogger<LoggerCategory.Model.Validation>
+        private class FakeLogger : IDiagnosticsLogger<LoggerCategory.Model.Validation>, ILogger
         {
             public void Log<TState>(
                 LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
@@ -636,13 +633,19 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 throw new InvalidOperationException(formatter(state, exception));
             }
 
-            public bool IsEnabled(EventId eventId, LogLevel logLevel) => true;
+            public bool IsEnabled(LogLevel logLevel) => true;
 
+            public WarningBehavior GetLogBehavior(EventId eventId, LogLevel logLevel) => WarningBehavior.Log;
+            
             public IDisposable BeginScope<TState>(TState state) => null;
 
             public ILoggingOptions Options { get; }
 
-            public bool ShouldLogSensitiveData(IDiagnosticsLogger<LoggerCategory.Model.Validation> diagnostics) => false;
+            public bool ShouldLogSensitiveData() => false;
+
+            public ILogger Logger => this;
+
+            public DiagnosticSource DiagnosticSource { get; } = new DiagnosticListener("Fake");
         }
 
         [Fact]

@@ -2263,7 +2263,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var context = new ConstructorTestContextWithOC1A())
@@ -2293,7 +2293,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(loggerFactory, context.GetService<ILoggerFactory>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
                 Assert.Contains(LoggerCategory.Infrastructure.Name, loggerFactory.CreatedLoggers);
             }
 
@@ -2321,7 +2321,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var context = new ConstructorTestContextWithOC3A(options))
@@ -2359,7 +2359,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
                 Assert.Contains(LoggerCategory.Infrastructure.Name, loggerFactory.CreatedLoggers);
             }
 
@@ -2387,7 +2387,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
 
                 Assert.Same(singleton[0], internalServiceProivder.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], internalServiceProivder.GetService<ILoggerFactory>());
@@ -2423,7 +2423,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
 
                 Assert.Same(singleton[0], internalServiceProivder.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], internalServiceProivder.GetService<ILoggerFactory>());
@@ -2455,7 +2455,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var context = new ConstructorTestContext1A(options))
@@ -2493,7 +2493,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
                 Assert.Contains(LoggerCategory.Infrastructure.Name, loggerFactory.CreatedLoggers);
             }
 
@@ -2527,7 +2527,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
 
                 Assert.Same(singleton[0], internalServiceProivder.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], internalServiceProivder.GetService<ILoggerFactory>());
@@ -2559,7 +2559,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var context = new DbContext(options))
@@ -2597,7 +2597,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
                 Assert.Contains(LoggerCategory.Infrastructure.Name, loggerFactory.CreatedLoggers);
             }
 
@@ -2631,7 +2631,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
 
                 Assert.Same(singleton[0], internalServiceProivder.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], internalServiceProivder.GetService<ILoggerFactory>());
@@ -2668,7 +2668,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
-                Assert.NotNull(context1.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context1.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             Assert.Throws<ObjectDisposedException>(() => context1.Model);
@@ -2710,7 +2710,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(loggerFactory, context.GetService<ILoggerFactory>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -2745,7 +2745,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -2785,7 +2785,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -2821,7 +2821,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -2862,7 +2862,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -2900,7 +2900,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -2942,7 +2942,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -2978,7 +2978,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -3018,7 +3018,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -3060,7 +3060,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -3098,7 +3098,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -3140,7 +3140,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -3176,7 +3176,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -3219,7 +3219,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -3256,7 +3256,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -3307,7 +3307,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
-                Assert.NotNull(context1.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context1.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             Assert.NotNull(context1.Model);
@@ -3382,7 +3382,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
-                Assert.NotNull(context1.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context1.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             Assert.NotNull(context1.Model);
@@ -3437,7 +3437,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
-                Assert.NotNull(context1.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context1.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
 
                 context1.Dispose();
                 Assert.Throws<ObjectDisposedException>(() => context1.Model);
@@ -3502,7 +3502,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
-                Assert.NotNull(context1.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context1.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
 
                 context1.Dispose();
                 Assert.Throws<ObjectDisposedException>(() => context1.Model);
@@ -3556,7 +3556,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
-                Assert.NotNull(context1.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context1.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             Assert.NotNull(context1.Model);
@@ -3624,7 +3624,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
-                Assert.NotNull(context1.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context1.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
             Assert.NotNull(context1.Model);
@@ -3674,7 +3674,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
-                Assert.NotNull(context1.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context1.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
 
                 context1.Dispose();
                 Assert.Throws<ObjectDisposedException>(() => context1.Model);
@@ -3748,7 +3748,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
-                Assert.NotNull(context1.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context1.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
 
                 context1.Dispose();
                 Assert.Throws<ObjectDisposedException>(() => context1.Model);
@@ -3781,7 +3781,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .AddDbContext<DbContext>((p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            Assert.NotNull(appServiceProivder.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+            Assert.NotNull(appServiceProivder.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
 
             using (var serviceScope = appServiceProivder
                 .GetRequiredService<IServiceScopeFactory>()
@@ -3790,10 +3790,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
                 _ = context.Model;
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             }
 
-            Assert.NotNull(appServiceProivder.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+            Assert.NotNull(appServiceProivder.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
         }
 
         [Fact]
@@ -3808,7 +3808,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                         .UseLoggerFactory(loggerFactory = new WrappingLoggerFactory(p.GetService<ILoggerFactory>())))
                 .BuildServiceProvider();
 
-            Assert.NotNull(appServiceProivder.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+            Assert.NotNull(appServiceProivder.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             Assert.Null(loggerFactory);
 
             using (var serviceScope = appServiceProivder
@@ -3818,12 +3818,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
                 _ = context.Model;
 
-                Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+                Assert.NotNull(context.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
 
                 Assert.Equal(1, loggerFactory.CreatedLoggers.Count(n => n == LoggerCategory.Infrastructure.Name));
             }
 
-            Assert.NotNull(appServiceProivder.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
+            Assert.NotNull(appServiceProivder.GetService<IDiagnosticsLogger<LoggerCategory.Infrastructure>>());
             Assert.Equal(1, loggerFactory.CreatedLoggers.Count(n => n == LoggerCategory.Infrastructure.Name));
         }
 

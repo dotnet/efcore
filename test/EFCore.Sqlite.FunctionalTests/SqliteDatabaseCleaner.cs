@@ -15,9 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
             => new SqliteDatabaseModelFactory(
                 new DiagnosticsLogger<LoggerCategory.Scaffolding>(
-                    new InterceptingLogger<LoggerCategory.Scaffolding>(
-                        loggerFactory,
-                        new LoggingOptions()),
+                    loggerFactory,
+                    new LoggingOptions(),
                     new DiagnosticListener("Fake")));
 
         protected override bool AcceptForeignKey(ForeignKeyModel foreignKey) => false;

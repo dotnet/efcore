@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
                 _loggerFactory.Logger.Statements,
                 t => t.Contains(
                     "Warning: " +
-                    RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalTableNotFound("0")));
+                    RelationalDesignStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0")));
         }
 
         [Fact]
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
                 _loggerFactory.Logger.Statements,
                 t => t.Contains(
                     "Warning: " +
-                    RelationalDesignStrings.PrincipalColumnNotFound(0, "Children", "Id", "Parent")));
+                    RelationalDesignStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "Children", "Id", "Parent")));
         }
 
         [Fact]

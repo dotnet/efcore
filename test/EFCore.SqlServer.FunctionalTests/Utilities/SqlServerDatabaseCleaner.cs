@@ -17,9 +17,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
             => new SqlServerDatabaseModelFactory(
                 new DiagnosticsLogger<LoggerCategory.Scaffolding>(
-                    new InterceptingLogger<LoggerCategory.Scaffolding>(
-                        loggerFactory,
-                        new LoggingOptions()),
+                    loggerFactory,
+                    new LoggingOptions(),
                     new DiagnosticListener("Fake")));
 
         protected override bool AcceptIndex(IndexModel index)
