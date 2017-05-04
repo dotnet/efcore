@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             => _verboseHandler?.Invoke(message);
     }
 
-#if NET46
+#if NET46 || NETSTANDARD2_0
     public partial class OperationReportHandler : MarshalByRefObject
     {
     }

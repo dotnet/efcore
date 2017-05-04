@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
         }
     }
 }
-#elif NETSTANDARD1_6
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif

@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class LocalView<TEntity> : ICollection<TEntity>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
         where TEntity : class
     {
-#if NET46
+#if NET46 || NETSTANDARD2_0
         private ObservableBackedBindingList<TEntity> _bindingList;
 #elif NETSTANDARD1_3
 #else
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void OnCollectionChanged(NotifyCollectionChangedAction action, object item)
             => OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item));
 
-#if NET46
+#if NET46 || NETSTANDARD2_0
         /// <summary>
         ///     Returns an <see cref="BindingList{T}" /> implementation that stays in sync with this collection.
         /// </summary>

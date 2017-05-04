@@ -430,8 +430,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-#if NET46
-
         [Fact]
         public virtual void DbSet_Local_ToBindingList_contains_Unchanged_Modified_and_Added_entities_but_not_Deleted_entities()
         {
@@ -741,10 +739,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.False(ferrari.Drivers.Contains(alonso)); // But has been removed from nav prop
             }
         }
-#elif NETCOREAPP2_0
-#else
-#error target frameworks need to be updated.
-#endif
 
         protected F1Context CreateF1Context()
         {

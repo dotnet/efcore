@@ -91,13 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
             }
         }
 
-#if NET46
-        private partial class ColdStartEnabledTests : MarshalByRefObject
-        {
-        }
-#endif
-
-        private partial class ColdStartEnabledTests
+        private class ColdStartEnabledTests : MarshalByRefObject
         {
             public void CreateAndDisposeUnusedContext(IMetricCollector collector, int count)
             {

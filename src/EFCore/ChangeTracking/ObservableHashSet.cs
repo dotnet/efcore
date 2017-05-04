@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         : ISet<T>, IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
     {
         private HashSet<T> _set;
-#if NET46
+#if NET46 || NETSTANDARD2_0
         private ObservableBackedBindingList<T> _bindingList;
 #elif NETSTANDARD1_3
 #else
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         protected virtual void OnCollectionChanged([NotNull] NotifyCollectionChangedEventArgs e)
             => CollectionChanged?.Invoke(this, e);
 
-#if NET46
+#if NET46 || NETSTANDARD2_0
         /// <summary>
         ///     Returns an <see cref="BindingList{T}" /> implementation that stays in sync with this collection.
         /// </summary>

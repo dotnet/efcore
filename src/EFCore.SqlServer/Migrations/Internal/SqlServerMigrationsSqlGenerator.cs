@@ -535,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Check.NotNull(fileName, nameof(fileName));
 
-#if NET46
+#if NET46 || NETSTANDARD2_0
 
             if (fileName.StartsWith("|DataDirectory|", StringComparison.OrdinalIgnoreCase))
             {
