@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Test hangs on single core machine. See issue#8384")]
         public virtual async Task Include_collection_on_inner_group_join_clause_with_filter()
         {
             using (var context = CreateContext())
