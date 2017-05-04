@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase, bool cleanDatabase = true)
             => new SqlServerTestStore(name, cleanDatabase: cleanDatabase).CreateShared(initializeDatabase);
 
-        public static SqlServerTestStore Create(string name)
-            => new SqlServerTestStore(name).CreateTransient(true, false);
+        public static SqlServerTestStore Create(string name, bool deleteDatabase = false)
+            => new SqlServerTestStore(name).CreateTransient(true, deleteDatabase);
 
         public static SqlServerTestStore CreateScratch(bool createDatabase = true, bool useFileName = false)
             => new SqlServerTestStore(GetScratchDbName(), useFileName).CreateTransient(createDatabase, true);

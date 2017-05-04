@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [ConditionalFact]
         public void Can_create_memoryOptimized_table()
         {
-            using (var testStore = SqlServerTestStore.Create("MemoryOptimizedTablesTest"))
+            using (var testStore = SqlServerTestStore.Create("MemoryOptimizedTablesTest", deleteDatabase: true))
             {
                 var options = new DbContextOptionsBuilder()
                     .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
@@ -35,8 +35,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 using (var context = new MemoryOptimizedContext(options))
                 {
                     Assert.Equal(fastUns.Select(f => f.Name), context.FastUns.OrderBy(f => f.Name).Select(f => f.Name).ToList());
-
-                    context.Database.EnsureDeleted();
                 }
             }
         }
