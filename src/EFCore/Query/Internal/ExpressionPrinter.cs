@@ -764,6 +764,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     VisitNullConditionalExpression(nullConditional);
                     break;
 
+                case NullConditionalEqualExpression nullConditionalEqualExpression:
+                    VisitNullConditionalEqualExpression(nullConditionalEqualExpression);
+                    break;
+
                 default:
                     UnhandledExpressionType(extensionExpression);
                     break;
@@ -808,6 +812,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Visit(nullConditionalExpression.AccessOperation);
                 _stringBuilder.Append("?");
             }
+        }
+
+        private void VisitNullConditionalEqualExpression(NullConditionalEqualExpression nullConditionalEqualExpression)
+        {
+            Visit(nullConditionalEqualExpression.OuterKey);
+            _stringBuilder.Append(" ?= ");
+            Visit(nullConditionalEqualExpression.InnerKey);
         }
 
         private void VisitArguments(IList<Expression> arguments, Action<string> appendAction, string lastSeparator = "")

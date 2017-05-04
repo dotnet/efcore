@@ -513,7 +513,7 @@ WHERE @_outer_CustomerID = [o].[CustomerID]");
             base.Select_collection_navigation_multi_part();
 
             AssertSql(
-                @"SELECT [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region], [o].[OrderID]
+                @"SELECT [o].[OrderID], [o.Customer].[CustomerID]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 WHERE [o].[CustomerID] = N'ALFKI'",
@@ -1234,6 +1234,21 @@ LEFT JOIN (
     INNER JOIN [Orders] AS [o] ON [od].[OrderID] = 10260
     INNER JOIN [Customers] AS [c2] ON [o].[CustomerID] = [c2].[CustomerID]
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]");
+        }
+
+        public override void Navigation_with_collection_with_nullable_type_key()
+        {
+            base.Navigation_with_collection_with_nullable_type_key();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE (
+    SELECT COUNT(*)
+    FROM [Orders] AS [oo]
+    WHERE ([oo].[OrderID] > 10260) AND ([o.Customer].[CustomerID] = [oo].[CustomerID])
+) > 30");
         }
 
         private void AssertSql(params string[] expected)

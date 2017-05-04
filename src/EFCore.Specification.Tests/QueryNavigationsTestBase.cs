@@ -1025,6 +1025,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                                   select c.CustomerID));
         }
 
+        [ConditionalFact]
+        public virtual void Navigation_with_collection_with_nullable_type_key()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.Customer.Orders.Count(oo => oo.OrderID > 10260) > 30),
+                entryCount: 31);
+        }
+
         protected QueryNavigationsTestBase(TFixture fixture)
         {
             Fixture = fixture;

@@ -971,38 +971,43 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// </returns>
         protected override Expression VisitExtension(Expression expression)
         {
-            if (expression is StringCompareExpression stringCompare)
+            switch (expression)
             {
-                var newLeft = Visit(stringCompare.Left);
-                var newRight = Visit(stringCompare.Right);
-
-                if (newLeft == null
-                    || newRight == null)
+                case StringCompareExpression stringCompare:
                 {
-                    return null;
+                    var newLeft = Visit(stringCompare.Left);
+                    var newRight = Visit(stringCompare.Right);
+                    if (newLeft == null
+                        || newRight == null)
+                    {
+                        return null;
+                    }
+
+                    return newLeft != stringCompare.Left
+                            || newRight != stringCompare.Right
+                        ? new StringCompareExpression(stringCompare.Operator, newLeft, newRight)
+                        : expression;
                 }
-
-                return newLeft != stringCompare.Left
-                       || newRight != stringCompare.Right
-                    ? new StringCompareExpression(stringCompare.Operator, newLeft, newRight)
-                    : expression;
-            }
-
-            if (expression is ExplicitCastExpression explicitCast)
-            {
-                var newOperand = Visit(explicitCast.Operand);
-
-                return newOperand != explicitCast.Operand
-                    ? new ExplicitCastExpression(newOperand, explicitCast.Type)
-                    : expression;
-            }
-
-            if (expression is NullConditionalExpression nullConditionalExpression)
-            {
-                var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
-
-                if (newAccessOperation != null)
+                case ExplicitCastExpression explicitCast:
                 {
+                    var newOperand = Visit(explicitCast.Operand);
+                    if (newOperand == null)
+                    {
+                        return null;
+                    }
+
+                    return newOperand != explicitCast.Operand
+                        ? new ExplicitCastExpression(newOperand, explicitCast.Type)
+                        : expression;
+                }
+                case NullConditionalExpression nullConditionalExpression:
+                {
+                    var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
+                    if (newAccessOperation == null)
+                    {
+                        return null;
+                    }
+
                     if (newAccessOperation.Type != nullConditionalExpression.Type)
                     {
                         newAccessOperation = Expression.Convert(newAccessOperation, nullConditionalExpression.Type);
@@ -1010,9 +1015,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                     return new NullableExpression(newAccessOperation);
                 }
-            }
+                case NullConditionalEqualExpression nullConditionalEqualExpression:
+                {
+                    var equalityExpression = Expression.Equal(
+                        nullConditionalEqualExpression.OuterKey,
+                        nullConditionalEqualExpression.InnerKey);
 
-            return base.VisitExtension(expression);
+                    return Visit(equalityExpression);
+                }
+                default:
+                    return base.VisitExtension(expression);
+            }
         }
 
         /// <summary>

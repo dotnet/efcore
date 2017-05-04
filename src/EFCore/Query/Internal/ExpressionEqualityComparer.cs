@@ -257,6 +257,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         {
                             hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalExpression.AccessOperation);
                         }
+                        else if (obj is NullConditionalEqualExpression nullConditionalEqualExpression)
+                        {
+                            hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalEqualExpression.OuterNullProtection);
+                            hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalEqualExpression.OuterKey);
+                            hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalEqualExpression.InnerKey);
+                        }
                         else
                         {
                             hashCode += (hashCode * 397) ^ obj.GetHashCode();
@@ -573,6 +579,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return Compare(
                         nullConditionalExpressionA.AccessOperation,
                         nullConditionalExpressionB.AccessOperation);
+                }
+
+                if (a is NullConditionalEqualExpression nullConditionalEqualExpressionA
+                    && b is NullConditionalEqualExpression nullConditionalEqualExpressionB)
+                {
+                    return Compare(
+                               nullConditionalEqualExpressionA.OuterNullProtection,
+                               nullConditionalEqualExpressionB.OuterNullProtection)
+                        && Compare(
+                               nullConditionalEqualExpressionA.OuterKey,
+                               nullConditionalEqualExpressionB.OuterKey)
+                        && Compare(
+                               nullConditionalEqualExpressionA.InnerKey,
+                               nullConditionalEqualExpressionB.InnerKey);
                 }
 
                 return a.Equals(b);

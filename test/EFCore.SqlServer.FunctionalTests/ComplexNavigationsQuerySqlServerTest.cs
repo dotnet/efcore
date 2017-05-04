@@ -1283,7 +1283,7 @@ ORDER BY [t].[Id]");
             base.Where_navigation_property_to_collection();
 
             AssertSql(
-                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId], [l1.OneToOne_Required_FK].[Id], [l1.OneToOne_Required_FK].[Date], [l1.OneToOne_Required_FK].[Level1_Optional_Id], [l1.OneToOne_Required_FK].[Level1_Required_Id], [l1.OneToOne_Required_FK].[Name], [l1.OneToOne_Required_FK].[OneToMany_Optional_InverseId], [l1.OneToOne_Required_FK].[OneToMany_Optional_Self_InverseId], [l1.OneToOne_Required_FK].[OneToMany_Required_InverseId], [l1.OneToOne_Required_FK].[OneToMany_Required_Self_InverseId], [l1.OneToOne_Required_FK].[OneToOne_Optional_PK_InverseId], [l1.OneToOne_Required_FK].[OneToOne_Optional_SelfId]
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId]
 FROM [Level1] AS [l1]
 LEFT JOIN [Level2] AS [l1.OneToOne_Required_FK] ON [l1].[Id] = [l1.OneToOne_Required_FK].[Level1_Required_Id]
 WHERE (
@@ -2174,7 +2174,7 @@ INNER JOIN [Level2] AS [l2] ON [l1].[Id] = (
             base.Contains_with_subquery_optional_navigation_and_constant_item();
 
             AssertSql(
-                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId], [l1.OneToOne_Optional_FK].[Id], [l1.OneToOne_Optional_FK].[Date], [l1.OneToOne_Optional_FK].[Level1_Optional_Id], [l1.OneToOne_Optional_FK].[Level1_Required_Id], [l1.OneToOne_Optional_FK].[Name], [l1.OneToOne_Optional_FK].[OneToMany_Optional_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Optional_Self_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Required_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Required_Self_InverseId], [l1.OneToOne_Optional_FK].[OneToOne_Optional_PK_InverseId], [l1.OneToOne_Optional_FK].[OneToOne_Optional_SelfId]
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId]
 FROM [Level1] AS [l1]
 LEFT JOIN [Level2] AS [l1.OneToOne_Optional_FK] ON [l1].[Id] = [l1.OneToOne_Optional_FK].[Level1_Optional_Id]
 WHERE 1 IN (
@@ -2182,7 +2182,6 @@ WHERE 1 IN (
     FROM [Level3] AS [l3]
     WHERE [l1.OneToOne_Optional_FK].[Id] = [l3].[OneToMany_Optional_InverseId]
 )");
-
         }
 
         public override void Complex_query_with_optional_navigations_and_client_side_evaluation()
@@ -2730,7 +2729,7 @@ WHERE EXISTS (
             base.Navigations_compared_to_each_other4();
 
             AssertSql(
-                @"SELECT [l2.OneToOne_Required_FK].[Id], [l2.OneToOne_Required_FK].[Level2_Optional_Id], [l2.OneToOne_Required_FK].[Level2_Required_Id], [l2.OneToOne_Required_FK].[Name], [l2.OneToOne_Required_FK].[OneToMany_Optional_InverseId], [l2.OneToOne_Required_FK].[OneToMany_Optional_Self_InverseId], [l2.OneToOne_Required_FK].[OneToMany_Required_InverseId], [l2.OneToOne_Required_FK].[OneToMany_Required_Self_InverseId], [l2.OneToOne_Required_FK].[OneToOne_Optional_PK_InverseId], [l2.OneToOne_Required_FK].[OneToOne_Optional_SelfId], [l2].[Name]
+                @"SELECT [l2].[Name]
 FROM [Level2] AS [l2]
 LEFT JOIN [Level3] AS [l2.OneToOne_Required_FK] ON [l2].[Id] = [l2.OneToOne_Required_FK].[Level2_Required_Id]
 WHERE EXISTS (
@@ -2744,7 +2743,7 @@ WHERE EXISTS (
             base.Navigations_compared_to_each_other5();
 
             AssertSql(
-                @"SELECT [l2.OneToOne_Required_FK].[Id], [l2.OneToOne_Required_FK].[Level2_Optional_Id], [l2.OneToOne_Required_FK].[Level2_Required_Id], [l2.OneToOne_Required_FK].[Name], [l2.OneToOne_Required_FK].[OneToMany_Optional_InverseId], [l2.OneToOne_Required_FK].[OneToMany_Optional_Self_InverseId], [l2.OneToOne_Required_FK].[OneToMany_Required_InverseId], [l2.OneToOne_Required_FK].[OneToMany_Required_Self_InverseId], [l2.OneToOne_Required_FK].[OneToOne_Optional_PK_InverseId], [l2.OneToOne_Required_FK].[OneToOne_Optional_SelfId], [l2].[Name]
+                @"SELECT [l2].[Name]
 FROM [Level2] AS [l2]
 LEFT JOIN [Level3] AS [l2.OneToOne_Optional_PK] ON [l2].[Id] = [l2.OneToOne_Optional_PK].[OneToOne_Optional_PK_InverseId]
 LEFT JOIN [Level3] AS [l2.OneToOne_Required_FK] ON [l2].[Id] = [l2.OneToOne_Required_FK].[Level2_Required_Id]

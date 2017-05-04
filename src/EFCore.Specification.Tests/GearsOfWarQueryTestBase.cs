@@ -1259,7 +1259,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             where (new { Name = g.LeaderNickname } ?? new { Name = g.FullName }) != null
                             select g.Nickname;
 
-               var result = query.ToList();
+                var result = query.ToList();
                 Assert.Equal(5, result.Count);
             }
         }
@@ -1683,7 +1683,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact(Skip = "Test does not pass. See issue#4978")] 
+        [ConditionalFact(Skip = "Test does not pass. See issue#4978")]
         public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat()
         {
             using (var context = CreateContext())
@@ -1733,7 +1733,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             select g2 ?? g1;
 
                 var result = query.ToList();
-                
+
                 Assert.Equal("Marcus", result[0].Nickname);
                 Assert.Equal(2, result[0].Weapons.Count);
                 Assert.Equal("Baird", result[1].Nickname);
@@ -2327,8 +2327,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 ClearLog();
 
                 var actual = (from g in context.Gears
-                             where g.Tag.Note != "Foo"
-                             select g.SquadId).Sum();
+                              where g.Tag.Note != "Foo"
+                              select g.SquadId).Sum();
 
                 Assert.Equal(expected, actual);
             }
@@ -2388,7 +2388,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                              join g in context.Gears on s.Id equals g.SquadId into grouping
                              from g in grouping.DefaultIfEmpty()
                              where s.Name == "Kilo"
-                             select  s).FirstOrDefault();
+                             select s).FirstOrDefault();
 
                 Assert.Equal("Kilo", query?.Name);
             }
@@ -2722,10 +2722,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var ctx = CreateContext())
             {
                 var query = from gear in (from gear in ctx.Gears
-                                       join tag in ctx.Tags on gear.Nickname equals tag.GearNickName
-                                       orderby tag.Note
-                                       where tag.GearNickName != "Cole Train"
-                                       select gear).AsTracking()
+                                          join tag in ctx.Tags on gear.Nickname equals tag.GearNickName
+                                          orderby tag.Note
+                                          where tag.GearNickName != "Cole Train"
+                                          select gear).AsTracking()
                             join tag in ctx.Tags on gear.Nickname equals tag.GearNickName
                             orderby gear.Nickname, tag.Id
                             select gear.Nickname;
@@ -2874,7 +2874,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             from v in Veterans(g.Reports)
                             orderby g.Nickname, v.Nickname
                             select new { g = g.Nickname, v = v.Nickname };
-                            
+
                 var result = query.ToList();
 
                 Assert.Equal(3, result.Count);
@@ -3151,8 +3151,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
 
                 var query = from lh in (from f in ctx.Factions
-                                       where f is LocustHorde
-                                       select (LocustHorde)f).Include(h => h.Commander).Include(h => h.Leaders)
+                                        where f is LocustHorde
+                                        select (LocustHorde)f).Include(h => h.Commander).Include(h => h.Leaders)
                             orderby lh.Name
                             select lh;
 
@@ -3305,6 +3305,19 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var query = context.Gears.Where(g => g.SquadId < 2 && cities.Contains(g.AssignedCity.Name)).ToList();
 
                 Assert.Equal(2, query.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_with_collection_composite_key()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Gear is Officer && ((Officer)t.Gear).Reports.Count(r => r.Nickname == "Dom") > 0);
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+                Assert.Equal("Marcus's Tag", result[0].Note);
             }
         }
 

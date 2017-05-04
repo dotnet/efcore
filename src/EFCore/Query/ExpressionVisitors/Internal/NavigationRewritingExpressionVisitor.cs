@@ -444,12 +444,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var newExpression = Visit(node.Expression);
 
+            var newMemberExpression = newExpression != node.Expression
+                ? newExpression.MakeMemberAccess(node.Member)
+                : node;
+
             return _insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection
                 ? (Expression)new NullConditionalExpression(
-                    newExpression, 
-                    newExpression, 
-                    newExpression.MakeMemberAccess(node.Member))
-                : newExpression.MakeMemberAccess(node.Member);
+                    newExpression,
+                    newExpression,
+                    newMemberExpression)
+                : newMemberExpression;
         }
 
         /// <summary>
@@ -543,9 +547,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var propertyArguments = node.Arguments.Select(Visit).ToList();
 
+                var newPropertyExpression = propertyArguments[0] != node.Arguments[0] || propertyArguments[1] != node.Arguments[1]
+                    ? Expression.Call(node.Method, propertyArguments[0], node.Arguments[1])
+                    : node;
+
                 return _insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection
-                    ? (Expression)new NullConditionalExpression(propertyArguments[0], propertyArguments[0], Expression.Call(node.Method, propertyArguments[0], node.Arguments[1]))
-                    : Expression.Call(node.Method, propertyArguments[0], propertyArguments[1]);
+                    ? (Expression)new NullConditionalExpression(propertyArguments[0], propertyArguments[0], newPropertyExpression)
+                    : newPropertyExpression;
             }
 
             var insideMaterializeCollectionNavigation = _insideMaterializeCollectionNavigation;
@@ -819,7 +827,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             subQueryModel.BodyClauses.Add(
                 new WhereClause(
-                    CreateKeyComparisonExpression(leftKeyAccess, rightKeyAccess)));
+                    CreateKeyComparisonExpressionForCollectionNavigationSubquery(
+                        leftKeyAccess, 
+                        rightKeyAccess,
+                        querySourceReference)));
 
             subQueryModel.ResultOperators.Add(new FirstResultOperator(returnDefaultWhenEmpty: true));
 
@@ -852,7 +863,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 _queryModelVisitor,
                 navigationExpansionSubquery);
 
-        private static BinaryExpression CreateKeyComparisonExpression(Expression leftExpression, Expression rightExpression)
+        private static Expression CreateKeyComparisonExpressionForCollectionNavigationSubquery(
+            Expression leftExpression, 
+            Expression rightExpression, 
+            QuerySourceReferenceExpression leftQsre)
         {
             if (leftExpression.Type != rightExpression.Type)
             {
@@ -871,7 +885,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
             }
 
-            return Expression.Equal(leftExpression, rightExpression);
+            var outerNullProtection
+                = Expression.NotEqual(
+                    leftQsre,
+                    Expression.Constant(null, leftQsre.Type));
+
+            return new NullConditionalEqualExpression(outerNullProtection, leftExpression, rightExpression);
         }
 
         private Expression RewriteNavigationsIntoJoins(
@@ -884,8 +903,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var querySourceReferenceExpression = outerQuerySourceReferenceExpression;
             var navigationJoins = _navigationJoins;
 
-            var optionalNavigationInChain = _insideInnerKeySelector
-                                            && _innerKeySelectorRequiresNullRefProtection;
+            var optionalNavigationInChain
+                = _insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection;
 
             foreach (var navigation in navigations)
             {
@@ -921,7 +940,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     _queryModel.BodyClauses.Add(
                         new WhereClause(
-                            CreateKeyComparisonExpression(leftKeyAccess, rightKeyAccess)));
+                            CreateKeyComparisonExpressionForCollectionNavigationSubquery(
+                                leftKeyAccess, 
+                                rightKeyAccess,
+                                querySourceReferenceExpression)));
 
                     return _queryModel.MainFromClause.FromExpression;
                 }

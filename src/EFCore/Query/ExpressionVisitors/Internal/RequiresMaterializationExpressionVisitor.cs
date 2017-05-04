@@ -100,6 +100,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return node;
             }
 
+            if (node is NullConditionalEqualExpression nullConditionalEqualExpression)
+            {
+                Visit(nullConditionalEqualExpression.OuterNullProtection);
+                Visit(
+                    Expression.Equal(
+                        nullConditionalEqualExpression.OuterKey,
+                        nullConditionalEqualExpression.InnerKey));
+
+                return node;
+            }
+
             return base.VisitExtension(node);
         }
 
