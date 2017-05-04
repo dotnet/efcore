@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Relational.Design.Specification.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -24,16 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         {
             _testStore = SqliteTestStore.CreateScratch();
 
-            var serviceCollection = new ServiceCollection().AddScaffolding().AddLogging();
+            var serviceCollection = new ServiceCollection().AddScaffolding()
+                .AddLogging()
+                .AddSingleton<ILoggerFactory>(new TestDesignLoggerFactory());
             new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            var logger = new TestLogger();
-            var factory = serviceProvider.GetService<ILoggerFactory>();
-#pragma warning disable CS0618 // Type or member is obsolete
-            factory.AddProvider(new TestLoggerProvider(logger));
-#pragma warning restore CS0618 // Type or member is obsolete
 
             _factory = serviceProvider
                 .GetService<IDatabaseModelFactory>() as SqliteDatabaseModelFactory;
@@ -46,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             var dbModel = CreateModel(sql);
 
-            Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
+            Assert.Collection(
+                dbModel.Tables.OrderBy(t => t.Name),
                 d => Assert.Equal("Denali", d.Name),
                 e => Assert.Equal("Everest", e.Name));
         }
@@ -100,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             Assert.All(indexes, c => { Assert.Equal("Place", c.Table.Name); });
 
-            Assert.Collection(indexes.OrderBy(i => i.Name),
+            Assert.Collection(
+                indexes.OrderBy(i => i.Name),
                 index =>
                     {
                         Assert.Equal("IX_Location_Name", index.Name);
@@ -136,7 +135,8 @@ CREATE TABLE [MountainsColumns] (
 
             Assert.All(columns, c => { Assert.Equal("MountainsColumns", c.Table.Name); });
 
-            Assert.Collection(columns,
+            Assert.Collection(
+                columns,
                 id =>
                     {
                         Assert.Equal("Id", id.Name);

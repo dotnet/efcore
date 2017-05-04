@@ -10,8 +10,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class NorthwindQueryInMemoryFixture : NorthwindQueryFixtureBase
     {
-        private readonly TestLoggerFactory _testLoggerFactory = new TestLoggerFactory();
-
         public override NorthwindContext CreateContext(
             QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll,
             bool enableFilters = false)
@@ -38,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                     (serviceCollection ?? new ServiceCollection())
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(_testLoggerFactory)
+                    .AddSingleton<ILoggerFactory>(new TestLoggerFactory())
                     .BuildServiceProvider())
                 .Options;
     }

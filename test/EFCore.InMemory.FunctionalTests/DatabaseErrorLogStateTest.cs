@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -77,22 +76,24 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         [Fact]
         public void Query_logs_DatabaseErrorLogState_during_LINQ_enumeration()
         {
-            Query_logs_DatabaseErrorLogState(c =>
-                c.Blogs
-                    .OrderBy(b => b.Name)
-                    .Where(b => b.Url.StartsWith("http://"))
-                    .ToList());
+            Query_logs_DatabaseErrorLogState(
+                c =>
+                    c.Blogs
+                        .OrderBy(b => b.Name)
+                        .Where(b => b.Url.StartsWith("http://"))
+                        .ToList());
         }
 
         [Fact]
         public void Query_logs_DatabaseErrorLogState_during_LINQ_enumeration_async()
         {
-            Query_logs_DatabaseErrorLogState(c =>
-                c.Blogs
-                    .OrderBy(b => b.Name)
-                    .Where(b => b.Url.StartsWith("http://"))
-                    .ToListAsync()
-                    .Wait());
+            Query_logs_DatabaseErrorLogState(
+                c =>
+                    c.Blogs
+                        .OrderBy(b => b.Name)
+                        .Where(b => b.Url.StartsWith("http://"))
+                        .ToListAsync()
+                        .Wait());
         }
 
         [Fact]
@@ -248,6 +249,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 public DatabaseErrorLogState LastDatabaseErrorState { get; private set; }
                 public Exception LastDatabaseErrorException { get; private set; }
                 public Func<object, Exception, string> LastDatabaseErrorFormatter { get; private set; }
+
+                private class NullScope : IDisposable
+                {
+                    public static readonly NullScope Instance = new NullScope();
+
+                    public void Dispose()
+                    {
+                        // intentionally does nothing
+                    }
+                }
             }
         }
     }

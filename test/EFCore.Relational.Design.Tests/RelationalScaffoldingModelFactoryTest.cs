@@ -6,28 +6,29 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Relational.Design.Specification.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Design
 {
     public class RelationalDatabaseModelFactoryTest
     {
         private readonly FakeScaffoldingModelFactory _factory;
-        private readonly TestLogger<LoggerCategory.Scaffolding> _logger;
+        private readonly DesignLogger<LoggerCategory.Scaffolding> _logger;
         private static ColumnModel IdColumn => new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0 };
 
         public RelationalDatabaseModelFactoryTest()
         {
-            _logger = new TestLogger<LoggerCategory.Scaffolding>();
+            _logger = new DesignLogger<LoggerCategory.Scaffolding>();
 
             _factory = new FakeScaffoldingModelFactory(
                 new DiagnosticsLogger<LoggerCategory.Scaffolding>(
@@ -44,7 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 {
                     new TableModel
                     {
-                        Name = "tableWithSchema", SchemaName = "public",
+                        Name = "tableWithSchema",
+                        SchemaName = "public",
                         Columns = { IdColumn }
                     },
                     new TableModel
@@ -59,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 }
             };
             var model = _factory.Create(info);
-            Assert.Collection(model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+            Assert.Collection(
+                model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
                 table =>
                     {
                         Assert.Equal("noSchema", table.Relational().TableName);
@@ -126,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
             var entityType = (EntityType)_factory.Create(info).FindEntityType("Jobs");
 
-            Assert.Collection(entityType.GetProperties(),
+            Assert.Collection(
+                entityType.GetProperties(),
                 pk =>
                     {
                         Assert.Equal("Id", pk.Name);
@@ -259,15 +263,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 }
             };
 
-            info.Tables.First().Columns.Add(new ColumnModel
-            {
-                Table = info.Tables.First(),
-                Name = "Coli",
-                DataType = dataType
-            });
+            info.Tables.First()
+                .Columns.Add(
+                    new ColumnModel
+                    {
+                        Table = info.Tables.First(),
+                        Name = "Coli",
+                        DataType = dataType
+                    });
 
             Assert.Single(_factory.Create(info).FindEntityType("E").GetProperties());
-            Assert.Contains(RelationalDesignStrings.CannotFindTypeMappingForColumn("E.Coli", dataType), _logger.FullLog);
+            Assert.Single(_logger.Statements, t => t.Contains(RelationalDesignStrings.CannotFindTypeMappingForColumn("E.Coli", dataType)));
         }
 
         [Theory]
@@ -306,44 +312,49 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     new ColumnModel { Name = "C3", DataType = "long" }
                 }
             };
-            table.Indexes.Add(new IndexModel
-            {
-                Name = "IDX_C1",
-                IndexColumns = { new IndexColumnModel { Column = table.Columns.ElementAt(0) } },
-                IsUnique = false
-            });
-            table.Indexes.Add(new IndexModel
-            {
-                Name = "UNQ_C2",
-                IndexColumns = { new IndexColumnModel { Column = table.Columns.ElementAt(1) } },
-                IsUnique = true
-            });
-            table.Indexes.Add(new IndexModel
-            {
-                Name = "IDX_C2_C1",
-                IndexColumns =
+            table.Indexes.Add(
+                new IndexModel
                 {
-                    new IndexColumnModel { Column = table.Columns.ElementAt(1) },
-                    new IndexColumnModel { Column = table.Columns.ElementAt(0) }
-                },
-                IsUnique = false
-            });
-            table.Indexes.Add(new IndexModel
-            {
-                /*Name ="UNQ_C3_C1",*/
-                IndexColumns =
+                    Name = "IDX_C1",
+                    IndexColumns = { new IndexColumnModel { Column = table.Columns.ElementAt(0) } },
+                    IsUnique = false
+                });
+            table.Indexes.Add(
+                new IndexModel
                 {
-                    new IndexColumnModel { Column = table.Columns.ElementAt(2) },
-                    new IndexColumnModel { Column = table.Columns.ElementAt(0) }
-                },
-                IsUnique = true
-            });
+                    Name = "UNQ_C2",
+                    IndexColumns = { new IndexColumnModel { Column = table.Columns.ElementAt(1) } },
+                    IsUnique = true
+                });
+            table.Indexes.Add(
+                new IndexModel
+                {
+                    Name = "IDX_C2_C1",
+                    IndexColumns =
+                    {
+                        new IndexColumnModel { Column = table.Columns.ElementAt(1) },
+                        new IndexColumnModel { Column = table.Columns.ElementAt(0) }
+                    },
+                    IsUnique = false
+                });
+            table.Indexes.Add(
+                new IndexModel
+                {
+                    /*Name ="UNQ_C3_C1",*/
+                    IndexColumns =
+                    {
+                        new IndexColumnModel { Column = table.Columns.ElementAt(2) },
+                        new IndexColumnModel { Column = table.Columns.ElementAt(0) }
+                    },
+                    IsUnique = true
+                });
 
             var info = new DatabaseModel { Tables = { table } };
 
             var entityType = (EntityType)_factory.Create(info).GetEntityTypes().Single();
 
-            Assert.Collection(entityType.GetIndexes(),
+            Assert.Collection(
+                entityType.GetIndexes(),
                 indexColumn1 =>
                     {
                         Assert.False(indexColumn1.IsUnique);
@@ -385,21 +396,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     new ColumnModel { Name = "ParentId", DataType = "long", IsNullable = true }
                 }
             };
-            childrenTable.ForeignKeys.Add(new ForeignKeyModel
-            {
-                Table = childrenTable,
-                PrincipalTable = parentTable,
-                OnDelete = ReferentialAction.Cascade,
-                Columns =
+            childrenTable.ForeignKeys.Add(
+                new ForeignKeyModel
                 {
-                    new ForeignKeyColumnModel
+                    Table = childrenTable,
+                    PrincipalTable = parentTable,
+                    OnDelete = ReferentialAction.Cascade,
+                    Columns =
                     {
-                        Ordinal = 1,
-                        Column = childrenTable.Columns.ElementAt(1),
-                        PrincipalColumn = parentTable.Columns.ElementAt(0)
+                        new ForeignKeyColumnModel
+                        {
+                            Ordinal = 1,
+                            Column = childrenTable.Columns.ElementAt(1),
+                            PrincipalColumn = parentTable.Columns.ElementAt(0)
+                        }
                     }
-                }
-            });
+                });
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
@@ -424,21 +436,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         {
             var parentTable = new TableModel { Name = "Parent", Columns = { IdColumn } };
             var childrenTable = new TableModel { Name = "Children", Columns = { IdColumn } };
-            childrenTable.ForeignKeys.Add(new ForeignKeyModel
-            {
-                Table = childrenTable,
-                PrincipalTable = parentTable,
-                OnDelete = ReferentialAction.NoAction,
-                Columns =
+            childrenTable.ForeignKeys.Add(
+                new ForeignKeyModel
                 {
-                    new ForeignKeyColumnModel
+                    Table = childrenTable,
+                    PrincipalTable = parentTable,
+                    OnDelete = ReferentialAction.NoAction,
+                    Columns =
                     {
-                        Ordinal = 1,
-                        Column = childrenTable.Columns.ElementAt(0),
-                        PrincipalColumn = parentTable.Columns.ElementAt(0)
+                        new ForeignKeyColumnModel
+                        {
+                            Ordinal = 1,
+                            Column = childrenTable.Columns.ElementAt(0),
+                            PrincipalColumn = parentTable.Columns.ElementAt(0)
+                        }
                     }
-                }
-            });
+                });
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
@@ -472,27 +485,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     new ColumnModel { Name = "ParentId_B", DataType = "long" }
                 }
             };
-            childrenTable.ForeignKeys.Add(new ForeignKeyModel
-            {
-                Table = childrenTable,
-                PrincipalTable = parentTable,
-                OnDelete = ReferentialAction.SetNull,
-                Columns =
+            childrenTable.ForeignKeys.Add(
+                new ForeignKeyModel
                 {
-                    new ForeignKeyColumnModel
+                    Table = childrenTable,
+                    PrincipalTable = parentTable,
+                    OnDelete = ReferentialAction.SetNull,
+                    Columns =
                     {
-                        Ordinal = 1,
-                        Column = childrenTable.Columns.ElementAt(1),
-                        PrincipalColumn = parentTable.Columns.ElementAt(0)
-                    },
-                    new ForeignKeyColumnModel
-                    {
-                        Ordinal = 1,
-                        Column = childrenTable.Columns.ElementAt(2),
-                        PrincipalColumn = parentTable.Columns.ElementAt(1)
+                        new ForeignKeyColumnModel
+                        {
+                            Ordinal = 1,
+                            Column = childrenTable.Columns.ElementAt(1),
+                            PrincipalColumn = parentTable.Columns.ElementAt(0)
+                        },
+                        new ForeignKeyColumnModel
+                        {
+                            Ordinal = 1,
+                            Column = childrenTable.Columns.ElementAt(2),
+                            PrincipalColumn = parentTable.Columns.ElementAt(1)
+                        }
                     }
-                }
-            });
+                });
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
@@ -526,20 +540,21 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     new ColumnModel { Name = "ParentId", DataType = "long", IsNullable = false }
                 }
             };
-            table.ForeignKeys.Add(new ForeignKeyModel
-            {
-                Table = table,
-                PrincipalTable = table,
-                Columns =
+            table.ForeignKeys.Add(
+                new ForeignKeyModel
                 {
-                    new ForeignKeyColumnModel
+                    Table = table,
+                    PrincipalTable = table,
+                    Columns =
                     {
-                        Ordinal = 1,
-                        Column = table.Columns.ElementAt(1),
-                        PrincipalColumn = table.Columns.ElementAt(0)
+                        new ForeignKeyColumnModel
+                        {
+                            Ordinal = 1,
+                            Column = table.Columns.ElementAt(1),
+                            PrincipalColumn = table.Columns.ElementAt(0)
+                        }
                     }
-                }
-            });
+                });
 
             var model = _factory.Create(new DatabaseModel { Tables = { table } });
             var list = model.FindEntityType("ItemsList");
@@ -573,27 +588,29 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     new ColumnModel { Name = "ParentId", DataType = "long" }
                 }
             };
-            childrenTable.ForeignKeys.Add(new ForeignKeyModel
-            {
-                Table = childrenTable,
-                PrincipalTable = parentTable,
-                Columns =
+            childrenTable.ForeignKeys.Add(
+                new ForeignKeyModel
                 {
-                    new ForeignKeyColumnModel
+                    Table = childrenTable,
+                    PrincipalTable = parentTable,
+                    Columns =
                     {
-                        Ordinal = 1,
-                        Column = childrenTable.Columns.ElementAt(1),
-                        PrincipalColumn = parentTable.Columns.ElementAt(1)
+                        new ForeignKeyColumnModel
+                        {
+                            Ordinal = 1,
+                            Column = childrenTable.Columns.ElementAt(1),
+                            PrincipalColumn = parentTable.Columns.ElementAt(1)
+                        }
                     }
-                }
-            });
+                });
 
             _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
-            Assert.Contains("Warning: " +
-                            RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
-                                childrenTable.ForeignKeys.ElementAt(0).DisplayName, "NotPkId", "Parent"),
-                _logger.FullLog);
+            Assert.Single(
+                _logger.Statements, t => t.Contains(
+                    "Warning: " +
+                    RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
+                        childrenTable.ForeignKeys.ElementAt(0).DisplayName, "NotPkId", "Parent")));
         }
 
         [Fact]
@@ -608,25 +625,27 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     new ColumnModel { Name = "BuddyId", DataType = "long", IsNullable = true }
                 }
             };
-            table.Indexes.Add(new IndexModel
-            {
-                IndexColumns = { new IndexColumnModel { Column = table.Columns.ElementAt(1) } },
-                IsUnique = true
-            });
-            table.ForeignKeys.Add(new ForeignKeyModel
-            {
-                Table = table,
-                PrincipalTable = table,
-                Columns =
+            table.Indexes.Add(
+                new IndexModel
                 {
-                    new ForeignKeyColumnModel
+                    IndexColumns = { new IndexColumnModel { Column = table.Columns.ElementAt(1) } },
+                    IsUnique = true
+                });
+            table.ForeignKeys.Add(
+                new ForeignKeyModel
+                {
+                    Table = table,
+                    PrincipalTable = table,
+                    Columns =
                     {
-                        Ordinal = 1,
-                        Column = table.Columns.ElementAt(1),
-                        PrincipalColumn = table.Columns.ElementAt(0)
+                        new ForeignKeyColumnModel
+                        {
+                            Ordinal = 1,
+                            Column = table.Columns.ElementAt(1),
+                            PrincipalColumn = table.Columns.ElementAt(0)
+                        }
                     }
-                }
-            });
+                });
 
             var model = _factory.Create(new DatabaseModel { Tables = { table } }).FindEntityType("Friends");
 
@@ -653,26 +672,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     new ColumnModel { Name = "BuddyId", DataType = "long", IsNullable = true }
                 }
             };
-            table.Indexes.Add(new IndexModel
-            {
-                Name = "FriendsNameUniqueIndex",
-                IndexColumns = { new IndexColumnModel { Column = table.Columns.ElementAt(1) } },
-                IsUnique = true
-            });
-            table.ForeignKeys.Add(new ForeignKeyModel
-            {
-                Table = table,
-                PrincipalTable = table,
-                Columns =
+            table.Indexes.Add(
+                new IndexModel
                 {
-                    new ForeignKeyColumnModel
+                    Name = "FriendsNameUniqueIndex",
+                    IndexColumns = { new IndexColumnModel { Column = table.Columns.ElementAt(1) } },
+                    IsUnique = true
+                });
+            table.ForeignKeys.Add(
+                new ForeignKeyModel
+                {
+                    Table = table,
+                    PrincipalTable = table,
+                    Columns =
                     {
-                        Ordinal = 1,
-                        Column = table.Columns.ElementAt(1),
-                        PrincipalColumn = table.Columns.ElementAt(1)
+                        new ForeignKeyColumnModel
+                        {
+                            Ordinal = 1,
+                            Column = table.Columns.ElementAt(1),
+                            PrincipalColumn = table.Columns.ElementAt(1)
+                        }
                     }
-                }
-            });
+                });
 
             var model = _factory.Create(new DatabaseModel { Tables = { table } }).FindEntityType("Friends");
 
@@ -686,10 +707,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
             var alternateKey = model.GetKeys().Single(k => !k.IsPrimaryKey());
             Assert.Equal(alternateKey, fk.PrincipalKey);
 
-            Assert.Contains("Warning: " +
-                RelationalDesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
-                    table.ForeignKeys.ElementAt(0).DisplayName, "FriendsNameUniqueIndex", "BuddyId"),
-                _logger.FullLog);
+            Assert.Single(
+                _logger.Statements, t => t.Contains(
+                    "Warning: " +
+                    RelationalDesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
+                        table.ForeignKeys.ElementAt(0).DisplayName, "FriendsNameUniqueIndex", "BuddyId")));
         }
 
         [Fact]
@@ -714,35 +736,37 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     new ColumnModel { Name = "ParentId_B", DataType = "long" }
                 }
             };
-            childrenTable.Indexes.Add(new IndexModel
-            {
-                IsUnique = true,
-                IndexColumns =
+            childrenTable.Indexes.Add(
+                new IndexModel
                 {
-                    new IndexColumnModel { Column = childrenTable.Columns.ElementAt(1) },
-                    new IndexColumnModel { Column = childrenTable.Columns.ElementAt(2) }
-                }
-            });
-            childrenTable.ForeignKeys.Add(new ForeignKeyModel
-            {
-                Table = childrenTable,
-                PrincipalTable = parentTable,
-                Columns =
-                {
-                    new ForeignKeyColumnModel
+                    IsUnique = true,
+                    IndexColumns =
                     {
-                        Ordinal = 1,
-                        Column = childrenTable.Columns.ElementAt(1),
-                        PrincipalColumn = parentTable.Columns.ElementAt(0)
-                    },
-                    new ForeignKeyColumnModel
-                    {
-                        Ordinal = 2,
-                        Column = childrenTable.Columns.ElementAt(2),
-                        PrincipalColumn = parentTable.Columns.ElementAt(1)
+                        new IndexColumnModel { Column = childrenTable.Columns.ElementAt(1) },
+                        new IndexColumnModel { Column = childrenTable.Columns.ElementAt(2) }
                     }
-                }
-            });
+                });
+            childrenTable.ForeignKeys.Add(
+                new ForeignKeyModel
+                {
+                    Table = childrenTable,
+                    PrincipalTable = parentTable,
+                    Columns =
+                    {
+                        new ForeignKeyColumnModel
+                        {
+                            Ordinal = 1,
+                            Column = childrenTable.Columns.ElementAt(1),
+                            PrincipalColumn = parentTable.Columns.ElementAt(0)
+                        },
+                        new ForeignKeyColumnModel
+                        {
+                            Ordinal = 2,
+                            Column = childrenTable.Columns.ElementAt(2),
+                            PrincipalColumn = parentTable.Columns.ElementAt(1)
+                        }
+                    }
+                });
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
             var parent = model.FindEntityType("Parent");
@@ -763,7 +787,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 {
                     new TableModel
                     {
-                        Name = "E F", Columns =
+                        Name = "E F",
+                        Columns =
                         {
                             new ColumnModel { Name = "San itized", DataType = "long" },
                             new ColumnModel { Name = "San+itized", DataType = "long" }
@@ -778,12 +803,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
             var model = _factory.Create(info);
 
-            Assert.Collection(model.GetEntityTypes().Cast<EntityType>(),
+            Assert.Collection(
+                model.GetEntityTypes().Cast<EntityType>(),
                 ef1 =>
                     {
                         Assert.Equal("E F", ef1.Relational().TableName);
                         Assert.Equal("EF", ef1.Name);
-                        Assert.Collection(ef1.GetProperties(),
+                        Assert.Collection(
+                            ef1.GetProperties(),
                             id => { Assert.Equal("Id", id.Name); },
                             s1 =>
                                 {
@@ -819,16 +846,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
             var model = (Model)_factory.Create(info);
 
-            Assert.Collection(model.Relational().Sequences, first =>
-                {
-                    Assert.NotNull(first);
-                    Assert.Equal("CountByThree", first.Name);
-                    Assert.Equal(3, first.IncrementBy);
-                    Assert.Null(first.Schema);
-                    Assert.Null(first.MaxValue);
-                    Assert.Null(first.MinValue);
-                    Assert.False(first.IsCyclic);
-                });
+            Assert.Collection(
+                model.Relational().Sequences, first =>
+                    {
+                        Assert.NotNull(first);
+                        Assert.Equal("CountByThree", first.Name);
+                        Assert.Equal(3, first.IncrementBy);
+                        Assert.Null(first.Schema);
+                        Assert.Null(first.MaxValue);
+                        Assert.Null(first.MinValue);
+                        Assert.False(first.IsCyclic);
+                    });
         }
 
         [Fact]
@@ -872,32 +900,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
             var factory = new FakeScaffoldingModelFactory(
                 new DiagnosticsLogger<LoggerCategory.Scaffolding>(
-                    new TestLogger<LoggerCategory.Scaffolding>(),
+                    new DesignLogger<LoggerCategory.Scaffolding>(),
                     new DiagnosticListener("Fake")),
                 new FakePluralizer());
 
             var model = factory.Create(info);
 
-            Assert.Collection(model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+            Assert.Collection(
+                model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
                 entity =>
-                {
-                    Assert.Equal("Blog", entity.Relational().TableName);
-                    Assert.Equal("Blog", entity.Name);
-                    Assert.Equal("Blogs", entity.Scaffolding().DbSetName);
-                },
+                    {
+                        Assert.Equal("Blog", entity.Relational().TableName);
+                        Assert.Equal("Blog", entity.Name);
+                        Assert.Equal("Blogs", entity.Scaffolding().DbSetName);
+                    },
                 entity =>
-                {
-                    Assert.Equal("Posts", entity.Relational().TableName);
-                    Assert.Equal("Post", entity.Name);
-                    Assert.Equal("Posts", entity.Scaffolding().DbSetName);
-                }
+                    {
+                        Assert.Equal("Posts", entity.Relational().TableName);
+                        Assert.Equal("Post", entity.Name);
+                        Assert.Equal("Posts", entity.Scaffolding().DbSetName);
+                    }
             );
         }
 
         [Fact]
         public void Pluralization_of_collection_navigations()
         {
-
             var blogTable = new TableModel { Name = "Blog", Columns = { IdColumn } };
             var postTable = new TableModel
             {
@@ -909,21 +937,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 }
             };
 
-            postTable.ForeignKeys.Add(new ForeignKeyModel
-            {
-                Table = postTable,
-                PrincipalTable = blogTable,
-                OnDelete = ReferentialAction.Cascade,
-                Columns =
+            postTable.ForeignKeys.Add(
+                new ForeignKeyModel
                 {
-                    new ForeignKeyColumnModel
+                    Table = postTable,
+                    PrincipalTable = blogTable,
+                    OnDelete = ReferentialAction.Cascade,
+                    Columns =
                     {
-                        Ordinal = 1,
-                        Column = postTable.Columns.ElementAt(1),
-                        PrincipalColumn = blogTable.Columns.ElementAt(0)
+                        new ForeignKeyColumnModel
+                        {
+                            Ordinal = 1,
+                            Column = postTable.Columns.ElementAt(1),
+                            PrincipalColumn = blogTable.Columns.ElementAt(0)
+                        }
                     }
-                }
-            });
+                });
 
             var info = new DatabaseModel
             {
@@ -932,23 +961,24 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
             var factory = new FakeScaffoldingModelFactory(
                 new DiagnosticsLogger<LoggerCategory.Scaffolding>(
-                    new TestLogger<LoggerCategory.Scaffolding>(),
+                    new DesignLogger<LoggerCategory.Scaffolding>(),
                     new DiagnosticListener("Fake")),
                 new FakePluralizer());
 
             var model = factory.Create(info);
 
-            Assert.Collection(model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+            Assert.Collection(
+                model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
                 entity =>
-                {
-                    Assert.Equal("Blog", entity.Name);
-                    Assert.Equal("Posts", entity.GetNavigations().Single().Name);
-                },
+                    {
+                        Assert.Equal("Blog", entity.Name);
+                        Assert.Equal("Posts", entity.GetNavigations().Single().Name);
+                    },
                 entity =>
-                {
-                    Assert.Equal("Post", entity.Name);
-                    Assert.Equal("Blog", entity.GetNavigations().Single().Name);
-                }
+                    {
+                        Assert.Equal("Post", entity.Name);
+                        Assert.Equal("Blog", entity.GetNavigations().Single().Name);
+                    }
             );
         }
     }
@@ -960,17 +990,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         public FakeScaffoldingModelFactory(
             [NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger)
             : this(logger, new NullPluralizer())
-        { }
+        {
+        }
 
         public FakeScaffoldingModelFactory(
             [NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger,
             [NotNull] IPluralizer pluralizer)
-            : base(logger,
+            : base(
+                logger,
                 new TestTypeMapper(new RelationalTypeMapperDependencies()),
                 new FakeDatabaseModelFactory(),
                 new CandidateNamingService(),
                 pluralizer)
-        { }
+        {
+        }
     }
 
     public class FakeDatabaseModelFactory : IDatabaseModelFactory
@@ -1027,8 +1060,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         public string Singularize(string name)
         {
             return name.EndsWith("s")
-                 ? name.Substring(0, name.Length - 1)
-                 : name;
+                ? name.Substring(0, name.Length - 1)
+                : name;
         }
     }
 }

@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -37,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
             ConfigureDesignTimeServices(serviceBuilder);
 
             var serviceProvider = serviceBuilder
-                .AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService()).BuildServiceProvider();
+                .AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService())
+                .BuildServiceProvider();
 
             _reporter = new InMemoryOperationReporter(_output);
             var factory = serviceProvider.GetService<ILoggerFactory>();
@@ -126,22 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
                 source.References.Add(r);
             }
             source.BuildInMemory();
-        }
-
-        private class TestLoggerProvider : ILoggerProvider
-        {
-            private readonly ILogger _logger;
-
-            public TestLoggerProvider(ILogger logger)
-            {
-                _logger = logger;
-            }
-
-            public ILogger CreateLogger(string name) => _logger;
-
-            public void Dispose()
-            {
-            }
         }
     }
 }

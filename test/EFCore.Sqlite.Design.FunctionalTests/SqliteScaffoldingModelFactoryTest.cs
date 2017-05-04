@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Design.Specification.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
@@ -20,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
     {
         private readonly RelationalScaffoldingModelFactory _scaffoldingModelFactory;
         private readonly SqliteTestStore _testStore;
-        private readonly TestLogger _logger;
+        private readonly TestDesignLoggerFactory _loggerFactory = new TestDesignLoggerFactory();
 
         public SqliteScaffoldingModelFactoryTest()
         {
@@ -31,13 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             var serviceProvider = serviceCollection
                 .AddSingleton<IFileService, FileSystemFileService>()
+                .AddSingleton<ILoggerFactory>(_loggerFactory)
                 .BuildServiceProvider();
-
-            _logger = new TestLogger();
-            var factory = serviceProvider.GetService<ILoggerFactory>();
-#pragma warning disable CS0618 // Type or member is obsolete
-            factory.AddProvider(new TestLoggerProvider(_logger));
-#pragma warning restore CS0618 // Type or member is obsolete
 
             _scaffoldingModelFactory = serviceProvider
                 .GetService<IScaffoldingModelFactory>() as RelationalScaffoldingModelFactory;
@@ -46,9 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         [Fact]
         public void It_loads_column_types()
         {
-            var entityType = GetModel(@"CREATE TABLE ""Column Types"" (
+            var entityType = GetModel(
+                    @"CREATE TABLE ""Column Types"" (
                                         col1 text PRIMARY KEY,
-                                        col2 unsigned big int );").FindEntityType("ColumnTypes");
+                                        col2 unsigned big int );")
+                .FindEntityType("ColumnTypes");
 
             Assert.NotNull(entityType);
             Assert.Equal("Column Types", entityType.Sqlite().TableName);
@@ -63,14 +61,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         [Fact]
         public void It_loads_default_values()
         {
-            var entityType = GetModel(@"CREATE TABLE Jobs (
+            var entityType = GetModel(
+                    @"CREATE TABLE Jobs (
                                             id PRIMARY KEY,
                                             occupation text default ""dev"",
                                             pay int default 2,
                                             hiredate datetime default current_timestamp,
                                             iq float default (100 + 19.4),
                                             name text
-                                            );").FindEntityType("Jobs");
+                                            );")
+                .FindEntityType("Jobs");
 
             Assert.NotNull(entityType);
 
@@ -84,10 +84,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         [Fact]
         public void It_identifies_not_null()
         {
-            var entityType = GetModel(@"CREATE TABLE Restaurants (
+            var entityType = GetModel(
+                    @"CREATE TABLE Restaurants (
                                         Id int primary key,
                                         Name text not null,
-                                        MenuUrl text );").FindEntityType("Restaurants");
+                                        MenuUrl text );")
+                .FindEntityType("Restaurants");
 
             Assert.NotNull(entityType);
 
@@ -202,9 +204,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             GetModel(sql);
 
-            Assert.Contains("Warning: " +
-                            RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalTableNotFound("0"),
-                _logger.FullLog);
+            Assert.Single(
+                _loggerFactory.Logger.Statements,
+                t => t.Contains(
+                    "Warning: " +
+                    RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalTableNotFound("0")));
         }
 
         [Fact]
@@ -220,9 +224,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             GetModel(sql);
 
-            Assert.Contains("Warning: " +
-                            RelationalDesignStrings.PrincipalColumnNotFound(0, "Children", "Id", "Parent"),
-                _logger.FullLog);
+            Assert.Single(
+                _loggerFactory.Logger.Statements,
+                t => t.Contains(
+                    "Warning: " +
+                    RelationalDesignStrings.PrincipalColumnNotFound(0, "Children", "Id", "Parent")));
         }
 
         [Fact]

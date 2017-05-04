@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton(TestFileLogger.Factory)
+                .AddSingleton<ILoggerFactory>(new TestLoggerFactory())
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 

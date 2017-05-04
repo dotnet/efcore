@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests
@@ -29,12 +29,12 @@ CREATE TYPE [Schema1].[TestTypeAlias] FROM int NOT NULL;
 CREATE TYPE [Schema2].[TestTypeAlias] FROM datetime NOT NULL;";
             var dbModel = CreateModel(sql);
 
-            var testTypeAlias1 = dbModel.SqlServer().TypeAliases.Where(kvp => kvp.Key.Contains("Schema1")).SingleOrDefault();
+            var testTypeAlias1 = dbModel.SqlServer().TypeAliases.SingleOrDefault(kvp => kvp.Key.Contains("Schema1"));
             Assert.NotNull(testTypeAlias1);
             Assert.Equal("[Schema1].[TestTypeAlias]", testTypeAlias1.Key);
             Assert.Equal("int", testTypeAlias1.Value);
 
-            var testTypeAlias2 = dbModel.SqlServer().TypeAliases.Where(kvp => kvp.Key.Contains("Schema2")).SingleOrDefault();
+            var testTypeAlias2 = dbModel.SqlServer().TypeAliases.SingleOrDefault(kvp => kvp.Key.Contains("Schema2"));
             Assert.NotNull(testTypeAlias2);
             Assert.Equal("[Schema2].[TestTypeAlias]", testTypeAlias2.Key);
             Assert.Equal("datetime", testTypeAlias2.Value);
@@ -48,7 +48,8 @@ CREATE TABLE [dbo].[Everest] ( id int );
 CREATE TABLE [dbo].[Denali] ( id int );";
             var dbModel = CreateModel(sql, new TableSelectionSet(new List<string> { "Everest", "Denali" }));
 
-            Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
+            Assert.Collection(
+                dbModel.Tables.OrderBy(t => t.Name),
                 d =>
                     {
                         Assert.Equal("dbo", d.SchemaName);
@@ -69,11 +70,10 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             var sql = "CREATE UNIQUE CLUSTERED INDEX IX_ShortHills_Names ON ShortHills (Name);";
 
             var selectionSet = new TableSelectionSet(new List<string> { "Hills", "ShortHills" });
-            var logger = new SqlServerDatabaseModelFixture.TestLogger();
 
-            var dbModel = CreateModel(sql, selectionSet, logger);
+            var dbModel = CreateModel(sql, selectionSet);
             Assert.Single(dbModel.Tables);
-            Assert.DoesNotContain(logger.Items, i => ((string)i.message).Contains("ShortHills"));
+            Assert.DoesNotContain(_fixture.TestDesignLoggerFactory.Logger.Statements, i => i.Contains("ShortHills"));
         }
 
         [Fact]
@@ -86,6 +86,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
 
             var fk = Assert.Single(dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
+            // ReSharper disable once PossibleNullReferenceException
             Assert.Equal("db2", fk.Table.SchemaName);
             Assert.Equal("Mountains", fk.Table.Name);
             Assert.Equal("dbo", fk.PrincipalTable.SchemaName);
@@ -105,6 +106,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
 
             var fk = Assert.Single(dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
+            // ReSharper disable once PossibleNullReferenceException
             Assert.Equal("db3", fk.Table.SchemaName);
             Assert.Equal("Mountains1", fk.Table.Name);
             Assert.Equal("dbo", fk.PrincipalTable.SchemaName);
@@ -124,13 +126,15 @@ CREATE TABLE [dbo].[Denali] ( id int );";
 
             var indexes = dbModel.Tables.Single().Indexes;
 
-            Assert.All(indexes, c =>
-                {
-                    Assert.Equal("dbo", c.Table.SchemaName);
-                    Assert.Equal("Place", c.Table.Name);
-                });
+            Assert.All(
+                indexes, c =>
+                    {
+                        Assert.Equal("dbo", c.Table.SchemaName);
+                        Assert.Equal("Place", c.Table.Name);
+                    });
 
-            Assert.Collection(indexes.OrderBy(i => i.Name),
+            Assert.Collection(
+                indexes.OrderBy(i => i.Name),
                 nonClustered =>
                     {
                         Assert.Equal("IX_Location", nonClustered.Name);
@@ -178,13 +182,15 @@ CREATE TABLE [dbo].[MountainsColumns] (
 
             var columns = dbModel.Tables.Single().Columns.OrderBy(c => c.Ordinal);
 
-            Assert.All(columns, c =>
-                {
-                    Assert.Equal("dbo", c.Table.SchemaName);
-                    Assert.Equal("MountainsColumns", c.Table.Name);
-                });
+            Assert.All(
+                columns, c =>
+                    {
+                        Assert.Equal("dbo", c.Table.SchemaName);
+                        Assert.Equal("MountainsColumns", c.Table.Name);
+                    });
 
-            Assert.Collection(columns,
+            Assert.Collection(
+                columns,
                 id =>
                     {
                         Assert.Equal("Id", id.Name);
@@ -276,6 +282,7 @@ CREATE TABLE [dbo].[Identities] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "")
                 new TableSelectionSet(new List<string> { "Identities" }));
 
             var column = Assert.Single(dbModel.Tables.Single().Columns);
+            // ReSharper disable once AssignNullToNotNullAttribute
             Assert.Equal(isIdentity, column.SqlServer().IsIdentity);
             Assert.Equal(isIdentity ? ValueGenerated.OnAdd : default(ValueGenerated?), column.ValueGenerated);
         }
@@ -290,6 +297,7 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B
 
             var dbModel = CreateModel(sql, selectionSet);
             var table = Assert.Single(dbModel.Tables);
+            // ReSharper disable once PossibleNullReferenceException
             Assert.Equal("K2", table.Name);
             Assert.Equal(2, table.Columns.Count);
             Assert.Equal(1, table.Indexes.Count);
@@ -311,7 +319,8 @@ CREATE SEQUENCE CustomSequence_read
     CYCLE;";
 
             var dbModel = CreateModel(sql);
-            Assert.Collection(dbModel.Sequences.Where(s => s.Name.EndsWith("_read")).OrderBy(s => s.Name),
+            Assert.Collection(
+                dbModel.Sequences.Where(s => s.Name.EndsWith("_read", StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.Name),
                 c =>
                     {
                         Assert.Equal(c.Name, "CustomSequence_read");
@@ -360,18 +369,19 @@ CREATE SEQUENCE [DecimalSequence_defaults]
 CREATE SEQUENCE [NumericSequence_defaults]
     AS numeric;";
             var dbModel = CreateModel(sql);
-            Assert.All(dbModel.Sequences.Where(s => s.Name.EndsWith("_defaults")), s =>
-                {
-                    Assert.Null(s.Start);
-                    Assert.Null(s.Min);
-                    Assert.Null(s.Max);
-                });
+            Assert.All(
+                dbModel.Sequences.Where(s => s.Name.EndsWith("_defaults", StringComparison.OrdinalIgnoreCase)), s =>
+                    {
+                        Assert.Null(s.Start);
+                        Assert.Null(s.Min);
+                        Assert.Null(s.Max);
+                    });
         }
 
         private readonly SqlServerDatabaseModelFixture _fixture;
 
-        public DatabaseModel CreateModel(string createSql, TableSelectionSet selection = null, ILogger logger = null)
-            => _fixture.CreateModel(createSql, selection, logger);
+        public DatabaseModel CreateModel(string createSql, TableSelectionSet selection = null)
+            => _fixture.CreateModel(createSql, selection);
 
         public SqlServerDatabaseModelFactoryTest(SqlServerDatabaseModelFixture fixture)
         {

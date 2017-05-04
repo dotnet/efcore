@@ -14,14 +14,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         private readonly DbContextOptions _options;
 
-        private readonly TestLoggerFactory _testLoggerFactory = new TestLoggerFactory();
-
         public GearsOfWarQueryInMemoryFixture()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ILoggerFactory>(_testLoggerFactory)
+                .AddSingleton<ILoggerFactory>(new TestLoggerFactory())
                 .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder()
