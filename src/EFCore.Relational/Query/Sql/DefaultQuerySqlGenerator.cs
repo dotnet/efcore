@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether this SQL query is cacheable.
+        ///     Gets a value indicating whether this SQL query is cacheable.
         /// </summary>
         /// <value>
         ///     true if this SQL query is cacheable, false if not.

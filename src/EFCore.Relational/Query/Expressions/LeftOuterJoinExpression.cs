@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <summary>
         ///     Creates a new instance of LeftOuterJoinExpression.
         /// </summary>
-        /// <param name="tableExpression"></param>
+        /// <param name="tableExpression"> The target table expression. </param>
         public LeftOuterJoinExpression([NotNull] TableExpressionBase tableExpression)
             : base(Check.NotNull(tableExpression, nameof(tableExpression)))
         {

@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         For WPF data binding use an ObservableCollection rather than an instance of this class.
     ///     </para>
     /// </summary>
-    /// <typeparam name="T"> </typeparam>
+    /// <typeparam name="T"> The type of elements in the collection. </typeparam>
     public class ObservableCollectionListSource<T> : ObservableCollection<T>, IListSource
         where T : class
     {

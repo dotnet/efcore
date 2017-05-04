@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">
         ///     The name to be used for the parameter when the command is executed against the database.
         /// </param>
-        /// <param name="property"></param>
+        /// <param name="property"> The property that the type for this parameter will come from. </param>
         void AddParameter(
             [NotNull] string invariantName,
             [NotNull] string name,

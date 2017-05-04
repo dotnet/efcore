@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     this entity type.
         /// </summary>
         /// <param name="filter">The LINQ predicate expression.</param>
-        /// <returns></returns>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder<TEntity> HasQueryFilter([CanBeNull] Expression<Func<TEntity, bool>> filter)
             => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filter);
 

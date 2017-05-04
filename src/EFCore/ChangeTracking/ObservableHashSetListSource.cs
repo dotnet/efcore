@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         For WPF data binding use an ObservableHashSet rather than an instance of this class.
     ///     </para>
     /// </summary>
-    /// <typeparam name="T"> </typeparam>
+    /// <typeparam name="T"> The type of elements in the hash set. </typeparam>
     public class ObservableHashSetListSource<T> : ObservableHashSet<T>, IListSource
         where T : class
     {

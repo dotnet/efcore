@@ -9,6 +9,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <CodeAnalysisRuleSet>..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="$(CoreFxVersion)" />
+    <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersVersion)" PrivateAssets="All" />
     <PackageReference Include="System.Data.Common" Version="$(CoreFxVersion)" />
   </ItemGroup>
 

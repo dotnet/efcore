@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name"> The name of the parameter. </param>
         /// <param name="value"> The value to be assigned to the parameter. </param>
         /// <param name="nullable"> A value indicating whether the parameter should be a nullable type. </param>
-        /// <returns></returns>
+        /// <returns> The newly created parameter. </returns>
         public virtual DbParameter CreateParameter(
             [NotNull] DbCommand command,
             [NotNull] string name,

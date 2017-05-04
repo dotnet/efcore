@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     </para>
         /// </summary>
         /// <param name="querySqlGeneratorFactory"> The query SQL generator factory. </param>
-        /// <param name="relationalAnnotationProvider"></param>
+        /// <param name="relationalAnnotationProvider"> The relational annotation provider. </param>
         public SelectExpressionDependencies([NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
         {

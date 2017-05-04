@@ -85,6 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                    await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
                        Dependencies.Connection, cancellationToken: cancellationToken));
 
+        /// <summary>
+        ///     Interprets the result of executing <see cref="ExistsSql" />.
+        /// </summary>
         /// <returns>true if the table exists; otherwise, false.</returns>
         protected abstract bool InterpretExistsResult([NotNull] object value);
 

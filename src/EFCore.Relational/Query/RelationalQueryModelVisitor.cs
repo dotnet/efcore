@@ -1146,7 +1146,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Applies optimizations to the query.
         /// </summary>
         /// <param name="queryModel"> The query. </param>
-        /// <param name="asyncQuery"></param>
+        /// <param name="asyncQuery"> True if we are compiling an async query; otherwise false. </param>
         protected override void OptimizeQueryModel(
             QueryModel queryModel,
             bool asyncQuery)

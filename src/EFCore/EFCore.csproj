@@ -13,6 +13,7 @@ Microsoft.EntityFrameworkCore.DbSet
     <AssemblyName>Microsoft.EntityFrameworkCore</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <CodeAnalysisRuleSet>..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +30,7 @@ Microsoft.EntityFrameworkCore.DbSet
     <PackageReference Include="System.ComponentModel.Annotations" Version="$(CoreFxVersion)" />
     <PackageReference Include="System.Interactive.Async" Version="$(SystemInteractiveAsyncVersion)" />
     <PackageReference Include="System.ValueTuple" Version="$(CoreFxVersion)" />
+    <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersVersion)" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

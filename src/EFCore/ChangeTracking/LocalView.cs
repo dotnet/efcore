@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     marked as Deleted.
         /// </summary>
         /// <param name="item"> The entity to check. </param>
-        /// <returns></returns>
+        /// <returns> True if the entity is being tracked by the context and has not been marked as Deleted. </returns>
         public virtual bool Contains(TEntity item)
         {
             var entry = _stateManager.TryGetEntry(item);

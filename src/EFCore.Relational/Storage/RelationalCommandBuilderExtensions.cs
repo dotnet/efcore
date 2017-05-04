@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">
         ///     The name to be used for the parameter when the command is executed against the database.
         /// </param>
-        /// <param name="property"></param>
+        /// <param name="property"> The property that the type for this parameter will come from. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static IRelationalCommandBuilder AddParameter(
             [NotNull] this IRelationalCommandBuilder commandBuilder,
