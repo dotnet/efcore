@@ -14,6 +14,9 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
+    using ModificationCommandIdentityMapFactory
+        = Func<string, string, Func<string>, IRelationalAnnotationProvider, bool, ModificationCommandIdentityMap>;
+
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
@@ -25,9 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IComparer<ModificationCommand> _modificationCommandComparer;
         private readonly IRelationalAnnotationProvider _annotationProvider;
         private readonly IKeyValueIndexFactorySource _keyValueIndexFactorySource;
+        private readonly ICurrentDbContext _currentContext;
         private readonly bool _sensitiveLoggingEnabled;
 
-        private IReadOnlyDictionary<IEntityType, Func<IModificationCommandIdentityMap>> _tableSharingIdentityMapFactories;
+        private IReadOnlyDictionary<IEntityType, ModificationCommandIdentityMapFactory> _tableSharingIdentityMapFactories;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -39,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
             [NotNull] IRelationalAnnotationProvider annotationProvider,
             [NotNull] IKeyValueIndexFactorySource keyValueIndexFactorySource,
+            [NotNull] ICurrentDbContext currentContext,
             [NotNull] ILoggingOptions loggingOptions)
         {
             _modificationCommandBatchFactory = modificationCommandBatchFactory;
@@ -46,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _modificationCommandComparer = modificationCommandComparer;
             _annotationProvider = annotationProvider;
             _keyValueIndexFactorySource = keyValueIndexFactorySource;
+            _currentContext = currentContext;
 
             if (loggingOptions.SensitiveDataLoggingEnabled)
             {
@@ -95,8 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] Func<string> generateParameterName)
         {
             var commands = new List<ModificationCommand>();
-            var tableSharingMapFactories = GetTableSharingIdentityMapFactories(entries);
-            Dictionary<(string Schema, string Name), IModificationCommandIdentityMap> sharedCommandsMap = null;
+            var tableSharingMapFactories = GetTableSharingIdentityMapFactories(entries[0].EntityType.Model);
+            Dictionary<(string Schema, string Name), ModificationCommandIdentityMap> sharedCommandsMap = null;
             foreach (var entry in entries)
             {
                 var entityType = entry.EntityType;
@@ -108,26 +114,21 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     if (sharedCommandsMap == null)
                     {
-                        sharedCommandsMap = new Dictionary<(string Schema, string Name), IModificationCommandIdentityMap>();
+                        sharedCommandsMap = new Dictionary<(string Schema, string Name), ModificationCommandIdentityMap>();
                     }
                     if (!sharedCommandsMap.TryGetValue((schema, table), out var sharedCommands))
                     {
-                        sharedCommands = commandIdentityMapFactory();
+                        sharedCommands = commandIdentityMapFactory(
+                            table, schema, generateParameterName, _annotationProvider, _sensitiveLoggingEnabled);
                         sharedCommandsMap.Add((schema, table), sharedCommands);
                     }
 
-                    command = sharedCommands.TryGetCommand(entry);
-                    if (command == null)
-                    {
-                        command = new ModificationCommand(
-                            table, schema, generateParameterName, _annotationProvider, _sensitiveLoggingEnabled);
-                        sharedCommands.Add(entry, command);
-                    }
+                    command = sharedCommands.GetOrAddCommand(entry);
                 }
                 else
                 {
                     command = new ModificationCommand(
-                        table, schema, generateParameterName, _annotationProvider, _sensitiveLoggingEnabled);
+                        table, schema, generateParameterName, _annotationProvider, _sensitiveLoggingEnabled, comparer: null);
                 }
 
                 command.AddEntry(entry);
@@ -146,8 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                        || c.ColumnModifications.Any(m => m.IsWrite));
         }
 
-        private IReadOnlyDictionary<IEntityType, Func<IModificationCommandIdentityMap>> GetTableSharingIdentityMapFactories(
-            IReadOnlyList<IUpdateEntry> entries)
+        private IReadOnlyDictionary<IEntityType, ModificationCommandIdentityMapFactory> GetTableSharingIdentityMapFactories(
+            IModel model)
         {
             if (_tableSharingIdentityMapFactories != null)
             {
@@ -155,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
 
             var tables = new Dictionary<(string Schema, string TableName), List<IEntityType>>();
-            foreach (var entityType in entries[0].EntityType.Model.GetEntityTypes())
+            foreach (var entityType in model.GetEntityTypes())
             {
                 var fullName = (_annotationProvider.For(entityType).Schema, _annotationProvider.For(entityType).TableName);
                 if (!tables.TryGetValue(fullName, out var mappedEntityTypes))
@@ -167,17 +168,53 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 mappedEntityTypes.Add(entityType);
             }
 
-            var modificationCommandIdentityMapFactoryFactory = new ModificationCommandIdentityMapFactoryFactory();
-            var sharedTablesMap = new Dictionary<IEntityType, Func<IModificationCommandIdentityMap>>();
+            var sharedTablesMap = new Dictionary<IEntityType, ModificationCommandIdentityMapFactory>();
             foreach (var tableMapping in tables)
             {
-                var roots = tableMapping.Value.Where(e => e.BaseType == null).ToList();
+                var roots = new HashSet<IEntityType>(tableMapping.Value.Where(e => e.BaseType == null));
                 if (roots.Count > 1)
                 {
-                    var modificationCommandIdentityMapFactory = modificationCommandIdentityMapFactoryFactory.Create(roots);
+                    var rootGraph = new Multigraph<IEntityType, IForeignKey>();
+                    rootGraph.AddVertices(roots);
+                    foreach (var entityType in roots)
+                    {
+                        foreach (var foreignKey in entityType.GetForeignKeys())
+                        {
+                            if (foreignKey.PrincipalEntityType != entityType
+                                && roots.Contains(foreignKey.PrincipalEntityType))
+                            {
+                                rootGraph.AddEdge(foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType, foreignKey);
+                            }
+                        }
+                    }
+
+                    var sortedRoots = rootGraph.TopologicalSort();
+                    var rootTypesOrder = new Dictionary<IEntityType, int>(sortedRoots.Count);
+                    for (var i = 0; i < sortedRoots.Count; i++)
+                    {
+                        rootTypesOrder[sortedRoots[i]] = i;
+                    }
+
+                    var stateManager = _currentContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+
+                    ModificationCommandIdentityMap CommandIdentityMapFactory(
+                        string name,
+                        string schema,
+                        Func<string> generateParameterName,
+                        IRelationalAnnotationProvider annotationProvider,
+                        bool sensitiveLoggingEnabled)
+                        => new ModificationCommandIdentityMap(
+                            stateManager,
+                            rootTypesOrder,
+                            name,
+                            schema,
+                            generateParameterName,
+                            annotationProvider,
+                            sensitiveLoggingEnabled);
+
                     foreach (var entityType in tableMapping.Value)
                     {
-                        sharedTablesMap.Add(entityType, modificationCommandIdentityMapFactory);
+                        sharedTablesMap.Add(entityType, CommandIdentityMapFactory);
                     }
                 }
             }

@@ -980,7 +980,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
                 Reviews = Reviews ?? new ObservableCollection<IProductReview>();
                 Photos = Photos ?? new ObservableCollection<IProductPhoto>();
                 Barcodes = Barcodes ?? new ObservableCollection<IBarcode>();
-                Dimensions = Dimensions ?? new Dimensions();
             }
 
             public int ProductId

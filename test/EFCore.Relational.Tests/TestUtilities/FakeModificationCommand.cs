@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
             IRelationalAnnotationProvider annotationProvider,
             bool sensitiveLoggingEnabled,
             IReadOnlyList<ColumnModification> columnModifications)
-            : base(name, schema, generateParameterName, annotationProvider, sensitiveLoggingEnabled)
+            : base(name, schema, generateParameterName, annotationProvider, sensitiveLoggingEnabled, null)
         {
             ColumnModifications = columnModifications;
         }

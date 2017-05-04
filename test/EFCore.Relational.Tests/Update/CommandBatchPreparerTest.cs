@@ -414,7 +414,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Fact]
         public void BatchCommands_creates_valid_batch_for_shared_table_added_entities()
         {
-            var stateManager = CreateContextServices(CreateSharedTableModel()).GetRequiredService<IStateManager>();
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
 
             var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
@@ -423,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
+            var commandBatches = CreateCommandBatchPreparer(currentDbContext: currentDbContext).BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
             Assert.Equal(1, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
@@ -465,7 +466,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Fact]
         public void BatchCommands_creates_valid_batch_for_shared_table_modified_entities()
         {
-            var stateManager = CreateContextServices(CreateSharedTableModel()).GetRequiredService<IStateManager>();
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
 
             var entity = new FakeEntity { Id = 42, Value = "Null"};
             var entry = stateManager.GetOrCreateEntry(entity);
@@ -473,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             entry.SetEntityState(EntityState.Modified);
             entry.SetPropertyModified(entry.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }).ToArray();
+            var commandBatches = CreateCommandBatchPreparer(currentDbContext: currentDbContext).BatchCommands(new[] { entry }).ToArray();
             Assert.Equal(1, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
@@ -515,7 +517,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Fact]
         public void BatchCommands_creates_valid_batch_for_shared_table_deleted_entities()
         {
-            var stateManager = CreateContextServices(CreateSharedTableModel()).GetRequiredService<IStateManager>();
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
 
             var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
@@ -524,7 +527,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Deleted);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
+            var commandBatches = CreateCommandBatchPreparer(currentDbContext: currentDbContext)
+                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
 
             Assert.Equal(1, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
@@ -559,7 +563,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Theory]
         public void BatchCommands_throws_on_conflicting_updates_for_shared_table_added_entities(bool sensitiveLogging)
         {
-            var stateManager = CreateContextServices(CreateSharedTableModel()).GetRequiredService<IStateManager>();
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
 
             var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
@@ -575,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                         nameof(RelatedFakeEntity), "Id:42", EntityState.Deleted,
                         nameof(FakeEntity), "Id:42", EntityState.Added),
                     Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(sensitiveLogging: sensitiveLogging)
+                        () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
                         .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
             }
             else
@@ -585,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                         nameof(RelatedFakeEntity), EntityState.Deleted,
                         nameof(FakeEntity), EntityState.Added),
                     Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(sensitiveLogging: sensitiveLogging)
+                        () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
                             .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
             }
         }
@@ -597,7 +602,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Theory]
         public void BatchCommands_throws_on_conflicting_values_for_shared_table_added_entities(bool useCurrentValues, bool sensitiveLogging)
         {
-            var stateManager = CreateContextServices(CreateSharedTableModel()).GetRequiredService<IStateManager>();
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
 
             var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
@@ -628,7 +634,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             nameof(RelatedFakeEntity), nameof(FakeEntity), "Id:42",
                             "RelatedId:2", "RelatedId:1", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
-                            () => CreateCommandBatchPreparer(sensitiveLogging: sensitiveLogging)
+                            () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
                                 .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
                 }
                 else
@@ -638,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             nameof(RelatedFakeEntity), nameof(FakeEntity),
                             "{'RelatedId'}", "{'RelatedId'}", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
-                            () => CreateCommandBatchPreparer(sensitiveLogging: sensitiveLogging)
+                            () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
                                 .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
                 }
             }
@@ -651,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             nameof(RelatedFakeEntity), nameof(FakeEntity), "Id:42",
                             "RelatedId:2", "RelatedId:1", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
-                            () => CreateCommandBatchPreparer(sensitiveLogging: sensitiveLogging)
+                            () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
                                 .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
                 }
                 else
@@ -661,7 +667,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             nameof(RelatedFakeEntity), nameof(FakeEntity),
                             "{'RelatedId'}", "{'RelatedId'}", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
-                            () => CreateCommandBatchPreparer(sensitiveLogging: sensitiveLogging)
+                            () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
                                 .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
                 }
             }
@@ -674,7 +680,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Theory]
         public void BatchCommands_throws_on_incomplete_updates_for_shared_table(EntityState state, bool sensitiveLogging)
         {
-            var stateManager = CreateContextServices(CreateSharedTableModel()).GetRequiredService<IStateManager>();
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
 
             var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
@@ -682,16 +689,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             if (sensitiveLogging)
             {
-                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatchSensitive(2, "FakeEntity", 1, "Id:42", state),
+                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatchSensitive(2, "FakeEntity", 1, "Id:42", state, "{'RelatedFakeEntity'}"),
                     Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(sensitiveLogging: sensitiveLogging)
+                        () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
                             .BatchCommands(new[] { firstEntry }).ToArray()).Message);
             }
             else
             {
-                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatch(2, "FakeEntity", 1, state),
+                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatch(2, "FakeEntity", 1, state, "{'RelatedFakeEntity'}"),
                     Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(sensitiveLogging: sensitiveLogging)
+                        () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
                             .BatchCommands(new[] { firstEntry }).ToArray()).Message);
             }
         }
@@ -701,11 +708,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
         private static ICommandBatchPreparer CreateCommandBatchPreparer(
             IModificationCommandBatchFactory modificationCommandBatchFactory = null,
+            ICurrentDbContext currentDbContext = null,
             bool sensitiveLogging = false)
         {
             modificationCommandBatchFactory =
                 modificationCommandBatchFactory
                 ?? RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModificationCommandBatchFactory>();
+
+            currentDbContext = currentDbContext
+                ?? RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<ICurrentDbContext>();
 
             var loggingOptions = new LoggingOptions();
             if (sensitiveLogging)
@@ -718,6 +729,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 new ModificationCommandComparer(),
                 new TestAnnotationProvider(),
                 new KeyValueIndexFactorySource(),
+                currentDbContext,
                 loggingOptions);
         }
 

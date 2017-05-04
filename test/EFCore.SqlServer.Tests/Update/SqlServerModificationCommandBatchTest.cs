@@ -40,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 1);
 
             Assert.True(batch.AddCommand(
-                new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, new SqlServerAnnotationProvider(), false)));
+                new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, new SqlServerAnnotationProvider(), false, null)));
             Assert.False(batch.AddCommand(
-                new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, new SqlServerAnnotationProvider(), false)));
+                new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, new SqlServerAnnotationProvider(), false, null)));
         }
     }
 }

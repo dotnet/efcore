@@ -29,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         protected override DbContextOptions CreateOptions(string databaseName)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(CreateConnectionString(databaseName), b => b.ApplyConfiguration());
+            optionsBuilder.UseSqlServer(CreateConnectionString(databaseName), b => b.ApplyConfiguration())
+                .EnableSensitiveDataLogging();
 
             return optionsBuilder.Options;
         }

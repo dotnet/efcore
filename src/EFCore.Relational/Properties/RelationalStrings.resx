@@ -307,10 +307,10 @@
     <value>The instance of entity type '{firstEntityType}' and the instance of entity type '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different original property values '{firstConflictingValues}' and '{secondConflictingValues}' mapped to {columns}.</value>
   </data>
   <data name="SharedRowEntryCountMismatch" xml:space="preserve">
-    <value>There are '{mappedEntityTypeCount}' entity types sharing the table '{tableName}', but only '{entryCount}' entries with the same key values have been marked as '{state}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
+    <value>There are '{mappedEntityTypeCount}' entity types sharing the table '{tableName}', but only '{entryCount}' entries with the same key values have been marked as '{state}'. The missing entities should be assignable to {missingEntityTypes}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
   </data>
   <data name="SharedRowEntryCountMismatchSensitive" xml:space="preserve">
-    <value>There are '{mappedEntityTypeCount}' entity types sharing the table '{tableName}', but only '{entryCount}' entries with the same key values '{keyValue}' have been marked as '{state}'.</value>
+    <value>There are '{mappedEntityTypeCount}' entity types sharing the table '{tableName}', but only '{entryCount}' entries with the same key values '{keyValue}' have been marked as '{state}'. The missing entities should be assignable to {missingEntityTypes}.</value>
   </data>
   <data name="IncorrectDefaultValueType" xml:space="preserve">
     <value>Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.</value>

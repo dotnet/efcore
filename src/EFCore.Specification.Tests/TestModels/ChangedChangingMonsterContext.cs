@@ -974,7 +974,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
             public Product()
             {
-                Dimensions = new Dimensions();
                 ComplexConcurrency = new ConcurrencyInfo();
                 NestedComplexConcurrency = new AuditInfo();
             }

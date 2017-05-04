@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private readonly IRelationalAnnotationProvider _annotationProvider;
         private readonly Func<string> _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
+        private readonly IComparer<IUpdateEntry> _comparer;
 
         private readonly List<IUpdateEntry> _entries = new List<IUpdateEntry>();
         private IReadOnlyList<ColumnModification> _columnModifications;
@@ -33,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             [CanBeNull] string schema,
             [NotNull] Func<string> generateParameterName,
             [NotNull] IRelationalAnnotationProvider annotationProvider,
-            bool sensitiveLoggingEnabled)
+            bool sensitiveLoggingEnabled,
+            [CanBeNull] IComparer<IUpdateEntry> comparer)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(generateParameterName, nameof(generateParameterName));
@@ -43,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Schema = schema;
             _generateParameterName = generateParameterName;
             _annotationProvider = annotationProvider;
+            _comparer = comparer;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         }
 
@@ -116,7 +119,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             var adding = EntityState == EntityState.Added;
             var columnModifications = new List<ColumnModification>();
 
-            _entries.Sort(EntryComparer.Instance);
+            if (_comparer != null)
+            {
+                _entries.Sort(_comparer);
+            }
 
             var columnMap = _entries.Count == 1
                 ? null
@@ -219,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 var firstPair = conflictingOriginalColumnValues.First();
                 var firstEntry = firstPair.Key;
-                var firstProperties = firstPair.Value.Select(c => c.Property);
+                var firstProperties = firstPair.Value.Select(c => c.Property).ToList();
                 var lastPair = conflictingOriginalColumnValues.Last();
                 var lastEntry = lastPair.Key;
                 var lastProperties = lastPair.Value.Select(c => c.Property);
@@ -286,18 +292,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 modification.Value = valueBuffer[index++];
             }
-        }
-
-        private class EntryComparer : IComparer<IUpdateEntry>
-        {
-            private EntryComparer()
-            {
-            }
-
-            public static EntryComparer Instance = new EntryComparer();
-
-            public int Compare(IUpdateEntry x, IUpdateEntry y)
-                => StringComparer.Ordinal.Compare(x.EntityType.RootType().Name, y.EntityType.RootType().Name);
         }
     }
 }

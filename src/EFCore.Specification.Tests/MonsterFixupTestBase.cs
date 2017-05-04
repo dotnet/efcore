@@ -178,15 +178,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         var stateManager = context.ChangeTracker.GetInfrastructure();
 
-                        var beforeSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.GetProperties().Select(p => e[p])).ToList();
+                        var beforeSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.GetProperties().Select(p => (e[p], p))).ToList();
 
                         Assert.Equal(
                             "Aborting.",
                             Assert.Throws<Exception>(() => context.SaveChanges()).Message);
 
-                        var afterSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.GetProperties().Select(p => e[p])).ToList();
+                        var afterSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.GetProperties().Select(p => (e[p], p))).ToList();
 
-                        Assert.Equal(beforeSnapshot, afterSnapshot);
+                        for (var i = 0; i < beforeSnapshot.Count; i++)
+                        {
+                            Assert.Equal(beforeSnapshot[i], afterSnapshot[i]);
+                        }
                     });
         }
 
