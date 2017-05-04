@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 private readonly ExceptionInterceptor<T> _exceptionInterceptor;
                 private readonly IEnumerator<T> _innerEnumerator;
-
+                
                 public EnumeratorExceptionInterceptor(ExceptionInterceptor<T> exceptionInterceptor)
                 {
                     _exceptionInterceptor = exceptionInterceptor;
@@ -140,6 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 public void Reset() => _innerEnumerator?.Reset();
+
                 public void Dispose()
                 {
                     _innerEnumerator?.Dispose();

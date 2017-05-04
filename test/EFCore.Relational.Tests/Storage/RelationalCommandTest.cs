@@ -1047,8 +1047,8 @@ Logged Command",
             Assert.Equal(diagnosticName, beforeData.ExecuteMethod);
             Assert.Equal(diagnosticName, afterData.ExecuteMethod);
 
-            Assert.Equal(async, beforeData.Async);
-            Assert.Equal(async, afterData.Async);
+            Assert.Equal(async, beforeData.IsAsync);
+            Assert.Equal(async, afterData.IsAsync);
         }
 
         [Theory]
@@ -1119,8 +1119,8 @@ Logged Command",
             Assert.Equal(diagnosticName, beforeData.ExecuteMethod);
             Assert.Equal(diagnosticName, afterData.ExecuteMethod);
 
-            Assert.Equal(async, beforeData.Async);
-            Assert.Equal(async, afterData.Async);
+            Assert.Equal(async, beforeData.IsAsync);
+            Assert.Equal(async, afterData.IsAsync);
 
             Assert.Equal(exception, afterData.Exception);
         }

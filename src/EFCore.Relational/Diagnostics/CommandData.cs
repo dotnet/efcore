@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandId = commandId;
             ConnectionId = connectionId;
             ExecuteMethod = executeMethod;
-            Async = async;
+            IsAsync = async;
             StartTime = startTime;
         }
 
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Indicates whether or not the operation is being executed asyncronously.
         /// </summary>
-        public virtual bool Async { get; }
+        public virtual bool IsAsync { get; }
 
         /// <summary>
         ///     The start time of this event.

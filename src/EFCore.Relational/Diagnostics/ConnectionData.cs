@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             Connection = connection;
             ConnectionId = connectionId;
-            Async = async;
+            IsAsync = async;
             StartTime = startTime;
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Indicates whether or not the operation is happening asyncronously.
         /// </summary>
-        public virtual bool Async { get; }
+        public virtual bool IsAsync { get; }
 
         /// <summary>
         ///     The start time of this event.
