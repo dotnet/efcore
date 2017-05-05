@@ -3441,7 +3441,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 14);
         }
 
-        [ConditionalFact(Skip = "The test is flaky.")] // TODO: See issue#7160
+        [ConditionalFact(Skip = "The test fails with MARS=false. See issue#8393")]
         public virtual async Task Except_nested()
         {
             await AssertQuery<Customer>(
@@ -3486,7 +3486,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 3);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "The test fails with MARS=false. See issue#8393")]
         public virtual async Task Intersect_nested()
         {
             await AssertQuery<Customer>(
