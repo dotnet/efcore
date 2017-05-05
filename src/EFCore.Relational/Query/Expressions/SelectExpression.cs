@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 #endif
 
         private static readonly ExpressionEqualityComparer _expressionEqualityComparer = new ExpressionEqualityComparer();
+
         private readonly RelationalQueryCompilationContext _queryCompilationContext;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly List<Expression> _projection = new List<Expression>();
@@ -503,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return AddToProjection(
                 BindProperty(property, querySource));
         }
-
+        
         /// <summary>
         ///     Adds an expression to the projection.
         /// </summary>
@@ -567,6 +568,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             return _projection.Count - 1;
+        }
+
+        /// <summary>
+        ///     TODO
+        /// </summary>
+        /// <param name="expressions"></param>
+        public virtual void ReplaceProjection(
+            [NotNull] IEnumerable<Expression> expressions)
+        {
+            Check.NotNull(expressions, nameof(expressions));
+            
+            ClearProjection();
+
+            _projection.AddRange(expressions);
         }
 
         /// <summary>
@@ -646,11 +661,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         private static string GetColumnName(Expression expression)
-        {
-            return (expression as AliasExpression)?.Alias
-                   ?? (expression as ColumnExpression)?.Name
-                   ?? (expression as ColumnReferenceExpression)?.Name;
-        }
+            => (expression as AliasExpression)?.Alias
+               ?? (expression as ColumnExpression)?.Name
+               ?? (expression as ColumnReferenceExpression)?.Name;
 
         /// <summary>
         ///     Clears the projection.
@@ -846,6 +859,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             {
                 AddToOrderBy(ordering);
             }
+        }
+        
+        /// <summary>
+        ///     TODO
+        /// </summary>
+        /// <param name="orderings"> The orderings expressions. </param>
+        public virtual void ReplaceOrderBy([NotNull] IEnumerable<Ordering> orderings)
+        {
+            Check.NotNull(orderings, nameof(orderings));
+
+            _orderBy.Clear();
+            _orderBy.AddRange(orderings);
         }
 
         /// <summary>

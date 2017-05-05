@@ -338,6 +338,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Simple_owned_level1()
+        {
+            AssertQuery<Level1>(l1s => l1s.Include(l1 => l1.OneToOne_Required_PK), elementSorter: e => e.Id);
+        }
+
+        [ConditionalFact]
+        public virtual void Simple_owned_level1_level2()
+        {
+            AssertQuery<Level1>(l1s => l1s.Include(l1 => l1.OneToOne_Required_PK.OneToOne_Required_PK), elementSorter: e => e.Id);
+        }
+
+        [ConditionalFact]
+        public virtual void Simple_owned_level1_level2_level3()
+        {
+            AssertQuery<Level1>(
+                l1s
+                    => l1s.Include(l1 => l1.OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_PK),
+                elementSorter: e => e.Id);
+        }
+
+        [ConditionalFact]
         public virtual void Navigation_key_access_required_comparison()
         {
             AssertQueryScalar<Level2, int>(
