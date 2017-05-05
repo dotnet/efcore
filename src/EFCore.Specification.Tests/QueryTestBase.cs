@@ -5574,8 +5574,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact] // TODO: See issue#6803
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Convert.ToString(string) does not exist on .Net Core 1.0.1.")]
+        [ConditionalFact]
         public virtual void Convert_ToString()
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
