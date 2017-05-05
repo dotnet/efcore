@@ -206,12 +206,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     if (newAccessOperation != nullConditionalExpression.AccessOperation)
                     {
                         var test = ValueBufferNullComparisonCheck(newCaller);
-                        if (!newAccessOperation.Type.IsNullableType())
+                        var newAccessOperationWithoutConvert = newAccessOperation.RemoveConvert();
+                        if (!newAccessOperationWithoutConvert.Type.IsNullableType())
                         {
                             // since we are in the NullConditionalExpression, member we are trying to bind to could be coming from Left Join
                             // and therefore its value could be null, even though the property type itself is not nullable
                             // we need to compensate for this with additional check
-                            var nullableAccessOperation = TryCreateNullableAccessOperation(newAccessOperation);
+                            var nullableAccessOperation = TryCreateNullableAccessOperation(newAccessOperationWithoutConvert);
                             if (nullableAccessOperation != null)
                             {
                                 test = Expression.AndAlso(

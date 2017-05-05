@@ -50,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly Expression _topLevelPredicate;
 
         private readonly bool _inProjection;
+        private readonly NullCheckRemovalTestingVisitor _nullCheckRemovalTestingVisitor;
 
         /// <summary>
         ///     Creates a new instance of <see cref="SqlTranslatingExpressionVisitor" />.
@@ -77,6 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             _targetSelectExpression = targetSelectExpression;
             _topLevelPredicate = topLevelPredicate;
             _inProjection = inProjection;
+            _nullCheckRemovalTestingVisitor = new NullCheckRemovalTestingVisitor(_queryModelVisitor);
         }
 
         /// <summary>
@@ -225,10 +227,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             Check.NotNull(expression, nameof(expression));
 
-            var nullCheckRemoved = TryRemoveNullCheck(expression);
-            if (nullCheckRemoved != null)
+            if (expression.IsNullPropagationCandidate(out var testExpression, out var resultExpression)
+                && _nullCheckRemovalTestingVisitor.CanRemoveNullCheck(testExpression, resultExpression))
             {
-                return Visit(nullCheckRemoved);
+                return Visit(resultExpression);
             }
 
             var test = Visit(expression.Test);
@@ -288,74 +290,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return null;
         }
 
-        private Expression TryRemoveNullCheck(ConditionalExpression node)
-        {
-            var binaryTest = node.Test as BinaryExpression;
-
-            if (binaryTest == null
-                || !(binaryTest.NodeType == ExpressionType.Equal
-                     || binaryTest.NodeType == ExpressionType.NotEqual))
-            {
-                return null;
-            }
-
-            var isLeftNullConstant = binaryTest.Left.IsNullConstantExpression();
-            var isRightNullConstant = binaryTest.Right.IsNullConstantExpression();
-
-            if (isLeftNullConstant == isRightNullConstant)
-            {
-                return null;
-            }
-
-            if (binaryTest.NodeType == ExpressionType.Equal)
-            {
-                var ifTrueConstant = node.IfTrue as ConstantExpression;
-                if (ifTrueConstant == null
-                    || ifTrueConstant.Value != null)
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                var ifFalseConstant = node.IfFalse as ConstantExpression;
-                if (ifFalseConstant == null
-                    || ifFalseConstant.Value != null)
-                {
-                    return null;
-                }
-            }
-
-            var testExpression = isLeftNullConstant ? binaryTest.Right : binaryTest.Left;
-            var resultExpression = binaryTest.NodeType == ExpressionType.Equal ? node.IfFalse : node.IfTrue;
-
-            var nullCheckRemovalTestingVisitor
-                = new NullCheckRemovalTestingVisitor(
-                    _queryModelVisitor.QueryCompilationContext, 
-                    _queryModelVisitor);
-
-            return nullCheckRemovalTestingVisitor.CanRemoveNullCheck(testExpression, resultExpression)
-                ? resultExpression
-                : null;
-        }
-
         private class NullCheckRemovalTestingVisitor : ExpressionVisitorBase
         {
-            private readonly RelationalQueryCompilationContext _queryCompilationContext;
             private readonly RelationalQueryModelVisitor _queryModelVisitor;
             private IQuerySource _querySource;
             private string _propertyName;
             private bool? _canRemoveNullCheck;
 
-            public NullCheckRemovalTestingVisitor(
-                RelationalQueryCompilationContext queryCompilationContext, 
-                RelationalQueryModelVisitor queryModelVisitor)
+            public NullCheckRemovalTestingVisitor(RelationalQueryModelVisitor queryModelVisitor)
             {
-                _queryCompilationContext = queryCompilationContext;
                 _queryModelVisitor = queryModelVisitor;
             }
 
-            public bool CanRemoveNullCheck(Expression testExpression, Expression resultExpression)
+            public bool CanRemoveNullCheck(
+                Expression testExpression, 
+                Expression resultExpression)
             {
                 AnalyzeTestExpression(testExpression);
                 if (_querySource == null)
@@ -406,8 +355,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             _querySource = qs;
                             _propertyName = p.Name;
 
-                            if ((_queryCompilationContext.FindEntityType(_querySource)
-                                    ?? _queryCompilationContext.Model.FindEntityType(_querySource.ItemType))
+                            if ((_queryModelVisitor.QueryCompilationContext.FindEntityType(_querySource)
+                                    ?? _queryModelVisitor.QueryCompilationContext.Model.FindEntityType(_querySource.ItemType))
                                 ?.FindProperty(_propertyName)?.IsPrimaryKey()
                                 ?? false)
                             {
@@ -603,7 +552,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             if (expressionType == ExpressionType.Equal
                 || expressionType == ExpressionType.NotEqual)
             {
-
                 var isLeftNullConstant = left.IsNullConstantExpression();
                 var isRightNullConstant = right.IsNullConstantExpression();
 

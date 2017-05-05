@@ -7564,7 +7564,7 @@ ORDER BY [t0].[ContactTitle]");
             base.No_orderby_added_for_fully_translated_manually_constructed_LOJ();
 
             AssertSql(
-                @"SELECT [e1].[City] AS [City1], [e2].[City] AS [City2], [e2].[EmployeeID]
+                @"SELECT [e1].[City] AS [City1], [e2].[City] AS [City2]
 FROM [Employees] AS [e1]
 LEFT JOIN [Employees] AS [e2] ON [e1].[EmployeeID] = [e2].[ReportsTo]");
         }
