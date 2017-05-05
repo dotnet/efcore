@@ -7,6 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class InheritanceFixtureBase
     {
+        private static readonly object _sync = new object();
+
         private DbContextOptions _options;
 
         public abstract DbContextOptions BuildOptions();
@@ -17,17 +19,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             if (!IsSeeded)
             {
-                using (var context = CreateContextCore())
+                lock (_sync)
                 {
-                    if (context.Database.EnsureCreated())
+                    if (!IsSeeded)
                     {
-                        SeedData(context);
+                        using (var context = CreateContextCore())
+                        {
+                            if (context.Database.EnsureCreated())
+                            {
+                                SeedData(context);
+                            }
+                        }
+
+                        ClearLog();
+
+                        IsSeeded = true;
                     }
                 }
-
-                ClearLog();
-
-                IsSeeded = true;
             }
 
             return CreateContextCore();
