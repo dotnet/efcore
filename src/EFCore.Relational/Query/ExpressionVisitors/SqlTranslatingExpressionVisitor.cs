@@ -127,7 +127,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var left = Visit(expression.Left);
                     var right = Visit(expression.Right);
 
-                    return left != null && right != null
+                    return left != null 
+                            && right != null 
+                            && left.Type != typeof(Expression[]) 
+                            && right.Type != typeof(Expression[])
                         ? expression.Update(left, expression.Conversion, right)
                         : null;
                 }
@@ -241,6 +244,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 && ifTrue != null
                 && ifFalse != null)
             {
+                // 'test ? new { ... } : null' case can't be translated
+                if (ifTrue.Type == typeof(Expression[])
+                    || ifFalse.Type == typeof(Expression[]))
+                {
+                    return null;
+                }
+
                 if (ifTrue.IsComparisonOperation()
                     || ifFalse.IsComparisonOperation())
                 {

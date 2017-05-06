@@ -1182,6 +1182,126 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Select_conditional_with_anonymous_type_and_null_constant()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            orderby g.Nickname
+                            select g.LeaderNickname != null ? new { g.HasSoulPatch } : null;
+
+                var result = query.ToList();
+                Assert.Equal(5, result.Count);
+                Assert.True(result[0].HasSoulPatch);
+                Assert.False(result[1].HasSoulPatch);
+                Assert.False(result[2].HasSoulPatch);
+                Assert.Equal(null, result[3]);
+                Assert.False(result[4].HasSoulPatch);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_conditional_with_anonymous_types()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            orderby g.Nickname
+                            select g.LeaderNickname != null ? new { Name = g.Nickname } : new { Name = g.FullName };
+
+                var result = query.ToList();
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_conditional_with_anonymous_type()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            orderby g.Nickname
+                            where (g.LeaderNickname != null ? new { g.HasSoulPatch } : null) == null
+                            select g.Nickname;
+
+                var result = query.ToList();
+                Assert.Equal(1, result.Count);
+                Assert.Equal("Marcus", result[0]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_coalesce_with_anonymous_types()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            orderby g.Nickname
+                            select new { Name = g.LeaderNickname } ?? new { Name = g.FullName };
+
+                var result = query.ToList();
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_coalesce_with_anonymous_types()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            where (new { Name = g.LeaderNickname } ?? new { Name = g.FullName }) != null
+                            select g.Nickname;
+
+               var result = query.ToList();
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact(Skip = "issue #8421")]
+        public virtual void Where_compare_anonymous_types()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            from o in context.Gears.OfType<Officer>()
+                            where new { Name = g.LeaderNickname, Squad = g.LeaderSquadId, Five = 5 } == new { Name = o.Nickname, Squad = o.SquadId, Five = 5 }
+                            select g.Nickname;
+
+                var result = query.ToList();
+                Assert.Equal(4, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_member_access_on_anonymous_type()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            where new { Name = g.LeaderNickname, Squad = g.LeaderSquadId }.Name == "Marcus"
+                            select g.Nickname;
+
+                var result = query.ToList();
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_compare_anonymous_types_with_uncorrelated_members()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            where new { Five = 5 } == new { Five = 5 }
+                            select g.Nickname;
+
+                var result = query.ToList();
+                Assert.Equal(0, result.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_Where_Navigation()
         {
             using (var context = CreateContext())

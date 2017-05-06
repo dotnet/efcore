@@ -613,12 +613,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             var currentAlias = GetColumnName(expression);
-            var uniqueAlias = newAlias ?? currentAlias ?? ColumnAliasPrefix;
+            var uniqueAliasBase = newAlias ?? currentAlias ?? ColumnAliasPrefix;
+            var uniqueAlias = uniqueAliasBase;
             var counter = 0;
 
             while (_projection.Select(GetColumnName).Any(p => string.Equals(p, uniqueAlias, StringComparison.OrdinalIgnoreCase)))
             {
-                uniqueAlias = currentAlias + counter++;
+                uniqueAlias = uniqueAliasBase + counter++;
             }
 
             var updatedExpression
