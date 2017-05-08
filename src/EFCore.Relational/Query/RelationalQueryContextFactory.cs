@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
