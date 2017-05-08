@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Debug.Assert(primaryKeyConfigurationSource.HasValue);
                     primaryKey = Tuple.Create(keyBuilder, primaryKeyConfigurationSource.Value);
                 }
-                var removedConfigurationSource = entityTypeBuilder.RemoveKey(keyToDetach, ConfigurationSource.Explicit);
+                var removedConfigurationSource = entityTypeBuilder.RemoveKey(keyToDetach, keyToDetach.GetConfigurationSource());
                 Debug.Assert(removedConfigurationSource != null);
 
                 detachedKeys.Add(Tuple.Create(keyBuilder, removedConfigurationSource.Value));
@@ -878,7 +878,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var entityTypeBuilder = propertyToDetach.DeclaringEntityType.Builder;
                     var propertyBuilder = propertyToDetach.Builder;
                     var removedConfigurationSource = entityTypeBuilder
-                        .RemoveProperty(propertyToDetach, ConfigurationSource.Explicit);
+                        .RemoveProperty(propertyToDetach, propertyToDetach.GetConfigurationSource());
                     Debug.Assert(removedConfigurationSource.HasValue);
                     detachedProperties.Add(Tuple.Create(propertyBuilder, removedConfigurationSource.Value));
                 }
@@ -1018,7 +1018,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var relationshipBuilder = foreignKey.Builder;
             var relationshipConfigurationSource = foreignKey.DeclaringEntityType.Builder
-                .RemoveForeignKey(foreignKey, ConfigurationSource.Explicit);
+                .RemoveForeignKey(foreignKey, foreignKey.GetConfigurationSource());
             Debug.Assert(relationshipConfigurationSource != null);
 
             return new RelationshipBuilderSnapshot(relationshipBuilder, relationshipConfigurationSource.Value);
@@ -1217,7 +1217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var entityTypeBuilder = indexToDetach.DeclaringEntityType.Builder;
             var indexBuilder = indexToDetach.Builder;
-            var removedConfigurationSource = entityTypeBuilder.RemoveIndex(indexToDetach, ConfigurationSource.Explicit);
+            var removedConfigurationSource = entityTypeBuilder.RemoveIndex(indexToDetach, indexToDetach.GetConfigurationSource());
             Debug.Assert(removedConfigurationSource != null);
             return new IndexBuilderSnapshot(indexBuilder, removedConfigurationSource.Value);
         }

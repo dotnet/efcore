@@ -694,6 +694,26 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(ConfigurationSource.Explicit, derivedEntityType.FindNavigation(nameof(DerivedTypeWithKeyAnnotation.Navigation)).ForeignKey.GetConfigurationSource());
                 Assert.Equal(ConfigurationSource.Explicit, derivedEntityType.GetPrimaryKeyConfigurationSource());
             }
+
+            [Fact]
+            public virtual void Ordering_of_entityType_discovery_does_not_affect_key_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                var baseEntity = modelBuilder.Entity<StringIdBase>().Metadata;
+                var derivedEntity = modelBuilder.Entity<StringIdDerived>().Metadata;
+
+                Assert.Equal(baseEntity, derivedEntity.BaseType);
+                Assert.NotNull(baseEntity.FindPrimaryKey());
+
+
+                var modelBuilder2 = CreateModelBuilder();
+                var derivedEntity2 = modelBuilder2.Entity<StringIdDerived>().Metadata;
+                var baseEntity2 = modelBuilder2.Entity<StringIdBase>().Metadata;
+
+                Assert.Equal(baseEntity2, derivedEntity2.BaseType);
+                Assert.NotNull(baseEntity2.FindPrimaryKey());
+            }
         }
     }
 }

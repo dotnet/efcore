@@ -525,5 +525,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
         protected class PoliceViewModel : ServicePersonViewModel
         {
         }
+
+        public class StringIdBase
+        {
+            public string Id { get; set; }
+        }
+
+        public class StringIdDerived : StringIdBase
+        {
+        }
     }
 }
