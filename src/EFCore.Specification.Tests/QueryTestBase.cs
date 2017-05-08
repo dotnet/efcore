@@ -5183,6 +5183,154 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 15);
         }
 
+        [ConditionalFact]
+        public virtual void String_Compare_to_simple_zero()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") == 0),
+                entryCount: 1);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 0 != c.CustomerID.CompareTo("ALFKI")),
+                entryCount: 90);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") > 0),
+                entryCount: 90);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 0 >= c.CustomerID.CompareTo("ALFKI")),
+                entryCount: 1);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 0 < c.CustomerID.CompareTo("ALFKI")),
+                entryCount: 90);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") <= 0),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void String_Compare_to_simple_one()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") == 1),
+                entryCount: 90);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => -1 == c.CustomerID.CompareTo("ALFKI")),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") < 1),
+                entryCount: 1);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 1 > c.CustomerID.CompareTo("ALFKI")),
+                entryCount: 1);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") > -1),
+                entryCount: 91);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => -1 < c.CustomerID.CompareTo("ALFKI")),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void String_compare_to_with_parameter()
+        {
+            Customer customer = null;
+            using (var context = CreateContext())
+            {
+                customer = context.Customers.OrderBy(c => c.CustomerID).First();
+            }
+
+            ClearLog();
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo(customer.CustomerID) == 1),
+                entryCount: 90);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => -1 == c.CustomerID.CompareTo(customer.CustomerID)),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo(customer.CustomerID) < 1),
+                entryCount: 1);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 1 > c.CustomerID.CompareTo(customer.CustomerID)),
+                entryCount: 1);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo(customer.CustomerID) > -1),
+                entryCount: 91);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => -1 < c.CustomerID.CompareTo(customer.CustomerID)),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void String_Compare_to_simple_client()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") == 42),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") > 42),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 42 > c.CustomerID.CompareTo("ALFKI")),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void String_Compare_to_nested()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo("M" + c.CustomerID) == 0),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 0 != c.CustomerID.CompareTo(c.CustomerID.ToUpper())),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) > 0),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 0 >= c.CustomerID.CompareTo("M" + c.CustomerID)),
+                entryCount: 51);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 1 == c.CustomerID.CompareTo(c.CustomerID.ToUpper())),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) == -1),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void String_Compare_to_multi_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") > -1).Where(c => c.CustomerID.CompareTo("CACTU") == -1),
+                entryCount: 11);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.CompareTo("Owner") == 0).Where(c => c.Country.CompareTo("USA") != 0),
+                entryCount: 15);
+        }
+
         protected static string LocalMethod1()
         {
             return "M";

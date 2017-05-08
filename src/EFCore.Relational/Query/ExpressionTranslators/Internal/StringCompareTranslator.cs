@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
@@ -26,9 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             { ExpressionType.NotEqual, ExpressionType.NotEqual }
         };
 
-        private static readonly MethodInfo _methodInfo = typeof(string).GetTypeInfo()
-            .GetDeclaredMethods(nameof(string.Compare))
-            .Single(m => m.GetParameters().Length == 2);
+        private static readonly MethodInfo _compareMethodInfo
+            = typeof(string).GetRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string) });
+
+        private static readonly MethodInfo _compareToMethodInfo
+            = typeof(string).GetRuntimeMethod(nameof(string.CompareTo), new[] { typeof(string) });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -36,8 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </summary>
         public virtual Expression Translate(Expression expression)
         {
-            var binaryExpression = expression as BinaryExpression;
-            if (binaryExpression != null)
+            if (expression is BinaryExpression binaryExpression)
             {
                 if (!_operatorMap.ContainsKey(expression.NodeType))
                 {
@@ -68,50 +68,61 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             MethodCallExpression methodCall,
             ConstantExpression constant)
         {
-            if ((methodCall != null)
-                && (methodCall.Method.Equals(_methodInfo))
-                && (methodCall.Type == typeof(int))
-                && (constant != null)
-                && (constant.Type == typeof(int)))
+            if (methodCall != null
+                && methodCall.Type == typeof(int)
+                && constant != null
+                && constant.Type == typeof(int))
             {
-                var arguments = methodCall.Arguments.ToList();
-                var leftString = arguments[0];
-                var rightString = arguments[1];
                 var constantValue = (int)constant.Value;
+                Expression leftString = null, rightString = null;
 
-                if (constantValue == 0)
+                if (methodCall.Method.Equals(_compareMethodInfo))
                 {
-                    // Compare(strA, strB) > 0 => strA > strB
-                    return new StringCompareExpression(opFunc(op), leftString, rightString);
+                    leftString = methodCall.Arguments[0];
+                    rightString = methodCall.Arguments[1];
+                }
+                else if (methodCall.Method.Equals(_compareToMethodInfo))
+                {
+                    leftString = methodCall.Object;
+                    rightString = methodCall.Arguments[0];
                 }
 
-                if (constantValue == 1)
+                if (leftString != null)
                 {
-                    if (op == ExpressionType.Equal)
+                    if (constantValue == 0)
                     {
-                        // Compare(strA, strB) == 1 => strA > strB
-                        return new StringCompareExpression(ExpressionType.GreaterThan, leftString, rightString);
+                        // Compare(strA, strB) > 0 => strA > strB
+                        return new StringCompareExpression(opFunc(op), leftString, rightString);
                     }
 
-                    if (op == opFunc(ExpressionType.LessThan))
+                    if (constantValue == 1)
                     {
-                        // Compare(strA, strB) < 1 => strA <= strB
-                        return new StringCompareExpression(ExpressionType.LessThanOrEqual, leftString, rightString);
-                    }
-                }
+                        if (op == ExpressionType.Equal)
+                        {
+                            // Compare(strA, strB) == 1 => strA > strB
+                            return new StringCompareExpression(ExpressionType.GreaterThan, leftString, rightString);
+                        }
 
-                if (constantValue == -1)
-                {
-                    if (op == ExpressionType.Equal)
-                    {
-                        // Compare(strA, strB) == -1 => strA < strB
-                        return new StringCompareExpression(ExpressionType.LessThan, leftString, rightString);
+                        if (op == opFunc(ExpressionType.LessThan))
+                        {
+                            // Compare(strA, strB) < 1 => strA <= strB
+                            return new StringCompareExpression(ExpressionType.LessThanOrEqual, leftString, rightString);
+                        }
                     }
 
-                    if (op == opFunc(ExpressionType.GreaterThan))
+                    if (constantValue == -1)
                     {
-                        // Compare(strA, strB) > -1 => strA >= strB
-                        return new StringCompareExpression(ExpressionType.GreaterThanOrEqual, leftString, rightString);
+                        if (op == ExpressionType.Equal)
+                        {
+                            // Compare(strA, strB) == -1 => strA < strB
+                            return new StringCompareExpression(ExpressionType.LessThan, leftString, rightString);
+                        }
+
+                        if (op == opFunc(ExpressionType.GreaterThan))
+                        {
+                            // Compare(strA, strB) > -1 => strA >= strB
+                            return new StringCompareExpression(ExpressionType.GreaterThanOrEqual, leftString, rightString);
+                        }
                     }
                 }
             }
