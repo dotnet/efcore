@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
                 return true;
             }
 
-#if NET46
+#if NET461
             if (excludedFrameworks.HasFlag(RuntimeFrameworks.CLR))
             {
                 return false;

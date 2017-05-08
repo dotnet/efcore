@@ -485,8 +485,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             Assert.Equal(new[] { "Brendan", "Nate" }, hashSet.OrderBy(i => i));
         }
 
-#if NET46
-
         [Fact]
         public void The_BindingList_returned_from_ObservableHasSet_is_cached()
         {
@@ -508,10 +506,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             Assert.NotNull(bindingListAgain);
             Assert.NotSame(bindingList, bindingListAgain);
         }
-#elif NETCOREAPP2_0
-#else
-#error target frameworks need to be updated.
-#endif
 
         private static void AssertCountChanging<T>(
             ObservableHashSet<T> hashSet,

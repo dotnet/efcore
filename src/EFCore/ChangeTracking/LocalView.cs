@@ -42,12 +42,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class LocalView<TEntity> : ICollection<TEntity>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
         where TEntity : class
     {
-#if NET46
         private ObservableBackedBindingList<TEntity> _bindingList;
-#elif NETSTANDARD1_3
-#else
-#error target frameworks need to be updated.
-#endif
         private readonly IStateManager _stateManager;
         private int _count;
 
@@ -296,16 +291,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void OnCollectionChanged(NotifyCollectionChangedAction action, object item)
             => OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item));
 
-#if NET46
         /// <summary>
         ///     Returns an <see cref="BindingList{T}" /> implementation that stays in sync with this collection.
         /// </summary>
         /// <returns> The binding list. </returns>
         public virtual BindingList<TEntity> ToBindingList()
             => _bindingList ?? (_bindingList = new ObservableBackedBindingList<TEntity>(this));
-#elif NETSTANDARD1_3
-#else
-#error target frameworks need to be updated.
-#endif
     }
 }

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 .GetTypeInfo()
                 .DeclaredConstructors;
 
-#if NET46
+#if NET461
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
                 .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
 #elif NETCOREAPP2_0

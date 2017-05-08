@@ -4,9 +4,6 @@
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit.Abstractions;
 
-#if NETCOREAPP1_1
-using System.Threading;
-#endif
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class DbFunctionsSqliteTest : DbFunctionsTestBase<NorthwindQuerySqliteFixture>

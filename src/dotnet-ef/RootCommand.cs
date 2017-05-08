@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             {
                 executable = Path.Combine(
                     toolsPath,
-                    "net46",
+                    "net461",
                     startupProject.PlatformTarget == "x86"
                         ? "ef.x86.exe"
                         : "ef.exe");
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     args.Add(startupProject.RuntimeFrameworkVersion);
                 }
 
-                args.Add(Path.Combine(toolsPath, "netcoreapp1.0", "ef.dll"));
+                args.Add(Path.Combine(toolsPath, "netcoreapp2.0", "ef.dll"));
             }
             else
             {

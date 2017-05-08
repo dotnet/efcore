@@ -4,7 +4,7 @@
 
   <PropertyGroup>
     <Description>Design-time Entity Framework Core functionality for SQLite</Description>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.Design</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

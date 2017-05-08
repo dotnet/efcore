@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
     {
         [Benchmark]
         [BenchmarkVariation("Warm (10000 instances)", false, 10000)]
-#if NET46
+#if NET461
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #elif NETCOREAPP2_0
 #else
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
         [Benchmark]
         [AdventureWorksDatabaseRequired]
         [BenchmarkVariation("Warm (1000 instances)", false, 1000)]
-#if NET46
+#if NET461
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #elif NETCOREAPP2_0
 #else
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
         [Benchmark]
         [AdventureWorksDatabaseRequired]
         [BenchmarkVariation("Warm (100 instances)", false, 100)]
-#if NET46
+#if NET461
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #elif NETCOREAPP2_0
 #else
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
         {
             if (cold)
             {
-#if NET46
+#if NET461
                 using (var sandbox = new ColdStartSandbox())
                 {
                     var testClass = sandbox.CreateInstance<ColdStartEnabledTests>();
@@ -91,13 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
             }
         }
 
-#if NET46
-        private partial class ColdStartEnabledTests : MarshalByRefObject
-        {
-        }
-#endif
-
-        private partial class ColdStartEnabledTests
+        private class ColdStartEnabledTests : MarshalByRefObject
         {
             public void CreateAndDisposeUnusedContext(IMetricCollector collector, int count)
             {

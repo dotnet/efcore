@@ -10,13 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Concurren
 {
     public class Team
     {
-#if NET46
         private readonly ObservableCollection<Driver> _drivers = new ObservableCollectionListSource<Driver>();
-#elif NETCOREAPP2_0
-        private readonly ObservableCollection<Driver> _drivers = new ObservableCollection<Driver>();
-#else
-#error target frameworks need to be updated.
-#endif
         private readonly ObservableCollection<Sponsor> _sponsors = new ObservableCollection<Sponsor>();
 
         public int Id { get; set; }

@@ -18,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public static T Unwrap<T>([NotNull] object target)
             where T : class
         {
-#if NET46
+#if NET461
             return target as T ?? new ForwardingProxy<T>(target).GetTransparentProxy();
-#elif NETSTANDARD1_3
+#elif NETSTANDARD2_0
             return (T)target;
 #else
 #error target frameworks need to be updated.

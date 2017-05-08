@@ -4,7 +4,7 @@
 
   <PropertyGroup>
     <Description>Shared design-time components for Entity Framework Core tools.</Description>
-    <TargetFrameworks>net46;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Design</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -20,9 +20,8 @@
     <ProjectReference Include="..\EFCore.Relational.Design\EFCore.Relational.Design.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+  <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersVersion)" PrivateAssets="All" />
-    <PackageReference Include="System.Collections.NonGeneric" Version="$(CoreFxVersion)" />
   </ItemGroup>
 
   <ItemGroup>

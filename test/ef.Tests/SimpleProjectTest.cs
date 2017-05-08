@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET46
+#if NET461
 
 using System;
 using System.Collections;
@@ -137,8 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     {
                         BuildReference.ByName("System.Diagnostics.DiagnosticSource", true),
                         BuildReference.ByName("System.Interactive.Async", true),
-                        BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                        BuildReference.ByName("System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51", true),
+                        BuildReference.ByName("System.Data.SqlClient", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", true),
@@ -183,6 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                             }" }
                 };
                 var build = source.Build();
+                File.Copy(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, build.TargetPath + ".config");
                 Executor = new AppDomainOperationExecutor(build.TargetPath,
                     build.TargetPath,
                     build.TargetDir,

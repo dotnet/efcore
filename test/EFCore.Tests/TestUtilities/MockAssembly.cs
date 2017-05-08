@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
 {
-    public partial class MockAssembly
+    public class MockAssembly : Assembly
     {
         public static Assembly Create(params Type[] definedTypes)
         {
@@ -16,10 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
 
             return new MockAssembly(definedTypeInfos);
         }
-    }
 
-    public partial class MockAssembly : Assembly
-    {
         public MockAssembly(IEnumerable<TypeInfo> definedTypes)
         {
             DefinedTypes = definedTypes;

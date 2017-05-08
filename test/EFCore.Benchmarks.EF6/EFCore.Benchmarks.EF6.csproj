@@ -3,7 +3,7 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Benchmarks.EF6</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks.EF6</RootNamespace>
   </PropertyGroup>
@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
-    <PackageReference Include="xunit" Version="$(XunitVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVersion)" />
     <PackageReference Include="EntityFramework" Version="$(EF6Version)" />
   </ItemGroup>

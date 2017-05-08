@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET46
+#if NET461
 
 using System;
 using System.IO;
@@ -18,11 +18,15 @@ namespace Microsoft.EntityFrameworkCore.Tools
     public class AppDomainOperationExecutorTest
     {
         private IOperationExecutor CreateExecutorFromBuildResult(BuildFileResult build, string rootNamespace = null)
-            => new AppDomainOperationExecutor(build.TargetPath,
+        {
+            File.Copy(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, build.TargetPath + ".config");
+
+            return new AppDomainOperationExecutor(build.TargetPath,
                 build.TargetPath,
                 build.TargetDir,
                 build.TargetDir,
                 rootNamespace);
+        }
 
         [Fact]
         public void Assembly_load_errors_are_wrapped()
@@ -47,8 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     {
                         BuildReference.ByName("System.Diagnostics.DiagnosticSource", true),
                         BuildReference.ByName("System.Interactive.Async", true),
-                        BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                        BuildReference.ByName("System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", true),
@@ -133,10 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     TargetDir = targetDir,
                     References =
                     {
-                        BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
-                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
-                        BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", true),
-                        BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", true)
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore", true)
                     },
                     Sources = { @"
                         using Microsoft.EntityFrameworkCore;
@@ -158,17 +157,14 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     TargetDir = targetDir,
                     References =
                     {
-                        BuildReference.ByName("System.Reflection.Metadata", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", true),
-                        BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", true),
-                        BuildReference.ByName("Microsoft.Extensions.Configuration.Abstractions", true),
                         BuildReference.ByName("Microsoft.Extensions.DependencyInjection", true),
                         BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", true),
                         BuildReference.ByName("Microsoft.Extensions.Logging", true),
                         BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", true),
-                        BuildReference.ByName("Microsoft.Extensions.Options", true),
                         BuildReference.ByPath(contextsBuild.TargetPath)
                     },
                     Sources = { @"
@@ -233,8 +229,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     {
                         BuildReference.ByName("System.Diagnostics.DiagnosticSource", true),
                         BuildReference.ByName("System.Interactive.Async", true),
-                        BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                        BuildReference.ByName("System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", true),
@@ -307,24 +301,14 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     TargetDir = targetDir,
                     References =
                     {
-                        BuildReference.ByName("System.Diagnostics.DiagnosticSource", true),
-                        BuildReference.ByName("System.Interactive.Async", true),
-                        BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                        BuildReference.ByName("System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", true),
-                        BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", true),
-                        BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", true),
-                        BuildReference.ByName("Microsoft.Extensions.Caching.Memory", true),
-                        BuildReference.ByName("Microsoft.Extensions.Configuration.Abstractions", true),
                         BuildReference.ByName("Microsoft.Extensions.DependencyInjection", true),
                         BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", true),
                         BuildReference.ByName("Microsoft.Extensions.Logging", true),
                         BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", true),
-                        BuildReference.ByName("Microsoft.Extensions.Options", true),
-                        BuildReference.ByName("Remotion.Linq", true)
                     },
                     Sources = { @"
                             using Microsoft.EntityFrameworkCore;

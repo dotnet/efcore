@@ -6,11 +6,15 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-#if !NET46
+#if NETCOREAPP2_0
 using Microsoft.Extensions.DependencyModel;
 using System.Linq;
 using IOPath = System.IO.Path;
+#elif NET461
+#else
+#error target frameworks need to be updated.
 #endif
+
 namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities
 {
     public class BuildReference
@@ -29,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
 
         public static BuildReference ByName(string name, bool copyLocal = false)
         {
-#if NET46
+#if NET461
             var assembly = Assembly.Load(name);
             return new BuildReference(
                 new[] { MetadataReference.CreateFromFile(assembly.Location) },

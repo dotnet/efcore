@@ -761,11 +761,11 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
         $platformTarget = GetPlatformTarget $startupProject
         if ($platformTarget -eq 'x86')
         {
-            $exePath = Join-Path $PSScriptRoot 'net46\ef.x86.exe'
+            $exePath = Join-Path $PSScriptRoot 'net461\ef.x86.exe'
         }
         elseif ($platformTarget -in 'AnyCPU', 'x64')
         {
-            $exePath = Join-Path $PSScriptRoot 'net46\ef.exe'
+            $exePath = Join-Path $PSScriptRoot 'net461\ef.exe'
         }
         else
         {
@@ -789,7 +789,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
         $projectAssetsFile = GetCsproj2Property $startupProject 'ProjectAssetsFile'
         $runtimeConfig = Join-Path $targetDir ($startupTargetName + '.runtimeconfig.json')
         $runtimeFrameworkVersion = GetCsproj2Property $startupProject 'RuntimeFrameworkVersion'
-        $efPath = Join-Path $PSScriptRoot 'netcoreapp1.0\ef.dll'
+        $efPath = Join-Path $PSScriptRoot 'netcoreapp2.0\ef.dll'
 
         $dotnetParams = 'exec', '--depsfile', $depsFile
 

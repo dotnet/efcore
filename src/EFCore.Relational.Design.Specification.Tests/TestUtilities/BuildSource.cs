@@ -15,12 +15,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
     {
         public ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
-#if NET46
+#if NET461
             BuildReference.ByName("mscorlib"),
-            BuildReference.ByName("System.Runtime, Version=4.0.20.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+            BuildReference.ByName("netstandard", true),
+            BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+            BuildReference.ByName("System.ComponentModel.Annotations", true),
+            BuildReference.ByName("System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"),
+            BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+            BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+            BuildReference.ByName("System.Data.Common", true),
+            BuildReference.ByName("System.Linq", true),
+            BuildReference.ByName("System.Reflection", true),
+            BuildReference.ByName("System.Runtime", true),
+            BuildReference.ByName("System.Runtime.Extensions", true),
+            BuildReference.ByName("System.ValueTuple", true)
 #elif NETCOREAPP2_0
             BuildReference.ByName("netstandard"),
-            BuildReference.ByName("System.Runtime")
+            BuildReference.ByName("System.Collections"),
+            BuildReference.ByName("System.ComponentModel.Annotations"),
+            BuildReference.ByName("System.Data.Common"),
+            BuildReference.ByName("System.Linq.Expressions"),
+            BuildReference.ByName("System.Runtime"),
+            BuildReference.ByName("System.Text.RegularExpressions")
 #else
 #error target frameworks need to be updated.
 #endif
@@ -76,11 +92,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
 
             foreach (var reference in References)
             {
-                if (reference.CopyLocal)
-                {
-                    throw new InvalidOperationException("Assemblies cannot be copied locally for in-memory builds.");
-                }
-
                 references.AddRange(reference.References);
             }
 

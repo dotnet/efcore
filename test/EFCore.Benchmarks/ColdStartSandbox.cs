@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET46
+#if NET461
 
 using System;
 
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
             Dispose(false);
         }
 
-        public T CreateInstance<T>(params object[] args) 
+        public T CreateInstance<T>(params object[] args)
             => (T)CreateInstance(typeof(T), args);
 
         public object CreateInstance(Type type, params object[] args)
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
         }
     }
 }
-#elif NETSTANDARD1_6
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif

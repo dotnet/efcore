@@ -408,25 +408,9 @@ DROP TABLE dbo.History;
 
         protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
-#if NET46
-            BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-            BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-            BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-            BuildReference.ByName("System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"),
-#elif NETCOREAPP2_0
-            BuildReference.ByName("System.Collections"),
-            BuildReference.ByName("System.Data.Common"),
-            BuildReference.ByName("System.Linq.Expressions"),
-            BuildReference.ByName("System.Reflection"),
-            BuildReference.ByName("System.ComponentModel.Annotations"),
-#else
-#error target frameworks need to be updated.
-#endif
             BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore"),
-            BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
-            BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions"),
-            BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions")
+            BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
         };
     }
 }
