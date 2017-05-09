@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             newExpression = _predicateReductionExpressionOptimizer.Visit(newExpression);
             newExpression = _predicateNegationExpressionOptimizer.Visit(newExpression);
             newExpression = _reducingExpressionVisitor.Visit(newExpression);
-            newExpression = _booleanExpressionTranslatingVisitor.Translate(newExpression, searchCondition: searchCondition);
+            newExpression = _booleanExpressionTranslatingVisitor.Translate(newExpression, searchCondition);
 
             return newExpression;
         }
@@ -342,12 +342,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 var leftBooleanConstant = GetBooleanConstantValue(binaryExpression.Left);
                 var rightBooleanConstant = GetBooleanConstantValue(binaryExpression.Right);
 
-                if ((binaryExpression.NodeType == ExpressionType.Equal
-                     && leftBooleanConstant == true
-                     && rightBooleanConstant == true)
-                    || (binaryExpression.NodeType == ExpressionType.NotEqual
-                        && leftBooleanConstant == false
-                        && rightBooleanConstant == false))
+                if (binaryExpression.NodeType == ExpressionType.Equal
+                    && leftBooleanConstant == true
+                    && rightBooleanConstant == true
+                    || binaryExpression.NodeType == ExpressionType.NotEqual
+                    && leftBooleanConstant == false
+                    && rightBooleanConstant == false)
                 {
                     return;
                 }
@@ -686,7 +686,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                             new InExpression(inExpression.Operand, inValuesNotNull),
                             new IsNullExpression(inExpression.Operand));
 
-                    return Visit(relationalNullsInExpression);
+                    _relationalCommandBuilder.Append("(");
+
+                    Visit(relationalNullsInExpression);
+
+                    _relationalCommandBuilder.Append(")");
+
+                    return inExpression;
                 }
 
                 if (inValuesNotNull.Count > 0)

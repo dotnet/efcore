@@ -7,8 +7,12 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
-
+// ReSharper disable InconsistentNaming
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable StringEndsWithIsCultureSpecific
 // ReSharper disable ReplaceWithSingleCallToSingle
+
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class GearsOfWarQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
@@ -171,17 +175,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Include(c => c.BornGears)
                     .ToDictionary(
                         c => c.Name,
-                        c => c.BornGears != null
-                            ? c.BornGears.Select(g => g.Nickname).ToList()
-                            : new List<string>());
+                        c => c.BornGears?.Select(g => g.Nickname).ToList() ?? new List<string>());
 
                 cityStationedGears = context.Cities
                     .Include(c => c.StationedGears)
                     .ToDictionary(
                         c => c.Name,
-                        c => c.StationedGears != null
-                            ? c.StationedGears.Select(g => g.Nickname).ToList()
-                            : new List<string>());
+                        c => c.StationedGears?.Select(g => g.Nickname).ToList() ?? new List<string>());
             }
 
             ClearLog();
@@ -207,8 +207,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 for (var i = 0; i < expectedGearCount; i++)
                 {
-                    Assert.Equal(gearAssignedCities[result[i]?.Nickname], result[i].AssignedCity?.Name);
-                    Assert.Equal(gearCitiesOfBirth[result[i]?.Nickname], result[i].CityOfBirth?.Name);
+                    Assert.NotNull(result[i]);
+
+                    Assert.Equal(gearAssignedCities[result[i].Nickname], result[i].AssignedCity?.Name);
+                    Assert.Equal(gearCitiesOfBirth[result[i].Nickname], result[i].CityOfBirth?.Name);
 
                     var assignedCity = result[i].AssignedCity;
                     if (assignedCity != null)
@@ -1047,7 +1049,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.Equal(3, result.Count);
 
-                var nickNames = result.Select(r => r.Nickname);
+                var nickNames = result.Select(r => r.Nickname).ToList();
                 Assert.True(nickNames.Contains("Dom"));
                 Assert.True(nickNames.Contains("Cole Train"));
                 Assert.True(nickNames.Contains("Baird"));
@@ -1067,7 +1069,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.Equal(3, result.Count);
 
-                var nickNames = result.Select(r => r.Nickname);
+                var nickNames = result.Select(r => r.Nickname).ToList();
                 Assert.True(nickNames.Contains("Dom"));
                 Assert.True(nickNames.Contains("Cole Train"));
                 Assert.True(nickNames.Contains("Baird"));
@@ -1087,7 +1089,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.Equal(3, result.Count);
 
-                var nickNames = result.Select(r => r.Nickname);
+                var nickNames = result.Select(r => r.Nickname).ToList();
                 Assert.True(nickNames.Contains("Dom"));
                 Assert.True(nickNames.Contains("Cole Train"));
                 Assert.True(nickNames.Contains("Baird"));
@@ -1237,6 +1239,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var query = from g in context.Gears
                             orderby g.Nickname
+                            // ReSharper disable once ConstantNullCoalescingCondition
                             select new { Name = g.LeaderNickname } ?? new { Name = g.FullName };
 
                 var result = query.ToList();
@@ -1250,6 +1253,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = from g in context.Gears
+                            // ReSharper disable once ConstantNullCoalescingCondition
+                            // ReSharper disable once ConstantNullCoalescingCondition
+                            // ReSharper disable once ConstantNullCoalescingCondition
                             where (new { Name = g.LeaderNickname } ?? new { Name = g.FullName }) != null
                             select g.Nickname;
 
@@ -1293,6 +1299,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = from g in context.Gears
+                            // ReSharper disable once EqualExpressionComparison
                             where new { Five = 5 } == new { Five = 5 }
                             select g.Nickname;
 
@@ -1637,7 +1644,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = from c in context.Cities
-                            where (c.Location == "Unknown") && (c.BornGears.Count(g => g.Nickname == "Paduk") == 1)
+                            where c.Location == "Unknown" && c.BornGears.Count(g => g.Nickname == "Paduk") == 1
                             select c;
 
                 var result = query.ToList();
@@ -1676,7 +1683,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#4978
+        [ConditionalFact(Skip = "Test does not pass. See issue#4978")] 
         public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat()
         {
             using (var context = CreateContext())
@@ -1810,6 +1817,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             join g2 in context.Gears.Include(g => g.Weapons)
                             on g1.LeaderNickname equals g2.Nickname into grouping
                             from g2 in grouping.DefaultIfEmpty()
+                            // ReSharper disable once MergeConditionalExpression
                             select new { g1, g2, coalesce = g2 ?? g1, conditional = g2 != null ? g2 : g1 };
 
                 var result = query.ToList();
@@ -1893,6 +1901,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                // ReSharper disable once SimplifyConditionalTernaryExpression
                 var query = context.Tags.Where(t => !(t.Gear.HasSoulPatch ? true : t.Gear.HasSoulPatch));
                 var result = query.ToList();
 
@@ -1905,6 +1914,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                // ReSharper disable once SimplifyConditionalTernaryExpression
+                // ReSharper disable once SimplifyConditionalTernaryExpression
+                // ReSharper disable once SimplifyConditionalTernaryExpression
                 var query = context.Tags.Where(t => !(!t.Gear.HasSoulPatch ? false : t.Gear.HasSoulPatch));
                 var result = query.ToList();
 
@@ -1917,6 +1929,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                // ReSharper disable once RedundantTernaryExpression
                 var query = context.Tags.Where(t => t.Gear.HasSoulPatch ? true : false);
                 var result = query.ToList();
 
@@ -2120,6 +2133,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var query = context.Tags.Select(t => context.Gears.Where(g => g.Nickname == t.GearNickName));
                 var result = query.ToList();
 
+                // ReSharper disable once UnusedVariable
                 var resultList = result.Select(r => r.ToList()).ToList();
             }
         }
@@ -2258,7 +2272,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var query = from t in ctx.Tags
                             join g in ctx.Gears on t.GearNickName equals g.Nickname into grouping
                             from g in ClientDefaultIfEmpty(grouping)
-                            select new { Note = t.Note, Nickname = (g != null ? g.Nickname : null) };
+                            select new { t.Note, Nickname = g != null ? g.Nickname : null };
 
                 var result = query.ToList();
 
@@ -2268,7 +2282,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
         {
+            // ReSharper disable PossibleMultipleEnumeration
             return source?.Count() == 0 ? new[] { default(TElement) } : source;
+            // ReSharper restore PossibleMultipleEnumeration
         }
 
         [ConditionalFact]
@@ -2374,7 +2390,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                              where s.Name == "Kilo"
                              select  s).FirstOrDefault();
 
-                Assert.Equal("Kilo", query.Name);
+                Assert.Equal("Kilo", query?.Name);
             }
         }
 
@@ -2384,6 +2400,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = from s in context.Squads
+                            // ReSharper disable once SimplifyLinqExpression
                             where !s.Members.Any(m => m.Tag.Note == "Dom's Tag")
                             select s.Name;
 
@@ -3229,6 +3246,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var query = from g1 in ctx.Gears
                             from g2 in ctx.Gears
+                            // ReSharper disable once PossibleUnintendedReferenceComparison
                             where g1.Weapons == g2.Weapons
                             orderby g1.Nickname
                             select new { Nickname1 = g1.Nickname, Nickname2 = g2.Nickname };
@@ -3247,6 +3265,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var query = from f in ctx.Factions
                             from o in ctx.Gears.OfType<Officer>()
                             where f is LocustHorde && o.HasSoulPatch
+                            // ReSharper disable once PossibleUnintendedReferenceComparison
                             where ((LocustHorde)f).Commander.DefeatedBy.Weapons == o.Weapons
                             select new { f.Name, o.Nickname };
 
@@ -3274,6 +3293,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal("Baird", result[0].Nickname2);
                 Assert.Equal("Marcus", result[1].Nickname1);
                 Assert.Equal("Marcus", result[1].Nickname2);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Contains_on_nullable_array_produces_correct_sql()
+        {
+            using (var context = CreateContext())
+            {
+                var cities = new[] { "Ephyra", null };
+                var query = context.Gears.Where(g => g.SquadId < 2 && cities.Contains(g.AssignedCity.Name)).ToList();
+
+                Assert.Equal(2, query.Count);
             }
         }
 

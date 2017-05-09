@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
@@ -12,10 +11,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class GearsOfWarQuerySqlServerTest : GearsOfWarQueryTestBase<SqlServerTestStore, GearsOfWarQuerySqlServerFixture>
     {
+        // ReSharper disable once UnusedParameter.Local
         public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override void Entity_equality_empty()
@@ -1153,7 +1154,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
             base.Where_compare_anonymous_types();
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override void Where_member_access_on_anonymous_type()
@@ -3071,7 +3072,18 @@ WHERE (([f].[Discriminator] = N'LocustHorde') AND (([f].[Discriminator] = N'Locu
             base.Comparing_entities_using_Equals_inheritance();
 
             AssertSql(
-                @"");
+                "");
+        }
+
+        public override void Contains_on_nullable_array_produces_correct_sql()
+        {
+            base.Contains_on_nullable_array_produces_correct_sql();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[SquadId] < 2) AND ([g].[AssignedCityName] IN (N'Ephyra') OR [g].[AssignedCityName] IS NULL))");
+
         }
 
         private void AssertSql(params string[] expected)

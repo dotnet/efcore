@@ -9,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class NullSemanticsQuerySqlServerTest : NullSemanticsQueryTestBase<SqlServerTestStore, NullSemanticsQuerySqlServerFixture>
     {
+        // ReSharper disable once UnusedParameter.Local
         public NullSemanticsQuerySqlServerTest(NullSemanticsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
@@ -666,7 +667,7 @@ INNER JOIN [NullSemanticsEntity2] AS [e2] ON [e1].[NullableIntA] = [e2].[Nullabl
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL");
+WHERE ([e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL)");
         }
 
         public override void Contains_with_local_array_closure_false_with_null()
@@ -686,7 +687,7 @@ WHERE [e].[NullableStringA] NOT IN (N'Foo') AND [e].[NullableStringA] IS NOT NUL
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL");
+WHERE ([e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL)");
         }
 
         public override void Where_multiple_ors_with_null()
@@ -716,7 +717,7 @@ WHERE [e].[NullableStringA] NOT IN (N'Foo', N'Blah') AND [e].[NullableStringA] I
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL");
+WHERE ([e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL)");
         }
 
         public override void Where_multiple_ands_with_nullable_parameter_and_constant()
