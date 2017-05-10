@@ -866,7 +866,15 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
         if ($parts.Length -eq 2)
         {
             $level = $parts[0]
-            $text = $parts[1].Substring(8 - $level.Length)
+
+            $i = 0
+            $count = 8 - $level.Length
+            while ($i -lt $count -and $parts[1][$i] -eq ' ')
+            {
+                $i++
+            }
+
+            $text = $parts[1].Substring($i)
         }
 
         switch ($level)
