@@ -571,9 +571,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     TODO
+        ///     Replace the projection expressions in this SelectExpression.
         /// </summary>
-        /// <param name="expressions"></param>
+        /// <param name="expressions">The new projection expressions.</param>
         public virtual void ReplaceProjection(
             [NotNull] IEnumerable<Expression> expressions)
         {
