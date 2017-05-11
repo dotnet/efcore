@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
 #if NET461
             return target as T ?? new ForwardingProxy<T>(target).GetTransparentProxy();
-#elif NETSTANDARD2_0
+#elif NETSTANDARD1_4
             return (T)target;
 #else
 #error target frameworks need to be updated.

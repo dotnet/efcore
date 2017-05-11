@@ -4,7 +4,7 @@
 
   <PropertyGroup>
     <Description>Microsoft SQL Server database provider for Entity Framework Core.</Description>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard1.4</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -24,6 +24,10 @@
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersVersion)" PrivateAssets="All" />
     <PackageReference Include="System.Data.SqlClient" Version="$(CoreFxVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
+    <PackageReference Include="System.Threading.Thread" Version="$(CoreFxVersion)" />
   </ItemGroup>
 
   <ItemGroup>

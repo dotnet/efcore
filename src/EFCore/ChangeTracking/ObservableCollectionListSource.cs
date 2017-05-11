@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if NETSTANDARD2_0
+
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -71,3 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         IList IListSource.GetList() => _bindingList ?? (_bindingList = this.ToBindingList());
     }
 }
+#elif NETSTANDARD1_4
+#else
+#error target frameworks need to be updated.
+#endif

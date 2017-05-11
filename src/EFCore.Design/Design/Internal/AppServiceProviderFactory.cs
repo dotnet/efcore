@@ -49,7 +49,21 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         protected virtual Type FindProgramClass()
+#if NET461
             => _startupAssembly.EntryPoint?.DeclaringType;
+#elif NETSTANDARD1_4
+            => Enumerable.FirstOrDefault(
+                from t in _startupAssembly.GetLoadableDefinedTypes()
+                from m in t.DeclaredMethods
+                let ps = m.GetParameters()
+                where m.IsStatic
+                    && (m.ReturnType == typeof(void) || m.ReturnType == typeof(int))
+                    && m.Name == "Main"
+                    && (ps.Length == 0 || (ps.Length == 1 && ps[0].ParameterType == typeof(string[])))
+                select t.AsType());
+#else
+#error target frameworks need to be updated.
+#endif
 
         private IServiceProvider CreateEmptyServiceProvider()
             => new ServiceCollection().BuildServiceProvider();

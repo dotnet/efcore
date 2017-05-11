@@ -11,7 +11,7 @@
     <serviceable>true</serviceable>
     <repository type="git" url="https://github.com/aspnet/EntityFramework.Tools.git" />
     <dependencies>
-      <group targetFramework=".NETStandard2.0">
+      <group targetFramework=".NETStandard1.4">
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" exclude="Build,Analyzers" />
       </group>
     </dependencies>
@@ -21,7 +21,7 @@
     <file src="tools/**/*" target=""/>
     <file src="../ef/bin/$configuration$/net461/ef.exe" target="tools/net461/" />
     <file src="../ef/bin/x86/$configuration$/net461/ef.x86.exe" target="tools/net461/" />
-    <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.dll" target="tools/netcoreapp2.0/" />
-    <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.runtimeconfig.json" target="tools/netcoreapp2.0/" />
+    <file src="../ef/bin/$configuration$/netcoreapp1.0/ef.dll" target="tools/netcoreapp1.0/" />
+    <file src="../ef/bin/$configuration$/netcoreapp1.0/ef.runtimeconfig.json" target="tools/netcoreapp1.0/" />
   </files>
 </package>

@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
-    public class OperationReportHandler : MarshalByRefObject, IOperationReportHandler
+    public partial class OperationReportHandler : IOperationReportHandler
     {
         private readonly Action<string> _errorHandler;
         private readonly Action<string> _warningHandler;
@@ -39,4 +39,13 @@ namespace Microsoft.EntityFrameworkCore.Design
         public virtual void OnVerbose(string message)
             => _verboseHandler?.Invoke(message);
     }
+
+#if NET461
+    public partial class OperationReportHandler : MarshalByRefObject
+    {
+    }
+#elif NETSTANDARD1_4 || NETCOREAPP1_0
+#else
+#error target frameworks need to be updated.
+#endif
 }

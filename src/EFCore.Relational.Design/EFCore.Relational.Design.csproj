@@ -4,7 +4,7 @@
 
   <PropertyGroup>
     <Description>Shared design-time Entity Framework Core components for relational database providers.</Description>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard1.4</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Relational.Design</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
