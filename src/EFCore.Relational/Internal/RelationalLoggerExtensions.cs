@@ -38,13 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Guid commandId, 
             Guid connectionId, 
             bool async, 
-            long startTimestamp)
+            DateTimeOffset startTime)
         {
             var eventId = RelationalEventId.CommandExecuting;
 
             if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Debug))
             {
-                var logData = CreateCommandLogData(diagnostics, command, 0, 0);
+                var logData = CreateCommandLogData(diagnostics, command, TimeSpan.Zero);
 
                 var message = RelationalStrings.RelationalLoggerExecutingCommand(
                     logData.Parameters
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         commandId,
                         connectionId,
                         async,
-                        startTimestamp));
+                        startTime));
             }
         }
 
@@ -85,19 +85,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Guid connectionId,
             [CanBeNull] object methodResult,
             bool async,
-            long startTimestamp,
-            long currentTimestamp)
+            DateTimeOffset startTime,
+            TimeSpan duration)
         {
             var eventId = RelationalEventId.CommandExecuted;
 
             if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Information))
             {
-                var logData = CreateCommandLogData(diagnostics, command, startTimestamp, currentTimestamp);
-
-                var elapsedMilliseconds = DeriveTimespan(startTimestamp, currentTimestamp);
-
+                var logData = CreateCommandLogData(diagnostics, command, duration);
+                
                 var message = RelationalStrings.RelationalLoggerExecutedCommand(
-                    string.Format(CultureInfo.InvariantCulture, "{0:N0}", elapsedMilliseconds),
+                    string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.Milliseconds),
                     logData.Parameters
                         // Interpolation okay here because value is always a string.
                         .Select(p => $"{p.Name}={p.FormatParameter()}")
@@ -121,8 +119,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         connectionId,
                         methodResult,
                         async,
-                        currentTimestamp,
-                        currentTimestamp - startTimestamp));
+                        startTime,
+                        duration));
             }
         }
 
@@ -138,19 +136,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Guid connectionId,
             [NotNull] Exception exception,
             bool async,
-            long startTimestamp,
-            long currentTimestamp)
+            DateTimeOffset startTime,
+            TimeSpan duration)
         {
             var eventId = RelationalEventId.CommandError;
 
             if (diagnostics.Logger.IsEnabled(eventId, LogLevel.Error))
             {
-                var logData = CreateCommandLogData(diagnostics, command, startTimestamp, currentTimestamp);
-
-                var elapsedMilliseconds = DeriveTimespan(startTimestamp, currentTimestamp);
+                var logData = CreateCommandLogData(diagnostics, command, duration);
 
                 var message = RelationalStrings.RelationalLoggerCommandFailed(
-                    string.Format(CultureInfo.InvariantCulture, "{0:N0}", elapsedMilliseconds),
+                    string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.Milliseconds),
                     logData.Parameters
                         // Interpolation okay here because value is always a string.
                         .Select(p => $"{p.Name}={p.FormatParameter()}")
@@ -174,8 +170,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         connectionId,
                         exception,
                         async,
-                        currentTimestamp,
-                        currentTimestamp - startTimestamp));
+                        startTime,
+                        duration));
             }
         }
 
@@ -188,8 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 #pragma warning restore 618
             this IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics,
             DbCommand command,
-            long startTimestamp,
-            long currentTimestamp)
+            TimeSpan duration)
         {
             var logParameterValues
                 = command.Parameters.Count > 0
@@ -215,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                             p.Precision,
                             p.Scale))
                     .ToList(),
-                DeriveTimespan(startTimestamp, currentTimestamp));
+                duration.Milliseconds);
 
             return logData;
         }
@@ -227,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ConnectionOpening(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
-            long startTimestamp,
+            DateTimeOffset startTime,
             bool async)
         {
             var eventId = RelationalEventId.ConnectionOpening;
@@ -249,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         connection.DbConnection, 
                         connection.ConnectionId, 
                         async, 
-                        startTimestamp));
+                        startTime));
             }
         }
 
@@ -260,8 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ConnectionOpened(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
-            long startTimestamp,
-            long currentTimestamp,
+            DateTimeOffset startTime,
+            TimeSpan duration,
             bool async)
         {
             var eventId = RelationalEventId.ConnectionOpened;
@@ -283,8 +278,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         connection.DbConnection,
                         connection.ConnectionId,
                         async,
-                        currentTimestamp,
-                        currentTimestamp - startTimestamp));
+                        startTime,
+                        duration));
             }
         }
 
@@ -295,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ConnectionClosing(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
-            long startTimestamp)
+            DateTimeOffset startTime)
         {
             var eventId = RelationalEventId.ConnectionClosing;
 
@@ -316,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         connection.DbConnection, 
                         connection.ConnectionId, 
                         false,
-                        startTimestamp));
+                        startTime));
             }
         }
 
@@ -327,8 +322,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ConnectionClosed(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
-            long startTimestamp,
-            long currentTimestamp)
+            DateTimeOffset startTime,
+            TimeSpan duration)
         {
             var eventId = RelationalEventId.ConnectionClosed;
 
@@ -349,8 +344,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         connection.DbConnection,
                         connection.ConnectionId,
                         false,
-                        currentTimestamp,
-                        currentTimestamp - startTimestamp));
+                        startTime,
+                        duration));
             }
         }
 
@@ -362,8 +357,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] Exception exception,
-            long startTimestamp,
-            long currentTimestamp,
+            DateTimeOffset startTime,
+            TimeSpan duration,
             bool async)
         {
             var eventId = RelationalEventId.ConnectionError;
@@ -387,8 +382,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         connection.ConnectionId,
                         exception,
                         async,
-                        currentTimestamp,
-                        currentTimestamp - startTimestamp));
+                        startTime,
+                        duration));
             }
         }
 
@@ -401,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
-            long timestamp)
+            DateTimeOffset startDate)
         {
             var eventId = RelationalEventId.TransactionStarted;
 
@@ -420,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         transaction,
                         transactionId,
                         connection.ConnectionId,
-                        timestamp));
+                        startDate));
             }
         }
 
@@ -433,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
-            long timestamp)
+            DateTimeOffset startDate)
         {
             var eventId = RelationalEventId.TransactionUsed;
 
@@ -452,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         transaction,
                         transactionId,
                         connection.ConnectionId,
-                        timestamp));
+                        startDate));
             }
         }
 
@@ -465,8 +460,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
-            long startTimestamp,
-            long currentTimestamp)
+            DateTimeOffset startTime,
+            TimeSpan duration)
         {
             var eventId = RelationalEventId.TransactionCommitted;
 
@@ -485,8 +480,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         transaction,
                         transactionId,
                         connection.ConnectionId,
-                        currentTimestamp,
-                        currentTimestamp - startTimestamp));
+                        startTime,
+                        duration));
             }
         }
 
@@ -499,8 +494,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
-            long startTimestamp,
-            long currentTimestamp)
+            DateTimeOffset startTime,
+            TimeSpan duration)
         {
             var eventId = RelationalEventId.TransactionRolledBack;
 
@@ -519,8 +514,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         transaction,
                         transactionId,
                         connection.ConnectionId,
-                        currentTimestamp,
-                        currentTimestamp - startTimestamp));
+                        startTime,
+                        duration));
             }
         }
 
@@ -533,7 +528,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
-            long timestamp)
+            DateTimeOffset startDate)
         {
             var eventId = RelationalEventId.TransactionDisposed;
 
@@ -552,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         transaction,
                         transactionId,
                         connection.ConnectionId,
-                        timestamp));
+                        startDate));
             }
         }
 
@@ -567,8 +562,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Guid transactionId,
             [NotNull] string action,
             [NotNull] Exception exception,
-            long startTimestamp,
-            long currentTimestamp)
+            DateTimeOffset startTime,
+            TimeSpan duration)
         {
             var eventId = RelationalEventId.TransactionError;
 
@@ -590,8 +585,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         transactionId,
                         action,
                         exception,
-                        currentTimestamp,
-                        currentTimestamp - startTimestamp));
+                        startTime,
+                        duration));
             }
         }
 
@@ -602,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void AmbientTransactionWarning(
             [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
-            long timestamp)
+            DateTimeOffset startDate)
         {
             var eventId = RelationalEventId.AmbientTransactionWarning;
 
@@ -621,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         connection.DbConnection,
                         connection.ConnectionId,
                         false,
-                        timestamp));
+                        startDate));
             }
         }
 
@@ -636,8 +631,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] DbDataReader dataReader,
             Guid commandId,
             int recordsAffected,
-            long startTimestamp,
-            long currentTimestamp)
+            DateTimeOffset startTime,
+            TimeSpan duration)
         {
             var eventId = RelationalEventId.DataReaderDisposing;
 
@@ -658,8 +653,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         commandId,
                         connection.ConnectionId,
                         recordsAffected,
-                        currentTimestamp,
-                        currentTimestamp - startTimestamp));
+                        startTime,
+                        duration));
             }
         }
 
@@ -906,11 +901,5 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     });
             }
         }
-
-        private static readonly double _timestampToMilliseconds
-            = (double)TimeSpan.TicksPerSecond / (Stopwatch.Frequency * TimeSpan.TicksPerMillisecond);
-
-        private static long DeriveTimespan(long startTimestamp, long currentTimestamp)
-            => (long)((currentTimestamp - startTimestamp) * _timestampToMilliseconds);
     }
 }

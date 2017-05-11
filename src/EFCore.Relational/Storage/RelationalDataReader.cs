@@ -28,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly DbDataReader _reader;
         private readonly Guid _commandId;
         private readonly IDiagnosticsLogger<LoggerCategory.Database.DataReader> _logger;
-        private readonly long _startTimestamp;
+        private readonly DateTimeOffset _startTime;
+        private readonly Stopwatch _stopwatch;
 
         private bool _disposed;
 
@@ -56,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _reader = reader;
             _commandId = commandId;
             _logger = logger;
-            _startTimestamp = Stopwatch.GetTimestamp();
+            _startTime = DateTimeOffset.UtcNow;
+            _stopwatch = Stopwatch.StartNew();
         }
 
         /// <summary>
@@ -80,16 +82,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
-                var currentTimestamp = Stopwatch.GetTimestamp();
-
                 _logger.DataReaderDisposing(
                     _connection,
                     _command,
                     _reader,
                     _commandId,
                     _reader.RecordsAffected,
-                    _startTimestamp,
-                    currentTimestamp);
+                    _startTime,
+                    _stopwatch.Elapsed);
 
                 _reader.Dispose();
                 _command.Dispose();

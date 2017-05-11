@@ -27,19 +27,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connectionId">
         ///     A correlation ID that identifies the <see cref="DbConnection" /> instance being used.
         /// </param>
-        /// <param name="timestamp">
-        ///     A timestamp from <see cref="Stopwatch.GetTimestamp" /> that can be used for timing.
+        /// <param name="startTime">
+        ///     The start time of this event.
         /// </param>
         public TransactionData(
             [NotNull] DbTransaction transaction,
             Guid transactionId,
             Guid connectionId,
-            long timestamp)
+            DateTimeOffset startTime)
         {
             Transaction = transaction;
             TransactionId = transactionId;
             ConnectionId = connectionId;
-            Timestamp = timestamp;
+            StartTime = startTime;
         }
 
         /// <summary>
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual Guid ConnectionId { get; }
 
         /// <summary>
-        ///     A timestamp from <see cref="Stopwatch.GetTimestamp" /> that can be used for timing.
+        ///     The start time of this event.
         /// </summary>
-        public virtual long Timestamp { get; }
+        public virtual DateTimeOffset StartTime { get; }
     }
 }

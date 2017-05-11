@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using IsolationLevel = System.Data.IsolationLevel;
 
@@ -196,12 +195,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     dbTransaction,
                     Dependencies.TransactionLogger,
                     transactionOwned: true);
-
+            
             Dependencies.TransactionLogger.TransactionStarted(
                 this, 
                 dbTransaction, 
                 CurrentTransaction.TransactionId,
-                Stopwatch.GetTimestamp());
+                DateTimeOffset.UtcNow);
 
             return CurrentTransaction;
         }
@@ -237,8 +236,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Dependencies.TransactionLogger.TransactionUsed(
                     this, 
                     transaction, 
-                    CurrentTransaction.TransactionId, 
-                    Stopwatch.GetTimestamp());
+                    CurrentTransaction.TransactionId,
+                    DateTimeOffset.UtcNow);
             }
 
             return CurrentTransaction;
@@ -287,33 +286,35 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (_connection.Value.State != ConnectionState.Open)
             {
-                var startTimestamp = Stopwatch.GetTimestamp();
+                var startTime = DateTimeOffset.UtcNow;
+                var stopwatch = Stopwatch.StartNew();
+
                 Dependencies.ConnectionLogger.ConnectionOpening(
                     this,
-                    startTimestamp,
+                    startTime,
                     async: false);
 
                 try
                 {
                     _connection.Value.Open();
+
                     wasOpened = true;
 
-                    var currentTimestamp = Stopwatch.GetTimestamp();
                     Dependencies.ConnectionLogger.ConnectionOpened(
                         this,
-                        startTimestamp, 
-                        currentTimestamp,
+                        startTime,
+                        stopwatch.Elapsed,
                         async: false);
                 }
                 catch (Exception e)
                 {
-                    var currentTimestamp = Stopwatch.GetTimestamp();
                     Dependencies.ConnectionLogger.ConnectionError(
                         this, 
                         e,
-                        startTimestamp,
-                        currentTimestamp,
+                        startTime,
+                        stopwatch.Elapsed,
                         async: false);
+
                     throw;
                 }
 
@@ -354,33 +355,35 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (_connection.Value.State != ConnectionState.Open)
             {
-                var startTimestamp = Stopwatch.GetTimestamp();
+                var startTime = DateTimeOffset.UtcNow;
+                var stopwatch = Stopwatch.StartNew();
+
                 Dependencies.ConnectionLogger.ConnectionOpening(
                     this,
-                    startTimestamp,
+                    startTime,
                     async: true);
 
                 try
                 {
                     await _connection.Value.OpenAsync(cancellationToken);
+
                     wasOpened = true;
 
-                    var currentTimestamp = Stopwatch.GetTimestamp();
                     Dependencies.ConnectionLogger.ConnectionOpened(
                         this,
-                        startTimestamp,
-                        currentTimestamp,
+                        startTime,
+                        stopwatch.Elapsed,
                         async: true);
                 }
                 catch (Exception e)
                 {
-                    var currentTimestamp = Stopwatch.GetTimestamp();
                     Dependencies.ConnectionLogger.ConnectionError(
                         this,
                         e,
-                        startTimestamp,
-                        currentTimestamp,
+                        startTime,
+                        stopwatch.Elapsed,
                         async: true);
+
                     throw;
                 }
 
@@ -398,12 +401,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return wasOpened;
         }
 
+        // ReSharper disable once MemberCanBeMadeStatic.Local
         private void CheckForAmbientTransactions()
         {
 #if NET46
             if (Transaction.Current != null)
             {
-                Dependencies.TransactionLogger.AmbientTransactionWarning(this, Stopwatch.GetTimestamp());
+                Dependencies.TransactionLogger.AmbientTransactionWarning(this, DateTimeOffset.UtcNow);
             }
 #elif NETSTANDARD1_3
 #else
@@ -425,26 +429,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 if (_connection.Value.State != ConnectionState.Closed)
                 {
-                    var startTimestamp = Stopwatch.GetTimestamp();
-                    Dependencies.ConnectionLogger.ConnectionClosing(this, startTimestamp);
+                    var startTime = DateTimeOffset.UtcNow;
+                    var stopwatch = Stopwatch.StartNew();
+
+                    Dependencies.ConnectionLogger.ConnectionClosing(this, startTime);
 
                     try
                     {
                         _connection.Value.Close();
+
                         wasClosed = true;
 
-                        var currentTimestamp = Stopwatch.GetTimestamp();
-                        Dependencies.ConnectionLogger.ConnectionClosed(this, startTimestamp, currentTimestamp);
+                        Dependencies.ConnectionLogger.ConnectionClosed(this, startTime, stopwatch.Elapsed);
                     }
                     catch (Exception e)
                     {
-                        var currentTimestamp = Stopwatch.GetTimestamp();
                         Dependencies.ConnectionLogger.ConnectionError(
                             this,
                             e,
-                            startTimestamp,
-                            currentTimestamp,
+                            startTime,
+                            stopwatch.Elapsed,
                             async: false);
+
                         throw;
                     }
                 }

@@ -33,11 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="async">
         ///     Indicates whether or not the command was executed asyncronously.
         /// </param>
-        /// <param name="timestamp">
-        ///     A timestamp from <see cref="Stopwatch.GetTimestamp" /> that can be used for timing.
+        /// <param name="startTime">
+        ///     The start time of this event.
         /// </param>
         /// <param name="duration">
-        ///     The duration of execution as ticks from <see cref="Stopwatch.GetTimestamp" />.
+        ///     The duration this event.
         /// </param>
         public CommandEndData(
             [NotNull] DbCommand command,
@@ -45,16 +45,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid commandId,
             Guid connectionId,
             bool async,
-            long timestamp,
-            long duration)
-            : base(command, executeMethod, commandId, connectionId, async, timestamp)
-        {
-            Duration = duration;
-        }
+            DateTimeOffset startTime,
+            TimeSpan duration)
+            : base(command, executeMethod, commandId, connectionId, async, startTime)
+            => Duration = duration;
 
         /// <summary>
-        ///     The duration of execution as ticks from <see cref="Stopwatch.GetTimestamp" />.
+        ///     The duration this event.
         /// </summary>
-        public virtual long Duration { get; }
+        public virtual TimeSpan Duration { get; }
     }
 }

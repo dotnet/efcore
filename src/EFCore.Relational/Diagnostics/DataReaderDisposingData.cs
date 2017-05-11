@@ -32,12 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="recordsAffected">
         ///     Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.
         /// </param>
-        /// <param name="timestamp">
-        ///     A timestamp from <see cref="Stopwatch.GetTimestamp" /> that can be used
-        ///     with <see cref="RelationalEventId.CommandExecuting" /> to time execution.
+        /// <param name="startTime">
+        ///     The start time of this event.
         /// </param>
         /// <param name="duration">
-        ///     The duration of execution as ticks from <see cref="Stopwatch.GetTimestamp" />.
+        ///     The duration this event.
         /// </param>
         public DataReaderDisposingData(
             [NotNull] DbCommand command,
@@ -45,15 +44,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid commandId,
             Guid connectionId,
             int recordsAffected,
-            long timestamp,
-            long duration)
+            DateTimeOffset startTime,
+            TimeSpan duration)
         {
             Command = command;
             DataReader = dataReader;
             CommandId = commandId;
             ConnectionId = connectionId;
             RecordsAffected = recordsAffected;
-            Timestamp = timestamp;
+            StartTime = startTime;
             Duration = duration;
         }
 
@@ -83,14 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual int RecordsAffected { get; }
 
         /// <summary>
-        ///     A timestamp from <see cref="Stopwatch.GetTimestamp" /> that can be used
-        ///     with <see cref="RelationalEventId.CommandExecuting" /> to time execution.
+        ///     The start time of this event.
         /// </summary>
-        public virtual long Timestamp { get; }
+        public virtual DateTimeOffset StartTime { get; }
 
         /// <summary>
-        ///     The duration of execution as ticks from <see cref="Stopwatch.GetTimestamp" />.
+        ///     The duration this event.
         /// </summary>
-        public virtual long Duration { get; }
+        public virtual TimeSpan Duration { get; }
     }
 }

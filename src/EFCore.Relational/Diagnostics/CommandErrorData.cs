@@ -35,12 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="async">
         ///     Indicates whether or not the command was executed asyncronously.
         /// </param>
-        /// <param name="timestamp">
-        ///     A timestamp from <see cref="Stopwatch.GetTimestamp" /> that can be used
-        ///     with <see cref="RelationalEventId.CommandExecuting" /> to time execution.
+        /// <param name="startTime">
+        ///     The start time of this event.
         /// </param>
         /// <param name="duration">
-        ///     The duration of execution as ticks from <see cref="Stopwatch.GetTimestamp" />.
+        ///     The duration this event.
         /// </param>
         public CommandErrorData(
             [NotNull] DbCommand command,
@@ -49,12 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             [NotNull] Exception exception,
             bool async,
-            long timestamp,
-            long duration)
-            : base(command, executeMethod, commandId, connectionId, async, timestamp, duration)
-        {
-            Exception = exception;
-        }
+            DateTimeOffset startTime,
+            TimeSpan duration)
+            : base(command, executeMethod, commandId, connectionId, async, startTime, duration) 
+            => Exception = exception;
 
         /// <summary>
         ///     The exception that was thrown when execution failed.

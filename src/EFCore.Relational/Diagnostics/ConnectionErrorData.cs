@@ -29,23 +29,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="async">
         ///     Indicates whether or not the operation is happening asyncronously.
         /// </param>
-        /// <param name="timestamp">
-        ///     A timestamp from <see cref="Stopwatch.GetTimestamp" /> that can be used for timing.
+        /// <param name="startTime">
+        ///     The start time of this event.
         /// </param>
         /// <param name="duration">
-        ///     The duration of execution as ticks from <see cref="Stopwatch.GetTimestamp" />.
+        ///     The duration this event.
         /// </param>
         public ConnectionErrorData(
             [NotNull] DbConnection connection,
             Guid connectionId,
             [NotNull] Exception exception,
             bool async,
-            long timestamp,
-            long duration)
-            : base(connection, connectionId, async, timestamp, duration)
-        {
-            Exception = exception;
-        }
+            DateTimeOffset startTime,
+            TimeSpan duration)
+            : base(connection, connectionId, async, startTime, duration) 
+            => Exception = exception;
 
         /// <summary>
         ///     The exception that was thrown when the connection failed.

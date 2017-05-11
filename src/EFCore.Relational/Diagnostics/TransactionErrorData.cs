@@ -30,11 +30,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="exception">
         ///     The exception that was thrown when the transaction failed.
         /// </param>
-        /// <param name="timestamp">
-        ///     A timestamp from <see cref="Stopwatch.GetTimestamp" /> that can be used for timing.
+        /// <param name="startTime">
+        ///     The start time of this event.
         /// </param>
         /// <param name="duration">
-        ///     The duration of execution as ticks from <see cref="Stopwatch.GetTimestamp" />.
+        ///     The duration this event.
         /// </param>
         public TransactionErrorData(
             [NotNull] DbTransaction transaction,
@@ -42,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             [NotNull] string action,
             [NotNull] Exception exception,
-            long timestamp,
-            long duration)
-            : base(transaction, transactionId, connectionId, timestamp, duration)
+            DateTimeOffset startTime,
+            TimeSpan duration)
+            : base(transaction, transactionId, connectionId, startTime, duration)
         {
             Action = action;
             Exception = exception;

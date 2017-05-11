@@ -185,8 +185,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             connection.Open();
 
-            var startTimestamp = Stopwatch.GetTimestamp();
             var commandId = Guid.NewGuid();
+
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
 
             SqlLogger.CommandExecuting(
                 dbCommand,
@@ -194,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 commandId,
                 connection.ConnectionId,
                 async: false, 
-                startTimestamp: startTimestamp);
+                startTime: startTime);
 
             object result;
             try
@@ -246,8 +248,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     }
                 }
 
-                var currentTimestamp = Stopwatch.GetTimestamp();
-
                 SqlLogger.CommandExecuted(
                     dbCommand,
                     executeMethod,
@@ -255,8 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     connection.ConnectionId,
                     result,
                     false,
-                    startTimestamp,
-                    currentTimestamp);
+                    startTime,
+                    stopwatch.Elapsed);
 
                 if (closeConnection)
                 {
@@ -265,8 +265,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             catch (Exception exception)
             {
-                var currentTimestamp = Stopwatch.GetTimestamp();
-
                 SqlLogger.CommandError(
                     dbCommand,
                     executeMethod,
@@ -274,8 +272,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     connection.ConnectionId,
                     exception,
                     false,
-                    startTimestamp,
-                    currentTimestamp);
+                    startTime,
+                    stopwatch.Elapsed);
 
                 connection.Close();
 
@@ -306,8 +304,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             await connection.OpenAsync(cancellationToken);
 
-            var startTimestamp = Stopwatch.GetTimestamp();
             var commandId = Guid.NewGuid();
+
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
 
             SqlLogger.CommandExecuting(
                 dbCommand,
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 commandId,
                 connection.ConnectionId,
                 async: true, 
-                startTimestamp: startTimestamp);
+                startTime: startTime);
 
             object result;
             try
@@ -366,8 +366,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     }
                 }
 
-                var currentTimestamp = Stopwatch.GetTimestamp();
-
                 SqlLogger.CommandExecuted(
                     dbCommand,
                     executeMethod,
@@ -375,8 +373,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     connection.ConnectionId,
                     result,
                     true,
-                    startTimestamp,
-                    currentTimestamp);
+                    startTime,
+                    stopwatch.Elapsed);
 
                 if (closeConnection)
                 {
@@ -385,8 +383,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             catch (Exception exception)
             {
-                var currentTimestamp = Stopwatch.GetTimestamp();
-
                 SqlLogger.CommandError(
                     dbCommand,
                     executeMethod,
@@ -394,8 +390,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     connection.ConnectionId,
                     exception,
                     true,
-                    startTimestamp,
-                    currentTimestamp);
+                    startTime,
+                    stopwatch.Elapsed);
 
                 connection.Close();
 

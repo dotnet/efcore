@@ -68,33 +68,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual void Commit()
         {
-            var startTimestamp = Stopwatch.GetTimestamp();
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
 
             try
             {
                 _dbTransaction.Commit();
 
-                var currentTimestamp = Stopwatch.GetTimestamp();
-
                 _logger.TransactionCommitted(
                     _relationalConnection,
                     _dbTransaction,
                     TransactionId,
-                    startTimestamp,
-                    currentTimestamp);
+                    startTime,
+                    stopwatch.Elapsed);
             }
             catch (Exception e)
             {
-                var currentTimestamp = Stopwatch.GetTimestamp();
-
                 _logger.TransactionError(
                     _relationalConnection,
                     _dbTransaction,
                     TransactionId,
                     "Commit",
                     e,
-                    startTimestamp,
-                    currentTimestamp);
+                    startTime,
+                    stopwatch.Elapsed);
                 throw;
             }
 
@@ -106,33 +103,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual void Rollback()
         {
-            var startTimestamp = Stopwatch.GetTimestamp();
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
 
             try
             {
                 _dbTransaction.Rollback();
 
-                var currentTimestamp = Stopwatch.GetTimestamp();
-
                 _logger.TransactionRolledBack(
                     _relationalConnection,
                     _dbTransaction,
                     TransactionId,
-                    startTimestamp,
-                    currentTimestamp);
+                    startTime,
+                    stopwatch.Elapsed);
             }
             catch (Exception e)
             {
-                var currentTimestamp = Stopwatch.GetTimestamp();
-
                 _logger.TransactionError(
                     _relationalConnection,
                     _dbTransaction,
                     TransactionId,
                     "Rollback",
                     e,
-                    startTimestamp,
-                    currentTimestamp);
+                    startTime,
+                    stopwatch.Elapsed);
                 throw;
             }
 
@@ -156,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         _relationalConnection,
                         _dbTransaction,
                         TransactionId,
-                        Stopwatch.GetTimestamp());
+                        DateTimeOffset.UtcNow);
                 }
 
                 ClearTransaction();
