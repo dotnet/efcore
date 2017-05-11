@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Xunit;
+// ReSharper disable FormatStringProblem
 
 // ReSharper disable InconsistentNaming
 
@@ -316,8 +317,7 @@ SELECT
             using (var context = CreateContext())
             {
                 var actual
-                    = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
-                           city)
+                    = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}", city)
                        from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
                            startDate,
                            endDate)
@@ -326,6 +326,21 @@ SELECT
                         .ToArray();
 
                 Assert.Equal(25, actual.Length);
+
+                city = "Berlin";
+                startDate = new DateTime(1998, 4, 1);
+                endDate = new DateTime(1998, 5, 1);
+
+                actual
+                    = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}", city)
+                       from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
+                           startDate,
+                           endDate)
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
+                    .ToArray();
+
+                Assert.Equal(1, actual.Length);
             }
         }
 
@@ -397,6 +412,74 @@ FROM ""Customers""")
                 Assert.Equal(3, actual.Length);
                 Assert.True(actual.All(c => c.City == "London"));
                 Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_with_parameters_interpolated()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql(
+                        $@"SELECT * FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}")
+                    .ToArray();
+
+                Assert.Equal(3, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+                Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_with_parameters_inline_interpolated()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql(
+                        $@"SELECT * FROM ""Customers"" WHERE ""City"" = {"London"} AND ""ContactTitle"" = {"Sales Representative"}")
+                    .ToArray();
+
+                Assert.Equal(3, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+                Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated()
+        {
+            var city = "London";
+            var startDate = new DateTime(1997, 1, 1);
+            var endDate = new DateTime(1998, 1, 1);
+
+            using (var context = CreateContext())
+            {
+                var actual
+                    = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}", city)
+                       from o in context.Set<Order>().FromSql($@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {startDate} AND {endDate}")
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
+                    .ToArray();
+
+                Assert.Equal(25, actual.Length);
+
+                city = "Berlin";
+                startDate = new DateTime(1998, 4, 1);
+                endDate = new DateTime(1998, 5, 1);
+
+                actual
+                    = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}", city)
+                       from o in context.Set<Order>().FromSql($@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {startDate} AND {endDate}")
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
+                    .ToArray();
+
+                Assert.Equal(1, actual.Length);
             }
         }
 
@@ -656,8 +739,7 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
                 var parameter = CreateDbParameter("@id", "ALFKI");
 
                 var query = context.Customers
-                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id",
-                        parameter);
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id", parameter);
 
                 var result1 = query.ToList();
 
@@ -675,8 +757,11 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
         {
             using (var context = CreateContext())
             {
-                var query = from c1 in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'")
-                            from c2 in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'AROUT'").Include(c => c.Orders)
+                var query = from c1 in context.Set<Customer>()
+                                .FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'")
+                            from c2 in context.Set<Customer>()
+                                .FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'AROUT'")
+                                .Include(c => c.Orders)
                             select new { c1, c2 };
 
                 var result = query.ToList();

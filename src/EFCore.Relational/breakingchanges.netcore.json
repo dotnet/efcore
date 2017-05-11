@@ -1021,5 +1021,10 @@
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
     "MemberId": "System.String get_Filter()",
     "Kind": "Addition"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalQueryableExtensions",
+    "MemberId": "public static System.Linq.IQueryable<T0> FromSql<T0>(this System.Linq.IQueryable<T0> source, System.String sql, params System.Object[] parameters) where T0 : class",
+    "Kind": "Removal"
   }
 ]

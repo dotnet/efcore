@@ -4,7 +4,6 @@
 using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -15,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();
+            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override void From_sql_queryable_simple()
@@ -161,6 +161,19 @@ FROM (
 CROSS JOIN (
     SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @__8__locals1_startDate_1 AND @__8__locals1_endDate_2
 ) AS [o]
+WHERE [c].[CustomerID] = [o].[CustomerID]",
+                //
+                @"@p0: Berlin (Size = 4000)
+@__8__locals1_startDate_1: 04/01/1998 00:00:00
+@__8__locals1_endDate_2: 05/01/1998 00:00:00
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
+) AS [c]
+CROSS JOIN (
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @__8__locals1_startDate_1 AND @__8__locals1_endDate_2
+) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]");
         }
 
@@ -207,6 +220,60 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
 @p1: Sales Representative (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
+        }
+
+        public override void From_sql_queryable_with_parameters_interpolated()
+        {
+            base.From_sql_queryable_with_parameters_interpolated();
+
+            AssertSql(
+                @"@p0: London (Size = 4000)
+@p1: Sales Representative (Size = 4000)
+
+SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
+        }
+
+        public override void From_sql_queryable_with_parameters_inline_interpolated()
+        {
+            base.From_sql_queryable_with_parameters_inline_interpolated();
+
+            AssertSql(
+                @"@p0: London (Size = 4000)
+@p1: Sales Representative (Size = 4000)
+
+SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
+        }
+
+        public override void From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated()
+        {
+            base.From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated();
+
+            AssertSql(
+                @"@p0: London (Size = 4000)
+@p1: 01/01/1997 00:00:00
+@p2: 01/01/1998 00:00:00
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
+) AS [c]
+CROSS JOIN (
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
+) AS [o]
+WHERE [c].[CustomerID] = [o].[CustomerID]",
+                //
+                @"@p0: Berlin (Size = 4000)
+@p1: 04/01/1998 00:00:00
+@p2: 05/01/1998 00:00:00
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
+) AS [c]
+CROSS JOIN (
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
+) AS [o]
+WHERE [c].[CustomerID] = [o].[CustomerID]");
         }
 
         public override void From_sql_queryable_with_null_parameter()

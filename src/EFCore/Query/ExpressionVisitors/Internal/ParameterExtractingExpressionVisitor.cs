@@ -137,7 +137,40 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     {
                         if (newArgument.RemoveConvert() is ParameterExpression parameter)
                         {
-                            newArgument = Expression.Constant(_parameterValues.RemoveParameter(parameter.Name));
+                            var parameterValue = _parameterValues.RemoveParameter(parameter.Name);
+
+                            if (parameter.Type == typeof(FormattableString))
+                            {
+                                if (Evaluate(methodCallExpression, out var _) is IQueryable queryable)
+                                {
+                                    var oldInLambda = _inLambda;
+
+                                    _inLambda = false;
+
+                                    try
+                                    {
+                                        return ExtractParameters(queryable.Expression);
+                                    }
+                                    finally
+                                    {
+                                        _inLambda = oldInLambda;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var constantParameterValue = Expression.Constant(parameterValue);
+
+                                if (newArgument is UnaryExpression unaryExpression
+                                    && unaryExpression.NodeType == ExpressionType.Convert)
+                                {
+                                    newArgument = unaryExpression.Update(constantParameterValue);
+                                }
+                                else
+                                {
+                                    newArgument = constantParameterValue;
+                                }
+                            }
                         }
                     }
 
