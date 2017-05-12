@@ -404,7 +404,7 @@ function Script-Migration
         if (!(Split-Path $intermediatePath -IsAbsolute))
         {
             $projectDir = GetProperty $dteProject.Properties 'FullPath'
-            $intermediatePath = Join-Path $projectDir $intermediatePath -Resolve
+            $intermediatePath = Join-Path $projectDir $intermediatePath -Resolve | Convert-Path
         }
 
         $scriptFileName = [IO.Path]::ChangeExtension([IO.Path]::GetRandomFileName(), '.sql')
@@ -592,7 +592,7 @@ function GetStartupProject($name, $fallbackProject)
             if (!(Split-Path -IsAbsolute $startupProjectPath))
             {
                 $solutionPath = Split-Path (GetProperty $DTE.Solution.Properties 'Path')
-                $startupProjectPath = Join-Path $solutionPath $startupProjectPath -Resolve
+                $startupProjectPath = Join-Path $solutionPath $startupProjectPath -Resolve | Convert-Path
             }
 
             $startupProject = GetSolutionProjects | ?{
@@ -744,7 +744,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
 
     $startupProjectDir = GetProperty $startupProject.Properties 'FullPath'
     $outputPath = GetProperty $startupProject.ConfigurationManager.ActiveConfiguration.Properties 'OutputPath'
-    $targetDir = Join-Path $startupProjectDir $outputPath -Resolve
+    $targetDir = Join-Path $startupProjectDir $outputPath -Resolve | Convert-Path
     $startupTargetFileName = GetOutputFileName $startupProject
     $startupTargetPath = Join-Path $targetDir $startupTargetFileName
     $targetFrameworkMoniker = GetProperty $startupProject.Properties 'TargetFrameworkMoniker'
