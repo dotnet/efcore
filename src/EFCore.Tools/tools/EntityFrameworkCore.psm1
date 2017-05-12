@@ -698,6 +698,11 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
             'Studio 2015. This version of the Entity Framework Core Package Manager Console Tools doesn''t support ' +
             'these types of projects.'
     }
+    if (IsDocker $startupProject)
+    {
+        throw "Startup project '$($startupProject.ProjectName)' is a Docker project. Select an ASP.NET Core Web " +
+            'Application as your startup project and try again.'
+    }
     if (IsUWP $startupProject)
     {
         $useDotNetNative = GetProperty $startupProject.ConfigurationManager.ActiveConfiguration.Properties 'ProjectN.UseDotNetNativeToolchain'
@@ -894,6 +899,11 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
 function IsXproj($project)
 {
     return $project.Kind -eq '{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}'
+}
+
+function IsDocker($project)
+{
+    return $project.Kind -eq '{E53339B2-1760-4266-BCC7-CA923CBCF16C}'
 }
 
 function IsCsproj2($project)
