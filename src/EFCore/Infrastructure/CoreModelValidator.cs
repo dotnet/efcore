@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     if (!propertyBase.TryGetMemberInfo(
                         forConstruction: true,
                         forSet: true,
-                        memberInfo: out var _,
+                        memberInfo: out _,
                         errorMessage: out var errorMessage))
                     {
                         ShowError(errorMessage);

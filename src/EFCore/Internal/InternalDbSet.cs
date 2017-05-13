@@ -66,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private void CheckState()
         {
-            var _ = EntityType;
+            // ReSharper disable once AssignmentIsFullyDiscarded
+            _ = EntityType;
         }
 
         private EntityQueryable<TEntity> EntityQueryable

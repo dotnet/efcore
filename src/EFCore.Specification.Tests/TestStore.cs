@@ -33,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             _createdDatabases.Add(name);
                         }
 
-                        object _;
                         _creationLocks.TryRemove(name, out _);
                     }
                 }

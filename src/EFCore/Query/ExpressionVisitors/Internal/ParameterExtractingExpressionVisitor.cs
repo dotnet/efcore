@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (returnTypeInfo.IsGenericType
                 && returnTypeInfo.GetGenericTypeDefinition() == typeof(DbSet<>))
             {
-                var queryable = (IQueryable)Evaluate(methodCallExpression, out var _);
+                var queryable = (IQueryable)Evaluate(methodCallExpression, out _);
 
                 return ExtractParameters(queryable.Expression);
             }
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                             if (parameter.Type == typeof(FormattableString))
                             {
-                                if (Evaluate(methodCallExpression, out var _) is IQueryable queryable)
+                                if (Evaluate(methodCallExpression, out _) is IQueryable queryable)
                                 {
                                     var oldInLambda = _inLambda;
 
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return TryExtractParameter(memberExpression);
             }
 
-            var queryable = (IQueryable)Evaluate(memberExpression, out var _);
+            var queryable = (IQueryable)Evaluate(memberExpression, out _);
 
             return ExtractParameters(queryable.Expression);
         }
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (_partialEvaluationInfo.IsEvaluatableExpression(expression)
                 && !_queryableTypeInfo.IsAssignableFrom(expression.Type.GetTypeInfo()))
             {
-                var value = Evaluate(expression, out var _);
+                var value = Evaluate(expression, out _);
 
                 if (value is bool)
                 {

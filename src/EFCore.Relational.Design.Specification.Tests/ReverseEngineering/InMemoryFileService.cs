@@ -14,35 +14,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
             = new Dictionary<string, Dictionary<string, string>>();
 
         public virtual bool DirectoryExists(string directoryName)
-        {
-            Dictionary<string, string> filesMap;
-            return _nameToContentMap.TryGetValue(directoryName, out filesMap);
-        }
+            => _nameToContentMap.TryGetValue(directoryName, out _);
 
         public virtual bool FileExists(string directoryName, string fileName)
-        {
-            Dictionary<string, string> filesMap;
-            if (!_nameToContentMap.TryGetValue(directoryName, out filesMap))
-            {
-                return false;
-            }
-
-            string _;
-            return filesMap.TryGetValue(fileName, out _);
-        }
+            => _nameToContentMap.TryGetValue(directoryName, out var filesMap)
+               && filesMap.TryGetValue(fileName, out _);
 
         public virtual bool IsFileReadOnly(string outputDirectoryName, string outputFileName) => false;
 
         public virtual string RetrieveFileContents(string directoryName, string fileName)
         {
-            Dictionary<string, string> filesMap;
-            if (!_nameToContentMap.TryGetValue(directoryName, out filesMap))
+            if (!_nameToContentMap.TryGetValue(directoryName, out var filesMap))
             {
                 throw new DirectoryNotFoundException("Could not find directory " + directoryName);
             }
 
-            string contents;
-            if (!filesMap.TryGetValue(fileName, out contents))
+            if (!filesMap.TryGetValue(fileName, out var contents))
             {
                 throw new FileNotFoundException("Could not find file " + Path.Combine(directoryName, fileName));
             }
@@ -50,11 +37,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
             return contents;
         }
 
-        public virtual string OutputFile(string directoryName,
-            string fileName, string contents)
+        public virtual string OutputFile(
+            string directoryName,
+            string fileName,
+            string contents)
         {
-            Dictionary<string, string> filesMap;
-            if (!_nameToContentMap.TryGetValue(directoryName, out filesMap))
+            if (!_nameToContentMap.TryGetValue(directoryName, out var filesMap))
             {
                 filesMap = new Dictionary<string, string>();
                 _nameToContentMap[directoryName] = filesMap;

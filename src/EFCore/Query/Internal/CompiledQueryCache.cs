@@ -72,7 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 finally
                 {
-                    object _;
                     _querySyncObjects.TryRemove(cacheKey, out _);
                 }
             }

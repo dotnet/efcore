@@ -13,10 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
         private readonly ITestOutputHelper _output;
         private static readonly bool _logToOutput = false;
 
-        public InMemoryOperationReporter(ITestOutputHelper output)
-        {
-            _output = output;
-        }
+        public InMemoryOperationReporter(ITestOutputHelper output) => _output = output;
 
         public void WriteError(string message)
         {

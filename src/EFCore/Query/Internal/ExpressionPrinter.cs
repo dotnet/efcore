@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
             else
             {
-                if (!_binaryOperandMap.TryGetValue(binaryExpression.NodeType, out string operand))
+                if (!_binaryOperandMap.TryGetValue(binaryExpression.NodeType, out var operand))
                 {
                     UnhandledExpressionType(binaryExpression);
                 }

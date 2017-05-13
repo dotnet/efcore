@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </returns>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            if (_methodInfoDatePartMapping.TryGetValue(methodCallExpression.Method, out string datePart))
+            if (_methodInfoDatePartMapping.TryGetValue(methodCallExpression.Method, out var datePart))
             {
                 var amountToAdd = methodCallExpression.Arguments.First();
 

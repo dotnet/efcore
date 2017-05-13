@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                 foreach (var parameter in Parameters)
                 {
-                    if (parameterValues.TryGetValue(parameter.InvariantName, out object parameterValue))
+                    if (parameterValues.TryGetValue(parameter.InvariantName, out var parameterValue))
                     {
                         parameter.AddDbParameter(command, parameterValue);
                     }

@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 context.ChangeTracker.AutoDetectChangesEnabled = true;
 
-                var _ = context.Drivers.Local;
+                _ = context.Drivers.Local;
 
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 

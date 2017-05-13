@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -93,16 +94,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (++_identityMapGarbageCollectionIterations == IdentityMapGarbageCollectionThreshold)
             {
-                var deadEntries = new List<TKey>();
-
-                foreach (var entry in _identityMap)
-                {
-                    object _;
-                    if (!entry.Value.TryGetTarget(out _))
-                    {
-                        deadEntries.Add(entry.Key);
-                    }
-                }
+                var deadEntries 
+                    = (from entry in _identityMap
+                       where !entry.Value.TryGetTarget(out _)
+                       select entry.Key)
+                       .ToList();
 
                 foreach (var keyValue in deadEntries)
                 {

@@ -42,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             lock (_lock)
             {
                 var returnValue = !_tables.HasValue;
-
-                // ReSharper disable once UnusedVariable
-                var _ = _tables.Value;
+                
+                // ReSharper disable once AssignmentIsFullyDiscarded
+                _ = _tables.Value;
 
                 return returnValue;
             }

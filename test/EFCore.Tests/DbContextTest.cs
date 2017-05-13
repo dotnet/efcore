@@ -3788,7 +3788,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
-                var _ = context.Model;
+                _ = context.Model;
 
                 Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
             }
@@ -3816,7 +3816,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
-                var _ = context.Model;
+                _ = context.Model;
 
                 Assert.NotNull(context.GetService<IInterceptingLogger<LoggerCategory.Infrastructure>>());
 
@@ -3843,7 +3843,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
-                var _ = context.Model;
+                _ = context.Model;
 
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
             }
@@ -3870,7 +3870,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
-                var _ = context.Model;
+                _ = context.Model;
 
                 Assert.Same(replacecMemoryCache, context.GetService<IMemoryCache>());
             }
@@ -4445,7 +4445,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             using (var context = new ChangeSdlCacheContext(false))
             {
-                var _ = context.Model;
+                _ = context.Model;
             }
 
             using (var context = new ChangeSdlCacheContext(true))
@@ -4493,7 +4493,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     .EnableSensitiveDataLogging()
                     .Options))
             {
-                var _ = context.Model;
+                _ = context.Model;
             }
 
             using (var context = new ConstructorTestContextWithOC3A(
@@ -4529,7 +4529,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                var _ = context.Model;
+                _ = context.Model;
             }
 
             using (var serviceScope = new ServiceCollection()
@@ -4560,7 +4560,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ChangeWarningsCacheContext(serviceProvider, b => b.Default(WarningBehavior.Ignore)))
             {
-                var _ = context.Model;
+                _ = context.Model;
             }
 
             using (var context = new ChangeWarningsCacheContext(serviceProvider, b => b.Default(WarningBehavior.Log)))
@@ -4582,7 +4582,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ChangeWarningsCacheContext(serviceProvider, b => b.Throw(CoreEventId.QueryExecutionPlanned)))
             {
-                var _ = context.Model;
+                _ = context.Model;
             }
 
             using (var context = new ChangeWarningsCacheContext(serviceProvider, b => b.Log(CoreEventId.QueryExecutionPlanned)))
@@ -4629,7 +4629,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     .ConfigureWarnings(b => b.Default(WarningBehavior.Throw))
                     .Options))
             {
-                var _ = context.Model;
+                _ = context.Model;
             }
 
             using (var context = new ConstructorTestContextWithOC3A(
@@ -4665,7 +4665,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                var _ = context.Model;
+                _ = context.Model;
             }
 
             using (var serviceScope = new ServiceCollection()
@@ -4952,7 +4952,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                var _ = Model;
+                _ = Model;
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

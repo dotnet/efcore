@@ -64,8 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             get
             {
-                // ReSharper disable once UnusedVariable
-                var _ = ColumnModifications;
+                // ReSharper disable once AssignmentIsFullyDiscarded
+                _ = ColumnModifications;
+
                 return _requiresResultPropagation;
             }
         }

@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 {
                     var parameterExpression = (ParameterExpression)arguments;
 
-                    if (parameters.TryGetValue(parameterExpression.Name, out object parameterValue))
+                    if (parameters.TryGetValue(parameterExpression.Name, out var parameterValue))
                     {
                         var argumentValues = (object [])parameterValue;
 
@@ -807,7 +807,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 {
                     if (inValue is ParameterExpression inParameter)
                     {
-                        if (_parametersValues.TryGetValue(inParameter.Name, out object parameterValue))
+                        if (_parametersValues.TryGetValue(inParameter.Name, out var parameterValue))
                         {
                             AddInExpressionValues(parameterValue, inConstants, inParameter);
 
@@ -876,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 if (inValue is ParameterExpression inParameter)
                 {
-                    if (_parametersValues.TryGetValue(inParameter.Name, out object parameterValue))
+                    if (_parametersValues.TryGetValue(inParameter.Name, out var parameterValue))
                     {
                         if (parameterValue != null)
                         {
@@ -1579,7 +1579,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                                               ?? rightExpression as ParameterExpression;
 
                     if (parameterExpression != null
-                        && _parameterValues.TryGetValue(parameterExpression.Name, out object parameterValue))
+                        && _parameterValues.TryGetValue(parameterExpression.Name, out var parameterValue))
                     {
                         var nonParameterExpression = leftExpression is ParameterExpression ? rightExpression : leftExpression;
 

@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
             var method = methodCallExpression.Method;
-            if (_supportedMethodTranslations.TryGetValue(method, out string sqlFunctionName))
+            if (_supportedMethodTranslations.TryGetValue(method, out var sqlFunctionName))
             {
                 return new SqlFunctionExpression(
                     sqlFunctionName,

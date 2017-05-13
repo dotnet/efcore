@@ -834,8 +834,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         {
             if (_entityConfigurationMap == null)
             {
-                // ReSharper disable once UnusedVariable
-                var _ = EntityConfigurations;
+                // ReSharper disable once AssignmentIsFullyDiscarded
+                _ = EntityConfigurations;
+
                 Debug.Assert(_entityConfigurationMap != null);
             }
 

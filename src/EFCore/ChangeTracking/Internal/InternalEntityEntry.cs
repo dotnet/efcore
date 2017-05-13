@@ -298,7 +298,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 || currentState == EntityState.Detached
                 || !changeState)
             {
-                object _;
                 if (!_storeGeneratedValues.TryGetValue(property, out _))
                 {
                     MarkAsTemporary(property, isTemporary: false);
@@ -389,13 +388,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasTemporaryValue(IProperty property)
-        {
-            object _;
-            return (_stateData.EntityState == EntityState.Added || _stateData.EntityState == EntityState.Detached)
-                   && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified)
-                   && (_storeGeneratedValues.IsEmpty
-                       || !_storeGeneratedValues.TryGetValue(property, out _));
-        }
+            => (_stateData.EntityState == EntityState.Added || _stateData.EntityState == EntityState.Detached)
+               && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified)
+               && (_storeGeneratedValues.IsEmpty
+                   || !_storeGeneratedValues.TryGetValue(property, out _));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

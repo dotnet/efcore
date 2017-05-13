@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(ConcreteEntity1));
             var property = entityType.AddProperty(typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.NoSetterProperty)));
             // ReSharper disable once NotAccessedVariable
-            var _ = new ConcreteEntity1();
+            _ = new ConcreteEntity1();
 
             Assert.Throws<InvalidOperationException>(() =>
                 new ClrPropertySetterFactory().Create(property));
