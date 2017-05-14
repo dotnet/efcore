@@ -89,6 +89,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             var newOuterKey = visitor.Visit(OuterKey);
             var newInnerKey = visitor.Visit(InnerKey);
 
+            if (newOuterKey.Type != newInnerKey.Type
+                && newOuterKey.Type.UnwrapNullableType() == newInnerKey.Type.UnwrapNullableType())
+            {
+                if (!newOuterKey.Type.IsNullableType())
+                {
+                    newOuterKey = Convert(newOuterKey, newInnerKey.Type);
+                }
+                else
+                {
+                    newInnerKey = Convert(newInnerKey, newOuterKey.Type);
+                }
+            }
+
             return newOuterCaller != OuterNullProtection || newOuterKey != OuterKey || newInnerKey != InnerKey
                 ? new NullConditionalEqualExpression(newOuterCaller, newOuterKey, newInnerKey)
                 : this;

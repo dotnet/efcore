@@ -37,8 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private QueryModel _queryModel;
         private QueryModel _parentQueryModel;
 
-        private bool _insideInnerSequence;
-        private bool _innerKeySelectorRequiresNullRefProtection;
         private bool _insideInnerKeySelector;
         private bool _insideOrderBy;
         private bool _insideMaterializeCollectionNavigation;
@@ -453,11 +451,66 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 ? newExpression.MakeMemberAccess(node.Member)
                 : node;
 
-            return _insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection
+            result = NeedsNullCompensation(newExpression)
                 ? (Expression)new NullConditionalExpression(
                     newExpression,
                     newMemberExpression)
                 : newMemberExpression;
+
+            return result.Type == typeof(bool?) && node.Type == typeof(bool)
+                ? Expression.Equal(result, Expression.Constant(true, typeof(bool?)))
+                : result;
+        }
+
+        private readonly Dictionary<QuerySourceReferenceExpression, bool> _nullCompensationNecessityMap
+            = new Dictionary<QuerySourceReferenceExpression, bool>();
+
+        private bool NeedsNullCompensation(Expression expression)
+        {
+            if (expression is QuerySourceReferenceExpression qsre)
+            {
+                if (_nullCompensationNecessityMap.TryGetValue(qsre, out var result))
+                {
+                    return result;
+                }
+
+                var subQuery = (qsre.ReferencedQuerySource as FromClauseBase)?.FromExpression as SubQueryExpression
+                    ?? (qsre.ReferencedQuerySource as JoinClause)?.InnerSequence as SubQueryExpression;
+
+                // if qsre is pointing to a subquery, look for DefaulIfEmpty result operators inside
+                // if such operator is found then we need to add null-compensation logic
+                if (subQuery != null)
+                {
+                    var containsDefaultIfEmptyChecker = new ContainsDefaultIfEmptyCheckingVisitor();
+                    containsDefaultIfEmptyChecker.VisitQueryModel(subQuery.QueryModel);
+                    if (!containsDefaultIfEmptyChecker.ContainsDefaultIfEmpty)
+                    {
+                        subQuery.QueryModel.TransformExpressions(
+                            e => new TransformingQueryModelExpressionVisitor<ContainsDefaultIfEmptyCheckingVisitor>(containsDefaultIfEmptyChecker).Visit(e));
+                    }
+
+                    _nullCompensationNecessityMap[qsre] = containsDefaultIfEmptyChecker.ContainsDefaultIfEmpty;
+
+                    return containsDefaultIfEmptyChecker.ContainsDefaultIfEmpty;
+                }
+
+                _nullCompensationNecessityMap[qsre] = false;
+            }
+
+            return false;
+        }
+
+        private class ContainsDefaultIfEmptyCheckingVisitor : QueryModelVisitorBase
+        {
+            public bool ContainsDefaultIfEmpty { get; private set; }
+
+            public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
+            {
+                if (resultOperator is DefaultIfEmptyResultOperator)
+                {
+                    ContainsDefaultIfEmpty = true;
+                }
+            }
         }
 
         /// <summary>
@@ -535,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                         : Expression.Call(node.Method, e, node.Arguments[1]),
                                     e => node.Arguments[0].Type != e.Type
                                         ? new NullConditionalExpression(
-                                            Expression.Convert(e, node.Arguments[0].Type), 
+                                            Expression.Convert(e, node.Arguments[0].Type),
                                             Expression.Call(node.Method, Expression.Convert(e, node.Arguments[0].Type), node.Arguments[1]))
                                         : new NullConditionalExpression(e, Expression.Call(node.Method, e, node.Arguments[1])));
                             }
@@ -554,9 +607,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     ? Expression.Call(node.Method, propertyArguments[0], node.Arguments[1])
                     : node;
 
-                return _insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection
+                result = NeedsNullCompensation(propertyArguments[0])
                     ? (Expression)new NullConditionalExpression(propertyArguments[0], newPropertyExpression)
                     : newPropertyExpression;
+
+                return result.Type == typeof(bool?) && node.Type == typeof(bool)
+                    ? Expression.Equal(result, Expression.Constant(true, typeof(bool?)))
+                    : result;
             }
 
             var insideMaterializeCollectionNavigation = _insideMaterializeCollectionNavigation;
@@ -907,7 +964,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var navigationJoins = _navigationJoins;
 
             var optionalNavigationInChain
-                = _insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection;
+                = NeedsNullCompensation(outerQuerySourceReferenceExpression);
 
             foreach (var navigation in navigations)
             {
@@ -996,11 +1053,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 querySourceReferenceExpression = navigationJoin.QuerySourceReferenceExpression;
                 navigationJoins = navigationJoin.Children;
-            }
-
-            if (_insideInnerSequence && optionalNavigationInChain)
-            {
-                _innerKeySelectorRequiresNullRefProtection = true;
             }
 
             if (propertyType == null)
@@ -1291,10 +1343,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var newType = expression.Type;
 
-            var needsTypeCompensation = originalType != newType
-                                        && !originalType.IsNullableType()
-                                        && newType.IsNullableType()
-                                        && originalType == newType.UnwrapNullableType();
+            var needsTypeCompensation
+                = originalType != newType
+                    && !originalType.IsNullableType()
+                    && newType.IsNullableType()
+                    && originalType == newType.UnwrapNullableType();
 
             return needsTypeCompensation
                 ? Expression.Convert(expression, originalType)
@@ -1363,12 +1416,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             private void VisitJoinClauseInternal(JoinClause joinClause)
             {
-                var oldInsideInnerSequence = TransformingVisitor._insideInnerSequence;
-                var oldInnerKeySelectorRequiresNullRefProtection = TransformingVisitor._innerKeySelectorRequiresNullRefProtection;
-                TransformingVisitor._insideInnerSequence = true;
-                TransformingVisitor._innerKeySelectorRequiresNullRefProtection = false;
                 joinClause.InnerSequence = TransformingVisitor.Visit(joinClause.InnerSequence);
-                TransformingVisitor._insideInnerSequence = oldInsideInnerSequence;
 
                 var queryCompilationContext = TransformingVisitor._queryModelVisitor.QueryCompilationContext;
                 if (queryCompilationContext.FindEntityType(joinClause) == null
@@ -1414,7 +1462,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
 
                 TransformingVisitor._insideInnerKeySelector = oldInsideInnerKeySelector;
-                TransformingVisitor._innerKeySelectorRequiresNullRefProtection = oldInnerKeySelectorRequiresNullRefProtection;
             }
 
             public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)

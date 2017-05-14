@@ -1042,7 +1042,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.Gears
-                    .Where(g => (g == null ? (bool?)null : (bool?)(g.LeaderNickname == "Marcus")) == (bool?)true)
+                    .Where(g => (g == null ? null : g.LeaderNickname) == "Marcus" == (bool?)true)
                     .ToList();
 
                 var result = query.ToList();
@@ -1102,7 +1102,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.Gears
-                    .Where(g => (null == EF.Property<string>(g, "LeaderNickname") ? (bool?)null : (bool?)(g.LeaderNickname.Length == 5)) == (bool?)true)
+                    .Where(g => (null == EF.Property<string>(g, "LeaderNickname") ? (int?)null : g.LeaderNickname.Length) == 5 == (bool?)true)
                     .ToList();
 
                 var result = query.ToList();
@@ -1120,7 +1120,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.Gears
-                    .Where(g => (null != g.LeaderNickname ? (bool?)(EF.Property<string>(g, "LeaderNickname").Length == 5) : (bool?)null) == (bool?)true)
+                    .Where(g => (null != g.LeaderNickname ? (int?)(EF.Property<string>(g, "LeaderNickname").Length) : (int?)null) == 5 == (bool?)true)
                     .ToList();
 
                 var result = query.ToList();
@@ -3318,6 +3318,38 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.Equal(1, result.Count);
                 Assert.Equal("Marcus's Tag", result[0].Note);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_null_conditional_with_inheritance()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Factions
+                    .Where(f => f is LocustHorde)
+                    .Select(f => EF.Property<string>((LocustHorde)f, "CommanderName") != null ? ((LocustHorde)f).CommanderName : null);
+
+                var result = query.ToList();
+                Assert.Equal(2, result.Count);
+                Assert.True(result.Contains("Queen Myrrah"));
+                Assert.True(result.Contains("Unknown"));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_null_conditional_with_inheritance_negative()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Factions
+                    .Where(f => f is LocustHorde)
+                    .Select(f => EF.Property<string>((LocustHorde)f, "CommanderName") != null ? ((LocustHorde)f).Eradicated : null);
+
+                var result = query.ToList();
+                Assert.Equal(2, result.Count);
+                Assert.True(result.Contains(true));
+                Assert.True(result.Contains(false));
             }
         }
 

@@ -661,9 +661,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         private static string GetColumnName(Expression expression)
-            => (expression as AliasExpression)?.Alias
-               ?? (expression as ColumnExpression)?.Name
-               ?? (expression as ColumnReferenceExpression)?.Name;
+        {
+            expression = expression.RemoveConvert();
+            expression = (expression as NullableExpression)?.Operand.RemoveConvert()
+                         ?? expression;
+
+            return (expression as AliasExpression)?.Alias
+                   ?? (expression as ColumnExpression)?.Name
+                   ?? (expression as ColumnReferenceExpression)?.Name;
+        }
 
         /// <summary>
         ///     Clears the projection.

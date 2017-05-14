@@ -1667,7 +1667,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .OrderBy(e => e.Id),
                 l1s => l1s
                     .Where(e => Maybe(
-                        e.OneToOne_Required_FK, 
+                        e.OneToOne_Required_FK,
                         () => Maybe(e.OneToOne_Required_FK.OneToOne_Optional_PK, () => e.OneToOne_Required_FK.OneToOne_Optional_PK.Name)) != "Foo")
                     .OrderBy(e => e.Id),
                 expectedIncludes);
@@ -2390,24 +2390,232 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Where(l1 => l2s.OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse.Name == "L1 02"));
         }
 
-        [ConditionalFact(Skip = "issue #7761")]
+        [ConditionalFact]
+        public virtual void Manually_created_left_join_propagates_nullability_to_navigations()
+        {
+            AssertQuery<Level1, Level2>(
+                (l1s, l2s) =>
+                    from l1_manual in l1s
+                    join l2_manual in l2s on l1_manual.Id equals l2_manual.Level1_Optional_Id into grouping
+                    from l2_manual in grouping.DefaultIfEmpty()
+                    where l2_manual.OneToOne_Required_FK_Inverse.Name != "L3 02"
+                    select l2_manual.OneToOne_Required_FK_Inverse.Name,
+                (l1s, l2s) =>
+                    from l1_manual in l1s
+                    join l2_manual in l2s on l1_manual.Id equals l2_manual.Level1_Optional_Id into grouping
+                    from l2_manual in grouping.DefaultIfEmpty()
+                    where Maybe(l2_manual, () => l2_manual.OneToOne_Required_FK_Inverse.Name) != "L3 02"
+                    select Maybe(l2_manual, () => l2_manual.OneToOne_Required_FK_Inverse.Name));
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_propagates_nullability_to_manually_created_left_join1()
+        {
+            AssertQuery<Level1, Level2>(
+                (l1s, l2s) =>
+                    from l2_nav in l1s.Select(ll => ll.OneToOne_Optional_FK)
+                    join l1 in l2s on l2_nav.Level1_Required_Id equals l1.Id into grouping
+                    from l1 in grouping.DefaultIfEmpty()
+                    select new { Id1 = (int?)l2_nav.Id, Id2 = (int?)l1.Id },
+                (l1s, l2s) =>
+                    from l2_nav in l1s.Select(ll => ll.OneToOne_Optional_FK)
+                    join l1 in l2s on MaybeScalar<int>(l2_nav, () => l2_nav.Level1_Required_Id) equals l1.Id into grouping
+                    from l1 in grouping.DefaultIfEmpty()
+                    select new
+                    {
+                        Id1 = MaybeScalar<int>(l2_nav, () => l2_nav.Id),
+                        Id2 = MaybeScalar<int>(l1, () => l1.Id)
+                    },
+                elementSorter: e => e.Id1);
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_propagates_nullability_to_manually_created_left_join2()
+        {
+            AssertQuery<Level3, Level1>(
+                (l3s, l1s) =>
+                    from l3 in l3s
+                    join l2_nav in l1s.Select(ll => ll.OneToOne_Optional_FK) on l3.Level2_Required_Id equals l2_nav.Id into grouping
+                    from l2_nav in grouping.DefaultIfEmpty()
+                    select new { Name1 = l3.Name, Name2 = l2_nav.Name },
+                (l3s, l1s) =>
+                    from l3 in l3s
+                    join l2_nav in l1s.Select(ll => ll.OneToOne_Optional_FK) on l3.Level2_Required_Id equals MaybeScalar<int>(l2_nav, () => l2_nav.Id) into grouping
+                    from l2_nav in grouping.DefaultIfEmpty()
+                    select new { Name1 = l3.Name, Name2 = Maybe(l2_nav, () => l2_nav.Name) },
+                elementSorter: e => e.Name1 + e.Name2);
+        }
+
+        [ConditionalFact]
+        public virtual void Null_reference_protection_complex()
+        {
+            AssertQuery<Level1, Level2, Level3>(
+                (l1s, l2s, l3s) =>
+                        from l3 in l3s
+                        join l2_outer in
+                            (from l1_inner in l1s
+                             join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                             from l2_inner in grouping_inner.DefaultIfEmpty()
+                             select l2_inner)
+                        on l3.Level2_Required_Id equals l2_outer.Id into grouping_outer
+                        from l2_outer in grouping_outer.DefaultIfEmpty()
+                        select l2_outer.Name,
+                (l1s, l2s, l3s) =>
+                        from l3 in l3s
+                        join l2_outer in
+                            (from l1_inner in l1s
+                             join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                             from l2_inner in grouping_inner.DefaultIfEmpty()
+                             select l2_inner)
+                        on l3.Level2_Required_Id equals MaybeScalar<int>(l2_outer, () => l2_outer.Id) into grouping_outer
+                        from l2_outer in grouping_outer.DefaultIfEmpty()
+                        select Maybe(l2_outer, () => l2_outer.Name));
+        }
+
+        [ConditionalFact]
+        public virtual void Null_reference_protection_complex_materialization()
+        {
+            AssertQuery<Level1, Level2, Level3>(
+                (l1s, l2s, l3s) =>
+                    from l3 in l3s
+                    join l2_outer in
+                    (from l1_inner in l1s
+                     join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                     from l2_inner in grouping_inner.DefaultIfEmpty()
+                     select l2_inner)
+                    on l3.Level2_Required_Id equals l2_outer.Id into grouping_outer
+                    from l2_outer in grouping_outer.DefaultIfEmpty()
+                    select new { entity = l2_outer, property = l2_outer.Name },
+                (l1s, l2s, l3s) =>
+                    from l3 in l3s
+                    join l2_outer in
+                    (from l1_inner in l1s
+                     join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                     from l2_inner in grouping_inner.DefaultIfEmpty()
+                     select l2_inner)
+                    on l3.Level2_Required_Id equals MaybeScalar<int>(l2_outer, () => l2_outer.Id) into grouping_outer
+                    from l2_outer in grouping_outer.DefaultIfEmpty()
+                    select new { entity = l2_outer, property = Maybe(l2_outer, () => l2_outer.Name) },
+                elementSorter: e => e.property,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.entity?.Id, a.entity?.Id);
+                    Assert.Equal(e.property, a.property);
+                });
+        }
+
+        private TResult ClientMethodReturnSelf<TResult>(TResult element) => element;
+
+        [ConditionalFact]
+        public virtual void Null_reference_protection_complex_client_eval()
+        {
+            AssertQuery<Level1, Level2, Level3>(
+                (l1s, l2s, l3s) =>
+                    from l3 in l3s
+                    join l2_outer in
+                    (from l1_inner in l1s
+                     join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                     from l2_inner in grouping_inner.DefaultIfEmpty()
+                     select l2_inner)
+                    on l3.Level2_Required_Id equals l2_outer.Id into grouping_outer
+                    from l2_outer in grouping_outer.DefaultIfEmpty()
+                    select ClientMethodReturnSelf(l2_outer.Name),
+                (l1s, l2s, l3s) =>
+                    from l3 in l3s
+                    join l2_outer in
+                    (from l1_inner in l1s
+                     join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                     from l2_inner in grouping_inner.DefaultIfEmpty()
+                     select l2_inner)
+                    on l3.Level2_Required_Id equals MaybeScalar<int>(l2_outer, () => l2_outer.Id) into grouping_outer
+                    from l2_outer in grouping_outer.DefaultIfEmpty()
+                    select ClientMethodReturnSelf(Maybe(l2_outer, () => l2_outer.Name)));
+        }
+
+        [ConditionalFact]
         public virtual void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from l1_outer in ctx.LevelOne
-                            join subquery in
-                                (
-                                    from l2_inner in ctx.LevelTwo
-                                    join l1_inner in ctx.LevelOne on l2_inner.Level1_Required_Id equals l1_inner.Id
-                                    select l2_inner
-                                )
-                            on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
-                            from subquery in grouping.DefaultIfEmpty()
-                            select (int?)subquery.Id;
+            AssertQueryNullableScalar<Level1, Level2, int>(
+                (l1s, l2s) =>
+                    from l1_outer in l1s
+                    join subquery in
+                    (
+                        from l2_inner in l2s
+                        join l1_inner in l1s on l2_inner.Level1_Required_Id equals l1_inner.Id
+                        select l2_inner
+                    )
+                    on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
+                    from subquery in grouping.DefaultIfEmpty()
+                    select (int?)subquery.Id,
+                (l1s, l2s) =>
+                    from l1_outer in l1s
+                    join subquery in
+                    (
+                        from l2_inner in l2s
+                        join l1_inner in l1s on l2_inner.Level1_Required_Id equals l1_inner.Id
+                        select l2_inner
+                    )
+                    on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
+                    from subquery in grouping.DefaultIfEmpty()
+                    select MaybeScalar<int>(subquery, () => subquery.Id));
+        }
 
-                var result = query.ToList();
-            }
+        [ConditionalFact]
+        public virtual void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened2()
+        {
+            AssertQueryNullableScalar<Level1, Level2, int>(
+                (l1s, l2s) =>
+                    from l1_outer in l1s
+                    join subquery in
+                    (
+                        from l2_inner in l2s
+                        join l1_inner in l1s on l2_inner.Level1_Required_Id equals l1_inner.Id
+                        select l2_inner
+                    )
+                    on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
+                    from subquery in grouping.DefaultIfEmpty()
+                    select subquery != null ? (int?)subquery.Id : null,
+                (l1s, l2s) =>
+                    from l1_outer in l1s
+                    join subquery in
+                    (
+                        from l2_inner in l2s
+                        join l1_inner in l1s on l2_inner.Level1_Required_Id equals l1_inner.Id
+                        select l2_inner
+                    )
+                    on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
+                    from subquery in grouping.DefaultIfEmpty()
+                    select MaybeScalar<int>(subquery, () => subquery.Id));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened3()
+        {
+            AssertQueryNullableScalar<Level1, Level2, int>(
+                (l1s, l2s) =>
+                    from l1_outer in l1s
+                    join subquery in
+                    (
+                        from l2_inner in l2s
+                        join l1_inner in l1s on l2_inner.Level1_Required_Id equals l1_inner.Id into grouping_inner
+                        from l1_inner in grouping_inner.DefaultIfEmpty()
+                        select l2_inner
+                    )
+                    on l1_outer.Id equals subquery.Level1_Required_Id into grouping
+                    from subquery in grouping.DefaultIfEmpty()
+                    select (int?)subquery.Id,
+                (l1s, l2s) =>
+                    from l1_outer in l1s
+                    join subquery in
+                    (
+                        from l2_inner in l2s
+                        join l1_inner in l1s on l2_inner.Level1_Required_Id equals l1_inner.Id into grouping_inner
+                        from l1_inner in grouping_inner.DefaultIfEmpty()
+                        select l2_inner
+                    )
+                    on l1_outer.Id equals MaybeScalar<int>(subquery, () => subquery.Level1_Required_Id) into grouping
+                    from subquery in grouping.DefaultIfEmpty()
+                    select MaybeScalar<int>(subquery, () => subquery.Id));
         }
 
         [ConditionalFact]

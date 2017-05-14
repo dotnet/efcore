@@ -72,34 +72,10 @@ WHERE ([l1].[Id] IS NOT NULL AND [l1].[Id] IS NOT NULL) AND [l1].[Id] IS NOT NUL
             base.Nested_group_join_with_take();
         }
 
-        [ConditionalFact(Skip = "issue #8254")]
-        public override void Where_nav_prop_reference_optional2_via_DefaultIfEmpty()
-        {
-            base.Where_nav_prop_reference_optional2_via_DefaultIfEmpty();
-        }
-
-        [ConditionalFact(Skip = "issue #8254")]
-        public override void Explicit_GroupJoin_in_subquery_with_unrelated_projection()
-        {
-            base.Explicit_GroupJoin_in_subquery_with_unrelated_projection();
-        }
-
-        [ConditionalFact(Skip = "issue #8254")]
+        [ConditionalFact(Skip = "issue #8492")]
         public override void Explicit_GroupJoin_in_subquery_with_unrelated_projection2()
         {
             base.Explicit_GroupJoin_in_subquery_with_unrelated_projection2();
-        }
-
-        [ConditionalFact(Skip = "issue #8254")]
-        public override void Explicit_GroupJoin_in_subquery_with_unrelated_projection3()
-        {
-            base.Explicit_GroupJoin_in_subquery_with_unrelated_projection3();
-        }
-
-        [ConditionalFact(Skip = "issue #8254")]
-        public override void Explicit_GroupJoin_in_subquery_with_unrelated_projection4()
-        {
-            base.Explicit_GroupJoin_in_subquery_with_unrelated_projection4();
         }
 
         private void AssertSql(params string[] expected)

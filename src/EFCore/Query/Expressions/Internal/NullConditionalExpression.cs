@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         }
 
         /// <summary>
-        ///     Expression representing potentially nullable caller that needs to be tested for it's nullability. 
+        ///     Expression representing potentially nullable caller that needs to be tested for it's nullability.
         /// </summary>
         public virtual Expression Caller { get; }
 
@@ -115,8 +115,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             var newCaller = visitor.Visit(Caller);
             var newAccessOperation = visitor.Visit(AccessOperation);
 
-            if (newCaller != Caller
-                || newAccessOperation != AccessOperation)
+            if (newCaller != Caller 
+                || newAccessOperation != AccessOperation
+                    && (newAccessOperation as NullConditionalExpression)?.AccessOperation != AccessOperation)
             {
                 return new NullConditionalExpression(newCaller, newAccessOperation);
             }

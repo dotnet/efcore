@@ -273,6 +273,29 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
         }
 
+        public override void Manually_created_left_join_propagates_nullability_to_navigations()
+        {
+        }
+
+        public override void Optional_navigation_propagates_nullability_to_manually_created_left_join1()
+        {
+        }
+        public override void Optional_navigation_propagates_nullability_to_manually_created_left_join2()
+        {
+        }
+
+        public override void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened()
+        {
+        }
+
+        public override void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened2()
+        {
+        }
+
+        public override void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened3()
+        {
+        }
+
         protected override IQueryable<Level1> GetExpectedLevelOne()
             => ComplexNavigationsData.SplitLevelOnes.AsQueryable();
 

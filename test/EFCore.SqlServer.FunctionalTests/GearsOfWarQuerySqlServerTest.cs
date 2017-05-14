@@ -1883,7 +1883,7 @@ WHERE ([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL");
             base.Optional_navigation_type_compensation_works_with_projection_into_anonymous_type();
 
             AssertSql(
-                @"SELECT [t0].[SquadId] AS [SquadId]
+                @"SELECT [t0].[SquadId]
 FROM [CogTag] AS [t]
 LEFT JOIN (
     SELECT [t.Gear].*
@@ -3102,6 +3102,29 @@ WHERE ([t0].[Discriminator] = N'Officer') AND ((
     FROM [Gear] AS [r]
     WHERE ([r].[Discriminator] IN (N'Officer', N'Gear') AND ([r].[Nickname] = N'Dom')) AND (([t0].[Nickname] = [r].[LeaderNickname]) AND ([t0].[SquadId] = [r].[LeaderSquadId]))
 ) > 0)");
+        }
+
+        public override void Select_null_conditional_with_inheritance()
+        {
+            base.Select_null_conditional_with_inheritance();
+
+            AssertSql(
+                @"SELECT [f].[CommanderName]
+FROM [Faction] AS [f]
+WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')");
+        }
+
+        public override void Select_null_conditional_with_inheritance_negative()
+        {
+            base.Select_null_conditional_with_inheritance_negative();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [f].[CommanderName] IS NOT NULL
+    THEN [f].[Eradicated] ELSE NULL
+END
+FROM [Faction] AS [f]
+WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')");
         }
 
         private void AssertSql(params string[] expected)

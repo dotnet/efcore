@@ -1582,10 +1582,7 @@ LEFT JOIN (
     FROM [Level1] AS [l10]
     LEFT JOIN [Level2] AS [l1.OneToOne_Required_FK] ON [l10].[Id] = [l1.OneToOne_Required_FK].[Level1_Required_Id]
     WHERE ([l10].[Name] <> N'L1 01') OR [l10].[Name] IS NULL
-) AS [t] ON [l1].[Id] = CASE
-    WHEN [t].[Id] IS NOT NULL
-    THEN [t].[Level1_Optional_Id] ELSE NULL
-END
+) AS [t] ON [l1].[Id] = [t].[Level1_Optional_Id]
 ORDER BY [l1].[Id]");
         }
 
@@ -2263,12 +2260,125 @@ INNER JOIN [Level1] AS [l2i.OneToOne_Required_FK_Inverse0] ON [l2i0].[Level1_Req
 ORDER BY [l2i0].[Id]");
         }
 
+        public override void Manually_created_left_join_propagates_nullability_to_navigations()
+        {
+            base.Manually_created_left_join_propagates_nullability_to_navigations();
+
+            AssertSql(
+                @"SELECT [l2_manual.OneToOne_Required_FK_Inverse].[Name]
+FROM [Level1] AS [l1_manual]
+LEFT JOIN [Level2] AS [l2_manual] ON [l1_manual].[Id] = [l2_manual].[Level1_Optional_Id]
+LEFT JOIN [Level1] AS [l2_manual.OneToOne_Required_FK_Inverse] ON [l2_manual].[Level1_Required_Id] = [l2_manual.OneToOne_Required_FK_Inverse].[Id]
+WHERE ([l2_manual.OneToOne_Required_FK_Inverse].[Name] <> N'L3 02') OR [l2_manual.OneToOne_Required_FK_Inverse].[Name] IS NULL");
+        }
+
+        public override void Optional_navigation_propagates_nullability_to_manually_created_left_join1()
+        {
+            base.Optional_navigation_propagates_nullability_to_manually_created_left_join1();
+
+            AssertSql(
+                @"SELECT [ll.OneToOne_Optional_FK].[Id] AS [Id1], [l1].[Id] AS [Id2]
+FROM [Level1] AS [ll]
+LEFT JOIN [Level2] AS [ll.OneToOne_Optional_FK] ON [ll].[Id] = [ll.OneToOne_Optional_FK].[Level1_Optional_Id]
+LEFT JOIN [Level2] AS [l1] ON [ll.OneToOne_Optional_FK].[Level1_Required_Id] = [l1].[Id]");
+        }
+
+        public override void Optional_navigation_propagates_nullability_to_manually_created_left_join2()
+        {
+            base.Optional_navigation_propagates_nullability_to_manually_created_left_join2();
+
+            AssertSql(
+                @"SELECT [l3].[Name] AS [Name1], [t].[Name] AS [Name2]
+FROM [Level3] AS [l3]
+LEFT JOIN (
+    SELECT [ll.OneToOne_Optional_FK].*
+    FROM [Level1] AS [ll]
+    LEFT JOIN [Level2] AS [ll.OneToOne_Optional_FK] ON [ll].[Id] = [ll.OneToOne_Optional_FK].[Level1_Optional_Id]
+) AS [t] ON [l3].[Level2_Required_Id] = [t].[Id]");
+        }
+
+        public override void Null_reference_protection_complex()
+        {
+            base.Null_reference_protection_complex();
+
+            AssertSql(
+                @"SELECT [t].[Name]
+FROM [Level3] AS [l3]
+LEFT JOIN (
+    SELECT [l2_inner].*
+    FROM [Level1] AS [l1_inner]
+    LEFT JOIN [Level2] AS [l2_inner] ON [l1_inner].[Id] = [l2_inner].[Level1_Optional_Id]
+) AS [t] ON [l3].[Level2_Required_Id] = [t].[Id]");
+        }
+
+        public override void Null_reference_protection_complex_materialization()
+        {
+            base.Null_reference_protection_complex_materialization();
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Name] AS [property], [t].[OneToMany_Optional_InverseId], [t].[OneToMany_Optional_Self_InverseId], [t].[OneToMany_Required_InverseId], [t].[OneToMany_Required_Self_InverseId], [t].[OneToOne_Optional_PK_InverseId], [t].[OneToOne_Optional_SelfId]
+FROM [Level3] AS [l3]
+LEFT JOIN (
+    SELECT [l2_inner].[Id], [l2_inner].[Date], [l2_inner].[Level1_Optional_Id], [l2_inner].[Level1_Required_Id], [l2_inner].[Name], [l2_inner].[OneToMany_Optional_InverseId], [l2_inner].[OneToMany_Optional_Self_InverseId], [l2_inner].[OneToMany_Required_InverseId], [l2_inner].[OneToMany_Required_Self_InverseId], [l2_inner].[OneToOne_Optional_PK_InverseId], [l2_inner].[OneToOne_Optional_SelfId]
+    FROM [Level1] AS [l1_inner]
+    LEFT JOIN [Level2] AS [l2_inner] ON [l1_inner].[Id] = [l2_inner].[Level1_Optional_Id]
+) AS [t] ON [l3].[Level2_Required_Id] = [t].[Id]");
+        }
+
+        public override void Null_reference_protection_complex_client_eval()
+        {
+            base.Null_reference_protection_complex_client_eval();
+
+            AssertSql(
+                @"SELECT [t].[Name]
+FROM [Level3] AS [l3]
+LEFT JOIN (
+    SELECT [l2_inner].*
+    FROM [Level1] AS [l1_inner]
+    LEFT JOIN [Level2] AS [l2_inner] ON [l1_inner].[Id] = [l2_inner].[Level1_Optional_Id]
+) AS [t] ON [l3].[Level2_Required_Id] = [t].[Id]");
+        }
+
         public override void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened()
         {
             base.GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened();
 
             AssertSql(
-                @"");
+                @"SELECT [t].[Id]
+FROM [Level1] AS [l1_outer]
+LEFT JOIN (
+    SELECT [l2_inner].*
+    FROM [Level2] AS [l2_inner]
+    INNER JOIN [Level1] AS [l1_inner] ON [l2_inner].[Level1_Required_Id] = [l1_inner].[Id]
+) AS [t] ON [l1_outer].[Id] = [t].[Level1_Optional_Id]");
+        }
+
+        public override void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened2()
+        {
+            base.GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened2();
+
+            AssertSql(
+                @"SELECT [t].[Id]
+FROM [Level1] AS [l1_outer]
+LEFT JOIN (
+    SELECT [l2_inner].*
+    FROM [Level2] AS [l2_inner]
+    INNER JOIN [Level1] AS [l1_inner] ON [l2_inner].[Level1_Required_Id] = [l1_inner].[Id]
+) AS [t] ON [l1_outer].[Id] = [t].[Level1_Optional_Id]");
+        }
+
+        public override void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened3()
+        {
+            base.GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened3();
+
+            AssertSql(
+                @"SELECT [t].[Id]
+FROM [Level1] AS [l1_outer]
+LEFT JOIN (
+    SELECT [l2_inner].*
+    FROM [Level2] AS [l2_inner]
+    LEFT JOIN [Level1] AS [l1_inner] ON [l2_inner].[Level1_Required_Id] = [l1_inner].[Id]
+) AS [t] ON [l1_outer].[Id] = [t].[Level1_Required_Id]");
         }
 
         public override void GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping1()
