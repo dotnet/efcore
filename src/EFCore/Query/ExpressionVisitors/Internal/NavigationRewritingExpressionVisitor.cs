@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                     node.Member.Name,
                                     node.Type,
                                     e => e.MakeMemberAccess(node.Member),
-                                    e => new NullConditionalExpression(e, e, e.MakeMemberAccess(node.Member)));
+                                    e => new NullConditionalExpression(e, e.MakeMemberAccess(node.Member)));
                             }
 
                             return null;
@@ -450,7 +450,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             return _insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection
                 ? (Expression)new NullConditionalExpression(
-                    newExpression,
                     newExpression,
                     newMemberExpression)
                 : newMemberExpression;
@@ -531,10 +530,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                         : Expression.Call(node.Method, e, node.Arguments[1]),
                                     e => node.Arguments[0].Type != e.Type
                                         ? new NullConditionalExpression(
-                                            Expression.Convert(e, node.Arguments[0].Type),
                                             Expression.Convert(e, node.Arguments[0].Type), 
                                             Expression.Call(node.Method, Expression.Convert(e, node.Arguments[0].Type), node.Arguments[1]))
-                                        : new NullConditionalExpression(e, e, Expression.Call(node.Method, e, node.Arguments[1])));
+                                        : new NullConditionalExpression(e, Expression.Call(node.Method, e, node.Arguments[1])));
                             }
 
                             return null;
@@ -552,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     : node;
 
                 return _insideInnerKeySelector && _innerKeySelectorRequiresNullRefProtection
-                    ? (Expression)new NullConditionalExpression(propertyArguments[0], propertyArguments[0], newPropertyExpression)
+                    ? (Expression)new NullConditionalExpression(propertyArguments[0], newPropertyExpression)
                     : newPropertyExpression;
             }
 
@@ -571,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     var newMethodCallExpression = node.Update(nullConditionalExpression.AccessOperation, newArguments);
 
-                    return new NullConditionalExpression(newObject, node.Object, newMethodCallExpression);
+                    return new NullConditionalExpression(newObject, newMethodCallExpression);
                 }
             }
 
@@ -1273,7 +1271,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var propertyExpression = target.CreateEFPropertyExpression(property, makeNullable: false);
 
             return addNullCheck
-                ? new NullConditionalExpression(target, target, propertyExpression)
+                ? new NullConditionalExpression(target, propertyExpression)
                 : propertyExpression;
         }
 

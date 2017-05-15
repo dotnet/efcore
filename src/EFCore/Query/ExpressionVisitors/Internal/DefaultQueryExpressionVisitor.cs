@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -88,14 +87,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var nullConditionalExpression = node as NullConditionalExpression;
             if (nullConditionalExpression != null)
             {
-                var newNullableCaller = Visit(nullConditionalExpression.NullableCaller);
                 var newCaller = Visit(nullConditionalExpression.Caller);
                 var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
 
-                return newNullableCaller != nullConditionalExpression.NullableCaller
-                    || newCaller != nullConditionalExpression.Caller
+                return newCaller != nullConditionalExpression.Caller
                     || newAccessOperation != nullConditionalExpression.AccessOperation
-                    ? new NullConditionalExpression(newNullableCaller, newCaller, newAccessOperation)
+                    ? new NullConditionalExpression(newCaller, newAccessOperation)
                     : node;
             }
 

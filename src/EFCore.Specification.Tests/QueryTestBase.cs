@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             var predicate
                 = Expression.Lambda<Func<Customer, bool>>(
                     Expression.Equal(
-                        new NullConditionalExpression(c, c, Expression.Property(c, "CustomerID")),
+                        new NullConditionalExpression(c, Expression.Property(c, "CustomerID")),
                         Expression.Constant("ALFKI")),
                     c);
 
@@ -203,11 +203,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             var c = Expression.Parameter(typeof(Customer));
 
             var nullConditionalExpression
-                = new NullConditionalExpression(c, c, Expression.Property(c, "CustomerID"));
+                = new NullConditionalExpression(c, Expression.Property(c, "CustomerID"));
 
             nullConditionalExpression
                 = new NullConditionalExpression(
-                    nullConditionalExpression,
                     nullConditionalExpression,
                     Expression.Property(nullConditionalExpression, "Length"));
 

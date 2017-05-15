@@ -21,22 +21,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         /// <summary>
         ///     Creates a new instance of NullConditionalExpression.
         /// </summary>
-        /// <param name="nullableCaller">
-        ///     Expression representing potentially nullable caller that
-        ///     needs to be tested for it's nullability.
-        /// </param>
-        /// <param name="caller"> Expression representing actual caller for the access operation. </param>
+        /// <param name="caller"> Expression representing potentially nullable caller that needs to be tested for it's nullability. </param>
         /// <param name="accessOperation"> Expression representing access operation. </param>
         public NullConditionalExpression(
-            [NotNull] Expression nullableCaller,
             [NotNull] Expression caller,
             [NotNull] Expression accessOperation)
         {
-            Check.NotNull(nullableCaller, nameof(nullableCaller));
             Check.NotNull(caller, nameof(caller));
             Check.NotNull(accessOperation, nameof(accessOperation));
 
-            NullableCaller = nullableCaller;
             Caller = caller;
             AccessOperation = accessOperation;
 
@@ -46,12 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         }
 
         /// <summary>
-        ///     Expression representing potentially nullable caller that needs to be tested for it's nullability.
-        /// </summary>
-        public virtual Expression NullableCaller { get; }
-
-        /// <summary>
-        ///     Expression representing actual caller for the access operation.
+        ///     Expression representing potentially nullable caller that needs to be tested for it's nullability. 
         /// </summary>
         public virtual Expression Caller { get; }
 
@@ -83,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         /// </summary>
         public override Expression Reduce()
         {
-            var nullableCallerType = NullableCaller.Type;
+            var nullableCallerType = Caller.Type;
             var nullableCaller = Parameter(nullableCallerType, "__caller");
             var result = Parameter(_type, "__result");
 
@@ -103,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             var resultExpression
                 = Block(
                     new[] { nullableCaller, result },
-                    Assign(nullableCaller, NullableCaller),
+                    Assign(nullableCaller, Caller),
                     Assign(result, Default(_type)),
                     IfThen(
                         NotEqual(nullableCaller, Default(nullableCallerType)),
@@ -124,16 +112,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         /// <param name="visitor">An instance of <see cref="T:System.Func`2" />.</param>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var newNullableCaller = visitor.Visit(NullableCaller);
             var newCaller = visitor.Visit(Caller);
             var newAccessOperation = visitor.Visit(AccessOperation);
 
-            if (newNullableCaller != NullableCaller
-                || newCaller != Caller
+            if (newCaller != Caller
                 || newAccessOperation != AccessOperation)
             {
-                return new NullConditionalExpression(
-                    newNullableCaller, newCaller, newAccessOperation);
+                return new NullConditionalExpression(newCaller, newAccessOperation);
             }
 
             return this;
@@ -149,14 +134,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         {
             if (AccessOperation is MemberExpression memberExpression)
             {
-                return NullableCaller + "?." + memberExpression.Member.Name;
+                return Caller + "?." + memberExpression.Member.Name;
             }
 
             if (AccessOperation is MethodCallExpression methodCallExpression)
             {
                 if (methodCallExpression.Object != null)
                 {
-                    return NullableCaller
+                    return Caller
                            + "?." + methodCallExpression.Method.Name
                            + "(" + string.Join(",", methodCallExpression.Arguments) + ")";
                 }
@@ -164,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
                 var method = methodCallExpression.Method;
 
                 return method.DeclaringType?.Name + "." + method.Name
-                       + "(?" + NullableCaller + "?, "
+                       + "(?" + Caller + "?, "
                        + string.Join(",", methodCallExpression.Arguments.Skip(1)) + ")";
             }
 

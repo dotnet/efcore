@@ -405,7 +405,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         Expression.Convert(
                             new NullConditionalExpression(
                                 parentQuerySourceReferenceExpression,
-                                parentQuerySourceReferenceExpression,
                                 propertyExpression),
                             typeof(object)));
                 }
@@ -464,7 +463,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         newExpression
                             = new NullConditionalExpression(
-                                methodCallExpression.Arguments[0],
                                 methodCallExpression.Arguments[0],
                                 methodCallExpression);
                     }

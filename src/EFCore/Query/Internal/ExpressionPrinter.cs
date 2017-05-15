@@ -785,14 +785,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (nullConditionalExpression.AccessOperation is MemberExpression memberExpression)
             {
-                Visit(nullConditionalExpression.NullableCaller);
+                Visit(nullConditionalExpression.Caller);
                 _stringBuilder.Append("?." + memberExpression.Member.Name);
             }
             else if (nullConditionalExpression.AccessOperation is MethodCallExpression methodCallExpression)
             {
                 if (methodCallExpression.Object != null)
                 {
-                    Visit(nullConditionalExpression.NullableCaller);
+                    Visit(nullConditionalExpression.Caller);
                     _stringBuilder.Append("?." + methodCallExpression.Method.Name + "(");
                     VisitArguments(methodCallExpression.Arguments, s => _stringBuilder.Append(s));
                     _stringBuilder.Append(")");
@@ -801,7 +801,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var method = methodCallExpression.Method;
 
                 _stringBuilder.Append(method.DeclaringType?.Name + "." + method.Name + "(?");
-                Visit(nullConditionalExpression.NullableCaller);
+                Visit(nullConditionalExpression.Caller);
                 _stringBuilder.Append("?, ");
                 VisitArguments(methodCallExpression.Arguments.Skip(1).ToList(), s => _stringBuilder.Append(s));
                 _stringBuilder.Append(")");
