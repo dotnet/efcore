@@ -15,8 +15,9 @@
     <SQLitePCLRawVersion>1.1.5</SQLitePCLRawVersion>
     <StyleCopAnalyzersVersion>1.0.0</StyleCopAnalyzersVersion>
     <SystemInteractiveAsyncVersion>3.1.1</SystemInteractiveAsyncVersion>
-    <TestSdkVersion>15.0.0</TestSdkVersion>
+    <TestSdkVersion>15.3.0-*</TestSdkVersion>
     <XunitVersion>2.2.0</XunitVersion>
+    <XunitRunnerVersion>2.3.0-beta2-build1317</XunitRunnerVersion>
     <!--
       * Use 4.4.0-* instead of $(CoreFxVersion) to workaround "SqlClient fails with netcoreapp2.0 on Win7/Server2008"
       * https://github.com/dotnet/corefx/issues/18406

@@ -8,9 +8,6 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests</RootNamespace>
-    <!-- TODO: Remove when Microsoft/vstest#428 is fixed. -->
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,11 +32,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
     <PackageReference Include="xunit" Version="$(XunitVersion)" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVersion)" />
   </ItemGroup>
 
 </Project>
