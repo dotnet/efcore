@@ -107,6 +107,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Sets a parameter value.
+        /// </summary>
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
+        public virtual void SetParameter(string name, object value)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            _parameterValues[name] = value;
+        }
+
+        /// <summary>
         ///     Removes a parameter by name.
         /// </summary>
         /// <param name="name"> The name. </param>

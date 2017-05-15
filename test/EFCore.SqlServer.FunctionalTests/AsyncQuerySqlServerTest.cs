@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();
+            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override async Task ToList_on_nav_in_projection_is_async()
@@ -153,6 +154,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Assert.Equal(5, tasks[0].Count);
                 Assert.Equal(6, tasks[1].Count);
                 Assert.Equal(4, tasks[2].Count);
+            }
+        }
+
+        [Fact]
+        public async Task Concurrent_async_queries_are_serialized2()
+        {
+            using (var context = CreateContext())
+            {
+                await context.OrderDetails
+                    .Where(od => od.OrderID > 0)
+                    .Intersect(
+                        context.OrderDetails
+                            .Where(od => od.OrderID > 0))
+                    .Intersect(
+                        context.OrderDetails
+                            .Where(od => od.OrderID > 0)).ToListAsync();
             }
         }
 

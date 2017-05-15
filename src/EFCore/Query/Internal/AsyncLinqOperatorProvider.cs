@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         // ReSharper disable once InconsistentNaming
-        public static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
+        private static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
             [NotNull] IAsyncEnumerable<TSource> source, [NotNull] Func<TSource, TResult> selector)
             => source.Select(selector);
 

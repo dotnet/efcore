@@ -107,6 +107,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 return value;
             }
+
+            public void SetParameter(string name, object value)
+            {
+                _parameterValues[name] = value;
+            }
         }
 
         /// <summary>

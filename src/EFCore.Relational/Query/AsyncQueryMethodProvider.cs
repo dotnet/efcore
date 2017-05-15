@@ -35,12 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
-            => AsyncLinqOperatorProvider
-                ._Select(
-                    new AsyncQueryingEnumerable(
-                        (RelationalQueryContext)queryContext,
-                        shaperCommandContext),
-                    vb => shaper.Shape(queryContext, vb)); // TODO: Pass shaper to underlying enumerable
+            => new AsyncQueryingEnumerable<T>(
+                (RelationalQueryContext)queryContext,
+                shaperCommandContext,
+                shaper);
 
         /// <summary>
         ///     The default if empty shaped query method.
@@ -56,19 +54,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
-            => AsyncLinqOperatorProvider
-                ._Select(
-                    new DefaultIfEmptyAsyncEnumerable(
-                        new AsyncQueryingEnumerable(
-                            (RelationalQueryContext)queryContext,
-                            shaperCommandContext)),
-                    vb => shaper.Shape(queryContext, vb));
+            => new DefaultIfEmptyAsyncEnumerable(
+                    _Query((RelationalQueryContext)queryContext, shaperCommandContext))
+                .Select(vb => shaper.Shape(queryContext, vb));
 
         private sealed class DefaultIfEmptyAsyncEnumerable : IAsyncEnumerable<ValueBuffer>
         {
             private readonly IAsyncEnumerable<ValueBuffer> _source;
 
-            public DefaultIfEmptyAsyncEnumerable(IAsyncEnumerable<ValueBuffer> source) 
+            public DefaultIfEmptyAsyncEnumerable(IAsyncEnumerable<ValueBuffer> source)
                 => _source = source;
 
             public IAsyncEnumerator<ValueBuffer> GetEnumerator()
@@ -80,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 private bool _checkedEmpty;
 
-                public DefaultIfEmptyAsyncEnumerator(IAsyncEnumerator<ValueBuffer> enumerator) 
+                public DefaultIfEmptyAsyncEnumerator(IAsyncEnumerator<ValueBuffer> enumerator)
                     => _enumerator = enumerator;
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
@@ -129,7 +123,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static IAsyncEnumerable<ValueBuffer> _Query(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext)
-            => new AsyncQueryingEnumerable((RelationalQueryContext)queryContext, shaperCommandContext);
+            => new AsyncQueryingEnumerable<ValueBuffer>(
+                (RelationalQueryContext)queryContext,
+                shaperCommandContext,
+                IdentityShaper.Instance);
 
         /// <summary>
         ///     The get result method.
@@ -475,22 +472,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private sealed class InjectParametersEnumerator : IAsyncEnumerator<TElement>
             {
-                private readonly ParameterInjector<TElement> _parameterInjector;
                 private readonly IAsyncEnumerator<TElement> _innerEnumerator;
-                private bool _disposed;
 
                 public InjectParametersEnumerator(ParameterInjector<TElement> parameterInjector)
                 {
-                    _parameterInjector = parameterInjector;
-
-                    for (var i = 0; i < _parameterInjector._parameterNames.Length; i++)
+                    for (var i = 0; i < parameterInjector._parameterNames.Length; i++)
                     {
-                        _parameterInjector._queryContext.AddParameter(
-                            _parameterInjector._parameterNames[i],
-                            _parameterInjector._parameterValues[i]);
+                        parameterInjector._queryContext.SetParameter(
+                            parameterInjector._parameterNames[i],
+                            parameterInjector._parameterValues[i]);
                     }
 
-                    _innerEnumerator = _parameterInjector._innerEnumerable.GetEnumerator();
+                    _innerEnumerator = parameterInjector._innerEnumerable.GetEnumerator();
                 }
 
                 public TElement Current => _innerEnumerator.Current;
@@ -498,20 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                     => await _innerEnumerator.MoveNext(cancellationToken);
 
-                public void Dispose()
-                {
-                    if (!_disposed)
-                    {
-                        _innerEnumerator.Dispose();
-
-                        foreach (var parameterName in _parameterInjector._parameterNames)
-                        {
-                            _parameterInjector._queryContext.RemoveParameter(parameterName);
-                        }
-
-                        _disposed = true;
-                    }
-                }
+                public void Dispose() => _innerEnumerator.Dispose();
             }
         }
     }

@@ -36,16 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
-        {
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var valueBuffer
-                in new QueryingEnumerable(
-                    (RelationalQueryContext)queryContext,
-                    shaperCommandContext))
-            {
-                yield return shaper.Shape(queryContext, valueBuffer);
-            }
-        }
+            => new QueryingEnumerable<T>(
+                (RelationalQueryContext)queryContext,
+                shaperCommandContext,
+                shaper);
 
         /// <summary>
         ///     Gets the default if empty shaped query method.
@@ -70,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var valueBuffer
-                in new QueryingEnumerable((RelationalQueryContext)queryContext, shaperCommandContext))
+                in _Query((RelationalQueryContext)queryContext, shaperCommandContext))
             {
                 if (!checkedEmpty)
                 {
@@ -110,9 +104,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static IEnumerable<ValueBuffer> _Query(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext)
-            => new QueryingEnumerable(
+            => new QueryingEnumerable<ValueBuffer>(
                 (RelationalQueryContext)queryContext,
-                shaperCommandContext);
+                shaperCommandContext,
+                IdentityShaper.Instance);
 
         /// <summary>
         ///     Gets the get result method.
@@ -307,73 +302,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             IEnumerable<TElement> source,
             string[] parameterNames,
             object[] parameterValues)
-            => new ParameterInjector<TElement>(queryContext, source, parameterNames, parameterValues);
-
-        private sealed class ParameterInjector<TElement> : IEnumerable<TElement>
         {
-            private readonly QueryContext _queryContext;
-            private readonly IEnumerable<TElement> _innerEnumerable;
-            private readonly string[] _parameterNames;
-            private readonly object[] _parameterValues;
-
-            public ParameterInjector(
-                QueryContext queryContext,
-                IEnumerable<TElement> innerEnumerable,
-                string[] parameterNames,
-                object[] parameterValues)
+            for (var i = 0; i < parameterNames.Length; i++)
             {
-                _queryContext = queryContext;
-                _innerEnumerable = innerEnumerable;
-                _parameterNames = parameterNames;
-                _parameterValues = parameterValues;
+                queryContext.SetParameter(parameterNames[i], parameterValues[i]);
             }
 
-            public IEnumerator<TElement> GetEnumerator() => new InjectParametersEnumerator(this);
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-            private sealed class InjectParametersEnumerator : IEnumerator<TElement>
+            foreach (var element in source)
             {
-                private readonly ParameterInjector<TElement> _parameterInjector;
-                private readonly IEnumerator<TElement> _innerEnumerator;
-                private bool _disposed;
-
-                public InjectParametersEnumerator(ParameterInjector<TElement> parameterInjector)
-                {
-                    _parameterInjector = parameterInjector;
-
-                    for (var i = 0; i < _parameterInjector._parameterNames.Length; i++)
-                    {
-                        _parameterInjector._queryContext.AddParameter(
-                            _parameterInjector._parameterNames[i],
-                            _parameterInjector._parameterValues[i]);
-                    }
-
-                    _innerEnumerator = _parameterInjector._innerEnumerable.GetEnumerator();
-                }
-
-                public TElement Current => _innerEnumerator.Current;
-
-                object IEnumerator.Current => _innerEnumerator.Current;
-
-                public bool MoveNext() => _innerEnumerator.MoveNext();
-
-                public void Reset() => _innerEnumerator.Reset();
-
-                public void Dispose()
-                {
-                    if (!_disposed)
-                    {
-                        _innerEnumerator.Dispose();
-
-                        foreach (var parameterName in _parameterInjector._parameterNames)
-                        {
-                            _parameterInjector._queryContext.RemoveParameter(parameterName);
-                        }
-
-                        _disposed = true;
-                    }
-                }
+                yield return element;
             }
         }
     }

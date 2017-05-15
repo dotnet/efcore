@@ -68,8 +68,7 @@ FROM [Orders] AS [c1_Orders]");
         [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public virtual void Cache_key_contexts_are_detached()
         {
-            WeakReference wr;
-            MakeGarbage(CreateContext(), out wr);
+            MakeGarbage(CreateContext(), out var wr);
 
             GC.Collect();
 

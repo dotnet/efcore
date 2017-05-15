@@ -43,6 +43,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Where_subquery_correlated_client_eval()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.Take(5).OrderBy(c1 => c1.CustomerID).Where(c1 => cs.Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
         public virtual async Task ToListAsync_can_be_canceled()
         {
             for (var i = 0; i < 10; i++)
@@ -3441,7 +3449,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 14);
         }
 
-        [ConditionalFact(Skip = "The test fails with MARS=false. See issue#8393")]
+        [ConditionalFact]
         public virtual async Task Except_nested()
         {
             await AssertQuery<Customer>(
@@ -3486,7 +3494,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 3);
         }
 
-        [ConditionalFact(Skip = "The test fails with MARS=false. See issue#8393")]
+        [ConditionalFact]
         public virtual async Task Intersect_nested()
         {
             await AssertQuery<Customer>(

@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -16,10 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class QueryingEnumerable : IEnumerable<ValueBuffer>
+    public class QueryingEnumerable<T> : IEnumerable<T>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly ShaperCommandContext _shaperCommandContext;
+        private readonly IShaper<T> _shaper;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -27,48 +29,57 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public QueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
-            [NotNull] ShaperCommandContext shaperCommandContext)
+            [NotNull] ShaperCommandContext shaperCommandContext,
+            [NotNull] IShaper<T> shaper)
         {
             _relationalQueryContext = relationalQueryContext;
             _shaperCommandContext = shaperCommandContext;
+            _shaper = shaper;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerator<ValueBuffer> GetEnumerator() => new Enumerator(this);
+        public virtual IEnumerator<T> GetEnumerator() => new Enumerator(this);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        private sealed class Enumerator : IEnumerator<ValueBuffer>, IValueBufferCursor
+        private sealed class Enumerator : IEnumerator<T>, IValueBufferCursor
         {
-            private readonly QueryingEnumerable _queryingEnumerable;
+            private readonly RelationalQueryContext _relationalQueryContext;
+            private readonly ShaperCommandContext _shaperCommandContext;
+            private readonly IShaper<T> _shaper;
 
             private RelationalDataReader _dataReader;
             private Queue<ValueBuffer> _buffer;
-
-            private bool _disposed;
-
             private DbDataReader _dbDataReader;
             private IRelationalValueBufferFactory _valueBufferFactory;
 
-            private ValueBuffer _current;
+            private T _current;
 
-            public Enumerator(QueryingEnumerable queryingEnumerable) 
-                => _queryingEnumerable = queryingEnumerable;
+            private bool _disposed;
+
+            public Enumerator(QueryingEnumerable<T> queryingEnumerable)
+            {
+                _shaperCommandContext = queryingEnumerable._shaperCommandContext;
+                _valueBufferFactory = _shaperCommandContext.ValueBufferFactory;
+                _relationalQueryContext = queryingEnumerable._relationalQueryContext;
+                _shaper = queryingEnumerable._shaper;
+            }
 
             public bool MoveNext()
             {
                 if (_buffer == null)
                 {
-                    var executionStrategy = _queryingEnumerable._relationalQueryContext.ExecutionStrategyFactory.Create();
+                    var executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
+
                     return executionStrategy.Execute(BufferlessMoveNext, executionStrategy.RetriesOnFailure);
                 }
 
                 if (_buffer.Count > 0)
                 {
-                    _current = _buffer.Dequeue();
+                    _current = _shaper.Shape(_relationalQueryContext, _buffer.Dequeue());
 
                     return true;
                 }
@@ -82,30 +93,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     if (_dataReader == null)
                     {
-                        _queryingEnumerable._relationalQueryContext.Connection.Open();
+                        _relationalQueryContext.Connection.Open();
 
                         var relationalCommand
-                            = _queryingEnumerable._shaperCommandContext
-                                .GetRelationalCommand(_queryingEnumerable._relationalQueryContext.ParameterValues);
+                            = _shaperCommandContext
+                                .GetRelationalCommand(_relationalQueryContext.ParameterValues);
 
-                        _queryingEnumerable._relationalQueryContext.RegisterValueBufferCursor(this);
+                        _relationalQueryContext.RegisterValueBufferCursor(this);
 
                         _dataReader
                             = relationalCommand.ExecuteReader(
-                                _queryingEnumerable._relationalQueryContext.Connection,
-                                _queryingEnumerable._relationalQueryContext.ParameterValues);
+                                _relationalQueryContext.Connection,
+                                _relationalQueryContext.ParameterValues);
 
                         _dbDataReader = _dataReader.DbDataReader;
-                        _queryingEnumerable._shaperCommandContext.NotifyReaderCreated(_dbDataReader);
-                        _valueBufferFactory = _queryingEnumerable._shaperCommandContext.ValueBufferFactory;
+                        _shaperCommandContext.NotifyReaderCreated(_dbDataReader);
+                        _valueBufferFactory = _shaperCommandContext.ValueBufferFactory;
                     }
 
                     var hasNext = _dbDataReader.Read();
 
                     _current
                         = hasNext
-                            ? _valueBufferFactory.Create(_dbDataReader)
-                            : default(ValueBuffer);
+                            ? _shaper.Shape(_relationalQueryContext, _valueBufferFactory.Create(_dbDataReader))
+                            : default(T);
 
                     if (buffer)
                     {
@@ -116,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 catch (Exception)
                 {
-                    _queryingEnumerable._relationalQueryContext.DeregisterValueBufferCursor(this);
+                    _relationalQueryContext.DeregisterValueBufferCursor(this);
                     _dataReader = null;
                     _dbDataReader = null;
 
@@ -125,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
-            public ValueBuffer Current => _current;
+            public T Current => _current;
 
             public void BufferAll()
             {
@@ -141,13 +152,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                     }
 
-                    _queryingEnumerable._relationalQueryContext.Connection?.Close();
+                    _relationalQueryContext.Connection?.Close();
                     _dataReader = null;
                     _dbDataReader = null;
                 }
             }
 
-            public Task BufferAllAsync(CancellationToken cancellationToken) 
+            public Task BufferAllAsync(CancellationToken cancellationToken)
                 => throw new NotImplementedException();
 
             object IEnumerator.Current => Current;
@@ -156,11 +167,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (!_disposed)
                 {
-                    _queryingEnumerable._relationalQueryContext.DeregisterValueBufferCursor(this);
+                    _relationalQueryContext.DeregisterValueBufferCursor(this);
+
                     if (_dataReader != null)
                     {
                         _dataReader.Dispose();
-                        _queryingEnumerable._relationalQueryContext.Connection?.Close();
+                        _relationalQueryContext.Connection?.Close();
                     }
 
                     _disposed = true;
