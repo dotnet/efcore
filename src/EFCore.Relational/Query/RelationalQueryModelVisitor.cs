@@ -323,10 +323,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 selectExpression.RemoveTable(joinExpressionBase);
 
-                                if (ReferenceEquals(selectExpression.ProjectStarTable, joinExpressionBase)
-                                    || ReferenceEquals(selectExpression.ProjectStarTable, joinExpressionBase.TableExpression))
+                                if (ReferenceEquals(selectExpression.ProjectStarTable, joinExpressionBase))
                                 {
-                                    selectExpression.ProjectStarTable = newTableExpression;
+                                    selectExpression.ProjectStarTable = selectExpression.GetTableForQuerySource(newTableExpression.QuerySource);
                                 }
 
                                 var sqlTableReferenceReplacingVisitor
