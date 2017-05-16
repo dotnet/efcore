@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -159,13 +159,11 @@ namespace Microsoft.Data.Sqlite
             return true;
         }
 
-#if NET451 // NB: This works around dotnet/corefx#2249
         /// <summary>
         /// Closes the data reader.
         /// </summary>
         public override void Close()
             => Dispose(true);
-#endif
 
         /// <summary>
         /// Releases any resources used by the data reader and closes it.

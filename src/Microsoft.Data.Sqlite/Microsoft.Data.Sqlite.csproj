@@ -16,8 +16,7 @@ Microsoft.Data.Sqlite.SqliteParameter
 Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <EnableApiCheck>false</EnableApiCheck>
-    <TargetFrameworks>net451;netstandard1.2</TargetFrameworks>
-    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

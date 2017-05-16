@@ -691,13 +691,7 @@ namespace Microsoft.Data.Sqlite
                 connection.Open();
 
                 var reader = connection.ExecuteReader("SELECT 1;");
-#if NET46
                 reader.Close();
-#elif NETCOREAPP2_0
-                ((IDisposable)reader).Dispose();
-#else
-#error Target framework needs to be updated
-#endif
 
                 Assert.True(reader.IsClosed);
             }

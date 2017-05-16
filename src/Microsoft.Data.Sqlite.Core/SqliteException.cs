@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="rc">The SQLite error code corresponding to the desired exception.</param>
         /// <param name="db">A handle to database connection.</param>
         /// <remarks>
-        /// No exception is thrown forn non-error result codes.
+        /// No exception is thrown for non-error result codes.
         /// </remarks>
         public static void ThrowExceptionForRC(int rc, sqlite3 db)
         {

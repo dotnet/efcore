@@ -1,17 +1,14 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
-
-#if NET451
-using System.IO;
-#endif
 
 namespace Microsoft.Data.Sqlite
 {
@@ -196,7 +193,6 @@ namespace Microsoft.Data.Sqlite
                     break;
             }
 
-#if NET451
             var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory") as string;
             if (!string.IsNullOrEmpty(dataDirectory)
                 && (flags & raw.SQLITE_OPEN_URI) == 0
@@ -205,7 +201,6 @@ namespace Microsoft.Data.Sqlite
             {
                 filename = Path.Combine(dataDirectory, filename);
             }
-#endif
 
             var rc = raw.sqlite3_open_v2(filename, out _db, flags, vfs: null);
             SqliteException.ThrowExceptionForRC(rc, _db);
@@ -277,7 +272,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <typeparam name="T">The type of the state object.</typeparam>
         /// <param name="name">Name of the collation.</param>
-        /// <param name="state">State object passed to each invokation of the collation.</param>
+        /// <param name="state">State object passed to each invocation of the collation.</param>
         /// <param name="comparison">Method that compares two strings, using additional state.</param>
         public virtual void CreateCollation<T>(string name, T state, Func<T, string, string, int> comparison)
         {
