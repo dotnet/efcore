@@ -11,7 +11,9 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -46,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.ApplicationInsights.Tests
             Assert.True(_telemetryClient.IsEnabled());
         }
 
-        [Fact]
+        [ConditionalFact]
+        [SqlServerConfiguredCondition]
         public void Forwards_events_as_dependencies()
         {
             using (var context = _fixture.CreateContext())
