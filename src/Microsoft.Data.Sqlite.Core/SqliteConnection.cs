@@ -5,10 +5,13 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
+
+#if NETSTANDARD2_0
+using System.IO;
+#endif
 
 namespace Microsoft.Data.Sqlite
 {
@@ -193,6 +196,7 @@ namespace Microsoft.Data.Sqlite
                     break;
             }
 
+#if NETSTANDARD2_0
             var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory") as string;
             if (!string.IsNullOrEmpty(dataDirectory)
                 && (flags & raw.SQLITE_OPEN_URI) == 0
@@ -201,6 +205,7 @@ namespace Microsoft.Data.Sqlite
             {
                 filename = Path.Combine(dataDirectory, filename);
             }
+#endif
 
             var rc = raw.sqlite3_open_v2(filename, out _db, flags, vfs: null);
             SqliteException.ThrowExceptionForRC(rc, _db);

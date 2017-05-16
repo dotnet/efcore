@@ -278,8 +278,10 @@ namespace Microsoft.Data.Sqlite
 
                         raw.sqlite3_reset(stmt);
 
+#if NETSTANDARD2_0
                         // TODO: Consider having an async path that uses Task.Delay()
                         Thread.Sleep(150);
+#endif
                     }
 
                     SqliteException.ThrowExceptionForRC(rc, Connection.Handle);
