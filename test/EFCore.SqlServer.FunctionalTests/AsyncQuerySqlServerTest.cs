@@ -3,10 +3,14 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -120,25 +124,34 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             //base.Projection_when_arithmetic_mixed_subqueries();
         }
 
-        public override async Task String_Contains_Literal() => 
+        public override async Task String_Contains_Literal()
+        {
             await AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
                 cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
                 entryCount: 34);
+        }
 
         public override async Task String_Contains_MethodCall()
-            => await AssertQuery<Customer>(
+        {
+            await AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c =>c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
+                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
                 entryCount: 34);
+        }
 
         public async Task Skip_when_no_order_by()
-            => await Assert.ThrowsAsync<Exception>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
+        {
+            await Assert.ThrowsAsync<Exception>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
+        }
 
         [Fact]
         public async Task Single_Predicate_Cancellation()
-            => await Assert.ThrowsAsync<TaskCanceledException>(async () =>
-                await Single_Predicate_Cancellation(Fixture.TestSqlLoggerFactory.CancelQuery()));
+        {
+            await Assert.ThrowsAsync<TaskCanceledException>(
+                async () =>
+                    await Single_Predicate_Cancellation(Fixture.TestSqlLoggerFactory.CancelQuery()));
+        }
 
         [Fact]
         public async Task Concurrent_async_queries_are_serialized()
@@ -174,8 +187,79 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [Fact]
+        public async Task Concurrent_async_queries_are_serialized_find()
+        {
+            using (var context = CreateContext())
+            {
+                var task1 = context.Customers.FindAsync("ALFKI");
+                var task2 = context.Customers.FindAsync("ANATR");
+                var task3 = context.Customers.FindAsync("FISSA");
+
+                var tasks = await Task.WhenAll(task1, task2, task3);
+
+                Assert.NotNull(tasks[0]);
+                Assert.NotNull(tasks[1]);
+                Assert.NotNull(tasks[2]);
+            }
+        }
+
+        [Fact]
+        public async Task Concurrent_async_queries_are_serialized_mixed1()
+        {
+            using (var context = CreateContext())
+            {
+                await context.Customers.ForEachAsync(
+                    c => { context.Orders.Where(o => o.CustomerID == c.CustomerID).ToList(); });
+            }
+        }
+
+        [Fact]
+        public async Task Concurrent_async_queries_are_serialized_mixed2()
+        {
+            using (var context = CreateContext())
+            {
+                foreach (var c in context.Customers)
+                {
+                    await context.Orders.Where(o => o.CustomerID == c.CustomerID).ToListAsync();
+                }
+            }
+        }
+
+        [Fact]
+        public async Task Concurrent_async_queries_when_raw_query()
+        {
+            using (var context = CreateContext())
+            {
+                using (var asyncEnumerator = context.Customers.AsAsyncEnumerable().GetEnumerator())
+                {
+                    while (await asyncEnumerator.MoveNext(default(CancellationToken)))
+                    {
+                        if (!context.GetService<IRelationalConnection>().IsMultipleActiveResultSetsEnabled)
+                        {
+                            // Not supported, we could make it work by triggering buffering
+                            // from RelationalCommand.
+
+                            await Assert.ThrowsAsync<InvalidOperationException>(
+                                () => context.Database.ExecuteSqlCommandAsync(
+                                    "[dbo].[CustOrderHist] @CustomerID = {0}",
+                                    asyncEnumerator.Current.CustomerID));
+                        }
+                        else
+                        {
+                            await context.Database.ExecuteSqlCommandAsync(
+                                "[dbo].[CustOrderHist] @CustomerID = {0}",
+                                asyncEnumerator.Current.CustomerID);
+                        }
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public async Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
-            => await AssertQuery<Order>(
+        {
+            await AssertQuery<Order>(
                 os => os.Select(o => new { o.Customer.City, Count = o.OrderDetails.Count() }));
+        }
     }
 }

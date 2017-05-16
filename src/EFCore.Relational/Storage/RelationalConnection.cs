@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
@@ -113,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual int? CommandTimeout
         {
-            get { return _commandTimeout; }
+            get => _commandTimeout;
             set
             {
                 if (value.HasValue
@@ -465,12 +466,63 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual bool IsMultipleActiveResultSetsEnabled => false;
 
-        /// <summary>
-        ///     Gets or sets the active cursor.
-        /// </summary>
-        public virtual IValueBufferCursor ActiveCursor { get; set; }
-
         void IResettableService.Reset() => Dispose();
+
+        /// <summary>
+        ///     Gets a semaphore used to serialize access to this connection.
+        /// </summary>
+        /// <value>
+        ///     The semaphore used to serialize access to this connection.
+        /// </value>
+        public virtual SemaphoreSlim Semaphore { get; } = new SemaphoreSlim(1);
+
+        private readonly List<IBufferable> _activeQueries = new List<IBufferable>();
+
+        /// <summary>
+        ///     Registers a potentially bufferable active query.
+        /// </summary>
+        /// <param name="bufferable"> The bufferable query. </param>
+        public virtual void RegisterBufferable(IBufferable bufferable)
+        {
+            Check.NotNull(bufferable, nameof(bufferable));
+
+            if (!IsMultipleActiveResultSetsEnabled)
+            {
+                for (var i = _activeQueries.Count - 1; i >= 0; i--)
+                {
+                    _activeQueries[i].BufferAll();
+
+                    _activeQueries.RemoveAt(i);
+                }
+
+                _activeQueries.Add(bufferable);
+            }
+        }
+
+        /// <summary>
+        ///     Asynchronously registers a potentially bufferable active query.
+        /// </summary>
+        /// <param name="bufferable"> The bufferable query. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns>
+        ///     A Task.
+        /// </returns>
+        public virtual async Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken)
+        {
+            Check.NotNull(bufferable, nameof(bufferable));
+
+            if (!IsMultipleActiveResultSetsEnabled)
+            {
+                for (var i = _activeQueries.Count - 1; i >= 0; i--)
+                {
+                    await _activeQueries[i].BufferAllAsync(cancellationToken);
+
+                    _activeQueries.RemoveAt(i);
+                }
+
+                _activeQueries.Add(bufferable);
+            }
+        }
 
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -483,6 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 _connection.Value.Dispose();
                 _connection.Reset(CreateDbConnection);
+                _activeQueries.Clear();
                 _openedCount = 0;
             }
         }

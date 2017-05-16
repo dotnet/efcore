@@ -71,13 +71,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
         bool IsMultipleActiveResultSetsEnabled { get; }
 
         /// <summary>
-        ///     Gets or sets the active cursor.
-        /// </summary>
-        IValueBufferCursor ActiveCursor { get; [param: CanBeNull] set; }
-
-        /// <summary>
         ///     Gets the current transaction.
         /// </summary>
         new IDbContextTransaction CurrentTransaction { get; }
+
+        /// <summary>
+        ///     Gets a semaphore used to serialize access to this connection.
+        /// </summary>
+        /// <value>
+        ///     The semaphore.
+        /// </value>
+        SemaphoreSlim Semaphore { get; }
+
+        /// <summary>
+        ///     Registers a potentially bufferable active query.
+        /// </summary>
+        /// <param name="bufferable"> The bufferable query. </param>
+        void RegisterBufferable([NotNull] IBufferable bufferable);
+
+        /// <summary>
+        ///     Asynchronously registers a potentially bufferable active query.
+        /// </summary>
+        /// <param name="bufferable"> The bufferable query. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns>
+        ///     A Task.
+        /// </returns>
+        Task RegisterBufferableAsync([NotNull] IBufferable bufferable, CancellationToken cancellationToken);
     }
 }

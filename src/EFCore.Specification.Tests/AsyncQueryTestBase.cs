@@ -85,8 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [ConditionalFact] // TODO: See issue#7160
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Test is flaky on CoreCLR.")]
+        [ConditionalFact]
         public virtual async Task Mixed_sync_async_query()
         {
             using (var context = CreateContext())

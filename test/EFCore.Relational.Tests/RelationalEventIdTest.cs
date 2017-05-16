@@ -76,8 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             public Guid ConnectionId => Guid.NewGuid();
             public int? CommandTimeout { get; set; }
             public bool IsMultipleActiveResultSetsEnabled => throw new NotImplementedException();
-            public IValueBufferCursor ActiveCursor { get; set; }
             public IDbContextTransaction CurrentTransaction => throw new NotImplementedException();
+            public SemaphoreSlim Semaphore => throw new NotImplementedException();
+            public void RegisterBufferable(IBufferable bufferable) => throw new NotImplementedException();
+            public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) => throw new NotImplementedException();
             public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
             public IDbContextTransaction BeginTransaction() => throw new NotImplementedException();
             public Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
@@ -89,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             public Task<bool> OpenAsync(CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
             public void Reset() => throw new NotImplementedException();
             public void RollbackTransaction() => throw new NotImplementedException();
-            public IDbContextTransaction UseTransaction([CanBeNull] DbTransaction transaction) => throw new NotImplementedException();
+            public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
         }
 
         private class FakeDbConnection : DbConnection

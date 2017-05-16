@@ -1,57 +1,57 @@
   [
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<T0, T1> where T0 : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<T0, T1> where T1 : Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Expressions.AggregateExpression : System.Linq.Expressions.Expression",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseCreator : Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator, Microsoft.EntityFrameworkCore.Internal.IServiceInjectionSite",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseProviderServices : Microsoft.EntityFrameworkCore.Storage.DatabaseProviderServices, Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseProviderServices",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.CountExpression : System.Linq.Expressions.Expression",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.CrossJoinExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.InnerJoinExpression : Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.LateralJoinExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.LeftOuterJoinExpression : Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.MaxExpression : Microsoft.EntityFrameworkCore.Query.Expressions.AggregateExpression",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.MinExpression : Microsoft.EntityFrameworkCore.Query.Expressions.AggregateExpression",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.NotNullableExpression : System.Linq.Expressions.Expression",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SumExpression : Microsoft.EntityFrameworkCore.Query.Expressions.AggregateExpression",
-      "Kind": "Removal"
-    },
-    {
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<T0, T1> where T0 : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<T0, T1> where T1 : Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Expressions.AggregateExpression : System.Linq.Expressions.Expression",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseCreator : Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator, Microsoft.EntityFrameworkCore.Internal.IServiceInjectionSite",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseProviderServices : Microsoft.EntityFrameworkCore.Storage.DatabaseProviderServices, Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseProviderServices",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.CountExpression : System.Linq.Expressions.Expression",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.CrossJoinExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.InnerJoinExpression : Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.LateralJoinExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.LeftOuterJoinExpression : Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.MaxExpression : Microsoft.EntityFrameworkCore.Query.Expressions.AggregateExpression",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.MinExpression : Microsoft.EntityFrameworkCore.Query.Expressions.AggregateExpression",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.NotNullableExpression : System.Linq.Expressions.Expression",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SumExpression : Microsoft.EntityFrameworkCore.Query.Expressions.AggregateExpression",
+    "Kind": "Removal"
+  },
+  {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.DbCommandLogData : System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<System.String, System.Object>>",
       "Kind": "Removal"
     },
@@ -68,833 +68,833 @@
       "Kind": "Removal"
     },
     {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseProviderServices : Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public static class Microsoft.EntityFrameworkCore.Infrastructure.RelationalServiceCollectionExtensions",
-      "Kind": "Removal"
-    },
-    {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseProviderServices : Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.Infrastructure.RelationalServiceCollectionExtensions",
+    "Kind": "Removal"
+  },
+  {
       "TypeId": "public static class Microsoft.EntityFrameworkCore.WarningConfigurationBuilderExtensions",
       "Kind": "Removal"
     },
     {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory",
-      "MemberId": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitor Create(Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression targetSelectExpression = null, System.Linq.Expressions.Expression topLevelPredicate = null, System.Boolean bindParentQueries = False, System.Boolean inProjection = False)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRawSqlCommandBuilder",
-      "MemberId": "Microsoft.EntityFrameworkCore.Storage.RawSqlCommand Build(System.String sql, System.Collections.Generic.IReadOnlyList<System.Object> parameters)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMemberTranslator : Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslator",
-      "MemberId": "protected .ctor()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapper : Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper",
-      "MemberId": "protected .ctor()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
-      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions options, Microsoft.Extensions.Logging.ILogger logger)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
-      "MemberId": "protected virtual Microsoft.Extensions.Logging.ILogger get_Logger()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
-      "MemberId": "public System.Threading.Tasks.Task OpenAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
-      "MemberId": "public System.Void Close()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
-      "MemberId": "public System.Void Open()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalEntityTypeAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalEntityTypeAnnotations",
-      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations annotations, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalEntityTypeAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalEntityTypeAnnotations",
-      "MemberId": "protected readonly Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames ProviderFullAnnotationNames",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalEntityTypeAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalEntityTypeAnnotations",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalForeignKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyAnnotations",
-      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations annotations, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalForeignKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyAnnotations",
-      "MemberId": "protected readonly Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames ProviderFullAnnotationNames",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalForeignKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyAnnotations",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IForeignKey foreignKey, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
-      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations annotations, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
-      "MemberId": "protected readonly Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames ProviderFullAnnotationNames",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyAnnotations",
-      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations annotations, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyAnnotations",
-      "MemberId": "protected readonly Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames ProviderFullAnnotationNames",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyAnnotations",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
-      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations annotations, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
-      "MemberId": "protected readonly Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames ProviderFullAnnotationNames",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
-      "MemberId": "protected virtual System.Boolean SetDatabaseName(System.String value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
-      "MemberId": "public System.String get_DatabaseName()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
-      "MemberId": "public virtual System.Void set_DatabaseName(System.String value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalPropertyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations",
-      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations annotations, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalPropertyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations",
-      "MemberId": "protected readonly Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames ProviderFullAnnotationNames",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalPropertyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Migrations.HistoryRepository : Microsoft.EntityFrameworkCore.Migrations.IHistoryRepository",
-      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Storage.IDatabaseCreator databaseCreator, Microsoft.EntityFrameworkCore.Storage.IRawSqlCommandBuilder rawSqlCommandBuilder, Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions options, Microsoft.EntityFrameworkCore.Migrations.IMigrationsModelDiffer modelDiffer, Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator migrationsSqlGenerator, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider annotations, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Sql.QuerySqlGeneratorFactoryBase : Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory",
-      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory commandBuilderFactory, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper, Microsoft.EntityFrameworkCore.Storage.IParameterNameGeneratorFactory parameterNameGeneratorFactory, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper relationalTypeMapper)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Sql.QuerySqlGeneratorFactoryBase : Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.IParameterNameGeneratorFactory get_ParameterNameGeneratorFactory()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Sql.QuerySqlGeneratorFactoryBase : Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory get_CommandBuilderFactory()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Sql.QuerySqlGeneratorFactoryBase : Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper get_RelationalTypeMapper()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Sql.QuerySqlGeneratorFactoryBase : Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper get_SqlGenerationHelper()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
-      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMethodCallTranslator : Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslator",
-      "MemberId": "protected .ctor(Microsoft.Extensions.Logging.ILogger logger)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.RelationalProjectionExpressionVisitor : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ProjectionExpressionVisitor",
-      "MemberId": "protected override System.Linq.Expressions.Expression VisitMethodCall(System.Linq.Expressions.MethodCallExpression node)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.RelationalProjectionExpressionVisitor : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ProjectionExpressionVisitor",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource entityMaterializerSource, Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Remotion.Linq.Clauses.IQuerySource querySource)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.RelationalProjectionExpressionVisitor : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ProjectionExpressionVisitor",
-      "MemberId": "public override System.Linq.Expressions.Expression Visit(System.Linq.Expressions.Expression node)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor",
-      "MemberId": "protected override System.Void IncludeNavigations(Microsoft.EntityFrameworkCore.Query.IncludeSpecification includeSpecification, System.Type resultType, System.Linq.Expressions.Expression accessorExpression, System.Boolean querySourceRequiresTracking)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor",
-      "MemberId": "protected override System.Void IncludeNavigations(Remotion.Linq.QueryModel queryModel, System.Collections.Generic.IReadOnlyCollection<Microsoft.EntityFrameworkCore.Query.IncludeSpecification> includeSpecifications)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor",
-      "MemberId": "protected virtual System.Void OptimizeJoinClause(Remotion.Linq.Clauses.JoinClause joinClause, Remotion.Linq.QueryModel queryModel, System.Int32 index, System.Action baseVisitAction, System.Reflection.MethodInfo operatorToFlatten, System.Boolean groupJoin = False)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor",
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory",
+    "MemberId": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitor Create(Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression targetSelectExpression = null, System.Linq.Expressions.Expression topLevelPredicate = null, System.Boolean bindParentQueries = False, System.Boolean inProjection = False)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRawSqlCommandBuilder",
+    "MemberId": "Microsoft.EntityFrameworkCore.Storage.RawSqlCommand Build(System.String sql, System.Collections.Generic.IReadOnlyList<System.Object> parameters)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMemberTranslator : Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslator",
+    "MemberId": "protected .ctor()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapper : Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper",
+    "MemberId": "protected .ctor()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
+    "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions options, Microsoft.Extensions.Logging.ILogger logger)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
+    "MemberId": "protected virtual Microsoft.Extensions.Logging.ILogger get_Logger()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
+    "MemberId": "public System.Threading.Tasks.Task OpenAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
+    "MemberId": "public System.Void Close()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
+    "MemberId": "public System.Void Open()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalEntityTypeAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalEntityTypeAnnotations",
+    "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations annotations, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalEntityTypeAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalEntityTypeAnnotations",
+    "MemberId": "protected readonly Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames ProviderFullAnnotationNames",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalEntityTypeAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalEntityTypeAnnotations",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalForeignKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyAnnotations",
+    "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations annotations, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalForeignKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyAnnotations",
+    "MemberId": "protected readonly Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames ProviderFullAnnotationNames",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalForeignKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyAnnotations",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IForeignKey foreignKey, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
+    "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations annotations, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
+    "MemberId": "protected readonly Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames ProviderFullAnnotationNames",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyAnnotations",
+    "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations annotations, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyAnnotations",
+    "MemberId": "protected readonly Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames ProviderFullAnnotationNames",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyAnnotations",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
+    "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations annotations, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
+    "MemberId": "protected readonly Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames ProviderFullAnnotationNames",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
+    "MemberId": "protected virtual System.Boolean SetDatabaseName(System.String value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
+    "MemberId": "public System.String get_DatabaseName()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
+    "MemberId": "public virtual System.Void set_DatabaseName(System.String value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalPropertyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations",
+    "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations annotations, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalPropertyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations",
+    "MemberId": "protected readonly Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames ProviderFullAnnotationNames",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalPropertyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalFullAnnotationNames providerFullAnnotationNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Migrations.HistoryRepository : Microsoft.EntityFrameworkCore.Migrations.IHistoryRepository",
+    "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Storage.IDatabaseCreator databaseCreator, Microsoft.EntityFrameworkCore.Storage.IRawSqlCommandBuilder rawSqlCommandBuilder, Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions options, Microsoft.EntityFrameworkCore.Migrations.IMigrationsModelDiffer modelDiffer, Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator migrationsSqlGenerator, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider annotations, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Sql.QuerySqlGeneratorFactoryBase : Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory",
+    "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory commandBuilderFactory, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper, Microsoft.EntityFrameworkCore.Storage.IParameterNameGeneratorFactory parameterNameGeneratorFactory, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper relationalTypeMapper)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Sql.QuerySqlGeneratorFactoryBase : Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.IParameterNameGeneratorFactory get_ParameterNameGeneratorFactory()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Sql.QuerySqlGeneratorFactoryBase : Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory get_CommandBuilderFactory()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Sql.QuerySqlGeneratorFactoryBase : Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper get_RelationalTypeMapper()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Sql.QuerySqlGeneratorFactoryBase : Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper get_SqlGenerationHelper()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMethodCallTranslator : Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslator",
+    "MemberId": "protected .ctor(Microsoft.Extensions.Logging.ILogger logger)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.RelationalProjectionExpressionVisitor : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ProjectionExpressionVisitor",
+    "MemberId": "protected override System.Linq.Expressions.Expression VisitMethodCall(System.Linq.Expressions.MethodCallExpression node)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.RelationalProjectionExpressionVisitor : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ProjectionExpressionVisitor",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource entityMaterializerSource, Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Remotion.Linq.Clauses.IQuerySource querySource)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.RelationalProjectionExpressionVisitor : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ProjectionExpressionVisitor",
+    "MemberId": "public override System.Linq.Expressions.Expression Visit(System.Linq.Expressions.Expression node)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor",
+    "MemberId": "protected override System.Void IncludeNavigations(Microsoft.EntityFrameworkCore.Query.IncludeSpecification includeSpecification, System.Type resultType, System.Linq.Expressions.Expression accessorExpression, System.Boolean querySourceRequiresTracking)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor",
+    "MemberId": "protected override System.Void IncludeNavigations(Remotion.Linq.QueryModel queryModel, System.Collections.Generic.IReadOnlyCollection<Microsoft.EntityFrameworkCore.Query.IncludeSpecification> includeSpecifications)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor",
+    "MemberId": "protected virtual System.Void OptimizeJoinClause(Remotion.Linq.Clauses.JoinClause joinClause, Remotion.Linq.QueryModel queryModel, System.Int32 index, System.Action baseVisitAction, System.Reflection.MethodInfo operatorToFlatten, System.Boolean groupJoin = False)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor",
       "MemberId": "protected virtual System.Void WarnClientEval(System.Object expression)",
       "Kind": "Removal"
     },
     {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Internal.IQueryOptimizer queryOptimizer, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IOrderingExpressionVisitorFactory orderingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.Internal.IQueryAnnotationExtractor queryAnnotationExtractor, Microsoft.EntityFrameworkCore.Query.IResultOperatorHandler resultOperatorHandler, Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource entityMaterializerSource, Microsoft.EntityFrameworkCore.Query.Internal.IExpressionPrinter expressionPrinter, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalAnnotationProvider, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IIncludeExpressionVisitorFactory includeExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQueryFlattenerFactory queryFlattenerFactory, Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions contextOptions, Microsoft.EntityFrameworkCore.Query.RelationalQueryCompilationContext queryCompilationContext, Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor parentQueryModelVisitor)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions get_ContextOptions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider get_RelationalAnnotationProvider()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ICompositePredicateExpressionVisitorFactory get_CompositePredicateExpressionVisitorFactory()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IConditionalRemovingExpressionVisitorFactory get_ConditionalRemovingExpressionVisitorFactory()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IIncludeExpressionVisitorFactory get_IncludeExpressionVisitorFactory()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQueryFlattenerFactory get_QueryFlattenerFactory()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory get_SqlTranslatingExpressionVisitorFactory()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Internal.IQueryOptimizer queryOptimizer, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IOrderingExpressionVisitorFactory orderingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.Internal.IQueryAnnotationExtractor queryAnnotationExtractor, Microsoft.EntityFrameworkCore.Query.IResultOperatorHandler resultOperatorHandler, Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource entityMaterializerSource, Microsoft.EntityFrameworkCore.Query.Internal.IExpressionPrinter expressionPrinter, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalAnnotationProvider, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IIncludeExpressionVisitorFactory includeExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQueryFlattenerFactory queryFlattenerFactory, Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions contextOptions)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider get_Annotations()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper get_TypeMapper()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper get_SqlGenerationHelper()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory commandBuilderFactory, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider annotations)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.ValueGeneration.RelationalValueGeneratorSelector : Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelector",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider get_RelationalExtensions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.ValueGeneration.RelationalValueGeneratorSelector : Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelector",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.ValueGeneration.IValueGeneratorCache cache, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalExtensions)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
-      "MemberId": "protected virtual System.Linq.Expressions.Expression VisitNotIn(Microsoft.EntityFrameworkCore.Query.Expressions.InExpression inExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
-      "MemberId": "protected virtual System.String get_ConcatOperator()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
-      "MemberId": "protected virtual System.Void VisitProjection(System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.Expression> projections)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory relationalCommandBuilderFactory, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper, Microsoft.EntityFrameworkCore.Storage.IParameterNameGeneratorFactory parameterNameGeneratorFactory, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper relationalTypeMapper, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression selectExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
-      "MemberId": "public System.Linq.Expressions.Expression VisitCount(Microsoft.EntityFrameworkCore.Query.Expressions.CountExpression countExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
-      "MemberId": "public System.Linq.Expressions.Expression VisitLateralJoin(Microsoft.EntityFrameworkCore.Query.Expressions.LateralJoinExpression lateralJoinExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
-      "MemberId": "public System.Linq.Expressions.Expression VisitMax(Microsoft.EntityFrameworkCore.Query.Expressions.MaxExpression maxExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
-      "MemberId": "public System.Linq.Expressions.Expression VisitMin(Microsoft.EntityFrameworkCore.Query.Expressions.MinExpression minExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
-      "MemberId": "public System.Linq.Expressions.Expression VisitSum(Microsoft.EntityFrameworkCore.Query.Expressions.SumExpression sumExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
-      "MemberId": "public virtual System.Linq.Expressions.Expression VisitIsNotNull(Microsoft.EntityFrameworkCore.Query.Expressions.IsNullExpression isNotNullExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeExpressionFragmentTranslator : Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IExpressionFragmentTranslator",
-      "MemberId": "public .ctor()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationsAnnotationProvider : Microsoft.EntityFrameworkCore.Migrations.IMigrationsAnnotationProvider",
-      "MemberId": "public .ctor()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ParameterNameGeneratorFactory : Microsoft.EntityFrameworkCore.Storage.IParameterNameGeneratorFactory",
-      "MemberId": "public .ctor()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
-      "MemberId": "public .ctor()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.TypedRelationalValueBufferFactoryFactory : Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactoryFactory",
-      "MemberId": "public .ctor()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.UntypedRelationalValueBufferFactoryFactory : Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactoryFactory",
-      "MemberId": "public .ctor()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryCompilationContext : Microsoft.EntityFrameworkCore.Query.QueryCompilationContext",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Infrastructure.ISensitiveDataLogger logger, Microsoft.EntityFrameworkCore.Query.IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.Internal.ILinqOperatorProvider linqOperatorProvider, Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider queryMethodProvider, System.Type contextType, System.Boolean trackQueryResults)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryCompilationContextFactory : Microsoft.EntityFrameworkCore.Query.Internal.QueryCompilationContextFactory",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Infrastructure.ISensitiveDataLogger<Microsoft.EntityFrameworkCore.Query.RelationalQueryCompilationContextFactory> logger, Microsoft.EntityFrameworkCore.Query.IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory, Remotion.Linq.Parsing.Structure.NodeTypeProviders.MethodInfoBasedNodeTypeRegistry methodInfoBasedNodeTypeRegistry, Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext currentContext)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.RelationalEntityQueryableExpressionVisitorFactory : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Query.Expressions.ISelectExpressionFactory selectExpressionFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMaterializerFactory materializerFactory, Microsoft.EntityFrameworkCore.Query.Internal.IShaperCommandContextFactory shaperCommandContextFactory, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalAnnotationProvider)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.RelationalEntityQueryableExpressionVisitor : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.EntityQueryableExpressionVisitor",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Query.Expressions.ISelectExpressionFactory selectExpressionFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMaterializerFactory materializerFactory, Microsoft.EntityFrameworkCore.Query.Internal.IShaperCommandContextFactory shaperCommandContextFactory, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalAnnotationProvider, Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Remotion.Linq.Clauses.IQuerySource querySource)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitorFactory : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalAnnotationProvider, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IExpressionFragmentTranslator compositeExpressionFragmentTranslator, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslator methodCallTranslator, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslator memberTranslator, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper relationalTypeMapper)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitorFactory : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory",
-      "MemberId": "public Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitor Create(Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression targetSelectExpression = null, System.Linq.Expressions.Expression topLevelPredicate = null, System.Boolean bindParentQueries = False, System.Boolean inProjection = False)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitor : Remotion.Linq.Parsing.ThrowingExpressionVisitor",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalAnnotationProvider, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IExpressionFragmentTranslator compositeExpressionFragmentTranslator, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslator methodCallTranslator, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslator memberTranslator, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper relationalTypeMapper, Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression targetSelectExpression = null, System.Linq.Expressions.Expression topLevelPredicate = null, System.Boolean bindParentQueries = False, System.Boolean inProjection = False)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.InExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression operand, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression subQuery)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.InExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression operand, System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.Expression> values)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.InExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression get_Operand()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.RelationalProjectionExpressionVisitorFactory : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IProjectionExpressionVisitorFactory",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource entityMaterializerSource)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalDatabase : Microsoft.EntityFrameworkCore.Storage.Database",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.IQueryCompilationContextFactory queryCompilationContextFactory, Microsoft.EntityFrameworkCore.Update.ICommandBatchPreparer batchPreparer, Microsoft.EntityFrameworkCore.Update.IBatchExecutor batchExecutor, Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpressionFactory : Microsoft.EntityFrameworkCore.Query.Expressions.ISelectExpressionFactory",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory querySqlGeneratorFactory)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory querySqlGeneratorFactory, Microsoft.EntityFrameworkCore.Query.RelationalQueryCompilationContext queryCompilationContext)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory querySqlGeneratorFactory, Microsoft.EntityFrameworkCore.Query.RelationalQueryCompilationContext queryCompilationContext, System.String alias)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression AddToOrderBy(System.String column, Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase table, Remotion.Linq.Clauses.OrderingDirection orderingDirection)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase AddInnerJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase AddInnerJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression, System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression> projection)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase AddLeftOuterJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase AddLeftOuterJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression, System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression> projection)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Int32 AddAliasToProjection(System.String alias, System.Linq.Expressions.Expression expression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Int32 AddToProjection(Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression aliasExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Int32 AddToProjection(Microsoft.EntityFrameworkCore.Query.Expressions.ColumnExpression columnExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Int32 AddToProjection(System.Linq.Expressions.Expression expression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Int32 AddToProjection(System.Linq.Expressions.Expression expression, System.Boolean resetProjectStar)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Int32 AddToProjection(System.String column, Microsoft.EntityFrameworkCore.Metadata.IProperty property, Remotion.Linq.Clauses.IQuerySource querySource)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Linq.Expressions.Expression UpdateColumnExpression(System.Linq.Expressions.Expression expression, Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.String get_ProjectStarAlias()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Void AddCrossJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression, System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression> projection)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Void AddLateralJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression, System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression> projection)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Void AddTable(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression, System.Boolean createUniqueAlias = True)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Void AddTables(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase> tableExpressions)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Void AddToOrderBy(Remotion.Linq.Clauses.Ordering ordering)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Void AddToOrderBy(System.Collections.Generic.IEnumerable<Remotion.Linq.Clauses.Ordering> orderings)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Void ClearColumnProjections()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Void RemoveFromProjection(System.Collections.Generic.IEnumerable<Remotion.Linq.Clauses.Ordering> orderBy)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Void set_ProjectStarAlias(System.String value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Void SetProjectionConditionalExpression(System.Linq.Expressions.ConditionalExpression conditionalExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalDataReader : System.IDisposable",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, System.Data.Common.DbCommand command, System.Data.Common.DbDataReader reader)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalTransaction : Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.Data.Common.DbTransaction>",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, System.Data.Common.DbTransaction transaction, Microsoft.Extensions.Logging.ILogger logger, System.Boolean transactionOwned)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
-      "MemberId": "public .ctor(System.Func<Microsoft.EntityFrameworkCore.Query.Internal.IQueryBuffer> queryBufferFactory, Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, Microsoft.EntityFrameworkCore.Internal.LazyRef<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager> stateManager, Microsoft.EntityFrameworkCore.Internal.IConcurrencyDetector concurrencyDetector, Microsoft.EntityFrameworkCore.Storage.IExecutionStrategyFactory executionStrategyFactory)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Storage.ValueBuffer GetIncludeValueBuffer(System.Int32 queryIndex)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
-      "MemberId": "public virtual System.Threading.Tasks.Task RegisterValueBufferCursorAsync(Microsoft.EntityFrameworkCore.Query.Internal.IValueBufferCursor valueBufferCursor, System.Nullable<System.Int32> queryIndex, System.Threading.CancellationToken cancellationToken)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
-      "MemberId": "public virtual System.Void BeginIncludeScope()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
-      "MemberId": "public virtual System.Void EndIncludeScope()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
-      "MemberId": "public virtual System.Void RegisterValueBufferCursor(Microsoft.EntityFrameworkCore.Query.Internal.IValueBufferCursor valueBufferCursor, System.Nullable<System.Int32> queryIndex)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public .ctor(System.Linq.Expressions.Expression expression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.Boolean get_IsProjected()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.Linq.Expressions.Expression get_SourceExpression()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.Reflection.MemberInfo get_SourceMember()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.Void set_Alias(System.String value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.Void set_IsProjected(System.Boolean value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.Void set_SourceExpression(System.Linq.Expressions.Expression value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.Void set_SourceMember(System.Reflection.MemberInfo value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.ExistsExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public .ctor(System.Linq.Expressions.Expression expression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.ExistsExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.Linq.Expressions.Expression get_Expression()",
-      "Kind": "Removal"
-    },
-    {
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Internal.IQueryOptimizer queryOptimizer, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IOrderingExpressionVisitorFactory orderingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.Internal.IQueryAnnotationExtractor queryAnnotationExtractor, Microsoft.EntityFrameworkCore.Query.IResultOperatorHandler resultOperatorHandler, Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource entityMaterializerSource, Microsoft.EntityFrameworkCore.Query.Internal.IExpressionPrinter expressionPrinter, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalAnnotationProvider, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IIncludeExpressionVisitorFactory includeExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQueryFlattenerFactory queryFlattenerFactory, Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions contextOptions, Microsoft.EntityFrameworkCore.Query.RelationalQueryCompilationContext queryCompilationContext, Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor parentQueryModelVisitor)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions get_ContextOptions()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider get_RelationalAnnotationProvider()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ICompositePredicateExpressionVisitorFactory get_CompositePredicateExpressionVisitorFactory()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IConditionalRemovingExpressionVisitorFactory get_ConditionalRemovingExpressionVisitorFactory()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IIncludeExpressionVisitorFactory get_IncludeExpressionVisitorFactory()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQueryFlattenerFactory get_QueryFlattenerFactory()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory get_SqlTranslatingExpressionVisitorFactory()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitorFactory : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorFactory",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Internal.IQueryOptimizer queryOptimizer, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IOrderingExpressionVisitorFactory orderingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.Internal.IQueryAnnotationExtractor queryAnnotationExtractor, Microsoft.EntityFrameworkCore.Query.IResultOperatorHandler resultOperatorHandler, Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource entityMaterializerSource, Microsoft.EntityFrameworkCore.Query.Internal.IExpressionPrinter expressionPrinter, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalAnnotationProvider, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IIncludeExpressionVisitorFactory includeExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQueryFlattenerFactory queryFlattenerFactory, Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions contextOptions)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider get_Annotations()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper get_TypeMapper()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper get_SqlGenerationHelper()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory commandBuilderFactory, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider annotations)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.ValueGeneration.RelationalValueGeneratorSelector : Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelector",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider get_RelationalExtensions()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.ValueGeneration.RelationalValueGeneratorSelector : Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelector",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.ValueGeneration.IValueGeneratorCache cache, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalExtensions)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+    "MemberId": "protected virtual System.Linq.Expressions.Expression VisitNotIn(Microsoft.EntityFrameworkCore.Query.Expressions.InExpression inExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+    "MemberId": "protected virtual System.String get_ConcatOperator()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+    "MemberId": "protected virtual System.Void VisitProjection(System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.Expression> projections)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory relationalCommandBuilderFactory, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper, Microsoft.EntityFrameworkCore.Storage.IParameterNameGeneratorFactory parameterNameGeneratorFactory, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper relationalTypeMapper, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression selectExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+    "MemberId": "public System.Linq.Expressions.Expression VisitCount(Microsoft.EntityFrameworkCore.Query.Expressions.CountExpression countExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+    "MemberId": "public System.Linq.Expressions.Expression VisitLateralJoin(Microsoft.EntityFrameworkCore.Query.Expressions.LateralJoinExpression lateralJoinExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+    "MemberId": "public System.Linq.Expressions.Expression VisitMax(Microsoft.EntityFrameworkCore.Query.Expressions.MaxExpression maxExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+    "MemberId": "public System.Linq.Expressions.Expression VisitMin(Microsoft.EntityFrameworkCore.Query.Expressions.MinExpression minExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+    "MemberId": "public System.Linq.Expressions.Expression VisitSum(Microsoft.EntityFrameworkCore.Query.Expressions.SumExpression sumExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+    "MemberId": "public virtual System.Linq.Expressions.Expression VisitIsNotNull(Microsoft.EntityFrameworkCore.Query.Expressions.IsNullExpression isNotNullExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeExpressionFragmentTranslator : Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IExpressionFragmentTranslator",
+    "MemberId": "public .ctor()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationsAnnotationProvider : Microsoft.EntityFrameworkCore.Migrations.IMigrationsAnnotationProvider",
+    "MemberId": "public .ctor()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ParameterNameGeneratorFactory : Microsoft.EntityFrameworkCore.Storage.IParameterNameGeneratorFactory",
+    "MemberId": "public .ctor()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+    "MemberId": "public .ctor()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.TypedRelationalValueBufferFactoryFactory : Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactoryFactory",
+    "MemberId": "public .ctor()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.UntypedRelationalValueBufferFactoryFactory : Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactoryFactory",
+    "MemberId": "public .ctor()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryCompilationContext : Microsoft.EntityFrameworkCore.Query.QueryCompilationContext",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Infrastructure.ISensitiveDataLogger logger, Microsoft.EntityFrameworkCore.Query.IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.Internal.ILinqOperatorProvider linqOperatorProvider, Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider queryMethodProvider, System.Type contextType, System.Boolean trackQueryResults)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryCompilationContextFactory : Microsoft.EntityFrameworkCore.Query.Internal.QueryCompilationContextFactory",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Infrastructure.ISensitiveDataLogger<Microsoft.EntityFrameworkCore.Query.RelationalQueryCompilationContextFactory> logger, Microsoft.EntityFrameworkCore.Query.IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory, Remotion.Linq.Parsing.Structure.NodeTypeProviders.MethodInfoBasedNodeTypeRegistry methodInfoBasedNodeTypeRegistry, Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext currentContext)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.RelationalEntityQueryableExpressionVisitorFactory : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Query.Expressions.ISelectExpressionFactory selectExpressionFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMaterializerFactory materializerFactory, Microsoft.EntityFrameworkCore.Query.Internal.IShaperCommandContextFactory shaperCommandContextFactory, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalAnnotationProvider)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.RelationalEntityQueryableExpressionVisitor : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.EntityQueryableExpressionVisitor",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Query.Expressions.ISelectExpressionFactory selectExpressionFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMaterializerFactory materializerFactory, Microsoft.EntityFrameworkCore.Query.Internal.IShaperCommandContextFactory shaperCommandContextFactory, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalAnnotationProvider, Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Remotion.Linq.Clauses.IQuerySource querySource)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitorFactory : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalAnnotationProvider, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IExpressionFragmentTranslator compositeExpressionFragmentTranslator, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslator methodCallTranslator, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslator memberTranslator, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper relationalTypeMapper)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitorFactory : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory",
+    "MemberId": "public Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitor Create(Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression targetSelectExpression = null, System.Linq.Expressions.Expression topLevelPredicate = null, System.Boolean bindParentQueries = False, System.Boolean inProjection = False)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitor : Remotion.Linq.Parsing.ThrowingExpressionVisitor",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider relationalAnnotationProvider, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IExpressionFragmentTranslator compositeExpressionFragmentTranslator, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslator methodCallTranslator, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslator memberTranslator, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper relationalTypeMapper, Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression targetSelectExpression = null, System.Linq.Expressions.Expression topLevelPredicate = null, System.Boolean bindParentQueries = False, System.Boolean inProjection = False)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.InExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression operand, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression subQuery)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.InExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression operand, System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.Expression> values)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.InExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression get_Operand()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.RelationalProjectionExpressionVisitorFactory : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IProjectionExpressionVisitorFactory",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource entityMaterializerSource)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalDatabase : Microsoft.EntityFrameworkCore.Storage.Database",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.IQueryCompilationContextFactory queryCompilationContextFactory, Microsoft.EntityFrameworkCore.Update.ICommandBatchPreparer batchPreparer, Microsoft.EntityFrameworkCore.Update.IBatchExecutor batchExecutor, Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpressionFactory : Microsoft.EntityFrameworkCore.Query.Expressions.ISelectExpressionFactory",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory querySqlGeneratorFactory)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory querySqlGeneratorFactory, Microsoft.EntityFrameworkCore.Query.RelationalQueryCompilationContext queryCompilationContext)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory querySqlGeneratorFactory, Microsoft.EntityFrameworkCore.Query.RelationalQueryCompilationContext queryCompilationContext, System.String alias)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression AddToOrderBy(System.String column, Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase table, Remotion.Linq.Clauses.OrderingDirection orderingDirection)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase AddInnerJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase AddInnerJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression, System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression> projection)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase AddLeftOuterJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase AddLeftOuterJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression, System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression> projection)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Int32 AddAliasToProjection(System.String alias, System.Linq.Expressions.Expression expression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Int32 AddToProjection(Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression aliasExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Int32 AddToProjection(Microsoft.EntityFrameworkCore.Query.Expressions.ColumnExpression columnExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Int32 AddToProjection(System.Linq.Expressions.Expression expression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Int32 AddToProjection(System.Linq.Expressions.Expression expression, System.Boolean resetProjectStar)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Int32 AddToProjection(System.String column, Microsoft.EntityFrameworkCore.Metadata.IProperty property, Remotion.Linq.Clauses.IQuerySource querySource)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Linq.Expressions.Expression UpdateColumnExpression(System.Linq.Expressions.Expression expression, Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.String get_ProjectStarAlias()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Void AddCrossJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression, System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression> projection)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Void AddLateralJoin(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression, System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression> projection)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Void AddTable(Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression, System.Boolean createUniqueAlias = True)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Void AddTables(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase> tableExpressions)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Void AddToOrderBy(Remotion.Linq.Clauses.Ordering ordering)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Void AddToOrderBy(System.Collections.Generic.IEnumerable<Remotion.Linq.Clauses.Ordering> orderings)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Void ClearColumnProjections()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Void RemoveFromProjection(System.Collections.Generic.IEnumerable<Remotion.Linq.Clauses.Ordering> orderBy)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Void set_ProjectStarAlias(System.String value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Void SetProjectionConditionalExpression(System.Linq.Expressions.ConditionalExpression conditionalExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalDataReader : System.IDisposable",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, System.Data.Common.DbCommand command, System.Data.Common.DbDataReader reader)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalTransaction : Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.Data.Common.DbTransaction>",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, System.Data.Common.DbTransaction transaction, Microsoft.Extensions.Logging.ILogger logger, System.Boolean transactionOwned)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
+    "MemberId": "public .ctor(System.Func<Microsoft.EntityFrameworkCore.Query.Internal.IQueryBuffer> queryBufferFactory, Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, Microsoft.EntityFrameworkCore.Internal.LazyRef<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager> stateManager, Microsoft.EntityFrameworkCore.Internal.IConcurrencyDetector concurrencyDetector, Microsoft.EntityFrameworkCore.Storage.IExecutionStrategyFactory executionStrategyFactory)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Storage.ValueBuffer GetIncludeValueBuffer(System.Int32 queryIndex)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
+    "MemberId": "public virtual System.Threading.Tasks.Task RegisterValueBufferCursorAsync(Microsoft.EntityFrameworkCore.Query.Internal.IValueBufferCursor valueBufferCursor, System.Nullable<System.Int32> queryIndex, System.Threading.CancellationToken cancellationToken)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
+    "MemberId": "public virtual System.Void BeginIncludeScope()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
+    "MemberId": "public virtual System.Void EndIncludeScope()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
+    "MemberId": "public virtual System.Void RegisterValueBufferCursor(Microsoft.EntityFrameworkCore.Query.Internal.IValueBufferCursor valueBufferCursor, System.Nullable<System.Int32> queryIndex)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public .ctor(System.Linq.Expressions.Expression expression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.Boolean get_IsProjected()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.Linq.Expressions.Expression get_SourceExpression()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.Reflection.MemberInfo get_SourceMember()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.Void set_Alias(System.String value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.Void set_IsProjected(System.Boolean value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.Void set_SourceExpression(System.Linq.Expressions.Expression value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.Void set_SourceMember(System.Reflection.MemberInfo value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.ExistsExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public .ctor(System.Linq.Expressions.Expression expression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.ExistsExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.Linq.Expressions.Expression get_Expression()",
+    "Kind": "Removal"
+  },
+  {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Update.ModificationCommand",
       "MemberId": "public .ctor(System.String name, System.String schema, System.Func<System.String> generateParameterName, System.Func<Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations> getPropertyExtensions)",
       "Kind": "Removal"
     },
     {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.ColumnExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public .ctor(System.String name, System.Type type, Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.ColumnExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.Boolean get_IsNullable()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.ColumnExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.String get_TableAlias()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.ColumnExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.Void set_IsNullable(System.Boolean value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-      "MemberId": "public abstract System.Void ApplyServices(Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-      "MemberId": "public virtual System.Void set_CommandTimeout(System.Nullable<System.Int32> value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-      "MemberId": "public virtual System.Void set_Connection(System.Data.Common.DbConnection value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-      "MemberId": "public virtual System.Void set_ConnectionString(System.String value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-      "MemberId": "public virtual System.Void set_ExecutionStrategyFactory(System.Func<Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext, Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy> value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-      "MemberId": "public virtual System.Void set_MaxBatchSize(System.Nullable<System.Int32> value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-      "MemberId": "public virtual System.Void set_MigrationsAssembly(System.String value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-      "MemberId": "public virtual System.Void set_MigrationsHistoryTableName(System.String value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-      "MemberId": "public virtual System.Void set_MigrationsHistoryTableSchema(System.String value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-      "MemberId": "public virtual System.Void set_UseRelationalNulls(System.Boolean value)",
-      "Kind": "Removal"
-    },
-    {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.ColumnExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public .ctor(System.String name, System.Type type, Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase tableExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.ColumnExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.Boolean get_IsNullable()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.ColumnExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.String get_TableAlias()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.ColumnExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.Void set_IsNullable(System.Boolean value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "MemberId": "public abstract System.Void ApplyServices(Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "MemberId": "public virtual System.Void set_CommandTimeout(System.Nullable<System.Int32> value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "MemberId": "public virtual System.Void set_Connection(System.Data.Common.DbConnection value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "MemberId": "public virtual System.Void set_ConnectionString(System.String value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "MemberId": "public virtual System.Void set_ExecutionStrategyFactory(System.Func<Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext, Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy> value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "MemberId": "public virtual System.Void set_MaxBatchSize(System.Nullable<System.Int32> value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "MemberId": "public virtual System.Void set_MigrationsAssembly(System.String value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "MemberId": "public virtual System.Void set_MigrationsHistoryTableName(System.String value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "MemberId": "public virtual System.Void set_MigrationsHistoryTableSchema(System.String value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "MemberId": "public virtual System.Void set_UseRelationalNulls(System.Boolean value)",
+    "Kind": "Removal"
+  },
+  {
       "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalQueryableExtensions",
       "MemberId": "public static System.Linq.IQueryable<T0> FromSql<T0>(this System.Linq.IQueryable<T0> source, System.String sql, params System.Object[] parameters) where T0 : class",
       "Kind": "Removal"
     },
     {
-      "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions",
-      "MemberId": "public static System.Threading.Tasks.Task<System.Int32> ExecuteSqlCommandAsync(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, System.String sql, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken), params System.Object[] parameters)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.AsyncQueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "public System.Object CreateGroupJoinInclude(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.INavigation> navigationPath, System.Boolean querySourceRequiresTracking, System.Object existingGroupJoinInclude, System.Object relatedEntitiesLoaders)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.AsyncQueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "public System.Reflection.MethodInfo get_CreateCollectionRelatedEntitiesLoaderMethod()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.AsyncQueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "public System.Reflection.MethodInfo get_CreateReferenceRelatedEntitiesLoaderMethod()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.AsyncQueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "public System.Reflection.MethodInfo get_IncludeMethod()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.AsyncQueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "public System.Type get_GroupJoinIncludeType()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.AsyncQueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "public System.Type get_RelatedEntitiesLoaderType()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "public System.Object CreateGroupJoinInclude(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.INavigation> navigationPath, System.Boolean querySourceRequiresTracking, System.Object existingGroupJoinInclude, System.Object relatedEntitiesLoaders)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "public System.Reflection.MethodInfo get_CreateCollectionRelatedEntitiesLoaderMethod()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "public System.Reflection.MethodInfo get_CreateReferenceRelatedEntitiesLoaderMethod()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "public System.Reflection.MethodInfo get_IncludeMethod()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "public System.Type get_GroupJoinIncludeType()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "public System.Type get_RelatedEntitiesLoaderType()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.CreateIndexOperation> CreateIndex(System.String name, System.String table, System.String column, System.String schema = null, System.Boolean unique = False)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.CreateIndexOperation> CreateIndex(System.String name, System.String table, System.String[] columns, System.String schema = null, System.Boolean unique = False)",
-      "Kind": "Removal"
-    },
-    {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions",
+    "MemberId": "public static System.Threading.Tasks.Task<System.Int32> ExecuteSqlCommandAsync(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, System.String sql, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken), params System.Object[] parameters)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.AsyncQueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "public System.Object CreateGroupJoinInclude(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.INavigation> navigationPath, System.Boolean querySourceRequiresTracking, System.Object existingGroupJoinInclude, System.Object relatedEntitiesLoaders)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.AsyncQueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "public System.Reflection.MethodInfo get_CreateCollectionRelatedEntitiesLoaderMethod()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.AsyncQueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "public System.Reflection.MethodInfo get_CreateReferenceRelatedEntitiesLoaderMethod()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.AsyncQueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "public System.Reflection.MethodInfo get_IncludeMethod()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.AsyncQueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "public System.Type get_GroupJoinIncludeType()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.AsyncQueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "public System.Type get_RelatedEntitiesLoaderType()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "public System.Object CreateGroupJoinInclude(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.INavigation> navigationPath, System.Boolean querySourceRequiresTracking, System.Object existingGroupJoinInclude, System.Object relatedEntitiesLoaders)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "public System.Reflection.MethodInfo get_CreateCollectionRelatedEntitiesLoaderMethod()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "public System.Reflection.MethodInfo get_CreateReferenceRelatedEntitiesLoaderMethod()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "public System.Reflection.MethodInfo get_IncludeMethod()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "public System.Type get_GroupJoinIncludeType()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryMethodProvider : Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "public System.Type get_RelatedEntitiesLoaderType()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.CreateIndexOperation> CreateIndex(System.String name, System.String table, System.String column, System.String schema = null, System.Boolean unique = False)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.CreateIndexOperation> CreateIndex(System.String name, System.String table, System.String[] columns, System.String schema = null, System.Boolean unique = False)",
+    "Kind": "Removal"
+  },
+  {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations",
       "MemberId": "public virtual System.Boolean CanSetAnnotation(System.String relationalAnnotationName, System.String providerAnnotationName, System.Object value)",
       "Kind": "Removal"
@@ -910,148 +910,193 @@
       "Kind": "Removal"
     },
     {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SqlFunctionExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.Collections.Generic.IReadOnlyCollection<System.Linq.Expressions.Expression> get_Arguments()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SqlFunctionExpression : System.Linq.Expressions.Expression",
-      "MemberId": "public virtual System.Void set_FunctionName(System.String value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Linq.Expressions.Expression get_Predicate()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
-      "MemberId": "public virtual System.Void set_Predicate(System.Linq.Expressions.Expression value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
-      "MemberId": "System.Linq.Expressions.Expression VisitCount(Microsoft.EntityFrameworkCore.Query.Expressions.CountExpression countExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
-      "MemberId": "System.Linq.Expressions.Expression VisitLateralJoin(Microsoft.EntityFrameworkCore.Query.Expressions.LateralJoinExpression lateralJoinExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
-      "MemberId": "System.Linq.Expressions.Expression VisitMax(Microsoft.EntityFrameworkCore.Query.Expressions.MaxExpression maxExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
-      "MemberId": "System.Linq.Expressions.Expression VisitMin(Microsoft.EntityFrameworkCore.Query.Expressions.MinExpression minExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
-      "MemberId": "System.Linq.Expressions.Expression VisitSum(Microsoft.EntityFrameworkCore.Query.Expressions.SumExpression sumExpression)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "System.Object CreateGroupJoinInclude(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.INavigation> navigationPath, System.Boolean querySourceRequiresTracking, System.Object existingGroupJoinInclude, System.Object relatedEntitiesLoaders)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "System.Reflection.MethodInfo get_CreateCollectionRelatedEntitiesLoaderMethod()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "System.Reflection.MethodInfo get_CreateReferenceRelatedEntitiesLoaderMethod()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "System.Reflection.MethodInfo get_IncludeMethod()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "System.Type get_GroupJoinIncludeType()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
-      "MemberId": "System.Type get_RelatedEntitiesLoaderType()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
-      "MemberId": "System.String get_DatabaseName()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
-      "MemberId": "System.Threading.Tasks.Task OpenAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
-      "MemberId": "System.Void Close()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
-      "MemberId": "System.Void Open()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory",
-      "MemberId": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitor Create(Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression targetSelectExpression = null, System.Linq.Expressions.Expression topLevelPredicate = null, System.Boolean inProjection = False)",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRawSqlCommandBuilder",
-      "MemberId": "Microsoft.EntityFrameworkCore.Storage.RawSqlCommand Build(System.String sql, System.Collections.Generic.IEnumerable<System.Object> parameters)",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
-      "MemberId": "System.Boolean Close()",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
-      "MemberId": "System.Boolean Open()",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
-      "MemberId": "System.Guid get_ConnectionId()",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
-      "MemberId": "System.Threading.Tasks.Task<System.Boolean> OpenAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
-      "MemberId": "System.Linq.Expressions.Expression VisitColumnReference(Microsoft.EntityFrameworkCore.Query.Expressions.ColumnReferenceExpression columnReferenceExpression)",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
-      "MemberId": "System.Linq.Expressions.Expression VisitCrossJoinLateral(Microsoft.EntityFrameworkCore.Query.Expressions.CrossJoinLateralExpression crossJoinLateralExpression)",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
-      "MemberId": "System.Linq.Expressions.Expression VisitSqlFragment(Microsoft.EntityFrameworkCore.Query.Expressions.SqlFragmentExpression sqlFragmentExpression)",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
-      "MemberId": "System.String get_Filter()",
-      "Kind": "Addition"
-    }
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SqlFunctionExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.Collections.Generic.IReadOnlyCollection<System.Linq.Expressions.Expression> get_Arguments()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SqlFunctionExpression : System.Linq.Expressions.Expression",
+    "MemberId": "public virtual System.Void set_FunctionName(System.String value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Linq.Expressions.Expression get_Predicate()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.Expressions.JoinExpressionBase : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Void set_Predicate(System.Linq.Expressions.Expression value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
+    "MemberId": "System.Linq.Expressions.Expression VisitCount(Microsoft.EntityFrameworkCore.Query.Expressions.CountExpression countExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
+    "MemberId": "System.Linq.Expressions.Expression VisitLateralJoin(Microsoft.EntityFrameworkCore.Query.Expressions.LateralJoinExpression lateralJoinExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
+    "MemberId": "System.Linq.Expressions.Expression VisitMax(Microsoft.EntityFrameworkCore.Query.Expressions.MaxExpression maxExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
+    "MemberId": "System.Linq.Expressions.Expression VisitMin(Microsoft.EntityFrameworkCore.Query.Expressions.MinExpression minExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
+    "MemberId": "System.Linq.Expressions.Expression VisitSum(Microsoft.EntityFrameworkCore.Query.Expressions.SumExpression sumExpression)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "System.Object CreateGroupJoinInclude(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.INavigation> navigationPath, System.Boolean querySourceRequiresTracking, System.Object existingGroupJoinInclude, System.Object relatedEntitiesLoaders)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "System.Reflection.MethodInfo get_CreateCollectionRelatedEntitiesLoaderMethod()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "System.Reflection.MethodInfo get_CreateReferenceRelatedEntitiesLoaderMethod()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "System.Reflection.MethodInfo get_IncludeMethod()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "System.Type get_GroupJoinIncludeType()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+    "MemberId": "System.Type get_RelatedEntitiesLoaderType()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
+    "MemberId": "System.String get_DatabaseName()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+    "MemberId": "System.Threading.Tasks.Task OpenAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+    "MemberId": "System.Void Close()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+    "MemberId": "System.Void Open()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory",
+    "MemberId": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitor Create(Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor queryModelVisitor, Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression targetSelectExpression = null, System.Linq.Expressions.Expression topLevelPredicate = null, System.Boolean inProjection = False)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRawSqlCommandBuilder",
+    "MemberId": "Microsoft.EntityFrameworkCore.Storage.RawSqlCommand Build(System.String sql, System.Collections.Generic.IEnumerable<System.Object> parameters)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+    "MemberId": "System.Boolean Close()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+    "MemberId": "System.Boolean Open()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+    "MemberId": "System.Guid get_ConnectionId()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+    "MemberId": "System.Threading.Tasks.Task<System.Boolean> OpenAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
+    "MemberId": "System.Linq.Expressions.Expression VisitColumnReference(Microsoft.EntityFrameworkCore.Query.Expressions.ColumnReferenceExpression columnReferenceExpression)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
+    "MemberId": "System.Linq.Expressions.Expression VisitCrossJoinLateral(Microsoft.EntityFrameworkCore.Query.Expressions.CrossJoinLateralExpression crossJoinLateralExpression)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
+    "MemberId": "System.Linq.Expressions.Expression VisitSqlFragment(Microsoft.EntityFrameworkCore.Query.Expressions.SqlFragmentExpression sqlFragmentExpression)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
+    "MemberId": "System.String get_Filter()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+    "MemberId": "Microsoft.EntityFrameworkCore.Query.Internal.IValueBufferCursor get_ActiveCursor()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+    "MemberId": "System.Void set_ActiveCursor(Microsoft.EntityFrameworkCore.Query.Internal.IValueBufferCursor value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
+    "MemberId": "public Microsoft.EntityFrameworkCore.Query.Internal.IValueBufferCursor get_ActiveCursor()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
+    "MemberId": "public System.Void set_ActiveCursor(Microsoft.EntityFrameworkCore.Query.Internal.IValueBufferCursor value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
+    "MemberId": "public virtual System.Threading.SemaphoreSlim get_Semaphore()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryContext : Microsoft.EntityFrameworkCore.Query.QueryContext",
+    "MemberId": "public virtual System.Void DeregisterValueBufferCursor(Microsoft.EntityFrameworkCore.Query.Internal.IValueBufferCursor valueBufferCursor)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+    "MemberId": "System.Threading.SemaphoreSlim get_Semaphore()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+    "MemberId": "System.Threading.Tasks.Task RegisterBufferableAsync(Microsoft.EntityFrameworkCore.Query.Internal.IBufferable bufferable, System.Threading.CancellationToken cancellationToken)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+    "MemberId": "System.Void RegisterBufferable(Microsoft.EntityFrameworkCore.Query.Internal.IBufferable bufferable)",
+    "Kind": "Addition"
+  }
   ]

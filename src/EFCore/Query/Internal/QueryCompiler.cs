@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
@@ -118,7 +117,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private static Func<QueryContext, TResult> CompileQueryCore<TResult>(
-            Expression query, INodeTypeProvider nodeTypeProvider, IDatabase database, IDiagnosticsLogger<LoggerCategory.Query> logger, Type contextType)
+            Expression query, 
+            INodeTypeProvider nodeTypeProvider, 
+            IDatabase database, 
+            IDiagnosticsLogger<LoggerCategory.Query> logger, 
+            Type contextType)
         {
             var queryModel
                 = CreateQueryParser(nodeTypeProvider)

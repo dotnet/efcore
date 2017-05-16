@@ -45,10 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             protected readonly IAsyncEnumerable<TResult> Results;
 
-            public EnumerableAdapter(IAsyncEnumerable<TResult> results)
-            {
-                Results = results;
-            }
+            public EnumerableAdapter(IAsyncEnumerable<TResult> results) => Results = results;
 
             IAsyncEnumerator<TResult> IAsyncEnumerable<TResult>.GetEnumerator() => Results.GetEnumerator();
 
@@ -340,10 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 private readonly Task<T> _task;
                 private bool _moved;
 
-                public Enumerator(Task<T> task)
-                {
-                    _task = task;
-                }
+                public Enumerator(Task<T> task) => _task = task;
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {

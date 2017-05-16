@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
 
-            using (concurrencyDetector.EnterCriticalSection())
+            using (await concurrencyDetector.EnterCriticalSectionAsync(cancellationToken))
             {
                 var rawSqlCommand = databaseFacade
                     .GetRelationalService<IRawSqlCommandBuilder>()

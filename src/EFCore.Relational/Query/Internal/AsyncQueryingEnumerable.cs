@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -42,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual IAsyncEnumerator<T> GetEnumerator() => new AsyncEnumerator(this);
 
-        private sealed class AsyncEnumerator : IAsyncEnumerator<T>, IValueBufferCursor
+        private sealed class AsyncEnumerator : IAsyncEnumerator<T>, IBufferable
         {
             private readonly RelationalQueryContext _relationalQueryContext;
             private readonly ShaperCommandContext _shaperCommandContext;
@@ -69,13 +70,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 try
                 {
-                    await _relationalQueryContext.Semaphore.WaitAsync(cancellationToken);
+                    await _relationalQueryContext.Connection.Semaphore.WaitAsync(cancellationToken);
 
                     if (_buffer == null)
                     {
                         var executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
 
-                        return await executionStrategy.ExecuteAsync(BufferlessMoveNext, executionStrategy.RetriesOnFailure, cancellationToken);
+                        return await executionStrategy
+                            .ExecuteAsync(BufferlessMoveNext, executionStrategy.RetriesOnFailure, cancellationToken);
                     }
 
                     if (_buffer.Count > 0)
@@ -89,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 finally
                 {
-                    _relationalQueryContext.Semaphore.Release();
+                    _relationalQueryContext.Connection.Semaphore.Release();
                 }
             }
 
@@ -99,15 +101,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     if (_dataReader == null)
                     {
-                        await _relationalQueryContext.Connection
-                            .OpenAsync(cancellationToken);
+                        await _relationalQueryContext.Connection.OpenAsync(cancellationToken);
 
                         var relationalCommand
                             = _shaperCommandContext
                                 .GetRelationalCommand(_relationalQueryContext.ParameterValues);
 
-                        await _relationalQueryContext
-                            .RegisterValueBufferCursorAsync(this, cancellationToken);
+                        await _relationalQueryContext.Connection
+                            .RegisterBufferableAsync(this, cancellationToken);
 
                         _dataReader
                             = await relationalCommand.ExecuteReaderAsync(
@@ -136,7 +137,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 catch (Exception)
                 {
-                    _relationalQueryContext.DeregisterValueBufferCursor(this);
                     _dataReader = null;
                     _dbDataReader = null;
 
@@ -150,7 +150,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (_buffer == null)
+                if (_buffer == null
+                    && _dataReader != null)
                 {
                     _buffer = new Queue<ValueBuffer>();
 
@@ -170,25 +171,50 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public void BufferAll()
             {
-                throw new NotImplementedException();
+                if (_buffer == null
+                    && _dataReader != null)
+                {
+                    _buffer = new Queue<ValueBuffer>();
+
+                    using (_dataReader)
+                    {
+                        while (_dbDataReader.Read())
+                        {
+                            _buffer.Enqueue(_valueBufferFactory.Create(_dbDataReader));
+                        }
+                    }
+
+                    _relationalQueryContext.Connection?.Close();
+
+                    _dataReader = null;
+                    _dbDataReader = null;
+                }
             }
 
             public void Dispose()
             {
                 if (!_disposed)
                 {
-                    lock (_relationalQueryContext)
+                    try
                     {
-                        _relationalQueryContext.DeregisterValueBufferCursor(this);
+                        _relationalQueryContext.Connection.Semaphore.Wait();
 
                         if (_dataReader != null)
                         {
                             _dataReader.Dispose();
+                            _dataReader = null;
+                            _dbDataReader = null;
+                            _buffer = null;
+
                             _relationalQueryContext.Connection?.Close();
                         }
-                    }
 
-                    _disposed = true;
+                        _disposed = true;
+                    }
+                    finally
+                    {
+                        _relationalQueryContext.Connection.Semaphore.Release();
+                    }
                 }
             }
         }

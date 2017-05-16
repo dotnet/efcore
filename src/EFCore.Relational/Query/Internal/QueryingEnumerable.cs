@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -45,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        private sealed class Enumerator : IEnumerator<T>, IValueBufferCursor
+        private sealed class Enumerator : IEnumerator<T>, IBufferable
         {
             private readonly RelationalQueryContext _relationalQueryContext;
             private readonly ShaperCommandContext _shaperCommandContext;
@@ -55,8 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private Queue<ValueBuffer> _buffer;
             private DbDataReader _dbDataReader;
             private IRelationalValueBufferFactory _valueBufferFactory;
-
-            private T _current;
 
             private bool _disposed;
 
@@ -79,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (_buffer.Count > 0)
                 {
-                    _current = _shaper.Shape(_relationalQueryContext, _buffer.Dequeue());
+                    Current = _shaper.Shape(_relationalQueryContext, _buffer.Dequeue());
 
                     return true;
                 }
@@ -99,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             = _shaperCommandContext
                                 .GetRelationalCommand(_relationalQueryContext.ParameterValues);
 
-                        _relationalQueryContext.RegisterValueBufferCursor(this);
+                        _relationalQueryContext.Connection.RegisterBufferable(this);
 
                         _dataReader
                             = relationalCommand.ExecuteReader(
@@ -113,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     var hasNext = _dbDataReader.Read();
 
-                    _current
+                    Current
                         = hasNext
                             ? _shaper.Shape(_relationalQueryContext, _valueBufferFactory.Create(_dbDataReader))
                             : default(T);
@@ -127,7 +126,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 catch (Exception)
                 {
-                    _relationalQueryContext.DeregisterValueBufferCursor(this);
                     _dataReader = null;
                     _dbDataReader = null;
 
@@ -135,12 +133,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
-            public T Current => _current;
+            public T Current { get; private set; }
 
             public void BufferAll()
             {
-                if (_buffer == null)
+                if (_buffer == null
+                    && _dataReader != null)
                 {
                     _buffer = new Queue<ValueBuffer>();
 
@@ -153,13 +151,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     _relationalQueryContext.Connection?.Close();
+
                     _dataReader = null;
                     _dbDataReader = null;
                 }
             }
 
-            public Task BufferAllAsync(CancellationToken cancellationToken)
-                => throw new NotImplementedException();
+            public async Task BufferAllAsync(CancellationToken cancellationToken)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (_buffer == null
+                    && _dataReader != null)
+                {
+                    _buffer = new Queue<ValueBuffer>();
+
+                    using (_dataReader)
+                    {
+                        while (await _dbDataReader.ReadAsync(cancellationToken))
+                        {
+                            _buffer.Enqueue(_valueBufferFactory.Create(_dbDataReader));
+                        }
+                    }
+
+                    _relationalQueryContext.Connection?.Close();
+                    _dataReader = null;
+                    _dbDataReader = null;
+                }
+            }
 
             object IEnumerator.Current => Current;
 
@@ -167,11 +186,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (!_disposed)
                 {
-                    _relationalQueryContext.DeregisterValueBufferCursor(this);
-
                     if (_dataReader != null)
                     {
                         _dataReader.Dispose();
+                        _dataReader = null;
+                        _dbDataReader = null;
+                        _buffer = null;
+
                         _relationalQueryContext.Connection?.Close();
                     }
 

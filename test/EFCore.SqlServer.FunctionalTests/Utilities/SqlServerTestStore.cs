@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
+// ReSharper disable SuggestBaseTypeForParameter
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
@@ -307,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         public Task<T> ExecuteScalarAsync<T>(string sql, params object[] parameters)
             => ExecuteScalarAsync<T>(_connection, sql, parameters);
 
-        private static Task<T> ExecuteScalarAsync<T>(SqlConnection connection, string sql, object[] parameters = null)
+        private static Task<T> ExecuteScalarAsync<T>(SqlConnection connection, string sql, IReadOnlyList<object> parameters = null)
             => ExecuteAsync(connection, async command => (T)await command.ExecuteScalarAsync(), sql, false, parameters);
 
         public int ExecuteNonQuery(string sql, params object[] parameters)
@@ -319,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         public Task<int> ExecuteNonQueryAsync(string sql, params object[] parameters)
             => ExecuteNonQueryAsync(_connection, sql, parameters);
 
-        private static Task<int> ExecuteNonQueryAsync(SqlConnection connection, string sql, object[] parameters = null)
+        private static Task<int> ExecuteNonQueryAsync(SqlConnection connection, string sql, IReadOnlyList<object> parameters = null)
             => ExecuteAsync(connection, command => command.ExecuteNonQueryAsync(), sql, false, parameters);
 
         public IEnumerable<T> Query<T>(string sql, params object[] parameters)
@@ -391,7 +392,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 }, new { connection, connection.State });
 
         private static Task<T> ExecuteAsync<T>(
-            SqlConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction, object[] parameters = null)
+            SqlConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction, 
+            IReadOnlyList<object> parameters = null)
             => GetExecutionStrategy().ExecuteAsync(async state =>
                 {
                     if (state.connection.State != ConnectionState.Closed)
@@ -423,7 +425,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                     }
                 }, new { connection, connection.State });
 
-        private static DbCommand CreateCommand(SqlConnection connection, string commandText, object[] parameters = null)
+        private static DbCommand CreateCommand(
+            SqlConnection connection, string commandText, IReadOnlyList<object> parameters = null)
         {
             var command = connection.CreateCommand();
 
@@ -432,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
             if (parameters != null)
             {
-                for (var i = 0; i < parameters.Length; i++)
+                for (var i = 0; i < parameters.Count; i++)
                 {
                     command.Parameters.AddWithValue("p" + i, parameters[i]);
                 }

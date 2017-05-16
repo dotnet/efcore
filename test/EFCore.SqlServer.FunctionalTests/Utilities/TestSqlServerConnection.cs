@@ -23,10 +23,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         {
         }
 
-        protected TestSqlServerConnection(ISqlServerConnection connection)
-        {
-            _realConnection = connection;
-        }
+        protected TestSqlServerConnection(ISqlServerConnection connection) 
+            => _realConnection = connection;
 
         public int ErrorNumber { get; set; } = -2;
         public Queue<bool?> OpenFailures { get; } = new Queue<bool?>();
@@ -46,11 +44,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
         public virtual IDbContextTransaction CurrentTransaction { get; private set; }
 
-        public virtual IValueBufferCursor ActiveCursor
+        public SemaphoreSlim Semaphore => new SemaphoreSlim(1);
+
+        public void RegisterBufferable(IBufferable bufferable)
         {
-            get => _realConnection.ActiveCursor;
-            set => _realConnection.ActiveCursor = value;
         }
+
+        public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) 
+            => Task.CompletedTask;
 
         public virtual bool IsMultipleActiveResultSetsEnabled => _realConnection.IsMultipleActiveResultSetsEnabled;
 

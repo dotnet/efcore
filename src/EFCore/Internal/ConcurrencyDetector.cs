@@ -24,10 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ConcurrencyDetector()
-        {
-            _disposer = new Disposer(this);
-        }
+        public ConcurrencyDetector() => _disposer = new Disposer(this);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -90,9 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             private readonly ConcurrencyDetector _concurrencyDetector;
 
             public Disposer(ConcurrencyDetector concurrencyDetector)
-            {
-                _concurrencyDetector = concurrencyDetector;
-            }
+                => _concurrencyDetector = concurrencyDetector;
 
             public void Dispose() => _concurrencyDetector.ExitCriticalSection();
         }
