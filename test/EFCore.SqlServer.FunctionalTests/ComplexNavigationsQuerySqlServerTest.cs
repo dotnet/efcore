@@ -1722,7 +1722,13 @@ ORDER BY [l3].[Level2_Required_Id]");
             base.Optional_navigation_take_optional_navigation();
 
             AssertSql(
-                @"");
+                @"@__p_0: 10
+
+SELECT TOP(@__p_0) [l1.OneToOne_Optional_FK.OneToOne_Optional_FK].[Name]
+FROM [Level1] AS [l1]
+LEFT JOIN [Level2] AS [l1.OneToOne_Optional_FK] ON [l1].[Id] = [l1.OneToOne_Optional_FK].[Level1_Optional_Id]
+LEFT JOIN [Level3] AS [l1.OneToOne_Optional_FK.OneToOne_Optional_FK] ON [l1.OneToOne_Optional_FK].[Id] = [l1.OneToOne_Optional_FK.OneToOne_Optional_FK].[Level2_Optional_Id]
+ORDER BY [l1.OneToOne_Optional_FK].[Id]");
         }
 
         public override void Projection_select_correct_table_from_subquery_when_materialization_is_not_required()

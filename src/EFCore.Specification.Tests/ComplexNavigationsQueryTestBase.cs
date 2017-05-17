@@ -1897,13 +1897,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                   verifyOrdered: true);
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See Issue#6618
+        [ConditionalFact]
         public virtual void Optional_navigation_take_optional_navigation()
         {
             AssertQuery<Level1>(
                 l1s => l1s
                         .Select(l1 => l1.OneToOne_Optional_FK)
-                        .OrderBy(l2 => l2.Id)
+                        .OrderBy(l2 => (int?)l2.Id)
                         .Take(10)
                         .Select(l2 => l2.OneToOne_Optional_FK.Name),
                 l1s => l1s
