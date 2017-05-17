@@ -1422,6 +1422,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
                 set { SetWithNotify(value, ref _username); }
             }
         }
+
         public class AuditInfo : NotificationEntity, IAuditInfo
         {
             private DateTime _modifiedDate;
