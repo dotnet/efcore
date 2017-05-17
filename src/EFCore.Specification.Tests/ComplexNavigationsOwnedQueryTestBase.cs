@@ -16,18 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
         }
 
-        [ConditionalFact(Skip = "issue #8216")]
-        public override void Query_source_materialization_bug_4547()
-        {
-            base.Query_source_materialization_bug_4547();
-        }
-
-        [ConditionalFact(Skip = "issue #8216")]
-        public override void Select_join_with_key_selector_being_a_subquery()
-        {
-            base.Select_join_with_key_selector_being_a_subquery();
-        }
-
         [ConditionalFact(Skip = "issue #8248")]
         public override void Required_navigation_on_a_subquery_with_First_in_projection()
         {

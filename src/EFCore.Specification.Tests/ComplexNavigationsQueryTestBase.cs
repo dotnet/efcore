@@ -1457,6 +1457,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                           into
                           grouping
                           from subQuery3 in grouping.DefaultIfEmpty()
+                          orderby subQuery3 != null ? (int?)subQuery3.Id : null
                           select subQuery3 != null ? (int?)subQuery3.Id : null
                       ).FirstOrDefault()
                       select e1.Id);

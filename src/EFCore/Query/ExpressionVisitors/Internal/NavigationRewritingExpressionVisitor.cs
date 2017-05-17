@@ -268,7 +268,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
+            var oldInsideInnerKeySelector = _insideInnerKeySelector;
+            _insideInnerKeySelector = false;
+
             Rewrite(expression.QueryModel, _queryModel);
+
+            _insideInnerKeySelector = oldInsideInnerKeySelector;
 
             return expression;
         }
