@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -19,25 +18,28 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class DbContextOperations
     {
+        // TODO: Flow in from tools (issue #8332)
+        private static readonly string[] _args = Array.Empty<string>();
+
         private readonly IOperationReporter _reporter;
         private readonly Assembly _assembly;
         private readonly Assembly _startupAssembly;
+        private readonly AppServiceProviderFactory _appServicesFactory;
 
-        // This obsolete constructor maintains compatibility with Scaffolding
-        public DbContextOperations(
-            [NotNull] IOperationReporter reporter,
-            [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly,
-            [CanBeNull] string environment,
-            [CanBeNull] string contentRootPath)
-            : this(reporter, assembly, startupAssembly)
-        {
-        }
-
+        // NB: Used by Scaffolding. Break with care.
         public DbContextOperations(
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly)
+            : this(reporter, assembly, startupAssembly, new AppServiceProviderFactory(startupAssembly))
+        {
+        }
+
+        protected DbContextOperations(
+            [NotNull] IOperationReporter reporter,
+            [NotNull] Assembly assembly,
+            [NotNull] Assembly startupAssembly,
+            [NotNull] AppServiceProviderFactory appServicesFactory)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
@@ -46,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _reporter = reporter;
             _assembly = assembly;
             _startupAssembly = startupAssembly;
+            _appServicesFactory = appServicesFactory;
         }
 
         public virtual void DropDatabase([CanBeNull] string contextType)
@@ -107,9 +110,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     contexts.Add(
                         context,
-                        () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).Create(
-                            Array.Empty<string>()));
+                        () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).Create(_args));
                 }
+            }
+
+            // Look for DbContext classes registered in the service provider
+            var appServices = _appServicesFactory.Create(_args);
+            var registeredContexts = appServices.GetServices<DbContextOptions>()
+                .Select(o => o.ContextType);
+            foreach (var context in registeredContexts.Where(c => !contexts.ContainsKey(c)))
+            {
+                contexts.Add(
+                    context,
+                    FindContextFactory(context)
+                        ?? (() => (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context)));
             }
 
             // Look for DbContext classes in assemblies
@@ -167,8 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return null;
             }
 
-            return () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).Create(
-                Array.Empty<string>());
+            return () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).Create(_args);
         }
 
         private KeyValuePair<Type, Func<DbContext>> FindContextType(string name)
