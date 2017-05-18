@@ -5,6 +5,7 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.Extensions.Logging;
@@ -13,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public class SqlServerDatabaseCleaner : RelationalDatabaseCleaner
     {
-        protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
+        protected override IDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
             => new SqlServerDatabaseModelFactory(
                 new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
                     loggerFactory,
