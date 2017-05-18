@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Tests;
@@ -12,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class SqliteDatabaseCleaner : RelationalDatabaseCleaner
     {
-        protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
+        protected override IDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
             => new SqliteDatabaseModelFactory(
                 new DiagnosticsLogger<LoggerCategory.Scaffolding>(
                     loggerFactory,
