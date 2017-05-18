@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     using ModificationCommandIdentityMapFactory
-        = Func<string, string, Func<string>, IRelationalAnnotationProvider, bool, ModificationCommandIdentityMap>;
+        = Func<string, string, Func<string>, bool, ModificationCommandIdentityMap>;
 
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -26,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IModificationCommandBatchFactory _modificationCommandBatchFactory;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly IComparer<ModificationCommand> _modificationCommandComparer;
-        private readonly IRelationalAnnotationProvider _annotationProvider;
         private readonly IKeyValueIndexFactorySource _keyValueIndexFactorySource;
         private readonly ICurrentDbContext _currentContext;
         private readonly bool _sensitiveLoggingEnabled;
@@ -41,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
-            [NotNull] IRelationalAnnotationProvider annotationProvider,
             [NotNull] IKeyValueIndexFactorySource keyValueIndexFactorySource,
             [NotNull] ICurrentDbContext currentContext,
             [NotNull] ILoggingOptions loggingOptions)
@@ -49,7 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _modificationCommandBatchFactory = modificationCommandBatchFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
             _modificationCommandComparer = modificationCommandComparer;
-            _annotationProvider = annotationProvider;
             _keyValueIndexFactorySource = keyValueIndexFactorySource;
             _currentContext = currentContext;
 
@@ -106,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             foreach (var entry in entries)
             {
                 var entityType = entry.EntityType;
-                var table = _annotationProvider.For(entityType).TableName;
-                var schema = _annotationProvider.For(entityType).Schema;
+                var table = entityType.Relational().TableName;
+                var schema = entityType.Relational().Schema;
 
                 ModificationCommand command;
                 if (tableSharingMapFactories.TryGetValue(entityType, out var commandIdentityMapFactory))
@@ -119,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     if (!sharedCommandsMap.TryGetValue((schema, table), out var sharedCommands))
                     {
                         sharedCommands = commandIdentityMapFactory(
-                            table, schema, generateParameterName, _annotationProvider, _sensitiveLoggingEnabled);
+                            table, schema, generateParameterName, _sensitiveLoggingEnabled);
                         sharedCommandsMap.Add((schema, table), sharedCommands);
                     }
 
@@ -128,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 else
                 {
                     command = new ModificationCommand(
-                        table, schema, generateParameterName, _annotationProvider, _sensitiveLoggingEnabled, comparer: null);
+                        table, schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
                 }
 
                 command.AddEntry(entry);
@@ -158,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             var tables = new Dictionary<(string Schema, string TableName), List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes())
             {
-                var fullName = (_annotationProvider.For(entityType).Schema, _annotationProvider.For(entityType).TableName);
+                var fullName = (entityType.Relational().Schema, entityType.Relational().TableName);
                 if (!tables.TryGetValue(fullName, out var mappedEntityTypes))
                 {
                     mappedEntityTypes = new List<IEntityType>();
@@ -201,7 +198,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         string name,
                         string schema,
                         Func<string> generateParameterName,
-                        IRelationalAnnotationProvider annotationProvider,
                         bool sensitiveLoggingEnabled)
                         => new ModificationCommandIdentityMap(
                             stateManager,
@@ -209,7 +205,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             name,
                             schema,
                             generateParameterName,
-                            annotationProvider,
                             sensitiveLoggingEnabled);
 
                     foreach (var entityType in tableMapping.Value)

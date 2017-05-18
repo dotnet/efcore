@@ -17,9 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public RelationalIndexBuilderAnnotations(
             [NotNull] InternalIndexBuilder internalBuilder,
-            ConfigurationSource configurationSource,
-            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
-            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource), providerFullAnnotationNames)
+            ConfigurationSource configurationSource)
+            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource))
         {
         }
 

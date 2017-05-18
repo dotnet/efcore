@@ -19,18 +19,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public const string Autoincrement = "Autoincrement";
+        public const string LegacyAutoincrement = "Autoincrement";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public const string InlinePrimaryKey = "InlinePrimaryKey";
+        public const string Autoincrement = Prefix + LegacyAutoincrement;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public const string InlinePrimaryKeyName = "InlinePrimaryKeyName";
+        public const string InlinePrimaryKey = Prefix + "InlinePrimaryKey";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public const string InlinePrimaryKeyName = Prefix + "InlinePrimaryKeyName";
     }
 }

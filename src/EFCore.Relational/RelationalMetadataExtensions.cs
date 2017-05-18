@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to get metadata for. </param>
         /// <returns> The relational database specific metadata for the property. </returns>
         public static IRelationalPropertyAnnotations Relational([NotNull] this IProperty property)
-            => new RelationalPropertyAnnotations(Check.NotNull(property, nameof(property)), null);
+            => new RelationalPropertyAnnotations(Check.NotNull(property, nameof(property)));
 
         /// <summary>
         ///     Gets the relational database specific metadata for an entity.
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity to get metadata for. </param>
         /// <returns> The relational database specific metadata for the entity. </returns>
         public static IRelationalEntityTypeAnnotations Relational([NotNull] this IEntityType entityType)
-            => new RelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)), null);
+            => new RelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)));
 
         /// <summary>
         ///     Gets the relational database specific metadata for a key.
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key to get metadata for. </param>
         /// <returns> The relational database specific metadata for the key. </returns>
         public static IRelationalKeyAnnotations Relational([NotNull] this IKey key)
-            => new RelationalKeyAnnotations(Check.NotNull(key, nameof(key)), null);
+            => new RelationalKeyAnnotations(Check.NotNull(key, nameof(key)));
 
         /// <summary>
         ///     Gets the relational database specific metadata for an index.
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index to get metadata for. </param>
         /// <returns> The relational database specific metadata for the index. </returns>
         public static IRelationalIndexAnnotations Relational([NotNull] this IIndex index)
-            => new RelationalIndexAnnotations(Check.NotNull(index, nameof(index)), null);
+            => new RelationalIndexAnnotations(Check.NotNull(index, nameof(index)));
 
         /// <summary>
         ///     Gets the relational database specific metadata for a foreign key.
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="foreignKey"> The foreign key to get metadata for. </param>
         /// <returns> The relational database specific metadata for the foreign key. </returns>
         public static IRelationalForeignKeyAnnotations Relational([NotNull] this IForeignKey foreignKey)
-            => new RelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)), null);
+            => new RelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)));
 
         /// <summary>
         ///     Gets the relational database specific metadata for a model.
@@ -107,6 +107,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to get metadata for. </param>
         /// <returns> The relational database specific metadata for the model. </returns>
         public static IRelationalModelAnnotations Relational([NotNull] this IModel model)
-            => new RelationalModelAnnotations(Check.NotNull(model, nameof(model)), null);
+            => new RelationalModelAnnotations(Check.NotNull(model, nameof(model)));
     }
 }

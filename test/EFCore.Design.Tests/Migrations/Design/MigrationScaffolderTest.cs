@@ -58,7 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                     idGenerator),
                 new MigrationsModelDiffer(
                     new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()),
-                    new TestAnnotationProvider(),
                     new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
                 idGenerator,
                 new CSharpMigrationsGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpSnapshotGenerator(code)),

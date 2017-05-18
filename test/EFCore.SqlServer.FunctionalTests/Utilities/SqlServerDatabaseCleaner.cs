@@ -83,8 +83,8 @@ EXEC (@SQL);";
         private static TOperation AddMemoryOptimizedAnnotation<TOperation>(TOperation operation, TableModel table)
             where TOperation : MigrationOperation
         {
-            operation[SqlServerFullAnnotationNames.Instance.MemoryOptimized]
-                = table[SqlServerFullAnnotationNames.Instance.MemoryOptimized] as bool?;
+            operation[SqlServerAnnotationNames.MemoryOptimized]
+                = table[SqlServerAnnotationNames.MemoryOptimized] as bool?;
 
             return operation;
         }

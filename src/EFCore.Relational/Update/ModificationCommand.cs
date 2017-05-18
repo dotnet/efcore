@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -16,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     public class ModificationCommand
     {
-        private readonly IRelationalAnnotationProvider _annotationProvider;
         private readonly Func<string> _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly IComparer<IUpdateEntry> _comparer;
@@ -33,18 +31,15 @@ namespace Microsoft.EntityFrameworkCore.Update
             [NotNull] string name,
             [CanBeNull] string schema,
             [NotNull] Func<string> generateParameterName,
-            [NotNull] IRelationalAnnotationProvider annotationProvider,
             bool sensitiveLoggingEnabled,
             [CanBeNull] IComparer<IUpdateEntry> comparer)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(generateParameterName, nameof(generateParameterName));
-            Check.NotNull(annotationProvider, nameof(annotationProvider));
 
             TableName = name;
             Schema = schema;
             _generateParameterName = generateParameterName;
-            _annotationProvider = annotationProvider;
             _comparer = comparer;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         }
@@ -156,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         var columnModification = new ColumnModification(
                             entry,
                             property,
-                            _annotationProvider.For(property),
+                            property.Relational(),
                             _generateParameterName,
                             readValue,
                             writeValue,
@@ -210,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             firstEntry.BuildCurrentValuesString(firstEntry.EntityType.FindPrimaryKey().Properties),
                             firstEntry.BuildCurrentValuesString(firstProperties),
                             lastEntry.BuildCurrentValuesString(lastProperties),
-                            _annotationProvider.FormatColumns(firstProperties)));
+                            firstProperties.FormatColumns()));
                 }
 
                 throw new InvalidOperationException(
@@ -219,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         lastEntry.EntityType.DisplayName(),
                         Property.Format(firstProperties),
                         Property.Format(lastProperties),
-                        _annotationProvider.FormatColumns(firstProperties)));
+                        firstProperties.FormatColumns()));
             }
 
             if (conflictingOriginalColumnValues != null)
@@ -240,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             firstEntry.BuildCurrentValuesString(firstEntry.EntityType.FindPrimaryKey().Properties),
                             firstEntry.BuildOriginalValuesString(firstProperties),
                             lastEntry.BuildOriginalValuesString(lastProperties),
-                            _annotationProvider.FormatColumns(firstProperties)));
+                            firstProperties.FormatColumns()));
                 }
 
                 throw new InvalidOperationException(
@@ -249,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         lastEntry.EntityType.DisplayName(),
                         Property.Format(firstProperties),
                         Property.Format(lastProperties),
-                        _annotationProvider.FormatColumns(firstProperties)));
+                        firstProperties.FormatColumns()));
             }
 
             return columnModifications;

@@ -73,7 +73,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IValueGeneratorCache>(p => p.GetService<ISqlServerValueGeneratorCache>())
                 .TryAdd<IRelationalTypeMapper, SqlServerTypeMapper>()
                 .TryAdd<ISqlGenerationHelper, SqlServerSqlGenerationHelper>()
-                .TryAdd<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
                 .TryAdd<IMigrationsAnnotationProvider, SqlServerMigrationsAnnotationProvider>()
                 .TryAdd<IRelationalValueBufferFactoryFactory, UntypedRelationalValueBufferFactoryFactory>()
                 .TryAdd<IModelValidator, SqlServerModelValidator>()

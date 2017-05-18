@@ -14,8 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class TableMapping
     {
-        private readonly IRelationalAnnotationProvider _annotations;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -23,13 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public TableMapping(
             [NotNull] string schema,
             [NotNull] string name,
-            [NotNull] IReadOnlyList<IEntityType> entityTypes,
-            [NotNull] IRelationalAnnotationProvider annotations)
+            [NotNull] IReadOnlyList<IEntityType> entityTypes)
         {
             Schema = schema;
             Name = name;
             EntityTypes = entityTypes;
-            _annotations = annotations;
         }
 
         /// <summary>
@@ -56,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<IProperty> GetProperties()
             => EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredProperties)
-                .Distinct((x, y) => _annotations.For(x).ColumnName == _annotations.For(y).ColumnName);
+                .Distinct((x, y) => x.Relational().ColumnName == y.Relational().ColumnName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -64,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<IKey> GetKeys()
             => EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredKeys)
-                .Distinct((x, y) => _annotations.For(x).Name == _annotations.For(y).Name);
+                .Distinct((x, y) => x.Relational().Name == y.Relational().Name);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -72,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<IIndex> GetIndexes()
             => EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredIndexes)
-                .Distinct((x, y) => _annotations.For(x).Name == _annotations.For(y).Name);
+                .Distinct((x, y) => x.Relational().Name == y.Relational().Name);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -80,21 +76,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<IForeignKey> GetForeignKeys()
             => EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredForeignKeys)
-                .Distinct((x, y) => _annotations.For(x).Name == _annotations.For(y).Name)
+                .Distinct((x, y) => x.Relational().Name == y.Relational().Name)
                 .Where(fk => !(EntityTypes.Contains(fk.PrincipalEntityType)
-                               && fk.Properties.Select(p => _annotations.For(p).ColumnName)
-                                   .SequenceEqual(fk.PrincipalKey.Properties.Select(p => _annotations.For(p).ColumnName))));
+                               && fk.Properties.Select(p => p.Relational().ColumnName)
+                                   .SequenceEqual(fk.PrincipalKey.Properties.Select(p => p.Relational().ColumnName))));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static IReadOnlyList<TableMapping> GetTableMappings([NotNull] IModel model, [NotNull] IRelationalAnnotationProvider annotations)
+        public static IReadOnlyList<TableMapping> GetTableMappings([NotNull] IModel model)
         {
             var tables = new Dictionary<(string Schema, string TableName), List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes())
             {
-                var fullName = (annotations.For(entityType).Schema, annotations.For(entityType).TableName);
+                var fullName = (entityType.Relational().Schema, entityType.Relational().TableName);
                 if (!tables.TryGetValue(fullName, out var mappedEntityTypes))
                 {
                     mappedEntityTypes = new List<IEntityType>();
@@ -105,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 mappedEntityTypes.Add(entityType);
             }
 
-            return tables.Select(kv => new TableMapping(kv.Key.Schema, kv.Key.TableName, kv.Value, annotations))
+            return tables.Select(kv => new TableMapping(kv.Key.Schema, kv.Key.TableName, kv.Value))
                 .OrderBy(t => t.Schema).ThenBy(t => t.Name).ToList();
         }
     }

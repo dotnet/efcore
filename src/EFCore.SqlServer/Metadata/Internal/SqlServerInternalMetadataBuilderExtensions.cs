@@ -63,6 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static RelationalForeignKeyBuilderAnnotations SqlServer(
             [NotNull] this InternalRelationshipBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalForeignKeyBuilderAnnotations(builder, configurationSource, SqlServerFullAnnotationNames.Instance);
+            => new RelationalForeignKeyBuilderAnnotations(builder, configurationSource);
     }
 }

@@ -40,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
                 .TryAdd<IDatabaseProvider, DatabaseProvider<FakeRelationalOptionsExtension>>()
                 .TryAdd<ISqlGenerationHelper, RelationalSqlGenerationHelper>()
                 .TryAdd<IRelationalTypeMapper, TestRelationalTypeMapper>()
-                .TryAdd<IRelationalAnnotationProvider, TestAnnotationProvider>()
                 .TryAdd<IMigrationsSqlGenerator, TestRelationalMigrationSqlGenerator>()
                 .TryAdd<IConventionSetBuilder, TestRelationalConventionSetBuilder>()
                 .TryAdd<IMemberTranslator, TestRelationalCompositeMemberTranslator>()

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
@@ -99,7 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
 
         private static IHistoryRepository CreateHistoryRepository()
         {
-            var annotationsProvider = new SqliteAnnotationProvider();
             var sqlGenerator = new SqliteSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
             var typeMapper = new SqliteTypeMapper(new RelationalTypeMapperDependencies());
 
@@ -115,7 +113,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
                         }),
                     new MigrationsModelDiffer(
                         new SqliteTypeMapper(new RelationalTypeMapperDependencies()),
-                        annotationsProvider,
                         new SqliteMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
                     new SqliteMigrationsSqlGenerator(
                         new MigrationsSqlGeneratorDependencies(
@@ -124,9 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
                                 new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
                                 typeMapper),
                             new SqliteSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
-                            typeMapper,
-                            annotationsProvider)),
-                    annotationsProvider,
+                            typeMapper)),
                     sqlGenerator));
         }
 

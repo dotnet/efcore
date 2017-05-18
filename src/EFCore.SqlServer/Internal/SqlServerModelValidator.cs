@@ -59,8 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 .SelectMany(t => t.GetDeclaredProperties())
                 .Where(
                     p =>
-                        (((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false) == SqlServerValueGenerationStrategy.SequenceHiLo
-                         || ((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false) == SqlServerValueGenerationStrategy.IdentityColumn)
+                        ((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false) != null
                         && !p.IsKey()))
             {
                 ShowError(SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));

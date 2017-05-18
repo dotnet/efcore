@@ -66,7 +66,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var builder = new EntityFrameworkRelationalServicesBuilder(serviceCollection)
                 .TryAdd<IDatabaseProvider, DatabaseProvider<SqliteOptionsExtension>>()
-                .TryAdd<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
                 .TryAdd<IRelationalTypeMapper, SqliteTypeMapper>()
                 .TryAdd<ISqlGenerationHelper, SqliteSqlGenerationHelper>()
                 .TryAdd<IMigrationsAnnotationProvider, SqliteMigrationsAnnotationProvider>()

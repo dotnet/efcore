@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (isClustered.HasValue)
             {
                 yield return new Annotation(
-                    SqlServerFullAnnotationNames.Instance.Clustered,
+                    SqlServerAnnotationNames.Clustered,
                     isClustered.Value);
             }
 
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (isClustered.HasValue)
             {
                 yield return new Annotation(
-                    SqlServerFullAnnotationNames.Instance.Clustered,
+                    SqlServerAnnotationNames.Clustered,
                     isClustered.Value);
             }
 
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 && property.IsKey())
             {
                 yield return new Annotation(
-                    SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy,
+                    SqlServerAnnotationNames.ValueGenerationStrategy,
                     SqlServerValueGenerationStrategy.IdentityColumn);
             }
 
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (model.GetEntityTypes().Any(e => e.BaseType == null && e.SqlServer().IsMemoryOptimized))
             {
                 yield return new Annotation(
-                    SqlServerFullAnnotationNames.Instance.MemoryOptimized,
+                    SqlServerAnnotationNames.MemoryOptimized,
                     true);
             }
         }
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (IsMemoryOptimized(entityType))
             {
                 yield return new Annotation(
-                    SqlServerFullAnnotationNames.Instance.MemoryOptimized,
+                    SqlServerAnnotationNames.MemoryOptimized,
                     true);
             }
         }
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (IsMemoryOptimized(key.DeclaringEntityType))
             {
                 yield return new Annotation(
-                    SqlServerFullAnnotationNames.Instance.MemoryOptimized,
+                    SqlServerAnnotationNames.MemoryOptimized,
                     true);
             }
         }
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (IsMemoryOptimized(index.DeclaringEntityType))
             {
                 yield return new Annotation(
-                    SqlServerFullAnnotationNames.Instance.MemoryOptimized,
+                    SqlServerAnnotationNames.MemoryOptimized,
                     true);
             }
         }
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (IsMemoryOptimized(foreignKey.DeclaringEntityType))
             {
                 yield return new Annotation(
-                    SqlServerFullAnnotationNames.Instance.MemoryOptimized,
+                    SqlServerAnnotationNames.MemoryOptimized,
                     true);
             }
         }
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (IsMemoryOptimized(property.DeclaringEntityType))
             {
                 yield return new Annotation(
-                    SqlServerFullAnnotationNames.Instance.MemoryOptimized,
+                    SqlServerAnnotationNames.MemoryOptimized,
                     true);
             }
         }

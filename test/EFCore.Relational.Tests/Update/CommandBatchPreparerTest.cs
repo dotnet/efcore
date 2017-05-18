@@ -727,7 +727,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             return new CommandBatchPreparer(modificationCommandBatchFactory,
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()),
                 new ModificationCommandComparer(),
-                new TestAnnotationProvider(),
                 new KeyValueIndexFactorySource(),
                 currentDbContext,
                 loggingOptions);

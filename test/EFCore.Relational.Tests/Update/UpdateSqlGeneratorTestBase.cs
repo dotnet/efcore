@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             }
 
             return new FakeModificationCommand(
-                "Ducks", Schema, new ParameterNameGenerator().GenerateNext, new TestAnnotationProvider(), false, columnModifications);
+                "Ducks", Schema, new ParameterNameGenerator().GenerateNext, false, columnModifications);
         }
 
         protected ModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             };
 
             return new FakeModificationCommand(
-                "Ducks", Schema, new ParameterNameGenerator().GenerateNext, new TestAnnotationProvider(), false, columnModifications);
+                "Ducks", Schema, new ParameterNameGenerator().GenerateNext, false, columnModifications);
         }
 
         protected ModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             };
 
             return new FakeModificationCommand(
-                "Ducks", Schema, new ParameterNameGenerator().GenerateNext, new TestAnnotationProvider(), false, columnModifications);
+                "Ducks", Schema, new ParameterNameGenerator().GenerateNext, false, columnModifications);
         }
 
         protected abstract TestHelpers TestHelpers { get; }

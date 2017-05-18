@@ -15,42 +15,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalPropertyAnnotations : IRelationalPropertyAnnotations
     {
-        public RelationalPropertyAnnotations([NotNull] IProperty property,
-            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
-            : this(new RelationalAnnotations(property), providerFullAnnotationNames)
+        public RelationalPropertyAnnotations([NotNull] IProperty property)
+            : this(new RelationalAnnotations(property))
         {
         }
 
-        protected RelationalPropertyAnnotations([NotNull] RelationalAnnotations annotations,
-            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
-        {
-            Annotations = annotations;
-            ProviderFullAnnotationNames = providerFullAnnotationNames;
-        }
-
-        public virtual RelationalFullAnnotationNames ProviderFullAnnotationNames { get; }
+        protected RelationalPropertyAnnotations([NotNull] RelationalAnnotations annotations)
+            => Annotations = annotations;
 
         protected virtual RelationalAnnotations Annotations { get; }
+
         protected virtual IProperty Property => (IProperty)Annotations.Metadata;
+
         protected virtual bool ShouldThrowOnConflict => true;
+
         protected virtual bool ShouldThrowOnInvalidConfiguration => true;
 
         protected virtual RelationalEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType)
-            => new RelationalEntityTypeAnnotations(entityType, ProviderFullAnnotationNames);
+            => new RelationalEntityTypeAnnotations(entityType);
 
         protected virtual RelationalPropertyAnnotations GetAnnotations([NotNull] IProperty property)
-            => new RelationalPropertyAnnotations(property, ProviderFullAnnotationNames);
+            => new RelationalPropertyAnnotations(property);
 
         public virtual string ColumnName
         {
-            get
-            {
-                return (string)Annotations.GetAnnotation(
-                           RelationalFullAnnotationNames.Instance.ColumnName,
-                           ProviderFullAnnotationNames?.ColumnName)
-                       ?? GetDefaultColumnName();
-            }
-            [param: CanBeNull] set { SetColumnName(value); }
+            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.ColumnName)
+                   ?? GetDefaultColumnName();
+
+            [param: CanBeNull] set => SetColumnName(value);
         }
 
         private string GetDefaultColumnName()
@@ -129,50 +121,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         protected virtual bool SetColumnName([CanBeNull] string value)
             => Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.ColumnName,
-                ProviderFullAnnotationNames?.ColumnName,
+                RelationalAnnotationNames.ColumnName,
                 Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual string ColumnType
         {
-            get
-            {
-                return (string)Annotations.GetAnnotation(
-                    RelationalFullAnnotationNames.Instance.ColumnType,
-                    ProviderFullAnnotationNames?.ColumnType);
-            }
-            [param: CanBeNull] set { SetColumnType(value); }
+            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.ColumnType);
+            [param: CanBeNull] set => SetColumnType(value);
         }
 
         protected virtual bool SetColumnType([CanBeNull] string value)
             => Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.ColumnType,
-                ProviderFullAnnotationNames?.ColumnType,
+                RelationalAnnotationNames.ColumnType,
                 Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual string DefaultValueSql
         {
-            get { return GetDefaultValueSql(true); }
-            [param: CanBeNull] set { SetDefaultValueSql(value); }
+            get => GetDefaultValueSql(true);
+            [param: CanBeNull] set => SetDefaultValueSql(value);
         }
 
         protected virtual string GetDefaultValueSql(bool fallback)
-        {
-            if (ProviderFullAnnotationNames != null)
-            {
-                if (fallback
-                    && (GetDefaultValue(false) != null
-                        || GetComputedColumnSql(false) != null))
-                {
-                    return null;
-                }
-
-                return (string)Annotations.GetAnnotation(
-                    fallback ? RelationalFullAnnotationNames.Instance.DefaultValueSql : null,
-                    ProviderFullAnnotationNames?.DefaultValueSql);
-            }
-            return (string)Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.DefaultValueSql, null);
-        }
+            => fallback
+               && (GetDefaultValue(false) != null
+                   || GetComputedColumnSql(false) != null)
+                ? null
+                : (string)Annotations.GetAnnotation(RelationalAnnotationNames.DefaultValueSql);
 
         protected virtual bool SetDefaultValueSql([CanBeNull] string value)
         {
@@ -189,8 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             return Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.DefaultValueSql,
-                ProviderFullAnnotationNames?.DefaultValueSql,
+                RelationalAnnotationNames.DefaultValueSql,
                 Check.NullButNotEmpty(value, nameof(value)));
         }
 
@@ -202,8 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             if (!Annotations.CanSetAnnotation(
-                RelationalFullAnnotationNames.Instance.DefaultValueSql,
-                ProviderFullAnnotationNames?.DefaultValueSql,
+                RelationalAnnotationNames.DefaultValueSql,
                 Check.NullButNotEmpty(value, nameof(value))))
             {
                 return false;
@@ -234,27 +206,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual string ComputedColumnSql
         {
-            get { return GetComputedColumnSql(true); }
-            [param: CanBeNull] set { SetComputedColumnSql(value); }
+            get => GetComputedColumnSql(true);
+            [param: CanBeNull] set => SetComputedColumnSql(value);
         }
 
         protected virtual string GetComputedColumnSql(bool fallback)
-        {
-            if (ProviderFullAnnotationNames != null)
-            {
-                if (fallback
-                    && (GetDefaultValue(false) != null
-                        || GetDefaultValueSql(false) != null))
-                {
-                    return null;
-                }
-
-                return (string)Annotations.GetAnnotation(
-                    fallback ? RelationalFullAnnotationNames.Instance.ComputedColumnSql : null,
-                    ProviderFullAnnotationNames?.ComputedColumnSql);
-            }
-            return (string)Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.ComputedColumnSql, null);
-        }
+            => fallback
+               && (GetDefaultValue(false) != null
+                   || GetDefaultValueSql(false) != null)
+                ? null
+                : (string)Annotations.GetAnnotation(RelationalAnnotationNames.ComputedColumnSql);
 
         protected virtual bool SetComputedColumnSql([CanBeNull] string value)
         {
@@ -271,8 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             return Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.ComputedColumnSql,
-                ProviderFullAnnotationNames?.ComputedColumnSql,
+                RelationalAnnotationNames.ComputedColumnSql,
                 Check.NullButNotEmpty(value, nameof(value)));
         }
 
@@ -284,8 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             if (!Annotations.CanSetAnnotation(
-                RelationalFullAnnotationNames.Instance.ComputedColumnSql,
-                ProviderFullAnnotationNames?.ComputedColumnSql,
+                RelationalAnnotationNames.ComputedColumnSql,
                 Check.NullButNotEmpty(value, nameof(value))))
             {
                 return false;
@@ -316,27 +275,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual object DefaultValue
         {
-            get { return GetDefaultValue(true); }
-            [param: CanBeNull] set { SetDefaultValue(value); }
+            get => GetDefaultValue(true);
+            [param: CanBeNull] set => SetDefaultValue(value);
         }
 
         protected virtual object GetDefaultValue(bool fallback)
-        {
-            if (ProviderFullAnnotationNames != null)
-            {
-                if (fallback
-                    && (GetDefaultValueSql(false) != null
-                        || GetComputedColumnSql(false) != null))
-                {
-                    return null;
-                }
-
-                return Annotations.GetAnnotation(
-                    fallback ? RelationalFullAnnotationNames.Instance.DefaultValue : null,
-                    ProviderFullAnnotationNames?.DefaultValue);
-            }
-            return Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.DefaultValue, null);
-        }
+            => fallback
+               && (GetDefaultValueSql(false) != null
+                   || GetComputedColumnSql(false) != null)
+                ? null
+                : Annotations.GetAnnotation(RelationalAnnotationNames.DefaultValue);
 
         protected virtual bool SetDefaultValue([CanBeNull] object value)
         {
@@ -376,8 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             return Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.DefaultValue,
-                ProviderFullAnnotationNames?.DefaultValue,
+                RelationalAnnotationNames.DefaultValue,
                 value);
         }
 
@@ -389,8 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             if (!Annotations.CanSetAnnotation(
-                RelationalFullAnnotationNames.Instance.DefaultValue,
-                ProviderFullAnnotationNames?.DefaultValue,
+                RelationalAnnotationNames.DefaultValue,
                 value))
             {
                 return false;

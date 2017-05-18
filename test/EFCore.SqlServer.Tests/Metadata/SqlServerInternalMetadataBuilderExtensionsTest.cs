@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Equal("Splow", typeBuilder.Metadata.SqlServer().TableName);
 
             Assert.Equal(1, typeBuilder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
+                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         [Fact]
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Equal("Splow", relationshipBuilder.Metadata.SqlServer().Name);
 
             Assert.Equal(1, relationshipBuilder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
+                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         private class Splot

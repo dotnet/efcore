@@ -23,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly string _name;
         private readonly string _schema;
         private readonly Func<string> _generateParameterName;
-        private readonly IRelationalAnnotationProvider _annotationProvider;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly IComparer<IUpdateEntry> _comparer;
 
@@ -40,7 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] string name,
             [CanBeNull] string schema,
             [NotNull] Func<string> generateParameterName,
-            [NotNull] IRelationalAnnotationProvider annotationProvider,
             bool sensitiveLoggingEnabled)
         {
             _stateManager = stateManager;
@@ -48,7 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _name = name;
             _schema = schema;
             _generateParameterName = generateParameterName;
-            _annotationProvider = annotationProvider;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
             _comparer = new EntryComparer(rootTypesOrder);
         }
@@ -66,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
 
             sharedCommand = new ModificationCommand(
-                _name, _schema, _generateParameterName, _annotationProvider, _sensitiveLoggingEnabled, _comparer);
+                _name, _schema, _generateParameterName, _sensitiveLoggingEnabled, _comparer);
             _sharedCommands.Add(mainEntry, sharedCommand);
 
             return sharedCommand;

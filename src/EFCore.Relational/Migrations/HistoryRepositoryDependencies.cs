@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -59,7 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="options"> Options for the current context instance. </param>
         /// <param name="modelDiffer"> The model differ. </param>
         /// <param name="migrationsSqlGenerator"> The SQL generator for Migrations operations. </param>
-        /// <param name="annotations"> Access to relational metadata for the model. </param>
         /// <param name="sqlGenerationHelper"> Helpers for generating update SQL. </param>
         public HistoryRepositoryDependencies(
             [NotNull] IRelationalDatabaseCreator databaseCreator,
@@ -68,7 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IDbContextOptions options,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] IRelationalAnnotationProvider annotations,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper)
         {
             Check.NotNull(databaseCreator, nameof(databaseCreator));
@@ -77,7 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(options, nameof(options));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
-            Check.NotNull(annotations, nameof(annotations));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
 
             DatabaseCreator = databaseCreator;
@@ -86,7 +82,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Options = options;
             ModelDiffer = modelDiffer;
             MigrationsSqlGenerator = migrationsSqlGenerator;
-            Annotations = annotations;
             SqlGenerationHelper = sqlGenerationHelper;
         }
 
@@ -121,11 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public IMigrationsSqlGenerator MigrationsSqlGenerator { get; }
 
         /// <summary>
-        ///     Access to relational metadata for the model.
-        /// </summary>
-        public IRelationalAnnotationProvider Annotations { get; }
-
-        /// <summary>
         ///     Helpers for generating update SQL.
         /// </summary>
         public ISqlGenerationHelper SqlGenerationHelper { get; }
@@ -143,7 +133,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Options,
                 ModelDiffer,
                 MigrationsSqlGenerator,
-                Annotations,
                 SqlGenerationHelper);
 
         /// <summary>
@@ -159,7 +148,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Options,
                 ModelDiffer,
                 MigrationsSqlGenerator,
-                Annotations,
                 SqlGenerationHelper);
 
         /// <summary>
@@ -175,7 +163,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Options,
                 ModelDiffer,
                 MigrationsSqlGenerator,
-                Annotations,
                 SqlGenerationHelper);
 
         /// <summary>
@@ -191,7 +178,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 options,
                 ModelDiffer,
                 MigrationsSqlGenerator,
-                Annotations,
                 SqlGenerationHelper);
 
         /// <summary>
@@ -207,7 +193,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Options,
                 modelDiffer,
                 MigrationsSqlGenerator,
-                Annotations,
                 SqlGenerationHelper);
 
         /// <summary>
@@ -223,23 +208,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Options,
                 ModelDiffer,
                 migrationsSqlGenerator,
-                Annotations,
-                SqlGenerationHelper);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="annotations"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] IRelationalAnnotationProvider annotations)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                RawSqlCommandBuilder,
-                Connection,
-                Options,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                annotations,
                 SqlGenerationHelper);
 
         /// <summary>
@@ -255,7 +223,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Options,
                 ModelDiffer,
                 MigrationsSqlGenerator,
-                Annotations,
                 sqlGenerationHelper);
     }
 }

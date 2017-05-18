@@ -674,7 +674,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
-                    new TestAnnotationProvider(),
                     new TestRelationalTypeMapper(
                         new RelationalTypeMapperDependencies())));
     }

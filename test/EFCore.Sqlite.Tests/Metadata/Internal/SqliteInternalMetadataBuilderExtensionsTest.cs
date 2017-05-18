@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Internal
             Assert.Equal(77, builder.Metadata.Sqlite().FindSequence("Mine").IncrementBy);
 
             Assert.Equal(1, builder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(SqliteAnnotationNames.Prefix, StringComparison.Ordinal)));
+                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         [Fact]
@@ -41,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Internal
             Assert.Equal("Splow", typeBuilder.Metadata.Sqlite().TableName);
 
             Assert.Equal(1, typeBuilder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(SqliteAnnotationNames.Prefix, StringComparison.Ordinal)));
+                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         [Fact]
@@ -61,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Internal
             Assert.Equal("Splow", propertyBuilder.Metadata.Sqlite().ColumnName);
 
             Assert.Equal(1, propertyBuilder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(SqliteAnnotationNames.Prefix, StringComparison.Ordinal)));
+                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         [Fact]
@@ -82,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Internal
             Assert.Equal("Splow", keyBuilder.Metadata.Sqlite().Name);
 
             Assert.Equal(1, keyBuilder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(SqliteAnnotationNames.Prefix, StringComparison.Ordinal)));
+                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         [Fact]
@@ -103,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Internal
             Assert.Equal("Splow", indexBuilder.Metadata.Sqlite().Name);
 
             Assert.Equal(1, indexBuilder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(SqliteAnnotationNames.Prefix, StringComparison.Ordinal)));
+                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         [Fact]
@@ -124,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Internal
             Assert.Equal("Splow", relationshipBuilder.Metadata.Sqlite().Name);
 
             Assert.Equal(1, relationshipBuilder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(SqliteAnnotationNames.Prefix, StringComparison.Ordinal)));
+                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         private class Splot

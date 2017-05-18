@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (property.ValueGenerated == ValueGenerated.OnAdd
                 && property.ClrType.UnwrapNullableType().IsInteger())
             {
-                yield return new Annotation(SqliteFullAnnotationNames.Instance.Autoincrement, true);
+                yield return new Annotation(SqliteAnnotationNames.Autoincrement, true);
             }
         }
     }

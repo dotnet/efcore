@@ -37,16 +37,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             property.SqlServer().ColumnName = "MyNameIs";
 
             Assert.Equal("Name", property.Name);
-            Assert.Equal("Eman", property.Relational().ColumnName);
+            Assert.Equal("MyNameIs", property.Relational().ColumnName);
             Assert.Equal("MyNameIs", property.SqlServer().ColumnName);
             Assert.Equal("MyNameIs", ((IProperty)property).SqlServer().ColumnName);
 
             property.SqlServer().ColumnName = null;
 
             Assert.Equal("Name", property.Name);
-            Assert.Equal("Eman", property.Relational().ColumnName);
-            Assert.Equal("Eman", property.SqlServer().ColumnName);
-            Assert.Equal("Eman", ((IProperty)property).SqlServer().ColumnName);
+            Assert.Equal("Name", property.Relational().ColumnName);
+            Assert.Equal("Name", property.SqlServer().ColumnName);
+            Assert.Equal("Name", ((IProperty)property).SqlServer().ColumnName);
         }
 
         [Fact]
@@ -71,16 +71,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             entityType.SqlServer().TableName = "Custardizer";
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().TableName);
+            Assert.Equal("Custardizer", entityType.Relational().TableName);
             Assert.Equal("Custardizer", entityType.SqlServer().TableName);
             Assert.Equal("Custardizer", ((IEntityType)entityType).SqlServer().TableName);
 
             entityType.SqlServer().TableName = null;
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().TableName);
-            Assert.Equal("Customizer", entityType.SqlServer().TableName);
-            Assert.Equal("Customizer", ((IEntityType)entityType).SqlServer().TableName);
+            Assert.Equal("Customer", entityType.Relational().TableName);
+            Assert.Equal("Customer", entityType.SqlServer().TableName);
+            Assert.Equal("Customer", ((IEntityType)entityType).SqlServer().TableName);
         }
 
         [Fact]
@@ -104,15 +104,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             entityType.SqlServer().Schema = "dbOh";
 
-            Assert.Equal("db0", entityType.Relational().Schema);
+            Assert.Equal("dbOh", entityType.Relational().Schema);
             Assert.Equal("dbOh", entityType.SqlServer().Schema);
             Assert.Equal("dbOh", ((IEntityType)entityType).SqlServer().Schema);
 
             entityType.SqlServer().Schema = null;
 
-            Assert.Equal("db0", entityType.Relational().Schema);
-            Assert.Equal("db0", entityType.SqlServer().Schema);
-            Assert.Equal("db0", ((IEntityType)entityType).SqlServer().Schema);
+            Assert.Null(entityType.Relational().Schema);
+            Assert.Null(entityType.SqlServer().Schema);
+            Assert.Null(((IEntityType)entityType).SqlServer().Schema);
         }
 
         [Fact]
@@ -137,15 +137,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             property.SqlServer().ColumnType = "nvarchar(verstappen)";
 
-            Assert.Equal("nvarchar(max)", property.Relational().ColumnType);
+            Assert.Equal("nvarchar(verstappen)", property.Relational().ColumnType);
             Assert.Equal("nvarchar(verstappen)", property.SqlServer().ColumnType);
             Assert.Equal("nvarchar(verstappen)", ((IProperty)property).SqlServer().ColumnType);
 
             property.SqlServer().ColumnType = null;
 
-            Assert.Equal("nvarchar(max)", property.Relational().ColumnType);
-            Assert.Equal("nvarchar(max)", property.SqlServer().ColumnType);
-            Assert.Equal("nvarchar(max)", ((IProperty)property).SqlServer().ColumnType);
+            Assert.Null(property.Relational().ColumnType);
+            Assert.Null(property.SqlServer().ColumnType);
+            Assert.Null(((IProperty)property).SqlServer().ColumnType);
         }
 
         [Fact]
@@ -170,15 +170,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             property.SqlServer().DefaultValueSql = "expressyourself()";
 
-            Assert.Equal("newsequentialid()", property.Relational().DefaultValueSql);
+            Assert.Equal("expressyourself()", property.Relational().DefaultValueSql);
             Assert.Equal("expressyourself()", property.SqlServer().DefaultValueSql);
             Assert.Equal("expressyourself()", ((IProperty)property).SqlServer().DefaultValueSql);
 
             property.SqlServer().DefaultValueSql = null;
 
-            Assert.Equal("newsequentialid()", property.Relational().DefaultValueSql);
-            Assert.Equal("newsequentialid()", property.SqlServer().DefaultValueSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).SqlServer().DefaultValueSql);
+            Assert.Null(property.Relational().DefaultValueSql);
+            Assert.Null(property.SqlServer().DefaultValueSql);
+            Assert.Null(((IProperty)property).SqlServer().DefaultValueSql);
         }
 
         [Fact]
@@ -203,15 +203,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             property.SqlServer().ComputedColumnSql = "expressyourself()";
 
-            Assert.Equal("newsequentialid()", property.Relational().ComputedColumnSql);
+            Assert.Equal("expressyourself()", property.Relational().ComputedColumnSql);
             Assert.Equal("expressyourself()", property.SqlServer().ComputedColumnSql);
             Assert.Equal("expressyourself()", ((IProperty)property).SqlServer().ComputedColumnSql);
 
             property.SqlServer().ComputedColumnSql = null;
 
-            Assert.Equal("newsequentialid()", property.Relational().ComputedColumnSql);
-            Assert.Equal("newsequentialid()", property.SqlServer().ComputedColumnSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).SqlServer().ComputedColumnSql);
+            Assert.Null(property.Relational().ComputedColumnSql);
+            Assert.Null(property.SqlServer().ComputedColumnSql);
+            Assert.Null(((IProperty)property).SqlServer().ComputedColumnSql);
         }
 
         [Fact]
@@ -236,15 +236,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             property.SqlServer().DefaultValue = new byte[] { 69, 70, 32, 83, 79, 67, 75, 83 };
 
-            Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.Relational().DefaultValue);
+            Assert.Equal(new byte[] { 69, 70, 32, 83, 79, 67, 75, 83 }, property.Relational().DefaultValue);
             Assert.Equal(new byte[] { 69, 70, 32, 83, 79, 67, 75, 83 }, property.SqlServer().DefaultValue);
             Assert.Equal(new byte[] { 69, 70, 32, 83, 79, 67, 75, 83 }, ((IProperty)property).SqlServer().DefaultValue);
 
             property.SqlServer().DefaultValue = null;
 
-            Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.Relational().DefaultValue);
-            Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.SqlServer().DefaultValue);
-            Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, ((IProperty)property).SqlServer().DefaultValue);
+            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(property.SqlServer().DefaultValue);
+            Assert.Null(((IProperty)property).SqlServer().DefaultValue);
         }
 
         [Theory]
@@ -319,15 +319,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             key.SqlServer().Name = "PrimarySchool";
 
-            Assert.Equal("PrimaryKey", key.Relational().Name);
+            Assert.Equal("PrimarySchool", key.Relational().Name);
             Assert.Equal("PrimarySchool", key.SqlServer().Name);
             Assert.Equal("PrimarySchool", ((IKey)key).SqlServer().Name);
 
             key.SqlServer().Name = null;
 
-            Assert.Equal("PrimaryKey", key.Relational().Name);
-            Assert.Equal("PrimaryKey", key.SqlServer().Name);
-            Assert.Equal("PrimaryKey", ((IKey)key).SqlServer().Name);
+            Assert.Equal("PK_Customer", key.Relational().Name);
+            Assert.Equal("PK_Customer", key.SqlServer().Name);
+            Assert.Equal("PK_Customer", ((IKey)key).SqlServer().Name);
         }
 
         [Fact]
@@ -358,15 +358,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             foreignKey.SqlServer().Name = "KFC";
 
-            Assert.Equal("FK", foreignKey.Relational().Name);
+            Assert.Equal("KFC", foreignKey.Relational().Name);
             Assert.Equal("KFC", foreignKey.SqlServer().Name);
             Assert.Equal("KFC", ((IForeignKey)foreignKey).SqlServer().Name);
 
             foreignKey.SqlServer().Name = null;
 
-            Assert.Equal("FK", foreignKey.Relational().Name);
-            Assert.Equal("FK", foreignKey.SqlServer().Name);
-            Assert.Equal("FK", ((IForeignKey)foreignKey).SqlServer().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.SqlServer().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).SqlServer().Name);
         }
 
         [Fact]
@@ -391,15 +391,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             index.SqlServer().Name = "DexKnows";
 
-            Assert.Equal("MyIndex", index.Relational().Name);
+            Assert.Equal("DexKnows", index.Relational().Name);
             Assert.Equal("DexKnows", index.SqlServer().Name);
             Assert.Equal("DexKnows", ((IIndex)index).SqlServer().Name);
 
             index.SqlServer().Name = null;
 
-            Assert.Equal("MyIndex", index.Relational().Name);
-            Assert.Equal("MyIndex", index.SqlServer().Name);
-            Assert.Equal("MyIndex", ((IIndex)index).SqlServer().Name);
+            Assert.Equal("IX_Customer_Id", index.Relational().Name);
+            Assert.Equal("IX_Customer_Id", index.SqlServer().Name);
+            Assert.Equal("IX_Customer_Id", ((IIndex)index).SqlServer().Name);
         }
 
         [Fact]
@@ -424,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             index.SqlServer().Name = "SqlServer-specific expression";
 
-            Assert.Equal("Generic expression", index.Relational().Name);
+            Assert.Equal("SqlServer-specific expression", index.Relational().Name);
             Assert.Equal("SqlServer-specific expression", index.SqlServer().Name);
             Assert.Equal("SqlServer-specific expression", ((IIndex)index).SqlServer().Name);
 
@@ -495,7 +495,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             var sequence = model.SqlServer().GetOrAddSequence("Foo");
 
-            Assert.Null(model.Relational().FindSequence("Foo"));
+            Assert.Equal("Foo", model.Relational().FindSequence("Foo").Name);
+            Assert.Equal("Foo", ((IModel)model).Relational().FindSequence("Foo").Name);
             Assert.Equal("Foo", model.SqlServer().FindSequence("Foo").Name);
             Assert.Equal("Foo", ((IModel)model).SqlServer().FindSequence("Foo").Name);
 
@@ -507,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Null(sequence.MaxValue);
             Assert.Same(typeof(long), sequence.ClrType);
 
-            Assert.Null(model.Relational().FindSequence("Foo"));
+            Assert.NotNull(model.Relational().FindSequence("Foo"));
 
             var sequence2 = model.SqlServer().FindSequence("Foo");
 
@@ -546,7 +547,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             var sequence = model.SqlServer().GetOrAddSequence("Foo", "Smoo");
 
-            Assert.Null(model.Relational().FindSequence("Foo", "Smoo"));
+            Assert.Equal("Foo", model.Relational().FindSequence("Foo", "Smoo").Name);
+            Assert.Equal("Foo", ((IModel)model).Relational().FindSequence("Foo", "Smoo").Name);
             Assert.Equal("Foo", model.SqlServer().FindSequence("Foo", "Smoo").Name);
             Assert.Equal("Foo", ((IModel)model).SqlServer().FindSequence("Foo", "Smoo").Name);
 
@@ -558,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Null(sequence.MaxValue);
             Assert.Same(typeof(long), sequence.ClrType);
 
-            Assert.Null(model.Relational().FindSequence("Foo", "Smoo"));
+            Assert.NotNull(model.Relational().FindSequence("Foo", "Smoo"));
 
             var sequence2 = model.SqlServer().FindSequence("Foo", "Smoo");
 

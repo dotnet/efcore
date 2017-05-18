@@ -55,9 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     });
             var entityType = new LazyRef<IEntityType>(() => _model.Value.FindEntityType(typeof(HistoryRow)));
             _migrationIdColumnName = new LazyRef<string>(
-                () => dependencies.Annotations.For(entityType.Value.FindProperty(nameof(HistoryRow.MigrationId))).ColumnName);
+                () => entityType.Value.FindProperty(nameof(HistoryRow.MigrationId)).Relational().ColumnName);
             _productVersionColumnName = new LazyRef<string>(
-                () => dependencies.Annotations.For(entityType.Value.FindProperty(nameof(HistoryRow.ProductVersion))).ColumnName);
+                () => entityType.Value.FindProperty(nameof(HistoryRow.ProductVersion)).Relational().ColumnName);
         }
 
         /// <summary>

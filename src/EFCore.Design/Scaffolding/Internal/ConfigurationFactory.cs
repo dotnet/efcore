@@ -20,24 +20,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ConfigurationFactory([NotNull] IRelationalAnnotationProvider extensionsProvider,
+        public ConfigurationFactory(
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ScaffoldingUtilities scaffoldingUtilities)
         {
-            Check.NotNull(extensionsProvider, nameof(extensionsProvider));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
             Check.NotNull(scaffoldingUtilities, nameof(scaffoldingUtilities));
 
-            ExtensionsProvider = extensionsProvider;
             CSharpUtilities = cSharpUtilities;
             ScaffoldingUtilities = scaffoldingUtilities;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual IRelationalAnnotationProvider ExtensionsProvider { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -58,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public virtual ModelConfiguration CreateModelConfiguration(
             [NotNull] IModel model,
             [NotNull] CustomConfiguration customConfiguration)
-            => new ModelConfiguration(this, model, customConfiguration, ExtensionsProvider, CSharpUtilities, ScaffoldingUtilities);
+            => new ModelConfiguration(this, model, customConfiguration, CSharpUtilities, ScaffoldingUtilities);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

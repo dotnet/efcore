@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             };
             if (autoincrement)
             {
-                addIdColumn.AddAnnotation(SqliteFullAnnotationNames.Instance.Autoincrement, true);
+                addIdColumn.AddAnnotation(SqliteAnnotationNames.Autoincrement, true);
             }
 
             Generate(

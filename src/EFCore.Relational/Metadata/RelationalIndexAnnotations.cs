@@ -15,62 +15,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     {
         protected const string DefaultIndexNamePrefix = "IX";
 
-        public RelationalIndexAnnotations([NotNull] IIndex index,
-            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
-            : this(new RelationalAnnotations(index), providerFullAnnotationNames)
+        public RelationalIndexAnnotations([NotNull] IIndex index)
+            : this(new RelationalAnnotations(index))
         {
         }
 
-        protected RelationalIndexAnnotations([NotNull] RelationalAnnotations annotations,
-            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
-        {
-            Annotations = annotations;
-            ProviderFullAnnotationNames = providerFullAnnotationNames;
-        }
-
-        public virtual RelationalFullAnnotationNames ProviderFullAnnotationNames { get; }
+        protected RelationalIndexAnnotations([NotNull] RelationalAnnotations annotations)
+            => Annotations = annotations;
 
         protected virtual RelationalAnnotations Annotations { get; }
+
         protected virtual IIndex Index => (IIndex)Annotations.Metadata;
 
         protected virtual IRelationalEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType)
-            => new RelationalEntityTypeAnnotations(entityType, ProviderFullAnnotationNames);
+            => new RelationalEntityTypeAnnotations(entityType);
 
         protected virtual RelationalIndexAnnotations GetAnnotations([NotNull] IIndex index)
-            => new RelationalIndexAnnotations(index, ProviderFullAnnotationNames);
+            => new RelationalIndexAnnotations(index);
 
         protected virtual IRelationalPropertyAnnotations GetAnnotations([NotNull] IProperty property)
-            => new RelationalPropertyAnnotations(property, ProviderFullAnnotationNames);
+            => new RelationalPropertyAnnotations(property);
 
         public virtual string Name
         {
-            get
-            {
-                return (string)Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.Name, ProviderFullAnnotationNames?.Name)
-                       ?? GetDefaultName();
-            }
-            [param: CanBeNull] set { SetName(value); }
+            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.Name)
+                   ?? GetDefaultName();
+
+            [param: CanBeNull] set => SetName(value);
         }
 
         public virtual string Filter
         {
-            get
-            {
-                return (string)Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.Filter, ProviderFullAnnotationNames?.Filter);
-            }
-            [param: CanBeNull] set { SetFilter(value); }
+            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.Filter);
+            [param: CanBeNull] set => SetFilter(value);
         }
 
         protected virtual bool SetFilter([CanBeNull] string value)
             => Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.Filter,
-                ProviderFullAnnotationNames?.Filter,
+                RelationalAnnotationNames.Filter,
                 Check.NullButNotEmpty(value, nameof(value)));
 
         protected virtual bool SetName([CanBeNull] string value)
             => Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.Name,
-                ProviderFullAnnotationNames?.Name,
+                RelationalAnnotationNames.Name,
                 Check.NullButNotEmpty(value, nameof(value)));
 
         protected virtual string GetDefaultName()
@@ -87,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var baseName = GetDefaultIndexName(
                 GetAnnotations(Index.DeclaringEntityType).TableName,
                 Index.Properties.Select(p => GetAnnotations(p).ColumnName));
+
             var name = baseName;
             var index = 0;
             while (otherIndexNames.Contains(name))
@@ -98,12 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         protected virtual ConfigurationSource? GetNameConfigurationSource()
-        {
-            var index = Index as Index;
-            var annotation = (ProviderFullAnnotationNames == null ? null : index?.FindAnnotation(ProviderFullAnnotationNames?.Name))
-                             ?? index?.FindAnnotation(RelationalFullAnnotationNames.Instance.Name);
-            return annotation?.GetConfigurationSource();
-        }
+            => (Index as Index)
+                ?.FindAnnotation(RelationalAnnotationNames.Name)
+                ?.GetConfigurationSource();
 
         public static string GetDefaultIndexName(
             [NotNull] string tableName,

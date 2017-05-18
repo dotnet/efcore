@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual Annotation Apply(
             InternalEntityTypeBuilder entityTypeBuilder, string name, Annotation annotation, Annotation oldAnnotation)
         {
-            if (name == SqlServerFullAnnotationNames.Instance.MemoryOptimized)
+            if (name == SqlServerAnnotationNames.MemoryOptimized)
             {
                 var memoryOptimized = annotation?.Value as bool? == true;
                 foreach (var key in entityTypeBuilder.Metadata.GetDeclaredKeys())

@@ -4,9 +4,7 @@
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -83,12 +81,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
-                    new TestSqliteAnnotationProvider(),
                     new SqliteTypeMapper(new RelationalTypeMapperDependencies())));
-    }
-
-    public class TestSqliteAnnotationProvider : TestAnnotationProvider
-    {
-        public override IRelationalPropertyAnnotations For(IProperty property) => new RelationalPropertyAnnotations(property, SqliteFullAnnotationNames.Instance);
     }
 }

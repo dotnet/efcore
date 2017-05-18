@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static RelationalModelBuilderAnnotations Relational(
             [NotNull] this InternalModelBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalModelBuilderAnnotations(builder, configurationSource, null);
+            => new RelationalModelBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static RelationalPropertyBuilderAnnotations Relational(
             [NotNull] this InternalPropertyBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalPropertyBuilderAnnotations(builder, configurationSource, null);
+            => new RelationalPropertyBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static RelationalEntityTypeBuilderAnnotations Relational(
             [NotNull] this InternalEntityTypeBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalEntityTypeBuilderAnnotations(builder, configurationSource, null);
+            => new RelationalEntityTypeBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static RelationalKeyBuilderAnnotations Relational(
             [NotNull] this InternalKeyBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalKeyBuilderAnnotations(builder, configurationSource, null);
+            => new RelationalKeyBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static RelationalIndexBuilderAnnotations Relational(
             [NotNull] this InternalIndexBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalIndexBuilderAnnotations(builder, configurationSource, null);
+            => new RelationalIndexBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -63,6 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static RelationalForeignKeyBuilderAnnotations Relational(
             [NotNull] this InternalRelationshipBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalForeignKeyBuilderAnnotations(builder, configurationSource, null);
+            => new RelationalForeignKeyBuilderAnnotations(builder, configurationSource);
     }
 }

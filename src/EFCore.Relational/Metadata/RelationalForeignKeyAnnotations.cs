@@ -15,49 +15,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     {
         protected const string DefaultForeignKeyNamePrefix = "FK";
 
-        public RelationalForeignKeyAnnotations([NotNull] IForeignKey foreignKey,
-            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
-            : this(new RelationalAnnotations(foreignKey), providerFullAnnotationNames)
+        public RelationalForeignKeyAnnotations([NotNull] IForeignKey foreignKey)
+            : this(new RelationalAnnotations(foreignKey))
         {
         }
 
-        protected RelationalForeignKeyAnnotations([NotNull] RelationalAnnotations annotations,
-            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
-        {
-            Annotations = annotations;
-            ProviderFullAnnotationNames = providerFullAnnotationNames;
-        }
-
-        public virtual RelationalFullAnnotationNames ProviderFullAnnotationNames { get; }
+        protected RelationalForeignKeyAnnotations([NotNull] RelationalAnnotations annotations)
+            => Annotations = annotations;
 
         protected virtual RelationalAnnotations Annotations { get; }
         protected virtual IForeignKey ForeignKey => (IForeignKey)Annotations.Metadata;
 
         protected virtual IRelationalEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType)
-            => new RelationalEntityTypeAnnotations(entityType, ProviderFullAnnotationNames);
+            => new RelationalEntityTypeAnnotations(entityType);
 
         protected virtual RelationalForeignKeyAnnotations GetAnnotations([NotNull] IForeignKey foreignKey)
-            => new RelationalForeignKeyAnnotations(foreignKey, ProviderFullAnnotationNames);
+            => new RelationalForeignKeyAnnotations(foreignKey);
 
         protected virtual IRelationalPropertyAnnotations GetAnnotations([NotNull] IProperty property)
-            => new RelationalPropertyAnnotations(property, ProviderFullAnnotationNames);
+            => new RelationalPropertyAnnotations(property);
 
         public virtual string Name
         {
-            get
-            {
-                return (string)Annotations.GetAnnotation(
-                           RelationalFullAnnotationNames.Instance.Name,
-                           ProviderFullAnnotationNames?.Name)
-                       ?? GetDefaultName();
-            }
-            [param: CanBeNull] set { SetName(value); }
+            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.Name)
+                   ?? GetDefaultName();
+
+            [param: CanBeNull] set => SetName(value);
         }
 
         protected virtual bool SetName([CanBeNull] string value)
             => Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.Name,
-                ProviderFullAnnotationNames?.Name,
+                RelationalAnnotationNames.Name,
                 Check.NullButNotEmpty(value, nameof(value)));
 
         protected virtual string GetDefaultName()
@@ -75,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 GetAnnotations(ForeignKey.DeclaringEntityType).TableName,
                 GetAnnotations(ForeignKey.PrincipalEntityType).TableName,
                 ForeignKey.Properties.Select(p => GetAnnotations(p).ColumnName));
+
             var name = baseName;
             var index = 0;
             while (otherForeignKeyNames.Contains(name))
@@ -86,12 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         protected virtual ConfigurationSource? GetNameConfigurationSource()
-        {
-            var foreignKey = ForeignKey as ForeignKey;
-            var annotation = (ProviderFullAnnotationNames == null ? null : foreignKey?.FindAnnotation(ProviderFullAnnotationNames?.Name))
-                             ?? foreignKey?.FindAnnotation(RelationalFullAnnotationNames.Instance.Name);
-            return annotation?.GetConfigurationSource();
-        }
+            => (ForeignKey as ForeignKey)
+                ?.FindAnnotation(RelationalAnnotationNames.Name)
+                ?.GetConfigurationSource();
 
         public static string GetDefaultForeignKeyName(
             [NotNull] string dependentTableName,

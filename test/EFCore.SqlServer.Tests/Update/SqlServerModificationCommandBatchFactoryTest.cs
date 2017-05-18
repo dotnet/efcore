@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -39,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
 
             var batch = factory.Create();
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, new SqlServerAnnotationProvider(), false, null)));
-            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, new SqlServerAnnotationProvider(), false, null)));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
+            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
         }
 
         [Fact]
@@ -68,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
 
             var batch = factory.Create();
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, new SqlServerAnnotationProvider(), false, null)));
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, new SqlServerAnnotationProvider(), false, null)));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
         }
     }
 }

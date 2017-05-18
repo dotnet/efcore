@@ -10,14 +10,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     public class ScaffoldingPropertyAnnotations : RelationalPropertyAnnotations
     {
         public ScaffoldingPropertyAnnotations([NotNull] IProperty property)
-            : base(property, ScaffoldingFullAnnotationNames.Instance)
+            : base(property)
         {
         }
 
         public virtual int ColumnOrdinal
         {
-            get { return (int)Annotations.GetAnnotation(ScaffoldingFullAnnotationNames.Instance.ColumnOrdinal, null); }
-            set { Annotations.SetAnnotation(ScaffoldingFullAnnotationNames.Instance.ColumnOrdinal, null, value); }
+            get => (int)Annotations.GetAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal);
+            set => Annotations.SetAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal, value);
         }
     }
 }

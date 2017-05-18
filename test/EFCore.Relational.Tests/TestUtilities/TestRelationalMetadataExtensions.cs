@@ -8,21 +8,21 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
     public static class TestRelationalMetadataExtensions
     {
         public static IRelationalPropertyAnnotations TestProvider(this IProperty property)
-            => new RelationalPropertyAnnotations(property, null);
+            => new RelationalPropertyAnnotations(property);
 
         public static IRelationalEntityTypeAnnotations TestProvider(this IEntityType entityType)
-            => new RelationalEntityTypeAnnotations(entityType, null);
+            => new RelationalEntityTypeAnnotations(entityType);
 
         public static IRelationalKeyAnnotations TestProvider(this IKey key)
-            => new RelationalKeyAnnotations(key, null);
+            => new RelationalKeyAnnotations(key);
 
         public static IRelationalIndexAnnotations TestProvider(this IIndex index)
-            => new RelationalIndexAnnotations(index, null);
+            => new RelationalIndexAnnotations(index);
 
         public static IRelationalForeignKeyAnnotations TestProvider(this IForeignKey foreignKey)
-            => new RelationalForeignKeyAnnotations(foreignKey, null);
+            => new RelationalForeignKeyAnnotations(foreignKey);
 
         public static IRelationalModelAnnotations TestProvider(this IModel model)
-            => new RelationalModelAnnotations(model, null);
+            => new RelationalModelAnnotations(model);
     }
 }

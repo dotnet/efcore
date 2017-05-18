@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             ReplaceConvention(conventionSet.EntityTypeIgnoredConventions, inversePropertyAttributeConvention);
 
-            ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention(Dependencies.AnnotationProvider);
+            ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention();
             ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, inversePropertyAttributeConvention);
             ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, relationshipDiscoveryConvention);
             ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, valueGeneratorConvention);
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention();
             conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
 
-            var sharedTableConvention = new SharedTableConvention(Dependencies.AnnotationProvider);
+            var sharedTableConvention = new SharedTableConvention();
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(sharedTableConvention);
 

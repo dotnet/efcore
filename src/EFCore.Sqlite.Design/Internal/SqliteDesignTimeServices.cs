@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             => serviceCollection
                 .AddSingleton<IScaffoldingModelFactory, SqliteScaffoldingModelFactory>()
                 .AddSingleton<IRelationalTypeMapper, SqliteTypeMapper>()
-                .AddSingleton<IDatabaseModelFactory, SqliteDatabaseModelFactory>()
-                .AddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>();
+                .AddSingleton<IDatabaseModelFactory, SqliteDatabaseModelFactory>();
     }
 }

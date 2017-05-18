@@ -50,14 +50,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public RelationalConventionSetBuilderDependencies(
             [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IRelationalAnnotationProvider annotationProvider,
             [CanBeNull] ICurrentDbContext currentContext,
             [CanBeNull] IDbSetFinder setFinder)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 
             TypeMapper = typeMapper;
-            AnnotationProvider = annotationProvider;
             Context = currentContext;
             SetFinder = setFinder;
         }
@@ -67,12 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IRelationalTypeMapper TypeMapper { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public IRelationalAnnotationProvider AnnotationProvider { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -92,15 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConventionSetBuilderDependencies With([NotNull] IRelationalTypeMapper typeMapper)
-            => new RelationalConventionSetBuilderDependencies(typeMapper, AnnotationProvider, Context, SetFinder);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="annotationProvider"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalConventionSetBuilderDependencies With([NotNull] IRelationalAnnotationProvider annotationProvider)
-            => new RelationalConventionSetBuilderDependencies(TypeMapper, annotationProvider, Context, SetFinder);
+            => new RelationalConventionSetBuilderDependencies(typeMapper, Context, SetFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -108,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConventionSetBuilderDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new RelationalConventionSetBuilderDependencies(TypeMapper, AnnotationProvider, currentContext, SetFinder);
+            => new RelationalConventionSetBuilderDependencies(TypeMapper, currentContext, SetFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -116,6 +100,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <param name="setFinder"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConventionSetBuilderDependencies With([NotNull] IDbSetFinder setFinder)
-            => new RelationalConventionSetBuilderDependencies(TypeMapper, AnnotationProvider, Context, setFinder);
+            => new RelationalConventionSetBuilderDependencies(TypeMapper, Context, setFinder);
     }
 }

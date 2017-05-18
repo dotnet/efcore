@@ -46,7 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly Dictionary<IQuerySource, RelationalQueryModelVisitor> _subQueryModelVisitorsBySource
             = new Dictionary<IQuerySource, RelationalQueryModelVisitor>();
 
-        private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
         private readonly ICompositePredicateExpressionVisitorFactory _compositePredicateExpressionVisitorFactory;
         private readonly IConditionalRemovingExpressionVisitorFactory _conditionalRemovingExpressionVisitorFactory;
@@ -74,7 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 dependencies.With(Check.NotNull(relationalDependencies, nameof(relationalDependencies)).RelationalResultOperatorHandler),
                 queryCompilationContext)
         {
-            _relationalAnnotationProvider = relationalDependencies.RelationalAnnotationProvider;
             _sqlTranslatingExpressionVisitorFactory = relationalDependencies.SqlTranslatingExpressionVisitorFactory;
             _compositePredicateExpressionVisitorFactory = relationalDependencies.CompositePredicateExpressionVisitorFactory;
             _conditionalRemovingExpressionVisitorFactory = relationalDependencies.ConditionalRemovingExpressionVisitorFactory;
@@ -1153,7 +1151,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModel, nameof(queryModel));
 
             var typeIsExpressionTranslatingVisitor
-                = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model, _relationalAnnotationProvider);
+                = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model);
 
             queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
 
@@ -1177,12 +1175,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         private class TypeIsExpressionTranslatingVisitor : ExpressionVisitorBase
         {
             private readonly IModel _model;
-            private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
 
-            public TypeIsExpressionTranslatingVisitor(IModel model, IRelationalAnnotationProvider relationalAnnotationProvider)
+            public TypeIsExpressionTranslatingVisitor(IModel model)
             {
                 _model = model;
-                _relationalAnnotationProvider = relationalAnnotationProvider;
             }
 
             protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
@@ -1206,7 +1202,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     || concreteEntityTypes[0].RootType() != concreteEntityTypes[0])
                 {
                     var discriminatorProperty
-                        = _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorProperty;
+                        = concreteEntityTypes[0].Relational().DiscriminatorProperty;
 
                     var discriminatorPropertyExpression
                         = typeBinaryExpression.Expression.CreateEFPropertyExpression(discriminatorProperty);
@@ -1217,7 +1213,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 concreteEntityType =>
                                     Expression.Equal(
                                         discriminatorPropertyExpression,
-                                        Expression.Constant(_relationalAnnotationProvider.For(concreteEntityType).DiscriminatorValue, discriminatorPropertyExpression.Type)))
+                                        Expression.Constant(concreteEntityType.Relational().DiscriminatorValue, discriminatorPropertyExpression.Type)))
                             .Aggregate((current, next) => Expression.OrElse(next, current));
 
                     return discriminatorPredicate;

@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// </summary>
         /// <param name="entity"> The entity type to access annotation on. </param>
         public ScaffoldingEntityTypeAnnotations([NotNull] IEntityType entity)
-            : base(entity, ScaffoldingFullAnnotationNames.Instance)
+            : base(entity)
         {
         }
 
@@ -33,13 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// </summary>
         public virtual string DbSetName
         {
-            get { return (string)Annotations.GetAnnotation(ScaffoldingFullAnnotationNames.Instance.DbSetName, null); }
+            get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.DbSetName); }
             [param: CanBeNull]
             set
             {
                 Annotations.SetAnnotation(
-                    ScaffoldingFullAnnotationNames.Instance.DbSetName,
-                    null,
+                    ScaffoldingAnnotationNames.DbSetName,
                     Check.NullButNotEmpty(value, nameof(value)));
             }
         }

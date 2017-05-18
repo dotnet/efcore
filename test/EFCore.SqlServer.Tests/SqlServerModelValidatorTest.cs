@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             Assert.Equal("FK_Animal_Person_Name", fk1.Relational().Name);
             Assert.Equal("FK_Animal_Person_Name", fk1.SqlServer().Name);
-            Assert.Equal("FK_Animal_Person_Name", fk2.Relational().Name);
+            Assert.Equal("FK_Animal_Person_Name0", fk2.Relational().Name);
             Assert.Equal("FK_Animal_Person_Name0", fk2.SqlServer().Name);
         }
 
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             Assert.Equal("IX_Animal_Name", index1.Relational().Name);
             Assert.Equal("IX_Animal_Name", index1.SqlServer().Name);
-            Assert.Equal("IX_Animal_Name", index2.Relational().Name);
+            Assert.Equal("IX_Animal_Name0", index2.Relational().Name);
             Assert.Equal("IX_Animal_Name0", index2.SqlServer().Name);
         }
 
@@ -222,7 +222,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
-                    new TestSqlServerAnnotationProvider(),
                     new SqlServerTypeMapper(new RelationalTypeMapperDependencies())));
     }
 }

@@ -9,22 +9,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class SqlServerEntityTypeAnnotations : RelationalEntityTypeAnnotations, ISqlServerEntityTypeAnnotations
     {
         public SqlServerEntityTypeAnnotations([NotNull] IEntityType entityType)
-            : base(entityType, SqlServerFullAnnotationNames.Instance)
+            : base(entityType)
         {
         }
 
         public SqlServerEntityTypeAnnotations([NotNull] RelationalAnnotations annotations)
-            : base(annotations, SqlServerFullAnnotationNames.Instance)
+            : base(annotations)
         {
         }
 
         public virtual bool IsMemoryOptimized
         {
-            get { return Annotations.GetAnnotation(SqlServerFullAnnotationNames.Instance.MemoryOptimized, null) as bool? ?? false; }
-            set { SetIsMemoryOptimized(value); }
+            get => Annotations.GetAnnotation(SqlServerAnnotationNames.MemoryOptimized) as bool? ?? false;
+            set => SetIsMemoryOptimized(value);
         }
 
         protected virtual bool SetIsMemoryOptimized(bool value)
-            => Annotations.SetAnnotation(SqlServerFullAnnotationNames.Instance.MemoryOptimized, null, value);
+            => Annotations.SetAnnotation(SqlServerAnnotationNames.MemoryOptimized, value);
     }
 }

@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     ColumnType = "int",
                     DefaultValue = 0,
                     IsNullable = false,
-                    [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] =
+                    [SqlServerAnnotationNames.ValueGenerationStrategy] =
                         SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 {
                     Table = "People",
                     Columns = new[] { "Id" },
-                    [SqlServerFullAnnotationNames.Instance.Clustered] = false
+                    [SqlServerAnnotationNames.Clustered] = false
                 });
 
             Assert.Equal(
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Table = "People",
                     Name = "Id",
                     ClrType = typeof(int),
-                    [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] =
+                    [SqlServerAnnotationNames.ValueGenerationStrategy] =
                         SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     {
                         ClrType = typeof(string)
                     },
-                    [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true
+                    [SqlServerAnnotationNames.MemoryOptimized] = true
                 });
 
             Assert.Equal(
@@ -563,11 +563,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Table = "Person",
                     Name = "Id",
                     ClrType = typeof(long),
-                    [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
+                    [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
                     OldColumn = new ColumnOperation
                     {
                         ClrType = typeof(int),
-                        [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn
+                        [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn
                     }
                 });
 
@@ -593,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         Table = "Person",
                         Name = "Id",
                         ClrType = typeof(int),
-                        [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
+                        [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
                         OldColumn = new ColumnOperation
                         {
                             ClrType = typeof(int)
@@ -617,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         OldColumn = new ColumnOperation
                         {
                             ClrType = typeof(int),
-                            [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn
+                            [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn
                         }
                     }));
 
@@ -708,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public virtual void AlterDatabaseOperationOperation()
         {
-            Generate(new AlterDatabaseOperation { [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true });
+            Generate(new AlterDatabaseOperation { [SqlServerAnnotationNames.MemoryOptimized] = true });
 
             Assert.Contains(
                 "CONTAINS MEMORY_OPTIMIZED_DATA;",
@@ -742,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Name = "IX_People_Name",
                     Table = "People",
                     Columns = new[] { "Name" },
-                    [SqlServerFullAnnotationNames.Instance.Clustered] = true
+                    [SqlServerAnnotationNames.Clustered] = true
                 });
 
             Assert.Equal(
@@ -760,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Table = "People",
                     Columns = new[] { "Name" },
                     IsUnique = true,
-                    [SqlServerFullAnnotationNames.Instance.Clustered] = true
+                    [SqlServerAnnotationNames.Clustered] = true
                 });
 
             Assert.Equal(
@@ -797,7 +797,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Table = "People",
                     Columns = new[] { "Name" },
                     IsUnique = true,
-                    [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true
+                    [SqlServerAnnotationNames.MemoryOptimized] = true
                 });
 
             Assert.Equal(
@@ -817,7 +817,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Columns = new[] { "Name" },
                     IsUnique = true,
                     Filter = "[Name] IS NOT NULL AND <> ''",
-                    [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true
+                    [SqlServerAnnotationNames.MemoryOptimized] = true
                 });
 
             Assert.Equal(
@@ -836,8 +836,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Table = "People",
                     Columns = new[] { "Name" },
                     IsUnique = true,
-                    [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true,
-                    [SqlServerFullAnnotationNames.Instance.Clustered] = false
+                    [SqlServerAnnotationNames.MemoryOptimized] = true,
+                    [SqlServerAnnotationNames.Clustered] = false
                 });
 
             Assert.Equal(
@@ -910,7 +910,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 {
                     Name = "IX_People_Name",
                     Table = "People",
-                    [SqlServerFullAnnotationNames.Instance.MemoryOptimized] = true
+                    [SqlServerAnnotationNames.MemoryOptimized] = true
                 });
 
             Assert.Equal(

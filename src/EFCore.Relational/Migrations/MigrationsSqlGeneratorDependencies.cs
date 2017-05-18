@@ -47,22 +47,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="commandBuilderFactory"> The command builder factory. </param>
         /// <param name="sqlGenerationHelper"> Helpers for SQL generation. </param>
         /// <param name="typeMapper"> The type mapper being used. </param>
-        /// <param name="annotations"> Helpers for obtaining relational metadata. </param>
         public MigrationsSqlGeneratorDependencies(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IRelationalAnnotationProvider annotations)
+            [NotNull] IRelationalTypeMapper typeMapper)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(typeMapper, nameof(typeMapper));
-            Check.NotNull(annotations, nameof(annotations));
 
             CommandBuilderFactory = commandBuilderFactory;
             SqlGenerationHelper = sqlGenerationHelper;
             TypeMapper = typeMapper;
-            Annotations = annotations;
         }
 
         /// <summary>
@@ -81,11 +77,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public IRelationalTypeMapper TypeMapper { get; }
 
         /// <summary>
-        ///     Helpers for obtaining relational metadata.
-        /// </summary>
-        public IRelationalAnnotationProvider Annotations { get; }
-
-        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="commandBuilderFactory"> A replacement for the current dependency of this type. </param>
@@ -94,8 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => new MigrationsSqlGeneratorDependencies(
                 commandBuilderFactory,
                 SqlGenerationHelper,
-                TypeMapper,
-                Annotations);
+                TypeMapper);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -106,8 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => new MigrationsSqlGeneratorDependencies(
                 CommandBuilderFactory,
                 sqlGenerationHelper,
-                TypeMapper,
-                Annotations);
+                TypeMapper);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -118,19 +107,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => new MigrationsSqlGeneratorDependencies(
                 CommandBuilderFactory,
                 SqlGenerationHelper,
-                typeMapper,
-                Annotations);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="annotations"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsSqlGeneratorDependencies With([NotNull] IRelationalAnnotationProvider annotations)
-            => new MigrationsSqlGeneratorDependencies(
-                CommandBuilderFactory,
-                SqlGenerationHelper,
-                TypeMapper,
-                annotations);
+                typeMapper);
     }
 }

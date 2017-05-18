@@ -12,19 +12,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     public class ScaffoldingModelAnnotations : RelationalModelAnnotations
     {
         public ScaffoldingModelAnnotations([NotNull] IModel model)
-            : base(model, ScaffoldingFullAnnotationNames.Instance)
+            : base(model)
         {
         }
 
         public virtual string UseProviderMethodName
         {
-            get { return (string)Annotations.GetAnnotation(ScaffoldingFullAnnotationNames.Instance.UseProviderMethodName, null); }
+            get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.UseProviderMethodName); }
             [param: CanBeNull]
             set
             {
                 Annotations.SetAnnotation(
-                    ScaffoldingFullAnnotationNames.Instance.UseProviderMethodName,
-                    null,
+                    ScaffoldingAnnotationNames.UseProviderMethodName,
                     Check.NullButNotEmpty(value, nameof(value)));
             }
         }
@@ -34,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
             get
             {
                 var dictionary = (IDictionary<string, string>)Annotations.GetAnnotation(
-                    ScaffoldingFullAnnotationNames.Instance.EntityTypeErrors,
-                    null);
+                    ScaffoldingAnnotationNames.EntityTypeErrors);
 
                 if (dictionary == null)
                 {
@@ -48,21 +46,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
             set
             {
                 Annotations.SetAnnotation(
-                    ScaffoldingFullAnnotationNames.Instance.EntityTypeErrors,
-                    null,
+                    ScaffoldingAnnotationNames.EntityTypeErrors,
                     Check.NotNull(value, nameof(value)));
             }
         }
 
         public virtual string DatabaseName
         {
-            get { return (string)Annotations.GetAnnotation(ScaffoldingFullAnnotationNames.Instance.DatabaseName, null); }
+            get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.DatabaseName); }
             [param: CanBeNull]
             set
             {
                 Annotations.SetAnnotation(
-                    ScaffoldingFullAnnotationNames.Instance.DatabaseName,
-                    null,
+                    ScaffoldingAnnotationNames.DatabaseName,
                     Check.NullButNotEmpty(value, nameof(value)));
             }
         }

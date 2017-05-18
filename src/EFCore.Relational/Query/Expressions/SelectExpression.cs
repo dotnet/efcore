@@ -30,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         private static readonly ExpressionEqualityComparer _expressionEqualityComparer = new ExpressionEqualityComparer();
 
         private readonly RelationalQueryCompilationContext _queryCompilationContext;
-        private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly List<Expression> _projection = new List<Expression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<Ordering> _orderBy = new List<Ordering>();
@@ -58,7 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             Dependencies = dependencies;
-            _relationalAnnotationProvider = dependencies.RelationalAnnotationProvider;
             _queryCompilationContext = queryCompilationContext;
         }
 
@@ -481,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var projectedExpressionToSearch = table is SelectExpression subquerySelectExpression
                 ? (Expression)subquerySelectExpression.BindProperty(property, querySource)
                     .LiftExpressionFromSubquery(table)
-                : new ColumnExpression(_relationalAnnotationProvider.For(property).ColumnName, property, table);
+                : new ColumnExpression(property.Relational().ColumnName, property, table);
 
             return projectedExpressionToSearch;
         }

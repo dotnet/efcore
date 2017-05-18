@@ -17,9 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public RelationalForeignKeyBuilderAnnotations(
             [NotNull] InternalRelationshipBuilder internalBuilder,
-            ConfigurationSource configurationSource,
-            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
-            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource), providerFullAnnotationNames)
+            ConfigurationSource configurationSource)
+            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource))
         {
         }
 

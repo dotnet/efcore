@@ -12,13 +12,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public static class RelationalAnnotationProviderExtensions
+    public static class RelationalPropertyExtensions
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static string FormatColumns([NotNull] this IRelationalAnnotationProvider provider, [NotNull] IEnumerable<IProperty> properties)
-            => "{" + string.Join(", ", properties.Select(p => "'" + provider.For(p).ColumnName + "'")) + "}";
+        public static string FormatColumns([NotNull] this IEnumerable<IProperty> properties)
+            => "{" + string.Join(", ", properties.Select(p => "'" + p.Relational().ColumnName + "'")) + "}";
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -18,20 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IForeignKeyOwnershipConvention,
         IForeignKeyUniquenessConvention
     {
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public SharedTableConvention([NotNull] IRelationalAnnotationProvider annotationProvider)
-        {
-            AnnotationProvider = annotationProvider;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual IRelationalAnnotationProvider AnnotationProvider { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -56,12 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             InternalEntityTypeBuilder entityTypeBuilder, string name, Annotation annotation, Annotation oldAnnotation)
         {
             var entityType = entityTypeBuilder.Metadata;
-            var providerAnnotations = (AnnotationProvider.For(entityType) as RelationalEntityTypeAnnotations)?.ProviderFullAnnotationNames;
-            if (name == RelationalFullAnnotationNames.Instance.TableName
-                || name == RelationalFullAnnotationNames.Instance.Schema
-                || (providerAnnotations != null
-                    && (name == providerAnnotations.TableName
-                        || name == providerAnnotations.Schema)))
+            if (name == RelationalAnnotationNames.TableName
+                || name == RelationalAnnotationNames.Schema)
             {
                 foreach (var foreignKey in entityType.GetReferencingForeignKeys())
                 {
@@ -96,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var ownerType = foreignKey.PrincipalEntityType;
             foreignKey.DeclaringEntityType.Builder.Relational(ConfigurationSource.Convention)
-                .ToTable(AnnotationProvider.For(ownerType).TableName, AnnotationProvider.For(ownerType).Schema);
+                .ToTable(ownerType.Relational().TableName, ownerType.Relational().Schema);
         }
     }
 }

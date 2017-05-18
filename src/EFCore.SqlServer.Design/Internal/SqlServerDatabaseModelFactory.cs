@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     if (!string.IsNullOrEmpty(MemoryOptimizedTableColumn))
                     {
-                        table[SqlServerFullAnnotationNames.Instance.MemoryOptimized] = reader.GetValueOrDefault<bool?>("is_memory_optimized");
+                        table[SqlServerAnnotationNames.MemoryOptimized] = reader.GetValueOrDefault<bool?>("is_memory_optimized");
                     }
 
                     Logger.TableFound(table.DisplayName);

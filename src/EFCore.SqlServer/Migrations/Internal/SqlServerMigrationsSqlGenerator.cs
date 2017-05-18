@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -172,10 +170,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (IsOldColumnSupported(model))
             {
                 var valueGenerationStrategy = operation[
-                    SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
+                    SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
                 var identity = valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
                 var oldValueGenerationStrategy = operation.OldColumn[
-                    SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
+                    SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
                 var oldIdentity = oldValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
                 if (identity != oldIdentity)
                 {
@@ -843,7 +841,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             MigrationCommandListBuilder builder)
         {
             var valueGenerationStrategy = annotatable[
-                SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
+                SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
 
             ColumnDefinition(
                 schema,
@@ -976,7 +974,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var clustered = operation[SqlServerFullAnnotationNames.Instance.Clustered] as bool?;
+            var clustered = operation[SqlServerAnnotationNames.Clustered] as bool?;
             if (clustered.HasValue)
             {
                 builder.Append(clustered.Value ? "CLUSTERED " : "NONCLUSTERED ");
@@ -1059,7 +1057,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .OfType<CreateIndexOperation>().ToList();
             foreach (var index in property.GetContainingIndexes())
             {
-                var indexName = Dependencies.Annotations.For(index).Name;
+                var indexName = index.Relational().Name;
                 if (createIndexOperations.Any(o => o.Name == indexName))
                 {
                     continue;
@@ -1080,9 +1078,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 var operation = new DropIndexOperation
                 {
-                    Schema = Dependencies.Annotations.For(index.DeclaringEntityType).Schema,
-                    Table = Dependencies.Annotations.For(index.DeclaringEntityType).TableName,
-                    Name = Dependencies.Annotations.For(index).Name
+                    Schema = index.DeclaringEntityType.Relational().Schema,
+                    Table = index.DeclaringEntityType.Relational().TableName,
+                    Name = index.Relational().Name
                 };
                 operation.AddAnnotations(_migrationsAnnotations.ForRemove(index));
 
@@ -1103,11 +1101,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var operation = new CreateIndexOperation
                 {
                     IsUnique = index.IsUnique,
-                    Name = Dependencies.Annotations.For(index).Name,
-                    Schema = Dependencies.Annotations.For(index.DeclaringEntityType).Schema,
-                    Table = Dependencies.Annotations.For(index.DeclaringEntityType).TableName,
-                    Columns = index.Properties.Select(p => Dependencies.Annotations.For(p).ColumnName).ToArray(),
-                    Filter = Dependencies.Annotations.For(index).Filter
+                    Name = index.Relational().Name,
+                    Schema = index.DeclaringEntityType.Relational().Schema,
+                    Table = index.DeclaringEntityType.Relational().TableName,
+                    Columns = index.Properties.Select(p => p.Relational().ColumnName).ToArray(),
+                    Filter = index.Relational().Filter
                 };
                 operation.AddAnnotations(_migrationsAnnotations.For(index));
 
@@ -1117,6 +1115,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         private static bool IsMemoryOptimized(Annotatable annotatable)
-            => annotatable[SqlServerFullAnnotationNames.Instance.MemoryOptimized] as bool? == true;
+            => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;
     }
 }

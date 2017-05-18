@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var valueGenerationStrategyConvention = new SqlServerValueGenerationStrategyConvention();
             conventionSet.ModelInitializedConventions.Add(valueGenerationStrategyConvention);
 
-            ValueGeneratorConvention valueGeneratorConvention = new SqlServerValueGeneratorConvention(Dependencies.AnnotationProvider);
+            ValueGeneratorConvention valueGeneratorConvention = new SqlServerValueGeneratorConvention();
             ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, valueGeneratorConvention);
 
             var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention();
@@ -66,7 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 new RelationalConventionSetBuilderDependencies(
                     new SqlServerTypeMapper(
                         new RelationalTypeMapperDependencies()),
-                    new SqlServerAnnotationProvider(),
                     null,
                     null),
                 new SqlServerSqlGenerationHelper(

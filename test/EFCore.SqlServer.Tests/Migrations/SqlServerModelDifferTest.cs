@@ -421,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         Assert.Equal("bah", addOperation.Schema);
                         Assert.Equal("Ram", addOperation.Table);
                         Assert.Equal("PK_Ram", addOperation.Name);
-                        Assert.True((bool)addOperation[SqlServerFullAnnotationNames.Instance.Clustered]);
+                        Assert.True((bool)addOperation[SqlServerAnnotationNames.Clustered]);
                     });
         }
 
@@ -462,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         Assert.Equal("bah", addOperation.Schema);
                         Assert.Equal("Ewe", addOperation.Table);
                         Assert.Equal("AK_Ewe_AlternateId", addOperation.Name);
-                        Assert.True((bool)addOperation[SqlServerFullAnnotationNames.Instance.Clustered]);
+                        Assert.True((bool)addOperation[SqlServerAnnotationNames.Clustered]);
                     });
         }
 
@@ -649,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         Assert.Equal("bah", createOperation.Schema);
                         Assert.Equal("Mutton", createOperation.Table);
                         Assert.Equal("IX_Mutton_Value", createOperation.Name);
-                        Assert.True((bool)createOperation[SqlServerFullAnnotationNames.Instance.Clustered]);
+                        Assert.True((bool)createOperation[SqlServerAnnotationNames.Clustered]);
                     });
         }
 
@@ -757,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         Assert.Equal("Horse", operation.Table);
                         Assert.Equal("IX_HorseVal", operation.Name);
                         Assert.True(IsMemoryOptimized(operation));
-                        Assert.Null(operation[SqlServerFullAnnotationNames.Instance.Clustered]);
+                        Assert.Null(operation[SqlServerAnnotationNames.Clustered]);
                     });
         }
 
@@ -848,10 +848,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         protected override MigrationsModelDiffer CreateModelDiffer()
             => new MigrationsModelDiffer(
                 new SqlServerTypeMapper(new RelationalTypeMapperDependencies()),
-                new SqlServerAnnotationProvider(),
                 new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()));
 
         private bool? IsMemoryOptimized(Annotatable annotatable)
-            => annotatable[SqlServerFullAnnotationNames.Instance.MemoryOptimized] as bool?;
+            => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?;
     }
 }

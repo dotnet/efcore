@@ -1126,7 +1126,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName)
             => model?.GetEntityTypes().Where(
-                t => Dependencies.Annotations.For(t).TableName == tableName && Dependencies.Annotations.For(t).Schema == schema);
+                t => t.Relational().TableName == tableName && t.Relational().Schema == schema);
 
         protected virtual IProperty FindProperty(
             [CanBeNull] IModel model,
@@ -1137,7 +1137,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             // checked that all properties result in the same column definition.
             )
             => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
-                 .FirstOrDefault(p => Dependencies.Annotations.For(p).ColumnName == columnName);
+                 .FirstOrDefault(p => p.Relational().ColumnName == columnName);
 
         protected virtual void EndStatement(
             [NotNull] MigrationCommandListBuilder builder,

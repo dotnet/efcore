@@ -13,47 +13,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RelationalEntityTypeAnnotations : IRelationalEntityTypeAnnotations
     {
         public RelationalEntityTypeAnnotations(
-            [NotNull] IEntityType entityType,
-            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
-            : this(new RelationalAnnotations(entityType), providerFullAnnotationNames)
+            [NotNull] IEntityType entityType)
+            : this(new RelationalAnnotations(entityType))
         {
         }
 
         protected RelationalEntityTypeAnnotations(
-            [NotNull] RelationalAnnotations annotations,
-            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
-        {
-            Annotations = annotations;
-            ProviderFullAnnotationNames = providerFullAnnotationNames;
-        }
-
-        public virtual RelationalFullAnnotationNames ProviderFullAnnotationNames { get; }
+            [NotNull] RelationalAnnotations annotations) => Annotations = annotations;
 
         protected virtual RelationalAnnotations Annotations { get; }
+
         protected virtual IEntityType EntityType => (IEntityType)Annotations.Metadata;
 
         protected virtual RelationalModelAnnotations GetAnnotations([NotNull] IModel model)
-            => new RelationalModelAnnotations(model, ProviderFullAnnotationNames);
+            => new RelationalModelAnnotations(model);
 
         protected virtual RelationalEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType)
-            => new RelationalEntityTypeAnnotations(entityType, ProviderFullAnnotationNames);
+            => new RelationalEntityTypeAnnotations(entityType);
 
         public virtual string TableName
         {
-            get
-            {
-                if (EntityType.BaseType != null)
-                {
-                    var rootType = EntityType.RootType();
-                    return GetAnnotations(rootType).TableName;
-                }
+            get => EntityType.BaseType != null
+                ? GetAnnotations(EntityType.RootType()).TableName
+                : ((string)Annotations.GetAnnotation(RelationalAnnotationNames.TableName)
+                   ?? GetDefaultTableName());
 
-                return (string)Annotations.GetAnnotation(
-                           RelationalFullAnnotationNames.Instance.TableName,
-                           ProviderFullAnnotationNames?.TableName)
-                       ?? GetDefaultTableName();
-            }
-            [param: CanBeNull] set { SetTableName(value); }
+            [param: CanBeNull] set => SetTableName(value);
         }
 
         private string GetDefaultTableName()
@@ -63,37 +48,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         protected virtual bool SetTableName([CanBeNull] string value)
             => Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.TableName,
-                ProviderFullAnnotationNames?.TableName,
+                RelationalAnnotationNames.TableName,
                 Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual string Schema
         {
-            get
-            {
-                if (EntityType.BaseType != null)
-                {
-                    var rootType = EntityType.RootType();
-                    return GetAnnotations(rootType).Schema;
-                }
+            get => EntityType.BaseType != null
+                ? GetAnnotations(EntityType.RootType()).Schema
+                : ((string)Annotations.GetAnnotation(RelationalAnnotationNames.Schema)
+                   ?? GetDefaultSchema());
 
-                return (string)Annotations.GetAnnotation(
-                           RelationalFullAnnotationNames.Instance.Schema,
-                           ProviderFullAnnotationNames?.Schema)
-                       ?? GetDefaultSchema();
-            }
-            [param: CanBeNull] set { SetSchema(value); }
+            [param: CanBeNull] set => SetSchema(value);
         }
 
         private string GetDefaultSchema()
             => EntityType.HasDelegatedIdentity()
-            ? GetAnnotations(EntityType.DefiningEntityType).Schema
-            : GetAnnotations(EntityType.Model).DefaultSchema;
+                ? GetAnnotations(EntityType.DefiningEntityType).Schema
+                : GetAnnotations(EntityType.Model).DefaultSchema;
 
         protected virtual bool SetSchema([CanBeNull] string value)
             => Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.Schema,
-                ProviderFullAnnotationNames?.Schema,
+                RelationalAnnotationNames.Schema,
                 Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual IProperty DiscriminatorProperty
@@ -102,24 +77,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 if (EntityType.BaseType != null)
                 {
-                    var rootType = EntityType.RootType();
-                    return GetAnnotations(rootType).DiscriminatorProperty;
+                    return GetAnnotations(EntityType.RootType()).DiscriminatorProperty;
                 }
 
-                var propertyName = (string)Annotations.GetAnnotation(
-                    RelationalFullAnnotationNames.Instance.DiscriminatorProperty,
-                    ProviderFullAnnotationNames?.DiscriminatorProperty);
+                var propertyName = (string)Annotations.GetAnnotation(RelationalAnnotationNames.DiscriminatorProperty);
 
                 return propertyName == null ? null : EntityType.FindProperty(propertyName);
             }
-            [param: CanBeNull] set { SetDiscriminatorProperty(value); }
+            [param: CanBeNull] set => SetDiscriminatorProperty(value);
         }
 
         protected virtual IProperty GetNonRootDiscriminatorProperty()
         {
-            var propertyName = (string)Annotations.GetAnnotation(
-                RelationalFullAnnotationNames.Instance.DiscriminatorProperty,
-                ProviderFullAnnotationNames?.DiscriminatorProperty);
+            var propertyName = (string)Annotations.GetAnnotation(RelationalAnnotationNames.DiscriminatorProperty);
 
             return propertyName == null ? null : EntityType.FindProperty(propertyName);
         }
@@ -154,28 +124,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             return Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.DiscriminatorProperty,
-                ProviderFullAnnotationNames?.DiscriminatorProperty,
+                RelationalAnnotationNames.DiscriminatorProperty,
                 value?.Name);
         }
 
         protected virtual ConfigurationSource? GetDiscriminatorPropertyConfigurationSource()
-        {
-            var entityType = EntityType as EntityType;
-            var annotation = (ProviderFullAnnotationNames == null ? null : entityType?.FindAnnotation(ProviderFullAnnotationNames?.DiscriminatorProperty))
-                             ?? entityType?.FindAnnotation(RelationalFullAnnotationNames.Instance.DiscriminatorProperty);
-            return annotation?.GetConfigurationSource();
-        }
+            => (EntityType as EntityType)
+                ?.FindAnnotation(RelationalAnnotationNames.DiscriminatorProperty)
+                ?.GetConfigurationSource();
 
         public virtual object DiscriminatorValue
         {
-            get
-            {
-                return Annotations.GetAnnotation(
-                    RelationalFullAnnotationNames.Instance.DiscriminatorValue,
-                    ProviderFullAnnotationNames?.DiscriminatorValue);
-            }
-            [param: CanBeNull] set { SetDiscriminatorValue(value); }
+            get => Annotations.GetAnnotation(RelationalAnnotationNames.DiscriminatorValue);
+            [param: CanBeNull] set => SetDiscriminatorValue(value);
         }
 
         protected virtual bool SetDiscriminatorValue([CanBeNull] object value)
@@ -190,22 +151,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             if (value != null
                 && !DiscriminatorProperty.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
             {
-                throw new InvalidOperationException(RelationalStrings.DiscriminatorValueIncompatible(
-                    value, DiscriminatorProperty.Name, DiscriminatorProperty.ClrType));
+                throw new InvalidOperationException(
+                    RelationalStrings.DiscriminatorValueIncompatible(
+                        value, DiscriminatorProperty.Name, DiscriminatorProperty.ClrType));
             }
 
-            return Annotations.SetAnnotation
-            (RelationalFullAnnotationNames.Instance.DiscriminatorValue,
-                ProviderFullAnnotationNames?.DiscriminatorValue,
-                value);
+            return Annotations.SetAnnotation(RelationalAnnotationNames.DiscriminatorValue, value);
         }
 
         protected virtual ConfigurationSource? GetDiscriminatorValueConfigurationSource()
-        {
-            var entityType = EntityType as EntityType;
-            var annotation = (ProviderFullAnnotationNames == null ? null : entityType?.FindAnnotation(ProviderFullAnnotationNames?.DiscriminatorValue))
-                             ?? entityType?.FindAnnotation(RelationalFullAnnotationNames.Instance.DiscriminatorValue);
-            return annotation?.GetConfigurationSource();
-        }
+            => (EntityType as EntityType)
+                ?.FindAnnotation(RelationalAnnotationNames.DiscriminatorValue)
+                ?.GetConfigurationSource();
     }
 }

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata.Conventions
 
             Assert.Equal(1, model.GetAnnotations().Count());
 
-            Assert.Equal(SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy, model.GetAnnotations().Single().Name);
+            Assert.Equal(SqlServerAnnotationNames.ValueGenerationStrategy, model.GetAnnotations().Single().Name);
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, model.GetAnnotations().Single().Value);
         }
 
@@ -32,17 +32,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata.Conventions
             var annotations = model.GetAnnotations().OrderBy(a => a.Name);
             Assert.Equal(3, annotations.Count());
 
-            Assert.Equal(SqlServerFullAnnotationNames.Instance.HiLoSequenceName, annotations.ElementAt(0).Name);
-            Assert.Equal(SqlServerModelAnnotations.DefaultHiLoSequenceName, annotations.ElementAt(0).Value);
-
             Assert.Equal(
-                SqlServerFullAnnotationNames.Instance.SequencePrefix +
+                RelationalAnnotationNames.SequencePrefix +
                 "." +
                 SqlServerModelAnnotations.DefaultHiLoSequenceName,
-                annotations.ElementAt(1).Name);
-            Assert.NotNull(annotations.ElementAt(1).Value);
+                annotations.ElementAt(0).Name);
+            Assert.NotNull(annotations.ElementAt(0).Value);
 
-            Assert.Equal(SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy, annotations.ElementAt(2).Name);
+            Assert.Equal(SqlServerAnnotationNames.HiLoSequenceName, annotations.ElementAt(1).Name);
+            Assert.Equal(SqlServerModelAnnotations.DefaultHiLoSequenceName, annotations.ElementAt(1).Value);
+
+            Assert.Equal(SqlServerAnnotationNames.ValueGenerationStrategy, annotations.ElementAt(2).Name);
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, annotations.ElementAt(2).Value);
         }
     }

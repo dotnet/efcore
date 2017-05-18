@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             const int blockSize = 4;
 
-            var sequence = Sequence.GetOrAddSequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo");
+            var sequence = Sequence.GetOrAddSequence(new Model(), RelationalAnnotationNames.SequencePrefix, "Foo");
             sequence.IncrementBy = blockSize;
             var state = new SqlServerSequenceValueGeneratorState(sequence);
 
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
 
-            var sequence = Sequence.GetOrAddSequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo");
+            var sequence = Sequence.GetOrAddSequence(new Model(), RelationalAnnotationNames.SequencePrefix, "Foo");
             sequence.IncrementBy = blockSize;
             var state = new SqlServerSequenceValueGeneratorState(sequence);
 
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public void Does_not_generate_temp_values()
         {
-            var sequence = Sequence.GetOrAddSequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo");
+            var sequence = Sequence.GetOrAddSequence(new Model(), RelationalAnnotationNames.SequencePrefix, "Foo");
             sequence.IncrementBy = 4;
             var state = new SqlServerSequenceValueGeneratorState(sequence);
 

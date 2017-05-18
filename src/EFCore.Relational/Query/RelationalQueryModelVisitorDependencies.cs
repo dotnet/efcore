@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -48,21 +47,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public RelationalQueryModelVisitorDependencies(
             [NotNull] IRelationalResultOperatorHandler relationalResultOperatorHandler,
-            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory,
             [NotNull] IDbContextOptions contextOptions)
         {
             Check.NotNull(relationalResultOperatorHandler, nameof(relationalResultOperatorHandler));
-            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
             Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(conditionalRemovingExpressionVisitorFactory, nameof(conditionalRemovingExpressionVisitorFactory));
             Check.NotNull(contextOptions, nameof(contextOptions));
 
             RelationalResultOperatorHandler = relationalResultOperatorHandler;
-            RelationalAnnotationProvider = relationalAnnotationProvider;
             SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
             CompositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
             ConditionalRemovingExpressionVisitorFactory = conditionalRemovingExpressionVisitorFactory;
@@ -73,11 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Gets the <see cref="IRelationalResultOperatorHandler" /> to be used when processing a query.
         /// </summary>
         public IRelationalResultOperatorHandler RelationalResultOperatorHandler { get; }
-
-        /// <summary>
-        ///     Gets the relational annotation provider.
-        /// </summary>
-        public IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
 
         /// <summary>
         ///     Gets the SQL translating expression visitor factory.
@@ -107,21 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalQueryModelVisitorDependencies With([NotNull] IRelationalResultOperatorHandler relationalResultOperatorHandler)
             => new RelationalQueryModelVisitorDependencies(
                 relationalResultOperatorHandler,
-                RelationalAnnotationProvider,
-                SqlTranslatingExpressionVisitorFactory,
-                CompositePredicateExpressionVisitorFactory,
-                ConditionalRemovingExpressionVisitorFactory,
-                ContextOptions);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="relationalAnnotationProvider"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalQueryModelVisitorDependencies With([NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
-            => new RelationalQueryModelVisitorDependencies(
-                RelationalResultOperatorHandler,
-                relationalAnnotationProvider,
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
@@ -135,7 +111,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalQueryModelVisitorDependencies With([NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory)
             => new RelationalQueryModelVisitorDependencies(
                 RelationalResultOperatorHandler,
-                RelationalAnnotationProvider,
                 sqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
@@ -149,7 +124,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalQueryModelVisitorDependencies With([NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory)
             => new RelationalQueryModelVisitorDependencies(
                 RelationalResultOperatorHandler,
-                RelationalAnnotationProvider,
                 SqlTranslatingExpressionVisitorFactory,
                 compositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
@@ -163,7 +137,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalQueryModelVisitorDependencies With([NotNull] IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory)
             => new RelationalQueryModelVisitorDependencies(
                 RelationalResultOperatorHandler,
-                RelationalAnnotationProvider,
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 conditionalRemovingExpressionVisitorFactory,
@@ -177,7 +150,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalQueryModelVisitorDependencies With([NotNull] IDbContextOptions contextOptions)
             => new RelationalQueryModelVisitorDependencies(
                 RelationalResultOperatorHandler,
-                RelationalAnnotationProvider,
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,

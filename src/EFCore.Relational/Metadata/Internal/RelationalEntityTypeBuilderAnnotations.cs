@@ -29,9 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public RelationalEntityTypeBuilderAnnotations(
             [NotNull] InternalEntityTypeBuilder internalBuilder,
-            ConfigurationSource configurationSource,
-            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
-            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource), providerFullAnnotationNames)
+            ConfigurationSource configurationSource)
+            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource))
         {
         }
 
@@ -54,8 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected override RelationalModelAnnotations GetAnnotations(IModel model)
             => new RelationalModelBuilderAnnotations(
                 ((Model)model).Builder,
-                Annotations.ConfigurationSource,
-                ProviderFullAnnotationNames);
+                Annotations.ConfigurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -64,8 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected override RelationalEntityTypeAnnotations GetAnnotations(IEntityType entityType)
             => new RelationalEntityTypeBuilderAnnotations(
                 ((EntityType)entityType).Builder,
-                Annotations.ConfigurationSource,
-                ProviderFullAnnotationNames);
+                Annotations.ConfigurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -182,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return new DiscriminatorBuilder(Annotations, entityBuilder
-                => new RelationalEntityTypeBuilderAnnotations(entityBuilder, Annotations.ConfigurationSource, ProviderFullAnnotationNames));
+                => new RelationalEntityTypeBuilderAnnotations(entityBuilder, Annotations.ConfigurationSource));
         }
 
         private DiscriminatorBuilder DiscriminatorBuilder(
@@ -254,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 configurationSource);
 
             return new DiscriminatorBuilder(Annotations, entityBuilder
-                => new RelationalEntityTypeBuilderAnnotations(entityBuilder, Annotations.ConfigurationSource, ProviderFullAnnotationNames));
+                => new RelationalEntityTypeBuilderAnnotations(entityBuilder, Annotations.ConfigurationSource));
         }
 
         /// <summary>

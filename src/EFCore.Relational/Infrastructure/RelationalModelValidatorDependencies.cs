@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -44,23 +43,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        /// <param name="relationalExtensions"> The relational annotation provider. </param>
         /// <param name="typeMapper"> The type mapper. </param>
         public RelationalModelValidatorDependencies(
-            [NotNull] IRelationalAnnotationProvider relationalExtensions,
             [NotNull] IRelationalTypeMapper typeMapper)
         {
-            Check.NotNull(relationalExtensions, nameof(relationalExtensions));
             Check.NotNull(typeMapper, nameof(typeMapper));
 
-            RelationalExtensions = relationalExtensions;
             TypeMapper = typeMapper;
         }
-
-        /// <summary>
-        ///     Gets the relational annotation provider.
-        /// </summary>
-        public IRelationalAnnotationProvider RelationalExtensions { get; }
 
         /// <summary>
         ///     Gets the type mapper.
@@ -70,17 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="relationalExtensions"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalModelValidatorDependencies With([NotNull] IRelationalAnnotationProvider relationalExtensions)
-            => new RelationalModelValidatorDependencies(relationalExtensions, TypeMapper);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
         /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalModelValidatorDependencies With([NotNull] IRelationalTypeMapper typeMapper)
-            => new RelationalModelValidatorDependencies(RelationalExtensions, typeMapper);
+            => new RelationalModelValidatorDependencies(typeMapper);
     }
 }

@@ -139,7 +139,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
 
         private static IHistoryRepository CreateHistoryRepository(string schema = null)
         {
-            var annotationsProvider = new SqlServerAnnotationProvider();
             var sqlGenerator = new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
             var typeMapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
 
@@ -163,16 +162,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         }),
                     new MigrationsModelDiffer(
                         new SqlServerTypeMapper(new RelationalTypeMapperDependencies()),
-                        annotationsProvider,
                         new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
                     new SqlServerMigrationsSqlGenerator(
                         new MigrationsSqlGeneratorDependencies(
                             commandBuilderFactory,
                             new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
-                            typeMapper,
-                            annotationsProvider),
+                            typeMapper),
                         new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
-                    annotationsProvider,
                     sqlGenerator));
         }
 

@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests.Migrations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Xunit;
 
@@ -45,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     {
                         Assert.Equal(3, o.GetAnnotations().Count());
                         Assert.Equal("AnnotationValue", o["AnnotationName"]);
-                        Assert.Equal("DefaultSchema", o[RelationalFullAnnotationNames.Instance.DefaultSchema]);
+                        Assert.Equal("DefaultSchema", o[RelationalAnnotationNames.DefaultSchema]);
                     });
         }
 

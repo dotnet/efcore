@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata
 
             property.Sqlite().ColumnName = null;
 
-            Assert.Equal("Eman", property.Sqlite().ColumnName);
-            Assert.Equal("Eman", ((IProperty)property).Sqlite().ColumnName);
+            Assert.Equal("Name", property.Sqlite().ColumnName);
+            Assert.Equal("Name", ((IProperty)property).Sqlite().ColumnName);
         }
 
         [Fact]
@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata
 
             entityType.Sqlite().TableName = null;
 
-            Assert.Equal("Customizer", entityType.Sqlite().TableName);
-            Assert.Equal("Customizer", ((IEntityType)entityType).Sqlite().TableName);
+            Assert.Equal("Customer", entityType.Sqlite().TableName);
+            Assert.Equal("Customer", ((IEntityType)entityType).Sqlite().TableName);
         }
 
         [Fact]
@@ -109,8 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata
 
             property.Sqlite().ColumnType = null;
 
-            Assert.Equal("nvarchar(max)", property.Sqlite().ColumnType);
-            Assert.Equal("nvarchar(max)", ((IProperty)property).Sqlite().ColumnType);
+            Assert.Null(property.Sqlite().ColumnType);
+            Assert.Null(((IProperty)property).Sqlite().ColumnType);
         }
 
         [Fact]
@@ -138,8 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata
 
             property.Sqlite().DefaultValueSql = null;
 
-            Assert.Equal("newsequentialid()", property.Sqlite().DefaultValueSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).Sqlite().DefaultValueSql);
+            Assert.Null(property.Sqlite().DefaultValueSql);
+            Assert.Null(((IProperty)property).Sqlite().DefaultValueSql);
         }
 
         [Fact]
@@ -167,8 +167,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata
 
             key.Sqlite().Name = null;
 
-            Assert.Equal("PrimaryKey", key.Sqlite().Name);
-            Assert.Equal("PrimaryKey", ((IKey)key).Sqlite().Name);
+            Assert.Equal("PK_Customer", key.Sqlite().Name);
+            Assert.Equal("PK_Customer", ((IKey)key).Sqlite().Name);
         }
 
         [Fact]
@@ -202,8 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata
 
             foreignKey.Sqlite().Name = null;
 
-            Assert.Equal("FK", foreignKey.Sqlite().Name);
-            Assert.Equal("FK", ((IForeignKey)foreignKey).Sqlite().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Sqlite().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).Sqlite().Name);
         }
 
         [Fact]
@@ -231,8 +231,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata
 
             index.Sqlite().Name = null;
 
-            Assert.Equal("MyIndex", index.Sqlite().Name);
-            Assert.Equal("MyIndex", ((IIndex)index).Sqlite().Name);
+            Assert.Equal("IX_Customer_Id", index.Sqlite().Name);
+            Assert.Equal("IX_Customer_Id", ((IIndex)index).Sqlite().Name);
         }
 
         [Fact]
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata
 
             var sequence = model.Sqlite().GetOrAddSequence("Foo");
 
-            Assert.Null(model.Relational().FindSequence("Foo"));
+            Assert.Equal("Foo", model.Relational().FindSequence("Foo").Name);
             Assert.Equal("Foo", model.Sqlite().FindSequence("Foo").Name);
             Assert.Equal("Foo", ((IModel)model).Sqlite().FindSequence("Foo").Name);
 
@@ -259,9 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata
             Assert.Null(sequence.MaxValue);
             Assert.Same(typeof(long), sequence.ClrType);
 
-            Assert.Null(model.Relational().FindSequence("Foo"));
-
-            var sequence2 = model.Sqlite().FindSequence("Foo");
+            var sequence2 = model.Relational().FindSequence("Foo");
 
             sequence.StartValue = 1729;
             sequence.IncrementBy = 11;

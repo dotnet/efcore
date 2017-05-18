@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
                 entityTypeBuilder.Property(e => e.Name).ForSqlServerHasColumnName(null);
 
-                Assert.Equal("[RelationalName] IS NOT NULL", index.SqlServer().Filter);
+                Assert.Equal("[Name] IS NOT NULL", index.SqlServer().Filter);
             }
 
             protected override TestModelBuilder CreateModelBuilder()

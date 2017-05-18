@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity to get metadata for. </param>
         /// <returns> The SQLite specific metadata for the entity. </returns>
         public static IRelationalEntityTypeAnnotations Sqlite([NotNull] this IEntityType entityType)
-            => new RelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)), SqliteFullAnnotationNames.Instance);
+            => new RelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)));
 
         /// <summary>
         ///     Gets the SQLite specific metadata for an entity.
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="foreignKey"> The entity to get metadata for. </param>
         /// <returns> The SQLite specific metadata for the foreign key. </returns>
         public static IRelationalForeignKeyAnnotations Sqlite([NotNull] this IForeignKey foreignKey)
-            => new RelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)), SqliteFullAnnotationNames.Instance);
+            => new RelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)));
 
         /// <summary>
         ///     Gets the SQLite specific metadata for a foreign key.
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index to get metadata for. </param>
         /// <returns> The SQLite specific metadata for the index. </returns>
         public static IRelationalIndexAnnotations Sqlite([NotNull] this IIndex index)
-            => new RelationalIndexAnnotations(Check.NotNull(index, nameof(index)), SqliteFullAnnotationNames.Instance);
+            => new RelationalIndexAnnotations(Check.NotNull(index, nameof(index)));
 
         /// <summary>
         ///     Gets the SQLite specific metadata for an index.
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key to get metadata for. </param>
         /// <returns> The SQLite specific metadata for the key. </returns>
         public static IRelationalKeyAnnotations Sqlite([NotNull] this IKey key)
-            => new RelationalKeyAnnotations(Check.NotNull(key, nameof(key)), SqliteFullAnnotationNames.Instance);
+            => new RelationalKeyAnnotations(Check.NotNull(key, nameof(key)));
 
         /// <summary>
         ///     Gets the SQLite specific metadata for a key.
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to get metadata for. </param>
         /// <returns> The SQLite specific metadata for the model. </returns>
         public static IRelationalModelAnnotations Sqlite([NotNull] this IModel model)
-            => new RelationalModelAnnotations(Check.NotNull(model, nameof(model)), SqliteFullAnnotationNames.Instance);
+            => new RelationalModelAnnotations(Check.NotNull(model, nameof(model)));
 
         /// <summary>
         ///     Gets the SQLite specific metadata for a model.
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to get metadata for. </param>
         /// <returns> The SQLite specific metadata for the property. </returns>
         public static IRelationalPropertyAnnotations Sqlite([NotNull] this IProperty property)
-            => new RelationalPropertyAnnotations(Check.NotNull(property, nameof(property)), SqliteFullAnnotationNames.Instance);
+            => new RelationalPropertyAnnotations(Check.NotNull(property, nameof(property)));
 
         /// <summary>
         ///     Gets the SQLite specific metadata for a property.

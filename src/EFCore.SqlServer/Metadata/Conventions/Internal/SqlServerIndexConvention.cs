@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         public virtual Annotation Apply(InternalIndexBuilder indexBuilder, string name, Annotation annotation, Annotation oldAnnotation)
         {
-            if (name == SqlServerFullAnnotationNames.Instance.Clustered)
+            if (name == SqlServerAnnotationNames.Clustered)
             {
                 SetIndexFilter(indexBuilder);
             }
@@ -54,9 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         public virtual Annotation Apply(InternalPropertyBuilder propertyBuilder, string name, Annotation annotation, Annotation oldAnnotation)
         {
-            if (name == SqlServerFullAnnotationNames.Instance.ColumnName
-                || (name == RelationalFullAnnotationNames.Instance.ColumnName
-                    && propertyBuilder.Metadata.FindAnnotation(SqlServerFullAnnotationNames.Instance.ColumnName) == null))
+            if (name == RelationalAnnotationNames.ColumnName)
             {
                 foreach (var index in propertyBuilder.Metadata.GetContainingIndexes())
                 {

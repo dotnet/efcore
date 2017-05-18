@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.Migrations
                     {
                         Assert.Equal(2, o.GetAnnotations().Count());
                         Assert.Equal("AnnotationValue", o["AnnotationName"]);
-                        Assert.Equal("DefaultSchema", o[RelationalFullAnnotationNames.Instance.DefaultSchema]);
+                        Assert.Equal("DefaultSchema", o[RelationalAnnotationNames.DefaultSchema]);
                     });
         }
 
@@ -332,10 +332,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
 ",
                 o =>
                     {
-                        Assert.Equal("Discriminator", o.FindEntityType(typeof(BaseEntity))[RelationalFullAnnotationNames.Instance.DiscriminatorProperty]);
-                        Assert.Equal("BaseEntity", o.FindEntityType(typeof(BaseEntity))[RelationalFullAnnotationNames.Instance.DiscriminatorValue]);
-                        Assert.Equal("AnotherDerivedEntity", o.FindEntityType(typeof(AnotherDerivedEntity))[RelationalFullAnnotationNames.Instance.DiscriminatorValue]);
-                        Assert.Equal("DerivedEntity", o.FindEntityType(typeof(DerivedEntity))[RelationalFullAnnotationNames.Instance.DiscriminatorValue]);
+                        Assert.Equal("Discriminator", o.FindEntityType(typeof(BaseEntity))[RelationalAnnotationNames.DiscriminatorProperty]);
+                        Assert.Equal("BaseEntity", o.FindEntityType(typeof(BaseEntity))[RelationalAnnotationNames.DiscriminatorValue]);
+                        Assert.Equal("AnotherDerivedEntity", o.FindEntityType(typeof(AnotherDerivedEntity))[RelationalAnnotationNames.DiscriminatorValue]);
+                        Assert.Equal("DerivedEntity", o.FindEntityType(typeof(DerivedEntity))[RelationalAnnotationNames.DiscriminatorValue]);
                     });
         }
 

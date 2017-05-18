@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         {
             var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            entityBuilder.HasAnnotation(RelationalFullAnnotationNames.Instance.TableName, "ConventionalName", ConfigurationSource.Convention);
-            entityBuilder.HasAnnotation(RelationalFullAnnotationNames.Instance.Schema, "ConventionalSchema", ConfigurationSource.Convention);
+            entityBuilder.HasAnnotation(RelationalAnnotationNames.TableName, "ConventionalName", ConfigurationSource.Convention);
+            entityBuilder.HasAnnotation(RelationalAnnotationNames.Schema, "ConventionalSchema", ConfigurationSource.Convention);
 
             new RelationalTableAttributeConvention().Apply(entityBuilder);
 
@@ -43,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         {
             var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            entityBuilder.HasAnnotation(RelationalFullAnnotationNames.Instance.TableName, "ExplicitName", ConfigurationSource.Explicit);
-            entityBuilder.HasAnnotation(RelationalFullAnnotationNames.Instance.Schema, "ExplicitName", ConfigurationSource.Explicit);
+            entityBuilder.HasAnnotation(RelationalAnnotationNames.TableName, "ExplicitName", ConfigurationSource.Explicit);
+            entityBuilder.HasAnnotation(RelationalAnnotationNames.Schema, "ExplicitName", ConfigurationSource.Explicit);
 
             new RelationalTableAttributeConvention().Apply(entityBuilder);
 

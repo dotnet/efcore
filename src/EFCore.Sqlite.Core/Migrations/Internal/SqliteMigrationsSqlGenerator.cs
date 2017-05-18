@@ -91,10 +91,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var columnOp = operation.Columns.FirstOrDefault(o => o.Name == operation.PrimaryKey.Columns[0]);
                 if (columnOp != null)
                 {
-                    columnOp.AddAnnotation(SqliteFullAnnotationNames.Instance.InlinePrimaryKey, true);
+                    columnOp.AddAnnotation(SqliteAnnotationNames.InlinePrimaryKey, true);
                     if (!string.IsNullOrEmpty(operation.PrimaryKey.Name))
                     {
-                        columnOp.AddAnnotation(SqliteFullAnnotationNames.Instance.InlinePrimaryKeyName, operation.PrimaryKey.Name);
+                        columnOp.AddAnnotation(SqliteAnnotationNames.InlinePrimaryKeyName, operation.PrimaryKey.Name);
                     }
                     operation.PrimaryKey = null;
                 }
@@ -124,11 +124,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 schema, table, name, clrType, type, unicode, maxLength, rowVersion, nullable,
                 defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
 
-            var inlinePk = annotatable[SqliteFullAnnotationNames.Instance.InlinePrimaryKey] as bool?;
+            var inlinePk = annotatable[SqliteAnnotationNames.InlinePrimaryKey] as bool?;
             if (inlinePk == true)
             {
                 var inlinePkName = annotatable[
-                    SqliteFullAnnotationNames.Instance.InlinePrimaryKeyName] as string;
+                    SqliteAnnotationNames.InlinePrimaryKeyName] as string;
                 if (!string.IsNullOrEmpty(inlinePkName))
                 {
                     builder
@@ -136,9 +136,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(inlinePkName));
                 }
                 builder.Append(" PRIMARY KEY");
-                var autoincrement = annotatable[SqliteFullAnnotationNames.Instance.Autoincrement] as bool?
+                var autoincrement = annotatable[SqliteAnnotationNames.Autoincrement] as bool?
                     // NB: Migrations scaffolded with version 1.0.0 don't have the prefix. See #6461
-                    ?? annotatable[SqliteAnnotationNames.Autoincrement] as bool?;
+                    ?? annotatable[SqliteAnnotationNames.LegacyAutoincrement] as bool?;
                 if (autoincrement == true)
                 {
                     builder.Append(" AUTOINCREMENT");
