@@ -461,7 +461,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (string.IsNullOrEmpty(propertyName))
             {
-                foreach (var property in entityType.GetProperties().Where(p => !p.IsReadOnlyAfterSave))
+                foreach (var property in entityType.GetProperties()
+                    .Where(p => p.AfterSaveBehavior == PropertyValueBehavior.UseValue))
                 {
                     yield return property;
                 }

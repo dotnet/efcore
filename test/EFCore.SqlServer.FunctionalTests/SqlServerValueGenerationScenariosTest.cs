@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -180,12 +181,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     .HasSequence("MySequence")
                     .StartsAt(77);
 
-                // TODO: Nested closure for Metadata
                 modelBuilder
                     .Entity<Blog>()
                     .Property(e => e.Id)
                     .HasDefaultValueSql("next value for MySequence")
-                    .Metadata.IsReadOnlyBeforeSave = true;
+                    .Metadata.BeforeSaveBehavior = PropertyValueBehavior.Throw;
             }
         }
 
@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 modelBuilder.Entity<Blog>()
                     .Property(e => e.CreatedOn)
                     .HasDefaultValueSql("getdate()")
-                    .Metadata.IsReadOnlyBeforeSave = true;
+                    .Metadata.BeforeSaveBehavior = PropertyValueBehavior.Throw;
             }
         }
 
@@ -434,9 +434,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<FullNameBlog>()
+                var property = modelBuilder.Entity<FullNameBlog>()
                     .Property(e => e.FullName)
-                    .HasComputedColumnSql("FirstName + ' ' + LastName");
+                    .HasComputedColumnSql("FirstName + ' ' + LastName")
+                    .Metadata;
+
+                property.BeforeSaveBehavior = PropertyValueBehavior.Throw;
+                property.AfterSaveBehavior = PropertyValueBehavior.Throw;
             }
         }
 
@@ -491,7 +495,8 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
             {
                 modelBuilder.Entity<FullNameBlog>()
                     .Property(e => e.FullName)
-                    .HasComputedColumnSql("[dbo].[GetFullName]([FirstName], [LastName])");
+                    .HasComputedColumnSql("[dbo].[GetFullName]([FirstName], [LastName])")
+                    .Metadata.AfterSaveBehavior = PropertyValueBehavior.Throw;
             }
         }
 
@@ -825,7 +830,7 @@ END");
                     .Entity<Blog>()
                     .Property(e => e.Id)
                     .HasDefaultValueSql("next value for MySequence")
-                    .Metadata.IsReadOnlyBeforeSave = true;
+                    .Metadata.BeforeSaveBehavior = PropertyValueBehavior.Throw;
             }
         }
 

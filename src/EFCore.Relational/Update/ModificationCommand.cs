@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -137,7 +138,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                     var isConcurrencyToken = property.IsConcurrencyToken;
                     var isCondition = !adding && (isKey || isConcurrencyToken);
                     var readValue = entry.IsStoreGenerated(property);
-                    var writeValue = !readValue && (adding || entry.IsModified(property));
+
+                    var writeValue = !readValue
+                                     && ((adding
+                                          && property.BeforeSaveBehavior == PropertyValueBehavior.UseValue)
+                                         || (!adding
+                                             && property.AfterSaveBehavior == PropertyValueBehavior.UseValue
+                                             && entry.IsModified(property)));
 
                     if (readValue
                         || writeValue
