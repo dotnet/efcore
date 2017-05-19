@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
     ///     <para>

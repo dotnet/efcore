@@ -98,19 +98,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             // Look for IDbContextFactory implementations
             var contextFactories = _startupAssembly.GetConstructableTypes()
-                .Where(t => typeof(IDbContextFactory<DbContext>).GetTypeInfo().IsAssignableFrom(t));
+                .Where(t => typeof(IDesignTimeDbContextFactory<DbContext>).GetTypeInfo().IsAssignableFrom(t));
             foreach (var factory in contextFactories)
             {
                 var manufacturedContexts =
                     from i in factory.ImplementedInterfaces
                     where i.GetTypeInfo().IsGenericType
-                          && i.GetGenericTypeDefinition() == typeof(IDbContextFactory<>)
+                          && i.GetGenericTypeDefinition() == typeof(IDesignTimeDbContextFactory<>)
                     select i.GenericTypeArguments[0];
                 foreach (var context in manufacturedContexts)
                 {
                     contexts.Add(
                         context,
-                        () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).Create(_args));
+                        () => ((IDesignTimeDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).CreateDbContext(_args));
                 }
             }
 
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         private Func<DbContext> FindContextFactory(Type contextType)
         {
-            var factoryInterface = typeof(IDbContextFactory<>).MakeGenericType(contextType).GetTypeInfo();
+            var factoryInterface = typeof(IDesignTimeDbContextFactory<>).MakeGenericType(contextType).GetTypeInfo();
             var factory = contextType.GetTypeInfo().Assembly.GetConstructableTypes()
                 .Where(t => factoryInterface.IsAssignableFrom(t))
                 .FirstOrDefault();
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return null;
             }
 
-            return () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).Create(_args);
+            return () => ((IDesignTimeDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).CreateDbContext(_args);
         }
 
         private KeyValuePair<Type, Func<DbContext>> FindContextType(string name)

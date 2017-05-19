@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
     ///     Enables configuring design-time services. Tools will automatically discover implementations of this

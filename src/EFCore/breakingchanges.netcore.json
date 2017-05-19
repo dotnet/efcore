@@ -4,10 +4,6 @@
       "Kind": "Removal"
     },
     {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.DbContextFactoryOptions",
-      "Kind": "Removal"
-    },
-    {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.Extensions.DependencyInjection.IServiceCollection>",
       "Kind": "Removal"
     },
@@ -454,11 +450,6 @@
       "Kind": "Removal"
     },
     {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextFactory<T0> where T0 : Microsoft.EntityFrameworkCore.DbContext",
-      "MemberId": "T0 Create(Microsoft.EntityFrameworkCore.Infrastructure.DbContextFactoryOptions options)",
-      "Kind": "Removal"
-    },
-    {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IModel : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
       "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IEntityType FindDelegatedIdentityEntityType(System.String name, System.String definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IEntityType definingEntityType)",
       "Kind": "Addition"
@@ -584,8 +575,11 @@
       "Kind": "Addition"
     },
     {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextFactory<T0> where T0 : Microsoft.EntityFrameworkCore.DbContext",
-      "MemberId": "T0 Create(System.String[] args)",
-      "Kind": "Addition"
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDesignTimeServices",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Infrastructure.DesignTimeProviderServicesAttribute : System.Attribute",
+      "Kind": "Removal"
     }
   ]

@@ -3,7 +3,7 @@
 
 using System;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Design;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests
