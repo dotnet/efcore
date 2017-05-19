@@ -57,11 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual List<FluentApiConfiguration> GetFluentApiConfigurations(bool useFluentApiOnly)
+        public virtual List<FluentApiConfiguration> GetFluentApiConfigurations(bool useDataAnnotations)
         {
-            return useFluentApiOnly
-                ? FluentApiConfigurations
-                : FluentApiConfigurations.Where(fc => !fc.HasAttributeEquivalent).ToList();
+            return useDataAnnotations
+                ? FluentApiConfigurations.Where(fc => !fc.HasAttributeEquivalent).ToList()
+                : FluentApiConfigurations;
         }
     }
 }

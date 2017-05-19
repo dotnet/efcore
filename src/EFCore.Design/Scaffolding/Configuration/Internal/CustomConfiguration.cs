@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         /// </summary>
         public CustomConfiguration([NotNull] string connectionString,
             [CanBeNull] string contextClassName, [NotNull] string @namespace,
-            bool useFluentApiOnly)
+            bool useDataAnnotations)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotEmpty(@namespace, nameof(@namespace));
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             ConnectionString = connectionString;
             ContextClassName = contextClassName;
             Namespace = @namespace;
-            UseFluentApiOnly = useFluentApiOnly;
+            UseDataAnnotations = useDataAnnotations;
         }
 
         /// <summary>
@@ -51,6 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool UseFluentApiOnly { get; set; }
+        public virtual bool UseDataAnnotations { get; set; }
     }
 }

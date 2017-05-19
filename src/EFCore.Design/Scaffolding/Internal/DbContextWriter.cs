@@ -145,9 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 var first = true;
                 foreach (var entityConfig in _model.EntityConfigurations)
                 {
-                    var fluentApiConfigurations = entityConfig.GetFluentApiConfigurations(_model.CustomConfiguration.UseFluentApiOnly);
-                    var propertyConfigurations = entityConfig.GetPropertyConfigurations(_model.CustomConfiguration.UseFluentApiOnly);
-                    var relationshipConfigurations = entityConfig.GetRelationshipConfigurations(_model.CustomConfiguration.UseFluentApiOnly);
+                    var fluentApiConfigurations = entityConfig.GetFluentApiConfigurations(_model.CustomConfiguration.UseDataAnnotations);
+                    var propertyConfigurations = entityConfig.GetPropertyConfigurations(_model.CustomConfiguration.UseDataAnnotations);
+                    var relationshipConfigurations = entityConfig.GetRelationshipConfigurations(_model.CustomConfiguration.UseDataAnnotations);
                     if (fluentApiConfigurations.Count == 0
                         && propertyConfigurations.Count == 0
                         && relationshipConfigurations.Count == 0)
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             foreach (var propertyConfig in propertyConfigurations)
             {
                 var fluentApiConfigurations =
-                    propertyConfig.GetFluentApiConfigurations(_model.CustomConfiguration.UseFluentApiOnly);
+                    propertyConfig.GetFluentApiConfigurations(_model.CustomConfiguration.UseDataAnnotations);
                 if (fluentApiConfigurations.Count == 0)
                 {
                     continue;
