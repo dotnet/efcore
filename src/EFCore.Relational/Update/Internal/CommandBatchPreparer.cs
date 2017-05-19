@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         rootTypesOrder[sortedRoots[i]] = i;
                     }
 
-                    var stateManager = _currentContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+                    var stateManager = _currentContext.GetDependencies().StateManager;
 
                     ModificationCommandIdentityMap CommandIdentityMapFactory(
                         string name,

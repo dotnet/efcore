@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///         directly from your code. This type may change or be removed in future releases.
     ///     </para>
     /// </summary>
-    public sealed class DbContextDependencies
+    public sealed class DbContextDependencies : IDbContextDependencies
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

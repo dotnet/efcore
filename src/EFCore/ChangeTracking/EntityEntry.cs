@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private IEntityFinder Finder
-            => InternalEntry.StateManager.Context.GetInfrastructure<DbContextDependencies>().EntityFinderSource
+            => InternalEntry.StateManager.Context.GetDependencies().EntityFinderSource
                 .Create(InternalEntry.StateManager.Context, InternalEntry.EntityType);
     }
 }

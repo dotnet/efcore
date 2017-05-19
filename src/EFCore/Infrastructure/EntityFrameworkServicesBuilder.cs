@@ -99,6 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IResultOperatorHandler), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModel), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ICurrentDbContext), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IDbContextDependencies), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDbContextOptions), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDatabase), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDatabaseCreator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -199,6 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IChangeTrackerFactory, ChangeTrackerFactory>();
             TryAdd<IChangeDetector, ChangeDetector>();
             TryAdd<IDbContextServices, DbContextServices>();
+            TryAdd<IDbContextDependencies, DbContextDependencies>();
             TryAdd<IValueGeneratorSelector, ValueGeneratorSelector>();
             TryAdd<IConventionSetBuilder, NullConventionSetBuilder>();
             TryAdd<IModelValidator, CoreModelValidator>();
@@ -245,7 +247,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<ModelSourceDependencies>()
                 .AddDependencySingleton<ValueGeneratorCacheDependencies>()
                 .AddDependencySingleton<ModelValidatorDependencies>()
-                .AddDependencyScoped<DbContextDependencies>()
                 .AddDependencyScoped<ExecutionStrategyContextDependencies>()
                 .AddDependencyScoped<CompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<QueryContextDependencies>()

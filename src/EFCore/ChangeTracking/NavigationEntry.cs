@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         private IEntityFinder TargetFinder
-            => InternalEntry.StateManager.Context.GetInfrastructure<DbContextDependencies>().EntityFinderSource
+            => InternalEntry.StateManager.Context.GetDependencies().EntityFinderSource
                 .Create(InternalEntry.StateManager.Context, Metadata.GetTargetType());
 
         /// <summary>

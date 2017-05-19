@@ -31,6 +31,17 @@ namespace Microsoft.EntityFrameworkCore.Tests
     public class DbContextTest
     {
         [Fact]
+        public void Can_use_GetInfrastructure_with_inferred_generic_to_get_service_provider()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                Assert.Same(
+                    context.GetService<IChangeDetector>(),
+                    context.GetInfrastructure().GetService<IChangeDetector>());
+            }
+        }
+
+        [Fact]
         public void Set_throws_for_type_not_in_model()
         {
             var optionsBuilder = new DbContextOptionsBuilder();

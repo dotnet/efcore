@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         public void BatchCommands_creates_valid_batch_for_shared_table_added_entities()
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
-            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+            var stateManager = currentDbContext.GetDependencies().StateManager;
 
             var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         public void BatchCommands_creates_valid_batch_for_shared_table_modified_entities()
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
-            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+            var stateManager = currentDbContext.GetDependencies().StateManager;
 
             var entity = new FakeEntity { Id = 42, Value = "Null"};
             var entry = stateManager.GetOrCreateEntry(entity);
@@ -518,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         public void BatchCommands_creates_valid_batch_for_shared_table_deleted_entities()
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
-            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+            var stateManager = currentDbContext.GetDependencies().StateManager;
 
             var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
@@ -564,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         public void BatchCommands_throws_on_conflicting_updates_for_shared_table_added_entities(bool sensitiveLogging)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
-            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+            var stateManager = currentDbContext.GetDependencies().StateManager;
 
             var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
@@ -603,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         public void BatchCommands_throws_on_conflicting_values_for_shared_table_added_entities(bool useCurrentValues, bool sensitiveLogging)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
-            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+            var stateManager = currentDbContext.GetDependencies().StateManager;
 
             var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
@@ -681,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         public void BatchCommands_throws_on_incomplete_updates_for_shared_table(EntityState state, bool sensitiveLogging)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
-            var stateManager = currentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+            var stateManager = currentDbContext.GetDependencies().StateManager;
 
             var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);

@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public EntityFinder([NotNull] DbContext context, [NotNull] IEntityType entityType)
         {
             _model = context.Model;
-            _stateManager = context.GetInfrastructure<DbContextDependencies>().StateManager;
+            _stateManager = context.GetDependencies().StateManager;
             _queryRoot = (IQueryable<TEntity>)BuildQueryRoot(context, entityType);
         }
 

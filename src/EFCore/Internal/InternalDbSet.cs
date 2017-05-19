@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private EntityQueryable<TEntity> CreateEntityQueryable()
-            => new EntityQueryable<TEntity>(_context.GetInfrastructure<DbContextDependencies>().QueryProvider);
+            => new EntityQueryable<TEntity>(_context.GetDependencies().QueryProvider);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => _context.UpdateRange(entities);
 
         private IEntityFinder<TEntity> Finder
-            => (IEntityFinder<TEntity>)_context.GetInfrastructure<DbContextDependencies>().EntityFinderSource.Create(_context, EntityType);
+            => (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderSource.Create(_context, EntityType);
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator() => EntityQueryable.GetEnumerator();
 

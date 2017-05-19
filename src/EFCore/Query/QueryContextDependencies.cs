@@ -65,17 +65,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Gets the change detector.
         /// </summary>
-        public IChangeDetector ChangeDetector => CurrentDbContext.Context.GetInfrastructure<DbContextDependencies>().ChangeDetector;
+        public IChangeDetector ChangeDetector => CurrentDbContext.GetDependencies().ChangeDetector;
 
         /// <summary>
         ///     Gets the state manager.
         /// </summary>
-        public IStateManager StateManager => CurrentDbContext.Context.GetInfrastructure<DbContextDependencies>().StateManager;
+        public IStateManager StateManager => CurrentDbContext.GetDependencies().StateManager;
 
         /// <summary>
         ///     Gets the query provider.
         /// </summary>
-        public IQueryProvider QueryProvider => CurrentDbContext.Context.GetInfrastructure<DbContextDependencies>().QueryProvider;
+        public IQueryProvider QueryProvider => CurrentDbContext.GetDependencies().QueryProvider;
 
         /// <summary>
         ///     Gets the concurrency detector.

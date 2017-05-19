@@ -218,10 +218,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private IStateManager StateManager
-            => Context.GetInfrastructure<DbContextDependencies>().StateManager;
+            => Context.GetDependencies().StateManager;
 
         private IChangeDetector ChangeDetector
-            => Context.GetInfrastructure<DbContextDependencies>().ChangeDetector;
+            => Context.GetDependencies().ChangeDetector;
 
         private IEntityEntryGraphIterator GraphIterator
             => _graphIterator ?? (_graphIterator = Context.GetService<IEntityEntryGraphIterator>());

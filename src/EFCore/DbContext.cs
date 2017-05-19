@@ -46,13 +46,13 @@ namespace Microsoft.EntityFrameworkCore
     public class DbContext :
         IDisposable,
         IInfrastructure<IServiceProvider>,
-        IInfrastructure<DbContextDependencies>,
+        IDbContextDependencies,
         IDbContextPoolable
     {
         private readonly DbContextOptions _options;
 
         private IDbContextServices _contextServices;
-        private DbContextDependencies _dbContextDependencies;
+        private IDbContextDependencies _dbContextDependencies;
         private DatabaseFacade _database;
         private ChangeTracker _changeTracker;
         private IDiagnosticsLogger<LoggerCategory.Update> _updateLogger;
@@ -132,6 +132,42 @@ namespace Microsoft.EntityFrameworkCore
         public virtual IModel Model => DbContextDependencies.Model;
 
         /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        IDbSetInitializer IDbContextDependencies.DbSetInitializer => DbContextDependencies.DbSetInitializer;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        IEntityFinderSource IDbContextDependencies.EntityFinderSource => DbContextDependencies.EntityFinderSource;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        IAsyncQueryProvider IDbContextDependencies.QueryProvider => DbContextDependencies.QueryProvider;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        IStateManager IDbContextDependencies.StateManager => DbContextDependencies.StateManager;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        IChangeDetector IDbContextDependencies.ChangeDetector => DbContextDependencies.ChangeDetector;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        IEntityGraphAttacher IDbContextDependencies.EntityGraphAttacher => DbContextDependencies.EntityGraphAttacher;
+
+        /// <summary>
         ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
@@ -164,12 +200,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private DbContextDependencies DbContextDependencies
-            => _dbContextDependencies ?? (_dbContextDependencies = InternalServiceProvider.GetRequiredService<DbContextDependencies>());
-
-        private IEntityGraphAttacher GraphAttacher => DbContextDependencies.EntityGraphAttacher;
-
-        private IStateManager StateManager => DbContextDependencies.StateManager;
+        private IDbContextDependencies DbContextDependencies
+            => _dbContextDependencies ?? (_dbContextDependencies = InternalServiceProvider.GetRequiredService<IDbContextDependencies>());
 
         internal void CheckDisposed()
         {
@@ -298,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore
 
             try
             {
-                return StateManager.SaveChanges(acceptAllChangesOnSuccess);
+                return DbContextDependencies.StateManager.SaveChanges(acceptAllChangesOnSuccess);
             }
             catch (Exception exception)
             {
@@ -370,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore
 
             try
             {
-                return await StateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+                return await DbContextDependencies.StateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -468,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges<TEntity>(TEntity entity) where TEntity : class
-            => new EntityEntry<TEntity>(StateManager.GetOrCreateEntry(entity));
+            => new EntityEntry<TEntity>(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
 
         /// <summary>
         ///     <para>
@@ -494,13 +526,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private EntityEntry EntryWithoutDetectChanges(object entity)
-            => new EntityEntry(StateManager.GetOrCreateEntry(entity));
+            => new EntityEntry(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
 
         private void SetEntityState(InternalEntityEntry entry, EntityState entityState)
         {
             if (entry.EntityState == EntityState.Detached)
             {
-                GraphAttacher.AttachGraph(entry, entityState);
+                DbContextDependencies.EntityGraphAttacher.AttachGraph(entry, entityState);
             }
             else
             {
@@ -515,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (entry.EntityState == EntityState.Detached)
             {
-                await GraphAttacher.AttachGraphAsync(entry, entityState, cancellationToken);
+                await DbContextDependencies.EntityGraphAttacher.AttachGraphAsync(entry, entityState, cancellationToken);
             }
             else
             {
@@ -967,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private void SetEntityStates(IEnumerable<object> entities, EntityState entityState)
         {
-            var stateManager = StateManager;
+            var stateManager = DbContextDependencies.StateManager;
 
             foreach (var entity in entities)
             {
@@ -1011,7 +1043,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
-            var stateManager = StateManager;
+            var stateManager = DbContextDependencies.StateManager;
 
             foreach (var entity in entities)
             {
@@ -1096,7 +1128,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entities, nameof(entities));
             CheckDisposed();
 
-            var stateManager = StateManager;
+            var stateManager = DbContextDependencies.StateManager;
 
             // An Added entity does not yet exist in the database. If it is then marked as deleted there is
             // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
@@ -1230,11 +1262,5 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance => InternalServiceProvider;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        DbContextDependencies IInfrastructure<DbContextDependencies>.Instance => DbContextDependencies;
     }
 }
