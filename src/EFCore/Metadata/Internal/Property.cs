@@ -19,15 +19,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class Property : PropertyBase, IMutableProperty
     {
-        private int _flags;
+        private bool? _isConcurrencyToken;
+        private bool? _isNullable;
+        private ValueGenerated? _valueGenerated;
+        private PropertyValueBehavior? _beforeSaveBehavior;
+        private PropertyValueBehavior? _afterSaveBehavior;
 
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _typeConfigurationSource;
-        private ConfigurationSource? _isReadOnlyAfterSaveConfigurationSource;
-        private ConfigurationSource? _isReadOnlyBeforeSaveConfigurationSource;
+        private ConfigurationSource? _beforeSaveBehaviorConfigurationSource;
+        private ConfigurationSource? _afterSaveBehaviorConfigurationSource;
         private ConfigurationSource? _isNullableConfigurationSource;
         private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
-        private ConfigurationSource? _isStoreGeneratedAlwaysConfigurationSource;
         private ConfigurationSource? _valueGeneratedConfigurationSource;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
@@ -77,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public new virtual EntityType DeclaringType
         {
             [DebuggerStepThrough]
-            get { return DeclaringEntityType; }
+            get => DeclaringEntityType;
         }
 
         /// <summary>
@@ -133,12 +136,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsNullable
         {
-            get
-            {
-                bool value;
-                return TryGetFlag(PropertyFlags.IsNullable, out value) ? value : DefaultIsNullable;
-            }
-            set { SetIsNullable(value, ConfigurationSource.Explicit); }
+            get => _isNullable ?? DefaultIsNullable;
+            set => SetIsNullable(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -163,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             UpdateIsNullableConfigurationSource(configurationSource);
 
             var isChanging = IsNullable != nullable;
-            SetFlag(nullable, PropertyFlags.IsNullable);
+            _isNullable = nullable;
             if (isChanging)
             {
                 DeclaringEntityType.Model.ConventionDispatcher.OnPropertyNullableChanged(Builder);
@@ -194,13 +193,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ValueGenerated ValueGenerated
         {
-            get
-            {
-                var value = _flags & (int)PropertyFlags.ValueGenerated;
-
-                return value == 0 ? DefaultValueGenerated : (ValueGenerated)((value >> 8) - 1);
-            }
-            set { SetValueGenerated(value, ConfigurationSource.Explicit); }
+            get => _valueGenerated ?? DefaultValueGenerated;
+            set => SetValueGenerated(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -209,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void SetValueGenerated(ValueGenerated? valueGenerated, ConfigurationSource configurationSource)
         {
-            _flags &= ~(int)PropertyFlags.ValueGenerated;
+            _valueGenerated = valueGenerated;
 
             if (valueGenerated == null)
             {
@@ -217,7 +211,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                _flags |= ((int)valueGenerated + 1) << 8;
                 UpdateValueGeneratedConfigurationSource(configurationSource);
             }
         }
@@ -237,81 +230,129 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool IsReadOnlyBeforeSave
+        public virtual PropertyValueBehavior BeforeSaveBehavior
         {
-            get
+            get => _beforeSaveBehavior ?? DefaultBeforeSaveBehavior;
+            set => SetBeforeSaveBehavior(value, ConfigurationSource.Explicit);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void SetBeforeSaveBehavior(PropertyValueBehavior? beforeSaveBehavior, ConfigurationSource configurationSource)
+        {
+            if (BeforeSaveBehavior != beforeSaveBehavior)
             {
-                bool value;
-                return TryGetFlag(PropertyFlags.IsReadOnlyBeforeSave, out value) ? value : DefaultIsReadOnlyBeforeSave;
+                _beforeSaveBehavior = beforeSaveBehavior;
+                PropertyMetadataChanged();
             }
-            set { SetIsReadOnlyBeforeSave(value, ConfigurationSource.Explicit); }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void SetIsReadOnlyBeforeSave(bool readOnlyBeforeSave, ConfigurationSource configurationSource)
-        {
-            SetFlag(readOnlyBeforeSave, PropertyFlags.IsReadOnlyBeforeSave);
-            UpdateIsReadOnlyBeforeSaveConfigurationSource(configurationSource);
-        }
-
-        private bool DefaultIsReadOnlyBeforeSave
-            => (ValueGenerated == ValueGenerated.OnAddOrUpdate)
-               && !IsStoreGeneratedAlways;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ConfigurationSource? GetIsReadOnlyBeforeSaveConfigurationSource() => _isReadOnlyBeforeSaveConfigurationSource;
-
-        private void UpdateIsReadOnlyBeforeSaveConfigurationSource(ConfigurationSource configurationSource)
-            => _isReadOnlyBeforeSaveConfigurationSource = configurationSource.Max(_isReadOnlyBeforeSaveConfigurationSource);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual bool IsReadOnlyAfterSave
-        {
-            get
+            else
             {
-                bool value;
-                return TryGetFlag(PropertyFlags.IsReadOnlyAfterSave, out value) ? value : DefaultIsReadOnlyAfterSave;
+                _beforeSaveBehavior = beforeSaveBehavior;
             }
-            set { SetIsReadOnlyAfterSave(value, ConfigurationSource.Explicit); }
+
+            UpdateBeforeSaveBehaviorConfigurationSource(configurationSource);
+        }
+
+        private PropertyValueBehavior DefaultBeforeSaveBehavior
+            => ValueGenerated == ValueGenerated.OnAddOrUpdate
+                ? PropertyValueBehavior.Ignore
+                : PropertyValueBehavior.UseValue;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ConfigurationSource? GetBeforeSaveBehaviorConfigurationSource() => _beforeSaveBehaviorConfigurationSource;
+
+        private void UpdateBeforeSaveBehaviorConfigurationSource(ConfigurationSource configurationSource)
+            => _beforeSaveBehaviorConfigurationSource = configurationSource.Max(_beforeSaveBehaviorConfigurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual PropertyValueBehavior AfterSaveBehavior
+        {
+            get => _afterSaveBehavior ?? DefaultAfterSaveBehavior;
+            set => SetAfterSaveBehavior(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetIsReadOnlyAfterSave(bool readOnlyAfterSave, ConfigurationSource configurationSource)
+        public virtual void SetAfterSaveBehavior(PropertyValueBehavior? afterSaveBehavior, ConfigurationSource configurationSource)
         {
-            if (!readOnlyAfterSave
+            if (afterSaveBehavior != PropertyValueBehavior.Throw
                 && Keys != null)
             {
                 throw new InvalidOperationException(CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.DisplayName()));
             }
-            SetFlag(readOnlyAfterSave, PropertyFlags.IsReadOnlyAfterSave);
-            UpdateIsReadOnlyAfterSaveConfigurationSource(configurationSource);
+
+            if (AfterSaveBehavior != afterSaveBehavior)
+            {
+                _afterSaveBehavior = afterSaveBehavior;
+                PropertyMetadataChanged();
+            }
+            else
+            {
+                _afterSaveBehavior = afterSaveBehavior;
+            }
+
+            UpdateAfterSaveBehaviorConfigurationSource(configurationSource);
         }
 
-        private bool DefaultIsReadOnlyAfterSave
-            => ((ValueGenerated == ValueGenerated.OnAddOrUpdate)
-                && !IsStoreGeneratedAlways)
-               || Keys != null;
+        private PropertyValueBehavior DefaultAfterSaveBehavior
+            => Keys != null
+                ? PropertyValueBehavior.Throw
+                : ValueGenerated == ValueGenerated.OnAddOrUpdate
+                    ? PropertyValueBehavior.Ignore
+                    : PropertyValueBehavior.UseValue;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ConfigurationSource? GetIsReadOnlyAfterSaveConfigurationSource() => _isReadOnlyAfterSaveConfigurationSource;
+        public virtual ConfigurationSource? GetAfterSaveBehaviorConfigurationSource() => _afterSaveBehaviorConfigurationSource;
 
-        private void UpdateIsReadOnlyAfterSaveConfigurationSource(ConfigurationSource configurationSource)
-            => _isReadOnlyAfterSaveConfigurationSource = configurationSource.Max(_isReadOnlyAfterSaveConfigurationSource);
+        private void UpdateAfterSaveBehaviorConfigurationSource(ConfigurationSource configurationSource)
+            => _afterSaveBehaviorConfigurationSource = configurationSource.Max(_afterSaveBehaviorConfigurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [Obsolete("Use BeforeSaveBehavior instead.")]
+        public virtual bool IsReadOnlyBeforeSave
+        {
+            get => BeforeSaveBehavior == PropertyValueBehavior.Throw;
+            set
+            {
+                if (value)
+                {
+                    BeforeSaveBehavior = PropertyValueBehavior.Throw;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [Obsolete("Use AfterSaveBehavior instead.")]
+        public virtual bool IsReadOnlyAfterSave
+        {
+            get => AfterSaveBehavior == PropertyValueBehavior.Throw;
+            set
+            {
+                if (value)
+                {
+                    AfterSaveBehavior = PropertyValueBehavior.Throw;
+                }
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -319,12 +360,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsConcurrencyToken
         {
-            get
-            {
-                bool value;
-                return TryGetFlag(PropertyFlags.IsConcurrencyToken, out value) ? value : DefaultIsConcurrencyToken;
-            }
-            set { SetIsConcurrencyToken(value, ConfigurationSource.Explicit); }
+            get => _isConcurrencyToken ?? DefaultIsConcurrencyToken;
+            set => SetIsConcurrencyToken(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -335,9 +372,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (IsConcurrencyToken != concurrencyToken)
             {
-                SetFlag(concurrencyToken, PropertyFlags.IsConcurrencyToken);
+                _isConcurrencyToken = concurrencyToken;
 
-                DeclaringEntityType.PropertyMetadataChanged();
+                PropertyMetadataChanged();
             }
             UpdateIsConcurrencyTokenConfigurationSource(configurationSource);
         }
@@ -357,41 +394,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [Obsolete("Use BeforeSaveBehavior or AfterSaveBehavior instead.")]
         public virtual bool IsStoreGeneratedAlways
         {
-            get
+            get => AfterSaveBehavior == PropertyValueBehavior.Ignore || BeforeSaveBehavior == PropertyValueBehavior.Ignore;
+            set
             {
-                bool value;
-                return TryGetFlag(PropertyFlags.StoreGeneratedAlways, out value) ? value : DefaultStoreGeneratedAlways;
+                if (value)
+                {
+                    BeforeSaveBehavior = PropertyValueBehavior.Ignore;
+                    AfterSaveBehavior = PropertyValueBehavior.Ignore;
+                }
+                else
+                {
+                    BeforeSaveBehavior = PropertyValueBehavior.UseValue;
+                    AfterSaveBehavior = PropertyValueBehavior.UseValue;
+                }
             }
-            set { SetIsStoreGeneratedAlways(value, ConfigurationSource.Explicit); }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void SetIsStoreGeneratedAlways(bool storeGeneratedAlways, ConfigurationSource configurationSource)
-        {
-            if (IsStoreGeneratedAlways != storeGeneratedAlways)
-            {
-                SetFlag(storeGeneratedAlways, PropertyFlags.StoreGeneratedAlways);
-
-                DeclaringEntityType.PropertyMetadataChanged();
-            }
-            UpdateIsStoreGeneratedAlwaysConfigurationSource(configurationSource);
-        }
-
-        private bool DefaultStoreGeneratedAlways => (ValueGenerated == ValueGenerated.OnAddOrUpdate) && IsConcurrencyToken;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ConfigurationSource? GetIsStoreGeneratedAlwaysConfigurationSource() => _isStoreGeneratedAlwaysConfigurationSource;
-
-        private void UpdateIsStoreGeneratedAlwaysConfigurationSource(ConfigurationSource configurationSource)
-            => _isStoreGeneratedAlwaysConfigurationSource = configurationSource.Max(_isStoreGeneratedAlwaysConfigurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -424,26 +444,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected override Annotation OnAnnotationSet(string name, Annotation annotation, Annotation oldAnnotation)
             => DeclaringType.Model.ConventionDispatcher.OnPropertyAnnotationSet(Builder, name, annotation, oldAnnotation);
 
-        private bool TryGetFlag(PropertyFlags flag, out bool value)
-        {
-            var coded = _flags & (int)flag;
-            value = coded == (int)flag;
-            return coded != 0;
-        }
-
-        private void SetFlag(bool value, PropertyFlags flag)
-        {
-            if (value)
-            {
-                _flags |= (int)flag;
-            }
-            else
-            {
-                var falseValue = ((int)flag << 1) & (int)flag;
-                _flags = (_flags & ~(int)flag) | falseValue;
-            }
-        }
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -458,17 +458,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ITypeBase IPropertyBase.DeclaringType => DeclaringType;
         IMutableEntityType IMutableProperty.DeclaringEntityType => DeclaringEntityType;
         IMutableTypeBase IMutablePropertyBase.DeclaringType => DeclaringType;
-
-        private enum PropertyFlags
-        {
-            IsConcurrencyToken = 3 << 0,
-            IsNullable = 3 << 2,
-            IsReadOnlyBeforeSave = 3 << 4,
-            IsReadOnlyAfterSave = 3 << 6,
-            ValueGenerated = 7 << 8,
-            RequiresValueGenerator = 3 << 11,
-            StoreGeneratedAlways = 3 << 13
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -494,11 +483,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual PropertyIndexes PropertyIndexes
         {
-            get
-            {
-                return NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this,
-                    property => property.DeclaringType.CalculateIndexes(property));
-            }
+            get => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this,
+                property => property.DeclaringType.CalculateIndexes(property));
 
             [param: CanBeNull]
             set

@@ -213,24 +213,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" Concurrency");
             }
 
-            if (property.IsReadOnlyAfterSave)
+            if (property.BeforeSaveBehavior != PropertyValueBehavior.UseValue)
             {
-                builder.Append(" ReadOnlyAfterSave");
+                builder.Append(" BeforeSave:").Append(property.BeforeSaveBehavior);
             }
 
-            if (property.IsReadOnlyBeforeSave)
+            if (property.AfterSaveBehavior != PropertyValueBehavior.UseValue)
             {
-                builder.Append(" ReadOnlyBeforeSave");
+                builder.Append(" AfterSave:").Append(property.AfterSaveBehavior);
             }
 
             if (property.ValueGenerated != ValueGenerated.Never)
             {
                 builder.Append(" ValueGenerated.").Append(property.ValueGenerated);
-            }
-
-            if (property.IsStoreGeneratedAlways)
-            {
-                builder.Append(" StoreGeneratedAlways");
             }
 
             if (property.GetMaxLength() != null)
