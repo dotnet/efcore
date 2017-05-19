@@ -32,6 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
         public class BackOrderLine : OrderLine, IBackOrderLine
         {
+            public BackOrderLine()
+            {
+                ETA = DateTime.Now;
+            }
+
             public DateTime ETA { get; set; }
 
             public int SupplierId { get; set; }
@@ -445,6 +450,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
             public AuditInfo()
             {
                 Concurrency = new ConcurrencyInfo();
+                ModifiedDate = DateTime.Now;
             }
 
             public DateTime ModifiedDate { get; set; }
