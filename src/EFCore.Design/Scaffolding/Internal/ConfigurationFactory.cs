@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual CustomConfiguration CreateCustomConfiguration(
             [NotNull] string connectionString, [CanBeNull] string contextClassName,
-            [NotNull] string @namespace, bool useFluentApiOnly)
-            => new CustomConfiguration(connectionString, contextClassName, @namespace, useFluentApiOnly);
+            [NotNull] string @namespace, bool useDataAnnotations)
+            => new CustomConfiguration(connectionString, contextClassName, @namespace, useDataAnnotations);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var customConfiguration = _configurationFactory
                 .CreateCustomConfiguration(
                     configuration.ConnectionString, configuration.ContextClassName,
-                    outputPathsAndNamespace.Namespace, configuration.UseFluentApiOnly);
+                    outputPathsAndNamespace.Namespace, configuration.UseDataAnnotations);
             var modelConfiguration = _configurationFactory
                 .CreateModelConfiguration(metadataModel, customConfiguration);
 

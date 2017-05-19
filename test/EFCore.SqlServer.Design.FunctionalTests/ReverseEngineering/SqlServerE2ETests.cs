@@ -92,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
                 ProjectPath = TestProjectDir + Path.DirectorySeparatorChar, // tests that ending DirectorySeparatorChar does not affect namespace
                 ProjectRootNamespace = TestNamespace,
                 OutputPath = TestSubDir,
-                TableSelectionSet = Filter
+                TableSelectionSet = Filter,
+                UseDataAnnotations = true
             };
 
             var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
@@ -143,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
                 ProjectPath = TestProjectDir,
                 ProjectRootNamespace = TestNamespace,
                 OutputPath = null, // not used for this test
-                UseFluentApiOnly = true,
+                UseDataAnnotations = false,
                 TableSelectionSet = Filter
             };
 
@@ -279,7 +280,7 @@ CREATE TABLE PrimaryKeyWithSequence (
                     ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
                     ProjectRootNamespace = TestNamespace,
                     ContextClassName = "PrimaryKeyWithSequenceContext",
-                    UseFluentApiOnly = true
+                    UseDataAnnotations = false
                 };
                 var expectedFileSet = new FileSet(new FileSystemFileService(),
                     Path.Combine("ReverseEngineering", "Expected"),
@@ -327,7 +328,7 @@ CREATE INDEX Unicorn_Filtered_Index
                     ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
                     ProjectRootNamespace = TestNamespace,
                     ContextClassName = "FilteredIndexContext",
-                    UseFluentApiOnly = true
+                    UseDataAnnotations = false
                 };
                 var expectedFileSet = new FileSet(new FileSystemFileService(),
                     Path.Combine("ReverseEngineering", "Expected"),
@@ -376,7 +377,7 @@ WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.History));
                     ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
                     ProjectRootNamespace = TestNamespace,
                     ContextClassName = "SystemVersionedContext",
-                    UseFluentApiOnly = true
+                    UseDataAnnotations = false
                 };
                 var expectedFileSet = new FileSet(new FileSystemFileService(),
                     Path.Combine("ReverseEngineering", "Expected"),

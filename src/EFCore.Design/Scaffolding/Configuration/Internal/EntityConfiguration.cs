@@ -116,11 +116,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual List<IFluentApiConfiguration> GetFluentApiConfigurations(bool useFluentApiOnly)
+        public virtual List<IFluentApiConfiguration> GetFluentApiConfigurations(bool useDataAnnotations)
         {
-            return (useFluentApiOnly
-                    ? FluentApiConfigurations
-                    : FluentApiConfigurations.Where(flc => !flc.HasAttributeEquivalent))
+            return (useDataAnnotations
+                    ? FluentApiConfigurations.Where(flc => !flc.HasAttributeEquivalent)
+                    : FluentApiConfigurations)
                 .ToList();
         }
 
@@ -128,19 +128,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual List<PropertyConfiguration> GetPropertyConfigurations(bool useFluentApiOnly)
+        public virtual List<PropertyConfiguration> GetPropertyConfigurations(bool useDataAnnotations)
         {
             return PropertyConfigurations
-                .Where(pc => pc.GetFluentApiConfigurations(useFluentApiOnly).Any()).ToList();
+                .Where(pc => pc.GetFluentApiConfigurations(useDataAnnotations).Any()).ToList();
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual List<RelationshipConfiguration> GetRelationshipConfigurations(bool useFluentApiOnly)
+        public virtual List<RelationshipConfiguration> GetRelationshipConfigurations(bool useDataAnnotations)
             => RelationshipConfigurations
-                .Where(rc => useFluentApiOnly || !rc.HasAttributeEquivalent)
+                .Where(rc => !useDataAnnotations || !rc.HasAttributeEquivalent)
                 .ToList();
     }
 }
