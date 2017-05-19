@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             _sb.AppendLine("using System;");
             _sb.AppendLine("using System.Collections.Generic;");
-            if (!_entity.ModelConfiguration.CustomConfiguration.UseFluentApiOnly)
+            if (_entity.ModelConfiguration.CustomConfiguration.UseDataAnnotations)
             {
                 _sb.AppendLine("using System.ComponentModel.DataAnnotations;");
                 _sb.AppendLine("using System.ComponentModel.DataAnnotations.Schema;");
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(attributeConfigurations, nameof(attributeConfigurations));
 
-            if (!_entity.ModelConfiguration.CustomConfiguration.UseFluentApiOnly)
+            if (_entity.ModelConfiguration.CustomConfiguration.UseDataAnnotations)
             {
                 foreach (var attrConfig in attributeConfigurations)
                 {
