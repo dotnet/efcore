@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
                     ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseDataAnnotations = UseDataAnnotations,
                     TableSelectionSet = TableSelectionSet.All
                 });
 
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                     ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseDataAnnotations = UseDataAnnotations,
                     TableSelectionSet = TableSelectionSet.All
                 });
 
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseDataAnnotations = UseDataAnnotations,
                     TableSelectionSet = TableSelectionSet.All
                 });
 
@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseDataAnnotations = UseDataAnnotations,
                     TableSelectionSet = TableSelectionSet.All
                 });
 
@@ -223,7 +223,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseDataAnnotations = UseDataAnnotations,
                     TableSelectionSet = TableSelectionSet.All
                 });
                 var errorMessage = RelationalDesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Alicia");
@@ -257,7 +257,7 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
                     ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseDataAnnotations = UseDataAnnotations,
                     TableSelectionSet = TableSelectionSet.All
                 });
 
@@ -324,7 +324,7 @@ CREATE TABLE IF NOT EXISTS String (
                     ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseDataAnnotations = UseDataAnnotations,
                     TableSelectionSet = TableSelectionSet.All
                 });
 
@@ -361,7 +361,7 @@ CREATE TABLE IF NOT EXISTS Comment (
                     ContextClassName = "FkToAltKeyContext",
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseDataAnnotations = UseDataAnnotations,
                     TableSelectionSet = TableSelectionSet.All
                 });
 
@@ -394,7 +394,7 @@ CREATE TABLE IF NOT EXISTS Comment (
 
         protected abstract string DbSuffix { get; } // will be used to create different databases so tests running in parallel don't interfere
         protected abstract string ExpectedResultsParentDir { get; }
-        protected abstract bool UseFluentApiOnly { get; }
+        protected abstract bool UseDataAnnotations { get; }
 
         protected override void ConfigureDesignTimeServices(IServiceCollection services)
             => new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);

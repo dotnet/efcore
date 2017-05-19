@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 ProjectRootNamespace = _rootNamespace,
                 OutputPath = outputDir,
                 TableSelectionSet = tableSelectionSet,
-                UseFluentApiOnly = !useDataAnnotations,
+                UseDataAnnotations = useDataAnnotations,
                 OverwriteFiles = overwriteFiles
             };
 
