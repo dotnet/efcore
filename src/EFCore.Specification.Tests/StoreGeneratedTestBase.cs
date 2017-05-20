@@ -32,6 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData("OnAddOrUpdateThrowBeforeUseAfter")]
         [InlineData("OnAddOrUpdateThrowBeforeIgnoreAfter")]
         [InlineData("OnAddOrUpdateThrowBeforeThrowAfter")]
+        [InlineData("OnUpdateThrowBeforeUseAfter")]
+        [InlineData("OnUpdateThrowBeforeIgnoreAfter")]
+        [InlineData("OnUpdateThrowBeforeThrowAfter")]
         public virtual void Before_save_throw_always_throws_if_value_set(string propertyName)
         {
             ExecuteWithStrategyInTransaction(
@@ -55,6 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData("OnAddOrUpdateThrowBeforeUseAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateThrowBeforeIgnoreAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateThrowBeforeThrowAfter", "Rabbit")]
+        [InlineData("OnUpdateThrowBeforeUseAfter", "Rabbit")]
+        [InlineData("OnUpdateThrowBeforeIgnoreAfter", "Rabbit")]
+        [InlineData("OnUpdateThrowBeforeThrowAfter", "Rabbit")]
         public virtual void Before_save_throw_ignores_value_if_not_set(string propertyName, string expectedValue)
         {
             var id = 0;
@@ -73,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Theory]
         [InlineData("Never")]
         [InlineData("OnAdd")]
+        [InlineData("OnUpdate")]
         [InlineData("NeverUseBeforeUseAfter")]
         [InlineData("NeverUseBeforeIgnoreAfter")]
         [InlineData("NeverUseBeforeThrowAfter")]
@@ -82,6 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData("OnAddOrUpdateUseBeforeUseAfter")]
         [InlineData("OnAddOrUpdateUseBeforeIgnoreAfter")]
         [InlineData("OnAddOrUpdateUseBeforeThrowAfter")]
+        [InlineData("OnUpdateUseBeforeUseAfter")]
+        [InlineData("OnUpdateUseBeforeIgnoreAfter")]
+        [InlineData("OnUpdateUseBeforeThrowAfter")]
         public virtual void Before_save_use_always_uses_value_if_set(string propertyName)
         {
             var id = 0;
@@ -100,6 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Theory]
         [InlineData("Never", null)]
         [InlineData("OnAdd", "Rabbit")]
+        [InlineData("OnUpdate", null)]
         [InlineData("NeverUseBeforeUseAfter", null)]
         [InlineData("NeverUseBeforeIgnoreAfter", null)]
         [InlineData("NeverUseBeforeThrowAfter", null)]
@@ -109,6 +120,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData("OnAddOrUpdateUseBeforeUseAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateUseBeforeIgnoreAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateUseBeforeThrowAfter", "Rabbit")]
+        [InlineData("OnUpdateUseBeforeUseAfter", null)]
+        [InlineData("OnUpdateUseBeforeIgnoreAfter", null)]
+        [InlineData("OnUpdateUseBeforeThrowAfter", null)]
         public virtual void Before_save_use_ignores_value_if_not_set(string propertyName, string expectedValue)
         {
             var id = 0;
@@ -135,6 +149,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData("OnAddOrUpdateIgnoreBeforeUseAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateIgnoreBeforeIgnoreAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateIgnoreBeforeThrowAfter", "Rabbit")]
+        [InlineData("OnUpdateIgnoreBeforeUseAfter", "Rabbit")]
+        [InlineData("OnUpdateIgnoreBeforeIgnoreAfter", "Rabbit")]
+        [InlineData("OnUpdateIgnoreBeforeThrowAfter", "Rabbit")]
         public virtual void Before_save_ignore_ignores_value_if_not_set(string propertyName, string expectedValue)
         {
             var id = 0;
@@ -161,6 +178,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData("OnAddOrUpdateIgnoreBeforeUseAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateIgnoreBeforeIgnoreAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateIgnoreBeforeThrowAfter", "Rabbit")]
+        [InlineData("OnUpdateIgnoreBeforeUseAfter", "Rabbit")]
+        [InlineData("OnUpdateIgnoreBeforeIgnoreAfter", "Rabbit")]
+        [InlineData("OnUpdateIgnoreBeforeThrowAfter", "Rabbit")]
         public virtual void Before_save_ignore_ignores_value_even_if_set(string propertyName, string expectedValue)
         {
             var id = 0;
@@ -186,6 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData("OnAddOrUpdateUseBeforeThrowAfter")]
         [InlineData("OnAddOrUpdateIgnoreBeforeThrowAfter")]
         [InlineData("OnAddOrUpdateThrowBeforeThrowAfter")]
+        [InlineData("OnUpdateUseBeforeThrowAfter")]
+        [InlineData("OnUpdateIgnoreBeforeThrowAfter")]
+        [InlineData("OnUpdateThrowBeforeThrowAfter")]
         public virtual void After_save_throw_always_throws_if_value_modified(string propertyName)
         {
             ExecuteWithStrategyInTransaction(
@@ -209,6 +232,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData("OnAddOrUpdateUseBeforeThrowAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateIgnoreBeforeThrowAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateThrowBeforeThrowAfter", "Rabbit")]
+        [InlineData("OnUpdateUseBeforeThrowAfter", null)]
+        [InlineData("OnUpdateIgnoreBeforeThrowAfter", "Rabbit")]
+        [InlineData("OnUpdateThrowBeforeThrowAfter", "Rabbit")]
         public virtual void After_save_throw_ignores_value_if_not_modified(string propertyName, string expectedValue)
         {
             var id = 0;
@@ -230,11 +256,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                         context.SaveChanges();
                     },
-                context => { Assert.Equal(expectedValue, GetValue(context.Anaises.Find(id), propertyName)); });
+                context =>
+                    {
+                        Assert.Equal(expectedValue, GetValue(context.Anaises.Find(id), propertyName));
+                    });
         }
 
         [Theory]
         [InlineData("OnAddOrUpdate", "Rabbit")]
+        [InlineData("OnUpdate", null)]
         [InlineData("NeverUseBeforeIgnoreAfter", null)]
         [InlineData("NeverIgnoreBeforeIgnoreAfter", null)]
         [InlineData("NeverThrowBeforeIgnoreAfter", null)]
@@ -244,6 +274,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData("OnAddOrUpdateUseBeforeIgnoreAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateIgnoreBeforeIgnoreAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateThrowBeforeIgnoreAfter", "Rabbit")]
+        [InlineData("OnUpdateUseBeforeIgnoreAfter", null)]
+        [InlineData("OnUpdateIgnoreBeforeIgnoreAfter", "Rabbit")]
+        [InlineData("OnUpdateThrowBeforeIgnoreAfter", "Rabbit")]
         public virtual void After_save_ignore_ignores_value_if_not_modified(string propertyName, string expectedValue)
         {
             var id = 0;
@@ -270,6 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         [Theory]
         [InlineData("OnAddOrUpdate", "Rabbit")]
+        [InlineData("OnUpdate", null)]
         [InlineData("NeverUseBeforeIgnoreAfter", null)]
         [InlineData("NeverIgnoreBeforeIgnoreAfter", null)]
         [InlineData("NeverThrowBeforeIgnoreAfter", null)]
@@ -279,6 +313,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData("OnAddOrUpdateUseBeforeIgnoreAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateIgnoreBeforeIgnoreAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateThrowBeforeIgnoreAfter", "Rabbit")]
+        [InlineData("OnUpdateUseBeforeIgnoreAfter", null)]
+        [InlineData("OnUpdateIgnoreBeforeIgnoreAfter", "Rabbit")]
+        [InlineData("OnUpdateThrowBeforeIgnoreAfter", "Rabbit")]
         public virtual void After_save_ignore_ignores_value_even_if_modified(string propertyName, string expectedValue)
         {
             var id = 0;
@@ -306,6 +343,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [Theory]
         [InlineData("Never", null)]
         [InlineData("OnAdd", "Rabbit")]
+        [InlineData("OnAddOrUpdate", "Rabbit")]
+        [InlineData("OnUpdate", null)]
         [InlineData("NeverUseBeforeUseAfter", null)]
         [InlineData("NeverIgnoreBeforeUseAfter", null)]
         [InlineData("NeverThrowBeforeUseAfter", null)]
@@ -315,6 +354,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData("OnAddOrUpdateUseBeforeUseAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateIgnoreBeforeUseAfter", "Rabbit")]
         [InlineData("OnAddOrUpdateThrowBeforeUseAfter", "Rabbit")]
+        [InlineData("OnUpdateUseBeforeUseAfter", null)]
+        [InlineData("OnUpdateIgnoreBeforeUseAfter", "Rabbit")]
+        [InlineData("OnUpdateThrowBeforeUseAfter", "Rabbit")]
         public virtual void After_save_use_ignores_value_if_not_modified(string propertyName, string expectedValue)
         {
             var id = 0;
@@ -351,6 +393,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [InlineData("OnAddOrUpdateUseBeforeUseAfter", "Daisy")]
         [InlineData("OnAddOrUpdateIgnoreBeforeUseAfter", "Daisy")]
         [InlineData("OnAddOrUpdateThrowBeforeUseAfter", "Daisy")]
+        [InlineData("OnUpdateUseBeforeUseAfter", "Daisy")]
+        [InlineData("OnUpdateIgnoreBeforeUseAfter", "Daisy")]
+        [InlineData("OnUpdateThrowBeforeUseAfter", "Daisy")]
         public virtual void After_save_use_uses_value_if_modified(string propertyName, string expectedValue)
         {
             var id = 0;
@@ -1094,6 +1139,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public string OnAddOrUpdateUseBeforeThrowAfter { get; set; }
             public string OnAddOrUpdateIgnoreBeforeThrowAfter { get; set; }
             public string OnAddOrUpdateThrowBeforeThrowAfter { get; set; }
+
+            public string OnUpdate { get; set; }
+            public string OnUpdateUseBeforeUseAfter { get; set; }
+            public string OnUpdateIgnoreBeforeUseAfter { get; set; }
+            public string OnUpdateThrowBeforeUseAfter { get; set; }
+            public string OnUpdateUseBeforeIgnoreAfter { get; set; }
+            public string OnUpdateIgnoreBeforeIgnoreAfter { get; set; }
+            public string OnUpdateThrowBeforeIgnoreAfter { get; set; }
+            public string OnUpdateUseBeforeThrowAfter { get; set; }
+            public string OnUpdateIgnoreBeforeThrowAfter { get; set; }
+            public string OnUpdateThrowBeforeThrowAfter { get; set; }
         }
 
         protected class StoreGeneratedContext : DbContext
@@ -1317,6 +1373,44 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                             property.AfterSaveBehavior = PropertyValueBehavior.Throw;
 
                             property = b.Property(e => e.OnAddOrUpdateThrowBeforeThrowAfter).ValueGeneratedOnAddOrUpdate().Metadata;
+                            property.BeforeSaveBehavior = PropertyValueBehavior.Throw;
+                            property.AfterSaveBehavior = PropertyValueBehavior.Throw;
+
+                            b.Property(e => e.OnUpdate).ValueGeneratedOnUpdate();
+
+                            property = b.Property(e => e.OnUpdateUseBeforeUseAfter).ValueGeneratedOnUpdate().Metadata;
+                            property.BeforeSaveBehavior = PropertyValueBehavior.UseValue;
+                            property.AfterSaveBehavior = PropertyValueBehavior.UseValue;
+
+                            property = b.Property(e => e.OnUpdateIgnoreBeforeUseAfter).ValueGeneratedOnUpdate().Metadata;
+                            property.BeforeSaveBehavior = PropertyValueBehavior.Ignore;
+                            property.AfterSaveBehavior = PropertyValueBehavior.UseValue;
+
+                            property = b.Property(e => e.OnUpdateThrowBeforeUseAfter).ValueGeneratedOnUpdate().Metadata;
+                            property.BeforeSaveBehavior = PropertyValueBehavior.Throw;
+                            property.AfterSaveBehavior = PropertyValueBehavior.UseValue;
+
+                            property = b.Property(e => e.OnUpdateUseBeforeIgnoreAfter).ValueGeneratedOnUpdate().Metadata;
+                            property.BeforeSaveBehavior = PropertyValueBehavior.UseValue;
+                            property.AfterSaveBehavior = PropertyValueBehavior.Ignore;
+
+                            property = b.Property(e => e.OnUpdateIgnoreBeforeIgnoreAfter).ValueGeneratedOnUpdate().Metadata;
+                            property.BeforeSaveBehavior = PropertyValueBehavior.Ignore;
+                            property.AfterSaveBehavior = PropertyValueBehavior.Ignore;
+
+                            property = b.Property(e => e.OnUpdateThrowBeforeIgnoreAfter).ValueGeneratedOnUpdate().Metadata;
+                            property.BeforeSaveBehavior = PropertyValueBehavior.Throw;
+                            property.AfterSaveBehavior = PropertyValueBehavior.Ignore;
+
+                            property = b.Property(e => e.OnUpdateUseBeforeThrowAfter).ValueGeneratedOnUpdate().Metadata;
+                            property.BeforeSaveBehavior = PropertyValueBehavior.UseValue;
+                            property.AfterSaveBehavior = PropertyValueBehavior.Throw;
+
+                            property = b.Property(e => e.OnUpdateIgnoreBeforeThrowAfter).ValueGeneratedOnUpdate().Metadata;
+                            property.BeforeSaveBehavior = PropertyValueBehavior.Ignore;
+                            property.AfterSaveBehavior = PropertyValueBehavior.Throw;
+
+                            property = b.Property(e => e.OnUpdateThrowBeforeThrowAfter).ValueGeneratedOnUpdate().Metadata;
                             property.BeforeSaveBehavior = PropertyValueBehavior.Throw;
                             property.AfterSaveBehavior = PropertyValueBehavior.Throw;
                         });

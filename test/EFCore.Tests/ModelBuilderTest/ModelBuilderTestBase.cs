@@ -246,6 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedNever();
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnAdd();
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate();
+            public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnUpdate();
 
             public abstract TestPropertyBuilder<TProperty> HasValueGenerator<TGenerator>() where TGenerator : ValueGenerator;
             public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);

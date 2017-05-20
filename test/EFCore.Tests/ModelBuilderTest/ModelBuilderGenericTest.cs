@@ -241,6 +241,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public override TestPropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate()
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.ValueGeneratedOnAddOrUpdate());
 
+            public override TestPropertyBuilder<TProperty> ValueGeneratedOnUpdate()
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.ValueGeneratedOnUpdate());
+
             public override TestPropertyBuilder<TProperty> HasValueGenerator<TGenerator>()
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator<TGenerator>());
 
