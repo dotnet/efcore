@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.Equal("T1", command.TableName);
             Assert.Null(command.Schema);
             Assert.Equal(EntityState.Added, command.EntityState);
-            Assert.Equal(2, command.ColumnModifications.Count);
+            Assert.Equal(3, command.ColumnModifications.Count);
 
             var columnMod = command.ColumnModifications[0];
 
@@ -43,7 +43,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal("Col2", columnMod.ColumnName);
             Assert.Same(entry, columnMod.Entry);
-            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.Equal("Name1", columnMod.Property.Name);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal("Col3", columnMod.ColumnName);
+            Assert.Same(entry, columnMod.Entry);
+            Assert.Equal("Name2", columnMod.Property.Name);
             Assert.False(columnMod.IsCondition);
             Assert.False(columnMod.IsKey);
             Assert.False(columnMod.IsRead);
@@ -62,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.Equal("T1", command.TableName);
             Assert.Null(command.Schema);
             Assert.Equal(EntityState.Added, command.EntityState);
-            Assert.Equal(2, command.ColumnModifications.Count);
+            Assert.Equal(3, command.ColumnModifications.Count);
 
             var columnMod = command.ColumnModifications[0];
 
@@ -78,7 +88,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal("Col2", columnMod.ColumnName);
             Assert.Same(entry, columnMod.Entry);
-            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.Equal("Name1", columnMod.Property.Name);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal("Col3", columnMod.ColumnName);
+            Assert.Same(entry, columnMod.Entry);
+            Assert.Equal("Name2", columnMod.Property.Name);
             Assert.False(columnMod.IsCondition);
             Assert.False(columnMod.IsKey);
             Assert.False(columnMod.IsRead);
@@ -96,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.Equal("T1", command.TableName);
             Assert.Null(command.Schema);
             Assert.Equal(EntityState.Added, command.EntityState);
-            Assert.Equal(2, command.ColumnModifications.Count);
+            Assert.Equal(3, command.ColumnModifications.Count);
 
             var columnMod = command.ColumnModifications[0];
 
@@ -112,7 +132,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal("Col2", columnMod.ColumnName);
             Assert.Same(entry, columnMod.Entry);
-            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.Equal("Name1", columnMod.Property.Name);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal("Col3", columnMod.ColumnName);
+            Assert.Same(entry, columnMod.Entry);
+            Assert.Equal("Name2", columnMod.Property.Name);
             Assert.False(columnMod.IsCondition);
             Assert.False(columnMod.IsKey);
             Assert.False(columnMod.IsRead);
@@ -130,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.Equal("T1", command.TableName);
             Assert.Null(command.Schema);
             Assert.Equal(EntityState.Modified, command.EntityState);
-            Assert.Equal(2, command.ColumnModifications.Count);
+            Assert.Equal(3, command.ColumnModifications.Count);
 
             var columnMod = command.ColumnModifications[0];
 
@@ -146,7 +176,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal("Col2", columnMod.ColumnName);
             Assert.Same(entry, columnMod.Entry);
-            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.Equal("Name1", columnMod.Property.Name);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal("Col3", columnMod.ColumnName);
+            Assert.Same(entry, columnMod.Entry);
+            Assert.Equal("Name2", columnMod.Property.Name);
             Assert.False(columnMod.IsCondition);
             Assert.False(columnMod.IsKey);
             Assert.False(columnMod.IsRead);
@@ -164,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.Equal("T1", command.TableName);
             Assert.Null(command.Schema);
             Assert.Equal(EntityState.Modified, command.EntityState);
-            Assert.Equal(2, command.ColumnModifications.Count);
+            Assert.Equal(3, command.ColumnModifications.Count);
 
             var columnMod = command.ColumnModifications[0];
 
@@ -180,7 +220,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal("Col2", columnMod.ColumnName);
             Assert.Same(entry, columnMod.Entry);
-            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.Equal("Name1", columnMod.Property.Name);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal("Col3", columnMod.ColumnName);
+            Assert.Same(entry, columnMod.Entry);
+            Assert.Equal("Name2", columnMod.Property.Name);
             Assert.False(columnMod.IsCondition);
             Assert.False(columnMod.IsKey);
             Assert.False(columnMod.IsRead);
@@ -198,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.Equal("T1", command.TableName);
             Assert.Null(command.Schema);
             Assert.Equal(EntityState.Modified, command.EntityState);
-            Assert.Equal(2, command.ColumnModifications.Count);
+            Assert.Equal(3, command.ColumnModifications.Count);
 
             var columnMod = command.ColumnModifications[0];
 
@@ -214,7 +264,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal("Col2", columnMod.ColumnName);
             Assert.Same(entry, columnMod.Entry);
-            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.Equal("Name1", columnMod.Property.Name);
+            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.True(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal("Col3", columnMod.ColumnName);
+            Assert.Same(entry, columnMod.Entry);
+            Assert.Equal("Name2", columnMod.Property.Name);
             Assert.True(columnMod.IsCondition);
             Assert.False(columnMod.IsKey);
             Assert.True(columnMod.IsRead);
@@ -256,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.Equal("T1", command.TableName);
             Assert.Null(command.Schema);
             Assert.Equal(EntityState.Deleted, command.EntityState);
-            Assert.Equal(2, command.ColumnModifications.Count);
+            Assert.Equal(3, command.ColumnModifications.Count);
 
             var columnMod = command.ColumnModifications[0];
 
@@ -272,7 +332,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal("Col2", columnMod.ColumnName);
             Assert.Same(entry, columnMod.Entry);
-            Assert.Equal("Name", columnMod.Property.Name);
+            Assert.Equal("Name1", columnMod.Property.Name);
+            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal("Col3", columnMod.ColumnName);
+            Assert.Same(entry, columnMod.Entry);
+            Assert.Equal("Name2", columnMod.Property.Name);
             Assert.True(columnMod.IsCondition);
             Assert.False(columnMod.IsKey);
             Assert.False(columnMod.IsRead);
@@ -364,7 +434,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         private class T1
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name1 { get; set; }
+            public string Name2 { get; set; }
         }
 
         private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
@@ -377,11 +448,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             key.Relational().ColumnName = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
-            var nonKey = entityType.AddProperty("Name", typeof(string));
-            nonKey.IsConcurrencyToken = computeNonKeyValue;
+            var nonKey1 = entityType.AddProperty("Name1", typeof(string));
+            nonKey1.IsConcurrencyToken = computeNonKeyValue;
 
-            nonKey.Relational().ColumnName = "Col2";
-            nonKey.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
+            nonKey1.Relational().ColumnName = "Col2";
+            nonKey1.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
+
+            var nonKey2 = entityType.AddProperty("Name2", typeof(string));
+            nonKey2.IsConcurrencyToken = computeNonKeyValue;
+
+            nonKey2.Relational().ColumnName = "Col3";
+            nonKey2.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnUpdate : ValueGenerated.Never;
 
             return model;
         }
@@ -393,7 +470,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
-            return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null : "Test" });
+            return RelationalTestHelpers.Instance.CreateInternalEntry(
+                model,
+                entityState,
+                new
+                    T1
+                    {
+                        Id = 1,
+                        Name1 = computeNonKeyValue ? null : "Test",
+                        Name2 = computeNonKeyValue ? null : "Test",
+                    });
         }
     }
 }

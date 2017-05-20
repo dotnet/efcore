@@ -675,7 +675,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                         b.Property<int>("Charm").ValueGeneratedOnAdd();
                         b.Property<string>("Strange").ValueGeneratedNever();
                         b.Property<int>("Top").ValueGeneratedOnAddOrUpdate();
-                        b.Property<string>("Bottom").ValueGeneratedNever();
+                        b.Property<string>("Bottom").ValueGeneratedOnUpdate();
                     });
 
                 var entityType = model.FindEntityType(typeof(Quarks));
@@ -686,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(ValueGenerated.OnAdd, entityType.FindProperty("Charm").ValueGenerated);
                 Assert.Equal(ValueGenerated.Never, entityType.FindProperty("Strange").ValueGenerated);
                 Assert.Equal(ValueGenerated.OnAddOrUpdate, entityType.FindProperty("Top").ValueGenerated);
-                Assert.Equal(ValueGenerated.Never, entityType.FindProperty("Bottom").ValueGenerated);
+                Assert.Equal(ValueGenerated.OnUpdate, entityType.FindProperty("Bottom").ValueGenerated);
             }
 
             [Fact]
@@ -866,6 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                     .ValueGeneratedNever()
                     .ValueGeneratedOnAdd()
                     .ValueGeneratedOnAddOrUpdate()
+                    .ValueGeneratedOnUpdate()
                     .IsUnicode()
                     .HasMaxLength(100)
                     .HasValueGenerator<CustomValueGenerator>()

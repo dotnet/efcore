@@ -40,6 +40,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
         }
 
         [Fact]
+        public void Does_not_add_Autoincrement_for_OnUpdate_integer_property()
+        {
+            var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnUpdate().Metadata;
+
+            Assert.DoesNotContain(_provider.For(property), a => a.Name == _autoincrement.Name);
+        }
+
+        [Fact]
         public void Does_not_add_Autoincrement_for_Never_value_generated_integer_property()
         {
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedNever().Metadata;

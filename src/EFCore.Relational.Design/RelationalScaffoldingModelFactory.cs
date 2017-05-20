@@ -315,6 +315,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 property.ValueGeneratedOnAdd();
             }
 
+            if (column.ValueGenerated == ValueGenerated.OnUpdate)
+            {
+                property.ValueGeneratedOnUpdate();
+            }
+
             if (column.ValueGenerated == ValueGenerated.OnAddOrUpdate)
             {
                 property.ValueGeneratedOnAddOrUpdate();
