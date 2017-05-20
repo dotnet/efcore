@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             _sb.AppendLine("using System;");
             _sb.AppendLine("using System.Collections.Generic;");
-            if (_entity.ModelConfiguration.CustomConfiguration.UseDataAnnotations)
+            if (_entity.ModelConfiguration.UseDataAnnotations)
             {
                 _sb.AppendLine("using System.ComponentModel.DataAnnotations;");
                 _sb.AppendLine("using System.ComponentModel.DataAnnotations.Schema;");
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             _sb.AppendLine();
-            _sb.AppendLine("namespace " + _entity.ModelConfiguration.Namespace());
+            _sb.AppendLine("namespace " + _entity.ModelConfiguration.Namespace);
             _sb.AppendLine("{");
             using (_sb.Indent())
             {
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(attributeConfigurations, nameof(attributeConfigurations));
 
-            if (_entity.ModelConfiguration.CustomConfiguration.UseDataAnnotations)
+            if (_entity.ModelConfiguration.UseDataAnnotations)
             {
                 foreach (var attrConfig in attributeConfigurations)
                 {
