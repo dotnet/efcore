@@ -45,6 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         private SortedDictionary<EntityType, EntityConfiguration> _entityConfigurationMap;
         private List<SequenceConfiguration> _sequenceConfigurations;
 
+        private readonly string _connectionString;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -52,21 +54,26 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         public ModelConfiguration(
             [NotNull] ConfigurationFactory configurationFactory,
             [NotNull] IModel model,
-            [NotNull] CustomConfiguration customConfiguration,
+            [NotNull] string connectionString,
+            [NotNull] string contextName,
+            [NotNull] string @namespace,
+            bool useDataAnnotations,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ScaffoldingUtilities scaffoldingUtilities)
         {
             Check.NotNull(configurationFactory, nameof(configurationFactory));
             Check.NotNull(model, nameof(model));
-            Check.NotNull(customConfiguration, nameof(customConfiguration));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
             Check.NotNull(scaffoldingUtilities, nameof(scaffoldingUtilities));
 
             _configurationFactory = configurationFactory;
+            _connectionString = connectionString;
+            Namespace = @namespace;
+            ContextName = contextName;
             Model = model;
-            CustomConfiguration = customConfiguration;
             CSharpUtilities = cSharpUtilities;
             ScaffoldingUtilities = scaffoldingUtilities;
+            UseDataAnnotations = useDataAnnotations;
             _valueGeneratorConvention = new RelationalValueGeneratorConvention();
         }
 
@@ -92,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual CustomConfiguration CustomConfiguration { get; [param: NotNull] set; }
+        public virtual bool UseDataAnnotations { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -113,7 +120,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Namespace() => CustomConfiguration.Namespace;
+        public virtual string Namespace { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual string ContextName { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -279,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                     {
                         methodName
                         + "("
-                        + CSharpUtilities.GenerateVerbatimStringLiteral(CustomConfiguration.ConnectionString)
+                        + CSharpUtilities.GenerateVerbatimStringLiteral(_connectionString)
                         + ")"
                     }));
         }
