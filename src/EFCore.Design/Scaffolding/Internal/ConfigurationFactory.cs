@@ -49,17 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual ModelConfiguration CreateModelConfiguration(
             [NotNull] IModel model,
-            [NotNull] CustomConfiguration customConfiguration)
-            => new ModelConfiguration(this, model, customConfiguration, CSharpUtilities, ScaffoldingUtilities);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual CustomConfiguration CreateCustomConfiguration(
-            [NotNull] string connectionString, [CanBeNull] string contextClassName,
-            [NotNull] string @namespace, bool useDataAnnotations)
-            => new CustomConfiguration(connectionString, contextClassName, @namespace, useDataAnnotations);
+            [NotNull] string connectionString,
+            [NotNull] string contextName,
+            [NotNull] string @namespace,
+            bool useDataAnnotations)
+            => new ModelConfiguration(this, model, connectionString, contextName, @namespace, useDataAnnotations, CSharpUtilities, ScaffoldingUtilities);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine("using Microsoft.EntityFrameworkCore;");
             _sb.AppendLine("using Microsoft.EntityFrameworkCore.Metadata;");
             _sb.AppendLine();
-            _sb.AppendLine("namespace " + _model.Namespace());
+            _sb.AppendLine("namespace " + _model.Namespace);
             _sb.AppendLine("{");
             using (_sb.Indent())
             {
@@ -72,9 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public virtual void AddClass()
         {
             var className =
-                string.IsNullOrWhiteSpace(_model.CustomConfiguration.ContextClassName)
+                string.IsNullOrWhiteSpace(_model.ContextName)
                     ? _model.ClassName()
-                    : _model.CustomConfiguration.ContextClassName;
+                    : _model.ContextName;
             _sb.AppendLine("public partial class " + className + " : DbContext");
             _sb.AppendLine("{");
             using (_sb.Indent())
@@ -145,9 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 var first = true;
                 foreach (var entityConfig in _model.EntityConfigurations)
                 {
-                    var fluentApiConfigurations = entityConfig.GetFluentApiConfigurations(_model.CustomConfiguration.UseDataAnnotations);
-                    var propertyConfigurations = entityConfig.GetPropertyConfigurations(_model.CustomConfiguration.UseDataAnnotations);
-                    var relationshipConfigurations = entityConfig.GetRelationshipConfigurations(_model.CustomConfiguration.UseDataAnnotations);
+                    var fluentApiConfigurations = entityConfig.GetFluentApiConfigurations(_model.UseDataAnnotations);
+                    var propertyConfigurations = entityConfig.GetPropertyConfigurations(_model.UseDataAnnotations);
+                    var relationshipConfigurations = entityConfig.GetRelationshipConfigurations(_model.UseDataAnnotations);
                     if (fluentApiConfigurations.Count == 0
                         && propertyConfigurations.Count == 0
                         && relationshipConfigurations.Count == 0)
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             foreach (var propertyConfig in propertyConfigurations)
             {
                 var fluentApiConfigurations =
-                    propertyConfig.GetFluentApiConfigurations(_model.CustomConfiguration.UseDataAnnotations);
+                    propertyConfig.GetFluentApiConfigurations(_model.UseDataAnnotations);
                 if (fluentApiConfigurations.Count == 0)
                 {
                     continue;
