@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void DetectNavigationChange(InternalEntityEntry entry, INavigation navigation)
+        private static void DetectNavigationChange(InternalEntityEntry entry, INavigation navigation)
         {
             var snapshotValue = entry.GetRelationshipSnapshotValue(navigation);
             var currentValue = entry[navigation];

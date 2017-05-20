@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
@@ -23,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             return model;
         }
 
-        protected virtual ConventionSet GetConventionSet() => new CoreConventionSetBuilder().CreateConventionSet();
+        protected virtual ConventionSet GetConventionSet() 
+            => new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper())).CreateConventionSet();
 
         [Table("ProductTable")]
         protected class Product

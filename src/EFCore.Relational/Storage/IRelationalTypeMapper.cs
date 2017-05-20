@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public interface IRelationalTypeMapper
+    public interface IRelationalTypeMapper : ITypeMapper
     {
         /// <summary>
         ///     Gets the relational database type for the given property.

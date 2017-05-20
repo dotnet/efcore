@@ -64,6 +64,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     Gets a value indicating whether the given .NET type is mapped.
+        /// </summary>
+        /// <param name="clrType"> The .NET type. </param>
+        /// <returns> True if the type can be mapped; otherwise false. </returns>
+        public virtual bool IsTypeMapped(Type clrType)
+        {
+            Check.NotNull(clrType, nameof(clrType));
+
+            return FindMapping(clrType) != null;
+        }
+
+        /// <summary>
         ///     Gets the relational database type for the given property.
         ///     Returns null if no mapping is found.
         /// </summary>
@@ -103,8 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(clrType, nameof(clrType));
 
-            RelationalTypeMapping mapping;
-            return GetClrTypeMappings().TryGetValue(clrType.UnwrapNullableType().UnwrapEnumType(), out mapping)
+            return GetClrTypeMappings().TryGetValue(clrType.UnwrapNullableType().UnwrapEnumType(), out var mapping)
                 ? mapping
                 : null;
         }
@@ -133,8 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(storeType, nameof(storeType));
 
-            RelationalTypeMapping mapping;
-            if (GetStoreTypeMappings().TryGetValue(storeType, out mapping)
+            if (GetStoreTypeMappings().TryGetValue(storeType, out var mapping)
                 && mapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
             {
                 return mapping;
@@ -152,9 +162,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     || mapping.ClrType == typeof(byte[]))
                 {
                     var closeParen = storeType.IndexOf(")", openParen + 1, StringComparison.Ordinal);
-                    int size;
+
                     if (closeParen > openParen
-                        && int.TryParse(storeType.Substring(openParen + 1, closeParen - openParen - 1), out size)
+                        && int.TryParse(storeType.Substring(openParen + 1, closeParen - openParen - 1), out var size)
                         && mapping.Size != size)
                     {
                         return mapping.CreateCopy(storeType, size);

@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return relationshipBuilder;
         }
 
-        private void SetOwnedTable(ForeignKey foreignKey)
+        private static void SetOwnedTable(ForeignKey foreignKey)
         {
             var ownerType = foreignKey.PrincipalEntityType;
             foreignKey.DeclaringEntityType.Builder.Relational(ConfigurationSource.Convention)

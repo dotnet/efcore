@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using Xunit;
 
@@ -129,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
 
-            new PropertyDiscoveryConvention().Apply(entityBuilder);
+            new PropertyDiscoveryConvention(new CoreTypeMapper()).Apply(entityBuilder);
 
             return entityBuilder;
         }

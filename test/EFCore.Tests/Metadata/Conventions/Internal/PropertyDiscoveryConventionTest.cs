@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
@@ -39,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithInvalidProperties>();
 
-            Assert.Same(entityBuilder, new PropertyDiscoveryConvention().Apply(entityBuilder));
+            Assert.Same(entityBuilder, new PropertyDiscoveryConvention(new CoreTypeMapper()).Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
@@ -97,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithEveryPrimitive>();
 
-            Assert.Same(entityBuilder, new PropertyDiscoveryConvention().Apply(entityBuilder));
+            Assert.Same(entityBuilder, new PropertyDiscoveryConvention(new CoreTypeMapper()).Apply(entityBuilder));
 
             Assert.Equal(
                 typeof(EntityWithEveryPrimitive)
@@ -116,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoPrimitives>();
 
-            Assert.Same(entityBuilder, new PropertyDiscoveryConvention().Apply(entityBuilder));
+            Assert.Same(entityBuilder, new PropertyDiscoveryConvention(new CoreTypeMapper()).Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }

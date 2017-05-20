@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -10,7 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_override_foreign_key_index_uniqueness_when_referenced_key_changes()
         {
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var modelBuilder 
+                = new ModelBuilder(
+                     new CoreConventionSetBuilder(
+                         new CoreConventionSetBuilderDependencies(
+                             new CoreTypeMapper())).CreateConventionSet());
+
             var principalTypeBuilder = modelBuilder.Entity<PrincipalEntity>();
             var dependentTypeBuilder = modelBuilder.Entity<DependentEntity>();
 

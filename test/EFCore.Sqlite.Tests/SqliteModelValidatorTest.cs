@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
     {
         public override void Detects_duplicate_column_names()
         {
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper())).CreateConventionSet());
             modelBuilder.Entity<Animal>().Property(b => b.Id).ForSqliteHasColumnName("Name");
 
             VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(nameof(Animal), nameof(Animal.Id),
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
         [Fact]
         public override void Detects_incompatible_shared_columns_with_shared_table()
         {
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper())).CreateConventionSet());
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().Property(a => a.P0).HasColumnType("someInt");

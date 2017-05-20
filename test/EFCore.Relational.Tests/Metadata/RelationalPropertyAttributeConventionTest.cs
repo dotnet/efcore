@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
@@ -70,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
         {
             var conventionSet = new ConventionSet();
-            conventionSet.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention());
+            conventionSet.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(new CoreTypeMapper()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 

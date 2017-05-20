@@ -1,4 +1,4 @@
-  [
+[
   {
     "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<T0, T1> where T0 : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<T0, T1> where T1 : Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension",
     "Kind": "Removal"
@@ -1098,5 +1098,14 @@
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
     "MemberId": "System.Void RegisterBufferable(Microsoft.EntityFrameworkCore.Query.Internal.IBufferable bufferable)",
     "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapperExtensions",
+    "MemberId": "public static System.Boolean IsTypeMapped(this Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, System.Type clrType)",
+    "Kind": "Removal"
   }
-  ]
+]

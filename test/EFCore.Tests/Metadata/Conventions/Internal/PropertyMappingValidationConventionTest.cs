@@ -7,6 +7,7 @@ using System.Threading;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
@@ -31,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         public virtual void Throws_when_primitive_type_property_is_not_added_or_ignored()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
+            modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
 
             Assert.Equal(
-                CoreStrings.PropertyNotMapped(
+                CoreStrings.PropertyNotAdded(
                     typeof(PrimitivePropertyEntity).ShortDisplayName(), "Property", typeof(int).DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }
@@ -43,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         public virtual void Throws_when_nonprimitive_value_type_property_is_not_added_or_ignored()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveValueTypePropertyEntity), ConfigurationSource.Convention);
+            modelBuilder.Entity(typeof(NonPrimitiveValueTypePropertyEntity), ConfigurationSource.Convention);
 
             Assert.Equal(
                 CoreStrings.PropertyNotAdded(
@@ -55,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         public virtual void Throws_when_keyless_type_property_is_not_added_or_ignored()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveReferenceTypePropertyEntity), ConfigurationSource.Convention);
+            modelBuilder.Entity(typeof(NonPrimitiveReferenceTypePropertyEntity), ConfigurationSource.Convention);
 
             Assert.Equal(
                 CoreStrings.PropertyNotAdded(
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         public virtual void Throws_when_navigation_is_not_added_or_ignored()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
+            modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
             modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
 
             Assert.Equal(
@@ -123,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         public virtual void Does_not_throw_when_navigation_target_entity_is_ignored()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
+            modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
             modelBuilder.Ignore(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
 
             CreateConvention().Apply(modelBuilder);
@@ -145,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         public virtual void Throws_when_interface_type_property_is_not_added_or_ignored()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(InterfaceNavigationEntity), ConfigurationSource.Convention);
+            modelBuilder.Entity(typeof(InterfaceNavigationEntity), ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.InterfacePropertyNotAdded(
                     typeof(InterfaceNavigationEntity).ShortDisplayName(),
@@ -163,7 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             CreateConvention().Apply(modelBuilder);
         }
 
-        protected virtual PropertyMappingValidationConvention CreateConvention() => new PropertyMappingValidationConvention();
+        protected virtual PropertyMappingValidationConvention CreateConvention() 
+            => new PropertyMappingValidationConvention(new CoreTypeMapper());
 
         protected class NonPrimitiveAsPropertyEntity
         {

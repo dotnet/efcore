@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -105,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public ConcreteModelSource(IDbSetFinder setFinder)
                 : base(new ModelSourceDependencies(
                     setFinder,
-                    new CoreConventionSetBuilder(),
+                    new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper())),
                     new ModelCustomizer(new ModelCustomizerDependencies()),
                     new ModelCacheKeyFactory(new ModelCacheKeyFactoryDependencies())))
             {

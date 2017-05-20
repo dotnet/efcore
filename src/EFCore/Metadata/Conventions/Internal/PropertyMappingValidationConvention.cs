@@ -8,6 +8,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -18,6 +19,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class PropertyMappingValidationConvention : IModelConvention
     {
+        private readonly ITypeMapper _typeMapper;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public PropertyMappingValidationConvention([NotNull] ITypeMapper typeMapper)
+        {
+            Check.NotNull(typeMapper, nameof(typeMapper));
+
+            _typeMapper = typeMapper;
+        }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -29,23 +43,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 var unmappedProperty = entityType.GetProperties().FirstOrDefault(p => !IsMappedPrimitiveProperty(p.ClrType));
+
                 if (unmappedProperty != null)
                 {
-                    throw new InvalidOperationException(CoreStrings.PropertyNotMapped(
-                        entityType.DisplayName(), unmappedProperty.Name, unmappedProperty.ClrType.ShortDisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.PropertyNotMapped(
+                            entityType.DisplayName(), unmappedProperty.Name, unmappedProperty.ClrType.ShortDisplayName()));
                 }
 
                 if (entityType.HasClrType())
                 {
                     var clrProperties = new HashSet<string>();
-                    clrProperties.UnionWith(entityType.ClrType.GetRuntimeProperties()
-                        .Where(pi => pi.IsCandidateProperty())
-                        .Select(pi => pi.Name));
+
+                    clrProperties.UnionWith(
+                        entityType.ClrType.GetRuntimeProperties()
+                            .Where(pi => pi.IsCandidateProperty())
+                            .Select(pi => pi.Name));
 
                     clrProperties.ExceptWith(entityType.GetProperties().Select(p => p.Name));
-
                     clrProperties.ExceptWith(entityType.GetNavigations().Select(p => p.Name));
-
                     clrProperties.RemoveWhere(p => entityType.Builder.IsIgnored(p, ConfigurationSource.Convention));
 
                     if (clrProperties.Count > 0)
@@ -55,46 +71,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             var actualProperty = entityType.ClrType.GetRuntimeProperties().First(p => p.Name == clrProperty);
                             var propertyType = actualProperty.PropertyType;
                             var targetSequenceType = propertyType.TryGetSequenceType();
+
                             if (modelBuilder.IsIgnored(propertyType.DisplayName(), ConfigurationSource.Convention)
-                                || (targetSequenceType != null
-                                    && modelBuilder.IsIgnored(targetSequenceType.DisplayName(), ConfigurationSource.Convention)))
+                                || targetSequenceType != null
+                                && modelBuilder.IsIgnored(targetSequenceType.DisplayName(), ConfigurationSource.Convention))
                             {
                                 continue;
                             }
 
                             var targetType = FindCandidateNavigationPropertyType(actualProperty);
-                            var targetEntityType = targetType == null ? null
-                                : modelBuilder.Metadata.FindEntityType(targetType);
-                            var isDelegatedIdentityEntityType = targetType != null
-                                                                && modelBuilder.Metadata.IsDelegatedIdentityEntityType(targetType);
+
+                            var targetEntityType
+                                = targetType == null
+                                    ? null
+                                    : modelBuilder.Metadata.FindEntityType(targetType);
+
+                            var isDelegatedIdentityEntityType
+                                = targetType != null
+                                  && modelBuilder.Metadata.IsDelegatedIdentityEntityType(targetType);
+
                             if (targetType != null
                                 && (targetEntityType != null
-                                || isDelegatedIdentityEntityType))
+                                    || isDelegatedIdentityEntityType))
                             {
                                 if ((!isDelegatedIdentityEntityType
                                      || !targetType.GetTypeInfo().Equals(entityType.ClrType.GetTypeInfo()))
                                     && entityType.GetDerivedTypes().All(dt => dt.FindDeclaredNavigation(actualProperty.Name) == null)
                                     && !entityType.IsInDefinitionPath(targetType))
                                 {
-                                    throw new InvalidOperationException(CoreStrings.NavigationNotAdded(
-                                        entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
+                                    throw new InvalidOperationException(
+                                        CoreStrings.NavigationNotAdded(
+                                            entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                                 }
                             }
-                            else if (propertyType.IsPrimitive())
+                            else if (targetSequenceType == null && propertyType.GetTypeInfo().IsInterface
+                                     || targetSequenceType != null && targetSequenceType.GetTypeInfo().IsInterface)
                             {
-                                throw new InvalidOperationException(CoreStrings.PropertyNotMapped(
-                                    entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
-                            }
-                            else if ((targetSequenceType == null && propertyType.GetTypeInfo().IsInterface)
-                                     || (targetSequenceType != null && targetSequenceType.GetTypeInfo().IsInterface))
-                            {
-                                throw new InvalidOperationException(CoreStrings.InterfacePropertyNotAdded(
-                                    entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
+                                throw new InvalidOperationException(
+                                    CoreStrings.InterfacePropertyNotAdded(
+                                        entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                             }
                             else
                             {
-                                throw new InvalidOperationException(CoreStrings.PropertyNotAdded(
-                                    entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
+                                throw new InvalidOperationException(
+                                    CoreStrings.PropertyNotAdded(
+                                        entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                             }
                         }
                     }
@@ -112,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(clrType, nameof(clrType));
 
-            return clrType.IsPrimitive();
+            return _typeMapper.IsTypeMapped(clrType);
         }
 
         /// <summary>
@@ -123,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return propertyInfo.FindCandidateNavigationPropertyType(SharedTypeExtensions.IsPrimitive);
+            return propertyInfo.FindCandidateNavigationPropertyType(_typeMapper.IsTypeMapped);
         }
     }
 }

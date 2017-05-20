@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -130,6 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IMigrationsSqlGenerator, MigrationsSqlGenerator>();
             TryAdd<IExecutionStrategyFactory, RelationalExecutionStrategyFactory>();
             TryAdd<IRelationalTypeMapper, RelationalTypeMapper>();
+            TryAdd<ITypeMapper>(p => p.GetService<IRelationalTypeMapper>());
             TryAdd<IRelationalValueBufferFactoryFactory, TypedRelationalValueBufferFactoryFactory>();
             TryAdd<IDatabaseCreator>(p => p.GetService<IRelationalDatabaseCreator>());
             TryAdd<IDbContextTransactionManager>(p => p.GetService<IRelationalConnection>());

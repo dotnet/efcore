@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public abstract class RelationalConventionSetBuilder : IConventionSetBuilder
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalConnection" /> class.
+        ///     Initializes a new instance of the <see cref="RelationalConventionSetBuilder" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         protected RelationalConventionSetBuilder([NotNull] RelationalConventionSetBuilderDependencies dependencies)
@@ -38,65 +38,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual ConventionSet AddConventions(ConventionSet conventionSet)
         {
-            var typeMapper = Dependencies.TypeMapper;
-
-            RelationshipDiscoveryConvention relationshipDiscoveryConvention
-                = new RelationalRelationshipDiscoveryConvention(typeMapper);
-
-            InversePropertyAttributeConvention inversePropertyAttributeConvention
-                = new RelationalInversePropertyAttributeConvention(typeMapper);
-
-            ReplaceConvention(
-                conventionSet.EntityTypeAddedConventions,
-                (PropertyDiscoveryConvention)new RelationalPropertyDiscoveryConvention(typeMapper));
-            ReplaceConvention(conventionSet.EntityTypeAddedConventions, inversePropertyAttributeConvention);
-            ReplaceConvention(conventionSet.EntityTypeAddedConventions, relationshipDiscoveryConvention);
-
-            ReplaceConvention(conventionSet.EntityTypeIgnoredConventions, inversePropertyAttributeConvention);
-
             ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention();
-            ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, inversePropertyAttributeConvention);
-            ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, relationshipDiscoveryConvention);
+
             ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, valueGeneratorConvention);
-
-            ReplaceConvention(conventionSet.EntityTypeMemberIgnoredConventions, inversePropertyAttributeConvention);
-            ReplaceConvention(conventionSet.EntityTypeMemberIgnoredConventions, relationshipDiscoveryConvention);
-
             ReplaceConvention(conventionSet.PrimaryKeySetConventions, valueGeneratorConvention);
-
-            ReplaceConvention(conventionSet.ForeignKeyAddedConventions,
-                (ForeignKeyAttributeConvention)new RelationalForeignKeyAttributeConvention(typeMapper));
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGeneratorConvention);
-
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
-            ReplaceConvention(conventionSet.NavigationAddedConventions, inversePropertyAttributeConvention);
-            ReplaceConvention(conventionSet.NavigationAddedConventions, relationshipDiscoveryConvention);
-
-            ReplaceConvention(conventionSet.NavigationRemovedConventions, relationshipDiscoveryConvention);
-
-            ReplaceConvention(
-                conventionSet.ModelBuiltConventions,
-                (PropertyMappingValidationConvention)new RelationalPropertyMappingValidationConvention(typeMapper));
-
             var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention();
+
             conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
 
             var sharedTableConvention = new SharedTableConvention();
+
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(sharedTableConvention);
-
             conventionSet.BaseEntityTypeSetConventions.Add(new DiscriminatorConvention());
-
             conventionSet.BaseEntityTypeSetConventions.Add(
                 new TableNameFromDbSetConvention(Dependencies.Context?.Context, Dependencies.SetFinder));
-
             conventionSet.EntityTypeAnnotationSetConventions.Add(sharedTableConvention);
-
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
-
             conventionSet.PropertyAnnotationSetConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
-
             conventionSet.ForeignKeyUniquenessConventions.Add(sharedTableConvention);
             conventionSet.ForeignKeyOwnershipConventions.Add(sharedTableConvention);
 

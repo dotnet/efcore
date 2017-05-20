@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
@@ -438,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            conventions.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention());
+            conventions.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(new CoreTypeMapper()));
             conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention());
 
             var keyConvention = new ValueGeneratorConvention();

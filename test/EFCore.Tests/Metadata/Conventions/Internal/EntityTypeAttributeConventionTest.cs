@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
@@ -40,7 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         [Fact]
         public void NotMappedAttribute_ignores_entityTypes_with_conventional_builder()
         {
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var modelBuilder = new ModelBuilder(
+                new CoreConventionSetBuilder(
+                        new CoreConventionSetBuilderDependencies(new CoreTypeMapper()))
+                    .CreateConventionSet());
+
             modelBuilder.Entity<B>();
 
             Assert.Equal(1, modelBuilder.Model.GetEntityTypes().Count());

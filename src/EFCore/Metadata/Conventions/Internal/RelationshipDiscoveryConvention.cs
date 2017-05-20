@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -24,6 +25,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IEntityTypeMemberIgnoredConvention,
         INavigationConvention
     {
+        private readonly ITypeMapper _typeMapper;
+        
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public RelationshipDiscoveryConvention([NotNull] ITypeMapper typeMapper)
+        {
+            Check.NotNull(typeMapper, nameof(typeMapper));
+
+            _typeMapper = typeMapper;
+        }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -622,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
-            => Check.NotNull(propertyInfo, nameof(propertyInfo)).FindCandidateNavigationPropertyType(SharedTypeExtensions.IsPrimitive);
+            => Check.NotNull(propertyInfo, nameof(propertyInfo)).FindCandidateNavigationPropertyType(_typeMapper.IsTypeMapped);
 
         private ImmutableSortedDictionary<PropertyInfo, Type> GetNavigationCandidates(EntityType entityType)
         {

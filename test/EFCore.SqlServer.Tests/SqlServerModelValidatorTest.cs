@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
         public override void Detects_incompatible_shared_columns_with_shared_table()
         {
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper())).CreateConventionSet());
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().Property(a => a.P0).HasColumnType("someInt");
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public virtual void Detects_incompatible_momory_optimized_shared_table()
         {
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper())).CreateConventionSet());
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().ToTable("Table").ForSqlServerIsMemoryOptimized();
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public virtual void Throws_for_unsupported_data_types()
         {
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper())).CreateConventionSet());
             modelBuilder.Entity<Cheese>().Property(e => e.Name).HasColumnType("nvarchar");
 
             Assert.Equal(

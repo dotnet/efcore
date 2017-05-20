@@ -1,11 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -16,6 +16,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class PropertyDiscoveryConvention : IEntityTypeConvention, IBaseTypeConvention
     {
+        private readonly ITypeMapper _typeMapper;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public PropertyDiscoveryConvention([NotNull] ITypeMapper typeMapper)
+        {
+            Check.NotNull(typeMapper, nameof(typeMapper));
+
+            _typeMapper = typeMapper;
+        }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -28,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (entityType.HasClrType())
             {
                 var primitiveProperties = entityType.ClrType.GetRuntimeProperties().Where(IsCandidatePrimitiveProperty);
+
                 foreach (var propertyInfo in primitiveProperties)
                 {
                     entityTypeBuilder.Property(propertyInfo, ConfigurationSource.Convention);
@@ -45,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return propertyInfo.IsCandidateProperty() && propertyInfo.PropertyType.IsPrimitive();
+            return propertyInfo.IsCandidateProperty()
+                   && _typeMapper.IsTypeMapped(propertyInfo.PropertyType);
         }
 
         /// <summary>

@@ -228,7 +228,7 @@ namespace MyNamespace
                 new CSharpMigrationOperationGenerator(codeHelper),
                 new CSharpSnapshotGenerator(codeHelper));
 
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper())).CreateConventionSet());
             modelBuilder.Entity<EntityWithEveryPrimitive>(eb =>
                 {
                     eb.Property(e => e.Boolean).HasDefaultValue(false);

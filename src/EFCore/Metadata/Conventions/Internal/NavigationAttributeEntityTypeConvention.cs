@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -22,6 +23,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IEntityTypeMemberIgnoredConvention
         where TAttribute : Attribute
     {
+        private readonly ITypeMapper _typeMapper;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected NavigationAttributeEntityTypeConvention([NotNull] ITypeMapper typeMapper)
+        {
+            Check.NotNull(typeMapper, nameof(typeMapper));
+
+            _typeMapper = typeMapper;
+        }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -198,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return propertyInfo.FindCandidateNavigationPropertyType(SharedTypeExtensions.IsPrimitive);
+            return propertyInfo.FindCandidateNavigationPropertyType(_typeMapper.IsTypeMapped);
         }
 
         /// <summary>
@@ -209,10 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
             [NotNull] PropertyInfo navigationPropertyInfo,
             [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute)
-        {
-            throw new NotImplementedException();
-        }
+            [NotNull] TAttribute attribute) => throw new NotImplementedException();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -223,10 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] Type type,
             [NotNull] PropertyInfo navigationPropertyInfo,
             [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute)
-        {
-            throw new NotImplementedException();
-        }
+            [NotNull] TAttribute attribute) => throw new NotImplementedException();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -235,10 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual InternalRelationshipBuilder Apply(
             [NotNull] InternalRelationshipBuilder relationshipBuilder,
             [NotNull] Navigation navigation,
-            [NotNull] TAttribute attribute)
-        {
-            throw new NotImplementedException();
-        }
+            [NotNull] TAttribute attribute) => throw new NotImplementedException();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -249,10 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [CanBeNull] EntityType oldBaseType,
             [NotNull] PropertyInfo navigationPropertyInfo,
             [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute)
-        {
-            throw new NotImplementedException();
-        }
+            [NotNull] TAttribute attribute) => throw new NotImplementedException();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -262,9 +264,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
             [NotNull] PropertyInfo navigationPropertyInfo,
             [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute)
-        {
-            throw new NotImplementedException();
-        }
+            [NotNull] TAttribute attribute) => throw new NotImplementedException();
     }
 }

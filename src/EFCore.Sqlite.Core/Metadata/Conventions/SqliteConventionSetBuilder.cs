@@ -16,9 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         public static ConventionSet Build()
-            => new SqliteConventionSetBuilder(
-                    new RelationalConventionSetBuilderDependencies(
-                        new SqliteTypeMapper(new RelationalTypeMapperDependencies()), null, null))
-                .AddConventions(new CoreConventionSetBuilder().CreateConventionSet());
+        {
+            var relationalTypeMapper = new SqliteTypeMapper(new RelationalTypeMapperDependencies());
+
+            return new SqliteConventionSetBuilder(
+                    new RelationalConventionSetBuilderDependencies(relationalTypeMapper, null, null))
+                .AddConventions(
+                    new CoreConventionSetBuilder(
+                        new CoreConventionSetBuilderDependencies(relationalTypeMapper)).CreateConventionSet());
+        }
     }
 }

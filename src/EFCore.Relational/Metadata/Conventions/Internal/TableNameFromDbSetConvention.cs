@@ -22,10 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public TableNameFromDbSetConvention([CanBeNull] DbContext context, [CanBeNull] IDbSetFinder setFinder)
-        {
-            // ReSharper disable once AssignNullToNotNullAttribute
-            _sets = setFinder?.CreateClrTypeDbSetMapping(context);
-        }
+            => _sets = setFinder?.CreateClrTypeDbSetMapping(context);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -49,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     entityTypeBuilder.Relational(ConfigurationSource.Convention).ToTable(_sets[entityType.ClrType].Name);
                 }
             }
+
             return true;
         }
     }
