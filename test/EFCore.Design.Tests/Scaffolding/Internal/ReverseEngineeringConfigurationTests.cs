@@ -3,6 +3,8 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.ReverseEngineering;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -10,54 +12,38 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     public class ReverseEngineeringConfigurationTests
     {
         [Fact]
-        public void Throws_exceptions_for_incorrect_configuration()
+        public void Throws_exceptions_for_invalid_context_name()
         {
-            var configuration = new ReverseEngineeringConfiguration
-            {
-                ConnectionString = null,
-                ProjectPath = null,
-                OutputPath = null
-            };
+            ValidateContextNameInReverseEngineerGenerator("Invalid!CSharp*Class&Name");
+            ValidateContextNameInReverseEngineerGenerator("1CSharpClassNameCannotStartWithNumber");
+            ValidateContextNameInReverseEngineerGenerator("volatile");
+        }
 
-            Assert.Equal(DesignStrings.ConnectionStringRequired,
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
+        private void ValidateContextNameInReverseEngineerGenerator(string contextName)
+        {
+            var scaffoldingUtility = new ScaffoldingUtilities();
+            var reverseEngineer = new ReverseEngineeringGenerator(
+                new FakeScaffoldingModelFactory(new FakeDiagnosticsLogger<DbLoggerCategory.Scaffolding>()),
+                new ConfigurationFactory(CSharpUtilities.Instance, scaffoldingUtility),
+                new StringBuilderCodeWriter(
+                    new InMemoryFileService(),
+                    new DbContextWriter(scaffoldingUtility, CSharpUtilities.Instance),
+                    new EntityTypeWriter(CSharpUtilities.Instance)));
 
-            configuration.ConnectionString = "NonEmptyConnectionString";
-            Assert.Equal(DesignStrings.ProjectPathRequired,
+            Assert.Equal(
+                DesignStrings.ContextClassNotValidCSharpIdentifier(contextName),
                 Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
-
-            configuration.ProjectPath = "NonEmptyProjectPath";
-            Assert.Equal(DesignStrings.RootNamespaceRequired,
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
-
-            configuration.ContextClassName = @"Invalid!CSharp*Class&Name";
-            Assert.Equal(DesignStrings.ContextClassNotValidCSharpIdentifier(@"Invalid!CSharp*Class&Name"),
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
-
-            configuration.ContextClassName = "1CSharpClassNameCannotStartWithNumber";
-            Assert.Equal(DesignStrings.ContextClassNotValidCSharpIdentifier("1CSharpClassNameCannotStartWithNumber"),
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
-
-            configuration.ContextClassName = "volatile"; // cannot be C# keyword
-            Assert.Equal(DesignStrings.ContextClassNotValidCSharpIdentifier("volatile"),
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
-
-            configuration.ContextClassName = "GoodClassName";
-            configuration.OutputPath = @"\AnAbsolutePath";
-            Assert.Equal(DesignStrings.RootNamespaceRequired,
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
-
-            configuration.OutputPath = @"A\Relative\Path";
-            Assert.Equal(DesignStrings.RootNamespaceRequired,
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
+                        () => reverseEngineer.GenerateAsync(
+                                connectionString: "connectionstring",
+                                tableSelectionSet: TableSelectionSet.All,
+                                projectPath: "FakeProjectPath",
+                                outputPath: null,
+                                rootNamespace: "FakeNamespace",
+                                contextName: contextName,
+                                useDataAnnotations: false,
+                                overwriteFiles: false)
+                            .Result)
+                    .Message);
         }
     }
 }

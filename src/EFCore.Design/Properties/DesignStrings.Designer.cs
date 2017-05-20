@@ -345,30 +345,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogForeignMigrations")));
 
         /// <summary>
-        ///     ConnectionString is required to generate code.
-        /// </summary>
-        public static string ConnectionStringRequired
-            => GetString("ConnectionStringRequired");
-
-        /// <summary>
         ///     The context class name passed in, {contextClassName}, is not a valid C# identifier.
         /// </summary>
         public static string ContextClassNotValidCSharpIdentifier([CanBeNull] object contextClassName)
             => string.Format(
                 GetString("ContextClassNotValidCSharpIdentifier", nameof(contextClassName)),
                 contextClassName);
-
-        /// <summary>
-        ///     ProjectPath is required to generate code.
-        /// </summary>
-        public static string ProjectPathRequired
-            => GetString("ProjectPathRequired");
-
-        /// <summary>
-        ///     Root namespace of the project is required to generate code.
-        /// </summary>
-        public static string RootNamespaceRequired
-            => GetString("RootNamespaceRequired");
 
         /// <summary>
         ///     Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Either change your target project or change your migrations assembly.
