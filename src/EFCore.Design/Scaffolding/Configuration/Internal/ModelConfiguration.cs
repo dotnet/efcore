@@ -532,6 +532,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                     methodName = nameof(PropertyBuilder.ValueGeneratedOnAdd);
                     break;
 
+                case ValueGenerated.OnUpdate:
+                    methodName = nameof(PropertyBuilder.ValueGeneratedOnUpdate);
+                    break;
+
                 case ValueGenerated.OnAddOrUpdate:
                     methodName = nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate);
                     break;

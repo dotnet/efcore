@@ -1591,6 +1591,32 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Store_computed_values_are_ignored_after_save_by_default()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
+
+            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.AfterSaveBehavior);
+
+            nameProperty.ValueGenerated = ValueGenerated.OnUpdate;
+
+            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertyValueBehavior.Ignore, nameProperty.AfterSaveBehavior);
+
+            nameProperty.BeforeSaveBehavior = PropertyValueBehavior.Throw;
+
+            Assert.Equal(PropertyValueBehavior.Throw, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertyValueBehavior.Ignore, nameProperty.AfterSaveBehavior);
+
+            nameProperty.AfterSaveBehavior = PropertyValueBehavior.Throw;
+
+            Assert.Equal(PropertyValueBehavior.Throw, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertyValueBehavior.Throw, nameProperty.AfterSaveBehavior);
+        }
+
+        [Fact]
         public void Store_always_computed_values_are_not_read_only_before_and_after_save_by_default()
         {
             var model = new Model();

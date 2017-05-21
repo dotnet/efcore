@@ -6,6 +6,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Indicates how changes to the value of a property will be handled by Entity Framework change tracking
     ///     which in turn will determine whether the value set is sent to the database or not.
+    ///     Used with <see cref="IMutableProperty.BeforeSaveBehavior" /> and
+    ///     <see cref="IMutableProperty.AfterSaveBehavior" />
     /// </summary>
     public enum PropertyValueBehavior
     {

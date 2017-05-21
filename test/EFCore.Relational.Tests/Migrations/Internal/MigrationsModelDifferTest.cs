@@ -575,6 +575,43 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                     });
         }
 
+        [Fact]
+        public void Add_column_ValueGeneratedOnUpdate_with_default_value_sql()
+        {
+            Execute(
+                source => source.Entity(
+                    "Dragon",
+                    x =>
+                        {
+                            x.ToTable("Dragon", "dbo");
+                            x.Property<int>("Id");
+                            x.HasKey("Id");
+                        }),
+                target => target.Entity(
+                    "Dragon",
+                    x =>
+                        {
+                            x.ToTable("Dragon", "dbo");
+                            x.Property<int>("Id");
+                            x.HasKey("Id");
+                            x.Property<DateTime>("LastModified")
+                                .HasDefaultValueSql("GETDATE()")
+                                .ValueGeneratedOnUpdate();
+                        }),
+                operations =>
+                    {
+                        Assert.Equal(1, operations.Count);
+
+                        var operation = Assert.IsType<AddColumnOperation>(operations[0]);
+                        Assert.Equal("dbo", operation.Schema);
+                        Assert.Equal("Dragon", operation.Table);
+                        Assert.Equal("LastModified", operation.Name);
+                        Assert.Equal(typeof(DateTime), operation.ClrType);
+                        Assert.Null(operation.ComputedColumnSql);
+                        Assert.Equal("GETDATE()", operation.DefaultValueSql);
+                    });
+        }
+
         [Theory]
         [InlineData(typeof(int), 0)]
         [InlineData(typeof(int?), 0)]
