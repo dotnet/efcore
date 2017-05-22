@@ -630,6 +630,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] InsertOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        protected virtual void Generate(
+            [NotNull] InsertOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -672,8 +679,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder.Append(")");
             }
 
-            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         protected virtual void Generate(

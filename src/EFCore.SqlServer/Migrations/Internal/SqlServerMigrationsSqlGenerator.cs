@@ -823,6 +823,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        protected override void Generate(
+            InsertOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("SET IDENTITY_INSERT ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" ON")
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            base.Generate(operation, model, builder, terminate: false);
+
+            builder
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                .Append("SET IDENTITY_INSERT ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" OFF")
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                .EndCommand();
+        }
+
         protected override void ColumnDefinition(
             string schema,
             string table,

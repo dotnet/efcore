@@ -1113,6 +1113,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Sql);
         }
 
+        public override void InsertRowsOperation()
+        {
+            base.InsertRowsOperation();
+
+            Assert.Equal(
+                "SET IDENTITY_INSERT [People] ON;" + EOL +
+                "INSERT INTO [People] ([Id], [Full Name])" + EOL +
+                "VALUES (0, NULL)," + EOL +
+                "       (1, N'Daenerys Targaryen')," + EOL +
+                "       (2, N'John Snow')," + EOL +
+                "       (3, N'Arya Stark')," + EOL +
+                "       (4, N'Harry Strickland');" + EOL +
+                "SET IDENTITY_INSERT [People] OFF;" + EOL,
+                Sql);
+        }
+
         public SqlServerMigrationSqlGeneratorTest()
             : base(SqlServerTestHelpers.Instance)
         {
