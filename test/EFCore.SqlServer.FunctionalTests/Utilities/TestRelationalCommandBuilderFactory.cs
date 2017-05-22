@@ -13,35 +13,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
     public class TestRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
     {
-        private readonly IDiagnosticsLogger<LoggerCategory.Database.Sql> _logger;
-        private readonly IDiagnosticsLogger<LoggerCategory.Database.DataReader> _readerLogger;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
         private readonly IRelationalTypeMapper _typeMapper;
 
         public TestRelationalCommandBuilderFactory(
-            IDiagnosticsLogger<LoggerCategory.Database.Sql> logger,
-            IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             IRelationalTypeMapper typeMapper)
         {
             _logger = logger;
-            _readerLogger = readerLogger;
             _typeMapper = typeMapper;
         }
 
         public virtual IRelationalCommandBuilder Create()
-            => new TestRelationalCommandBuilder(_logger, _readerLogger, _typeMapper);
+            => new TestRelationalCommandBuilder(_logger, _typeMapper);
 
         private class TestRelationalCommandBuilder : IRelationalCommandBuilder
         {
-            private readonly IDiagnosticsLogger<LoggerCategory.Database.Sql> _logger;
-            private readonly IDiagnosticsLogger<LoggerCategory.Database.DataReader> _readerLogger;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
 
             public TestRelationalCommandBuilder(
-                IDiagnosticsLogger<LoggerCategory.Database.Sql> logger,
-                IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 IRelationalTypeMapper typeMapper)
             {
                 _logger = logger;
-                _readerLogger = readerLogger;
                 ParameterBuilder = new RelationalParameterBuilder(typeMapper);
             }
 
@@ -52,7 +46,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             public IRelationalCommand Build()
                 => new TestRelationalCommand(
                     _logger,
-                    _readerLogger,
                     ((IInfrastructure<IndentedStringBuilder>)this).Instance.ToString(),
                     ParameterBuilder.Parameters);
         }
@@ -62,12 +55,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             private readonly RelationalCommand _realRelationalCommand;
 
             public TestRelationalCommand(
-                IDiagnosticsLogger<LoggerCategory.Database.Sql> logger,
-                IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 string commandText,
                 IReadOnlyList<IRelationalParameter> parameters)
             {
-                _realRelationalCommand = new RelationalCommand(logger, readerLogger, commandText, parameters);
+                _realRelationalCommand = new RelationalCommand(logger, commandText, parameters);
             }
 
             public string CommandText => _realRelationalCommand.CommandText;

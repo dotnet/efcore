@@ -26,18 +26,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalCommand(
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             [NotNull] string commandText,
             [NotNull] IReadOnlyList<IRelationalParameter> parameters)
         {
-            Check.NotNull(sqlLogger, nameof(sqlLogger));
-            Check.NotNull(readerLogger, nameof(readerLogger));
+            Check.NotNull(logger, nameof(logger));
             Check.NotNull(commandText, nameof(commandText));
             Check.NotNull(parameters, nameof(parameters));
 
-            SqlLogger = sqlLogger;
-            ReaderLogger = readerLogger;
+            Logger = logger;
             CommandText = commandText;
             Parameters = parameters;
         }
@@ -46,13 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IDiagnosticsLogger<LoggerCategory.Database.Sql> SqlLogger { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual IDiagnosticsLogger<LoggerCategory.Database.DataReader> ReaderLogger { get; }
+        protected virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -190,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
 
-            SqlLogger.CommandExecuting(
+            Logger.CommandExecuting(
                 dbCommand,
                 executeMethod,
                 commandId,
@@ -231,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                                     dbCommand,
                                     dbCommand.ExecuteReader(),
                                     commandId,
-                                    ReaderLogger);
+                                    Logger);
                         }
                         catch
                         {
@@ -248,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     }
                 }
 
-                SqlLogger.CommandExecuted(
+                Logger.CommandExecuted(
                     dbCommand,
                     executeMethod,
                     commandId,
@@ -265,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             catch (Exception exception)
             {
-                SqlLogger.CommandError(
+                Logger.CommandError(
                     dbCommand,
                     executeMethod,
                     commandId,
@@ -309,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
 
-            SqlLogger.CommandExecuting(
+            Logger.CommandExecuting(
                 dbCommand,
                 executeMethod,
                 commandId,
@@ -349,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                                 dbCommand,
                                 await dbCommand.ExecuteReaderAsync(cancellationToken),
                                 commandId,
-                                ReaderLogger);
+                                Logger);
                         }
                         catch
                         {
@@ -366,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     }
                 }
 
-                SqlLogger.CommandExecuted(
+                Logger.CommandExecuted(
                     dbCommand,
                     executeMethod,
                     commandId,
@@ -383,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             catch (Exception exception)
             {
-                SqlLogger.CommandError(
+                Logger.CommandError(
                     dbCommand,
                     executeMethod,
                     commandId,

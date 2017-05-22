@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignMigrations(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] string migrationNamespace)
         {
             var definition = DesignStrings.LogForeignMigrations;
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SnapshotNameReusing(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] string lastModelSnapshotName)
         {
             var definition = DesignStrings.LogReusingSnapshotName;
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void DestructiveOperation(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IEnumerable<MigrationOperation> operations)
         {
             var definition = DesignStrings.LogDestructiveOperation;
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MigrationForceRemove(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] Migration migration)
         {
             var definition = DesignStrings.LogForceRemoveMigration;
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MigrationRemoving(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] Migration migration)
         {
             var definition = DesignStrings.LogRemovingMigration;
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MigrationFileNotFound(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] Migration migration,
             [NotNull] string fileName)
         {
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MigrationMetadataFileNotFound(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] Migration migration,
             [NotNull] string fileName)
         {
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MigrationManuallyDeleted(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] Migration migration)
         {
             var definition = DesignStrings.LogManuallyDeleted;
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SnapshotRemoving(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] ModelSnapshot modelSnapshot,
             [NotNull] string fileName)
         {
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SnapshotFileNotFound(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] ModelSnapshot modelSnapshot,
             [NotNull] string fileName)
         {
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SnapshotReverting(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] ModelSnapshot modelSnapshot,
             [NotNull] string fileName)
         {
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MigrationWriting(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] ScaffoldedMigration scaffoldedMigration,
             [NotNull] string fileName)
         {
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SnapshotWriting(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] ScaffoldedMigration scaffoldedMigration,
             [NotNull] string fileName)
         {
@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void NamespaceReusing(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] Type type)
         {
             var definition = DesignStrings.LogReusingNamespace;
@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void DirectoryReusing(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] string fileName)
         {
             var definition = DesignStrings.LogReusingDirectory;

@@ -625,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             }
         }
 
-        private class FakeLogger : IDiagnosticsLogger<LoggerCategory.Model.Validation>, ILogger
+        private class FakeLogger : IDiagnosticsLogger<DbLoggerCategory.Model.Validation>, ILogger
         {
             public void Log<TState>(
                 LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)

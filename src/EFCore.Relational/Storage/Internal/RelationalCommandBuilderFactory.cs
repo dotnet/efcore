@@ -13,8 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class RelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
     {
-        private readonly IDiagnosticsLogger<LoggerCategory.Database.Sql> _sqlLogger;
-        private readonly IDiagnosticsLogger<LoggerCategory.Database.DataReader> _readerLogger;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
         private readonly IRelationalTypeMapper _typeMapper;
 
         /// <summary>
@@ -22,16 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalCommandBuilderFactory(
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             [NotNull] IRelationalTypeMapper typeMapper)
         {
-            Check.NotNull(sqlLogger, nameof(sqlLogger));
-            Check.NotNull(readerLogger, nameof(readerLogger));
+            Check.NotNull(logger, nameof(logger));
             Check.NotNull(typeMapper, nameof(typeMapper));
 
-            _sqlLogger = sqlLogger;
-            _readerLogger = readerLogger;
+            _logger = logger;
             _typeMapper = typeMapper;
         }
 
@@ -39,19 +35,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IRelationalCommandBuilder Create() => CreateCore(_sqlLogger, _readerLogger, _typeMapper);
+        public virtual IRelationalCommandBuilder Create() => CreateCore(_logger, _typeMapper);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IRelationalCommandBuilder CreateCore(
-                [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
-                [NotNull] IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+                [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 [NotNull] IRelationalTypeMapper relationalTypeMapper)
             => new RelationalCommandBuilder(
-                sqlLogger,
-                readerLogger,
+                logger,
                 relationalTypeMapper);
     }
 }

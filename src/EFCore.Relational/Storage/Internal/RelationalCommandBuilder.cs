@@ -15,8 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class RelationalCommandBuilder : IRelationalCommandBuilder
     {
-        private readonly IDiagnosticsLogger<LoggerCategory.Database.Sql> _sqlLogger;
-        private readonly IDiagnosticsLogger<LoggerCategory.Database.DataReader> _readerLogger;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
 
         private readonly IndentedStringBuilder _commandTextBuilder = new IndentedStringBuilder();
 
@@ -25,16 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalCommandBuilder(
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             [NotNull] IRelationalTypeMapper typeMapper)
         {
-            Check.NotNull(sqlLogger, nameof(sqlLogger));
-            Check.NotNull(readerLogger, nameof(readerLogger));
+            Check.NotNull(logger, nameof(logger));
             Check.NotNull(typeMapper, nameof(typeMapper));
 
-            _sqlLogger = sqlLogger;
-            _readerLogger = readerLogger;
+            _logger = logger;
             ParameterBuilder = new RelationalParameterBuilder(typeMapper);
         }
 
@@ -53,8 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public virtual IRelationalCommand Build()
             => BuildCore(
-                _sqlLogger,
-                _readerLogger,
+                _logger,
                 _commandTextBuilder.ToString(),
                 ParameterBuilder.Parameters);
 
@@ -63,12 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IRelationalCommand BuildCore(
-                [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
-                [NotNull] IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+                [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 [NotNull] string commandText,
                 [NotNull] IReadOnlyList<IRelationalParameter> parameters)
             => new RelationalCommand(
-                sqlLogger, readerLogger, commandText, parameters);
+                logger, commandText, parameters);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

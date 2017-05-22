@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly DbCommand _command;
         private readonly DbDataReader _reader;
         private readonly Guid _commandId;
-        private readonly IDiagnosticsLogger<LoggerCategory.Database.DataReader> _logger;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
         private readonly DateTimeOffset _startTime;
         private readonly Stopwatch _stopwatch;
 
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] DbCommand command,
             [NotNull] DbDataReader reader,
             Guid commandId,
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.DataReader> logger)
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
         {
             Check.NotNull(command, nameof(command));
             Check.NotNull(reader, nameof(reader));

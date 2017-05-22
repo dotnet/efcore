@@ -293,9 +293,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class NondeterministicResultCheckingVisitor : QueryModelVisitorBase
         {
-            private readonly IDiagnosticsLogger<LoggerCategory.Query> _logger;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
-            public NondeterministicResultCheckingVisitor([NotNull] IDiagnosticsLogger<LoggerCategory.Query> logger)
+            public NondeterministicResultCheckingVisitor([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
                 => _logger = logger;
 
             public override void VisitQueryModel(QueryModel queryModel)

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     public class InMemoryDatabase : Database, IInMemoryDatabase
     {
         private readonly IInMemoryStore _store;
-        private readonly IDiagnosticsLogger<LoggerCategory.Update> _updateLogger;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Update> _updateLogger;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] DatabaseDependencies dependencies,
             [NotNull] IInMemoryStoreSource storeSource,
             [NotNull] IDbContextOptions options,
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Update> updateLogger)
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
             : base(dependencies)
         {
             Check.NotNull(storeSource, nameof(storeSource));

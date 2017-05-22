@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqliteScaffoldingModelFactory(
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] CandidateNamingService candidateNamingService,

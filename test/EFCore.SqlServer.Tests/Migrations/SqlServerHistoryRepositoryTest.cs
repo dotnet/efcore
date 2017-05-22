@@ -143,8 +143,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
             var typeMapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
 
             var commandBuilderFactory = new RelationalCommandBuilderFactory(
-                new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
-                new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
+                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
                 typeMapper);
 
             return new SqlServerHistoryRepository(

@@ -30,10 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         public RelationalDatabaseModelFactoryTest()
         {
             ILoggerFactory loggerFactory = new TestDesignLoggerFactory();
-            _logger = (TestDesignLoggerFactory.DesignLogger)loggerFactory.CreateLogger(LoggerCategory.Scaffolding.Name);
+            _logger = (TestDesignLoggerFactory.DesignLogger)loggerFactory.CreateLogger(DbLoggerCategory.Scaffolding.Name);
 
             _factory = new FakeScaffoldingModelFactory(
-                new DiagnosticsLogger<LoggerCategory.Scaffolding>(
+                new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
                     loggerFactory,
                     new LoggingOptions(), 
                     new DiagnosticListener("Fake")));
@@ -902,7 +902,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
             };
 
             var factory = new FakeScaffoldingModelFactory(
-                new DiagnosticsLogger<LoggerCategory.Scaffolding>(
+                new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
                     new TestDesignLoggerFactory(),
                     new LoggingOptions(), 
                     new DiagnosticListener("Fake")),
@@ -964,7 +964,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
             };
 
             var factory = new FakeScaffoldingModelFactory(
-                new DiagnosticsLogger<LoggerCategory.Scaffolding>(
+                new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
                     new TestDesignLoggerFactory(),
                     new LoggingOptions(),
                     new DiagnosticListener("Fake")),
@@ -993,13 +993,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         public IModel Create(DatabaseModel databaseModel) => CreateFromDatabaseModel(databaseModel);
 
         public FakeScaffoldingModelFactory(
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger)
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger)
             : this(logger, new NullPluralizer())
         {
         }
 
         public FakeScaffoldingModelFactory(
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
             [NotNull] IPluralizer pluralizer)
             : base(
                 logger,

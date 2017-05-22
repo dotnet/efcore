@@ -19,11 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             : base(
                 new RelationalConnectionDependencies(
                     options,
-                    new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
+                    new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
                         new LoggerFactory(),
                         new LoggingOptions(),
                         new DiagnosticListener("FakeDiagnosticListener")),
-                    new DiagnosticsLogger<LoggerCategory.Database.Connection>(
+                    new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
                         new LoggerFactory(),
                         new LoggingOptions(),
                         new DiagnosticListener("FakeDiagnosticListener"))))

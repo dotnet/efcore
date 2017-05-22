@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
-        protected virtual IDiagnosticsLogger<LoggerCategory.Scaffolding> Logger { get; }
+        protected virtual IDiagnosticsLogger<DbLoggerCategory.Scaffolding> Logger { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
         protected virtual CandidateNamingService CandidateNamingService { get; }
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         private readonly IPluralizer _pluralizer;
 
         public RelationalScaffoldingModelFactory(
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] CandidateNamingService candidateNamingService,

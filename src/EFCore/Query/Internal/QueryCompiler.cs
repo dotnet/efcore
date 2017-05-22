@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ICompiledQueryCache _compiledQueryCache;
         private readonly ICompiledQueryCacheKeyGenerator _compiledQueryCacheKeyGenerator;
         private readonly IDatabase _database;
-        private readonly IDiagnosticsLogger<LoggerCategory.Query> _logger;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
         private readonly INodeTypeProviderFactory _nodeTypeProviderFactory;
 
         private readonly Type _contextType;
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] ICompiledQueryCache compiledQueryCache,
             [NotNull] ICompiledQueryCacheKeyGenerator compiledQueryCacheKeyGenerator,
             [NotNull] IDatabase database,
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Query> logger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             [NotNull] INodeTypeProviderFactory nodeTypeProviderFactory,
             [NotNull] ICurrentDbContext currentContext)
         {
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Expression query, 
             INodeTypeProvider nodeTypeProvider, 
             IDatabase database, 
-            IDiagnosticsLogger<LoggerCategory.Query> logger, 
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger, 
             Type contextType)
         {
             var queryModel
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private static Func<QueryContext, Task<TResult>> CreateCompiledSingletonAsyncQuery<TResult>(
-                Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery, IDiagnosticsLogger<LoggerCategory.Query> logger, Type contextType)
+                Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery, IDiagnosticsLogger<DbLoggerCategory.Query> logger, Type contextType)
             => qc => ExecuteSingletonAsyncQuery(qc, compiledQuery, logger, contextType);
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static async Task<TResult> ExecuteSingletonAsyncQuery<TResult>(
             QueryContext queryContext,
             Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery,
-            IDiagnosticsLogger<LoggerCategory.Query> logger,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             Type contextType)
         {
             try

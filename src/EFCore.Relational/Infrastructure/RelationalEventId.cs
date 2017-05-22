@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600
         }
 
-        private static readonly string _connectionPrefix = LoggerCategory.Database.Connection.Name + ".";
+        private static readonly string _connectionPrefix = DbLoggerCategory.Database.Connection.Name + ".";
         private static EventId MakeConnectionId(Id id) => new EventId((int)id, _connectionPrefix + id);
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A database connection is opening.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Connection" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Connection" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="ConnectionData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A database connection has been opened.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Connection" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Connection" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="ConnectionEndData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A database connection is closing.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Connection" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Connection" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="ConnectionData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A database connection has been closed.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Connection" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Connection" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="ConnectionEndData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A error occurred while opening or using a database connection.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Connection" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Connection" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="ConnectionErrorData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         public static readonly EventId ConnectionError = MakeConnectionId(Id.ConnectionError);
 
-        private static readonly string _sqlPrefix = LoggerCategory.Database.Sql.Name + ".";
+        private static readonly string _sqlPrefix = DbLoggerCategory.Database.Command.Name + ".";
         private static EventId MakeCommandId(Id id) => new EventId((int)id, _sqlPrefix + id);
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A database command is executing.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Sql" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="CommandData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A database command has been executed.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Sql" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="CommandExecutedData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         An error occurred while a database command was executing.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Sql" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="CommandErrorData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         public static readonly EventId CommandError = MakeCommandId(Id.CommandError);
 
-        private static readonly string _transactionPrefix = LoggerCategory.Database.Transaction.Name + ".";
+        private static readonly string _transactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
         private static EventId MakeTransactionId(Id id) => new EventId((int)id, _transactionPrefix + id);
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A database transaction has been started.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Transaction" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="TransactionData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         Entity Framework started using an already existing database transaction.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Transaction" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="TransactionData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A database transaction has been committed.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Transaction" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="TransactionEndData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A database transaction has been rolled back.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Transaction" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="TransactionEndData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A database transaction has been disposed.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Transaction" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="TransactionData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         An error has occurred while using. committing, or rolling back a database transaction.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Transaction" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="TransactionErrorData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         An application may have expected an ambient transaction to be used when it was actually ignorred.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.Transaction" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="ConnectionData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -267,23 +267,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         public static readonly EventId AmbientTransactionWarning = MakeTransactionId(Id.AmbientTransactionWarning);
 
-        private static readonly string _dataReaderPrefix = LoggerCategory.Database.DataReader.Name + ".";
-        private static EventId MakeReaderId(Id id) => new EventId((int)id, _dataReaderPrefix + id);
-
         /// <summary>
         ///     <para>
         ///         A database data reader has been disposed.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Database.DataReader" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="DataReaderDisposingData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId DataReaderDisposing = MakeReaderId(Id.DataReaderDisposing);
+        public static readonly EventId DataReaderDisposing = MakeCommandId(Id.DataReaderDisposing);
 
-        private static readonly string _migrationsPrefix = LoggerCategory.Migrations.Name + ".";
+        private static readonly string _migrationsPrefix = DbLoggerCategory.Migrations.Name + ".";
         private static EventId MakeMigrationsId(Id id) => new EventId((int)id, _migrationsPrefix + id);
 
         /// <summary>
@@ -291,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         Migrations is using a database connection.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Migrations" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="MigratorConnectionData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -304,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A migration is being reverted.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Migrations" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="MigrationData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -317,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A migration is being applied.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Migrations" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="MigrationData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -330,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         Migrations is generating a "down" script.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Migrations" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="MigrationScriptingData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -343,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         Migrations is generating an "up" script.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Migrations" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="MigrationScriptingData" /> payload when used with a <see cref="DiagnosticSource" />.
@@ -351,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         public static readonly EventId MigrationGeneratingUpScript = MakeMigrationsId(Id.MigrationGeneratingUpScript);
 
-        private static readonly string _queryPrefix = LoggerCategory.Query.Name + ".";
+        private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
         private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);
 
         /// <summary>
@@ -359,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         Part of a query is being evaluated on the client instead of on the database server.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Query" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
         /// </summary>
         public static readonly EventId QueryClientEvaluationWarning = MakeQueryId(Id.QueryClientEvaluationWarning);
@@ -369,12 +366,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A query is using equals comparisons in a possibly unintended way.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Query" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
         /// </summary>
         public static readonly EventId QueryPossibleUnintendedUseOfEqualsWarning = MakeQueryId(Id.QueryPossibleUnintendedUseOfEqualsWarning);
 
-        private static readonly string _validationPrefix = LoggerCategory.Model.Validation.Name + ".";
+        private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);
 
         /// <summary>
@@ -382,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A single database default column value has been set on a key column.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="LoggerCategory.Model.Validation" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
         ///     </para>
         /// </summary>
         public static readonly EventId ModelValidationKeyDefaultValueWarning = MakeValidationId(Id.ModelValidationKeyDefaultValueWarning);

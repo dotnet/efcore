@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
     ///         <see cref="IDiagnosticsLogger{TLoggerCategory}" /> to create a logger.
     ///     </para>
     /// </summary>
-    public static class LoggerCategory
+    public static class DbLoggerCategory
     {
         /// <summary>
         ///     The root/prefix for all Entity Framework categories.
@@ -38,16 +38,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             /// <summary>
-            ///     Logger category for messages related to data reader operations.
+            ///     Logger category for command execution, including SQL sent to the database.
             /// </summary>
-            public class DataReader : LoggerCategory<DataReader>
-            {
-            }
-
-            /// <summary>
-            ///     Logger category for SQL sent to the database.
-            /// </summary>
-            public class Sql : LoggerCategory<Sql>
+            public class Command : LoggerCategory<Command>
             {
             }
 
@@ -62,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Logger category for messages related to <see cref="DbContext.SaveChanges()" />, excluding
         ///     messages specifically relating to database interactions which are covered by
-        ///     the <see cref="LoggerCategory.Database" /> categories.
+        ///     the <see cref="DbLoggerCategory.Database" /> categories.
         /// </summary>
         public class Update : LoggerCategory<Update>
         {
@@ -83,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Logger category for messages related to queries, excluding
-        ///     the generated SQL, which is in the <see cref="LoggerCategory.Database.Sql" /> category.
+        ///     the generated SQL, which is in the <see cref="Database.Command" /> category.
         /// </summary>
         public class Query : LoggerCategory<Query>
         {

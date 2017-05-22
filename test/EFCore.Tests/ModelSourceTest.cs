@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         private readonly CoreModelValidator _coreModelValidator
             = new CoreModelValidator(
                 new ModelValidatorDependencies(
-                    new DiagnosticsLogger<LoggerCategory.Model.Validation>(
+                    new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                         new LoggerFactory(),
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))));

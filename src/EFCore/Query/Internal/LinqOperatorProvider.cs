@@ -83,18 +83,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IEnumerable<T> _InterceptExceptions<T>(
-            IEnumerable<T> source, Type contextType, IDiagnosticsLogger<LoggerCategory.Query> logger, QueryContext queryContext)
+            IEnumerable<T> source, Type contextType, IDiagnosticsLogger<DbLoggerCategory.Query> logger, QueryContext queryContext)
             => new ExceptionInterceptor<T>(source, contextType, logger, queryContext);
 
         private sealed class ExceptionInterceptor<T> : IEnumerable<T>
         {
             private readonly IEnumerable<T> _innerEnumerable;
             private readonly Type _contextType;
-            private readonly IDiagnosticsLogger<LoggerCategory.Query> _logger;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
             private readonly QueryContext _queryContext;
 
             public ExceptionInterceptor(
-                IEnumerable<T> innerEnumerable, Type contextType, IDiagnosticsLogger<LoggerCategory.Query> logger, QueryContext queryContext)
+                IEnumerable<T> innerEnumerable, Type contextType, IDiagnosticsLogger<DbLoggerCategory.Query> logger, QueryContext queryContext)
             {
                 _innerEnumerable = innerEnumerable;
                 _contextType = contextType;

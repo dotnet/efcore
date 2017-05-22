@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Logs the event, or throws if the event has been configured to be treated as an error.
         /// </summary>
-        /// <typeparam name="TLoggerCategory"> The <see cref="LoggerCategory" />. </typeparam>
+        /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
         /// <param name="logger"> The logger to which the event should be logged. </param>
         /// <param name="logAction"> A delegate that will log the message to an <see cref="ILogger" />. </param>
         public virtual void Log<TLoggerCategory>(

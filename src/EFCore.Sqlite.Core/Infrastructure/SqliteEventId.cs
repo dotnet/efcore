@@ -28,18 +28,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             SequenceConfiguredWarning
         }
 
-        private static readonly string _validationPrefix = LoggerCategory.Model.Validation.Name + ".";
+        private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);
 
         /// <summary>
         ///     A schema was configured for an entity type, but SQLite does not support schemas.
-        ///     This event is in the <see cref="LoggerCategory.Model.Validation" /> category.
+        ///     This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
         /// </summary>
         public static readonly EventId SchemaConfiguredWarning = MakeValidationId(Id.SchemaConfiguredWarning);
 
         /// <summary>
         ///     A sequence was configured for an entity type, but SQLite does not support sequences.
-        ///     This event is in the <see cref="LoggerCategory.Model.Validation" /> category.
+        ///     This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
         /// </summary>
         public static readonly EventId SequenceConfiguredWarning = MakeValidationId(Id.SequenceConfiguredWarning);
     }

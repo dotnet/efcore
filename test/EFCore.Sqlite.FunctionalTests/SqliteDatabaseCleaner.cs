@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     {
         protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
             => new SqliteDatabaseModelFactory(
-                new DiagnosticsLogger<LoggerCategory.Scaffolding>(
+                new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
                     loggerFactory,
                     new LoggingOptions(),
                     new DiagnosticListener("Fake")));

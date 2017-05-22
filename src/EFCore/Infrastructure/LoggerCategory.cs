@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static string ToName(Type loggerCategoryType)
         {
-            const string outerClassName = "." + nameof(LoggerCategory);
+            const string outerClassName = "." + nameof(DbLoggerCategory);
 
             var name = loggerCategoryType.FullName.Replace('+', '.');
             var index = name.IndexOf(outerClassName, StringComparison.Ordinal);

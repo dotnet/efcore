@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 if (category.GetTypeInfo().ContainsGenericParameters)
                 {
-                    category = typeof(LoggerCategory.Infrastructure);
+                    category = typeof(DbLoggerCategory.Infrastructure);
                     loggerMethod = loggerMethod.MakeGenericMethod(category);
                 }
 

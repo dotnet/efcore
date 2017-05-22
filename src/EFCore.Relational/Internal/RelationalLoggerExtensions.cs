@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void CommandExecuting(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] DbCommand command,
             DbCommandMethod executeMethod,
             Guid commandId, 
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private static bool ShouldLogParameterValues(
-            IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbCommand command)
             => command.Parameters.Count > 0
                && diagnostics.ShouldLogSensitiveData();
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void CommandExecuted(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] DbCommand command,
             DbCommandMethod executeMethod,
             Guid commandId,
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void CommandError(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Sql> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] DbCommand command,
             DbCommandMethod executeMethod,
             Guid commandId,
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ConnectionOpening(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime,
             bool async)
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ConnectionOpened(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime,
             TimeSpan duration,
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ConnectionClosing(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime)
         {
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ConnectionClosed(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime,
             TimeSpan duration)
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ConnectionError(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Connection> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] Exception exception,
             DateTimeOffset startTime,
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void TransactionStarted(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void TransactionUsed(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void TransactionCommitted(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
@@ -428,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void TransactionRolledBack(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void TransactionDisposed(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
@@ -484,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void TransactionError(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void AmbientTransactionWarning(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startDate)
         {
@@ -542,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void DataReaderDisposing(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Database.DataReader> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [NotNull] DbDataReader dataReader,
@@ -575,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MigrateUsingConnection(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
             [NotNull] IRelationalConnection connection)
         {
@@ -608,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MigrationReverting(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration)
         {
@@ -637,7 +637,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MigrationApplying(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration)
         {
@@ -666,7 +666,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MigrationGeneratingDownScript(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration,
             [CanBeNull] string fromMigration,
@@ -701,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MigrationGeneratingUpScript(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Migrations> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration,
             [CanBeNull] string fromMigration,
@@ -736,7 +736,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void QueryClientEvaluationWarning(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Query> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] QueryModel queryModel,
             [NotNull] object expression)
         {
@@ -761,7 +761,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void QueryPossibleUnintendedUseOfEqualsWarning(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Query> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Expression argument)
         {
@@ -789,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ModelValidationKeyDefaultValueWarning(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Model.Validation> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] IProperty property)
         {
             var definition = RelationalStrings.LogKeyHasDefaultValue;

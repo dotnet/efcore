@@ -300,8 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
-                new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
+                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
                 commandText,
                 parameters ?? new IRelationalParameter[0]);
     }

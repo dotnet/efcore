@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 new RelationalTransaction(
                     connection,
                     transaction,
-                    new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
+                    new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
                         loggerFactory, new LoggingOptions(), diagnosticSource),
                     transactionOwned))
         {

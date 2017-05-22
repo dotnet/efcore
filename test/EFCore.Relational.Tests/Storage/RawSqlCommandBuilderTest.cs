@@ -16,8 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
-                    new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
+                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
@@ -33,8 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
-                    new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
+                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
@@ -51,8 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
-                    new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
+                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));

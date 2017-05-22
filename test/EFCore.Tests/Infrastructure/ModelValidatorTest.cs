@@ -105,15 +105,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
         protected ModelValidatorTest()
         {
             Log = new List<Tuple<LogLevel, string>>();
-            Logger = new DiagnosticsLogger<LoggerCategory.Model.Validation>(
-                new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
+            Logger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
+                new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
                 new LoggingOptions(),
                 new DiagnosticListener("Fake"));
         }
 
         protected List<Tuple<LogLevel, string>> Log { get; }
 
-        protected IDiagnosticsLogger<LoggerCategory.Model.Validation> Logger { get; }
+        protected IDiagnosticsLogger<DbLoggerCategory.Model.Validation> Logger { get; }
 
         protected virtual void VerifyWarning(string expectedMessage, IModel model)
         {

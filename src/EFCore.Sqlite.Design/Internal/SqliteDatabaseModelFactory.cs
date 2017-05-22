@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqliteDatabaseModelFactory([NotNull] IDiagnosticsLogger<LoggerCategory.Scaffolding> logger)
+        public SqliteDatabaseModelFactory([NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger)
         {
             Check.NotNull(logger, nameof(logger));
 
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IDiagnosticsLogger<LoggerCategory.Scaffolding> Logger { get; }
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Scaffolding> Logger { get; }
 
         private DbConnection _connection;
         private TableSelectionSet _tableSelectionSet;

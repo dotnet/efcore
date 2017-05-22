@@ -133,54 +133,49 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         private class BadDataCommandBuilderFactory : RelationalCommandBuilderFactory
         {
             public BadDataCommandBuilderFactory(
-                IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
-                IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 IRelationalTypeMapper typeMapper)
-                : base(sqlLogger, readerLogger, typeMapper)
+                : base(logger, typeMapper)
             {
             }
 
             public object[] Values { private get; set; }
 
             protected override IRelationalCommandBuilder CreateCore(
-                    IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
-                    IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                     IRelationalTypeMapper relationalTypeMapper)
                 => new BadDataRelationalCommandBuilder(
-                    sqlLogger, readerLogger, relationalTypeMapper, Values);
+                    logger, relationalTypeMapper, Values);
 
             private class BadDataRelationalCommandBuilder : RelationalCommandBuilder
             {
                 private readonly object[] _values;
 
                 public BadDataRelationalCommandBuilder(
-                    IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
-                    IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                     IRelationalTypeMapper typeMapper,
                     object[] values)
-                    : base(sqlLogger, readerLogger, typeMapper)
+                    : base(logger, typeMapper)
                 {
                     _values = values;
                 }
 
                 protected override IRelationalCommand BuildCore(
-                        IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
-                        IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+                        IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                         string commandText,
                         IReadOnlyList<IRelationalParameter> parameters)
-                    => new BadDataRelationalCommand(sqlLogger, readerLogger, commandText, parameters, _values);
+                    => new BadDataRelationalCommand(logger, commandText, parameters, _values);
 
                 private class BadDataRelationalCommand : RelationalCommand
                 {
                     private readonly object[] _values;
 
                     public BadDataRelationalCommand(
-                        IDiagnosticsLogger<LoggerCategory.Database.Sql> sqlLogger,
-                        IDiagnosticsLogger<LoggerCategory.Database.DataReader> readerLogger,
+                        IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                         string commandText,
                         IReadOnlyList<IRelationalParameter> parameters,
                         object[] values)
-                        : base(sqlLogger, readerLogger, commandText, parameters)
+                        : base(logger, commandText, parameters)
                     {
                         _values = values;
                     }

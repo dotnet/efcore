@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             var transaction = new RelationalTransaction(
                 connection,
                 dbTransaction,
-                new DiagnosticsLogger<LoggerCategory.Database.Transaction>(
+                new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
                     loggerFactory,
                     new LoggingOptions(),
                     new DiagnosticListener("Fake")),

@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <param name="logger"> The logger. </param>
-        public ModelValidatorDependencies([NotNull] IDiagnosticsLogger<LoggerCategory.Model.Validation> logger)
+        public ModelValidatorDependencies([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             Check.NotNull(logger, nameof(logger));
 
@@ -53,14 +53,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The logger.
         /// </summary>
-        public IDiagnosticsLogger<LoggerCategory.Model.Validation> Logger { get; }
+        public IDiagnosticsLogger<DbLoggerCategory.Model.Validation> Logger { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelValidatorDependencies With([NotNull] IDiagnosticsLogger<LoggerCategory.Model.Validation> logger)
+        public ModelValidatorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
             => new ModelValidatorDependencies(logger);
     }
 }

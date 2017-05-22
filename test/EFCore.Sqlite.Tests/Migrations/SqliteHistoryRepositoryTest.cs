@@ -117,8 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
                     new SqliteMigrationsSqlGenerator(
                         new MigrationsSqlGeneratorDependencies(
                             new RelationalCommandBuilderFactory(
-                                new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
-                                new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
+                                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
                                 typeMapper),
                             new SqliteSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                             typeMapper)),

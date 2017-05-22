@@ -14,8 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Builds_simple_command()
         {
             var commandBuilder = new RelationalCommandBuilder(
-                new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
-                new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
+                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
                 new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies()));
 
             var command = commandBuilder.Build();
@@ -28,8 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Build_command_with_parameter()
         {
             var commandBuilder = new RelationalCommandBuilder(
-                new FakeDiagnosticsLogger<LoggerCategory.Database.Sql>(),
-                new FakeDiagnosticsLogger<LoggerCategory.Database.DataReader>(),
+                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
                 new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies()));
 
             commandBuilder.ParameterBuilder.AddParameter(

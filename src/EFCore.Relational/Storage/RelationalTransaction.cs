@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         private readonly IRelationalConnection _relationalConnection;
         private readonly DbTransaction _dbTransaction;
-        private readonly IDiagnosticsLogger<LoggerCategory.Database.Transaction> _logger;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> _logger;
         private readonly bool _transactionOwned;
 
         private bool _connectionClosed;
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public RelationalTransaction(
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
-            [NotNull] IDiagnosticsLogger<LoggerCategory.Database.Transaction> logger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
         {
             Check.NotNull(connection, nameof(connection));

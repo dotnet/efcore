@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ColumnFound(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName,
             [CanBeNull] string columnName,
             [CanBeNull] string dataTypeName,
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyColumnFound(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName,
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string principalTableName,
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void DefaultSchemaFound(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string schemaName)
         {
             var definition = SqlServerDesignStrings.LogFoundDefaultSchema;
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void TypeAliasFound(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string typeAliasName,
             [CanBeNull] string systemTypeName)
         {
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void DataTypeDoesNotAllowSqlServerIdentityStrategyWarning(
-            [NotNull] this IDiagnosticsLogger<LoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string columnName,
             [CanBeNull] string typeName)
         {

@@ -669,8 +669,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         protected override ModelValidator CreateModelValidator()
             => new RelationalModelValidator(
                 new ModelValidatorDependencies(
-                    new DiagnosticsLogger<LoggerCategory.Model.Validation>(
-                        new ListLoggerFactory(Log, l => l == LoggerCategory.Model.Validation.Name),
+                    new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
+                        new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
