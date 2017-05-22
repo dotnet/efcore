@@ -563,9 +563,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                 });
 
         [Fact]
-        public virtual void InsertRowsOperation()
+        public virtual void InsertDataOperation()
             => Generate(
-                new InsertOperation
+                new InsertDataOperation
                 {
                     Table = "People",
                     Columns = new[] { "Id", "Full Name" },
@@ -580,9 +580,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                 });
 
         [Fact]
-        public virtual void DeleteRowsOperation_simple_key()
+        public virtual void DeleteDataOperation_simple_key()
             => Generate(
-                new DeleteOperation
+                new DeleteDataOperation
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id" },
@@ -594,9 +594,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                 });
 
         [Fact]
-        public virtual void DeleteRowsOperation_composite_key()
+        public virtual void DeleteDataOperation_composite_key()
             => Generate(
-                new DeleteOperation
+                new DeleteDataOperation
                 {
                     Table = "People",
                     KeyColumns = new[] { "First Name", "Last Name" },
@@ -608,9 +608,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                 });
 
         [Fact]
-        public virtual void UpdateRowsOperation_simple_key()
+        public virtual void UpdateDataOperation_simple_key()
             => Generate(
-                new UpdateOperation
+                new UpdateDataOperation
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id" },
@@ -628,9 +628,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                 });
 
         [Fact]
-        public virtual void UpdateRowsOperation_composite_key()
+        public virtual void UpdateDataOperation_composite_key()
             => Generate(
-                new UpdateOperation
+                new UpdateDataOperation
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id", "Last Name" },
@@ -648,9 +648,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
                 });
 
         [Fact]
-        public virtual void UpdateRowsOperation_multiple_columns()
+        public virtual void UpdateDataOperation_multiple_columns()
             => Generate(
-                new UpdateOperation
+                new UpdateDataOperation
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id" },

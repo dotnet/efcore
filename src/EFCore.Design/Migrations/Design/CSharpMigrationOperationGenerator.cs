@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -177,12 +177,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine(",")
                     .Append("table: ")
                     .Append(_code.Literal(operation.Table))
-                    .AppendLine(",")
-                    .Append(
-                        operation.Columns.Length == 1
-                            ? "column: "
-                            : "columns: ")
-                    .Append(_code.Literal(operation.Columns));
+                    .AppendLine(",");
+
+                if (operation.Columns.Length == 1)
+                {
+                    builder
+                        .Append("column: ")
+                        .Append(_code.Literal(operation.Columns[0]));
+                }
+                else
+                {
+                    builder
+                        .Append("columns: ")
+                        .Append(_code.Literal(operation.Columns));
+                }
 
                 if (operation.PrincipalSchema != null)
                 {
@@ -196,12 +204,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine(",")
                     .Append("principalTable: ")
                     .Append(_code.Literal(operation.PrincipalTable))
-                    .AppendLine(",")
-                    .Append(
-                        operation.PrincipalColumns.Length == 1
-                            ? "principalColumn: "
-                            : "principalColumns: ")
-                    .Append(_code.Literal(operation.PrincipalColumns));
+                    .AppendLine(",");
+
+                if (operation.PrincipalColumns.Length == 1)
+                {
+                    builder
+                        .Append("principalColumn: ")
+                        .Append(_code.Literal(operation.PrincipalColumns[0]));
+                }
+                else
+                {
+                    builder
+                        .Append("principalColumns: ")
+                        .Append(_code.Literal(operation.PrincipalColumns));
+                }
 
                 if (operation.OnUpdate != ReferentialAction.NoAction)
                 {
@@ -250,13 +266,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine(",")
                     .Append("table: ")
                     .Append(_code.Literal(operation.Table))
-                    .AppendLine(",")
-                    .Append(
-                        operation.Columns.Length == 1
-                            ? "column: "
-                            : "columns: ")
-                    .Append(_code.Literal(operation.Columns))
-                    .Append(")");
+                    .AppendLine(",");
+
+                if (operation.Columns.Length == 1)
+                {
+                    builder
+                        .Append("column: ")
+                        .Append(_code.Literal(operation.Columns[0]));
+                }
+                else
+                {
+                    builder
+                        .Append("columns: ")
+                        .Append(_code.Literal(operation.Columns));
+                }
+
+                builder.Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);
             }
@@ -287,13 +312,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine(",")
                     .Append("table: ")
                     .Append(_code.Literal(operation.Table))
-                    .AppendLine(",")
-                    .Append(
-                        operation.Columns.Length == 1
-                            ? "column: "
-                            : "columns: ")
-                    .Append(_code.Literal(operation.Columns))
-                    .Append(")");
+                    .AppendLine(",");
+
+                if (operation.Columns.Length == 1)
+                {
+                    builder
+                        .Append("column: ")
+                        .Append(_code.Literal(operation.Columns[0]));
+                }
+                else
+                {
+                    builder
+                        .Append("columns: ")
+                        .Append(_code.Literal(operation.Columns));
+                }
+
+                builder.Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);
             }
@@ -610,12 +644,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine(",")
                     .Append("table: ")
                     .Append(_code.Literal(operation.Table))
-                    .AppendLine(",")
-                    .Append(
-                        operation.Columns.Length == 1
-                            ? "column: "
-                            : "columns: ")
-                    .Append(_code.Literal(operation.Columns));
+                    .AppendLine(",");
+
+                if (operation.Columns.Length == 1)
+                {
+                    builder
+                        .Append("column: ")
+                        .Append(_code.Literal(operation.Columns[0]));
+                }
+                else
+                {
+                    builder
+                        .Append("columns: ")
+                        .Append(_code.Literal(operation.Columns));
+                }
 
                 if (operation.IsUnique)
                 {
@@ -914,12 +956,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                 .AppendLine(",")
                                 .Append("principalTable: ")
                                 .Append(_code.Literal(foreignKey.PrincipalTable))
-                                .AppendLine(",")
-                                .Append(
-                                    foreignKey.PrincipalColumns.Length == 1
-                                        ? "principalColumn: "
-                                        : "principalColumns: ")
-                                .Append(_code.Literal(foreignKey.PrincipalColumns));
+                                .AppendLine(",");
+
+                            if (foreignKey.PrincipalColumns.Length == 1)
+                            {
+                                builder
+                                    .Append("principalColumn: ")
+                                    .Append(_code.Literal(foreignKey.PrincipalColumns[0]));
+                            }
+                            else
+                            {
+                                builder
+                                    .Append("principalColumns: ")
+                                    .Append(_code.Literal(foreignKey.PrincipalColumns));
+                            }
 
                             if (foreignKey.OnUpdate != ReferentialAction.NoAction)
                             {
@@ -1379,12 +1429,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
-        protected virtual void Generate([NotNull] InsertOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate(
+            [NotNull] InsertDataOperation operation,
+            [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.AppendLine(".Insert(");
+            builder.AppendLine(".InsertData(");
 
             using (builder.Indent())
             {
@@ -1401,52 +1453,62 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(_code.Literal(operation.Table))
                     .AppendLine(",");
 
-                builder
-                    .Append("columns: new[] { ")
-                    .Append(string.Join(", ", operation.Columns.Select(_code.Literal)))
-                    .AppendLine(" },");
-
-                builder
-                    .AppendLine("values: new object[,]")
-                    .AppendLine("{");
-                using (builder.Indent())
+                if (operation.Columns.Length == 1)
                 {
-                    var rowCount = operation.Values.GetLength(0);
-                    var valueCount = operation.Values.GetLength(1);
-                    for (var i = 0; i < rowCount; i++)
-                    {
-                        if (i != 0)
-                        {
-                            builder.AppendLine(",");
-                        }
-
-                        builder.Append("{ ");
-                        for (var j = 0; j < valueCount; j++)
-                        {
-                            if (j != 0)
-                            {
-                                builder.Append(", ");
-                            }
-
-                            builder.Append(_code.UnknownLiteral(operation.Values[i, j]));
-                        }
-
-                        builder.Append(" }");
-                    }
+                    builder
+                        .Append("column: ")
+                        .Append(_code.Literal(operation.Columns[0]));
+                }
+                else
+                {
+                    builder
+                        .Append("columns: ")
+                        .Append(_code.Literal(operation.Columns));
                 }
 
-                builder
-                    .AppendLine()
-                    .Append("})");
+                builder.AppendLine(",");
+
+                if (operation.Values.GetLength(0) == 1 && operation.Values.GetLength(1) == 1)
+                {
+                    builder
+                        .Append("value: ")
+                        .Append(_code.UnknownLiteral(operation.Values[0, 0]));
+                }
+                else if (operation.Values.GetLength(0) == 1)
+                {
+                    builder
+                        .Append("values: ")
+                        .Append(_code.Literal(ToOnedimensionalArray(operation.Values)));
+                }
+                else if (operation.Values.GetLength(1) == 1)
+                {
+                    builder
+                        .Append("values: ")
+                        .AppendLines(
+                            _code.Literal(
+                                ToOnedimensionalArray(operation.Values, firstDimension: true),
+                                vertical: true),
+                            skipFinalNewline: true);
+                }
+                else
+                {
+                    builder
+                        .Append("values: ")
+                        .AppendLines(_code.Literal(operation.Values), skipFinalNewline: true);
+                }
+
+                builder.Append(")");
             }
         }
 
-        protected virtual void Generate([NotNull] DeleteOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate(
+            [NotNull] DeleteDataOperation operation,
+            [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.AppendLine(".Delete(");
+            builder.AppendLine(".DeleteData(");
 
             using (builder.Indent())
             {
@@ -1463,52 +1525,62 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(_code.Literal(operation.Table))
                     .AppendLine(",");
 
-                builder
-                    .Append("keyColumns: new[] { ")
-                    .Append(string.Join(", ", operation.KeyColumns.Select(_code.Literal)))
-                    .AppendLine(" },");
-
-                builder
-                    .AppendLine("keyValues: new object[,]")
-                    .AppendLine("{");
-                using (builder.Indent())
+                if (operation.KeyColumns.Length == 1)
                 {
-                    var rowCount = operation.KeyValues.GetLength(0);
-                    var valueCount = operation.KeyValues.GetLength(1);
-                    for (var i = 0; i < rowCount; i++)
-                    {
-                        if (i != 0)
-                        {
-                            builder.AppendLine(",");
-                        }
-
-                        builder.Append("{ ");
-                        for (var j = 0; j < valueCount; j++)
-                        {
-                            if (j != 0)
-                            {
-                                builder.Append(", ");
-                            }
-
-                            builder.Append(_code.UnknownLiteral(operation.KeyValues[i, j]));
-                        }
-
-                        builder.Append(" }");
-                    }
+                    builder
+                        .Append("keyColumn: ")
+                        .Append(_code.Literal(operation.KeyColumns[0]));
+                }
+                else
+                {
+                    builder
+                        .Append("keyColumns: ")
+                        .Append(_code.Literal(operation.KeyColumns));
                 }
 
-                builder
-                    .AppendLine()
-                    .Append("})");
+                builder.AppendLine(",");
+
+                if (operation.KeyValues.GetLength(0) == 1 && operation.KeyValues.GetLength(1) == 1)
+                {
+                    builder
+                        .Append("keyValue: ")
+                        .Append(_code.UnknownLiteral(operation.KeyValues[0, 0]));
+                }
+                else if (operation.KeyValues.GetLength(0) == 1)
+                {
+                    builder
+                        .Append("keyValues: ")
+                        .Append(_code.Literal(ToOnedimensionalArray(operation.KeyValues)));
+                }
+                else if (operation.KeyValues.GetLength(1) == 1)
+                {
+                    builder
+                        .Append("keyValues: ")
+                        .AppendLines(
+                            _code.Literal(
+                                ToOnedimensionalArray(operation.KeyValues, firstDimension: true),
+                                vertical: true),
+                            skipFinalNewline: true);
+                }
+                else
+                {
+                    builder
+                        .Append("keyValues: ")
+                        .AppendLines(_code.Literal(operation.KeyValues), skipFinalNewline: true);
+                }
+
+                builder.Append(")");
             }
         }
 
-        protected virtual void Generate([NotNull] UpdateOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate(
+            [NotNull] UpdateDataOperation operation,
+            [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.AppendLine(".Update(");
+            builder.AppendLine(".UpdateData(");
 
             using (builder.Indent())
             {
@@ -1525,80 +1597,97 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(_code.Literal(operation.Table))
                     .AppendLine(",");
 
-                builder
-                    .Append("keyColumns: new[] { ")
-                    .Append(string.Join(", ", operation.KeyColumns.Select(_code.Literal)))
-                    .AppendLine(" },");
-
-                builder
-                    .AppendLine("keyValues: new object[,]")
-                    .AppendLine("{");
-                using (builder.Indent())
+                if (operation.KeyColumns.Length == 1)
                 {
-                    var rowCount = operation.KeyValues.GetLength(0);
-                    var valueCount = operation.KeyValues.GetLength(1);
-                    for (var i = 0; i < rowCount; i++)
-                    {
-                        if (i != 0)
-                        {
-                            builder.AppendLine(",");
-                        }
-
-                        builder.Append("{ ");
-                        for (var j = 0; j < valueCount; j++)
-                        {
-                            if (j != 0)
-                            {
-                                builder.Append(", ");
-                            }
-
-                            builder.Append(_code.UnknownLiteral(operation.KeyValues[i, j]));
-                        }
-
-                        builder.Append(" }");
-                    }
+                    builder
+                        .Append("keyColumn: ")
+                        .Append(_code.Literal(operation.KeyColumns[0]));
                 }
-                builder
-                    .AppendLine()
-                    .AppendLine("},");
-
-                builder
-                    .Append("columns: new[] { ")
-                    .Append(string.Join(", ", operation.Columns.Select(_code.Literal)))
-                    .AppendLine(" },");
-
-                builder
-                    .AppendLine("values: new object[,]")
-                    .AppendLine("{");
-                using (builder.Indent())
+                else
                 {
-                    var rowCount = operation.Values.GetLength(0);
-                    var valueCount = operation.Values.GetLength(1);
-                    for (var i = 0; i < rowCount; i++)
-                    {
-                        if (i != 0)
-                        {
-                            builder.AppendLine(",");
-                        }
-
-                        builder.Append("{ ");
-                        for (var j = 0; j < valueCount; j++)
-                        {
-                            if (j != 0)
-                            {
-                                builder.Append(", ");
-                            }
-
-                            builder.Append(_code.UnknownLiteral(operation.Values[i, j]));
-                        }
-
-                        builder.Append(" }");
-                    }
+                    builder
+                        .Append("keyColumns: ")
+                        .Append(_code.Literal(operation.KeyColumns));
                 }
 
-                builder
-                    .AppendLine()
-                    .Append("})");
+                builder.AppendLine(",");
+
+                if (operation.KeyValues.GetLength(0) == 1 && operation.KeyValues.GetLength(1) == 1)
+                {
+                    builder
+                        .Append("keyValue: ")
+                        .Append(_code.UnknownLiteral(operation.KeyValues[0, 0]));
+                }
+                else if (operation.KeyValues.GetLength(0) == 1)
+                {
+                    builder
+                        .Append("keyValues: ")
+                        .Append(_code.Literal(ToOnedimensionalArray(operation.KeyValues)));
+                }
+                else if (operation.KeyValues.GetLength(1) == 1)
+                {
+                    builder
+                        .Append("keyValues: ")
+                        .AppendLines(
+                            _code.Literal(
+                                ToOnedimensionalArray(operation.KeyValues, firstDimension: true),
+                                vertical: true),
+                            skipFinalNewline: true);
+                }
+                else
+                {
+                    builder
+                        .Append("keyValues: ")
+                        .AppendLines(_code.Literal(operation.KeyValues), skipFinalNewline: true);
+                }
+
+                builder.AppendLine(",");
+
+                if (operation.Columns.Length == 1)
+                {
+                    builder
+                        .Append("column: ")
+                        .Append(_code.Literal(operation.Columns[0]));
+                }
+                else
+                {
+                    builder
+                        .Append("columns: ")
+                        .Append(_code.Literal(operation.Columns));
+                }
+
+                builder.AppendLine(",");
+
+                if (operation.Values.GetLength(0) == 1 && operation.Values.GetLength(1) == 1)
+                {
+                    builder
+                        .Append("value: ")
+                        .Append(_code.UnknownLiteral(operation.Values[0, 0]));
+                }
+                else if (operation.Values.GetLength(0) == 1)
+                {
+                    builder
+                        .Append("values: ")
+                        .Append(_code.Literal(ToOnedimensionalArray(operation.Values)));
+                }
+                else if (operation.Values.GetLength(1) == 1)
+                {
+                    builder
+                        .Append("values: ")
+                        .AppendLines(
+                            _code.Literal(
+                                ToOnedimensionalArray(operation.Values, firstDimension: true),
+                                vertical: true),
+                            skipFinalNewline: true);
+                }
+                else
+                {
+                    builder
+                        .Append("values: ")
+                        .AppendLines(_code.Literal(operation.Values), skipFinalNewline: true);
+                }
+
+                builder.Append(")");
             }
         }
 
@@ -1640,6 +1729,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(_code.UnknownLiteral(annotation.Value))
                     .Append(")");
             }
+        }
+
+        private static object[] ToOnedimensionalArray(object[,] values, bool firstDimension = false)
+        {
+            Debug.Assert(values.GetLength(firstDimension ? 1 : 0) == 1,
+                $"Length of dimension {(firstDimension ? 1 : 0)} is not 1.");
+
+            var result = new object[values.Length];
+            for (var i = 0; i < values.Length; i++)
+            {
+                result[i] = firstDimension
+                    ? values[i, 0]
+                    : values[0, i];
+            }
+
+            return result;
         }
     }
 }

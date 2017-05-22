@@ -824,7 +824,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         protected override void Generate(
-            InsertOperation operation,
+            InsertDataOperation operation,
             IModel model,
             MigrationCommandListBuilder builder)
         {

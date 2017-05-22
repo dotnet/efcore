@@ -1938,10 +1938,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
         }
 
         [Fact]
-        public void InsertOperation_all_args()
+        public void InsertDataOperation_all_args()
         {
             Test(
-                new InsertOperation
+                new InsertDataOperation
                 {
                     Schema = "dbo",
                     Table = "People",
@@ -1955,7 +1955,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                         { 4, "Harry Strickland" }
                     }
                 },
-                "mb.Insert(" + EOL +
+                "mb.InsertData(" + EOL +
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"People\"," + EOL +
                 "    columns: new[] { \"Id\", \"Full Name\" }," + EOL +
@@ -1972,18 +1972,145 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("People", o.Table);
                     Assert.Equal(2, o.Columns.Length);
-                    Assert.Equal(10, o.Values.Length);
+                    Assert.Equal(5, o.Values.GetLength(0));
+                    Assert.Equal(2, o.Values.GetLength(1));
                     Assert.Equal("John Snow", o.Values[2, 1]);
                 });
         }
 
         [Fact]
-        public void DeleteOperation_all_args()
+        public void InsertDataOperation_required_args()
         {
             Test(
-                new DeleteOperation
+                new InsertDataOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "Full Name" },
+                    Values = new object[,]
+                    {
+                        { "John Snow" }
+                    }
+                },
+                "mb.InsertData(" + EOL +
+                "    table: \"People\"," + EOL +
+                "    column: \"Full Name\"," + EOL +
+                "    value: \"John Snow\");",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(1, o.Columns.Length);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(1, o.Values.GetLength(1));
+                    Assert.Equal("John Snow", o.Values[0, 0]);
+                });
+        }
+
+        [Fact]
+        public void InsertDataOperation_required_args_composite()
+        {
+            Test(
+                new InsertDataOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "First Name", "Last Name" },
+                    Values = new object[,]
+                    {
+                        { "John", "Snow" }
+                    }
+                },
+                "mb.InsertData(" + EOL +
+                "    table: \"People\"," + EOL +
+                "    columns: new[] { \"First Name\", \"Last Name\" }," + EOL +
+                "    values: new object[] { \"John\", \"Snow\" });",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(2, o.Columns.Length);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(2, o.Values.GetLength(1));
+                    Assert.Equal("Snow", o.Values[0, 1]);
+                });
+        }
+
+        [Fact]
+        public void InsertDataOperation_required_args_multiple_rows()
+        {
+            Test(
+                new InsertDataOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "Full Name" },
+                    Values = new object[,]
+                    {
+                        { "John Snow" },
+                        { "Daenerys Targaryen" }
+                    }
+                },
+                "mb.InsertData(" + EOL +
+                "    table: \"People\"," + EOL +
+                "    column: \"Full Name\"," + EOL +
+                "    values: new object[]" + EOL +
+                "    {" + EOL +
+                "        \"John Snow\"," + EOL +
+                "        \"Daenerys Targaryen\"" + EOL +
+                "    });",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(1, o.Columns.Length);
+                    Assert.Equal(2, o.Values.GetLength(0));
+                    Assert.Equal(1, o.Values.GetLength(1));
+                    Assert.Equal("John Snow", o.Values[0, 0]);
+                });
+        }
+
+        [Fact]
+        public void DeleteDataOperation_all_args()
+        {
+            Test(
+                new DeleteDataOperation
                 {
                     Schema = "dbo",
+                    Table = "People",
+                    KeyColumns = new[] { "First Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "Hodor" },
+                        { "Daenerys" },
+                        { "John" },
+                        { "Arya" },
+                        { "Harry" }
+                    }
+                },
+                "mb.DeleteData(" + EOL +
+                "    schema: \"dbo\"," + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumn: \"First Name\"," + EOL +
+                "    keyValues: new object[]" + EOL +
+                "    {" + EOL +
+                "        \"Hodor\"," + EOL +
+                "        \"Daenerys\"," + EOL +
+                "        \"John\"," + EOL +
+                "        \"Arya\"," + EOL +
+                "        \"Harry\"" + EOL +
+                "    });",
+                o =>
+                {
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(1, o.KeyColumns.Length);
+                    Assert.Equal(5, o.KeyValues.GetLength(0));
+                    Assert.Equal(1, o.KeyValues.GetLength(1));
+                    Assert.Equal("John", o.KeyValues[2, 0]);
+                });
+        }
+
+        [Fact]
+        public void DeleteDataOperation_all_args_composite()
+        {
+            Test(
+                new DeleteDataOperation
+                {
                     Table = "People",
                     KeyColumns = new[] { "First Name", "Last Name" },
                     KeyValues = new object[,]
@@ -1995,8 +2122,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                         { "Harry", "Strickland" }
                     }
                 },
-                "mb.Delete(" + EOL +
-                "    schema: \"dbo\"," + EOL +
+                "mb.DeleteData(" + EOL +
                 "    table: \"People\"," + EOL +
                 "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
                 "    keyValues: new object[,]" + EOL +
@@ -2009,21 +2135,173 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                 "    });",
                 o =>
                 {
-                    Assert.Equal("dbo", o.Schema);
                     Assert.Equal("People", o.Table);
                     Assert.Equal(2, o.KeyColumns.Length);
-                    Assert.Equal(10, o.KeyValues.Length);
+                    Assert.Equal(5, o.KeyValues.GetLength(0));
+                    Assert.Equal(2, o.KeyValues.GetLength(1));
                     Assert.Equal("Snow", o.KeyValues[2, 1]);
                 });
         }
 
         [Fact]
-        public void UpdateOperation_all_args()
+        public void DeleteDataOperation_required_args()
         {
             Test(
-                new UpdateOperation
+                new DeleteDataOperation
+                {
+                    Table = "People",
+                    KeyColumns = new[] { "Last Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "Snow" }
+                    }
+                },
+                "mb.DeleteData(" + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumn: \"Last Name\"," + EOL +
+                "    keyValue: \"Snow\");",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(1, o.KeyColumns.Length);
+                    Assert.Equal(1, o.KeyValues.GetLength(0));
+                    Assert.Equal(1, o.KeyValues.GetLength(1));
+                    Assert.Equal("Snow", o.KeyValues[0, 0]);
+                });
+        }
+
+        [Fact]
+        public void DeleteDataOperation_required_args_composite()
+        {
+            Test(
+                new DeleteDataOperation
+                {
+                    Table = "People",
+                    KeyColumns = new[] { "First Name", "Last Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "John", "Snow" }
+                    }
+                },
+                "mb.DeleteData(" + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
+                "    keyValues: new object[] { \"John\", \"Snow\" });",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(2, o.KeyColumns.Length);
+                    Assert.Equal(1, o.KeyValues.GetLength(0));
+                    Assert.Equal(2, o.KeyValues.GetLength(1));
+                    Assert.Equal("Snow", o.KeyValues[0, 1]);
+                });
+        }
+
+        [Fact]
+        public void UpdateDataOperation_all_args()
+        {
+            Test(
+                new UpdateDataOperation
                 {
                     Schema = "dbo",
+                    Table = "People",
+                    KeyColumns = new[] { "First Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "Hodor" },
+                        { "Daenerys" }
+                    },
+                    Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
+                    Values = new object[,]
+                    {
+                        { "Winterfell", "Stark", "Northmen" },
+                        { "Dragonstone", "Targaryen", "Valyrian" }
+                    }
+                },
+                "mb.UpdateData(" + EOL +
+                "    schema: \"dbo\"," + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumn: \"First Name\"," + EOL +
+                "    keyValues: new object[]" + EOL +
+                "    {" + EOL +
+                "        \"Hodor\"," + EOL +
+                "        \"Daenerys\"" + EOL +
+                "    }," + EOL +
+                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + EOL +
+                "    values: new object[,]" + EOL +
+                "    {" + EOL +
+                "        { \"Winterfell\", \"Stark\", \"Northmen\" }," + EOL +
+                "        { \"Dragonstone\", \"Targaryen\", \"Valyrian\" }" + EOL +
+                "    });",
+                o =>
+                {
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(1, o.KeyColumns.Length);
+                    Assert.Equal(2, o.KeyValues.GetLength(0));
+                    Assert.Equal(1, o.KeyValues.GetLength(1));
+                    Assert.Equal("Daenerys", o.KeyValues[1, 0]);
+                    Assert.Equal(3, o.Columns.Length);
+                    Assert.Equal(2, o.Values.GetLength(0));
+                    Assert.Equal(3, o.Values.GetLength(1));
+                    Assert.Equal("Targaryen", o.Values[1, 1]);
+                });
+        }
+
+        [Fact]
+        public void UpdateDataOperation_all_args_composite()
+        {
+            Test(
+                new UpdateDataOperation
+                {
+                    Table = "People",
+                    KeyColumns = new[] { "First Name", "Last Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "Hodor", null },
+                        { "Daenerys", "Targaryen" }
+                    },
+                    Columns = new[] { "House Allegiance" },
+                    Values = new object[,]
+                    {
+                        { "Stark" },
+                        { "Targaryen" }
+                    }
+                },
+                "mb.UpdateData(" + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
+                "    keyValues: new object[,]" + EOL +
+                "    {" + EOL +
+                "        { \"Hodor\", null }," + EOL +
+                "        { \"Daenerys\", \"Targaryen\" }" + EOL +
+                "    }," + EOL +
+                "    column: \"House Allegiance\"," + EOL +
+                "    values: new object[]" + EOL +
+                "    {" + EOL +
+                "        \"Stark\"," + EOL +
+                "        \"Targaryen\"" + EOL +
+                "    });",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(2, o.KeyColumns.Length);
+                    Assert.Equal(2, o.KeyValues.GetLength(0));
+                    Assert.Equal(2, o.KeyValues.GetLength(1));
+                    Assert.Equal("Daenerys", o.KeyValues[1, 0]);
+                    Assert.Equal(1, o.Columns.Length);
+                    Assert.Equal(2, o.Values.GetLength(0));
+                    Assert.Equal(1, o.Values.GetLength(1));
+                    Assert.Equal("Targaryen", o.Values[1, 0]);
+                });
+        }
+
+        [Fact]
+        public void UpdateDataOperation_all_args_composite_multi()
+        {
+            Test(
+                new UpdateDataOperation
+                {
                     Table = "People",
                     KeyColumns = new[] { "First Name", "Last Name" },
                     KeyValues = new object[,]
@@ -2038,8 +2316,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                         { "Dragonstone", "Targaryen", "Valyrian" }
                     }
                 },
-                "mb.Update(" + EOL +
-                "    schema: \"dbo\"," + EOL +
+                "mb.UpdateData(" + EOL +
                 "    table: \"People\"," + EOL +
                 "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
                 "    keyValues: new object[,]" + EOL +
@@ -2055,14 +2332,215 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                 "    });",
                 o =>
                 {
-                    Assert.Equal("dbo", o.Schema);
                     Assert.Equal("People", o.Table);
                     Assert.Equal(2, o.KeyColumns.Length);
-                    Assert.Equal(4, o.KeyValues.Length);
+                    Assert.Equal(2, o.KeyValues.GetLength(0));
+                    Assert.Equal(2, o.KeyValues.GetLength(1));
                     Assert.Equal("Daenerys", o.KeyValues[1, 0]);
                     Assert.Equal(3, o.Columns.Length);
-                    Assert.Equal(6, o.Values.Length);
+                    Assert.Equal(2, o.Values.GetLength(0));
+                    Assert.Equal(3, o.Values.GetLength(1));
                     Assert.Equal("Targaryen", o.Values[1, 1]);
+                });
+        }
+
+        [Fact]
+        public void UpdateDataOperation_required_args()
+        {
+            Test(
+                new UpdateDataOperation
+                {
+                    Table = "People",
+                    KeyColumns = new[] { "First Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "Daenerys" }
+                    },
+                    Columns = new[] { "House Allegiance" },
+                    Values = new object[,]
+                    {
+                        { "Targaryen" }
+                    }
+                },
+                "mb.UpdateData(" + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumn: \"First Name\"," + EOL +
+                "    keyValue: \"Daenerys\"," + EOL +
+                "    column: \"House Allegiance\"," + EOL +
+                "    value: \"Targaryen\");",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(1, o.KeyColumns.Length);
+                    Assert.Equal(1, o.KeyValues.GetLength(0));
+                    Assert.Equal(1, o.KeyValues.GetLength(1));
+                    Assert.Equal("Daenerys", o.KeyValues[0, 0]);
+                    Assert.Equal(1, o.Columns.Length);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(1, o.Values.GetLength(1));
+                    Assert.Equal("Targaryen", o.Values[0, 0]);
+                });
+        }
+
+        [Fact]
+        public void UpdateDataOperation_required_args_multiple_rows()
+        {
+            Test(
+                new UpdateDataOperation
+                {
+                    Table = "People",
+                    KeyColumns = new[] { "First Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "Hodor" },
+                        { "Daenerys" }
+                    },
+                    Columns = new[] { "House Allegiance" },
+                    Values = new object[,]
+                    {
+                        { "Stark" },
+                        { "Targaryen" }
+                    }
+                },
+                "mb.UpdateData(" + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumn: \"First Name\"," + EOL +
+                "    keyValues: new object[]" + EOL +
+                "    {" + EOL +
+                "        \"Hodor\"," + EOL +
+                "        \"Daenerys\"" + EOL +
+                "    }," + EOL +
+                "    column: \"House Allegiance\"," + EOL +
+                "    values: new object[]" + EOL +
+                "    {" + EOL +
+                "        \"Stark\"," + EOL +
+                "        \"Targaryen\"" + EOL +
+                "    });",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(1, o.KeyColumns.Length);
+                    Assert.Equal(2, o.KeyValues.GetLength(0));
+                    Assert.Equal(1, o.KeyValues.GetLength(1));
+                    Assert.Equal("Daenerys", o.KeyValues[1, 0]);
+                    Assert.Equal(1, o.Columns.Length);
+                    Assert.Equal(2, o.Values.GetLength(0));
+                    Assert.Equal(1, o.Values.GetLength(1));
+                    Assert.Equal("Targaryen", o.Values[1, 0]);
+                });
+        }
+
+        [Fact]
+        public void UpdateDataOperation_required_args_composite()
+        {
+            Test(
+                new UpdateDataOperation
+                {
+                    Table = "People",
+                    KeyColumns = new[] { "First Name", "Last Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "Daenerys", "Targaryen" }
+                    },
+                    Columns = new[] { "House Allegiance" },
+                    Values = new object[,]
+                    {
+                        { "Targaryen" }
+                    }
+                },
+                "mb.UpdateData(" + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
+                "    keyValues: new object[] { \"Daenerys\", \"Targaryen\" }," + EOL +
+                "    column: \"House Allegiance\"," + EOL +
+                "    value: \"Targaryen\");",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(2, o.KeyColumns.Length);
+                    Assert.Equal(1, o.KeyValues.GetLength(0));
+                    Assert.Equal(2, o.KeyValues.GetLength(1));
+                    Assert.Equal("Daenerys", o.KeyValues[0, 0]);
+                    Assert.Equal(1, o.Columns.Length);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(1, o.Values.GetLength(1));
+                    Assert.Equal("Targaryen", o.Values[0, 0]);
+                });
+        }
+
+        [Fact]
+        public void UpdateDataOperation_required_args_composite_multi()
+        {
+            Test(
+                new UpdateDataOperation
+                {
+                    Table = "People",
+                    KeyColumns = new[] { "First Name", "Last Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "Daenerys", "Targaryen" }
+                    },
+                    Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
+                    Values = new object[,]
+                    {
+                        { "Dragonstone", "Targaryen", "Valyrian" }
+                    }
+                },
+                "mb.UpdateData(" + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
+                "    keyValues: new object[] { \"Daenerys\", \"Targaryen\" }," + EOL +
+                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + EOL +
+                "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(2, o.KeyColumns.Length);
+                    Assert.Equal(1, o.KeyValues.GetLength(0));
+                    Assert.Equal(2, o.KeyValues.GetLength(1));
+                    Assert.Equal("Daenerys", o.KeyValues[0, 0]);
+                    Assert.Equal(3, o.Columns.Length);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(3, o.Values.GetLength(1));
+                    Assert.Equal("Targaryen", o.Values[0, 1]);
+                });
+        }
+
+        [Fact]
+        public void UpdateDataOperation_required_args_multi()
+        {
+            Test(
+                new UpdateDataOperation
+                {
+                    Table = "People",
+                    KeyColumns = new[] { "Full Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "Daenerys Targaryen" }
+                    },
+                    Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
+                    Values = new object[,]
+                    {
+                        { "Dragonstone", "Targaryen", "Valyrian" }
+                    }
+                },
+                "mb.UpdateData(" + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumn: \"Full Name\"," + EOL +
+                "    keyValue: \"Daenerys Targaryen\"," + EOL +
+                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + EOL +
+                "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(1, o.KeyColumns.Length);
+                    Assert.Equal(1, o.KeyValues.GetLength(0));
+                    Assert.Equal(1, o.KeyValues.GetLength(1));
+                    Assert.Equal("Daenerys Targaryen", o.KeyValues[0, 0]);
+                    Assert.Equal(3, o.Columns.Length);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(3, o.Values.GetLength(1));
+                    Assert.Equal("Targaryen", o.Values[0, 1]);
                 });
         }
 

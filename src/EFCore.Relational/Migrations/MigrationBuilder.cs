@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => AddForeignKey(
                 name,
                 table,
-                new[] { column },
+                new[] { Check.NotEmpty(column, nameof(column)) },
                 principalTable,
                 schema,
                 principalSchema,
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => AddPrimaryKey(
                 name,
                 table,
-                new[] { column },
+                new[] { Check.NotEmpty(column, nameof(column)) },
                 schema);
 
         public virtual OperationBuilder<AddPrimaryKeyOperation> AddPrimaryKey(
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => AddUniqueConstraint(
                 name,
                 table,
-                new[] { column },
+                new[] { Check.NotEmpty(column, nameof(column)) },
                 schema);
 
         public virtual OperationBuilder<AddUniqueConstraintOperation> AddUniqueConstraint(
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => CreateIndex(
                 name,
                 table,
-                new[] { column },
+                new[] { Check.NotEmpty(column, nameof(column)) },
                 schema,
                 unique,
                 filter);
@@ -680,15 +680,42 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             return new OperationBuilder<SqlOperation>(operation);
         }
 
-        public virtual OperationBuilder<InsertOperation> Insert(
+        public virtual OperationBuilder<InsertDataOperation> InsertData(
             [NotNull] string table,
-            [CanBeNull] string schema = null,
-            [CanBeNull] string[] columns = null,
-            [CanBeNull] object[,] values = null)
+            [NotNull] string column,
+            [CanBeNull] object value,
+            [CanBeNull] string schema = null)
+            => InsertData(table, new[] { Check.NotEmpty(column, nameof(column)) }, new[] { value }, schema);
+
+        public virtual OperationBuilder<InsertDataOperation> InsertData(
+            [NotNull] string table,
+            [NotNull] string[] columns,
+            [NotNull] object[] values,
+            [CanBeNull] string schema = null)
+            => InsertData(table, columns, ToMultidimensionalArray(Check.NotNull(values, nameof(values))), schema);
+
+        public virtual OperationBuilder<InsertDataOperation> InsertData(
+            [NotNull] string table,
+            [NotNull] string column,
+            [NotNull] object[] values,
+            [CanBeNull] string schema = null)
+            => InsertData(
+                table,
+                new[] { Check.NotEmpty(column, nameof(column)) },
+                ToMultidimensionalArray(Check.NotNull(values, nameof(values)), firstDimension: true),
+                schema);
+
+        public virtual OperationBuilder<InsertDataOperation> InsertData(
+            [NotNull] string table,
+            [NotNull] string[] columns,
+            [NotNull] object[,] values,
+            [CanBeNull] string schema = null)
         {
             Check.NotEmpty(table, nameof(table));
+            Check.NotNull(columns, nameof(columns));
+            Check.NotNull(values, nameof(values));
 
-            var operation = new InsertOperation
+            var operation = new InsertDataOperation
             {
                 Table = table,
                 Schema = schema,
@@ -697,18 +724,49 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             };
             Operations.Add(operation);
 
-            return new OperationBuilder<InsertOperation>(operation);
+            return new OperationBuilder<InsertDataOperation>(operation);
         }
 
-        public virtual OperationBuilder<DeleteOperation> Delete(
+        public virtual OperationBuilder<DeleteDataOperation> DeleteData(
             [NotNull] string table,
-            [CanBeNull] string schema = null,
-            [CanBeNull] string[] keyColumns = null,
-            [CanBeNull] object[,] keyValues = null)
+            [NotNull] string keyColumn,
+            [CanBeNull] object keyValue,
+            [CanBeNull] string schema = null)
+            => DeleteData(table, new[] { Check.NotNull(keyColumn, nameof(keyValue)) }, new[] { keyValue }, schema);
+
+        public virtual OperationBuilder<DeleteDataOperation> DeleteData(
+            [NotNull] string table,
+            [NotNull] string[] keyColumns,
+            [NotNull] object[] keyValues,
+            [CanBeNull] string schema = null)
+            => DeleteData(
+                table,
+                keyColumns,
+                ToMultidimensionalArray(Check.NotNull(keyValues, nameof(keyValues))),
+                schema);
+
+        public virtual OperationBuilder<DeleteDataOperation> DeleteData(
+            [NotNull] string table,
+            [NotNull] string keyColumn,
+            [NotNull] object[] keyValues,
+            [CanBeNull] string schema = null)
+            => DeleteData(
+                table,
+                new[] { Check.NotEmpty(keyColumn, nameof(keyColumn)) },
+                ToMultidimensionalArray(Check.NotNull(keyValues, nameof(keyValues)), firstDimension: true),
+                schema);
+
+        public virtual OperationBuilder<DeleteDataOperation> DeleteData(
+            [NotNull] string table,
+            [NotNull] string[] keyColumns,
+            [NotNull] object[,] keyValues,
+            [CanBeNull] string schema = null)
         {
             Check.NotEmpty(table, nameof(table));
+            Check.NotNull(keyColumns, nameof(keyColumns));
+            Check.NotNull(keyValues, nameof(keyValues));
 
-            var operation = new DeleteOperation
+            var operation = new DeleteDataOperation
             {
                 Table = table,
                 Schema = schema,
@@ -717,20 +775,128 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             };
             Operations.Add(operation);
 
-            return new OperationBuilder<DeleteOperation>(operation);
+            return new OperationBuilder<DeleteDataOperation>(operation);
         }
 
-        public virtual OperationBuilder<UpdateOperation> Update(
+        public virtual OperationBuilder<UpdateDataOperation> UpdateData(
             [NotNull] string table,
-            [CanBeNull] string schema = null,
-            [CanBeNull] string[] keyColumns = null,
-            [CanBeNull] object[,] keyValues = null,
-            [CanBeNull] string[] columns = null,
-            [CanBeNull] object[,] values = null)
+            [NotNull] string keyColumn,
+            [CanBeNull] object keyValue,
+            [NotNull] string column,
+            [CanBeNull] object value,
+            [CanBeNull] string schema = null)
+            => UpdateData(
+                table,
+                keyColumn,
+                keyValue,
+                new[] { Check.NotEmpty(column, nameof(column)) },
+                new[] { value },
+                schema);
+
+        public virtual OperationBuilder<UpdateDataOperation> UpdateData(
+            [NotNull] string table,
+            [NotNull] string keyColumn,
+            [CanBeNull] object keyValue,
+            [NotNull] string[] columns,
+            [NotNull] object[] values,
+            [CanBeNull] string schema = null)
+            => UpdateData(
+                table,
+                new[] { Check.NotEmpty(keyColumn, nameof(keyColumn)) },
+                new[] { keyValue },
+                columns,
+                values);
+
+        public virtual OperationBuilder<UpdateDataOperation> UpdateData(
+            [NotNull] string table,
+            [NotNull] string[] keyColumns,
+            [NotNull] object[] keyValues,
+            [NotNull] string column,
+            [CanBeNull] object value,
+            [CanBeNull] string schema = null)
+            => UpdateData(
+                table,
+                keyColumns,
+                keyValues,
+                new[] { Check.NotEmpty(column, nameof(column)) },
+                new[] { value },
+                schema);
+
+        public virtual OperationBuilder<UpdateDataOperation> UpdateData(
+            [NotNull] string table,
+            [NotNull] string[] keyColumns,
+            [NotNull] object[] keyValues,
+            [NotNull] string[] columns,
+            [NotNull] object[] values,
+            [CanBeNull] string schema = null)
+            => UpdateData(
+                table,
+                keyColumns,
+                ToMultidimensionalArray(Check.NotNull(keyValues, nameof(keyValues))),
+                columns,
+                ToMultidimensionalArray(Check.NotNull(values, nameof(values))),
+                schema);
+
+        public virtual OperationBuilder<UpdateDataOperation> UpdateData(
+            [NotNull] string table,
+            [NotNull] string keyColumn,
+            [NotNull] object[] keyValues,
+            [NotNull] string column,
+            [NotNull] object[] values,
+            [CanBeNull] string schema = null)
+            => UpdateData(
+                table,
+                keyColumn,
+                keyValues,
+                new[] { Check.NotEmpty(column, nameof(column)) },
+                ToMultidimensionalArray(Check.NotNull(values, nameof(values)), firstDimension: true),
+                schema);
+
+        public virtual OperationBuilder<UpdateDataOperation> UpdateData(
+            [NotNull] string table,
+            [NotNull] string keyColumn,
+            [NotNull] object[] keyValues,
+            [NotNull] string[] columns,
+            [NotNull] object[,] values,
+            [CanBeNull] string schema = null)
+            => UpdateData(
+                table,
+                new[] { Check.NotEmpty(keyColumn, nameof(keyColumn)) },
+                ToMultidimensionalArray(Check.NotNull(keyValues, nameof(keyValues)), firstDimension: true),
+                columns,
+                values,
+                schema);
+
+        public virtual OperationBuilder<UpdateDataOperation> UpdateData(
+            [NotNull] string table,
+            [NotNull] string[] keyColumns,
+            [NotNull] object[,] keyValues,
+            [NotNull] string column,
+            [NotNull] object[] values,
+            [CanBeNull] string schema = null)
+            => UpdateData(
+                table,
+                keyColumns,
+                keyValues,
+                new[] { Check.NotEmpty(column, nameof(column)) },
+                ToMultidimensionalArray(Check.NotNull(values, nameof(values)), firstDimension: true),
+                schema);
+
+        public virtual OperationBuilder<UpdateDataOperation> UpdateData(
+            [NotNull] string table,
+            [NotNull] string[] keyColumns,
+            [NotNull] object[,] keyValues,
+            [NotNull] string[] columns,
+            [NotNull] object[,] values,
+            [CanBeNull] string schema = null)
         {
             Check.NotEmpty(table, nameof(table));
+            Check.NotNull(keyColumns, nameof(keyColumns));
+            Check.NotNull(keyValues, nameof(keyValues));
+            Check.NotNull(columns, nameof(columns));
+            Check.NotNull(values, nameof(values));
 
-            var operation = new UpdateOperation
+            var operation = new UpdateDataOperation
             {
                 Table = table,
                 Schema = schema,
@@ -741,7 +907,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             };
             Operations.Add(operation);
 
-            return new OperationBuilder<UpdateOperation>(operation);
+            return new OperationBuilder<UpdateDataOperation>(operation);
+        }
+
+        private static object[,] ToMultidimensionalArray(object[] values, bool firstDimension = false)
+        {
+            var result = firstDimension
+                ? new object[values.Length, 1]
+                : new object[1, values.Length];
+            for (var i = 0; i < values.Length; i++)
+            {
+                if (firstDimension)
+                {
+                    result[i, 0] = values[i];
+                }
+                else
+                {
+                    result[0, i] = values[i];
+                }
+            }
+
+            return result;
         }
     }
 }

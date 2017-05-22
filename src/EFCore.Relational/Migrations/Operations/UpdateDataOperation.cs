@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
-    public class UpdateOperation : MigrationOperation
+    public class UpdateDataOperation : MigrationOperation
     {
         public virtual string Table { get; [param: NotNull] set; }
         public virtual string Schema { get; [param: CanBeNull] set; }

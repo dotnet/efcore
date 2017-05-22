@@ -310,9 +310,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 Sql);
         }
 
-        public override void InsertRowsOperation()
+        public override void InsertDataOperation()
         {
-            base.InsertRowsOperation();
+            base.InsertDataOperation();
 
             Assert.Equal(
                 "INSERT INTO \"People\" (\"Id\", \"Full Name\")" + EOL +
@@ -324,9 +324,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 Sql);
         }
 
-        public override void DeleteRowsOperation_simple_key()
+        public override void DeleteDataOperation_simple_key()
         {
-            base.DeleteRowsOperation_simple_key();
+            base.DeleteDataOperation_simple_key();
 
             Assert.Equal(
                 "DELETE FROM \"People\"" + EOL +
@@ -335,9 +335,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 Sql);
         }
 
-        public override void DeleteRowsOperation_composite_key()
+        public override void DeleteDataOperation_composite_key()
         {
-            base.DeleteRowsOperation_composite_key();
+            base.DeleteDataOperation_composite_key();
 
             Assert.Equal(
                 "DELETE FROM \"People\"" + EOL +
@@ -346,9 +346,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 Sql);
         }
 
-        public override void UpdateRowsOperation_simple_key()
+        public override void UpdateDataOperation_simple_key()
         {
-            base.UpdateRowsOperation_simple_key();
+            base.UpdateDataOperation_simple_key();
 
             Assert.Equal(
                 "UPDATE \"People\"" + EOL +
@@ -362,9 +362,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 Sql);
         }
 
-        public override void UpdateRowsOperation_composite_key()
+        public override void UpdateDataOperation_composite_key()
         {
-            base.UpdateRowsOperation_composite_key();
+            base.UpdateDataOperation_composite_key();
 
             Assert.Equal(
                 "UPDATE \"People\"" + EOL +
@@ -378,9 +378,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 Sql);
         }
 
-        public override void UpdateRowsOperation_multiple_columns()
+        public override void UpdateDataOperation_multiple_columns()
         {
-            base.UpdateRowsOperation_multiple_columns();
+            base.UpdateDataOperation_multiple_columns();
 
             Assert.Equal(
                 "UPDATE \"People\"" + EOL +

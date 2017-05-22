@@ -48,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 { typeof(RenameTableOperation), (g, o, m, b) => g.Generate((RenameTableOperation)o, m, b) },
                 { typeof(RestartSequenceOperation), (g, o, m, b) => g.Generate((RestartSequenceOperation)o, m, b) },
                 { typeof(SqlOperation), (g, o, m, b) => g.Generate((SqlOperation)o, m, b) },
-                { typeof(InsertOperation), (g, o, m, b) => g.Generate((InsertOperation)o, m, b) },
-                { typeof(DeleteOperation), (g, o, m, b) => g.Generate((DeleteOperation)o, m, b) },
-                { typeof(UpdateOperation), (g, o, m, b) => g.Generate((UpdateOperation)o, m, b) }
+                { typeof(InsertDataOperation), (g, o, m, b) => g.Generate((InsertDataOperation)o, m, b) },
+                { typeof(DeleteDataOperation), (g, o, m, b) => g.Generate((DeleteDataOperation)o, m, b) },
+                { typeof(UpdateDataOperation), (g, o, m, b) => g.Generate((UpdateDataOperation)o, m, b) }
             };
 
         /// <summary>
@@ -627,13 +627,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected virtual void Generate(
-            [NotNull] InsertOperation operation,
+            [NotNull] InsertDataOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
             => Generate(operation, model, builder, terminate: true);
 
         protected virtual void Generate(
-            [NotNull] InsertOperation operation,
+            [NotNull] InsertDataOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder,
             bool terminate)
@@ -687,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected virtual void Generate(
-            [NotNull] DeleteOperation operation,
+            [NotNull] DeleteDataOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
         {
@@ -747,7 +747,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected virtual void Generate(
-            [NotNull] UpdateOperation operation,
+            [NotNull] UpdateDataOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
         {

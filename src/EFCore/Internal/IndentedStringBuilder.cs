@@ -92,15 +92,33 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IndentedStringBuilder AppendLines([NotNull] object o)
+        public virtual IndentedStringBuilder AppendLines([NotNull] object o, bool skipFinalNewline = false)
         {
             using (var reader = new StringReader(o.ToString()))
             {
+                var first = true;
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    AppendLine(line);
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        AppendLine();
+                    }
+
+                    if (line.Length != 0)
+                    {
+                        Append(line);
+                    }
                 }
+            }
+
+            if (!skipFinalNewline)
+            {
+                AppendLine();
             }
 
             return this;

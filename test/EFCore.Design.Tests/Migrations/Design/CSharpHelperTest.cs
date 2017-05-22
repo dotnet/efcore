@@ -11,6 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
 {
     public class CSharpHelperTest
     {
+        private static readonly string EOL = Environment.NewLine;
+
         [Theory]
         [InlineData(
              "single-line string with \"",
@@ -162,17 +164,37 @@ namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
                 "42");
 
         [Fact]
-        public void Literal_works_when_single_StringArray()
-        {
-            var literal = new CSharpHelper().Literal(new[] { "A" });
-            Assert.Equal("\"A\"", literal);
-        }
-
-        [Fact]
-        public void Literal_works_when_many_StringArray()
+        public void Literal_works_when_StringArray()
         {
             var literal = new CSharpHelper().Literal(new[] { "A", "B" });
             Assert.Equal("new[] { \"A\", \"B\" }", literal);
+        }
+
+        [Fact]
+        public void Literal_works_when_ObjectArray()
+        {
+            var literal = new CSharpHelper().Literal(new object[] { 'A', 1 });
+            Assert.Equal("new object[] { 'A', 1 }", literal);
+        }
+
+        [Fact]
+        public void Literal_works_when_MultidimensionalArray()
+        {
+            var value = new object[,]
+            {
+                { 'A', 1 },
+                { 'B', 2 }
+            };
+
+            var result = new CSharpHelper().Literal(value);
+
+            Assert.Equal(
+                "new object[,]" + EOL +
+                "{" + EOL +
+                "    { 'A', 1 }," + EOL +
+                "    { 'B', 2 }" + EOL +
+                "}",
+                result);
         }
 
         [Fact]

@@ -4,6 +4,11 @@
     "Kind": "Removal"
   },
   {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.Design.CSharpHelper",
+    "MemberId": "public virtual System.String Literal(System.Collections.Generic.IReadOnlyList<System.String> values)",
+    "Kind": "Removal"
+  },
+  {
     "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder",
     "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext currentContext, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Migrations.IMigrationsAssembly migrationsAssembly, Microsoft.EntityFrameworkCore.Migrations.IMigrationsModelDiffer modelDiffer, Microsoft.EntityFrameworkCore.Migrations.IMigrationsIdGenerator idGenerator, Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator migrationCodeGenerator, Microsoft.EntityFrameworkCore.Migrations.IHistoryRepository historyRepository, Microsoft.Extensions.Logging.ILogger<Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder> logger, Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices providerServices)",
     "Kind": "Removal"

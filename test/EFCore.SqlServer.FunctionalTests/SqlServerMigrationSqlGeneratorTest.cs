@@ -1109,9 +1109,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Sql);
         }
 
-        public override void InsertRowsOperation()
+        public override void InsertDataOperation()
         {
-            base.InsertRowsOperation();
+            base.InsertDataOperation();
 
             Assert.Equal(
                 "SET IDENTITY_INSERT [People] ON;" + EOL +

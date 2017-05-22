@@ -345,10 +345,86 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public virtual string Literal<T>([NotNull] T? value) where T : struct =>
             UnknownLiteral(value);
 
-        public virtual string Literal([NotNull] IReadOnlyList<string> values) =>
-            values.Count == 1
-                ? Literal(values[0])
-                : "new[] { " + string.Join(", ", values.Select(Literal)) + " }";
+        public virtual string Literal<T>([NotNull] IReadOnlyList<T> values) =>
+            "new[] { " + string.Join(", ", values.Cast<object>().Select(UnknownLiteral)) + " }";
+
+        public virtual string Literal([NotNull] IReadOnlyList<object> values)
+            => Literal(values, vertical: false);
+
+        public virtual string Literal([NotNull] IReadOnlyList<object> values, bool vertical)
+        {
+            if (!vertical)
+            {
+                return "new object[] { " + string.Join(", ", values.Select(UnknownLiteral)) + " }";
+            }
+
+            var builder = new IndentedStringBuilder();
+
+            builder
+                .AppendLine("new object[]")
+                .AppendLine("{");
+
+            using (builder.Indent())
+            {
+                for (int i = 0; i < values.Count; i++)
+                {
+                    if (i != 0)
+                    {
+                        builder.AppendLine(",");
+                    }
+
+                    builder.Append(UnknownLiteral(values[i]));
+                }
+            }
+
+            builder
+                .AppendLine()
+                .Append("}");
+
+            return builder.ToString();
+        }
+
+        public virtual string Literal([NotNull] object[,] values)
+        {
+            var builder = new IndentedStringBuilder();
+
+            builder
+                .AppendLine("new object[,]")
+                .AppendLine("{");
+
+            using (builder.Indent())
+            {
+                var rowCount = values.GetLength(0);
+                var valueCount = values.GetLength(1);
+                for (var i = 0; i < rowCount; i++)
+                {
+                    if (i != 0)
+                    {
+                        builder.AppendLine(",");
+                    }
+
+                    builder.Append("{ ");
+
+                    for (var j = 0; j < valueCount; j++)
+                    {
+                        if (j != 0)
+                        {
+                            builder.Append(", ");
+                        }
+
+                        builder.Append(UnknownLiteral(values[i, j]));
+                    }
+
+                    builder.Append(" }");
+                }
+            }
+
+            builder
+                .AppendLine()
+                .Append("}");
+
+            return builder.ToString();
+        }
 
         public virtual string Literal([NotNull] Enum value) => Reference(value.GetType()) + "." + value;
 
