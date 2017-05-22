@@ -34,8 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return null;
             }
 
-            dynamic webHost = buildWebHostMethod.Invoke(null, new object[] { args });
-            IServiceProvider services = webHost.Services;
+            var webHost = buildWebHostMethod.Invoke(null, new object[] { args });
+            var webHostType = webHost.GetType();
+            var servicesProperty = webHostType.GetTypeInfo().GetDeclaredProperty("Services");
+            var services = (IServiceProvider)servicesProperty.GetValue(webHost);
 
             return services.CreateScope().ServiceProvider;
         }
