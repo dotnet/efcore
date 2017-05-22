@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -181,6 +183,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         public virtual bool AutoTransactionsEnabled { get; set; } = true;
+
+        /// <summary>
+        ///     <para>
+        ///         Returns the invariant name of the database provider currently in use.
+        ///         The invariant name is typically the name of the provider assembly.
+        ///         It is usually easier to use a sugar method auch as 'IsSqlServer()' instead of
+        ///         calling this method directly.
+        ///     </para>
+        ///     <para>
+        ///         This method can only be used after the <see cref="DbContext" /> has been configured because
+        ///         it is only then that the provider is known. This means that this method cannot be used
+        ///         in <see cref="DbContext.OnConfiguring" /> because this is where application code sets the
+        ///         provider to use as part of configuring the context.
+        ///     </para>
+        /// </summary>
+        public virtual string ProviderName
+            => _context.GetService<IEnumerable<IDatabaseProvider>>()
+                ?.Select(p => p.InvariantName)
+                .FirstOrDefault();
 
         /// <summary>
         ///     <para>
