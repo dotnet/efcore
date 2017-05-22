@@ -36,22 +36,22 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             = new SqlServerMaxLengthMapping("varbinary(900)", typeof(byte[]), dbType: DbType.Binary, unicode: false, size: 900);
 
         private readonly RelationalTypeMapping _rowversion
-            = new RelationalTypeMapping("rowversion", typeof(byte[]), dbType: DbType.Binary, unicode: false, size: 8);
+            = new SqlServerTypeMapping("rowversion", typeof(byte[]), dbType: DbType.Binary, unicode: false, size: 8);
 
         private readonly RelationalTypeMapping _int
-            = new RelationalTypeMapping("int", typeof(int), dbType: DbType.Int32);
+            = new SqlServerTypeMapping("int", typeof(int), dbType: DbType.Int32);
 
         private readonly RelationalTypeMapping _bigint
-            = new RelationalTypeMapping("bigint", typeof(long), dbType: DbType.Int64);
+            = new SqlServerTypeMapping("bigint", typeof(long), dbType: DbType.Int64);
 
         private readonly RelationalTypeMapping _smallint
-            = new RelationalTypeMapping("smallint", typeof(short), dbType: DbType.Int16);
+            = new SqlServerTypeMapping("smallint", typeof(short), dbType: DbType.Int16);
 
         private readonly RelationalTypeMapping _tinyint
-            = new RelationalTypeMapping("tinyint", typeof(byte), dbType: DbType.Byte);
+            = new SqlServerTypeMapping("tinyint", typeof(byte), dbType: DbType.Byte);
 
         private readonly RelationalTypeMapping _bit
-            = new RelationalTypeMapping("bit", typeof(bool));
+            = new SqlServerTypeMapping("bit", typeof(bool));
 
         private readonly SqlServerMaxLengthMapping _nchar
             = new SqlServerMaxLengthMapping("nchar", typeof(string), dbType: DbType.StringFixedLength, unicode: true, size: null);
@@ -72,31 +72,31 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             = new SqlServerMaxLengthMapping("binary", typeof(byte[]), dbType: DbType.Binary);
 
         private readonly RelationalTypeMapping _date
-            = new RelationalTypeMapping("date", typeof(DateTime), dbType: DbType.Date);
+            = new SqlServerTypeMapping("date", typeof(DateTime), dbType: DbType.Date);
 
         private readonly RelationalTypeMapping _datetime
-            = new RelationalTypeMapping("datetime", typeof(DateTime), dbType: DbType.DateTime);
+            = new SqlServerTypeMapping("datetime", typeof(DateTime), dbType: DbType.DateTime);
 
         private readonly RelationalTypeMapping _datetime2
-            = new RelationalTypeMapping("datetime2", typeof(DateTime), dbType: DbType.DateTime2);
+            = new SqlServerTypeMapping("datetime2", typeof(DateTime), dbType: DbType.DateTime2);
 
         private readonly RelationalTypeMapping _double
-            = new RelationalTypeMapping("float", typeof(double));
+            = new SqlServerTypeMapping("float", typeof(double));
 
         private readonly RelationalTypeMapping _datetimeoffset
-            = new RelationalTypeMapping("datetimeoffset", typeof(DateTimeOffset));
+            = new SqlServerTypeMapping("datetimeoffset", typeof(DateTimeOffset));
 
         private readonly RelationalTypeMapping _real
-            = new RelationalTypeMapping("real", typeof(float));
+            = new SqlServerTypeMapping("real", typeof(float));
 
         private readonly RelationalTypeMapping _uniqueidentifier
-            = new RelationalTypeMapping("uniqueidentifier", typeof(Guid));
+            = new SqlServerTypeMapping("uniqueidentifier", typeof(Guid));
 
         private readonly RelationalTypeMapping _decimal
-            = new RelationalTypeMapping("decimal(18, 2)", typeof(decimal));
+            = new SqlServerTypeMapping("decimal(18, 2)", typeof(decimal));
 
         private readonly RelationalTypeMapping _time
-            = new RelationalTypeMapping("time", typeof(TimeSpan));
+            = new SqlServerTypeMapping("time", typeof(TimeSpan));
 
         private readonly RelationalTypeMapping _xml
             = new SqlServerMaxLengthMapping("xml", typeof(string), dbType: null, unicode: true, size: null);

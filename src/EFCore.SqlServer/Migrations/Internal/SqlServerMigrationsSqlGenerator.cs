@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -468,9 +469,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return;
             }
 
+            var typeMapping = Dependencies.TypeMapper.GetMapping(typeof(string));
+
             builder
                 .Append("IF SCHEMA_ID(")
-                .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(operation.Name))
+                .Append(typeMapping.GenerateLiteral(operation.Name))
                 .Append(") IS NULL EXEC(N'CREATE SCHEMA ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
                 .Append(Dependencies.SqlGenerationHelper.StatementTerminator)
@@ -935,17 +938,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotEmpty(newName, nameof(newName));
             Check.NotNull(builder, nameof(builder));
 
+            var typeMapping = Dependencies.TypeMapper.GetMapping(typeof(string));
+
             builder
                 .Append("EXEC sp_rename ")
-                .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(name))
+                .Append(typeMapping.GenerateLiteral(name))
                 .Append(", ")
-                .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(newName));
+                .Append(typeMapping.GenerateLiteral(newName));
 
             if (type != null)
             {
                 builder
                     .Append(", ")
-                    .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(type));
+                    .Append(typeMapping.GenerateLiteral(type));
             }
 
             builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
