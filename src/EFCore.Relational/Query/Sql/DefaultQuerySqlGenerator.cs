@@ -509,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     for (var i = 0; i < argumentValues.Length; i++)
                     {
                         var value = argumentValues[i];
-                        substitutions[i] = SqlGenerator.GenerateLiteral(value, GetTypeMapping(value));
+                        substitutions[i] = GetTypeMapping(value).GenerateLiteral(value);
                     }
 
                     break;
@@ -531,8 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                             {
                                 var value = ((ConstantExpression)expression).Value;
                                 substitutions[i]
-                                    = SqlGenerator
-                                        .GenerateLiteral(value, GetTypeMapping(value));
+                                    = GetTypeMapping(value).GenerateLiteral(value);
 
                                 break;
                             }
@@ -1405,7 +1404,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalCommandBuilder.Append(
                 value == null
                     ? "NULL"
-                    : SqlGenerator.GenerateLiteral(value, GetTypeMapping(value)));
+                    : GetTypeMapping(value).GenerateLiteral(value));
 
             return constantExpression;
         }

@@ -330,16 +330,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("CREATE SEQUENCE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema));
 
+            var typeMapping = Dependencies.TypeMapper.GetMapping(operation.ClrType);
+
             if (operation.ClrType != typeof(long))
             {
                 builder
                     .Append(" AS ")
-                    .Append(Dependencies.TypeMapper.GetMapping(operation.ClrType).StoreType);
+                    .Append(typeMapping.StoreType);
             }
 
             builder
                 .Append(" START WITH ")
-                .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(operation.StartValue));
+                .Append(typeMapping.GenerateLiteral(operation.StartValue));
 
             SequenceOptions(operation, model, builder);
 
@@ -603,11 +605,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            var typeMapping = Dependencies.TypeMapper.GetMapping(typeof(long));
+
             builder
                 .Append("ALTER SEQUENCE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
                 .Append(" RESTART WITH ")
-                .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(operation.StartValue))
+                .Append(typeMapping.GenerateLiteral(operation.StartValue))
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
             EndStatement(builder);
@@ -666,7 +670,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         builder.Append(", ");
                     }
 
-                    builder.Append(Dependencies.SqlGenerationHelper.GenerateLiteral(operation.Values[i, j]));
+                    var value = operation.Values[i, j];
+                    var typeMapping = Dependencies.TypeMapper.GetMapping(value.GetType());
+                    builder.Append(typeMapping.GenerateLiteral(value));
                 }
 
                 builder.Append(")");
@@ -723,9 +729,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     }
                     else
                     {
+                        var typeMapping = Dependencies.TypeMapper.GetMapping(value.GetType());
+
                         builder
                             .Append(" = ")
-                            .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(value));
+                            .Append(typeMapping.GenerateLiteral(value));
                     }
                 }
 
@@ -768,10 +776,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             .Append("    ");
                     }
 
+                    var value = operation.Values[i, j];
+                    var typeMapping = Dependencies.TypeMapper.GetMapping(value.GetType());
                     builder.Append(
                         Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Columns[j]) +
                         " = " +
-                        Dependencies.SqlGenerationHelper.GenerateLiteral(operation.Values[i, j]));
+                        typeMapping.GenerateLiteral(value));
                 }
 
                 builder
@@ -793,9 +803,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     }
                     else
                     {
+                        var typeMapping = Dependencies.TypeMapper.GetMapping(value.GetType());
                         builder
                             .Append(" = ")
-                            .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(value));
+                            .Append(typeMapping.GenerateLiteral(value));
                     }
                 }
 
@@ -850,15 +861,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(cycle, nameof(cycle));
             Check.NotNull(builder, nameof(builder));
 
+            var intTypeMapping = Dependencies.TypeMapper.GetMapping(typeof(int));
+            var longTypeMapping = Dependencies.TypeMapper.GetMapping(typeof(long?));
+            
             builder
                 .Append(" INCREMENT BY ")
-                .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(increment));
+                .Append(intTypeMapping.GenerateLiteral(increment));
 
             if (minimumValue != null)
             {
                 builder
                     .Append(" MINVALUE ")
-                    .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(minimumValue));
+                    .Append(longTypeMapping.GenerateLiteral(minimumValue));
             }
             else
             {
@@ -869,7 +883,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 builder
                     .Append(" MAXVALUE ")
-                    .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(maximumValue));
+                    .Append(longTypeMapping.GenerateLiteral(maximumValue));
             }
             else
             {
@@ -985,9 +999,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
             else if (defaultValue != null)
             {
+                var typeMapping = Dependencies.TypeMapper.GetMapping(defaultValue.GetType());
                 builder
                     .Append(" DEFAULT ")
-                    .Append(Dependencies.SqlGenerationHelper.GenerateLiteral(defaultValue));
+                    .Append(typeMapping.GenerateLiteral(defaultValue));
             }
         }
 

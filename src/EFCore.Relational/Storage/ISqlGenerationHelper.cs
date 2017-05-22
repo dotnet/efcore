@@ -46,22 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         void GenerateParameterName([NotNull] StringBuilder builder, [NotNull] string name);
 
         /// <summary>
-        ///     Generates the SQL representation of a literal value.
-        /// </summary>
-        /// <param name="value"> The literal value. </param>
-        /// <param name="typeMapping"> An optional type mapping that is used for this value. </param>
-        /// <returns> The generated string. </returns>
-        string GenerateLiteral([CanBeNull] object value, [CanBeNull] RelationalTypeMapping typeMapping = null);
-
-        /// <summary>
-        ///     Writes the SQL representation of a literal value.
-        /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
-        /// <param name="value"> The literal value. </param>
-        /// <param name="typeMapping"> An optional type mapping that is used for this value. </param>
-        void GenerateLiteral([NotNull] StringBuilder builder, [CanBeNull] object value, [CanBeNull] RelationalTypeMapping typeMapping = null);
-
-        /// <summary>
         ///     Generates the escaped SQL representation of a literal value.
         /// </summary>
         /// <param name="literal"> The value to be escaped. </param>
