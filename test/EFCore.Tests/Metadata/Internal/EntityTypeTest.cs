@@ -1536,6 +1536,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
             nameProperty.IsNullable = false;
 
+#pragma warning disable 618
             Assert.False(((IProperty)idProperty).IsReadOnlyAfterSave);
             Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
             Assert.False(((IProperty)idProperty).IsReadOnlyBeforeSave);
@@ -1548,11 +1549,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.False(((IProperty)idProperty).IsReadOnlyBeforeSave);
             Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
 
-            nameProperty.IsReadOnlyAfterSave = true;
+            nameProperty.AfterSaveBehavior = PropertyValueBehavior.Throw;
 
             Assert.Equal(
                 CoreStrings.KeyPropertyMustBeReadOnly(Customer.NameProperty.Name, nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(() => nameProperty.IsReadOnlyAfterSave = false).Message);
+                Assert.Throws<InvalidOperationException>(() => nameProperty.AfterSaveBehavior = PropertyValueBehavior.UseValue).Message);
 
             nameProperty.IsReadOnlyBeforeSave = true;
 
@@ -1560,32 +1561,33 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
             Assert.False(((IProperty)idProperty).IsReadOnlyBeforeSave);
             Assert.True(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+#pragma warning restore 618
         }
 
         [Fact]
-        public void Store_computed_values_are_read_only_before_and_after_save_by_default()
+        public void Store_computed_values_are_ignored_before_and_after_save_by_default()
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
-            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.AfterSaveBehavior);
 
             nameProperty.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
-            Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
-            Assert.True(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+            Assert.Equal(PropertyValueBehavior.Ignore, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertyValueBehavior.Ignore, nameProperty.AfterSaveBehavior);
 
-            nameProperty.IsReadOnlyBeforeSave = false;
+            nameProperty.BeforeSaveBehavior = PropertyValueBehavior.UseValue;
 
-            Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
-            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertyValueBehavior.Ignore, nameProperty.AfterSaveBehavior);
 
-            nameProperty.IsReadOnlyAfterSave = false;
+            nameProperty.AfterSaveBehavior = PropertyValueBehavior.UseValue;
 
-            Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
-            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.AfterSaveBehavior);
         }
 
         [Fact]
@@ -1595,6 +1597,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType = model.AddEntityType(typeof(Customer));
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
+#pragma warning disable 618
             Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
             Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
 
@@ -1613,6 +1616,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
             Assert.True(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+#pragma warning restore 618
         }
 
         [Fact]

@@ -172,6 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
 
+#pragma warning disable 618
             Assert.False(property.IsStoreGeneratedAlways);
 
             property.IsStoreGeneratedAlways = true;
@@ -179,6 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             property.IsStoreGeneratedAlways = false;
             Assert.False(property.IsStoreGeneratedAlways);
+#pragma warning restore 618
         }
 
         [Fact]
@@ -187,10 +189,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
 
+#pragma warning disable 618
             Assert.False(((IProperty)property).IsStoreGeneratedAlways);
 
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
-            Assert.False(((IProperty)property).IsStoreGeneratedAlways);
+            Assert.True(((IProperty)property).IsStoreGeneratedAlways);
 
             property.IsConcurrencyToken = true;
             Assert.True(((IProperty)property).IsStoreGeneratedAlways);
@@ -203,6 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             property.IsStoreGeneratedAlways = false;
             Assert.False(((IProperty)property).IsStoreGeneratedAlways);
+#pragma warning restore 618
         }
 
         [Fact]
@@ -211,8 +215,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
 
+#pragma warning disable 618
             Assert.False(property.IsReadOnlyAfterSave);
             Assert.False(property.IsReadOnlyBeforeSave);
+#pragma warning restore 618
         }
 
         [Fact]
@@ -220,12 +226,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
+#pragma warning disable 618
             property.IsReadOnlyBeforeSave = true;
 
             Assert.True(property.IsReadOnlyBeforeSave);
-
-            property.IsReadOnlyBeforeSave = false;
-            Assert.False(property.IsReadOnlyBeforeSave);
+#pragma warning restore 618
         }
 
         [Fact]
@@ -233,12 +238,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
+#pragma warning disable 618
             property.IsReadOnlyAfterSave = true;
 
             Assert.True(property.IsReadOnlyAfterSave);
-
-            property.IsReadOnlyAfterSave = false;
-            Assert.False(property.IsReadOnlyAfterSave);
+#pragma warning restore 618
         }
 
         [Fact]
@@ -247,6 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
 
+#pragma warning disable 618
             Assert.False(property.IsReadOnlyBeforeSave);
             Assert.False(property.IsReadOnlyAfterSave);
 
@@ -255,6 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.True(property.IsReadOnlyBeforeSave);
             Assert.True(property.IsReadOnlyAfterSave);
+#pragma warning restore 618
         }
 
         private class Entity

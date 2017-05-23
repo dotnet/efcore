@@ -36,17 +36,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
             public override SqliteTestStore CreateTestStore()
             {
-                return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
-                    {
-                        var optionsBuilder = new DbContextOptionsBuilder()
-                            .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
-                            .UseInternalServiceProvider(_serviceProvider);
-
-                        using (var context = new StoreGeneratedContext(optionsBuilder.Options))
+                return SqliteTestStore.GetOrCreateShared(
+                    DatabaseName, () =>
                         {
-                            context.Database.EnsureClean();
-                        }
-                    });
+                            var optionsBuilder = new DbContextOptionsBuilder()
+                                .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
+                                .UseInternalServiceProvider(_serviceProvider);
+
+                            using (var context = new StoreGeneratedContext(optionsBuilder.Options))
+                            {
+                                context.Database.EnsureClean();
+                            }
+                        });
             }
 
             public override DbContext CreateContext(SqliteTestStore testStore)
@@ -63,46 +64,50 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                modelBuilder.Entity<Gumball>(
+                    b =>
+                        {
+                            b.Property(e => e.Identity).HasDefaultValue("Banana Joe");
+                            b.Property(e => e.IdentityReadOnlyBeforeSave).HasDefaultValue("Doughnut Sheriff");
+                            b.Property(e => e.IdentityReadOnlyAfterSave).HasDefaultValue("Anton");
+                            b.Property(e => e.AlwaysIdentity).HasDefaultValue("Banana Joe");
+                            b.Property(e => e.AlwaysIdentityReadOnlyBeforeSave).HasDefaultValue("Doughnut Sheriff");
+                            b.Property(e => e.AlwaysIdentityReadOnlyAfterSave).HasDefaultValue("Anton");
+                            b.Property(e => e.Computed).HasDefaultValue("Alan");
+                            b.Property(e => e.ComputedReadOnlyBeforeSave).HasDefaultValue("Carmen");
+                            b.Property(e => e.ComputedReadOnlyAfterSave).HasDefaultValue("Tina Rex");
+                            b.Property(e => e.AlwaysComputed).HasDefaultValue("Alan");
+                            b.Property(e => e.AlwaysComputedReadOnlyBeforeSave).HasDefaultValue("Carmen");
+                            b.Property(e => e.AlwaysComputedReadOnlyAfterSave).HasDefaultValue("Tina Rex");
+                        });
+
+                modelBuilder.Entity<Anais>(
+                    b =>
+                        {
+                            b.Property(e => e.OnAdd).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddUseBeforeUseAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddIgnoreBeforeUseAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddThrowBeforeUseAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddUseBeforeIgnoreAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddIgnoreBeforeIgnoreAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddThrowBeforeIgnoreAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddUseBeforeThrowAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddIgnoreBeforeThrowAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddThrowBeforeThrowAfter).HasDefaultValue("Rabbit");
+
+                            b.Property(e => e.OnAddOrUpdate).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddOrUpdateUseBeforeUseAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddOrUpdateIgnoreBeforeUseAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddOrUpdateThrowBeforeUseAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddOrUpdateUseBeforeIgnoreAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddOrUpdateIgnoreBeforeIgnoreAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddOrUpdateThrowBeforeIgnoreAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddOrUpdateUseBeforeThrowAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddOrUpdateIgnoreBeforeThrowAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnAddOrUpdateThrowBeforeThrowAfter).HasDefaultValue("Rabbit");
+                        });
+
                 base.OnModelCreating(modelBuilder);
-
-                modelBuilder.Entity<Gumball>(b =>
-                    {
-                        b.Property(e => e.Identity)
-                            .HasDefaultValue("Banana Joe");
-
-                        b.Property(e => e.IdentityReadOnlyBeforeSave)
-                            .HasDefaultValue("Doughnut Sheriff");
-
-                        b.Property(e => e.IdentityReadOnlyAfterSave)
-                            .HasDefaultValue("Anton");
-
-                        b.Property(e => e.AlwaysIdentity)
-                            .HasDefaultValue("Banana Joe");
-
-                        b.Property(e => e.AlwaysIdentityReadOnlyBeforeSave)
-                            .HasDefaultValue("Doughnut Sheriff");
-
-                        b.Property(e => e.AlwaysIdentityReadOnlyAfterSave)
-                            .HasDefaultValue("Anton");
-
-                        b.Property(e => e.Computed)
-                            .HasDefaultValue("Alan");
-
-                        b.Property(e => e.ComputedReadOnlyBeforeSave)
-                            .HasDefaultValue("Carmen");
-
-                        b.Property(e => e.ComputedReadOnlyAfterSave)
-                            .HasDefaultValue("Tina Rex");
-
-                        b.Property(e => e.AlwaysComputed)
-                            .HasDefaultValue("Alan");
-
-                        b.Property(e => e.AlwaysComputedReadOnlyBeforeSave)
-                            .HasDefaultValue("Carmen");
-
-                        b.Property(e => e.AlwaysComputedReadOnlyAfterSave)
-                            .HasDefaultValue("Tina Rex");
-                    });
             }
         }
     }

@@ -133,8 +133,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
             var nonKeyProperty = entityType.FindProperty("Name");
+#pragma warning disable 618
             nonKeyProperty.IsReadOnlyBeforeSave = true;
             keyProperty.IsReadOnlyBeforeSave = true;
+#pragma warning restore 618
             var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
@@ -163,7 +165,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var nonKeyProperty = entityType.FindProperty("Name");
+#pragma warning disable 618
             nonKeyProperty.IsReadOnlyAfterSave = true;
+#pragma warning restore 618
             var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
