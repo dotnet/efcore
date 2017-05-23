@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 MockAssembly.Create(typeof(Program)),
                 typeof(Program));
 
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", null);
             var services = factory.Create(new[] { "arg1" });
 
             Assert.NotNull(services.GetRequiredService<TestService>());
@@ -27,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             public static TestWebHost BuildWebHost(string[] args)
             {
+                Assert.Equal("Development", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
                 Assert.Equal(args, new[] { "arg1" });
 
                 return new TestWebHost(

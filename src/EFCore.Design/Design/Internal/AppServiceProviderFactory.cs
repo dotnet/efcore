@@ -34,6 +34,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return null;
             }
 
+            // TODO: Remove when dotnet/cli#6617 is fixed
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == null)
+            {
+                Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+            }
+
             var webHost = buildWebHostMethod.Invoke(null, new object[] { args });
             var webHostType = webHost.GetType();
             var servicesProperty = webHostType.GetTypeInfo().GetDeclaredProperty("Services");
