@@ -1107,5 +1107,10 @@
     "TypeId": "public static class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapperExtensions",
     "MemberId": "public static System.Boolean IsTypeMapped(this Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, System.Type clrType)",
     "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions",
+    "MemberId": "public static System.Int32 ExecuteSqlCommand(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, System.String sql, params System.Object[] parameters)",
+    "Kind": "Removal"
   }
 ]

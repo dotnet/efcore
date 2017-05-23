@@ -102,17 +102,35 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>()
                 .MigrateAsync(cancellationToken: cancellationToken);
 
-        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
-        public static int ExecuteSqlCommand(
-            [NotNull] this DatabaseFacade databaseFacade,
-            [NotNull] string sql,
-            [NotNull] params object[] parameters)
-            => ExecuteSqlCommand(databaseFacade, sql, (IEnumerable<object>)parameters);
+        /// <summary>
+        ///     A SQL format string. This type enables overload resolution between
+        ///     the regular and interpolated ExecuteSqlCommand overloads.
+        /// </summary>
+        public struct SqlFormat
+        {
+            public static implicit operator SqlFormat([NotNull] string s) => new SqlFormat(s);
+            public static implicit operator SqlFormat([NotNull] FormattableString fs) => default(SqlFormat);
+            public SqlFormat([NotNull] string s) => Format = s;
+            public string Format { get; }
+        }
 
         // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
         public static int ExecuteSqlCommand(
             [NotNull] this DatabaseFacade databaseFacade,
-            [NotNull] string sql,
+            SqlFormat sql,
+            [NotNull] params object[] parameters)
+            => ExecuteSqlCommand(databaseFacade, sql, (IEnumerable<object>)parameters);
+        
+        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+        public static int ExecuteSqlCommand(
+            [NotNull] this DatabaseFacade databaseFacade,
+            [NotNull] FormattableString sql)
+            => ExecuteSqlCommand(databaseFacade, sql.Format, sql.GetArguments());
+
+        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+        public static int ExecuteSqlCommand(
+            [NotNull] this DatabaseFacade databaseFacade,
+            SqlFormat sql,
             [NotNull] IEnumerable<object> parameters)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
@@ -125,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var rawSqlCommand = databaseFacade
                     .GetRelationalService<IRawSqlCommandBuilder>()
-                    .Build(sql, parameters);
+                    .Build(sql.Format, parameters);
 
                 return rawSqlCommand
                     .RelationalCommand
@@ -138,21 +156,28 @@ namespace Microsoft.EntityFrameworkCore
         // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
         public static Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            [NotNull] string sql,
+            [NotNull] FormattableString sql,
+            CancellationToken cancellationToken = default(CancellationToken))
+            => ExecuteSqlCommandAsync(databaseFacade, sql.Format, sql.GetArguments(), cancellationToken);
+
+        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+        public static Task<int> ExecuteSqlCommandAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            SqlFormat sql,
             CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteSqlCommandAsync(databaseFacade, sql, Enumerable.Empty<object>(), cancellationToken);
 
         // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
         public static Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            [NotNull] string sql,
+            SqlFormat sql,
             [NotNull] params object[] parameters)
             => ExecuteSqlCommandAsync(databaseFacade, sql, (IEnumerable<object>)parameters);
 
         // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
         public static async Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            [NotNull] string sql,
+            SqlFormat sql,
             [NotNull] IEnumerable<object> parameters,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -166,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var rawSqlCommand = databaseFacade
                     .GetRelationalService<IRawSqlCommandBuilder>()
-                    .Build(sql, parameters);
+                    .Build(sql.Format, parameters);
 
                 return await rawSqlCommand
                     .RelationalCommand

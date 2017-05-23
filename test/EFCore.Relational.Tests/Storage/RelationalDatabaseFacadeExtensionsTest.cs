@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -276,15 +277,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     .UseTransientInMemoryDatabase();
         }
 
+        [UsedImplicitly]
         private class TestRawSqlCommandBuilder : IRawSqlCommandBuilder
         {
-            public string Sql { get; set; }
-            public IEnumerable<object> Parameters { get; set; }
+            public string Sql { get; private set; }
+            public IEnumerable<object> Parameters { get; private set; }
 
-            public IRelationalCommand Build(string sql)
-            {
-                throw new NotImplementedException();
-            }
+            public IRelationalCommand Build(string sql) => throw new NotImplementedException();
 
             public RawSqlCommand Build(string sql, IEnumerable<object> parameters)
             {

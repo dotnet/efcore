@@ -3,15 +3,16 @@
 
 using System;
 using System.Data.Common;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+// ReSharper disable ConvertToConstant.Local
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore.Relational.Specification
 {
     public abstract class SqlExecutorTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
@@ -60,6 +61,38 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void Query_with_parameters()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+
+            using (var context = CreateContext())
+            {
+                var actual = context.Database
+                    .ExecuteSqlCommand(
+                        @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = {1}", city, contactTitle);
+
+                Assert.Equal(-1, actual);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_with_parameters_interpolated()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+
+            using (var context = CreateContext())
+            {
+                var actual = context.Database
+                    .ExecuteSqlCommand(
+                        $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}");
+
+                Assert.Equal(-1, actual);
+            }
+        }
+
+        [Fact]
         public virtual async Task Executes_stored_procedure_async()
         {
             using (var context = CreateContext())
@@ -102,12 +135,41 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [Fact]
+        public virtual async Task Query_with_parameters_async()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+
+            using (var context = CreateContext())
+            {
+                var actual = await context.Database
+                    .ExecuteSqlCommandAsync(
+                        @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = {1}", city, contactTitle);
+
+                Assert.Equal(-1, actual);
+            }
+        }
+
+        [Fact]
+        public virtual async Task Query_with_parameters_interpolated_async()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+
+            using (var context = CreateContext())
+            {
+                var actual = await context.Database
+                    .ExecuteSqlCommandAsync(
+                        $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}");
+
+                Assert.Equal(-1, actual);
+            }
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
-        protected SqlExecutorTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
+        protected SqlExecutorTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
