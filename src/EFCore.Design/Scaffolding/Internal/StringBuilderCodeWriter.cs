@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var entityConfig in modelConfiguration.EntityConfigurations)
             {
-                generatedCode = EntityTypeWriter.WriteCode(entityConfig);
+                generatedCode = EntityTypeWriter.WriteCode(entityConfig.EntityType, modelConfiguration.CustomConfiguration.Namespace, !modelConfiguration.CustomConfiguration.UseFluentApiOnly);
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityConfig.EntityType.DisplayName() + FileExtension;
