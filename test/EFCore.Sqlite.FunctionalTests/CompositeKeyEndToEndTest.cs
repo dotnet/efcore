@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class CompositeKeyEndToEndTest
     {

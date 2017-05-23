@@ -7,7 +7,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class MusicStoreQueryTests
     {

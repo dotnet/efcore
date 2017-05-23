@@ -6,7 +6,7 @@ using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class ObservableCollectionListSourceTest
     {

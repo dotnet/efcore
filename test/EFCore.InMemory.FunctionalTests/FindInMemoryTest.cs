@@ -3,10 +3,9 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class FindInMemoryTest
         : FindTestBase<InMemoryTestStore, FindInMemoryTest.FindInMemoryFixture>

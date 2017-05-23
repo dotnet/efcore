@@ -4,8 +4,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable StaticMemberInGenericType
@@ -14,7 +14,7 @@ using Xunit;
 // ReSharper disable ConvertMethodToExpressionBody
 // ReSharper disable StringStartsWithIsCultureSpecific
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class FiltersTestBase<TFixture> : IClassFixture<TFixture>, IDisposable
         where TFixture : NorthwindQueryFixtureBase, new()

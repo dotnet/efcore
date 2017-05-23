@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
+namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public class Order
     {

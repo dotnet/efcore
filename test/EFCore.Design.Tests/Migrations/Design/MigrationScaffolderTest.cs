@@ -8,16 +8,14 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
+namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class MigrationScaffolderTest
     {

@@ -5,16 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Relational.Design.Specification.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteDatabaseModelFactoryTest : IDisposable
     {

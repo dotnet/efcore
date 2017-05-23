@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ComplexNavigationsOwnedQueryTestBase<TTestStore, TFixture> : ComplexNavigationsQueryTestBase<TTestStore, TFixture>
         where TTestStore : TestStore

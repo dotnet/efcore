@@ -9,14 +9,13 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
+namespace Microsoft.EntityFrameworkCore.Update
 {
     public abstract class UpdateSqlGeneratorTestBase
     {

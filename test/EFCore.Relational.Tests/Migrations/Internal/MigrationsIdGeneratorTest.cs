@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
+namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     public class MigrationsIdGeneratorTest
     {

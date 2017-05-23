@@ -3,11 +3,10 @@
 
 using System;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Design
+namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteDesignTimeProviderServicesTest : DesignTimeProviderServicesTest
     {

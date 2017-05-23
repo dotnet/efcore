@@ -4,11 +4,10 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class FieldMappingSqliteTest
     {

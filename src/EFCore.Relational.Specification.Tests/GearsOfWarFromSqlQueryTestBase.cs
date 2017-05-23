@@ -3,10 +3,10 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWarModel;
+using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class GearsOfWarFromSqlQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TFixture : GearsOfWarQueryRelationalFixture<TTestStore>, new()

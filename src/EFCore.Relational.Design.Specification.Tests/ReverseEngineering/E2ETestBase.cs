@@ -5,16 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.ReverseEngineering
+namespace Microsoft.EntityFrameworkCore.ReverseEngineering
 {
     public abstract class E2ETestBase
     {

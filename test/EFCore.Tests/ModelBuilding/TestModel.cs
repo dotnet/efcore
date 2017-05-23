@@ -8,8 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
     {

@@ -12,9 +12,8 @@ using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,7 +22,7 @@ using Xunit.Abstractions;
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 
-namespace Microsoft.EntityFrameworkCore.ApplicationInsights.Tests
+namespace Microsoft.EntityFrameworkCore.ApplicationInsights
 {
     public class DiagnosticEventForwarderTest : IClassFixture<NorthwindQuerySqlServerFixture>
     {

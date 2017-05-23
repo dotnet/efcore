@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
+namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class NavigationEntryTest
     {

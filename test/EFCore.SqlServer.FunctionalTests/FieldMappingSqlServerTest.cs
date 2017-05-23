@@ -3,12 +3,11 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class FieldMappingSqlServerTest
         : FieldMappingTestBase<SqlServerTestStore, FieldMappingSqlServerTest.FieldMappingSqlServerFixture>

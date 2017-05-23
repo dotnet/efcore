@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public static class TestRelationalMetadataExtensions
     {

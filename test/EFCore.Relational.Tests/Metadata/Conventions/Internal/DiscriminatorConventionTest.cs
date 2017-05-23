@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class DiscriminatorConventionTest
     {

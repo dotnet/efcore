@@ -2,11 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Builders
+namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     public class SqliteBuilderExtensionsTest
     {

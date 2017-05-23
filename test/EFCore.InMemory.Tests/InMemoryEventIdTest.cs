@@ -4,12 +4,11 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryEventIdTest
     {

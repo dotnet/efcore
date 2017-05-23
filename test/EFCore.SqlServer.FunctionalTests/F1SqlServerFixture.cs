@@ -2,13 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class F1SqlServerFixture : F1RelationalFixture<SqlServerTestStore>
     {

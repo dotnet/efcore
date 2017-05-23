@@ -2,13 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class FiltersSqlServerTest : FiltersTestBase<NorthwindQuerySqlServerFixture>
     {

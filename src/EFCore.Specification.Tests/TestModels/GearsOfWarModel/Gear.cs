@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWarModel
+namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
 {
     public class Gear
     {

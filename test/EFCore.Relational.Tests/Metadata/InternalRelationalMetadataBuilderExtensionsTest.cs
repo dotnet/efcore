@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class InternalRelationalMetadataBuilderExtensionsTest
     {

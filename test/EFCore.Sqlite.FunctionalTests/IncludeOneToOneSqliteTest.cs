@@ -3,10 +3,9 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class IncludeOneToOneSqliteTest : IncludeOneToOneTestBase, IClassFixture<OneToOneQuerySqliteFixture>
     {

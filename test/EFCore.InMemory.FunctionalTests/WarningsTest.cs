@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class WarningsTest
     {

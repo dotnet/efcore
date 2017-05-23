@@ -7,7 +7,7 @@
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT' OR '$(CoreOnly)' == 'True'">netcoreapp2.0</TargetFrameworks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests</AssemblyName>
-    <RootNamespace>Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

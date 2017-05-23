@@ -2,13 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class ComplexNavigationsOwnedQuerySqlServerFixture
         : ComplexNavigationsOwnedQueryFixtureBase<SqlServerTestStore>

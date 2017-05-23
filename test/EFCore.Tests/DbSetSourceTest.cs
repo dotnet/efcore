@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class DbSetSourceTest
     {

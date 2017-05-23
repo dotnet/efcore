@@ -7,10 +7,9 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public static class Extensions
+    public static class MetadataExtensions
     {
         public static IEnumerable<T> NullChecked<T>(this IEnumerable<T> enumerable)
             => enumerable ?? Enumerable.Empty<T>();

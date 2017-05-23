@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalPropertyAttributeConventionTest
     {

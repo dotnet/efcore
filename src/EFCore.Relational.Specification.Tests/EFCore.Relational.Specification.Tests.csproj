@@ -7,7 +7,7 @@
     <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.0</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Relational.Specification.Tests</AssemblyName>
-    <RootNamespace>Microsoft.EntityFrameworkCore.Relational.Specification</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EnableApiCheck>false</EnableApiCheck>

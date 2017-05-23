@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     internal class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {

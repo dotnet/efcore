@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class RelationalSqlGeneratorTest : SqlGeneratorTestBase
     {

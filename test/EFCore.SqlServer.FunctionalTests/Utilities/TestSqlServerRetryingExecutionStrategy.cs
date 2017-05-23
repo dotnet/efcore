@@ -5,7 +5,7 @@ using System;
 using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public class TestSqlServerRetryingExecutionStrategy : SqlServerRetryingExecutionStrategy
     {

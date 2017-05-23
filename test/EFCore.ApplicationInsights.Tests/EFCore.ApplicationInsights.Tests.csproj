@@ -6,7 +6,7 @@
     <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT' OR '$(CoreOnly)' == 'True'">netcoreapp2.0</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.ApplicationInsights.Tests</AssemblyName>
-    <RootNamespace>Microsoft.EntityFrameworkCore.ApplicationInsights.Tests</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.ApplicationInsights</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

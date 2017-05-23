@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class SqlServerInternalMetadataBuilderExtensionsTest
     {

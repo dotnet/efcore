@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class EntityFrameworkServiceCollectionExtensionsTest
     {

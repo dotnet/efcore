@@ -8,8 +8,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
     {

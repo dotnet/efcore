@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -15,8 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class ModelBuilderGenericTest : ModelBuilderTest
     {

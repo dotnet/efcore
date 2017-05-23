@@ -6,10 +6,9 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Design
+namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteDesignEventIdTest
     {

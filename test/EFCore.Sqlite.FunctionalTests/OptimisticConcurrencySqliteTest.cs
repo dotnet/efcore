@@ -3,10 +3,9 @@
 
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class OptimisticConcurrencySqliteTest : OptimisticConcurrencyTestBase<SqliteTestStore, F1SqliteFixture>
     {

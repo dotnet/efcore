@@ -5,10 +5,9 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteDatabaseCleaner : RelationalDatabaseCleaner
     {

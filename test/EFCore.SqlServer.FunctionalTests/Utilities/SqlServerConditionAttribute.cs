@@ -4,10 +4,10 @@
 using System;
 using System.Data.SqlClient;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit.Sdk;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     [TraitDiscoverer("Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities.SqlServerConditionTraitDiscoverer", "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests")]

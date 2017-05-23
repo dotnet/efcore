@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class MockAssembly : Assembly
     {

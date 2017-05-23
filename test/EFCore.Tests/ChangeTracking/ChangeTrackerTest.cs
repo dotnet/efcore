@@ -8,12 +8,10 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 
-namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
+namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class ChangeTrackerTest
     {

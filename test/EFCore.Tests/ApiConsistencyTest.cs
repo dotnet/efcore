@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {

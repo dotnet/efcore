@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
+namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class ReferenceEntryTest
     {

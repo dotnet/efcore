@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.NullSemanticsModel
+namespace Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel
 {
     public class NullSemanticsModelInitializer
     {

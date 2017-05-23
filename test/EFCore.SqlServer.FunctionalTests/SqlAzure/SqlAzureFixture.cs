@@ -4,13 +4,12 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.SqlAzure.Model;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
+namespace Microsoft.EntityFrameworkCore.SqlAzure
 {
     public class SqlAzureFixture
     {

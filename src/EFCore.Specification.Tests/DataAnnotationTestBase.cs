@@ -14,9 +14,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class DataAnnotationTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore
@@ -1376,14 +1377,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<Two>();
 
-            Assert.Null(modelBuilder.Model.FindEntityType(typeof(Tests.C)));
+            Assert.Null(modelBuilder.Model.FindEntityType(typeof(C)));
         }
 
         [Fact]
         public virtual void NotMappedAttribute_ignores_navigation()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<Tests.Book>();
+            modelBuilder.Entity<Book>();
 
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(UselessBookDetails)));
         }

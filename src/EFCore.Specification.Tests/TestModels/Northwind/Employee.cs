@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
+namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public class Employee
     {

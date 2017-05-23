@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
+namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
 {
     [Table("ProductDescription", Schema = "SalesLT")]
     public class ProductDescription

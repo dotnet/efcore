@@ -3,12 +3,11 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Benchmarks;
-using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks.TestHelpers;
 using Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.AdventureWorks;
+using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks.TestHelpers;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
 {
     public class NavigationsQueryTests : IClassFixture<AdventureWorksFixture>
     {

@@ -2,11 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests.TestModels;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.TestModels;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteCrossStoreFixture : CrossStoreFixture
     {

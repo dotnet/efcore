@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestQuerySqlGenerator : DefaultQuerySqlGenerator
     {

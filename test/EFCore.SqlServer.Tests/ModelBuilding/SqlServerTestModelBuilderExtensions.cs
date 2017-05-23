@@ -3,10 +3,8 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Tests;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
+namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public static class SqlServerTestModelBuilderExtensions
     {

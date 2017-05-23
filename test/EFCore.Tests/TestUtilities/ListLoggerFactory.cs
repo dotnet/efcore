@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class ListLoggerFactory : ILoggerFactory
     {

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class NotificationEntitiesTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore

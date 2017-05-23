@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public class TypeExtensionsTest
     {

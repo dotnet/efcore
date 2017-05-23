@@ -3,11 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class SqlServerRetryingExecutionStrategyTests
     {

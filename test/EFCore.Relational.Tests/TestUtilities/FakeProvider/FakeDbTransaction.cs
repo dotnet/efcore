@@ -4,7 +4,7 @@
 using System.Data;
 using System.Data.Common;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
+namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 {
     public class FakeDbTransaction : DbTransaction
     {

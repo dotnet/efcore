@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
+namespace Microsoft.EntityFrameworkCore.TestModels
 {
     public class SnapshotMonsterContext : MonsterContext<
         SnapshotMonsterContext.Customer, SnapshotMonsterContext.Barcode, SnapshotMonsterContext.IncorrectScan,

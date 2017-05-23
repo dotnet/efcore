@@ -3,9 +3,9 @@
 
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel;
+using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ComplexNavigationsOwnedQueryFixtureBase<TTestStore> : ComplexNavigationsQueryFixtureBase<TTestStore>
         where TTestStore : TestStore

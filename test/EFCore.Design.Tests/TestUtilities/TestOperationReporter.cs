@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Design.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestOperationReporter : IOperationReporter
     {

@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class TypedRelationalValueBufferFactoryFactoryTest
     {

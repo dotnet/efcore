@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryFixture
     {

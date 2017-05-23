@@ -3,12 +3,11 @@
 
 using System;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
+namespace Microsoft.EntityFrameworkCore.Update
 {
     public class UpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
     {

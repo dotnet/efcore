@@ -3,12 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Extensions
+namespace Microsoft.EntityFrameworkCore.Extensions
 {
     public class PropertyExtensionsTest
     {

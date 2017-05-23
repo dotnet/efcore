@@ -4,12 +4,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class MetadataBuilderTest
     {

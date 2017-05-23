@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable ConvertToAutoProperty
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class BackingFieldConventionTest
     {

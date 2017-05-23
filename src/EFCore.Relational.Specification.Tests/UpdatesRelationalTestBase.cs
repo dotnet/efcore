@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class UpdatesRelationalTestBase<TFixture, TTestStore> : UpdatesTestBase<TFixture, TTestStore>
         where TFixture : UpdatesFixtureBase<TTestStore>

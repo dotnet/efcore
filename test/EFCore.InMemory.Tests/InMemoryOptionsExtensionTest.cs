@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryOptionsExtensionTest
     {

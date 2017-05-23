@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
+namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 {
     public class FakeRelationalOptionsExtension : RelationalOptionsExtension
     {

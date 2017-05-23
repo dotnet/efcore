@@ -6,9 +6,8 @@ using System.Data.Common;
 using System.IO;
 using System.Threading;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteTestStore : RelationalTestStore
     {

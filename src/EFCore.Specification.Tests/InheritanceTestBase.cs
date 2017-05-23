@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Inheritance;
+using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 using Xunit;
 // ReSharper disable InconsistentNaming
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable StringEndsWithIsCultureSpecific
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class InheritanceTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : InheritanceFixtureBase, new()

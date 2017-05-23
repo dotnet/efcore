@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Specification.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public abstract class QueryResultAsserter
     {

@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public static class CollectionExtensions
     {

@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 // ReSharper disable FieldCanBeMadeReadOnly.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable ConvertToAutoProperty
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class PropertyBaseTest
     {

@@ -10,9 +10,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerEventIdTest
     {

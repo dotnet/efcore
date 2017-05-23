@@ -3,10 +3,9 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Design.Tests.Scaffolding.Internal
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class ReverseEngineeringConfigurationTests
     {

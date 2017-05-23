@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public class TestSqlServerConnection : ISqlServerConnection
     {

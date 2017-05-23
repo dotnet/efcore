@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Update;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class FakeModificationCommand : ModificationCommand
     {

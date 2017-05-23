@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestDesignLoggerFactory : ILoggerFactory
     {

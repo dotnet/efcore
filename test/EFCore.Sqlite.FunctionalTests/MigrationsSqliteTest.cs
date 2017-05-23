@@ -7,10 +7,9 @@ using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class MigrationsSqliteTest : MigrationsTestBase<MigrationsSqliteFixture>
     {

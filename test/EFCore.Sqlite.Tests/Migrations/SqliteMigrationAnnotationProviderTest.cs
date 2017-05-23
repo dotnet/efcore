@@ -4,12 +4,11 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqliteMigrationAnnotationProviderTest
     {

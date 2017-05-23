@@ -16,7 +16,7 @@ using Xunit;
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable StringStartsWithIsCultureSpecific
-namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class DatabaseErrorLogStateTest
     {

@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class StateDataTest
     {

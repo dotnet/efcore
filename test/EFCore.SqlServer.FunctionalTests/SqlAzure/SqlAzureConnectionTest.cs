@@ -3,12 +3,12 @@
 
 using System.Data;
 using System.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.SqlAzure.Model;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
+namespace Microsoft.EntityFrameworkCore.SqlAzure
 {
     [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
     public class SqlAzureConnectionTest : IClassFixture<SqlAzureFixture>

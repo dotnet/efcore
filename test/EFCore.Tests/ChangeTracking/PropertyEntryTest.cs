@@ -5,12 +5,11 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
+namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class PropertyEntryTest
     {

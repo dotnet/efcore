@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class AutoincrementTest : IDisposable
     {
@@ -19,14 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             using (var context = CreateContext())
             {
                 context.Database.EnsureClean();
-                context.People.Add(new Person { Name = "Bruce" });
+                context.People.Add(new PersonA { Name = "Bruce" });
                 context.SaveChanges();
 
                 var hero = context.People.First(p => p.Id == 1);
 
                 context.People.Remove(hero);
                 context.SaveChanges();
-                context.People.Add(new Person { Name = "Batman" });
+                context.People.Add(new PersonA { Name = "Batman" });
                 context.SaveChanges();
                 var gone = context.People.FirstOrDefault(p => p.Id == 1);
                 var begins = context.People.FirstOrDefault(p => p.Id == 2);
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
         }
 
-        public DbSet<Person> People { get; set; }
+        public DbSet<PersonA> People { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -91,10 +91,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
         }
 
-        public DbSet<Person> People { get; set; }
+        public DbSet<PersonA> People { get; set; }
     }
 
-    public class Person
+    public class PersonA
     {
         public int Id { get; set; }
         public string Name { get; set; }

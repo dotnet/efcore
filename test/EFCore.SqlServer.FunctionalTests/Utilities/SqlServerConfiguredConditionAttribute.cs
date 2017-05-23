@@ -4,9 +4,9 @@
 using System;
 using System.Data.SqlClient;
 using System.Runtime.InteropServices;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
     public class SqlServerConfiguredConditionAttribute : Attribute, ITestCondition

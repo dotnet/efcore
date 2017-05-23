@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Design
+namespace Microsoft.EntityFrameworkCore
 {
     public class RelationalDesignEventIdTest
     {

@@ -10,18 +10,17 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
+namespace Microsoft.EntityFrameworkCore.Update
 {
     public class ReaderModificationCommandBatchTest
     {

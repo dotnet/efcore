@@ -3,10 +3,9 @@
 
 using System.Data.Common;
 using System.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<NorthwindQuerySqlServerFixture>
     {

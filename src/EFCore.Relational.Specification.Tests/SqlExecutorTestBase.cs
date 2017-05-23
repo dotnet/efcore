@@ -6,13 +6,13 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+
 // ReSharper disable ConvertToConstant.Local
 
-namespace Microsoft.EntityFrameworkCore.Relational.Specification
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class SqlExecutorTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()

@@ -4,12 +4,11 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
 #pragma warning disable 1998
-namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class AsyncQuerySqliteTest : AsyncQueryTestBase<NorthwindQuerySqliteFixture>
     {

@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.SqlAzure.Model;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
+namespace Microsoft.EntityFrameworkCore.SqlAzure
 {
     [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
     public class SqlAzureBatchingTest : IClassFixture<BatchingSqlAzureFixture>

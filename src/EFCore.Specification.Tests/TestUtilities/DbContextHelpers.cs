@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public static class DbContextHelpers
     {

@@ -3,13 +3,12 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
+namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     public class ValueGeneratorCacheTest
     {

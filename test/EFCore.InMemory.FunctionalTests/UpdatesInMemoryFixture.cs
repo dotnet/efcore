@@ -3,11 +3,10 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.UpdatesModel;
+using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class UpdatesInMemoryFixture : UpdatesFixtureBase<InMemoryTestStore>
     {

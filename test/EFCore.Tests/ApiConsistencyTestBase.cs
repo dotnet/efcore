@@ -12,7 +12,7 @@ using Xunit;
 
 // ReSharper disable StringEndsWithIsCultureSpecific
 // ReSharper disable StringStartsWithIsCultureSpecific
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ApiConsistencyTestBase
     {

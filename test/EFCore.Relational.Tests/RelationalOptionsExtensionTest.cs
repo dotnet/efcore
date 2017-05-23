@@ -4,11 +4,11 @@
 using System;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class RelationalOptionsExtensionTest
     {

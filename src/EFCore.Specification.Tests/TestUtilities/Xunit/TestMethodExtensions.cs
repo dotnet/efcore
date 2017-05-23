@@ -5,7 +5,7 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
+namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 {
     internal static class TestMethodExtensions
     {

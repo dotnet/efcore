@@ -6,15 +6,14 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqliteHistoryRepositoryTest
     {

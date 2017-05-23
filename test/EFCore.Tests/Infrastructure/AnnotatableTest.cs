@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class AnnotatableTest
     {

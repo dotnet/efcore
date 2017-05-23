@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Tools.TestUtilities;
 using Xunit;
 

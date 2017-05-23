@@ -4,10 +4,10 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFixture>
     {

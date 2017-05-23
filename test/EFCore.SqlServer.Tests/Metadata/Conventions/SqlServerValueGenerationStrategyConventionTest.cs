@@ -4,10 +4,9 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     public class SqlServerValueGenerationStrategyConventionTest
     {

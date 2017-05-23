@@ -3,9 +3,9 @@
 
 using System;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     public class SqliteVersionConditionAttribute : Attribute, ITestCondition

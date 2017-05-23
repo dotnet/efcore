@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel
+namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
 {
     public class Team
     {

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Design
+namespace Microsoft.EntityFrameworkCore
 {
     public class CSharpUniqueNamerTest
     {

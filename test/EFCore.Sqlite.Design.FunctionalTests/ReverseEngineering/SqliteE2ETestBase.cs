@@ -6,16 +6,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.ReverseEngineering;
-using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEngineering
+namespace Microsoft.EntityFrameworkCore.ReverseEngineering
 {
     public abstract class SqliteE2ETestBase : E2ETestBase
     {

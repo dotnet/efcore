@@ -3,9 +3,8 @@
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
-using Microsoft.EntityFrameworkCore.Tests;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Design
+namespace Microsoft.EntityFrameworkCore
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {

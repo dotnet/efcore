@@ -5,7 +5,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Extensions
+namespace Microsoft.EntityFrameworkCore.Extensions
 {
     public class ServiceProviderExtensionsTest
     {

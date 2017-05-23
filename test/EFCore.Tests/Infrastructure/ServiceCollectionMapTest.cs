@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class ServiceCollectionMapTest
     {

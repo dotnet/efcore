@@ -5,11 +5,10 @@ using System;
 using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
     public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerFixture>

@@ -3,13 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Tests;
+using Microsoft.EntityFrameworkCore.ModelBuilderTest;
 using Xunit;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
+namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
     {

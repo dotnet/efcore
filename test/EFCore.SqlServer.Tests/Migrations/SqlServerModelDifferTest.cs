@@ -8,13 +8,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
     {

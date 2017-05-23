@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
+namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 {
     [Flags]
     public enum TestPlatform

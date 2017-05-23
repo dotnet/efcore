@@ -4,12 +4,11 @@
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Benchmarks;
 using Microsoft.EntityFrameworkCore.Benchmarks.EF6.Models.AdventureWorks;
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks.TestHelpers;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.Query
 {
     [AdventureWorksDatabaseRequired]
     public class NavigationsQueryTests : IClassFixture<AdventureWorksFixture>

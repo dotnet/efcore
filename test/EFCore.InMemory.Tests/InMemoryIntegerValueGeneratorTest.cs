@@ -5,7 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryIntegerValueGeneratorTest
     {

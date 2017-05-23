@@ -3,11 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests.Migrations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations

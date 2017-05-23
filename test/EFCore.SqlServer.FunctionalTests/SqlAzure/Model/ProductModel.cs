@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
+namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
 {
     [Table("ProductModel", Schema = "SalesLT")]
     public class ProductModel

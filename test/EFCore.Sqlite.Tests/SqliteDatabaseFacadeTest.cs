@@ -3,7 +3,7 @@
 
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteDatabaseFacadeTest
     {

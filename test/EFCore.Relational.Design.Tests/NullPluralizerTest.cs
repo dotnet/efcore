@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Design
+namespace Microsoft.EntityFrameworkCore
 {
     public class NullPluralizerTest
     {

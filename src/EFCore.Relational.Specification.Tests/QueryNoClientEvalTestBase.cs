@@ -6,11 +6,11 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class QueryNoClientEvalTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture, new()
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.LogClientEvalWarning.GenerateMessage(
-                            "{from Customer c2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer]) where (([c1].CustomerID == [c2].CustomerID) AndAlso [c2].IsLondon) select [c2] => Any()}")),
+                            "{from Customer c2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where (([c1].CustomerID == [c2].CustomerID) AndAlso [c2].IsLondon) select [c2] => Any()}")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
                             .Where(c1 => context.Customers

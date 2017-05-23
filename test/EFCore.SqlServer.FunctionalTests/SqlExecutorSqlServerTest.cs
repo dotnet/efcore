@@ -4,10 +4,9 @@
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Relational.Specification;
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class SqlExecutorSqlServerTest : SqlExecutorTestBase<NorthwindQuerySqlServerFixture>
     {

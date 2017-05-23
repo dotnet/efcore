@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.Specification.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 // ReSharper disable InconsistentNaming
 // ReSharper disable MergeConditionalExpression
@@ -15,7 +15,7 @@ using Xunit;
 
 // performance in VS editor is really bad if all the methods get converted to expression bodies
 // ReSharper disable ConvertToExpressionBodyWhenPossible
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ComplexNavigationsQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore

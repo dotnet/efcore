@@ -6,7 +6,7 @@ using Xunit;
 // ReSharper disable ArgumentsStyleStringLiteral
 // ReSharper disable InconsistentNaming
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class DbFunctionsTest
     {

@@ -4,7 +4,7 @@
 using System;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class EFTest
     {

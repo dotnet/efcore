@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
+namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     public class BinaryValueGeneratorTest
     {

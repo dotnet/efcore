@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
+namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class EntityEntryTest
     {

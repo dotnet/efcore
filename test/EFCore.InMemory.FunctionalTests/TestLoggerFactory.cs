@@ -5,7 +5,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class TestLoggerFactory : ILoggerFactory
     {

@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
+namespace Microsoft.EntityFrameworkCore.TestModels
 {
     public class ChangedOnlyMonsterContext : MonsterContext<
         ChangedOnlyMonsterContext.Customer, ChangedOnlyMonsterContext.Barcode, ChangedOnlyMonsterContext.IncorrectScan,

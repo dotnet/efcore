@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
+namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 {
     public class FakeRelationalConnection : RelationalConnection
     {

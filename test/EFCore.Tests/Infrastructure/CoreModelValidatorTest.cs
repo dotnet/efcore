@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -8,12 +9,10 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
-using System;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 
-namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class CoreModelValidatorTest : ModelValidatorTest
     {

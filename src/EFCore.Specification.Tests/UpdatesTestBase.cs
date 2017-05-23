@@ -5,11 +5,12 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.UpdatesModel;
+using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class UpdatesTestBase<TFixture, TTestStore> : IClassFixture<TFixture>, IDisposable
         where TFixture : UpdatesFixtureBase<TTestStore>

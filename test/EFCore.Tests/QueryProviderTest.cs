@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class QueryProviderTest
     {

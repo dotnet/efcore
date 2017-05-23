@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -15,7 +14,7 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class CoreEventIdTest
     {

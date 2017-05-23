@@ -3,17 +3,16 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
-using Microsoft.EntityFrameworkCore.Internal;
-using Xunit;
-using Microsoft.EntityFrameworkCore.Migrations;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Design.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class DesignEventIdTest
     {

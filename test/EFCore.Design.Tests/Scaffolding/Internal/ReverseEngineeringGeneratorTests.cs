@@ -2,10 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.IO;
-using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Design.Tests.Scaffolding.Internal
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class ReverseEngineeringGeneratorTests
     {

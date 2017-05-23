@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class ProviderSpecificServicesTest
     {

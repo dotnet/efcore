@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalMetadataExtensionsTest
     {

@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWarModel;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure
@@ -13,7 +13,7 @@ using Xunit;
 // ReSharper disable ReplaceWithSingleCallToSingle
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class GearsOfWarQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore

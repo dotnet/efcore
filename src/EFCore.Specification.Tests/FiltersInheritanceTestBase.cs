@@ -3,14 +3,14 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Inheritance;
+using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 using Xunit;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToExpressionBodyWhenPossible
 // ReSharper disable ConvertMethodToExpressionBody
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class FiltersInheritanceTestBase<TFixture> : IClassFixture<TFixture>, IDisposable
         where TFixture : InheritanceFixtureBase, new()

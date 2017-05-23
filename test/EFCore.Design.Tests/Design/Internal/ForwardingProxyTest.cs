@@ -4,8 +4,7 @@
 #if NET461
 
 using System;
-using Microsoft.EntityFrameworkCore.Design.TestUtilities;
-using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable once CheckNamespace

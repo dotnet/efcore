@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
-
 #if NETCOREAPP2_0
 using Microsoft.Extensions.DependencyModel;
 using System.Linq;
@@ -14,8 +13,7 @@ using IOPath = System.IO.Path;
 #else
 #error target frameworks need to be updated.
 #endif
-
-namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class BuildReference
     {

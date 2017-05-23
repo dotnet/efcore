@@ -5,7 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public class IndentedStringBuilderTest
     {

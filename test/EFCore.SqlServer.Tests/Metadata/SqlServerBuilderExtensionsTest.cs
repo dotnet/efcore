@@ -7,10 +7,9 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class SqlServerBuilderExtensionsTest
     {

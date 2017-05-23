@@ -3,9 +3,9 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
-    public static class SqliteDatabaseFacadeExtensions
+    public static class SqliteDatabaseFacadeTestExtensions
     {
         public static void EnsureClean(this DatabaseFacade databaseFacade)
             => new SqliteDatabaseCleaner().Clean(databaseFacade);

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class EntityTypeExtensionsTest
     {

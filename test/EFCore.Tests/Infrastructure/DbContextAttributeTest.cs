@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class DbContextAttributeTest
     {

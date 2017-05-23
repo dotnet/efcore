@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class NavigationTest
     {

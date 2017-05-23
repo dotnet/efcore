@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
+namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
     public class PlatformSkipConditionAttribute : Attribute, ITestCondition

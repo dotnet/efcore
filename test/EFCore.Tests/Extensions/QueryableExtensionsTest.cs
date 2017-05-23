@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Moq;
 using Xunit;
 
 // ReSharper disable RedundantArgumentDefaultValue
-namespace Microsoft.EntityFrameworkCore.Tests.Extensions
+namespace Microsoft.EntityFrameworkCore.Extensions
 {
     public class QueryableExtensionsTest
     {

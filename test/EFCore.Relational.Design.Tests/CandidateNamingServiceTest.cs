@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Design
+namespace Microsoft.EntityFrameworkCore
 {
     public class CandidateNamingServiceTest
     {

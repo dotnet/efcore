@@ -4,10 +4,10 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel;
+using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class DatabindingTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore

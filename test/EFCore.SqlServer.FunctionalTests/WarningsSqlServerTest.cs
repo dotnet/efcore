@@ -3,10 +3,9 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class WarningsSqlServerTest : WarningsTestBase<WarningsSqlServerFixture>
     {

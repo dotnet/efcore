@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel;
+using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ComplexNavigationsQueryFixtureBase<TTestStore>
         where TTestStore : TestStore

@@ -2,9 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Tests;
 
-namespace Microsoft.EntityFrameworkCore.ApplicationInsights.Tests
+namespace Microsoft.EntityFrameworkCore.ApplicationInsights
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {

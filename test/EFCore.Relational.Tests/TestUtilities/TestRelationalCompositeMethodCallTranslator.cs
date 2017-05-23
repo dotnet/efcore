@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestRelationalCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
     {

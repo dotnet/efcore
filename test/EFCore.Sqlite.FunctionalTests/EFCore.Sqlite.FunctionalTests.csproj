@@ -6,7 +6,7 @@
     <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT' OR '$(CoreOnly)' == 'True'">netcoreapp2.0</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests</AssemblyName>
-    <RootNamespace>Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

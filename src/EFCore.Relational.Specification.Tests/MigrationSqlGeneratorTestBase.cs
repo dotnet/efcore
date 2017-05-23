@@ -5,11 +5,10 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public abstract class MigrationSqlGeneratorTestBase
     {

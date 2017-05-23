@@ -4,9 +4,8 @@
 using System;
 using System.Collections.Generic;
 using Xunit;
-using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Design.Tests.Scaffolding.Internal
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class CSharpUtilitiesTest
     {

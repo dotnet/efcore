@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     internal class AnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<IAnnotation>
     {

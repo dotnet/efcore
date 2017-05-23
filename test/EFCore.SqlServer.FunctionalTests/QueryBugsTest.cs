@@ -9,8 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -21,7 +20,7 @@ using Xunit.Abstractions;
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable UnusedMember.Local
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class QueryBugsTest : IClassFixture<SqlServerFixture>
     {

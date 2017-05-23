@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.NullSemanticsModel
+namespace Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel
 {
     public class NullSemanticsData
     {

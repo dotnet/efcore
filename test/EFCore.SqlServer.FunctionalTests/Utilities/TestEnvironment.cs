@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public static class TestEnvironment
     {

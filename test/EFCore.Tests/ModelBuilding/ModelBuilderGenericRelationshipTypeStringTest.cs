@@ -2,19 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
-    public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
+    public class ModelBuilderGenericRelationshipTypeStringTest : ModelBuilderGenericRelationshipTypeTest
     {
-        public class GenericOneToOneType : OneToOneTestBase
+        public class GenericOneToOneTypeString : GenericOneToOneType
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new GenericTypeTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
+                => new GenericTypeTestModelBuilder(modelBuilder);
         }
 
         private class GenericTypeTestModelBuilder : TestModelBuilder
@@ -62,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 => new GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasOne(navigationExpression));
         }
 
-        private class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>
+        private class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity>
+            : GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -90,15 +90,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder)
                 => new GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder);
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(Expression<Func<TDependentEntity, object>> foreignKeyExpression)
-                => Wrap(ReferenceReferenceBuilder.HasForeignKey(
-                    typeof(TDependentEntity),
-                    foreignKeyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
+                params string[] foreignKeyPropertyNames)
+                => Wrap(ReferenceReferenceBuilder.HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(Expression<Func<TPrincipalEntity, object>> keyExpression)
-                => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(
-                    typeof(TPrincipalEntity),
-                    keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
+                params string[] keyPropertyNames)
+                => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(typeof(TPrincipalEntity), keyPropertyNames));
         }
 
         private class GenericTypeTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>

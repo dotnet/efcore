@@ -8,14 +8,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
+namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public static partial class NorthwindData
     {

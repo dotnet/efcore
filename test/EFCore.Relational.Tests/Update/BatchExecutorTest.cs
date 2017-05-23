@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Update.Internal;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
+namespace Microsoft.EntityFrameworkCore.Update
 {
     public class BatchExecutorTest
     {

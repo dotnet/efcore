@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
+namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 {
     public class FakeRelationalDatabaseCreator : IRelationalDatabaseCreator
     {

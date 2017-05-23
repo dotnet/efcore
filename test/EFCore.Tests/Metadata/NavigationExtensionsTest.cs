@@ -4,11 +4,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class NavigationExtensionsTest
     {

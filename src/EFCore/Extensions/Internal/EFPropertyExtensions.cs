@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     [DebuggerStepThrough]
-
+    // ReSharper disable once InconsistentNaming
     public static class EFPropertyExtensions
     {
         private static readonly string _efTypeName = typeof(EF).FullName;

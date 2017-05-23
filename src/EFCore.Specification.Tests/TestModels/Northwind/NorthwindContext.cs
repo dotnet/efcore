@@ -3,7 +3,7 @@
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
+namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public class NorthwindContext : DbContext
     {

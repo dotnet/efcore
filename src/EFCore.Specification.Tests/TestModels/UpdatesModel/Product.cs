@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.UpdatesModel
+namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
 {
     public class Product
     {

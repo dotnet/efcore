@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerDbContextOptionsExtensionsTest
     {

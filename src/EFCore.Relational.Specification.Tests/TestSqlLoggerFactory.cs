@@ -15,7 +15,7 @@ using Xunit.Abstractions;
 
 #pragma warning disable 618
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class TestSqlLoggerFactory : ILoggerFactory
     {

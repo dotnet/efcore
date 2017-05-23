@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Update;
 using System.Text;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
+namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 {
     public class FakeSqlGenerator : UpdateSqlGenerator
     {

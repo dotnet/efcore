@@ -5,15 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
-using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class MigrationCommandExecutorTest
     {

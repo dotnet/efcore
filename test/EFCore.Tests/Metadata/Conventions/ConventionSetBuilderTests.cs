@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     public class ConventionSetBuilderTests
     {

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerConnectionTest
     {

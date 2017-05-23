@@ -5,13 +5,11 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
+namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class CSharpMigrationOperationGeneratorTest
     {

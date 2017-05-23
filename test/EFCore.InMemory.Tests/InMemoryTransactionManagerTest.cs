@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.Tests
+namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryTransactionManagerTest
     {

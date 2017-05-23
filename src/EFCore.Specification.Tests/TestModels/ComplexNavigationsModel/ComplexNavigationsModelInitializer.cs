@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel
+namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 {
     public class ComplexNavigationsModelInitializer
     {

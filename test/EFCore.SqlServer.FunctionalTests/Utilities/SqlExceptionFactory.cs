@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public static class SqlExceptionFactory
     {

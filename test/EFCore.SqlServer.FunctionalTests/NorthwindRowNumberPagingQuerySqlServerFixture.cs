@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class NorthwindRowNumberPagingQuerySqlServerFixture : NorthwindQuerySqlServerFixture
     {

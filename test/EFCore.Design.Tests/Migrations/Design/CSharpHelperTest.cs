@@ -3,11 +3,10 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Migrations.Design;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Design.Tests.Migrations.Design
+namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class CSharpHelperTest
     {

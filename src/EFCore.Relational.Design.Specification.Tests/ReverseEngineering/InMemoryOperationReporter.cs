@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.ReverseEngineering
+namespace Microsoft.EntityFrameworkCore.ReverseEngineering
 {
     public class InMemoryOperationReporter : IOperationReporter
     {

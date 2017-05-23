@@ -2,12 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.FunkyDataModel;
+using Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class FunkyDataQuerySqliteFixture : FunkyDataQueryFixtureBase<SqliteTestStore>
     {

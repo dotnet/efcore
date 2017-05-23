@@ -13,7 +13,7 @@ using Xunit;
 
 // ReSharper disable ConvertPropertyToExpressionBody
 // ReSharper disable ConvertToAutoProperty
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class EntityMaterializerSourceTest
     {

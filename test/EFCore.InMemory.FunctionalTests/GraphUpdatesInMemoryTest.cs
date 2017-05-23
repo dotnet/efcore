@@ -3,11 +3,10 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore
 {
     public class GraphUpdatesInMemoryTest
         : GraphUpdatesTestBase<InMemoryTestStore, GraphUpdatesInMemoryTest.GraphUpdatesInMemoryFixture>

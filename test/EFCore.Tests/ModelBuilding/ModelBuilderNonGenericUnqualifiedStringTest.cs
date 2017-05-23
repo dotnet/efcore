@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class ModelBuilderNonGenericUnqualifiedStringTest : ModelBuilderNonGenericTest
     {

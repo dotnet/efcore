@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Design
+namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerTableSelectionSetExtensionsTests
     {

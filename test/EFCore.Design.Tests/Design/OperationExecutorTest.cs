@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Design.Tests.Design
+namespace Microsoft.EntityFrameworkCore.Design
 {
     public class OperationExecutorTest
     {

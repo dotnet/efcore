@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWarModel
+namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
 {
     public class Mission
     {

@@ -5,12 +5,10 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.Relational.Tests.Storage;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class SqliteTypeMappingTest : RelationalTypeMappingTest
     {
