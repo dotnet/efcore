@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqlServerMaxLengthMapping : RelationalTypeMapping
+    public class SqlServerMaxLengthMapping : SqlServerTypeMapping
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -67,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected override void ConfigureParameter(DbParameter parameter)
         {
-            // For strings and byte arrays, set the max length to the size facet if specififed, or
+            // For strings and byte arrays, set the max length to the size facet if specified, or
             // 8000 bytes if no size facet specified, if the data will fit so as to avoid query cache
-            // fragmentation by setting lots of differet Size values otherwise always set to 
+            // fragmentation by setting lots of different Size values otherwise always set to 
             // -1 (unbounded) to avoid SQL client size inference.
 
             var value = parameter.Value;

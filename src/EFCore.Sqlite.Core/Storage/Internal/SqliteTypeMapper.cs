@@ -15,10 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class SqliteTypeMapper : RelationalTypeMapper
     {
-        private static readonly RelationalTypeMapping _integer = new RelationalTypeMapping("INTEGER", typeof(long));
-        private static readonly RelationalTypeMapping _real = new RelationalTypeMapping("REAL", typeof(double));
-        private static readonly RelationalTypeMapping _blob = new RelationalTypeMapping("BLOB", typeof(byte[]));
-        private static readonly RelationalTypeMapping _text = new RelationalTypeMapping("TEXT", typeof(string));
+        private static readonly SqliteTypeMapping _integer = new SqliteTypeMapping("INTEGER", typeof(long));
+        private static readonly SqliteTypeMapping _real = new SqliteTypeMapping("REAL", typeof(double));
+        private static readonly SqliteTypeMapping _blob = new SqliteTypeMapping("BLOB", typeof(byte[]));
+        private static readonly SqliteTypeMapping _text = new SqliteTypeMapping("TEXT", typeof(string));
 
         private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;

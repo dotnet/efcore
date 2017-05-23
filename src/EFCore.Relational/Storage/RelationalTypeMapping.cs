@@ -2,8 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -20,6 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class RelationalTypeMapping
     {
+        private const string DecimalFormatConst = "0.0###########################";
+        private const string DecimalFormatStringConst = "{0:" + DecimalFormatConst + "}";
+        private const string DateTimeFormatConst = @"yyyy-MM-dd HH\:mm\:ss.fffffff";
+        private const string DateTimeFormatStringConst = "TIMESTAMP '{0:" + DateTimeFormatConst + "}'";
+        private const string DateTimeOffsetFormatConst = @"yyyy-MM-dd HH\:mm\:ss.fffffffzzz";
+        private const string DateTimeOffsetFormatStringConst = "TIMESTAMP '{0:" + DateTimeOffsetFormatConst + "}'";
+
         /// <summary>
         ///     Gets the mapping to be used when the only piece of information is that there is a null value.
         /// </summary>
@@ -105,6 +115,53 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 hasNonDefaultSize: size != Size);
 
         /// <summary>
+        ///     Gets the floating point format.
+        /// </summary>
+        protected virtual string FloatingPointFormatString => "{0}E0";
+
+        /// <summary>
+        ///     Gets the decimal format.
+        /// </summary>
+        protected virtual string DecimalFormat => DecimalFormatConst;
+
+        /// <summary>
+        ///     Gets the decimal format.
+        /// </summary>
+        protected virtual string DecimalFormatString => DecimalFormatStringConst;
+
+        /// <summary>
+        ///     Gets the date time format.
+        /// </summary>
+        protected virtual string DateTimeFormat => DateTimeFormatConst;
+
+        /// <summary>
+        ///     Gets the date time format.
+        /// </summary>
+        protected virtual string DateTimeFormatString => DateTimeFormatStringConst;
+
+        /// <summary>
+        ///     Gets the date time offset format.
+        /// </summary>
+        protected virtual string DateTimeOffsetFormat => DateTimeOffsetFormatConst;
+
+        /// <summary>
+        ///     Gets the date time offset format.
+        /// </summary>
+        protected virtual string DateTimeOffsetFormatString => DateTimeOffsetFormatStringConst;
+
+        private readonly Dictionary<DbType, string> _dbTypeNameMapping = new Dictionary<DbType, string>
+        {
+            { System.Data.DbType.Byte, "tinyint" },
+            { System.Data.DbType.Decimal, "decimal" },
+            { System.Data.DbType.Double, "float" },
+            { System.Data.DbType.Int16, "smallint" },
+            { System.Data.DbType.Int32, "int" },
+            { System.Data.DbType.Int64, "bigint" },
+            { System.Data.DbType.String, "nvarchar" },
+            { System.Data.DbType.Date, "date" }
+        };
+
+        /// <summary>
         ///     Gets the name of the database type.
         /// </summary>
         public virtual string StoreType { get; }
@@ -187,5 +244,188 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual void ConfigureParameter([NotNull] DbParameter parameter)
         {
         }
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns>
+        ///     The generated string.
+        /// </returns>
+        public virtual string GenerateSqlLiteral([CanBeNull]object value)
+        {
+            if (value == null)
+            {
+                return "NULL";
+            }
+
+            var s = value as string;
+            return s != null ? GenerateSqlStringLiteralValue(s) : GenerateSqlLiteralValue((dynamic)value);
+        }
+
+        /// <summary>
+        ///     Generates the escaped SQL representation of a literal value.
+        /// </summary>
+        /// <param name="literal">The value to be escaped.</param>
+        /// <returns>
+        ///     The generated string.
+        /// </returns>
+        public virtual string EscapeSqlLiteral([NotNull]string literal)
+            => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(int value)
+            => value.ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(short value)
+            => value.ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(long value)
+            => value.ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(byte value)
+            => value.ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(decimal value)
+            => value.ToString(DecimalFormat, CultureInfo.InvariantCulture);
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(double value)
+            => string.Format(CultureInfo.InvariantCulture, FloatingPointFormatString, value);
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(float value)
+            => string.Format(CultureInfo.InvariantCulture, FloatingPointFormatString, value);
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(bool value)
+            => value ? "1" : "0";
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(char value)
+            => string.Format(CultureInfo.InvariantCulture, "'{0}'", value);
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlStringLiteralValue([NotNull] string value)
+            => $"'{EscapeSqlLiteral(Check.NotNull(value, nameof(value)))}'"; // Interpolation okay; strings
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue([NotNull] object value)
+            => string.Format(CultureInfo.InvariantCulture, "{0}", value);
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue([NotNull] byte[] value)
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append("X'");
+            
+            foreach (var @byte in value)
+            {
+                stringBuilder.Append(@byte.ToString("X2", CultureInfo.InvariantCulture));
+            }
+
+            stringBuilder.Append("'");
+            return stringBuilder.ToString();
+        }
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(DbType value)
+            => _dbTypeNameMapping[value];
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue([NotNull] Enum value)
+            => string.Format(CultureInfo.InvariantCulture, "{0:d}", Check.NotNull(value, nameof(value)));
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(Guid value)
+            => string.Format(CultureInfo.InvariantCulture, "'{0}'", value);
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(DateTime value)
+            => $"TIMESTAMP '{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(DateTimeOffset value)
+            => $"TIMESTAMP '{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns> The generated string. </returns>
+        protected virtual string GenerateSqlLiteralValue(TimeSpan value)
+            => string.Format(CultureInfo.InvariantCulture, "'{0}'", value);
     }
 }
