@@ -194,12 +194,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool ReadOnlyAfterSave(bool isReadOnlyAfterSave, ConfigurationSource configurationSource)
+        public virtual bool BeforeSave(PropertyValueBehavior? behavior, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetIsReadOnlyAfterSaveConfigurationSource())
-                || (Metadata.IsReadOnlyAfterSave == isReadOnlyAfterSave))
+            if (configurationSource.Overrides(Metadata.GetBeforeSaveBehaviorConfigurationSource())
+                || Metadata.BeforeSaveBehavior == behavior)
             {
-                Metadata.SetIsReadOnlyAfterSave(isReadOnlyAfterSave, configurationSource);
+                Metadata.SetBeforeSaveBehavior(behavior, configurationSource);
+
                 return true;
             }
 
@@ -210,12 +211,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool ReadOnlyBeforeSave(bool isReadOnlyBeforeSave, ConfigurationSource configurationSource)
+        public virtual bool AfterSave(PropertyValueBehavior? behavior, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetIsReadOnlyBeforeSaveConfigurationSource())
-                || (Metadata.IsReadOnlyBeforeSave == isReadOnlyBeforeSave))
+            if (configurationSource.Overrides(Metadata.GetAfterSaveBehaviorConfigurationSource())
+                || Metadata.AfterSaveBehavior == behavior)
             {
-                Metadata.SetIsReadOnlyBeforeSave(isReadOnlyBeforeSave, configurationSource);
+                Metadata.SetAfterSaveBehavior(behavior, configurationSource);
+
                 return true;
             }
 
@@ -232,23 +234,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 || Metadata.ValueGenerated == valueGenerated)
             {
                 Metadata.SetValueGenerated(valueGenerated, configurationSource);
-
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual bool IsStoreGeneratedAlways(bool isStoreGeneratedAlways, ConfigurationSource configurationSource)
-        {
-            if (configurationSource.Overrides(Metadata.GetIsStoreGeneratedAlwaysConfigurationSource())
-                || (Metadata.IsStoreGeneratedAlways == isStoreGeneratedAlways))
-            {
-                Metadata.SetIsStoreGeneratedAlways(isStoreGeneratedAlways, configurationSource);
 
                 return true;
             }
@@ -293,39 +278,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             newPropertyBuilder.MergeAnnotationsFrom(this);
 
-            var oldIsReadOnlyAfterSaveConfigurationSource = Metadata.GetIsReadOnlyAfterSaveConfigurationSource();
-            if (oldIsReadOnlyAfterSaveConfigurationSource.HasValue)
+            var oldBeforeSaveBehaviorConfigurationSource = Metadata.GetBeforeSaveBehaviorConfigurationSource();
+            if (oldBeforeSaveBehaviorConfigurationSource.HasValue)
             {
-                newPropertyBuilder.ReadOnlyAfterSave(Metadata.IsReadOnlyAfterSave,
-                    oldIsReadOnlyAfterSaveConfigurationSource.Value);
+                newPropertyBuilder.BeforeSave(Metadata.BeforeSaveBehavior,
+                    oldBeforeSaveBehaviorConfigurationSource.Value);
             }
-            var oldIsReadOnlyBeforeSaveConfigurationSource = Metadata.GetIsReadOnlyBeforeSaveConfigurationSource();
-            if (oldIsReadOnlyBeforeSaveConfigurationSource.HasValue)
+
+            var oldAfterSaveBehaviorConfigurationSource = Metadata.GetAfterSaveBehaviorConfigurationSource();
+            if (oldAfterSaveBehaviorConfigurationSource.HasValue)
             {
-                newPropertyBuilder.ReadOnlyBeforeSave(Metadata.IsReadOnlyBeforeSave,
-                    oldIsReadOnlyBeforeSaveConfigurationSource.Value);
+                newPropertyBuilder.AfterSave(Metadata.AfterSaveBehavior,
+                    oldAfterSaveBehaviorConfigurationSource.Value);
             }
+
             var oldIsNullableConfigurationSource = Metadata.GetIsNullableConfigurationSource();
             if (oldIsNullableConfigurationSource.HasValue)
             {
                 newPropertyBuilder.IsRequired(!Metadata.IsNullable, oldIsNullableConfigurationSource.Value);
             }
+
             var oldIsConcurrencyTokenConfigurationSource = Metadata.GetIsConcurrencyTokenConfigurationSource();
             if (oldIsConcurrencyTokenConfigurationSource.HasValue)
             {
                 newPropertyBuilder.IsConcurrencyToken(Metadata.IsConcurrencyToken,
                     oldIsConcurrencyTokenConfigurationSource.Value);
             }
+
             var oldValueGeneratedConfigurationSource = Metadata.GetValueGeneratedConfigurationSource();
             if (oldValueGeneratedConfigurationSource.HasValue)
             {
                 newPropertyBuilder.ValueGenerated(Metadata.ValueGenerated, oldValueGeneratedConfigurationSource.Value);
             }
-            var oldIsStoreGeneratedAlwaysConfigurationSource = Metadata.GetIsStoreGeneratedAlwaysConfigurationSource();
-            if (oldIsStoreGeneratedAlwaysConfigurationSource.HasValue)
-            {
-                newPropertyBuilder.IsStoreGeneratedAlways(Metadata.IsStoreGeneratedAlways, oldIsStoreGeneratedAlwaysConfigurationSource.Value);
-            }
+
             var oldFieldInfoConfigurationSource = Metadata.GetFieldInfoConfigurationSource();
             if (oldFieldInfoConfigurationSource.HasValue)
             {

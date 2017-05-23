@@ -37,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities
                    && x.IsNullable == y.IsNullable
                    && x.IsConcurrencyToken == y.IsConcurrencyToken
                    && x.ValueGenerated == y.ValueGenerated
-                   && x.IsReadOnlyBeforeSave == y.IsReadOnlyBeforeSave
-                   && x.IsReadOnlyAfterSave == y.IsReadOnlyAfterSave
+                   && x.BeforeSaveBehavior == y.BeforeSaveBehavior
+                   && x.AfterSaveBehavior == y.AfterSaveBehavior
                    && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 

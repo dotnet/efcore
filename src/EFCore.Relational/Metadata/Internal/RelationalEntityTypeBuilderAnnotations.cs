@@ -243,9 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             propertyBuilder.IsRequired(true, configurationSource);
-            // TODO: #2132
-            //propertyBuilder.ReadOnlyBeforeSave(true, configurationSource);
-            propertyBuilder.ReadOnlyAfterSave(true, configurationSource);
+            propertyBuilder.AfterSave(PropertyValueBehavior.Throw, configurationSource);
             propertyBuilder.HasValueGenerator(
                 (property, entityType) => new DiscriminatorValueGenerator(GetAnnotations(entityType).DiscriminatorValue),
                 configurationSource);

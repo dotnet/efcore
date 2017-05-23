@@ -503,6 +503,36 @@
       "Kind": "Addition"
     },
     {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.PropertyValueBehavior get_AfterSaveBehavior()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.PropertyValueBehavior get_BeforeSaveBehavior()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+      "MemberId": "System.Void set_AfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertyValueBehavior value)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+      "MemberId": "System.Void set_BeforeSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertyValueBehavior value)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IProperty : Microsoft.EntityFrameworkCore.Metadata.IPropertyBase",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.PropertyValueBehavior get_AfterSaveBehavior()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IProperty : Microsoft.EntityFrameworkCore.Metadata.IPropertyBase",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.PropertyValueBehavior get_BeforeSaveBehavior()",
+      "Kind": "Addition"
+    },
+    {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
       "MemberId": "System.Boolean ApplyServices(Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
       "Kind": "Addition"
