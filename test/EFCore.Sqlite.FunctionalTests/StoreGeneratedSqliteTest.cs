@@ -105,6 +105,17 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                             b.Property(e => e.OnAddOrUpdateUseBeforeThrowAfter).HasDefaultValue("Rabbit");
                             b.Property(e => e.OnAddOrUpdateIgnoreBeforeThrowAfter).HasDefaultValue("Rabbit");
                             b.Property(e => e.OnAddOrUpdateThrowBeforeThrowAfter).HasDefaultValue("Rabbit");
+
+                            b.Property(e => e.OnUpdate).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnUpdateUseBeforeUseAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnUpdateIgnoreBeforeUseAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnUpdateThrowBeforeUseAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnUpdateUseBeforeIgnoreAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnUpdateIgnoreBeforeIgnoreAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnUpdateThrowBeforeIgnoreAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnUpdateUseBeforeThrowAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnUpdateIgnoreBeforeThrowAfter).HasDefaultValue("Rabbit");
+                            b.Property(e => e.OnUpdateThrowBeforeThrowAfter).HasDefaultValue("Rabbit");
                         });
 
                 base.OnModelCreating(modelBuilder);

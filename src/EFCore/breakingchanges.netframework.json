@@ -1,5 +1,10 @@
   [
     {
+      "TypeId": "public enum Microsoft.EntityFrameworkCore.Metadata.ValueGenerated",
+      "MemberId": "OnAddOrUpdate = 2",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.DatabaseProviderServices : Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
       "Kind": "Removal"
     },

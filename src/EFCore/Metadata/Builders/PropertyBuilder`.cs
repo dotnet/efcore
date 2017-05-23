@@ -189,13 +189,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (PropertyBuilder<TProperty>)base.ValueGeneratedOnAdd();
 
         /// <summary>
-        ///     Configures a property to have a value generated only when saving a new or existing entity, unless
-        ///     a non-null, non-temporary value has been set for a new entity, or the existing property value has
-        ///     been modified for an existing entity, in which case the set value will be saved instead.
+        ///     Configures a property to have a value generated when saving a new or existing entity.
         /// </summary>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual PropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate()
             => (PropertyBuilder<TProperty>)base.ValueGeneratedOnAddOrUpdate();
+
+        /// <summary>
+        ///     Configures a property to have a value generated when saving an existing entity.
+        /// </summary>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> ValueGeneratedOnUpdate()
+            => (PropertyBuilder<TProperty>)base.ValueGeneratedOnUpdate();
 
         /// <summary>
         ///     <para>

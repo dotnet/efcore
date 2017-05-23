@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private PropertyValueBehavior DefaultAfterSaveBehavior
             => Keys != null
                 ? PropertyValueBehavior.Throw
-                : ValueGenerated == ValueGenerated.OnAddOrUpdate
+                : ValueGenerated.ForUpdate()
                     ? PropertyValueBehavior.Ignore
                     : PropertyValueBehavior.UseValue;
 

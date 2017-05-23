@@ -955,15 +955,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsStoreGenerated(IProperty property)
-            => property.ValueGenerated != ValueGenerated.Never
-               && ((EntityState == EntityState.Added
-                    && (property.BeforeSaveBehavior == PropertyValueBehavior.Ignore
-                        || HasTemporaryValue(property)
-                        || HasDefaultValue(property)))
-                   || (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
-                       && EntityState == EntityState.Modified
-                       && (property.AfterSaveBehavior == PropertyValueBehavior.Ignore
-                           || !IsModified(property))));
+            => (property.ValueGenerated.ForAdd() &&
+                EntityState == EntityState.Added
+                && (property.BeforeSaveBehavior == PropertyValueBehavior.Ignore
+                    || HasTemporaryValue(property)
+                    || HasDefaultValue(property)))
+               || (property.ValueGenerated.ForUpdate()
+                   && EntityState == EntityState.Modified
+                   && (property.AfterSaveBehavior == PropertyValueBehavior.Ignore
+                       || !IsModified(property)));
 
         private bool HasDefaultValue(IProperty property)
             => property.ClrType.IsDefaultValue(this[property]);

@@ -230,7 +230,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(
                             property.ValueGenerated == ValueGenerated.OnAdd
                                 ? ".ValueGeneratedOnAdd()"
-                                : ".ValueGeneratedOnAddOrUpdate()");
+                                : property.ValueGenerated == ValueGenerated.OnUpdate
+                                    ? ".ValueGeneratedOnUpdate()"
+                                    : ".ValueGeneratedOnAddOrUpdate()");
                 }
 
                 GeneratePropertyAnnotations(property, stringBuilder);
