@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var optionsBuilder = new DbContextOptionsBuilder().UseModel(model).EnableSensitiveDataLogging();
 
             Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
-            Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>().SensitiveDataLoggingEnabled);
+            Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled);
         }
 
         [Fact]

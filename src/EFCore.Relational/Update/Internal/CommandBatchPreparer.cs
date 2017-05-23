@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _keyValueIndexFactorySource = keyValueIndexFactorySource;
             _currentContext = currentContext;
 
-            if (loggingOptions.SensitiveDataLoggingEnabled)
+            if (loggingOptions.IsSensitiveDataLoggingEnabled)
             {
                 _sensitiveLoggingEnabled = true;
             }

@@ -3,7 +3,7 @@
 
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -68,15 +68,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return false;
             }
 
-            if (options.SensitiveDataLoggingEnabled
-                && !options.SensitiveDataLoggingWarned)
+            if (options.IsSensitiveDataLoggingEnabled
+                && !options.IsSensitiveDataLoggingWarned)
             {
                 this.SensitiveDataLoggingEnabledWarning();
 
-                options.SensitiveDataLoggingWarned = true;
+                options.IsSensitiveDataLoggingWarned = true;
             }
 
-            return options.SensitiveDataLoggingEnabled;
+            return options.IsSensitiveDataLoggingEnabled;
         }
 
         /// <summary>

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Caching.Memory;
@@ -55,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _model = copyFrom.Model;
             _loggerFactory = copyFrom.LoggerFactory;
             _memoryCache = copyFrom.MemoryCache;
-            _sensitiveDataLoggingEnabled = copyFrom.SensitiveDataLoggingEnabled;
+            _sensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
             _warningsConfiguration = copyFrom.WarningsConfiguration;
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
             _maxPoolSize = copyFrom.MaxPoolSize;
@@ -236,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.EnableSensitiveDataLogging" /> method.
         /// </summary>
-        public virtual bool SensitiveDataLoggingEnabled => _sensitiveDataLoggingEnabled;
+        public virtual bool IsSensitiveDataLoggingEnabled => _sensitiveDataLoggingEnabled;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseModel" /> method.

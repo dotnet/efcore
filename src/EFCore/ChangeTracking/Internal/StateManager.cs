@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _concurrencyDetector = concurrencyDetector;
             Context = currentContext.Context;
 
-            if (loggingOptions.SensitiveDataLoggingEnabled)
+            if (loggingOptions.IsSensitiveDataLoggingEnabled)
             {
                 _sensitiveLoggingEnabled = true;
             }

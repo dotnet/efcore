@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 using Microsoft.EntityFrameworkCore.Migrations;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 

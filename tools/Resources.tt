@@ -19,7 +19,7 @@ using System;
 using System.Reflection;
 using System.Resources;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace <#= model.Namespace #>
@@ -53,8 +53,8 @@ namespace <#= model.Namespace #>
             if (resource.Types.Count() > 6)
             {
 #>
-        public static readonly RawEventDefinition <#= resource.Name #>
-            = new RawEventDefinition(
+        public static readonly FallbackEventDefinition <#= resource.Name #>
+            = new FallbackEventDefinition(
                 <#= resource.EventId #>,
                 LogLevel.<#= resource.Level #>,
                 _resourceManager.GetString("<#= resource.Name #>"));

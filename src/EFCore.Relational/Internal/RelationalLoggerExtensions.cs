@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new CommandData(
+                    new CommandEventData(
                         command,
                         executeMethod,
                         commandId,
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new CommandExecutedData(
+                    new CommandExecutedEventData(
                         command,
                         executeMethod,
                         commandId,
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new CommandErrorData(
+                    new CommandErrorEventData(
                         command,
                         executeMethod,
                         commandId,
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new ConnectionData(
+                    new ConnectionEventData(
                         connection.DbConnection, 
                         connection.ConnectionId, 
                         async, 
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new ConnectionEndData(
+                    new ConnectionEndEventData(
                         connection.DbConnection,
                         connection.ConnectionId,
                         async,
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new ConnectionData(
+                    new ConnectionEventData(
                         connection.DbConnection,
                         connection.ConnectionId,
                         false,
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new ConnectionEndData(
+                    new ConnectionEndEventData(
                         connection.DbConnection,
                         connection.ConnectionId,
                         false,
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new ConnectionErrorData(
+                    new ConnectionErrorEventData(
                         connection.DbConnection,
                         connection.ConnectionId,
                         exception,
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new TransactionData(
+                    new TransactionEventData(
                         transaction,
                         transactionId,
                         connection.ConnectionId,
@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new TransactionData(
+                    new TransactionEventData(
                         transaction,
                         transactionId,
                         connection.ConnectionId,
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new TransactionEndData(
+                    new TransactionEndEventData(
                         transaction,
                         transactionId,
                         connection.ConnectionId,
@@ -443,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new TransactionEndData(
+                    new TransactionEndEventData(
                         transaction,
                         transactionId,
                         connection.ConnectionId,
@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new TransactionData(
+                    new TransactionEventData(
                         transaction,
                         transactionId,
                         connection.ConnectionId,
@@ -501,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new TransactionErrorData(
+                    new TransactionErrorEventData(
                         transaction,
                         connection.ConnectionId,
                         transactionId,
@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new ConnectionData(
+                    new ConnectionEventData(
                         connection.DbConnection,
                         connection.ConnectionId,
                         false,
@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new DataReaderDisposingData(
+                    new DataReaderDisposingEventData(
                         command,
                         dataReader,
                         commandId,
@@ -596,7 +596,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new MigratorConnectionData(
+                    new MigratorConnectionEventData(
                         migrator,
                         connection.DbConnection,
                         connection.ConnectionId));
@@ -626,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new MigrationData(
+                    new MigrationEventData(
                         migrator,
                         migration));
             }
@@ -655,7 +655,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new MigrationData(
+                    new MigrationEventData(
                         migrator,
                         migration));
             }
@@ -687,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new MigrationScriptingData(
+                    new MigrationScriptingEventData(
                         migrator,
                         migration,
                         fromMigration,
@@ -722,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new MigrationScriptingData(
+                    new MigrationScriptingEventData(
                         migrator,
                         migration,
                         fromMigration,

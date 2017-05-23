@@ -4,7 +4,7 @@ using System;
 using System.Reflection;
 using System.Resources;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, not nullable: {isNotNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}.
         /// </summary>
-        public static readonly RawEventDefinition LogFoundColumn
-            = new RawEventDefinition(
+        public static readonly FallbackEventDefinition LogFoundColumn
+            = new FallbackEventDefinition(
                 SqliteDesignEventId.ColumnFound,
                 LogLevel.Debug,
                 _resourceManager.GetString("LogFoundColumn"));
@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Found foreign key column on table: {tableName}, id: {id}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, delete action: {deleteAction}, ordinal: {ordinal}.
         /// </summary>
-        public static readonly RawEventDefinition LogFoundForeignKeyColumn
-            = new RawEventDefinition(
+        public static readonly FallbackEventDefinition LogFoundForeignKeyColumn
+            = new FallbackEventDefinition(
                 SqliteDesignEventId.ForeignKeyColumnFound,
                 LogLevel.Debug,
                 _resourceManager.GetString("LogFoundForeignKeyColumn"));

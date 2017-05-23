@@ -12,6 +12,10 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.DatabaseErrorLogState",
       "Kind": "Removal"
     },
@@ -335,31 +339,6 @@
       "Kind": "Removal"
     },
     {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Internal.WarningsConfiguration warningsConfiguration)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder Ignore(params Microsoft.EntityFrameworkCore.Infrastructure.CoreEventId[] coreEventIds)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder Log(params Microsoft.EntityFrameworkCore.Infrastructure.CoreEventId[] coreEventIds)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder Throw(params Microsoft.EntityFrameworkCore.Infrastructure.CoreEventId[] coreEventIds)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Internal.WarningsConfiguration get_Configuration()",
-      "Kind": "Removal"
-    },
-    {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGenerator : Microsoft.EntityFrameworkCore.Query.ICompiledQueryCacheKeyGenerator",
       "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext currentContext)",
       "Kind": "Removal"
@@ -421,7 +400,17 @@
     },
     {
       "TypeId": "public class Microsoft.EntityFrameworkCore.DbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsBuilderInfrastructure",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.DbContextOptionsBuilder ConfigureWarnings(System.Action<Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder> warningsConfigurationBuilderAction)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.DbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsBuilderInfrastructure",
       "MemberId": "public virtual Microsoft.EntityFrameworkCore.DbContextOptionsBuilder EnableSensitiveDataLogging()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<T0> : Microsoft.EntityFrameworkCore.DbContextOptionsBuilder where T0 : Microsoft.EntityFrameworkCore.DbContext",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<T0> ConfigureWarnings(System.Action<Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder> warningsConfigurationBuilderAction)",
       "Kind": "Removal"
     },
     {

@@ -6,7 +6,7 @@ using System.Data.Common;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     Enum used by <see cref="CommandData" />, an subclasses to indicate the
+    ///     Enum used by <see cref="CommandEventData" />, an subclasses to indicate the
     ///     method on <see cref="DbCommand" />
     ///     being used to execute the command.
     /// </summary>

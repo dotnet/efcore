@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -21,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var coreOptions = options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension();
 
-            SensitiveDataLoggingEnabled = coreOptions.SensitiveDataLoggingEnabled;
+            IsSensitiveDataLoggingEnabled = coreOptions.IsSensitiveDataLoggingEnabled;
             WarningsConfiguration = coreOptions.WarningsConfiguration;
         }
 
@@ -33,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var coreOptions = options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension();
 
-            if (SensitiveDataLoggingEnabled != coreOptions.SensitiveDataLoggingEnabled)
+            if (IsSensitiveDataLoggingEnabled != coreOptions.IsSensitiveDataLoggingEnabled)
             {
                 Debug.Assert(coreOptions.InternalServiceProvider != null);
 
@@ -58,13 +59,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool SensitiveDataLoggingEnabled { get; private set; }
+        public virtual bool IsSensitiveDataLoggingEnabled { get; private set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool SensitiveDataLoggingWarned { get; set; }
+        public virtual bool IsSensitiveDataLoggingWarned { get; set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -4,7 +4,7 @@ using System;
 using System.Reflection;
 using System.Resources;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -231,8 +231,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
         /// </summary>
-        public static readonly RawEventDefinition LogFoundSequence
-            = new RawEventDefinition(
+        public static readonly FallbackEventDefinition LogFoundSequence
+            = new FallbackEventDefinition(
                 RelationalDesignEventId.SequenceFound,
                 LogLevel.Debug,
                 _resourceManager.GetString("LogFoundSequence"));

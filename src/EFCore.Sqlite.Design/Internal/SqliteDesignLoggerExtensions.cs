@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 
@@ -39,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     l => l.LogDebug(
                         definition.EventId,
                         null,
-                        definition.RawMessage,
+                        definition.MessageFormat,
                         tableName,
                         columnName,
                         dataTypeName,
@@ -91,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     l => l.LogDebug(
                         definition.EventId,
                         null,
-                        definition.RawMessage,
+                        definition.MessageFormat,
                         tableName,
                         id,
                         principalTableName,

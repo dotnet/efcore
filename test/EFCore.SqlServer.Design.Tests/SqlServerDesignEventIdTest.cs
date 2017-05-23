@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Design

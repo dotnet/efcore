@@ -1038,8 +1038,8 @@ Logged Command",
             Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[0].Item1);
             Assert.Equal(RelationalEventId.CommandExecuted.Name, diagnostic[1].Item1);
 
-            var beforeData = (CommandData)diagnostic[0].Item2;
-            var afterData = (CommandExecutedData)diagnostic[1].Item2;
+            var beforeData = (CommandEventData)diagnostic[0].Item2;
+            var afterData = (CommandExecutedEventData)diagnostic[1].Item2;
 
             Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], beforeData.Command);
             Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], afterData.Command);
@@ -1110,8 +1110,8 @@ Logged Command",
             Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[0].Item1);
             Assert.Equal(RelationalEventId.CommandError.Name, diagnostic[1].Item1);
 
-            var beforeData = (CommandData)diagnostic[0].Item2;
-            var afterData = (CommandErrorData)diagnostic[1].Item2;
+            var beforeData = (CommandEventData)diagnostic[0].Item2;
+            var afterData = (CommandErrorEventData)diagnostic[1].Item2;
 
             Assert.Equal(fakeDbConnection.DbCommands[0], beforeData.Command);
             Assert.Equal(fakeDbConnection.DbCommands[0], afterData.Command);
@@ -1147,7 +1147,7 @@ Logged Command",
         {
             public FakeLoggingOptions(bool sensitiveDataLoggingEnabled)
             {
-                SensitiveDataLoggingEnabled = sensitiveDataLoggingEnabled;
+                IsSensitiveDataLoggingEnabled = sensitiveDataLoggingEnabled;
             }
 
             public void Initialize(IDbContextOptions options)
@@ -1158,8 +1158,8 @@ Logged Command",
             {
             }
 
-            public bool SensitiveDataLoggingEnabled { get; }
-            public bool SensitiveDataLoggingWarned { get; set; }
+            public bool IsSensitiveDataLoggingEnabled { get; }
+            public bool IsSensitiveDataLoggingWarned { get; set; }
             public WarningsConfiguration WarningsConfiguration => null;
         }
 

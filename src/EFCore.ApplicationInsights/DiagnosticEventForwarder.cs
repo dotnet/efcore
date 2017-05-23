@@ -108,49 +108,49 @@ namespace Microsoft.EntityFrameworkCore.ApplicationInsights
 
                 switch (eventData)
                 {
-                    case CommandErrorData commandErrorData:
+                    case CommandErrorEventData commandErrorData:
                     {
                         TrackCommandDependency(eventName, commandErrorData, false);
 
                         break;
                     }
-                    case CommandExecutedData commandExecutedData:
+                    case CommandExecutedEventData commandExecutedData:
                     {
                         TrackCommandDependency(eventName, commandExecutedData, true);
 
                         break;
                     }
-                    case CommandEndData commandEndData:
+                    case CommandEndEventData commandEndData:
                     {
                         TrackCommandDependency(eventName, commandEndData, true);
 
                         break;
                     }
-                    case ConnectionErrorData connectionErrorData:
+                    case ConnectionErrorEventData connectionErrorData:
                     {
                         TrackConnectionDependency(eventName, connectionErrorData, false);
 
                         break;
                     }
-                    case ConnectionEndData connectionEndData:
+                    case ConnectionEndEventData connectionEndData:
                     {
                         TrackConnectionDependency(eventName, connectionEndData, true);
 
                         break;
                     }
-                    case TransactionErrorData transactionErrorData:
+                    case TransactionErrorEventData transactionErrorData:
                     {
                         TrackTransactionDependency(eventName, transactionErrorData, false);
 
                         break;
                     }
-                    case TransactionEndData transactionEndData:
+                    case TransactionEndEventData transactionEndData:
                     {
                         TrackTransactionDependency(eventName, transactionEndData, true);
 
                         break;
                     }
-                    case DataReaderDisposingData dataReaderDisposingData:
+                    case DataReaderDisposingEventData dataReaderDisposingData:
                     {
                         TrackReaderDependency(eventName, dataReaderDisposingData);
 
@@ -160,9 +160,9 @@ namespace Microsoft.EntityFrameworkCore.ApplicationInsights
             }
 
             private void TrackCommandDependency(
-                string eventName, CommandEndData commandEndData, bool success)
+                string eventName, CommandEndEventData commandEndEventData, bool success)
             {
-                var command = commandEndData.Command;
+                var command = commandEndEventData.Command;
 
                 var dependencyTelemetry
                     = new DependencyTelemetry(
@@ -170,44 +170,44 @@ namespace Microsoft.EntityFrameworkCore.ApplicationInsights
                         command.Connection.Database,
                         eventName,
                         command.CommandText,
-                        commandEndData.StartTime,
-                        commandEndData.Duration,
+                        commandEndEventData.StartTime,
+                        commandEndEventData.Duration,
                         success: success,
                         resultCode: null);
 
                 var properties = dependencyTelemetry.Properties;
 
-                properties[nameof(commandEndData.ConnectionId)] = commandEndData.ConnectionId.ToString();
-                properties[nameof(commandEndData.CommandId)] = commandEndData.CommandId.ToString();
-                properties[nameof(commandEndData.IsAsync)] = commandEndData.IsAsync.ToString();
-                properties[nameof(commandEndData.ExecuteMethod)] = commandEndData.ExecuteMethod.ToString();
+                properties[nameof(commandEndEventData.ConnectionId)] = commandEndEventData.ConnectionId.ToString();
+                properties[nameof(commandEndEventData.CommandId)] = commandEndEventData.CommandId.ToString();
+                properties[nameof(commandEndEventData.IsAsync)] = commandEndEventData.IsAsync.ToString();
+                properties[nameof(commandEndEventData.ExecuteMethod)] = commandEndEventData.ExecuteMethod.ToString();
                 properties[nameof(command.CommandText)] = command.CommandText;
 
                 _telemetryClient.TrackDependency(dependencyTelemetry);
             }
 
             private void TrackConnectionDependency(
-                string eventName, ConnectionEndData connectionEndData, bool success)
+                string eventName, ConnectionEndEventData connectionEndEventData, bool success)
             {
-                var connection = connectionEndData.Connection;
+                var connection = connectionEndEventData.Connection;
 
                 var dependencyTelemetry
                     = new DependencyTelemetry(
                         DependencyTypeName,
-                        connectionEndData.Connection.Database,
+                        connectionEndEventData.Connection.Database,
                         eventName,
                         $"[{nameof(connection.Database)}='{connection.Database}',"
                         + $" {nameof(connection.DataSource)}='{connection.DataSource}',"
                         + $" {nameof(connection.ConnectionTimeout)}={connection.ConnectionTimeout}]",
-                        connectionEndData.StartTime,
-                        connectionEndData.Duration,
+                        connectionEndEventData.StartTime,
+                        connectionEndEventData.Duration,
                         success: success,
                         resultCode: null);
 
                 var properties = dependencyTelemetry.Properties;
 
-                properties[nameof(connectionEndData.ConnectionId)] = connectionEndData.ConnectionId.ToString();
-                properties[nameof(connectionEndData.IsAsync)] = connectionEndData.IsAsync.ToString();
+                properties[nameof(connectionEndEventData.ConnectionId)] = connectionEndEventData.ConnectionId.ToString();
+                properties[nameof(connectionEndEventData.IsAsync)] = connectionEndEventData.IsAsync.ToString();
                 properties[nameof(connection.Database)] = connection.Database;
                 properties[nameof(connection.DataSource)] = connection.DataSource;
                 properties[nameof(connection.ConnectionTimeout)] = connection.ConnectionTimeout.ToString();
@@ -216,33 +216,33 @@ namespace Microsoft.EntityFrameworkCore.ApplicationInsights
             }
 
             private void TrackTransactionDependency(
-                string eventName, TransactionEndData transactionEndData, bool success)
+                string eventName, TransactionEndEventData transactionEndEventData, bool success)
             {
-                var transaction = transactionEndData.Transaction;
+                var transaction = transactionEndEventData.Transaction;
 
                 var dependencyTelemetry
                     = new DependencyTelemetry(
                         DependencyTypeName,
                         transaction.Connection.Database,
                         eventName,
-                        $"{nameof(transactionEndData.Transaction.IsolationLevel)}={transaction.IsolationLevel}",
-                        transactionEndData.StartTime,
-                        transactionEndData.Duration,
+                        $"{nameof(transactionEndEventData.Transaction.IsolationLevel)}={transaction.IsolationLevel}",
+                        transactionEndEventData.StartTime,
+                        transactionEndEventData.Duration,
                         success: success,
                         resultCode: null);
 
                 var properties = dependencyTelemetry.Properties;
 
-                properties[nameof(transactionEndData.ConnectionId)] = transactionEndData.ConnectionId.ToString();
-                properties[nameof(transactionEndData.TransactionId)] = transactionEndData.TransactionId.ToString();
-                properties[nameof(transactionEndData.Transaction.IsolationLevel)] = transactionEndData.Transaction.IsolationLevel.ToString();
+                properties[nameof(transactionEndEventData.ConnectionId)] = transactionEndEventData.ConnectionId.ToString();
+                properties[nameof(transactionEndEventData.TransactionId)] = transactionEndEventData.TransactionId.ToString();
+                properties[nameof(transactionEndEventData.Transaction.IsolationLevel)] = transactionEndEventData.Transaction.IsolationLevel.ToString();
 
                 _telemetryClient.TrackDependency(dependencyTelemetry);
             }
 
-            private void TrackReaderDependency(string eventName, DataReaderDisposingData dataReaderDisposingData)
+            private void TrackReaderDependency(string eventName, DataReaderDisposingEventData dataReaderDisposingEventData)
             {
-                var command = dataReaderDisposingData.Command;
+                var command = dataReaderDisposingEventData.Command;
 
                 var dependencyTelemetry
                     = new DependencyTelemetry(
@@ -250,16 +250,16 @@ namespace Microsoft.EntityFrameworkCore.ApplicationInsights
                         command.Connection.Database,
                         eventName,
                         command.CommandText,
-                        dataReaderDisposingData.StartTime,
-                        dataReaderDisposingData.Duration,
+                        dataReaderDisposingEventData.StartTime,
+                        dataReaderDisposingEventData.Duration,
                         success: true,
                         resultCode: null);
 
                 var properties = dependencyTelemetry.Properties;
 
-                properties[nameof(dataReaderDisposingData.ConnectionId)] = dataReaderDisposingData.ConnectionId.ToString();
-                properties[nameof(dataReaderDisposingData.CommandId)] = dataReaderDisposingData.CommandId.ToString();
-                properties[nameof(dataReaderDisposingData.RecordsAffected)] = dataReaderDisposingData.RecordsAffected.ToString();
+                properties[nameof(dataReaderDisposingEventData.ConnectionId)] = dataReaderDisposingEventData.ConnectionId.ToString();
+                properties[nameof(dataReaderDisposingEventData.CommandId)] = dataReaderDisposingEventData.CommandId.ToString();
+                properties[nameof(dataReaderDisposingEventData.RecordsAffected)] = dataReaderDisposingEventData.RecordsAffected.ToString();
                 properties[nameof(command.CommandText)] = command.CommandText;
 
                 _telemetryClient.TrackDependency(dependencyTelemetry);

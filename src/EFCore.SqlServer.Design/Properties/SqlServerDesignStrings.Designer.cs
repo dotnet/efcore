@@ -4,7 +4,7 @@ using System;
 using System.Reflection;
 using System.Resources;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -57,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Found column with table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.
         /// </summary>
-        public static readonly RawEventDefinition LogFoundColumn
-            = new RawEventDefinition(
+        public static readonly FallbackEventDefinition LogFoundColumn
+            = new FallbackEventDefinition(
                 SqlServerDesignEventId.ColumnFound,
                 LogLevel.Debug,
                 _resourceManager.GetString("LogFoundColumn"));
@@ -66,8 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Found foreign key column with table: {tableName}, foreign key name: {fkName}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, update action: {updateAction}, delete action: {deleteAction}, ordinal: {ordinal}.
         /// </summary>
-        public static readonly RawEventDefinition LogFoundForeignKeyColumn
-            = new RawEventDefinition(
+        public static readonly FallbackEventDefinition LogFoundForeignKeyColumn
+            = new FallbackEventDefinition(
                 SqlServerDesignEventId.ForeignKeyColumnFound,
                 LogLevel.Debug,
                 _resourceManager.GetString("LogFoundForeignKeyColumn"));
