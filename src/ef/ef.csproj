@@ -3,13 +3,12 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp1.0;net46</TargetFrameworks>
+    <TargetFrameworks>netcoreapp1.0;net46;netcoreapp2.0</TargetFrameworks>
     <Description>Entity Framework Core Command Line Tools</Description>
     <OutputType>Exe</OutputType>
     <AssemblyName Condition="'$(Platform)' == 'x86'">ef.x86</AssemblyName>
     <IsPackable>false</IsPackable>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
-    <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>

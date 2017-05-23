@@ -150,7 +150,13 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     args.Add(startupProject.RuntimeFrameworkVersion);
                 }
 
-                args.Add(Path.Combine(toolsPath, "netcoreapp1.0", "ef.dll"));
+                args.Add(
+                    Path.Combine(
+                        toolsPath,
+                        targetFramework.Version < new Version(2, 0)
+                            ? "netcoreapp1.0"
+                            : "netcoreapp2.0",
+                       "ef.dll"));
             }
             else
             {
