@@ -1112,5 +1112,240 @@
     "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions",
     "MemberId": "public static System.Int32 ExecuteSqlCommand(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, System.String sql, params System.Object[] parameters)",
     "Kind": "Removal"
-  }
+  },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Boolean value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Byte value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Byte[] value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Char value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Data.DbType value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.DateTime value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.DateTimeOffset value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Decimal value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Double value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Enum value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Guid value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Int16 value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Int32 value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Int64 value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Object value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.Single value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.String value, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String GenerateLiteralValue(System.TimeSpan value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String get_DateTimeFormat()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String get_DateTimeFormatString()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String get_DateTimeOffsetFormat()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String get_DateTimeOffsetFormatString()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String get_DecimalFormat()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String get_DecimalFormatString()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.String get_FloatingPointFormatString()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Boolean value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Byte value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Byte[] value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Char value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Data.DbType value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.DateTime value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.DateTimeOffset value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Decimal value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Double value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Enum value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Guid value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Int16 value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Int32 value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Int64 value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Object value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.Single value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.String value, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "protected virtual System.Void GenerateLiteralValue(System.Text.StringBuilder builder, System.TimeSpan value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "public System.String GenerateLiteral(System.Object value, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping = null)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper : Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "public System.Void GenerateLiteral(System.Text.StringBuilder builder, System.Object value, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping = null)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "System.String GenerateLiteral(System.Object value, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping = null)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "System.Void GenerateLiteral(System.Text.StringBuilder builder, System.Object value, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping = null)",
+      "Kind": "Removal"
+    }
 ]

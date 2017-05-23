@@ -41,5 +41,32 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Storage
         {
             Assert.Equal(clrType, new SqliteTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(typeName).ClrType);
         }
+
+        [Fact]
+        public override void GenerateSqlLiteral_returns_DateTime_literal()
+        {
+            var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
+            var literal = new SqliteTypeMapper(new RelationalTypeMapperDependencies())
+                .GetMapping(typeof(DateTime)).GenerateSqlLiteral(value);
+            Assert.Equal("'2015-03-12 13:36:37.371'", literal);
+        }
+
+        [Fact]
+        public override void GenerateSqlLiteral_returns_DateTimeOffset_literal()
+        {
+            var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
+            var literal = new SqliteTypeMapper(new RelationalTypeMapperDependencies())
+                .GetMapping(typeof(DateTimeOffset)).GenerateSqlLiteral(value);
+            Assert.Equal("'2015-03-12 13:36:37.371-07:00'", literal);
+        }
+
+        [Fact]
+        public override void GenerateSqlLiteral_returns_Guid_literal()
+        {
+            var value = new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292");
+            var literal = new SqliteTypeMapper(new RelationalTypeMapperDependencies())
+                .GetMapping(typeof(Guid)).GenerateSqlLiteral(value);
+            Assert.Equal("X'9E3AF4C6E191EF45A320832EA23B7292'", literal);
+        }
     }
 }
