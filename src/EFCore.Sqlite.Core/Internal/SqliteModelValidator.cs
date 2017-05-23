@@ -5,7 +5,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -22,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             base.Validate(model);
             
-            EnsureNoSchemas(model);
-            EnsureNoSequences(model);
+            ValidateNoSchemas(model);
+            ValidateNoSequences(model);
         }
 
-        protected virtual void EnsureNoSchemas([NotNull] IModel model)
+        protected virtual void ValidateNoSchemas([NotNull] IModel model)
         {
             foreach (var entityType in model.GetEntityTypes().Where(e => e.Sqlite().Schema != null))
             {
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        protected virtual void EnsureNoSequences([NotNull] IModel model)
+        protected virtual void ValidateNoSequences([NotNull] IModel model)
         {
             foreach (var sequence in model.Sqlite().Sequences)
             {

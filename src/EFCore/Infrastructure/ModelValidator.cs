@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -41,15 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to validate. </param>
         public virtual void Validate(IModel model)
         {
-        }
-
-        /// <summary>
-        ///     Throws an exception with the specified message.
-        /// </summary>
-        /// <param name="message"> The validation error. </param>
-        protected virtual void ShowError([NotNull] string message)
-        {
-            throw new InvalidOperationException(message);
         }
     }
 }

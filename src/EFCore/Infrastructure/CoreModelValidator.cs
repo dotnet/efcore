@@ -36,14 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to validate. </param>
         public override void Validate(IModel model)
         {
-            EnsureNoShadowEntities(model);
-            EnsureNonNullPrimaryKeys(model);
-            EnsureNoShadowKeys(model);
-            EnsureClrInheritance(model);
-            EnsureChangeTrackingStrategy(model);
+            ValidateNoShadowEntities(model);
+            ValidateNonNullPrimaryKeys(model);
+            ValidateNoShadowKeys(model);
+            ValidateClrInheritance(model);
+            ValidateChangeTrackingStrategy(model);
             ValidateOwnership(model);
             ValidateDelegatedIdentityNavigations(model);
-            EnsureFieldMapping(model);
+            ValidateFieldMapping(model);
             ValidateQueryFilters(model);
         }
 
@@ -63,12 +63,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     if (entityType.BaseType != null)
                     {
-                        ShowError(CoreStrings.BadFilterDerivedType(entityType.Filter, entityType.DisplayName()));
+                        throw new InvalidOperationException(
+                            CoreStrings.BadFilterDerivedType(entityType.Filter, entityType.DisplayName()));
                     }
 
                     if (!filterValidatingExppressionVisitor.IsValid(entityType))
                     {
-                        ShowError(CoreStrings.BadFilterExpression(entityType.Filter, entityType.DisplayName(), entityType.ClrType));
+                        throw new InvalidOperationException(
+                            CoreStrings.BadFilterExpression(entityType.Filter, entityType.DisplayName(), entityType.ClrType));
                     }
                 }
             }
@@ -124,14 +126,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void EnsureNoShadowEntities([NotNull] IModel model)
+        protected virtual void ValidateNoShadowEntities([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
 
             var firstShadowEntity = model.GetEntityTypes().FirstOrDefault(entityType => !entityType.HasClrType());
             if (firstShadowEntity != null)
             {
-                ShowError(CoreStrings.ShadowEntity(firstShadowEntity.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.ShadowEntity(firstShadowEntity.DisplayName()));
             }
         }
 
@@ -139,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void EnsureNoShadowKeys([NotNull] IModel model)
+        protected virtual void ValidateNoShadowKeys([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
 
@@ -156,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                         if (referencingFk != null)
                         {
-                            ShowError(
+                            throw new InvalidOperationException(
                                 CoreStrings.ReferencedShadowKey(
                                     referencingFk.DeclaringEntityType.DisplayName() +
                                     (referencingFk.DependentToPrincipal == null
@@ -178,14 +181,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void EnsureNonNullPrimaryKeys([NotNull] IModel model)
+        protected virtual void ValidateNonNullPrimaryKeys([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
 
             var entityTypeWithNullPk = model.GetEntityTypes().FirstOrDefault(et => et.FindPrimaryKey() == null);
             if (entityTypeWithNullPk != null)
             {
-                ShowError(CoreStrings.EntityRequiresKey(entityTypeWithNullPk.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.EntityRequiresKey(entityTypeWithNullPk.DisplayName()));
             }
         }
 
@@ -193,14 +197,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void EnsureClrInheritance([NotNull] IModel model)
+        protected virtual void ValidateClrInheritance([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
 
             var validEntityTypes = new HashSet<IEntityType>();
             foreach (var entityType in model.GetEntityTypes())
             {
-                EnsureClrInheritance(model, entityType, validEntityTypes);
+                ValidateClrInheritance(model, entityType, validEntityTypes);
             }
         }
 
@@ -208,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void EnsureClrInheritance(
+        protected virtual void ValidateClrInheritance(
             [NotNull] IModel model, [NotNull] IEntityType entityType, [NotNull] HashSet<IEntityType> validEntityTypes)
         {
             Check.NotNull(model, nameof(model));
@@ -228,9 +232,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     if (!baseEntityType.IsAssignableFrom(entityType))
                     {
-                        ShowError(CoreStrings.InconsistentInheritance(entityType.DisplayName(), baseEntityType.DisplayName()));
+                        throw new InvalidOperationException(
+                            CoreStrings.InconsistentInheritance(entityType.DisplayName(), baseEntityType.DisplayName()));
                     }
-                    EnsureClrInheritance(model, baseEntityType, validEntityTypes);
+                    ValidateClrInheritance(model, baseEntityType, validEntityTypes);
                     break;
                 }
                 baseClrType = baseClrType.GetTypeInfo().BaseType;
@@ -239,7 +244,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (entityType.ClrType?.IsInstantiable() == false
                 && !entityType.GetDerivedTypes().Any())
             {
-                ShowError(CoreStrings.AbstractLeafEntityType(entityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.AbstractLeafEntityType(entityType.DisplayName()));
             }
 
             validEntityTypes.Add(entityType);
@@ -249,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void EnsureChangeTrackingStrategy([NotNull] IModel model)
+        protected virtual void ValidateChangeTrackingStrategy([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
 
@@ -265,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var errorMessage = entityType.CheckChangeTrackingStrategy(changeTrackingStrategy);
                 if (errorMessage != null)
                 {
-                    ShowError(errorMessage);
+                    throw new InvalidOperationException(errorMessage);
                 }
             }
 
@@ -345,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void EnsureFieldMapping([NotNull] IModel model)
+        protected virtual void ValidateFieldMapping([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
 
@@ -363,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         memberInfo: out _,
                         errorMessage: out var errorMessage))
                     {
-                        ShowError(errorMessage);
+                        throw new InvalidOperationException(errorMessage);
                     }
 
                     if (!propertyBase.TryGetMemberInfo(
@@ -372,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         memberInfo: out _,
                         errorMessage: out errorMessage))
                     {
-                        ShowError(errorMessage);
+                        throw new InvalidOperationException(errorMessage);
                     }
 
                     if (!propertyBase.TryGetMemberInfo(
@@ -381,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         memberInfo: out _,
                         errorMessage: out errorMessage))
                     {
-                        ShowError(errorMessage);
+                        throw new InvalidOperationException(errorMessage);
                     }
                 }
             }

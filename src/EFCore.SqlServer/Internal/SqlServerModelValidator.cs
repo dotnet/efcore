@@ -62,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         ((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false) != null
                         && !p.IsKey()))
             {
-                ShowError(SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));
             }
         }
 
@@ -75,7 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 if (isMemoryOptimized != otherMappedType.SqlServer().IsMemoryOptimized)
                 {
-                    ShowError(SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch(
+                    throw new InvalidOperationException(
+                        SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch(
                         tableName, newEntityType.DisplayName(), otherMappedType.DisplayName(),
                         isMemoryOptimized ? newEntityType.DisplayName() : otherMappedType.DisplayName(),
                         !isMemoryOptimized ? newEntityType.DisplayName() : otherMappedType.DisplayName()));
