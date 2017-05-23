@@ -261,15 +261,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var includeCompiler = new IncludeCompiler(QueryCompilationContext, _querySourceTracingExpressionVisitorFactory);
 
-            includeCompiler.CompileIncludes(queryModel, TrackResults(queryModel), asyncQuery);
+            var trackingQuery = TrackResults(queryModel);
+            includeCompiler.CompileIncludes(queryModel, trackingQuery, asyncQuery);
 
-            queryModel.TransformExpressions(new CollectionNavigationSubqueryInjector(this).Visit);
+            queryModel.TransformExpressions(new CollectionNavigationSubqueryInjector(this, /*shouldInject*/ false, trackingQuery).Visit);
 
-            var navigationRewritingExpressionVisitor = _navigationRewritingExpressionVisitorFactory.Create(this);
+            var navigationRewritingExpressionVisitor = _navigationRewritingExpressionVisitorFactory.Create(this, trackingQuery);
 
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
-            includeCompiler.CompileIncludes(queryModel, TrackResults(queryModel), asyncQuery);
+            includeCompiler.CompileIncludes(queryModel, trackingQuery, asyncQuery);
 
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
