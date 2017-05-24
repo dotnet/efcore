@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
-    <PackageReference Include="System.Data.Common" Version="$(CoreFxVersion)" />
+    <PackageReference Include="System.Data.Common" Version="$(OldCoreFxVersion)" />
     <PackageReference Include="System.ValueTuple" Version="$(CoreFxVersion)" />
   </ItemGroup>
 

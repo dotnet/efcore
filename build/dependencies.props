@@ -11,6 +11,7 @@
     <MoqVersion>4.6.38-alpha</MoqVersion>
     <NETFrameworkPackageVersion>2.0.0-*</NETFrameworkPackageVersion>
     <NETStandardImplicitPackageVersion>$(BundledNETStandardPackageVersion)</NETStandardImplicitPackageVersion>
+    <OldCoreFxVersion>4.3.0</OldCoreFxVersion>
     <RelinqVersion>2.1.1</RelinqVersion>
     <RoslynVersion>1.3.0</RoslynVersion>
     <SQLitePCLRawVersion>1.1.5</SQLitePCLRawVersion>
