@@ -43,6 +43,22 @@ namespace E2ETest.Namespace
             modelBuilder.Entity<MultipleFksDependent>(entity =>
             {
                 entity.Property(e => e.MultipleFksDependentId).ValueGeneratedNever();
+
+                entity.HasOne(d => d.RelationA)
+                    .WithMany(p => p.MultipleFksDependentRelationA)
+                    .HasForeignKey(d => d.RelationAid)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("FK_RelationA");
+
+                entity.HasOne(d => d.RelationB)
+                    .WithMany(p => p.MultipleFksDependentRelationB)
+                    .HasForeignKey(d => d.RelationBid)
+                    .HasConstraintName("FK_RelationB");
+
+                entity.HasOne(d => d.RelationC)
+                    .WithMany(p => p.MultipleFksDependentRelationC)
+                    .HasForeignKey(d => d.RelationCid)
+                    .HasConstraintName("FK_RelationC");
             });
 
             modelBuilder.Entity<MultipleFksPrincipal>(entity =>
@@ -52,26 +68,33 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyDependentId1, e.OneToManyDependentId2 })
-                    .HasName("PK_OneToManyDependent");
+                entity.HasKey(e => new { e.OneToManyDependentId1, e.OneToManyDependentId2 });
+
+                entity.HasOne(d => d.OneToManyDependentFk)
+                    .WithMany(p => p.OneToManyDependent)
+                    .HasForeignKey(d => new { d.OneToManyDependentFk1, d.OneToManyDependentFk2 })
+                    .HasConstraintName("FK_OneToManyDependent");
             });
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyPrincipalId1, e.OneToManyPrincipalId2 })
-                    .HasName("PK_OneToManyPrincipal");
+                entity.HasKey(e => new { e.OneToManyPrincipalId1, e.OneToManyPrincipalId2 });
             });
 
             modelBuilder.Entity<OneToOneDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneDependentId1, e.OneToOneDependentId2 })
-                    .HasName("PK_OneToOneDependent");
+                entity.HasKey(e => new { e.OneToOneDependentId1, e.OneToOneDependentId2 });
+
+                entity.HasOne(d => d.OneToOneDependentNavigation)
+                    .WithOne(p => p.OneToOneDependent)
+                    .HasForeignKey<OneToOneDependent>(d => new { d.OneToOneDependentId1, d.OneToOneDependentId2 })
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("FK_OneToOneDependent");
             });
 
             modelBuilder.Entity<OneToOneFktoUniqueKeyDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyDependentId1, e.OneToOneFktoUniqueKeyDependentId2 })
-                    .HasName("PK_OneToOneFKToUniqueKeyDependent");
+                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyDependentId1, e.OneToOneFktoUniqueKeyDependentId2 });
 
                 entity.HasIndex(e => new { e.OneToOneFktoUniqueKeyDependentFk1, e.OneToOneFktoUniqueKeyDependentFk2 })
                     .HasName("UK_OneToOneFKToUniqueKeyDependent")
@@ -86,8 +109,7 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneFktoUniqueKeyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyPrincipalId1, e.OneToOneFktoUniqueKeyPrincipalId2 })
-                    .HasName("PK_OneToOneFKToUniqueKeyPrincipal");
+                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyPrincipalId1, e.OneToOneFktoUniqueKeyPrincipalId2 });
 
                 entity.HasIndex(e => new { e.OneToOneFktoUniqueKeyPrincipalUniqueKey1, e.OneToOneFktoUniqueKeyPrincipalUniqueKey2 })
                     .HasName("UK_OneToOneFKToUniqueKeyPrincipal")
@@ -96,24 +118,26 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOnePrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOnePrincipalId1, e.OneToOnePrincipalId2 })
-                    .HasName("PK_OneToOnePrincipal");
+                entity.HasKey(e => new { e.OneToOnePrincipalId1, e.OneToOnePrincipalId2 });
             });
 
             modelBuilder.Entity<OneToOneSeparateFkdependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneSeparateFkdependentId1, e.OneToOneSeparateFkdependentId2 })
-                    .HasName("PK_OneToOneSeparateFKDependent");
+                entity.HasKey(e => new { e.OneToOneSeparateFkdependentId1, e.OneToOneSeparateFkdependentId2 });
 
                 entity.HasIndex(e => new { e.OneToOneSeparateFkdependentFk1, e.OneToOneSeparateFkdependentFk2 })
                     .HasName("UK_OneToOneSeparateFKDependent")
                     .IsUnique();
+
+                entity.HasOne(d => d.OneToOneSeparateFkdependentFk)
+                    .WithOne(p => p.OneToOneSeparateFkdependent)
+                    .HasForeignKey<OneToOneSeparateFkdependent>(d => new { d.OneToOneSeparateFkdependentFk1, d.OneToOneSeparateFkdependentFk2 })
+                    .HasConstraintName("FK_OneToOneSeparateFKDependent");
             });
 
             modelBuilder.Entity<OneToOneSeparateFkprincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneSeparateFkprincipalId1, e.OneToOneSeparateFkprincipalId2 })
-                    .HasName("PK_OneToOneSeparateFKPrincipal");
+                entity.HasKey(e => new { e.OneToOneSeparateFkprincipalId1, e.OneToOneSeparateFkprincipalId2 });
             });
 
             modelBuilder.Entity<PropertyConfiguration>(entity =>
@@ -143,6 +167,11 @@ namespace E2ETest.Namespace
             modelBuilder.Entity<SelfReferencing>(entity =>
             {
                 entity.Property(e => e.SelfReferencingId).ValueGeneratedNever();
+
+                entity.HasOne(d => d.SelfReferenceFkNavigation)
+                    .WithMany(p => p.InverseSelfReferenceFkNavigation)
+                    .HasForeignKey(d => d.SelfReferenceFk)
+                    .HasConstraintName("FK_SelfReferencing");
             });
 
             modelBuilder.Entity<TestSpacesKeywordsTable>(entity =>

@@ -4,8 +4,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -50,33 +50,38 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Task<ReverseEngineerFiles> WriteCodeAsync(
-            ModelConfiguration modelConfiguration,
+            IModel model,
             string outputPath,
-            string dbContextClassName,
+            string @namespace,
+            string contextName,
+            string connectionString,
+            bool useDataAnnotations,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(modelConfiguration, nameof(modelConfiguration));
+            Check.NotNull(model, nameof(model));
             Check.NotEmpty(outputPath, nameof(outputPath));
-            Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));
+            Check.NotEmpty(@namespace, nameof(@namespace));
+            Check.NotEmpty(contextName, nameof(contextName));
+            Check.NotEmpty(connectionString, nameof(connectionString));
 
             cancellationToken.ThrowIfCancellationRequested();
 
             var resultingFiles = new ReverseEngineerFiles();
 
-            var generatedCode = DbContextWriter.WriteCode(modelConfiguration);
+            var generatedCode = DbContextWriter.WriteCode(model, @namespace, contextName, connectionString, useDataAnnotations);
 
             // output DbContext .cs file
-            var dbContextFileName = dbContextClassName + FileExtension;
+            var dbContextFileName = contextName + FileExtension;
             var dbContextFileFullPath = FileService.OutputFile(
                 outputPath, dbContextFileName, generatedCode);
             resultingFiles.ContextFile = dbContextFileFullPath;
 
-            foreach (var entityConfig in modelConfiguration.EntityConfigurations)
+            foreach (var entityType in model.GetEntityTypes())
             {
-                generatedCode = EntityTypeWriter.WriteCode(entityConfig);
+                generatedCode = EntityTypeWriter.WriteCode(entityType, @namespace, useDataAnnotations);
 
                 // output EntityType poco .cs file
-                var entityTypeFileName = entityConfig.EntityType.DisplayName() + FileExtension;
+                var entityTypeFileName = entityType.DisplayName() + FileExtension;
                 var entityTypeFileFullPath = FileService.OutputFile(
                     outputPath, entityTypeFileName, generatedCode);
                 resultingFiles.EntityTypeFiles.Add(entityTypeFileFullPath);
