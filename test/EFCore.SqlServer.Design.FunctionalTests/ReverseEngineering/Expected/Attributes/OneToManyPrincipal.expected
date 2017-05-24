@@ -17,7 +17,7 @@ namespace E2ETest.Namespace
         [Column("OneToManyPrincipalID2")]
         public int OneToManyPrincipalId2 { get; set; }
         [Required]
-        [MaxLength(20)]
+        [StringLength(20)]
         public string Other { get; set; }
 
         [InverseProperty("OneToManyDependentFk")]

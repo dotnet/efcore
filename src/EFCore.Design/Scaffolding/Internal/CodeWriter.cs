@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -114,9 +113,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public abstract Task<ReverseEngineerFiles> WriteCodeAsync(
-            [NotNull] ModelConfiguration modelConfiguration,
+            [NotNull] IModel model,
             [NotNull] string outputPath,
-            [NotNull] string dbContextClassName,
+            [NotNull] string @namespace,
+            [NotNull] string contextName,
+            [NotNull] string connectionString,
+            bool dataAnnotations,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

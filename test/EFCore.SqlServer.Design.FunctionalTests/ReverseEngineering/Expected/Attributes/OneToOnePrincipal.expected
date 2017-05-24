@@ -12,7 +12,7 @@ namespace E2ETest.Namespace
         [Column("OneToOnePrincipalID2")]
         public int OneToOnePrincipalId2 { get; set; }
         [Required]
-        [MaxLength(20)]
+        [StringLength(20)]
         public string SomeOneToOnePrincipalColumn { get; set; }
 
         [InverseProperty("OneToOneDependentNavigation")]

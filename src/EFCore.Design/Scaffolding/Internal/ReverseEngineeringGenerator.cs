@@ -20,9 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     /// </summary>
     public class ReverseEngineeringGenerator
     {
-        private readonly ConfigurationFactory _configurationFactory;
         private readonly IScaffoldingModelFactory _factory;
         private static readonly char[] _directorySeparatorChars = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        private const string DbContextSuffix = "Context";
+        private const string DefaultDbContextName = "Model" + DbContextSuffix;
+
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -30,15 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public ReverseEngineeringGenerator(
             [NotNull] IScaffoldingModelFactory scaffoldingModelFactory,
-            [NotNull] ConfigurationFactory configurationFactory,
             [NotNull] CodeWriter codeWriter)
         {
             Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
-            Check.NotNull(configurationFactory, nameof(configurationFactory));
             Check.NotNull(codeWriter, nameof(codeWriter));
 
             _factory = scaffoldingModelFactory;
-            _configurationFactory = configurationFactory;
             CodeWriter = codeWriter;
         }
 
@@ -102,27 +101,26 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 @namespace += "." + string.Join(
                                   ".", relativeOutputPath
                                       .Split(_directorySeparatorChars, StringSplitOptions.RemoveEmptyEntries)
-                                      .Select(p => CSharpUtilities.Instance.GenerateCSharpIdentifier(p, null)));
+                                      .Select(p => CSharpUtilities.Instance.GenerateCSharpIdentifier(p, existingIdentifiers: null)));
             }
 
-            //var customConfiguration = _configurationFactory.CreateCustomConfiguration(connectionString, contextName, @namespace, useDataAnnotations);
-            var modelConfiguration = _configurationFactory.CreateModelConfiguration(model, connectionString, contextName, @namespace, useDataAnnotations);
+            if (string.IsNullOrEmpty(contextName))
+            {
+                contextName = DefaultDbContextName;
 
-            var dbContextClassName =
-                string.IsNullOrWhiteSpace(contextName)
-                    ? modelConfiguration.ClassName()
-                    : contextName;
+                var annotatedName = model.Scaffolding().DatabaseName;
+                if (!string.IsNullOrEmpty(annotatedName))
+                {
+                    contextName = CSharpUtilities.Instance.GenerateCSharpIdentifier(annotatedName + DbContextSuffix, existingIdentifiers: null);
+                }
+            }
 
-            CheckOutputFiles(fullOutputPath, dbContextClassName, model, overwriteFiles);
+            CheckOutputFiles(fullOutputPath, contextName, model, overwriteFiles);
 
-            return CodeWriter.WriteCodeAsync(modelConfiguration, fullOutputPath, dbContextClassName, cancellationToken);
+            return CodeWriter.WriteCodeAsync(model, fullOutputPath, @namespace, contextName, connectionString, useDataAnnotations, cancellationToken);
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void CheckOutputFiles(
+        private void CheckOutputFiles(
             [NotNull] string outputPath,
             [NotNull] string dbContextClassName,
             [NotNull] IModel metadataModel,

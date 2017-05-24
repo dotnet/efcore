@@ -13,7 +13,7 @@ namespace E2ETest.Namespace
         [Column("OneToOneFKToUniqueKeyDependentID2")]
         public int OneToOneFktoUniqueKeyDependentId2 { get; set; }
         [Required]
-        [MaxLength(20)]
+        [StringLength(20)]
         public string SomeColumn { get; set; }
         [Column("OneToOneFKToUniqueKeyDependentFK1")]
         public int? OneToOneFktoUniqueKeyDependentFk1 { get; set; }
