@@ -2896,6 +2896,68 @@ LEFT JOIN [Level2] AS [l1.OneToOne_Optional_FK] ON [l1].[Id] = [l1.OneToOne_Opti
 WHERE [l1.OneToOne_Optional_FK].[Id] IS NULL");
         }
 
+        public override void Select_subquery_with_client_eval_and_navigation1()
+        {
+            base.Select_subquery_with_client_eval_and_navigation1();
+
+            AssertContainsSql(
+                @"SELECT 1
+FROM [Level2] AS [l2]",
+                //
+                @"SELECT TOP(1) [l.OneToOne_Required_FK_Inverse0].[Name]
+FROM [Level2] AS [l0]
+INNER JOIN [Level1] AS [l.OneToOne_Required_FK_Inverse0] ON [l0].[Level1_Required_Id] = [l.OneToOne_Required_FK_Inverse0].[Id]
+ORDER BY [l0].[Id]");
+        }
+
+        public override void Select_subquery_with_client_eval_and_navigation2()
+        {
+            base.Select_subquery_with_client_eval_and_navigation2();
+
+            AssertContainsSql(
+                @"SELECT 1
+FROM [Level2] AS [l2]",
+                //
+                @"SELECT TOP(1) [l.OneToOne_Required_FK_Inverse1].[Name]
+FROM [Level2] AS [l1]
+INNER JOIN [Level1] AS [l.OneToOne_Required_FK_Inverse1] ON [l1].[Level1_Required_Id] = [l.OneToOne_Required_FK_Inverse1].[Id]
+ORDER BY [l1].[Id]");
+        }
+
+        public override void Select_subquery_with_client_eval_and_multi_level_navigation()
+        {
+            base.Select_subquery_with_client_eval_and_multi_level_navigation();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Member_doesnt_get_pushed_down_into_subquery_with_result_operator()
+        {
+            base.Member_doesnt_get_pushed_down_into_subquery_with_result_operator();
+
+            AssertSql(
+                @"SELECT (
+    SELECT [t].[Name]
+    FROM (
+        SELECT DISTINCT [l3].*
+        FROM [Level3] AS [l3]
+    ) AS [t]
+    ORDER BY [t].[Id]
+    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY
+)
+FROM [Level1] AS [l1]
+WHERE [l1].[Id] < 3");
+        }
+
+        public override void Subquery_with_Distinct_Skip_FirstOrDefault_without_OrderBy()
+        {
+            base.Subquery_with_Distinct_Skip_FirstOrDefault_without_OrderBy();
+
+            AssertSql(
+                @"");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

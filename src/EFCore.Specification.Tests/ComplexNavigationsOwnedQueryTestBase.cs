@@ -22,6 +22,18 @@ namespace Microsoft.EntityFrameworkCore
             base.Required_navigation_on_a_subquery_with_First_in_projection();
         }
 
+        [ConditionalFact(Skip = "issue #8526")]
+        public override void Select_subquery_with_client_eval_and_navigation1()
+        {
+            base.Select_subquery_with_client_eval_and_navigation1();
+        }
+
+        [ConditionalFact(Skip = "issue #8526")]
+        public override void Select_subquery_with_client_eval_and_navigation2()
+        {
+            base.Select_subquery_with_client_eval_and_navigation2();
+        }
+
         // Naked instances not supported
         public override void Key_equality_two_conditions_on_same_navigation()
         {

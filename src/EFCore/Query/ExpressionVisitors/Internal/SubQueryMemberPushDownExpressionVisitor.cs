@@ -1,11 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using Remotion.Linq.Clauses.ResultOperators;
+using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
@@ -34,20 +38,51 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var newExpression = Visit(memberExpression.Expression);
 
-            var subQueryExpression = newExpression as SubQueryExpression;
-            var subSelector = subQueryExpression?.QueryModel.SelectClause.Selector;
-
-            if (subSelector is QuerySourceReferenceExpression
-                || subSelector is SubQueryExpression)
+            if (newExpression is SubQueryExpression subQueryExpression)
             {
-                var querySourceMapping = new QuerySourceMapping();
-                var subQueryModel = subQueryExpression.QueryModel.Clone(querySourceMapping);
-                _queryCompilationContext.UpdateMapping(querySourceMapping);
+                var subSelector = subQueryExpression.QueryModel.SelectClause.Selector;
+                if ((subSelector is QuerySourceReferenceExpression || subSelector is SubQueryExpression)
+                    && !subQueryExpression.QueryModel.ResultOperators.Any(ro =>
+                        ro is ConcatResultOperator
+                        || ro is UnionResultOperator
+                        || ro is IntersectResultOperator
+                        || ro is ExceptResultOperator))
+                {
+                    if (!subQueryExpression.QueryModel.ResultOperators.Any(ro => ro is DistinctResultOperator))
+                    {
+                        var querySourceMapping = new QuerySourceMapping();
+                        var subQueryModel = subQueryExpression.QueryModel.Clone(querySourceMapping);
+                        _queryCompilationContext.UpdateMapping(querySourceMapping);
 
-                subQueryModel.SelectClause.Selector = VisitMember(memberExpression.Update(subQueryModel.SelectClause.Selector));
-                subQueryModel.ResultTypeOverride = subQueryModel.SelectClause.Selector.Type;
+                        subQueryModel.SelectClause.Selector = VisitMember(memberExpression.Update(subQueryModel.SelectClause.Selector));
+                        subQueryModel.ResultTypeOverride = subQueryModel.SelectClause.Selector.Type;
 
-                return new SubQueryExpression(subQueryModel);
+                        return new SubQueryExpression(subQueryModel);
+                    }
+
+                    var finalResultOperator = subQueryExpression.QueryModel.ResultOperators.Last();
+                    if (finalResultOperator is FirstResultOperator
+                        || finalResultOperator is SingleResultOperator
+                        || finalResultOperator is LastResultOperator)
+                    {
+                        var queryModel = subQueryExpression.QueryModel;
+                        queryModel.ResultOperators.Remove(finalResultOperator);
+
+                        queryModel.ResultTypeOverride = null;
+                        var newSubQueryExpression = new SubQueryExpression(queryModel);
+
+                        var mainFromClause = new MainFromClause(queryModel.GetNewName("subquery"), queryModel.SelectClause.Selector.Type, newSubQueryExpression);
+                        var selector = Expression.MakeMemberAccess(
+                            new QuerySourceReferenceExpression(mainFromClause),
+                            memberExpression.Member);
+
+                        var subqueryModel = new QueryModel(mainFromClause, new SelectClause(selector));
+                        subqueryModel.ResultOperators.Add(finalResultOperator);
+                        var subqueryExpression = new SubQueryExpression(subqueryModel);
+
+                        return subqueryExpression;
+                    }
+                }
             }
 
             return memberExpression.Update(newExpression);

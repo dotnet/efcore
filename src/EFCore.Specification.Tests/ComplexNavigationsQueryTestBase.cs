@@ -3244,6 +3244,54 @@ namespace Microsoft.EntityFrameworkCore
                 l1s => l1s.Where(l1 => Maybe(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.OneToMany_Optional) == null).Select(l1 => l1.Id));
         }
 
+        [ConditionalFact]
+        public virtual void Select_subquery_with_client_eval_and_navigation1()
+        {
+            AssertQuery<Level2>(
+                l2s => l2s.Select(l2 => l2s.OrderBy(l => l.Id).First().OneToOne_Required_FK_Inverse.Name));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_with_client_eval_and_navigation2()
+        {
+            AssertQueryScalar<Level2, bool>(
+                l2s => l2s.Select(l2 => l2s.OrderBy(l => l.Id).First().OneToOne_Required_FK_Inverse.Name == "L1 02"));
+        }
+
+        [ConditionalFact(Skip = "issue #8526")]
+        public virtual void Select_subquery_with_client_eval_and_multi_level_navigation()
+        {
+            AssertQuery<Level3>(
+                l3s => l3s.Select(l3 => l3s.OrderBy(l => l.Id).First().OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.Name));
+        }
+
+        [ConditionalFact]
+        public virtual void Member_doesnt_get_pushed_down_into_subquery_with_result_operator()
+        {
+            AssertQuery<Level1, Level3>(
+                (l1s, l3s) =>
+                    from l1 in l1s
+                    where l1.Id < 3
+                    select (from l3 in l3s
+                            orderby l3.Id
+                            select l3).Distinct().OrderBy(l => l.Id).Skip(1).FirstOrDefault().Name);
+        }
+
+        [ConditionalFact(Skip = "issue #8523")]
+        public virtual void Subquery_with_Distinct_Skip_FirstOrDefault_without_OrderBy()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            where l1.Id < 3
+                            select (from l3 in ctx.LevelThree
+                                    orderby l3.Id
+                                    select l3).Distinct().Skip(1).FirstOrDefault().Name;
+
+                var result = query.ToList();
+            }
+        }
+
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
         {
             if (caller == null)

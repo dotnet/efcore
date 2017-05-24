@@ -1599,6 +1599,173 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Where_subquery_distinct_firstordefault_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Where(g => g.HasSoulPatch && g.Weapons.Distinct().FirstOrDefault().IsAutomatic);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.True(result.Select(r => r.Nickname).Contains("Marcus"));
+                Assert.True(result.Select(r => r.Nickname).Contains("Baird"));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_distinct_first_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.OrderBy(g => g.Nickname).Where(g => g.HasSoulPatch && g.Weapons.Distinct().First().IsAutomatic);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Baird", result[0].Nickname);
+                Assert.Equal("Marcus", result[1].Nickname);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_distinct_singleordefault_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears
+                    .OrderBy(g => g.Nickname)
+                    .Where(g => g.HasSoulPatch && g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().SingleOrDefault().IsAutomatic);
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal("Baird", result[0].Nickname);
+                Assert.Equal("Marcus", result[1].Nickname);
+            }
+        }
+
+        [ConditionalFact(Skip = "issue #8582")]
+        public virtual void Where_subquery_distinct_lastordefault_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears
+                    .OrderBy(g => g.Nickname)
+                    .Where(g => !g.Weapons.Distinct().OrderBy(w => w.Id).LastOrDefault().IsAutomatic);
+
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.Equal("Baird", result[0].Nickname);
+                Assert.Equal("Dom", result[1].Nickname);
+                Assert.Equal("Marcus", result[2].Nickname);
+                Assert.Equal("Paduk", result[3].Nickname);
+            }
+        }
+
+        [ConditionalFact(Skip = "issue #8582")]
+        public virtual void Where_subquery_distinct_last_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears
+                    .OrderBy(g => g.Nickname)
+                    .Where(g => !g.HasSoulPatch && g.Weapons.Distinct().Last().IsAutomatic);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+                Assert.Equal("Cole Train", result[0].Nickname);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_distinct_orderby_firstordefault_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().IsAutomatic);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.True(result.Select(r => r.Nickname).Contains("Marcus"));
+                Assert.True(result.Select(r => r.Nickname).Contains("Baird"));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_union_firstordefault_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Where(g => g.HasSoulPatch && g.Weapons.Union(g.Weapons).FirstOrDefault().IsAutomatic).ToList();
+
+                Assert.Equal(2, query.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_concat_firstordefault_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Where(g => g.HasSoulPatch && g.Weapons.Concat(g.Weapons).FirstOrDefault().IsAutomatic);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact(Skip = "issue #8525")]
+        public virtual void Where_subquery_concat_order_by_firstordefault_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Where(g => g.Weapons.Concat(g.Weapons).OrderBy(w => w.Id).FirstOrDefault().IsAutomatic);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact(Skip = "issues: #8524, #8525")]
+        public virtual void Concat_with_collection_navigations()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Union(g.Weapons).Count());
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact(Skip = "issues: #8524, #8525")]
+        public virtual void Union_with_collection_navigations()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.OfType<Officer>().Select(o => o.Reports.Union(o.Reports).Count());
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_distinct_firstordefault()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Distinct().FirstOrDefault().Name);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+                Assert.True(result.Contains("Baird's Lancer"));
+                Assert.True(result.Contains("Marcus' Lancer"));
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Client()
         {
             using (var context = CreateContext())

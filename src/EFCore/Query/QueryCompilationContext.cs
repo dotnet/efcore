@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -425,12 +426,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .FindQuerySourcesRequiringMaterialization(queryModel);
 
             var groupJoinCompensatingVisitor = new GroupJoinMaterializationCompensatingVisitor();
-
             groupJoinCompensatingVisitor.VisitQueryModel(queryModel);
+
+            var blockedMemberPushdownCompensatingVisitor = new BlockedMemberPushdownCompensatingVisitor();
+            queryModel.TransformExpressions(blockedMemberPushdownCompensatingVisitor.Visit);
 
             QuerySourcesRequiringMaterialization.UnionWith(
                 querySourcesRequiringMaterialization
-                    .Concat(groupJoinCompensatingVisitor.QuerySources));
+                    .Concat(groupJoinCompensatingVisitor.QuerySources)
+                    .Concat(blockedMemberPushdownCompensatingVisitor.QuerySources));
         }
 
         private class GroupJoinMaterializationCompensatingVisitor : QueryModelVisitorBase
@@ -461,6 +465,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                 => queryModel.CountQuerySourceReferences(groupJoinClause) == 1
                    && queryModel.BodyClauses.ElementAtOrDefault(index + 1) is AdditionalFromClause additionalFromClause
                    && additionalFromClause.TryGetFlattenedGroupJoinClause() == groupJoinClause;
+
+            private void MarkForMaterialization(IQuerySource querySource)
+            {
+                RequiresMaterializationExpressionVisitor.HandleUnderlyingQuerySources(querySource, MarkForMaterialization);
+                QuerySources.Add(querySource);
+            }
+        }
+
+        private class BlockedMemberPushdownCompensatingVisitor : ExpressionVisitorBase
+        {
+            public ISet<IQuerySource> QuerySources { get; } = new HashSet<IQuerySource>();
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                if (node.Expression is SubQueryExpression subQuery
+                    && subQuery.QueryModel.ResultOperators.Any(ro =>
+                        ro is DistinctResultOperator
+                        || ro is ConcatResultOperator
+                        || ro is UnionResultOperator
+                        || ro is IntersectResultOperator
+                        || ro is ExceptResultOperator))
+                {
+                    MarkForMaterialization(subQuery.QueryModel.MainFromClause);
+                }
+
+                return base.VisitMember(node);
+            }
 
             private void MarkForMaterialization(IQuerySource querySource)
             {
