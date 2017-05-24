@@ -303,8 +303,7 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyDependentId1, e.OneToManyDependentId2 })
-                    .HasName("PK_OneToManyDependent");
+                entity.HasKey(e => new { e.OneToManyDependentId1, e.OneToManyDependentId2 });
 
                 entity.Property(e => e.OneToManyDependentId1).HasColumnName("OneToManyDependentID1");
 
@@ -326,8 +325,7 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyPrincipalId1, e.OneToManyPrincipalId2 })
-                    .HasName("PK_OneToManyPrincipal");
+                entity.HasKey(e => new { e.OneToManyPrincipalId1, e.OneToManyPrincipalId2 });
 
                 entity.Property(e => e.OneToManyPrincipalId1).HasColumnName("OneToManyPrincipalID1");
 
@@ -340,8 +338,7 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneDependentId1, e.OneToOneDependentId2 })
-                    .HasName("PK_OneToOneDependent");
+                entity.HasKey(e => new { e.OneToOneDependentId1, e.OneToOneDependentId2 });
 
                 entity.Property(e => e.OneToOneDependentId1).HasColumnName("OneToOneDependentID1");
 
@@ -360,8 +357,7 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneFktoUniqueKeyDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyDependentId1, e.OneToOneFktoUniqueKeyDependentId2 })
-                    .HasName("PK_OneToOneFKToUniqueKeyDependent");
+                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyDependentId1, e.OneToOneFktoUniqueKeyDependentId2 });
 
                 entity.ToTable("OneToOneFKToUniqueKeyDependent");
 
@@ -390,8 +386,7 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneFktoUniqueKeyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyPrincipalId1, e.OneToOneFktoUniqueKeyPrincipalId2 })
-                    .HasName("PK_OneToOneFKToUniqueKeyPrincipal");
+                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyPrincipalId1, e.OneToOneFktoUniqueKeyPrincipalId2 });
 
                 entity.ToTable("OneToOneFKToUniqueKeyPrincipal");
 
@@ -414,8 +409,7 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOnePrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOnePrincipalId1, e.OneToOnePrincipalId2 })
-                    .HasName("PK_OneToOnePrincipal");
+                entity.HasKey(e => new { e.OneToOnePrincipalId1, e.OneToOnePrincipalId2 });
 
                 entity.Property(e => e.OneToOnePrincipalId1).HasColumnName("OneToOnePrincipalID1");
 
@@ -428,8 +422,7 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneSeparateFkdependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneSeparateFkdependentId1, e.OneToOneSeparateFkdependentId2 })
-                    .HasName("PK_OneToOneSeparateFKDependent");
+                entity.HasKey(e => new { e.OneToOneSeparateFkdependentId1, e.OneToOneSeparateFkdependentId2 });
 
                 entity.ToTable("OneToOneSeparateFKDependent");
 
@@ -457,8 +450,7 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneSeparateFkprincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneSeparateFkprincipalId1, e.OneToOneSeparateFkprincipalId2 })
-                    .HasName("PK_OneToOneSeparateFKPrincipal");
+                entity.HasKey(e => new { e.OneToOneSeparateFkprincipalId1, e.OneToOneSeparateFkprincipalId2 });
 
                 entity.ToTable("OneToOneSeparateFKPrincipal");
 

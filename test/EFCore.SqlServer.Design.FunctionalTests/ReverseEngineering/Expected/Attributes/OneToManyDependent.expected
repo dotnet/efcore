@@ -12,7 +12,7 @@ namespace E2ETest.Namespace
         [Column("OneToManyDependentID2")]
         public int OneToManyDependentId2 { get; set; }
         [Required]
-        [MaxLength(20)]
+        [StringLength(20)]
         public string SomeDependentEndColumn { get; set; }
         [Column("OneToManyDependentFK2")]
         public int? OneToManyDependentFk2 { get; set; }

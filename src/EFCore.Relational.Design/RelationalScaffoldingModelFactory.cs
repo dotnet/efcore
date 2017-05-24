@@ -423,12 +423,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     // an extra index in the model. But if the index name does not
                     // match what would be produced by default then need to call
                     // HasName() on the primary key.
-                    if (index.Name !=
-                        RelationalKeyAnnotations
-                            .GetDefaultKeyName(
-                                index.Table.Name,
-                                true, /* is primary key */
-                                primaryKeyColumns.Select(GetPropertyName)))
+                    var key = builder.Metadata.FindPrimaryKey();
+
+                    if (index.Name != new RelationalKeyAnnotations(key).GetDefaultName())
                     {
                         builder.HasKey(propertyNames).HasName(index.Name);
                     }
