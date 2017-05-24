@@ -300,4 +300,7 @@
   <data name="UsingWorkingDirectory" xml:space="preserve">
     <value>Using working directory '{workingDirectory}'.</value>
   </data>
+  <data name="DesignNotFound" xml:space="preserve">
+    <value>Your startup project '{startupProject}' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework Core Tools to work. Ensure your startup project is correct, install the package, and try again.</value>
+  </data>
 </root>

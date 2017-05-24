@@ -411,6 +411,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 GetString("UsingWorkingDirectory", nameof(workingDirectory)),
                 workingDirectory);
 
+        /// <summary>
+        ///     Your startup project '{startupProject}' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework Core Tools to work. Ensure your startup project is correct, install the package, and try again.
+        /// </summary>
+        public static string DesignNotFound([CanBeNull] object startupProject)
+            => string.Format(
+                GetString("DesignNotFound", nameof(startupProject)),
+                startupProject);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

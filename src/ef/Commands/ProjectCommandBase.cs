@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.IO;
+using System.Reflection;
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
@@ -39,27 +41,38 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
         protected IOperationExecutor CreateExecutor()
         {
-            // TODO: Re-throw TypeLoadException and FileNotFoundException?
-#if NET461
-            if (!_noAppDomain.HasValue())
+            try
             {
-                return new AppDomainOperationExecutor(
+#if NET461
+                if (!_noAppDomain.HasValue())
+                {
+                    return new AppDomainOperationExecutor(
+                        _assembly.Value(),
+                        _startupAssembly.Value(),
+                        _projectDir.Value(),
+                        _dataDir.Value(),
+                        _rootNamespace.Value());
+                }
+#elif NETCOREAPP1_0
+#else
+#error target frameworks need to be updated.
+#endif
+                return new ReflectionOperationExecutor(
                     _assembly.Value(),
                     _startupAssembly.Value(),
                     _projectDir.Value(),
                     _dataDir.Value(),
                     _rootNamespace.Value());
             }
-#elif NETCOREAPP1_0
-#else
-#error target frameworks need to be updated.
-#endif
-            return new ReflectionOperationExecutor(
-                _assembly.Value(),
-                _startupAssembly.Value(),
-                _projectDir.Value(),
-                _dataDir.Value(),
-                _rootNamespace.Value());
+            catch (FileNotFoundException ex)
+                when (new AssemblyName(ex.FileName).Name == OperationExecutorBase.DesignAssemblyName)
+            {
+                throw new CommandException(
+                    Resources.DesignNotFound(
+                        Path.GetFileNameWithoutExtension(
+                            _startupAssembly.HasValue() ? _startupAssembly.Value() : _assembly.Value())),
+                    ex);
+            }
         }
     }
 }
