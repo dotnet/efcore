@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 public override void Dispose()
                 {
-                    _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetPersistentStore(DatabaseName).Clear();
+                    _serviceProvider.GetRequiredService<IInMemoryStoreCache>().GetStore(DatabaseName).Clear();
 
                     base.Dispose();
                 }

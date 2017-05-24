@@ -21,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public InMemoryQueryContextFactory(
             [NotNull] QueryContextDependencies dependencies,
-            [NotNull] IInMemoryStoreSource storeSource,
+            [NotNull] IInMemoryStoreCache storeCache,
             [NotNull] IDbContextOptions contextOptions)
             : base(dependencies)
         {
-            _store = storeSource.GetStore(contextOptions);
+            _store = storeCache.GetStore(contextOptions);
         }
 
         /// <summary>

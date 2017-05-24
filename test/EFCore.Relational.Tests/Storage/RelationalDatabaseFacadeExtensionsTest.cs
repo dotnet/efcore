@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInternalServiceProvider(_serviceProvider)
-                    .UseTransientInMemoryDatabase();
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
         [UsedImplicitly]

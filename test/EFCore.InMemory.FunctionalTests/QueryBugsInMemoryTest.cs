@@ -579,7 +579,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         using (var context = new TContext())
                         {
-                            context.GetService<IInMemoryStoreSource>().GetPersistentStore(DatabaseName).Clear();
+                            context.GetService<IInMemoryStoreCache>().GetStore(DatabaseName).Clear();
                         }
                     });
 

@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             private static TestWebHost BuildWebHost(string[] args)
                 => new TestWebHost(
                     new ServiceCollection()
-                        .AddDbContext<TestContext>(b => b.UseTransientInMemoryDatabase())
+                        .AddDbContext<TestContext>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                         .BuildServiceProvider());
         }
 

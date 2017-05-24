@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider());
 
             using (var context = new DbContext(optionsBuilder.Options))
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
 
-            var options = new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).UseTransientInMemoryDatabase().Options;
+            var options = new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
             IServiceProvider contextServices;
             using (var context = new DbContext(options))
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Each_context_gets_new_scoped_services_with_implicit_services_and_explicit_config()
         {
-            var options = new DbContextOptionsBuilder().UseTransientInMemoryDatabase().Options;
+            var options = new DbContextOptionsBuilder().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
             IServiceProvider contextServices;
             using (var context = new DbContext(options))
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new DbContext(
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(serviceProvider)
-                    .UseTransientInMemoryDatabase()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .Options))
             {
                 var changeDetector = (FakeChangeDetector)context.GetService<IChangeDetector>();
@@ -2230,7 +2230,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseTransientInMemoryDatabase()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .UseInternalServiceProvider(_serviceProvider);
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
@@ -2320,7 +2320,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_use_derived_context_with_options()
         {
             var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
             var singleton = new object[3];
@@ -2356,7 +2356,7 @@ namespace Microsoft.EntityFrameworkCore
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
             var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseLoggerFactory(loggerFactory)
                 .UseMemoryCache(memoryCache)
                 .Options;
@@ -2421,7 +2421,7 @@ namespace Microsoft.EntityFrameworkCore
                 .BuildServiceProvider();
 
             var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(internalServiceProivder)
                 .Options;
 
@@ -2454,7 +2454,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_use_derived_context_with_options_no_OnConfiguring()
         {
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
             var singleton = new object[3];
@@ -2490,7 +2490,7 @@ namespace Microsoft.EntityFrameworkCore
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseLoggerFactory(loggerFactory)
                 .UseMemoryCache(memoryCache)
                 .Options;
@@ -2525,7 +2525,7 @@ namespace Microsoft.EntityFrameworkCore
                 .BuildServiceProvider();
 
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(internalServiceProivder)
                 .Options;
 
@@ -2558,7 +2558,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_use_non_derived_context_with_options()
         {
             var options = new DbContextOptionsBuilder()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
             var singleton = new object[3];
@@ -2594,7 +2594,7 @@ namespace Microsoft.EntityFrameworkCore
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
             var options = new DbContextOptionsBuilder()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseLoggerFactory(loggerFactory)
                 .UseMemoryCache(memoryCache)
                 .Options;
@@ -2629,7 +2629,7 @@ namespace Microsoft.EntityFrameworkCore
                 .BuildServiceProvider();
 
             var options = new DbContextOptionsBuilder()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(internalServiceProivder)
                 .Options;
 
@@ -2740,7 +2740,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_add_derived_context_with_options()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddDbContext<ConstructorTestContextWithOC3A>(b => b.UseTransientInMemoryDatabase())
+                .AddDbContext<ConstructorTestContextWithOC3A>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider();
 
             var singleton = new object[4];
@@ -2776,7 +2776,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_add_derived_context_with_options_and_external_services()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddDbContext<ConstructorTestContextWithOC3A>(b => b.UseTransientInMemoryDatabase())
+                .AddDbContext<ConstructorTestContextWithOC3A>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider();
 
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
@@ -2856,7 +2856,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var appServiceProivder = new ServiceCollection()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
-                    b => b.UseTransientInMemoryDatabase()
+                    b => b.UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseInternalServiceProvider(internalServiceProivder))
                 .BuildServiceProvider();
 
@@ -2895,7 +2895,7 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
-                    (p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p))
+                    (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             var singleton = new object[4];
@@ -2933,7 +2933,7 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
-                    (p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p))
+                    (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
@@ -2973,7 +2973,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_add_derived_context_with_options_no_OnConfiguring()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddDbContext<ConstructorTestContext1A>(b => b.UseTransientInMemoryDatabase())
+                .AddDbContext<ConstructorTestContext1A>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider();
 
             var singleton = new object[4];
@@ -3009,7 +3009,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_add_derived_context_with_options_and_external_services_no_OnConfiguring()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddDbContext<ConstructorTestContext1A>(b => b.UseTransientInMemoryDatabase())
+                .AddDbContext<ConstructorTestContext1A>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider();
 
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
@@ -3054,7 +3054,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var appServiceProivder = new ServiceCollection()
                 .AddDbContext<ConstructorTestContext1A>(
-                    b => b.UseTransientInMemoryDatabase()
+                    b => b.UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseInternalServiceProvider(internalServiceProivder))
                 .BuildServiceProvider();
 
@@ -3093,7 +3093,7 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContext1A>(
-                    (p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p))
+                    (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             var singleton = new object[4];
@@ -3131,7 +3131,7 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContext1A>(
-                    (p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p))
+                    (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
@@ -3171,7 +3171,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_add_non_derived_context_with_options()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddDbContext<DbContext>(b => b.UseTransientInMemoryDatabase())
+                .AddDbContext<DbContext>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider();
 
             var singleton = new object[4];
@@ -3208,7 +3208,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var appServiceProivder = new ServiceCollection()
                 .AddDbContext<DbContext>(
-                    (p, b) => b.UseTransientInMemoryDatabase()
+                    (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseMemoryCache(p.GetService<IMemoryCache>())
                         .UseLoggerFactory(p.GetService<ILoggerFactory>()))
                 .BuildServiceProvider();
@@ -3251,7 +3251,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<DbContext>((p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p))
+                .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             var singleton = new object[4];
@@ -3364,18 +3364,18 @@ namespace Microsoft.EntityFrameworkCore
                 ? new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddDbContext<ConstructorTestContextWithOC3A>(
-                        (p, b) => b.UseInternalServiceProvider(p).UseTransientInMemoryDatabase(),
+                        (p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()),
                         ServiceLifetime.Singleton)
                     .BuildServiceProvider()
                 : (addSingletonFirst
                     ? new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
                         .AddSingleton<ConstructorTestContextWithOC3A>()
-                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseTransientInMemoryDatabase())
+                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()))
                         .BuildServiceProvider()
                     : new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
-                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseTransientInMemoryDatabase())
+                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()))
                         .AddSingleton<ConstructorTestContextWithOC3A>()
                         .BuildServiceProvider());
 
@@ -3483,18 +3483,18 @@ namespace Microsoft.EntityFrameworkCore
                 ? new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddDbContext<ConstructorTestContextWithOC3A>(
-                        (p, b) => b.UseInternalServiceProvider(p).UseTransientInMemoryDatabase(),
+                        (p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()),
                         ServiceLifetime.Transient)
                     .BuildServiceProvider()
                 : (addTransientFirst
                     ? new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
                         .AddTransient<ConstructorTestContextWithOC3A>()
-                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseTransientInMemoryDatabase())
+                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()))
                         .BuildServiceProvider()
                     : new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
-                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseTransientInMemoryDatabase())
+                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()))
                         .AddTransient<ConstructorTestContextWithOC3A>()
                         .BuildServiceProvider());
 
@@ -3546,10 +3546,10 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProivder = addSingletonFirst
                 ? new ServiceCollection()
                     .AddSingleton<DbContext>()
-                    .AddDbContext<DbContext>(b => b.UseTransientInMemoryDatabase())
+                    .AddDbContext<DbContext>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                     .BuildServiceProvider()
                 : new ServiceCollection()
-                    .AddDbContext<DbContext>(b => b.UseTransientInMemoryDatabase())
+                    .AddDbContext<DbContext>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                     .AddSingleton<DbContext>()
                     .BuildServiceProvider();
 
@@ -3605,12 +3605,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 serviceCollection
                     .AddSingleton<DbContext>()
-                    .AddDbContext<DbContext>((p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p));
+                    .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p));
             }
             else
             {
                 serviceCollection
-                    .AddDbContext<DbContext>((p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p))
+                    .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
                     .AddSingleton<DbContext>();
             }
 
@@ -3663,10 +3663,10 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProivder = addTransientFirst
                 ? new ServiceCollection()
                     .AddTransient<DbContext>()
-                    .AddDbContext<DbContext>(b => b.UseTransientInMemoryDatabase())
+                    .AddDbContext<DbContext>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                     .BuildServiceProvider()
                 : new ServiceCollection()
-                    .AddDbContext<DbContext>(b => b.UseTransientInMemoryDatabase())
+                    .AddDbContext<DbContext>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                     .AddTransient<DbContext>()
                     .BuildServiceProvider();
 
@@ -3728,12 +3728,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 serviceCollection
                     .AddTransient<DbContext>()
-                    .AddDbContext<DbContext>((p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p));
+                    .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p));
             }
             else
             {
                 serviceCollection
-                    .AddDbContext<DbContext>((p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p))
+                    .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
                     .AddTransient<DbContext>();
             }
 
@@ -3789,7 +3789,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<DbContext>((p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p))
+                .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             Assert.NotNull(appServiceProivder.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>());
@@ -3815,7 +3815,7 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<DbContext>((p, b) =>
-                    b.UseTransientInMemoryDatabase()
+                    b.UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseLoggerFactory(loggerFactory = new WrappingLoggerFactory(p.GetService<ILoggerFactory>())))
                 .BuildServiceProvider();
 
@@ -3843,7 +3843,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<DbContext>((p, b) => b.UseTransientInMemoryDatabase().UseInternalServiceProvider(p))
+                .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -3869,7 +3869,7 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<DbContext>((p, b) =>
-                    b.UseTransientInMemoryDatabase()
+                    b.UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseMemoryCache(replacecMemoryCache))
                 .BuildServiceProvider();
 
@@ -4129,7 +4129,7 @@ namespace Microsoft.EntityFrameworkCore
                     .ReplaceService<IModelCustomizer, CustomModelCustomizer>()
                     .ReplaceService<IValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
                     .ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
-                    .UseTransientInMemoryDatabase();
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
         private class CustomModelCustomizer : ModelCustomizer
@@ -4156,7 +4156,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_replace_services_in_passed_options()
         {
             var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .ReplaceService<IModelCustomizer, CustomModelCustomizer>()
                 .ReplaceService<IValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
                 .ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
@@ -4194,7 +4194,7 @@ namespace Microsoft.EntityFrameworkCore
                     b => b.ReplaceService<IModelCustomizer, CustomModelCustomizer>()
                         .ReplaceService<IValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
                         .ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
-                        .UseTransientInMemoryDatabase())
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider();
 
             object replacedSingleton;
@@ -4249,14 +4249,14 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInternalServiceProvider(new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
                         .BuildServiceProvider())
-                    .UseTransientInMemoryDatabase();
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
         [Fact]
         public void Throws_replacing_services_in_options_when_UseInternalServiceProvider()
         {
             var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .BuildServiceProvider())
@@ -4276,7 +4276,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
                     (p, b) => b.ReplaceService<IInMemoryTableFactory, CustomInMemoryTableFactory>()
-                        .UseTransientInMemoryDatabase()
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
@@ -4314,14 +4314,14 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInternalServiceProvider(new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
                         .BuildServiceProvider())
-                    .UseTransientInMemoryDatabase();
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
         [Fact]
         public void Throws_setting_LoggerFactory_in_options_when_UseInternalServiceProvider()
         {
             var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .BuildServiceProvider())
@@ -4343,7 +4343,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
                     (p, b) => b.UseLoggerFactory(new FakeLoggerFactory())
-                        .UseTransientInMemoryDatabase()
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
@@ -4383,14 +4383,14 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInternalServiceProvider(new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
                         .BuildServiceProvider())
-                    .UseTransientInMemoryDatabase();
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
         [Fact]
         public void Throws_setting_MemoryCache_in_options_when_UseInternalServiceProvider()
         {
             var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
-                .UseTransientInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .BuildServiceProvider())
@@ -4412,7 +4412,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
                     (p, b) => b.UseMemoryCache(new FakeMemoryCache())
-                        .UseTransientInMemoryDatabase()
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
@@ -4487,7 +4487,7 @@ namespace Microsoft.EntityFrameworkCore
                 => optionsBuilder
                     .EnableSensitiveDataLogging(_on)
                     .UseInternalServiceProvider(_serviceProvider)
-                    .UseTransientInMemoryDatabase();
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
         [Fact]
@@ -4499,7 +4499,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new ConstructorTestContextWithOC3A(
                 new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
-                    .UseTransientInMemoryDatabase()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .UseInternalServiceProvider(serviceProvider)
                     .EnableSensitiveDataLogging()
                     .Options))
@@ -4509,7 +4509,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new ConstructorTestContextWithOC3A(
                 new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
-                    .UseTransientInMemoryDatabase()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .UseInternalServiceProvider(serviceProvider)
                     .EnableSensitiveDataLogging(false)
                     .Options))
@@ -4532,7 +4532,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var serviceScope = new ServiceCollection()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
                     (p, b) => b.EnableSensitiveDataLogging()
-                        .UseTransientInMemoryDatabase()
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseInternalServiceProvider(serviceProvider))
                 .BuildServiceProvider()
                 .GetRequiredService<IServiceScopeFactory>()
@@ -4546,7 +4546,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var serviceScope = new ServiceCollection()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
                     (p, b) => b.EnableSensitiveDataLogging(false)
-                        .UseTransientInMemoryDatabase()
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseInternalServiceProvider(serviceProvider))
                 .BuildServiceProvider()
                 .GetRequiredService<IServiceScopeFactory>()
@@ -4623,7 +4623,7 @@ namespace Microsoft.EntityFrameworkCore
                 => optionsBuilder
                     .ConfigureWarnings(_configAction)
                     .UseInternalServiceProvider(_serviceProvider)
-                    .UseTransientInMemoryDatabase();
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
         [Fact]
@@ -4635,7 +4635,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new ConstructorTestContextWithOC3A(
                 new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
-                    .UseTransientInMemoryDatabase()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .UseInternalServiceProvider(serviceProvider)
                     .ConfigureWarnings(b => b.Default(WarningBehavior.Throw))
                     .Options))
@@ -4645,7 +4645,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new ConstructorTestContextWithOC3A(
                 new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
-                    .UseTransientInMemoryDatabase()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .UseInternalServiceProvider(serviceProvider)
                     .ConfigureWarnings(b => b.Default(WarningBehavior.Log))
                     .Options))
@@ -4668,7 +4668,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var serviceScope = new ServiceCollection()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
                     (p, b) => b.ConfigureWarnings(wb => wb.Default(WarningBehavior.Throw))
-                        .UseTransientInMemoryDatabase()
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseInternalServiceProvider(serviceProvider))
                 .BuildServiceProvider()
                 .GetRequiredService<IServiceScopeFactory>()
@@ -4682,7 +4682,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var serviceScope = new ServiceCollection()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
                     (p, b) => b.ConfigureWarnings(wb => wb.Default(WarningBehavior.Ignore))
-                        .UseTransientInMemoryDatabase()
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseInternalServiceProvider(serviceProvider))
                 .BuildServiceProvider()
                 .GetRequiredService<IServiceScopeFactory>()
@@ -4795,7 +4795,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (!optionsBuilder.IsConfigured)
                 {
-                    optionsBuilder.UseTransientInMemoryDatabase();
+                    optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
                 }
 
                 if (_internalServicesProvider != null)
@@ -4874,8 +4874,8 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_when_adding_two_contexts_using_non_generic_options()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddDbContext<NonGenericOptions2>(b => b.UseTransientInMemoryDatabase())
-                .AddDbContext<NonGenericOptions1>(b => b.UseTransientInMemoryDatabase())
+                .AddDbContext<NonGenericOptions2>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                .AddDbContext<NonGenericOptions1>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider();
 
             using (var serviceScope = appServiceProivder
@@ -4968,7 +4968,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseTransientInMemoryDatabase()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .UseInternalServiceProvider(_serviceProvider);
         }
 
@@ -5003,7 +5003,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseTransientInMemoryDatabase()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .UseInternalServiceProvider(_serviceProvider);
         }
 
@@ -5322,7 +5322,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var fakeServiceProvider = new FakeServiceProvider();
             var context = new DbContext(
-                new DbContextOptionsBuilder().UseInternalServiceProvider(fakeServiceProvider).UseTransientInMemoryDatabase().Options);
+                new DbContextOptionsBuilder().UseInternalServiceProvider(fakeServiceProvider).UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
             var scopeService = Assert.IsType<FakeServiceProvider.FakeServiceScope>(context.GetService<IServiceScopeFactory>().CreateScope());
 

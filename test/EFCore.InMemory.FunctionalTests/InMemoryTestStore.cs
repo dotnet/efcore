@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
             Action initializeDatabase)
             => CreateScratch(
                 initializeDatabase, 
-                () => serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetPersistentStore(databaseName).Clear());
+                () => serviceProvider.GetRequiredService<IInMemoryStoreCache>().GetStore(databaseName).Clear());
 
         public static InMemoryTestStore CreateScratch(Action initializeDatabase, Action deleteDatabase)
             => new InMemoryTestStore().CreateTransient(initializeDatabase, deleteDatabase);

@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<TestEntity> TestEntities { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseTransientInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
         #endregion

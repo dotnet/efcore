@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(
                     new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider())
-                .UseTransientInMemoryDatabase();
+                .UseInMemoryDatabase(Guid.NewGuid().ToString());
             var context = new DbContext(optionsBuilder.Options);
 
             Assert.Equal(

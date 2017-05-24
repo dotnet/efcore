@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<IgnoredEntity> Ignored { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseTransientInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Ignore<IgnoredEntity>();
@@ -557,7 +557,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseTransientInMemoryDatabase()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider());
         }
     }

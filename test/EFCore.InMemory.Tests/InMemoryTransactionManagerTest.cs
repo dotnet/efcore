@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         public void CurrentTransaction_returns_null()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseTransientInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_on_BeginTransaction()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseTransientInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
         public async Task Throws_on_BeginTransactionAsync()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseTransientInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_on_CommitTransaction()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseTransientInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_on_RollbackTransaction()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseTransientInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 

@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var optionsBuilder
                 = new DbContextOptionsBuilder()
-                    .UseTransientInMemoryDatabase();
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             using (var context = new DbContext(optionsBuilder.Options))
             {
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
             var optionsBuilder
                 = new DbContextOptionsBuilder()
                     .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-                    .UseTransientInMemoryDatabase();
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             using (var context = new DbContext(optionsBuilder.Options))
             {

@@ -32,16 +32,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public InMemoryDatabase(
             [NotNull] DatabaseDependencies dependencies,
-            [NotNull] IInMemoryStoreSource storeSource,
+            [NotNull] IInMemoryStoreCache storeCache,
             [NotNull] IDbContextOptions options,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
             : base(dependencies)
         {
-            Check.NotNull(storeSource, nameof(storeSource));
+            Check.NotNull(storeCache, nameof(storeCache));
             Check.NotNull(options, nameof(options));
             Check.NotNull(updateLogger, nameof(updateLogger));
 
-            _store = storeSource.GetStore(options);
+            _store = storeCache.GetStore(options);
             _updateLogger = updateLogger;
         }
 

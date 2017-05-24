@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseTransientInMemoryDatabase()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .UseInternalServiceProvider(_serviceProvider);
         }
     }

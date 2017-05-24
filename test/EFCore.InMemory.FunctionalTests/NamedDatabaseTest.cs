@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (_databaseName == null)
                 {
-                    optionsBuilder.UseTransientInMemoryDatabase();
+                    optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
                 }
                 else
                 {

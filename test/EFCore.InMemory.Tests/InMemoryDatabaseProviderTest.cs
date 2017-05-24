@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Is_configured_when_configuration_contains_associated_extension()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseTransientInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             Assert.True(new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
         }

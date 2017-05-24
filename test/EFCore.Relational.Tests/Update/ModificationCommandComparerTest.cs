@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            optionsBuilder.UseTransientInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var model = new Model();
             var entityType = model.AddEntityType(typeof(object));
 
-            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model).UseTransientInMemoryDatabase();
+            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model).UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
