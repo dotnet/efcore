@@ -51,11 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual DiagnosticSource DiagnosticSource { get; }
 
-        private bool ShouldThrow(LogLevel logLevel, WarningBehavior? warningBehavior)
-            => warningBehavior == WarningBehavior.Throw
-               || (logLevel == LogLevel.Warning
-                   && _warningsConfiguration?.DefaultBehavior == WarningBehavior.Throw);
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -87,11 +82,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var warningBehavior = _warningsConfiguration?.GetBehavior(eventId);
 
-            return warningBehavior == WarningBehavior.Ignore
-                ? WarningBehavior.Ignore
-                : (ShouldThrow(logLevel, warningBehavior)
+            return warningBehavior != null
+                ? warningBehavior.Value
+                : (logLevel == LogLevel.Warning
+                   && _warningsConfiguration?.DefaultBehavior == WarningBehavior.Throw)
                     ? WarningBehavior.Throw
-                    : WarningBehavior.Log);
+                    : WarningBehavior.Log;
         }
     }
 }

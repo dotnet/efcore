@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -19,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
             => ConfigureOptions(
                     new DbContextOptionsBuilder()
+                        .ConfigureWarnings(w => w.Log(CoreEventId.IncludeIgnoredWarning))
                         .EnableSensitiveDataLogging()
                         .UseInternalServiceProvider(
                             (additionalServices ?? new ServiceCollection())

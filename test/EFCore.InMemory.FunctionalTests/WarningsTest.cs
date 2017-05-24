@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -51,6 +52,36 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.FirstWithoutOrderByAndFilterWarning.ToString(),
+                        CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
+                            "(from WarningAsErrorEntity <generated>_1 in DbSet<WarningAsErrorEntity> select [<generated>_1]).Firs...")),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.WarningAsErrorEntities.FirstOrDefault()).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_warning_as_error_specific()
+        {
+            using (var context = new WarningAsErrorContext(toThrow: CoreEventId.FirstWithoutOrderByAndFilterWarning))
+            {
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.FirstWithoutOrderByAndFilterWarning.ToString(),
+                        CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
+                            "(from WarningAsErrorEntity <generated>_1 in DbSet<WarningAsErrorEntity> select [<generated>_1]).Firs...")),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.WarningAsErrorEntities.FirstOrDefault()).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_by_default_for_ignored_includes()
+        {
+            using (var context = new WarningAsErrorContext())
+            {
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.IncludeIgnoredWarning.ToString(),
                         CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav")),
                     Assert.Throws<InvalidOperationException>(()
@@ -59,48 +90,57 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Throws_when_warning_as_error_specific()
+        public void Ignored_includes_can_be_configured_to_not_throw()
         {
-            using (var context = new WarningAsErrorContext(CoreEventId.IncludeIgnoredWarning))
+            var messages = new List<string>();
+            using (var context = new WarningAsErrorContext(messages, toLog: CoreEventId.IncludeIgnoredWarning))
             {
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        CoreEventId.IncludeIgnoredWarning.ToString(),
-                        CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav")),
-                    Assert.Throws<InvalidOperationException>(()
-                        => context.WarningAsErrorEntities.Include(e => e.Nav).Skip(1).Select(e => e.Id).ToList()).Message);
+                context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList();
+
+                Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav"), messages);
             }
         }
 
         [Fact]
         public void No_throw_when_event_id_not_registered()
         {
-            using (var context = new WarningAsErrorContext(CoreEventId.SensitiveDataLoggingEnabledWarning))
+            using (var context = new WarningAsErrorContext(toThrow: CoreEventId.SensitiveDataLoggingEnabledWarning))
             {
                 // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                context.WarningAsErrorEntities.Include(e => e.Nav).Take(1).Select(e => e.Id).ToList();
+                context.WarningAsErrorEntities.FirstOrDefault();
             }
         }
 
         private class WarningAsErrorContext : DbContext
         {
-            private readonly EventId[] _eventIds;
+            private readonly IList<string> _sink;
+            private readonly EventId? _toLog;
+            private readonly EventId? _toThrow;
 
-            public WarningAsErrorContext(params EventId[] eventIds)
+            public WarningAsErrorContext(
+                IList<string> sink = null,
+                EventId? toLog = null, 
+                EventId? toThrow = null)
             {
-                _eventIds = eventIds;
+                _sink = sink;
+                _toLog = toLog;
+                _toThrow = toThrow;
             }
 
             public DbSet<WarningAsErrorEntity> WarningAsErrorEntities { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseLoggerFactory(new FakeLoggerFactory())
+                    .UseLoggerFactory(new FakeLoggerFactory(_sink))
                     .UseInMemoryDatabase(nameof(WarningAsErrorContext)).ConfigureWarnings(c =>
                     {
-                        if (_eventIds.Any())
+                        if (_toThrow != null)
                         {
-                            c.Throw(_eventIds);
+                            c.Throw(_toThrow.Value);
+                        }
+                        else if (_toLog != null)
+                        {
+                            c.Log(_toLog.Value);
                         }
                         else
                         {
@@ -123,14 +163,22 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeLoggerFactory : ILoggerFactory
         {
+            private readonly IList<string> _sink;
+
+            public FakeLoggerFactory(IList<string> sink) => _sink = sink;
+
             public void Dispose()
             {
             }
 
-            public ILogger CreateLogger(string categoryName) => new FakeLogger();
+            public ILogger CreateLogger(string categoryName) => new FakeLogger(_sink);
 
             private class FakeLogger : ILogger
             {
+                private readonly IList<string> _sink;
+
+                public FakeLogger(IList<string> sink) => _sink = sink;
+
                 public void Log<TState>(
                     LogLevel logLevel,
                     EventId eventId,
@@ -138,9 +186,10 @@ namespace Microsoft.EntityFrameworkCore
                     Exception exception,
                     Func<TState, Exception, string> formatter)
                 {
+                    _sink?.Add(formatter(state, exception));
                 }
 
-                public bool IsEnabled(LogLevel logLevel) => false;
+                public bool IsEnabled(LogLevel logLevel) => true;
 
                 public IDisposable BeginScope<TState>(TState state) => null;
             }

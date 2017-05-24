@@ -1409,7 +1409,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     The Include operation '{include}' was ignored because the target navigation is not reachable in the final query results.
+        ///     The Include operation '{include}' was ignored because the target navigation is not reachable in the final query results. The call to 'Include' can be removed without changing the query results. See https://go.microsoft.com/fwlink/?linkid=850303 for more information.
         /// </summary>
         public static readonly EventDefinition<string> LogIgnoredInclude
             = new EventDefinition<string>(

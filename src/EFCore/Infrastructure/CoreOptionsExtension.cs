@@ -32,11 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private ILoggerFactory _loggerFactory;
         private IMemoryCache _memoryCache;
         private bool _sensitiveDataLoggingEnabled;
-        private WarningsConfiguration _warningsConfiguration = new WarningsConfiguration();
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
         private IDictionary<Type, Type> _replacedServices;
         private int? _maxPoolSize;
         private long? _serviceProviderHash;
+
+        private WarningsConfiguration _warningsConfiguration 
+            = new WarningsConfiguration().TryWithExplicit(CoreEventId.IncludeIgnoredWarning, WarningBehavior.Throw);
 
         /// <summary>
         ///     Creates a new set of options with everything set to default values.
