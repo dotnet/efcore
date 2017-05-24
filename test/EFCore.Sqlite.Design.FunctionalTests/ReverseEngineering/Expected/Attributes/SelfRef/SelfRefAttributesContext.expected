@@ -18,7 +18,6 @@ namespace E2E.Sqlite
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-        }
+        {}
     }
 }

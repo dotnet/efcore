@@ -25,6 +25,11 @@ namespace E2E.Sqlite
                 entity.HasIndex(e => e.PrincipalId)
                     .HasName("sqlite_autoindex_Dependent_1")
                     .IsUnique();
+
+                entity.HasOne(d => d.Principal)
+                    .WithOne(p => p.Dependent)
+                    .HasForeignKey<Dependent>(d => d.PrincipalId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

@@ -46,13 +46,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 RelationalAnnotationNames.Name,
                 Check.NullButNotEmpty(value, nameof(value)));
 
-        protected virtual string GetDefaultName()
+        public virtual string GetDefaultName()
             => GetDefaultKeyName(
                 GetAnnotations(Key.DeclaringEntityType).TableName,
                 Key.IsPrimaryKey(),
                 Key.Properties.Select(p => GetAnnotations(p).ColumnName));
 
-        public static string GetDefaultKeyName(
+        private static string GetDefaultKeyName(
             [NotNull] string tableName, bool primaryKey, [NotNull] IEnumerable<string> propertyNames)
         {
             Check.NotEmpty(tableName, nameof(tableName));

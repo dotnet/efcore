@@ -23,7 +23,7 @@ namespace E2ETest.Namespace
             {
                 entity.HasIndex(e => e.Number)
                     .HasName("Unicorn_Filtered_Index")
-                    .HasFilter(@"([Number]>(10))");
+                    .HasFilter("([Number]>(10))");
 
                 entity.Property(e => e.Id).ValueGeneratedNever();
             });

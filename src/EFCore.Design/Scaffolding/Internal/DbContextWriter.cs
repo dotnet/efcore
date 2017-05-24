@@ -1,12 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -19,23 +22,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     {
         private const string EntityLambdaIdentifier = "entity";
 
-        private ScaffoldingUtilities ScaffoldingUtilities { get; }
+        private CSharpUtilities CSharpUtilities { get; }
         private IndentedStringBuilder _sb;
-        private ModelConfiguration _model;
-        private bool _foundFirstFluentApiForEntity;
+        private bool _entityTypeBuilderInitialized;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public DbContextWriter(
-            [NotNull] ScaffoldingUtilities scaffoldingUtilities,
             [NotNull] CSharpUtilities cSharpUtilities)
         {
-            Check.NotNull(scaffoldingUtilities, nameof(scaffoldingUtilities));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
 
-            ScaffoldingUtilities = scaffoldingUtilities;
+            CSharpUtilities = cSharpUtilities;
         }
 
         /// <summary>
@@ -43,56 +43,77 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string WriteCode(
-            [NotNull] ModelConfiguration modelConfiguration)
+            [NotNull] IModel model,
+            [NotNull] string @namespace,
+            [NotNull] string contextName,
+            [NotNull] string connectionString,
+            bool useDataAnnotations)
         {
-            Check.NotNull(modelConfiguration, nameof(modelConfiguration));
+            Check.NotNull(model, nameof(model));
 
-            _model = modelConfiguration;
             _sb = new IndentedStringBuilder();
 
             _sb.AppendLine("using System;"); // Guid default values require new Guid() which requires this using
             _sb.AppendLine("using Microsoft.EntityFrameworkCore;");
             _sb.AppendLine("using Microsoft.EntityFrameworkCore.Metadata;");
             _sb.AppendLine();
-            _sb.AppendLine("namespace " + _model.Namespace);
+
+            _sb.AppendLine($"namespace {@namespace}");
             _sb.AppendLine("{");
+
             using (_sb.Indent())
             {
-                AddClass();
+                GenerateClass(model, contextName, connectionString, useDataAnnotations);
             }
+
             _sb.Append("}");
 
             return _sb.ToString();
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void AddClass()
+        private void GenerateClass(IModel model, string contextName, string connectionString, bool useDataAnnotations)
         {
-            var className =
-                string.IsNullOrWhiteSpace(_model.ContextName)
-                    ? _model.ClassName()
-                    : _model.ContextName;
-            _sb.AppendLine("public partial class " + className + " : DbContext");
+            _sb.AppendLine($"public partial class {contextName} : DbContext");
             _sb.AppendLine("{");
+
             using (_sb.Indent())
             {
-                AddDbSetProperties();
-                AddEntityTypeErrors();
-                AddOnConfiguring();
-                _sb.AppendLine();
-                AddOnModelCreating();
+                GenerateDbSets(model);
+                GenerateEntityTypeErrors(model);
+                GenerateOnConfiguring(model, connectionString);
+                GenerateOnModelCreating(model, useDataAnnotations);
             }
+
             _sb.AppendLine("}");
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void AddOnConfiguring()
+        private void GenerateDbSets(IModel model)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                _sb.AppendLine($"public virtual DbSet<{entityType.Name}> {entityType.Scaffolding().DbSetName} {{ get; set; }}");
+            }
+
+            if (model.GetEntityTypes().Any())
+            {
+                _sb.AppendLine();
+            }
+        }
+
+        private void GenerateEntityTypeErrors(IModel model)
+        {
+            foreach (var entityTypeError in model.Scaffolding().EntityTypeErrors)
+            {
+                _sb.AppendLine($"// {entityTypeError.Value} Please see the warning messages.");
+            }
+
+            if (model.Scaffolding().EntityTypeErrors.Any())
+            {
+                _sb.AppendLine();
+            }
+        }
+
+        private void GenerateOnConfiguring(IModel model, string connectionString)
         {
             _sb.AppendLine("protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)");
             _sb.AppendLine("{");
@@ -106,257 +127,433 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     _sb.AppendLine("#warning " + DesignStrings.SensitiveInformationWarning);
 
-                    foreach (var optionsBuilderConfig in _model.OnConfiguringConfigurations)
-                    {
-                        if (optionsBuilderConfig.FluentApiLines.Count == 0)
-                        {
-                            continue;
-                        }
+                    var methodName = model.Scaffolding().UseProviderMethodName;
 
-                        _sb.Append("optionsBuilder." + optionsBuilderConfig.FluentApiLines.First());
-                        using (_sb.Indent())
-                        {
-                            foreach (var line in optionsBuilderConfig.FluentApiLines.Skip(1))
-                            {
-                                _sb.AppendLine();
-                                _sb.Append(line);
-                            }
-                        }
-                        _sb.AppendLine(";");
+                    if (string.IsNullOrEmpty(methodName))
+                    {
+                        throw new InvalidOperationException(RelationalDesignStrings.MissingUseProviderMethodNameAnnotation);
                     }
+
+                    _sb.AppendLine($"optionsBuilder.{methodName}({CSharpUtilities.GenerateVerbatimStringLiteral(connectionString)});");
                 }
 
                 _sb.AppendLine("}");
             }
             _sb.AppendLine("}");
+
+            _sb.AppendLine();
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void AddOnModelCreating()
+
+        private void GenerateOnModelCreating(IModel model, bool useDataAnnotations)
         {
             _sb.AppendLine("protected override void OnModelCreating(ModelBuilder modelBuilder)");
-            _sb.AppendLine("{");
+            _sb.Append("{");
 
             using (_sb.Indent())
             {
-                var first = true;
-                foreach (var entityConfig in _model.EntityConfigurations)
+                foreach (var entityType in model.GetEntityTypes())
                 {
-                    var fluentApiConfigurations = entityConfig.GetFluentApiConfigurations(_model.UseDataAnnotations);
-                    var propertyConfigurations = entityConfig.GetPropertyConfigurations(_model.UseDataAnnotations);
-                    var relationshipConfigurations = entityConfig.GetRelationshipConfigurations(_model.UseDataAnnotations);
-                    if (fluentApiConfigurations.Count == 0
-                        && propertyConfigurations.Count == 0
-                        && relationshipConfigurations.Count == 0)
-                    {
-                        continue;
-                    }
+                    _entityTypeBuilderInitialized = false;
 
-                    if (!first)
-                    {
-                        _sb.AppendLine();
-                    }
-                    first = false;
+                    GenerateEntityType(entityType, useDataAnnotations);
 
-                    _sb.AppendLine("modelBuilder.Entity<"
-                                   + entityConfig.EntityType.Name + ">("
-                                   + EntityLambdaIdentifier + " =>");
-                    _sb.AppendLine("{");
-                    using (_sb.Indent())
+                    if (_entityTypeBuilderInitialized)
                     {
-                        _foundFirstFluentApiForEntity = false;
-                        AddEntityFluentApi(fluentApiConfigurations);
-                        AddPropertyConfigurations(propertyConfigurations);
-                        AddRelationshipConfigurations(relationshipConfigurations);
+                        _sb.AppendLine("});");
                     }
-                    _sb.AppendLine("});");
                 }
 
-                foreach (var sequenceConfig in _model.SequenceConfigurations)
+                foreach (var sequence in model.Relational().Sequences)
                 {
-                    if (!first)
-                    {
-                        _sb.AppendLine();
-                    }
-                    first = false;
-
-                    _sb.Append("modelBuilder.HasSequence")
-                        .Append(!string.IsNullOrEmpty(sequenceConfig.TypeIdentifier) ? "<" + sequenceConfig.TypeIdentifier + ">" : "")
-                        .Append("(" + sequenceConfig.NameIdentifier)
-                        .Append(!string.IsNullOrEmpty(sequenceConfig.SchemaNameIdentifier) ? ", " + sequenceConfig.SchemaNameIdentifier : "")
-                        .Append(")");
-
-                    AddFluentConfigurations(sequenceConfig.FluentApiConfigurations);
+                    GenerateSequence(sequence);
                 }
             }
 
             _sb.AppendLine("}");
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void AddEntityFluentApi(
-            [NotNull] List<IFluentApiConfiguration> fluentApiConfigurations)
+        private void InitializeEntityTypeBuilder(IEntityType entityType)
         {
-            Check.NotNull(fluentApiConfigurations, nameof(fluentApiConfigurations));
-
-            foreach (var entityFluentApi in fluentApiConfigurations)
+            if (!_entityTypeBuilderInitialized)
             {
-                if (entityFluentApi.FluentApiLines.Count == 0)
-                {
-                    continue;
-                }
+                _sb.AppendLine();
+                _sb.AppendLine($"modelBuilder.Entity<{entityType.Name}>({EntityLambdaIdentifier} =>");
+                _sb.Append("{");
+            }
 
-                if (_foundFirstFluentApiForEntity)
-                {
-                    _sb.AppendLine();
-                }
-                _foundFirstFluentApiForEntity = true;
+            _entityTypeBuilderInitialized = true;
+        }
 
-                _sb.Append(EntityLambdaIdentifier + "." + entityFluentApi.FluentApiLines.First());
-                if (entityFluentApi.FluentApiLines.Count > 1)
+        private void GenerateEntityType(IEntityType entityType, bool useDataAnnotations)
+        {
+            GenerateKey(entityType.FindPrimaryKey(), useDataAnnotations);
+
+            if (!useDataAnnotations)
+            {
+                GenerateTableName(entityType);
+            }
+
+            foreach (var index in entityType.GetIndexes())
+            {
+                GenerateIndex(index);
+            }
+
+            foreach (var property in entityType.GetProperties())
+            {
+                GenerateProperty(property, useDataAnnotations);
+            }
+
+            foreach (var foreignKey in entityType.GetForeignKeys())
+            {
+                GenerateRelationship(foreignKey, useDataAnnotations);
+            }
+        }
+
+        private void AppendMultiLineFluentApi(IEntityType entityType, IList<string> lines)
+        {
+            if (lines.Count <= 0)
+            {
+                return;
+            }
+
+            InitializeEntityTypeBuilder(entityType);
+
+            using (_sb.Indent())
+            {
+                _sb.AppendLine();
+
+                _sb.Append(EntityLambdaIdentifier + lines[0]);
+
+                using (_sb.Indent())
                 {
-                    using (_sb.Indent())
+                    foreach (var line in lines.Skip(1))
                     {
-                        foreach (var line in entityFluentApi.FluentApiLines.Skip(1))
-                        {
-                            _sb.AppendLine();
-                            _sb.Append(line);
-                        }
+                        _sb.AppendLine();
+                        _sb.Append(line);
                     }
                 }
+
                 _sb.AppendLine(";");
             }
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void AddPropertyConfigurations(
-            [NotNull] List<PropertyConfiguration> propertyConfigurations)
+        private void GenerateKey(IKey key, bool useDataAnnotations)
         {
-            Check.NotNull(propertyConfigurations, nameof(propertyConfigurations));
-
-            foreach (var propertyConfig in propertyConfigurations)
+            if (key == null)
             {
-                var fluentApiConfigurations =
-                    propertyConfig.GetFluentApiConfigurations(_model.UseDataAnnotations);
-                if (fluentApiConfigurations.Count == 0)
+                return;
+            }
+
+            var explicitName = key.Relational().Name != new RelationalKeyAnnotations(key).GetDefaultName();
+
+            if (key.Properties.Count == 1)
+            {
+
+                if (key is Key concreteKey
+                    && key.Properties.SequenceEqual(new KeyDiscoveryConvention().DiscoverKeyProperties(concreteKey.DeclaringEntityType, concreteKey.DeclaringEntityType.GetProperties().ToList())))
                 {
-                    continue;
+                    return;
                 }
 
-                if (_foundFirstFluentApiForEntity)
+                if (!explicitName
+                    && useDataAnnotations)
                 {
-                    _sb.AppendLine();
+                    return;
                 }
-                _foundFirstFluentApiForEntity = true;
 
-                _sb.Append(EntityLambdaIdentifier
-                           + ".Property(e => e." + propertyConfig.Property.Name + ")");
+            }
 
-                AddFluentConfigurations(fluentApiConfigurations);
+            var lines = new List<string>
+            {
+                $".{nameof(EntityTypeBuilder.HasKey)}(e => {GenerateLambdaToKey(key.Properties, "e")})"
+            };
+
+            if (explicitName)
+            {
+                lines.Add($".{nameof(RelationalKeyBuilderExtensions.HasName)}({CSharpUtilities.DelimitString(key.Relational().Name)})");
+            }
+
+            AppendMultiLineFluentApi(key.DeclaringEntityType, lines);
+        }
+
+        private void GenerateTableName(IEntityType entityType)
+        {
+            var tableName = entityType.Relational().TableName;
+            var schema = entityType.Relational().Schema;
+            var defaultSchema = entityType.Model.Relational().DefaultSchema;
+
+            var explicitSchema = schema != null && schema != defaultSchema;
+            var explicitTable = explicitSchema || tableName != null && tableName != entityType.Scaffolding().DbSetName;
+
+            if (explicitTable)
+            {
+                var parameterString = CSharpUtilities.DelimitString(tableName);
+                if (explicitSchema)
+                {
+                    parameterString += ", " + CSharpUtilities.DelimitString(schema);
+                }
+
+                var lines = new List<string>
+                {
+                    $".{nameof(RelationalEntityTypeBuilderExtensions.ToTable)}({parameterString})"
+                };
+
+                AppendMultiLineFluentApi(entityType, lines);
             }
         }
 
-        private void AddFluentConfigurations(List<FluentApiConfiguration> fluentApiConfigurations)
+        private void GenerateIndex(IIndex index)
         {
-            if (fluentApiConfigurations.Count > 1)
+            var lines = new List<string>
             {
-                _sb.AppendLine();
-                _sb.IncrementIndent();
+                $".{nameof(EntityTypeBuilder.HasIndex)}(e => {GenerateLambdaToKey(index.Properties, "e")})"
+            };
+
+            if (!string.IsNullOrEmpty(index.Relational().Name))
+            {
+                lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasName)}({CSharpUtilities.Instance.DelimitString(index.Relational().Name)})");
             }
 
-            var first = true;
-            foreach (var fluentApiConfiguration in fluentApiConfigurations)
+            if (index.IsUnique)
             {
-                if (!first)
+                lines.Add($".{nameof(IndexBuilder.IsUnique)}()");
+            }
+
+            if (index.Relational().Filter != null)
+            {
+                lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasFilter)}({CSharpUtilities.DelimitString(index.Relational().Filter)})");
+            }
+
+            AppendMultiLineFluentApi(index.DeclaringEntityType, lines);
+        }
+
+        private void GenerateProperty(IProperty property, bool useDataAnnotations)
+        {
+            var lines = new List<string>
+            {
+                $".{nameof(EntityTypeBuilder.Property)}(e => e.{property.Name})"
+            };
+
+            if (!useDataAnnotations)
+            {
+                if (!property.IsNullable
+                    && property.ClrType.IsNullableType()
+                    && !property.IsPrimaryKey())
+                {
+                    lines.Add($".{nameof(PropertyBuilder.IsRequired)}()");
+                }
+
+                var columnName = property.Relational().ColumnName;
+
+                if (columnName != null
+                    && columnName != property.Name)
+                {
+                    lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}({CSharpUtilities.DelimitString(columnName)})");
+                }
+
+                var columnType = property.Relational().ColumnType;
+
+                if (columnType != null)
+                {
+                    lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}({CSharpUtilities.DelimitString(columnType)})");
+                }
+
+                var maxLength = property.GetMaxLength();
+
+                if (maxLength.HasValue)
+                {
+                    lines.Add($".{nameof(PropertyBuilder.HasMaxLength)}({CSharpUtilities.GenerateLiteral(maxLength.Value)})");
+                }
+            }
+
+            if (property.Relational().DefaultValue != null)
+            {
+                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}({CSharpUtilities.GenerateLiteral((dynamic)property.Relational().DefaultValue)})");
+            }
+
+            if (property.Relational().DefaultValueSql != null)
+            {
+                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql)}({CSharpUtilities.DelimitString(property.Relational().DefaultValueSql)})");
+            }
+
+            if (property.Relational().ComputedColumnSql != null)
+            {
+                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}({CSharpUtilities.DelimitString(property.Relational().ComputedColumnSql)})");
+            }
+
+            var valueGenerated = property.ValueGenerated;
+            if (((Property)property).GetValueGeneratedConfigurationSource().HasValue
+                && new RelationalValueGeneratorConvention().GetValueGenerated((Property)property) != valueGenerated)
+            {
+                string methodName;
+                switch (valueGenerated)
+                {
+                    case ValueGenerated.OnAdd:
+                        methodName = nameof(PropertyBuilder.ValueGeneratedOnAdd);
+                        break;
+
+                    case ValueGenerated.OnAddOrUpdate:
+                        methodName = nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate);
+                        break;
+
+                    case ValueGenerated.Never:
+                        methodName = nameof(PropertyBuilder.ValueGeneratedNever);
+                        break;
+
+                    default:
+                        methodName = "";
+                        break;
+                }
+
+                lines.Add($".{methodName}()");
+            }
+
+            switch (lines.Count)
+            {
+                case 1:
+                    return;
+                case 2:
+                    lines = new List<string>
+                    {
+                        lines[0] + lines[1]
+                    };
+                    break;
+            }
+
+            AppendMultiLineFluentApi(property.DeclaringEntityType, lines);
+        }
+
+        private void GenerateRelationship(IForeignKey foreignKey, bool useDataAnnotations)
+        {
+            var canUseDataAnnotations = true;
+            var lines = new List<string>
+            {
+                $".{nameof(EntityTypeBuilder.HasOne)}(d => d.{foreignKey.DependentToPrincipal.Name})",
+                $".{(foreignKey.IsUnique ? nameof(ReferenceNavigationBuilder.WithOne) : nameof(ReferenceNavigationBuilder.WithMany))}"
+                + $"(p => p.{foreignKey.PrincipalToDependent.Name})"
+            };
+
+            if (!foreignKey.PrincipalKey.IsPrimaryKey())
+            {
+                canUseDataAnnotations = false;
+                lines.Add($".{nameof(ReferenceReferenceBuilder.HasPrincipalKey)}"
+                    + $"{(foreignKey.IsUnique ? $"<{foreignKey.PrincipalEntityType.DisplayName()}>" : "")}"
+                    + $"(p => {GenerateLambdaToKey(foreignKey.PrincipalKey.Properties, "p")})");
+            }
+
+            lines.Add($".{nameof(ReferenceReferenceBuilder.HasForeignKey)}"
+                      + $"{(foreignKey.IsUnique ? $"<{foreignKey.DeclaringEntityType.DisplayName()}>" : "")}"
+                      + $"(d => {GenerateLambdaToKey(foreignKey.Properties, "d")})");
+
+            var defaultOnDeleteAction = foreignKey.IsRequired
+                ? DeleteBehavior.Cascade
+                : DeleteBehavior.Restrict;
+
+            if (foreignKey.DeleteBehavior != defaultOnDeleteAction)
+            {
+                canUseDataAnnotations = false;
+                lines.Add($".{nameof(ReferenceReferenceBuilder.OnDelete)}({CSharpUtilities.GenerateLiteral(foreignKey.DeleteBehavior)})");
+            }
+
+            if (foreignKey.Relational().Name !=
+                RelationalForeignKeyAnnotations.GetDefaultForeignKeyName(
+                    foreignKey.DeclaringEntityType.Relational().TableName,
+                    foreignKey.PrincipalEntityType.Relational().TableName,
+                    foreignKey.Properties.Select(p => p.Relational().ColumnName)))
+            {
+                canUseDataAnnotations = false;
+                lines.Add($".{nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)}({CSharpUtilities.DelimitString(foreignKey.Relational().Name)})");
+            }
+
+            if (!useDataAnnotations || !canUseDataAnnotations)
+            {
+                AppendMultiLineFluentApi(foreignKey.DeclaringEntityType, lines);
+            }
+        }
+
+        private void GenerateSequence(ISequence sequence)
+        {
+            var methodName = nameof(RelationalModelBuilderExtensions.HasSequence);
+
+            if (sequence.ClrType != Sequence.DefaultClrType)
+            {
+                methodName += $"<{CSharpUtilities.GetTypeName(sequence.ClrType)}>";
+            }
+
+            var parameters = CSharpUtilities.DelimitString(sequence.Name);
+
+            if (string.IsNullOrEmpty(sequence.Schema)
+                && sequence.Model.Relational().DefaultSchema != sequence.Schema)
+            {
+                parameters += $", {CSharpUtilities.DelimitString(sequence.Schema)}";
+            }
+
+            var lines = new List<string>
+            {
+                $"modelBuilder.{methodName}({parameters})"
+            };
+
+            if (sequence.StartValue != Sequence.DefaultStartValue)
+            {
+                lines.Add($".{nameof(RelationalSequenceBuilder.StartsAt)}({sequence.StartValue})");
+            }
+
+            if (sequence.IncrementBy != Sequence.DefaultIncrementBy)
+            {
+                lines.Add($".{nameof(RelationalSequenceBuilder.IncrementsBy)}({sequence.IncrementBy})");
+            }
+
+            if (sequence.MinValue != Sequence.DefaultMinValue)
+            {
+                lines.Add($".{nameof(RelationalSequenceBuilder.HasMin)}({sequence.MinValue})");
+            }
+
+            if (sequence.MaxValue != Sequence.DefaultMaxValue)
+            {
+                lines.Add($".{nameof(RelationalSequenceBuilder.HasMax)}({sequence.MaxValue})");
+            }
+
+            if (sequence.IsCyclic != Sequence.DefaultIsCyclic)
+            {
+                lines.Add($".{nameof(RelationalSequenceBuilder.IsCyclic)}()");
+            }
+
+            if (lines.Count == 2)
+            {
+                lines = new List<string>
+                {
+                    lines[0] + lines[1]
+                };
+            }
+
+            _sb.AppendLine();
+            _sb.Append(lines[0]);
+
+            using (_sb.Indent())
+            {
+                foreach (var line in lines.Skip(1))
                 {
                     _sb.AppendLine();
-                }
-                first = false;
-
-                foreach (var line in fluentApiConfiguration.FluentApiLines)
-                {
-                    _sb.Append("." + line);
+                    _sb.Append(line);
                 }
             }
 
             _sb.AppendLine(";");
-            if (fluentApiConfigurations.Count > 1)
-            {
-                _sb.DecrementIndent();
-            }
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void AddRelationshipConfigurations(
-            [NotNull] List<RelationshipConfiguration> relationshipConfigurations)
+        private string GenerateLambdaToKey(
+            IReadOnlyList<IProperty> properties,
+            string lambdaIdentifier)
         {
-            Check.NotNull(relationshipConfigurations, nameof(relationshipConfigurations));
-
-            foreach (var relationshipConfig in relationshipConfigurations)
+            if (properties.Count <= 0)
             {
-                if (_foundFirstFluentApiForEntity)
-                {
-                    _sb.AppendLine();
-                }
-                _foundFirstFluentApiForEntity = true;
-                ScaffoldingUtilities.LayoutRelationshipConfigurationLines(
-                    _sb, EntityLambdaIdentifier, relationshipConfig, "d", "p");
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void AddDbSetProperties()
-        {
-            if (!_model.EntityConfigurations.Any())
-            {
-                return;
+                return "";
             }
 
-            foreach (var entityConfig in _model.EntityConfigurations)
-            {
-                _sb.AppendLine("public virtual DbSet<"
-                               + entityConfig.EntityType.Name
-                               + "> " + entityConfig.EntityType.Scaffolding().DbSetName
-                               + " { get; set; }");
-            }
-
-            _sb.AppendLine();
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void AddEntityTypeErrors()
-        {
-            if (_model.Model.Scaffolding().EntityTypeErrors.Count == 0)
-            {
-                return;
-            }
-
-            foreach (var entityConfig in _model.Model.Scaffolding().EntityTypeErrors)
-            {
-                _sb.Append("// ")
-                    .Append(entityConfig.Value)
-                    .AppendLine(" Please see the warning messages.");
-            }
-
-            _sb.AppendLine();
+            return properties.Count == 1
+                ? $"{lambdaIdentifier}.{properties[0].Name}"
+                : $"new {{ {string.Join(", ", properties.Select(p => lambdaIdentifier + "." + p.Name))} }}";
         }
     }
 }

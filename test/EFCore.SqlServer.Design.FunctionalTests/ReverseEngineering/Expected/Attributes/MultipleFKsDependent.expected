@@ -11,7 +11,7 @@ namespace E2ETest.Namespace
         [Column("MultipleFKsDependentId")]
         public int MultipleFksDependentId { get; set; }
         [Required]
-        [MaxLength(20)]
+        [StringLength(20)]
         public string AnotherColumn { get; set; }
         [Column("RelationAId")]
         public int RelationAid { get; set; }
