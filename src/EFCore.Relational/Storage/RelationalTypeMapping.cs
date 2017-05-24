@@ -259,8 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return "NULL";
             }
 
-            var s = value as string;
-            return s != null ? GenerateSqlStringLiteralValue(s) : GenerateSqlLiteralValue((dynamic)value);
+            return GenerateSqlLiteralValue((dynamic)value);
         }
 
         /// <summary>
@@ -350,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="value">The literal value.</param>
         /// <returns> The generated string. </returns>
-        protected virtual string GenerateSqlStringLiteralValue([NotNull] string value)
+        protected virtual string GenerateSqlLiteralValue([NotNull] string value)
             => $"'{EscapeSqlLiteral(Check.NotNull(value, nameof(value)))}'"; // Interpolation okay; strings
 
         /// <summary>
