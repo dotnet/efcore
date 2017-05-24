@@ -21,13 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void ValidateContextNameInReverseEngineerGenerator(string contextName)
         {
-            var scaffoldingUtility = new ScaffoldingUtilities();
             var reverseEngineer = new ReverseEngineeringGenerator(
                 new FakeScaffoldingModelFactory(new FakeDiagnosticsLogger<DbLoggerCategory.Scaffolding>()),
-                new ConfigurationFactory(CSharpUtilities.Instance, scaffoldingUtility),
                 new StringBuilderCodeWriter(
                     new InMemoryFileService(),
-                    new DbContextWriter(scaffoldingUtility, CSharpUtilities.Instance),
+                    new DbContextWriter(CSharpUtilities.Instance),
                     new EntityTypeWriter(CSharpUtilities.Instance)));
 
             Assert.Equal(

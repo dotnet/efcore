@@ -12,7 +12,7 @@ namespace E2ETest.Namespace
         public int UnmappablePkcolumnId { get; set; }
         [Required]
         [Column("AColumn")]
-        [MaxLength(20)]
+        [StringLength(20)]
         public string Acolumn { get; set; }
         public int ValueGeneratedOnAddColumn { get; set; }
     }

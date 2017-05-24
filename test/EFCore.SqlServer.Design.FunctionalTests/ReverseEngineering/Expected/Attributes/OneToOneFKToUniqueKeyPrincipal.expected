@@ -13,7 +13,7 @@ namespace E2ETest.Namespace
         [Column("OneToOneFKToUniqueKeyPrincipalID2")]
         public int OneToOneFktoUniqueKeyPrincipalId2 { get; set; }
         [Required]
-        [MaxLength(20)]
+        [StringLength(20)]
         public string SomePrincipalColumn { get; set; }
         [Column("OneToOneFKToUniqueKeyPrincipalUniqueKey1")]
         public int OneToOneFktoUniqueKeyPrincipalUniqueKey1 { get; set; }

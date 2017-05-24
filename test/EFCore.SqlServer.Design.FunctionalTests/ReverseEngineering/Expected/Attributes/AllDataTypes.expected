@@ -68,10 +68,10 @@ namespace E2ETest.Namespace
         [Column("ntextColumn", TypeName = "ntext")]
         public string NtextColumn { get; set; }
         [Column("nvarcharColumn")]
-        [MaxLength(1)]
+        [StringLength(1)]
         public string NvarcharColumn { get; set; }
         [Column("nvarchar100Column")]
-        [MaxLength(100)]
+        [StringLength(100)]
         public string Nvarchar100Column { get; set; }
         [Column("nvarcharMaxColumn")]
         public string NvarcharMaxColumn { get; set; }
@@ -126,18 +126,18 @@ namespace E2ETest.Namespace
         [Column("nationalCharacter171Column", TypeName = "nchar(171)")]
         public string NationalCharacter171Column { get; set; }
         [Column("nationalCharVaryingColumn")]
-        [MaxLength(1)]
+        [StringLength(1)]
         public string NationalCharVaryingColumn { get; set; }
         [Column("nationalCharVarying177Column")]
-        [MaxLength(177)]
+        [StringLength(177)]
         public string NationalCharVarying177Column { get; set; }
         [Column("nationalCharVaryingMaxColumn")]
         public string NationalCharVaryingMaxColumn { get; set; }
         [Column("nationalCharacterVaryingColumn")]
-        [MaxLength(1)]
+        [StringLength(1)]
         public string NationalCharacterVaryingColumn { get; set; }
         [Column("nationalCharacterVarying188Column")]
-        [MaxLength(188)]
+        [StringLength(188)]
         public string NationalCharacterVarying188Column { get; set; }
         [Column("nationalCharacterVaryingMaxColumn")]
         public string NationalCharacterVaryingMaxColumn { get; set; }
