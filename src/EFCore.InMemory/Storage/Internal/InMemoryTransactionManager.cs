@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         public virtual IDbContextTransaction CurrentTransaction => null;
 
-        public virtual void Reset()
+        public virtual void ResetState()
         {
         }
     }

@@ -64,13 +64,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.BadFilterExpression(badExpression1, entityTypeA.DisplayName(), entityTypeA.ClrType),
-                Assert.Throws<InvalidOperationException>(() => entityTypeA.Filter = badExpression1).Message);
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.QueryFilter = badExpression1).Message);
 
             Expression<Func<A, string>> badExpression2 = a => "";
 
             Assert.Equal(
                 CoreStrings.BadFilterExpression(badExpression2, entityTypeA.DisplayName(), entityTypeA.ClrType),
-                Assert.Throws<InvalidOperationException>(() => entityTypeA.Filter = badExpression2).Message);
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.QueryFilter = badExpression2).Message);
         }
 
         [Fact]

@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
         /// </summary>
-        new LambdaExpression Filter { get; [param: CanBeNull] set; }
+        new LambdaExpression QueryFilter { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Sets the primary key for this entity.

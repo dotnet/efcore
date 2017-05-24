@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private Key _primaryKey;
         private EntityType _baseType;
-        private LambdaExpression _filter;
+        private LambdaExpression _queryFilter;
 
         private ChangeTrackingStrategy? _changeTrackingStrategy;
 
@@ -124,9 +124,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual LambdaExpression Filter
+        public virtual LambdaExpression QueryFilter
         {
-            get => _filter;
+            get => _queryFilter;
             [param: CanBeNull]
             set
             {
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         CoreStrings.BadFilterExpression(value, this.DisplayName(), ClrType));
                 }
 
-                _filter = value;
+                _queryFilter = value;
             }
         }
 
@@ -1778,10 +1778,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             set => HasBaseType((EntityType)value);
         }
 
-        LambdaExpression IMutableEntityType.Filter
+        LambdaExpression IMutableEntityType.QueryFilter
         {
-            get => Filter;
-            set => Filter = value;
+            get => QueryFilter;
+            set => QueryFilter = value;
         }
         
         IEntityType IEntityType.DefiningEntityType => DefiningEntityType;

@@ -608,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void HasQueryFilter([CanBeNull] LambdaExpression filter)
         {
-            Metadata.Filter = filter;
+            Metadata.QueryFilter = filter;
         }
 
         /// <summary>

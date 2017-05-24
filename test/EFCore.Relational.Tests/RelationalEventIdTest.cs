@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             public void Dispose() => throw new NotImplementedException();
             public bool Open() => throw new NotImplementedException();
             public Task<bool> OpenAsync(CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
-            public void Reset() => throw new NotImplementedException();
+            public void ResetState() => throw new NotImplementedException();
             public void RollbackTransaction() => throw new NotImplementedException();
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
         }

@@ -33,14 +33,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     Determines whether the specified index has filter expression when targeting SQL Server.
         /// </summary>
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="filterExpression"> The filter expression for the index. </param>
+        /// <param name="sql"> The filter expression for the index. </param>
         /// <returns> A builder to further configure the index. </returns>
-        public static IndexBuilder ForSqlServerHasFilter([NotNull] this IndexBuilder indexBuilder, [CanBeNull] string filterExpression)
+        public static IndexBuilder ForSqlServerHasFilter([NotNull] this IndexBuilder indexBuilder, [CanBeNull] string sql)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
-            Check.NullButNotEmpty(filterExpression, nameof(filterExpression));
+            Check.NullButNotEmpty(sql, nameof(sql));
 
-            indexBuilder.Metadata.SqlServer().Filter = filterExpression;
+            indexBuilder.Metadata.SqlServer().Filter = sql;
 
             return indexBuilder;
         }

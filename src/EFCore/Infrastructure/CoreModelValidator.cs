@@ -59,18 +59,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (entityType.Filter != null)
+                if (entityType.QueryFilter != null)
                 {
                     if (entityType.BaseType != null)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.BadFilterDerivedType(entityType.Filter, entityType.DisplayName()));
+                            CoreStrings.BadFilterDerivedType(entityType.QueryFilter, entityType.DisplayName()));
                     }
 
                     if (!filterValidatingExppressionVisitor.IsValid(entityType))
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.BadFilterExpression(entityType.Filter, entityType.DisplayName(), entityType.ClrType));
+                            CoreStrings.BadFilterExpression(entityType.QueryFilter, entityType.DisplayName(), entityType.ClrType));
                     }
                 }
             }
@@ -86,14 +86,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 _entityType = entityType;
 
-                Visit(entityType.Filter.Body);
+                Visit(entityType.QueryFilter.Body);
 
                 return _valid;
             }
 
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
-                if (memberExpression.Expression == _entityType.Filter.Parameters[0]
+                if (memberExpression.Expression == _entityType.QueryFilter.Parameters[0]
                     && memberExpression.Member is PropertyInfo propertyInfo
                     && _entityType.FindNavigation(propertyInfo) != null)
                 {
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
                 if (methodCallExpression.IsEFProperty()
-                    && methodCallExpression.Arguments[0] == _entityType.Filter.Parameters[0]
+                    && methodCallExpression.Arguments[0] == _entityType.QueryFilter.Parameters[0]
                     && (!(methodCallExpression.Arguments[1] is ConstantExpression constantExpression)
                         || !(constantExpression.Value is string propertyName)
                         || _entityType.FindNavigation(propertyName) != null))

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Parsing.Structure;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
     ///     Creates <see cref="INodeTypeProvider" /> instances for use by the query compiler

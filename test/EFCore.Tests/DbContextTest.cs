@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
             }
 
-            public void Reset()
+            public void ResetState()
             {
             }
 

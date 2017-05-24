@@ -1219,7 +1219,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns>
         ///     An Expression.
         /// </returns>
-        public virtual Expression GenerateIsNotNull([NotNull] IsNullExpression isNotNullExpression)
+        protected virtual Expression GenerateIsNotNull([NotNull] IsNullExpression isNotNullExpression)
         {
             Check.NotNull(isNotNullExpression, nameof(isNotNullExpression));
 

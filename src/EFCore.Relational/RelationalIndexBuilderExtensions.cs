@@ -35,13 +35,13 @@ namespace Microsoft.EntityFrameworkCore
         /// Determines whether the specified index has filter expression.
         /// </summary>
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="filterExpression"> The filter expression for the index. </param>
+        /// <param name="sql"> The filter expression for the index. </param>
         /// <returns>A builder to further configure the index. </returns>
-        public static IndexBuilder HasFilter([NotNull] this IndexBuilder indexBuilder, [NotNull] string filterExpression)
+        public static IndexBuilder HasFilter([NotNull] this IndexBuilder indexBuilder, [NotNull] string sql)
         {
-            Check.NotEmpty(filterExpression, nameof(filterExpression));
+            Check.NotEmpty(sql, nameof(sql));
 
-            indexBuilder.Metadata.Relational().Filter = filterExpression;
+            indexBuilder.Metadata.Relational().Filter = sql;
 
             return indexBuilder;
         }

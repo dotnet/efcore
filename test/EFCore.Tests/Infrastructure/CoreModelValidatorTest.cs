@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
 
             Expression<Func<D, bool>> filter = _ => true;
 
-            entityTypeD.Filter = filter;
+            entityTypeD.QueryFilter = filter;
 
-            VerifyError(CoreStrings.BadFilterDerivedType(entityTypeD.Filter, entityTypeD.DisplayName()), model);
+            VerifyError(CoreStrings.BadFilterDerivedType(entityTypeD.QueryFilter, entityTypeD.DisplayName()), model);
         }
 
         [Fact]
@@ -56,13 +56,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Tests
 
             Expression<Func<Order, bool>> badExpression3 = o => o.Customer.CustomerID == "ALFKI";
 
-            orderType.Filter = badExpression3;
+            orderType.QueryFilter = badExpression3;
 
             VerifyError(CoreStrings.BadFilterExpression(badExpression3, orderType.DisplayName(), orderType.ClrType), model);
 
             Expression<Func<Order, bool>> badExpression4 = o => EF.Property<Customer>(o, "Customer").CustomerID == "ALFKI";
 
-            orderType.Filter = badExpression4;
+            orderType.QueryFilter = badExpression4;
 
             VerifyError(CoreStrings.BadFilterExpression(badExpression4, orderType.DisplayName(), orderType.ClrType), model);
         }

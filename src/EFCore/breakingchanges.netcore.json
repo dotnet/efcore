@@ -1,10 +1,5 @@
   [
     {
-      "TypeId": "public enum Microsoft.EntityFrameworkCore.Metadata.ValueGenerated",
-      "MemberId": "OnAddOrUpdate = 2",
-      "Kind": "Removal"
-    },
-    {
       "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.DatabaseProviderServices : Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
       "Kind": "Removal"
     },
@@ -49,10 +44,6 @@
       "Kind": "Removal"
     },
     {
-      "TypeId": "public static class Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServiceCollectionExtensions",
-      "Kind": "Removal"
-    },
-    {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
       "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IModel get_Model()",
       "Kind": "Removal"
@@ -75,6 +66,11 @@
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDatabaseProvider",
       "MemberId": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices GetProviderServices(System.IServiceProvider serviceProvider)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public enum Microsoft.EntityFrameworkCore.Metadata.ValueGenerated",
+      "MemberId": "OnAddOrUpdate = 2",
       "Kind": "Removal"
     },
     {
@@ -474,7 +470,7 @@
     },
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
-      "MemberId": "System.Linq.Expressions.LambdaExpression get_Filter()",
+      "MemberId": "System.Linq.Expressions.LambdaExpression get_QueryFilter()",
       "Kind": "Addition"
     },
     {
@@ -574,12 +570,12 @@
     },
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
-      "MemberId": "System.Linq.Expressions.LambdaExpression get_Filter()",
+      "MemberId": "System.Linq.Expressions.LambdaExpression get_QueryFilter()",
       "Kind": "Addition"
     },
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
-      "MemberId": "System.Void set_Filter(System.Linq.Expressions.LambdaExpression value)",
+      "MemberId": "System.Void set_QueryFilter(System.Linq.Expressions.LambdaExpression value)",
       "Kind": "Addition"
     },
     {

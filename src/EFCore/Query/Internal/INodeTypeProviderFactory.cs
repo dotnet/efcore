@@ -7,7 +7,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Remotion.Linq.Parsing.Structure;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
     ///     Creates <see cref="INodeTypeProvider" /> instances for use by the query compiler.

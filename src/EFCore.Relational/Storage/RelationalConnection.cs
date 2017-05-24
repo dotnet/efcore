@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual bool IsMultipleActiveResultSetsEnabled => false;
 
-        void IResettableService.Reset() => Dispose();
+        void IResettableService.ResetState() => Dispose();
 
         /// <summary>
         ///     Gets a semaphore used to serialize access to this connection.

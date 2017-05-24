@@ -452,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 foreach (var service in resettableServices)
                 {
-                    service.Reset();
+                    service.ResetState();
                 }
             }
 

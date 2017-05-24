@@ -18,6 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Resets the service so that it can be used from the pool.
         /// </summary>
-        void Reset();
+        void ResetState();
     }
 }

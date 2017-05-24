@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
         /// </summary>
-        LambdaExpression Filter { get; }
+        LambdaExpression QueryFilter { get; }
 
         /// <summary>
         ///     <para>

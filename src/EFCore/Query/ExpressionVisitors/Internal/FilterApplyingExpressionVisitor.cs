@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var type = ((IQueryable)constantExpression.Value).ElementType;
                 var entityType = _queryCompilationContext.Model.FindEntityType(type)?.RootType();
 
-                if (entityType?.Filter != null)
+                if (entityType?.QueryFilter != null)
                 {
                     var visitor
                         = new ParameterExtractingExpressionVisitor(
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             generateContextAccessors: true);
 
                     var parameterizedFilter
-                        = (LambdaExpression)visitor.ExtractParameters(entityType.Filter);
+                        = (LambdaExpression)visitor.ExtractParameters(entityType.QueryFilter);
 
                     var mainFromClause
                         = new MainFromClause(

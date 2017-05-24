@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
         public void RollbackTransaction() => CurrentTransaction.Rollback();
 
-        void IResettableService.Reset() => Dispose();
+        void IResettableService.ResetState() => Dispose();
 
         public void Dispose()
         {
