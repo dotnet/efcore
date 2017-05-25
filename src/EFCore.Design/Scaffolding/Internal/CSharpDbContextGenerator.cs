@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class DbContextWriter
+    public class CSharpDbContextGenerator
     {
         private const string EntityLambdaIdentifier = "entity";
 
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public DbContextWriter(
+        public CSharpDbContextGenerator(
             [NotNull] CSharpUtilities cSharpUtilities)
         {
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (!string.IsNullOrEmpty(index.Relational().Name))
             {
-                lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasName)}({CSharpUtilities.Instance.DelimitString(index.Relational().Name)})");
+                lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasName)}({CSharpUtilities.DelimitString(index.Relational().Name)})");
             }
 
             if (index.IsUnique)

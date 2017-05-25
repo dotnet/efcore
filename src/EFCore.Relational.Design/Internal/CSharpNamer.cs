@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     public class CSharpNamer<T>
     {
         private readonly Func<T, string> _nameGetter;
+        private readonly CSharpUtilities _cSharpUtilities;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -31,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(nameGetter, nameof(nameGetter));
 
             _nameGetter = nameGetter;
+            _cSharpUtilities = new CSharpUtilities();
         }
 
         /// <summary>
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return NameCache[item];
             }
 
-            var name = CSharpUtilities.Instance.GenerateCSharpIdentifier(_nameGetter(item), null);
+            var name = _cSharpUtilities.GenerateCSharpIdentifier(_nameGetter(item), null);
             NameCache.Add(item, name);
             return name;
         }
