@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AddSingleton<CSharpDbContextGenerator>()
                 .AddSingleton<CSharpEntityTypeGenerator>()
                 .AddSingleton<ScaffoldingCodeGenerator, CSharpScaffoldingGenerator>()
+                .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<ILoggingOptions, LoggingOptions>()
                 .AddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name))
                 .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))

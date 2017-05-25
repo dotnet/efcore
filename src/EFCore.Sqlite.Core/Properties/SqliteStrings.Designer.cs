@@ -62,6 +62,36 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string SequencesNotSupported
             => GetString("SequencesNotSupported");
 
+        /// <summary>
+        ///     SQLite doesn't support schemas. The specified schema selection arguments will be ignored.
+        /// </summary>
+        public static readonly EventDefinition LogUsingSchemaSelectionsWarning
+            = new EventDefinition(
+                SqliteEventId.SchemasNotSupportedWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define(
+                    LogLevel.Warning,
+                    SqliteEventId.SchemasNotSupportedWarning,
+                    _resourceManager.GetString("LogUsingSchemaSelectionsWarning")));
+
+        /// <summary>
+        ///     Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, not nullable: {isNotNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}.
+        /// </summary>
+        public static readonly FallbackEventDefinition LogFoundColumn
+            = new FallbackEventDefinition(
+                SqliteEventId.ColumnFound,
+                LogLevel.Debug,
+                _resourceManager.GetString("LogFoundColumn"));
+
+        /// <summary>
+        ///     Found foreign key column on table: {tableName}, id: {id}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, delete action: {deleteAction}, ordinal: {ordinal}.
+        /// </summary>
+        public static readonly FallbackEventDefinition LogFoundForeignKeyColumn
+            = new FallbackEventDefinition(
+                SqliteEventId.ForeignKeyColumnFound,
+                LogLevel.Debug,
+                _resourceManager.GetString("LogFoundForeignKeyColumn"));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

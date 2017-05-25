@@ -123,9 +123,6 @@
   <data name="ReadOnlyFiles" xml:space="preserve">
     <value>No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.</value>
   </data>
-  <data name="MissingUseProviderMethodNameAnnotation" xml:space="preserve">
-    <value>Cannot scaffold the connection string. The "UseProviderMethodName" is missing from the scaffolding model.</value>
-  </data>
   <data name="ExistingFiles" xml:space="preserve">
     <value>The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.</value>
   </data>
