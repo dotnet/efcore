@@ -50,8 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly SqlServerTypeMapping _tinyint
             = new SqlServerTypeMapping("tinyint", typeof(byte), dbType: DbType.Byte);
 
-        private readonly SqlServerTypeMapping _bit
-            = new SqlServerTypeMapping("bit", typeof(bool));
+        private readonly BoolTypeMapping _bit = new BoolTypeMapping("bit");
 
         private readonly SqlServerMaxLengthMapping _nchar
             = new SqlServerMaxLengthMapping("nchar", typeof(string), dbType: DbType.StringFixedLength, unicode: true, size: null);
@@ -74,17 +73,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly SqlServerTypeMapping _date
             = new SqlServerTypeMapping("date", typeof(DateTime), dbType: DbType.Date);
 
-        private readonly SqlServerTypeMapping _datetime
-            = new SqlServerTypeMapping("datetime", typeof(DateTime), dbType: DbType.DateTime);
+        private readonly DateTimeTypeMapping _datetime
+            = new DateTimeTypeMapping("datetime", dbType: DbType.DateTime);
 
-        private readonly SqlServerTypeMapping _datetime2
-            = new SqlServerTypeMapping("datetime2", typeof(DateTime), dbType: DbType.DateTime2);
+        private readonly DateTimeTypeMapping _datetime2
+            = new DateTimeTypeMapping("datetime2", dbType: DbType.DateTime2);
 
         private readonly SqlServerTypeMapping _double
             = new SqlServerTypeMapping("float", typeof(double));
 
-        private readonly SqlServerTypeMapping _datetimeoffset
-            = new SqlServerTypeMapping("datetimeoffset", typeof(DateTimeOffset));
+        private readonly DateTimeOffsetTypeMapping _datetimeoffset = new DateTimeOffsetTypeMapping("datetimeoffset");
 
         private readonly SqlServerTypeMapping _real
             = new SqlServerTypeMapping("real", typeof(float));
@@ -92,11 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly SqlServerTypeMapping _uniqueidentifier
             = new SqlServerTypeMapping("uniqueidentifier", typeof(Guid));
 
-        private readonly SqlServerTypeMapping _decimal
-            = new SqlServerTypeMapping("decimal(18, 2)", typeof(decimal));
+        private readonly DecimalTypeMapping _decimal = new DecimalTypeMapping("decimal(18, 2)");
 
-        private readonly SqlServerTypeMapping _time
-            = new SqlServerTypeMapping("time", typeof(TimeSpan));
+        private readonly TimeSpanTypeMapping _time = new TimeSpanTypeMapping("time");
 
         private readonly SqlServerMaxLengthMapping _xml
             = new SqlServerMaxLengthMapping("xml", typeof(string), dbType: null, unicode: true, size: null);

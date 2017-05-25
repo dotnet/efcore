@@ -111,6 +111,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override string GenerateSqlLiteralValue(Guid value)
-            => GenerateSqlLiteralValue(value.ToByteArray());
+            => base.GenerateSqlLiteralValue(value.ToByteArray());
     }
 }
