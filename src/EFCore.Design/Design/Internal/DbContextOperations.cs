@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var contexts = new Dictionary<Type, Func<DbContext>>();
 
-            // Look for IDbContextFactory implementations
+            // Look for IDesignTimeDbContextFactory implementations
             var contextFactories = _startupAssembly.GetConstructableTypes()
                 .Where(t => typeof(IDesignTimeDbContextFactory<DbContext>).GetTypeInfo().IsAssignableFrom(t));
             foreach (var factory in contextFactories)

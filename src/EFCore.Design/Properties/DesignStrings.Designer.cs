@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogForceRemoveMigration")));
 
         /// <summary>
-        ///     No parameterless constructor was found on '{contextType}'. Either add a parameterless constructor to '{contextType}' or add an implementation of 'IDbContextFactory&lt;{contextType}&gt;' in the same assembly as '{contextType}'.
+        ///     No parameterless constructor was found on '{contextType}'. Either add a parameterless constructor to '{contextType}' or add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' in the same assembly as '{contextType}'.
         /// </summary>
         public static string NoParameterlessConstructor([CanBeNull] object contextType)
             => string.Format(
@@ -413,14 +413,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("NotExistDatabase", nameof(name)),
                 name);
-
-        /// <summary>
-        ///     An error occurred while calling method '{method}' on startup class '{startupClass}'. Consider using IDbContextFactory to override the initialization of the DbContext at design-time. Error: {error}
-        /// </summary>
-        public static string InvokeStartupMethodFailed([CanBeNull] object method, [CanBeNull] object startupClass, [CanBeNull] object error)
-            => string.Format(
-                GetString("InvokeStartupMethodFailed", nameof(method), nameof(startupClass), nameof(error)),
-                method, startupClass, error);
 
         /// <summary>
         ///     Could not serialize {obj} [{name}]
