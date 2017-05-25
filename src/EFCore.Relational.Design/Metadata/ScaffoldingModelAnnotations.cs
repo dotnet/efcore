@@ -16,18 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         {
         }
 
-        public virtual string UseProviderMethodName
-        {
-            get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.UseProviderMethodName); }
-            [param: CanBeNull]
-            set
-            {
-                Annotations.SetAnnotation(
-                    ScaffoldingAnnotationNames.UseProviderMethodName,
-                    Check.NullButNotEmpty(value, nameof(value)));
-            }
-        }
-
         public virtual IDictionary<string, string> EntityTypeErrors
         {
             get

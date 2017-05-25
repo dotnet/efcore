@@ -35,12 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 outputDirectoryName, readOnlyFiles);
 
         /// <summary>
-        ///     Cannot scaffold the connection string. The "UseProviderMethodName" is missing from the scaffolding model.
-        /// </summary>
-        public static string MissingUseProviderMethodNameAnnotation
-            => GetString("MissingUseProviderMethodNameAnnotation");
-
-        /// <summary>
         ///     The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.
         /// </summary>
         public static string ExistingFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object existingFiles)

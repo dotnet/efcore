@@ -11,20 +11,6 @@ namespace Microsoft.EntityFrameworkCore
     public class ScaffoldingMetadataExtenstionsTest
     {
         [Fact]
-        public void It_adds_provider_method_names()
-        {
-            var model = new Model();
-
-            Assert.Null(model.Scaffolding().UseProviderMethodName);
-
-            model.Scaffolding().UseProviderMethodName = "UsePutRelationalProviderNameHere";
-            Assert.Equal("UsePutRelationalProviderNameHere", model.Scaffolding().UseProviderMethodName);
-
-            model.Scaffolding().UseProviderMethodName = null;
-            Assert.Null(model.Scaffolding().UseProviderMethodName);
-        }
-
-        [Fact]
         public void It_sets_gets_entity_type_errors()
         {
             var model = new Model();

@@ -3,10 +3,12 @@
 
 using System;
 using System.Linq;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
-    internal static class SqliteTableSelectionSetExtensions
+    public static class SqliteTableSelectionSetExtensions
     {
         /// <summary>
         ///     Tests whether the table is allowed by the <see cref="TableSelectionSet" /> and
@@ -16,10 +18,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// <param name="tableSet"> the <see cref="TableSelectionSet" /> to test </param>
         /// <param name="tableName"> name of the database table to check </param>
         /// <returns> whether or not the table is allowed </returns>
-        public static bool Allows(this TableSelectionSet tableSet, string tableName)
+        public static bool Allows([NotNull] this TableSelectionSet tableSet, [NotNull] string tableName)
         {
-            if (tableSet == null
-                || tableSet.Tables.Count == 0)
+            Check.NotNull(tableSet, nameof(tableSet));
+            Check.NotEmpty(tableName, nameof(tableName));
+
+            if (tableSet.Tables.Count == 0)
             {
                 return true;
             }
@@ -29,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var matchingTableSelections = tableSet.Tables.Where(
                 t => t.Text.Equals(tableName, StringComparison.OrdinalIgnoreCase))
                 .ToList();
+
             if (matchingTableSelections.Any())
             {
                 matchingTableSelections.ForEach(selection => selection.IsMatched = true);
