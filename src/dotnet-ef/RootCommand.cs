@@ -111,14 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         ? "ef.x86.exe"
                         : "ef.exe");
             }
-            else if (targetFramework.Identifier == ".NETCoreApp"
-                || targetFramework.Identifier == ".NETStandard")
+            else if (targetFramework.Identifier == ".NETCoreApp")
             {
-                if (targetFramework.Identifier == ".NETStandard")
-                {
-                    Reporter.WriteWarning(Resources.NETStandardStartupProject(startupProject.ProjectName));
-                }
-
                 executable = "dotnet";
                 args.Add("exec");
                 args.Add("--depsfile");
@@ -151,6 +145,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 }
 
                 args.Add(Path.Combine(toolsPath, "netcoreapp1.0", "ef.dll"));
+            }
+            else if (targetFramework.Identifier == ".NETStandard")
+            {
+                throw new CommandException(Resources.NETStandardStartupProject(startupProject.ProjectName));
             }
             else
             {

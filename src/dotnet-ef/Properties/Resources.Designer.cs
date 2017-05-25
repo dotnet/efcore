@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MultipleStartupProjects");
 
         /// <summary>
-        ///     Startup project '{startupProject}' targets framework '.NETStandard'. This framework is not intended for execution and may fail to resolve runtime dependencies. If so, specify a different project using the --startup-project option and try again.
+        ///     Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core .NET Command Line Tools with this project, add an executable project targeting .NET Core or .NET Framework that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core or .NET Framework.
         /// </summary>
         public static string NETStandardStartupProject([CanBeNull] object startupProject)
             => string.Format(

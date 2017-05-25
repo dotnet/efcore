@@ -773,15 +773,8 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
                 'a different platform and try again.'
         }
     }
-    elseif ($targetFramework -in '.NETCoreApp', '.NETStandard')
+    elseif ($targetFramework -eq '.NETCoreApp')
     {
-        if ($targetFramework -eq '.NETStandard')
-        {
-            Write-Warning ("Startup project '$($startupProject.ProjectName)' targets framework '.NETStandard'. This " +
-                "framework is not intended for execution and may fail to resolve runtime dependencies. If so, select " +
-                "a different startup project and try again.")
-        }
-
         $exePath = (Get-Command 'dotnet').Path
 
         $startupTargetName = GetProperty $startupProject.Properties 'AssemblyName'
@@ -814,6 +807,14 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
         $dotnetParams += $efPath
 
         $params = $dotnetParams + $params
+    }
+    elseif ($targetFramework -eq '.NETStandard')
+    {
+        throw "Startup project '$($startupProject.ProjectName)' targets framework '.NETStandard'. There is no " +
+            'runtime associated with this framework, and projects targeting it cannot be executed directly. To use ' +
+            'the Entity Framework Core Package Manager Console Tools with this project, add an executable project ' +
+            'targeting .NET Framework or .NET Core that references this project, and set it as the startup project; ' +
+            'or, update this project to cross-target .NET Framework or .NET Core.'
     }
     else
     {
@@ -1054,7 +1055,7 @@ function ToArguments($params)
     {
         if ($i)
         {
-            $arguments += " "
+            $arguments += ' '
         }
 
         if (!$params[$i].Contains(' '))
