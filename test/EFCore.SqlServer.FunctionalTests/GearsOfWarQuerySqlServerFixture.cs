@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore
 
             _options = new DbContextOptionsBuilder()
                 .EnableSensitiveDataLogging()
+                .ConfigureWarnings(w => w.Log(CoreEventId.IncludeIgnoredWarning))
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
         }
