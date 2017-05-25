@@ -8,19 +8,13 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using IsolationLevel = System.Data.IsolationLevel;
-
-#if NETSTANDARD2_0
-using System.Transactions;
-#elif NETSTANDARD1_4
-#else
-#error target frameworks need to be updated.
-#endif
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -405,15 +399,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         // ReSharper disable once MemberCanBeMadeStatic.Local
         private void CheckForAmbientTransactions()
         {
-#if NETSTANDARD2_0
             if (Transaction.Current != null)
             {
                 Dependencies.TransactionLogger.AmbientTransactionWarning(this, DateTimeOffset.UtcNow);
             }
-#elif NETSTANDARD1_4
-#else
-#error target frameworks need to be updated.
-#endif
         }
 
         /// <summary>

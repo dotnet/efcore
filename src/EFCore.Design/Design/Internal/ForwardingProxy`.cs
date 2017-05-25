@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public new virtual T GetTransparentProxy() => (T)base.GetTransparentProxy();
     }
 }
-#elif NETSTANDARD1_4
+#elif NETSTANDARD2_0
 #else
 #error target frameworks need to be updated.
 #endif

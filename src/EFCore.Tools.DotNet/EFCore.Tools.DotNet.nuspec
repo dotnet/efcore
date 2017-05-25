@@ -24,8 +24,8 @@
     <file src="../dotnet-ef/bin/$configuration$/netcoreapp2.0/dotnet-ef.runtimeconfig.json" target="lib/netcoreapp2.0/" />
     <file src="../ef/bin/$configuration$/net461/ef.exe" target="tools/net461/" />
     <file src="../ef/bin/x86/$configuration$/net461/ef.x86.exe" target="tools/net461/" />
-    <file src="../ef/bin/$configuration$/netcoreapp1.0/ef.dll" target="tools/netcoreapp1.0/" />
-    <file src="../ef/bin/$configuration$/netcoreapp1.0/ef.runtimeconfig.json" target="tools/netcoreapp1.0/" />
+    <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.dll" target="tools/netcoreapp2.0/" />
+    <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.runtimeconfig.json" target="tools/netcoreapp2.0/" />
     <file src="prefercliruntime" target="prefercliruntime" />
   </files>
 </package>

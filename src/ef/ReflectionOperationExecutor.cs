@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         {
 #if NET461
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
-#elif NETCOREAPP1_0
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         public override void Dispose()
             => AppDomain.CurrentDomain.AssemblyResolve -= ResolveAssembly;
-#elif NETCOREAPP1_0
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif

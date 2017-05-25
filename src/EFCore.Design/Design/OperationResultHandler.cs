@@ -5,7 +5,7 @@ using System;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
-    public partial class OperationResultHandler : IOperationResultHandler
+    public class OperationResultHandler : MarshalByRefObject, IOperationResultHandler
     {
         private bool _hasResult;
         private object _result;
@@ -38,13 +38,4 @@ namespace Microsoft.EntityFrameworkCore.Design
             _errorStackTrace = stackTrace;
         }
     }
-
-#if NET461
-    public partial class OperationResultHandler : MarshalByRefObject
-    {
-    }
-#elif NETSTANDARD1_4 || NETCOREAPP1_0
-#else
-#error target frameworks need to be updated.
-#endif
 }

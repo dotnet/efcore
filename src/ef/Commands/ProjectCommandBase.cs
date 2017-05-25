@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                         _dataDir.Value(),
                         _rootNamespace.Value());
                 }
-#elif NETCOREAPP1_0
+#elif NETCOREAPP2_0
 #else
 #error target frameworks need to be updated.
 #endif

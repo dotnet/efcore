@@ -4,7 +4,7 @@
 
   <PropertyGroup>
     <Description>In-memory database provider for Entity Framework Core (to be used for testing purposes).</Description>
-    <TargetFramework>netstandard1.4</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.InMemory</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>

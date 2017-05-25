@@ -9,7 +9,7 @@ Commonly Used Types:
 Microsoft.EntityFrameworkCore.DbContext
 Microsoft.EntityFrameworkCore.DbSet
     </Description>
-    <TargetFrameworks>netstandard2.0;netstandard1.4</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

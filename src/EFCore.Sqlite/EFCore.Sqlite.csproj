@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <Description>SQLite database provider for Entity Framework Core.</Description>
-    <TargetFramework>netstandard1.4</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Microsoft.EntityFrameworkCore.Sqlite</PackageId>
     <PackageTags>$(PackageTags);SQLite</PackageTags>
     <IncludeBuildOutput>false</IncludeBuildOutput>

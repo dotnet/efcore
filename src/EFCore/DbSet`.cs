@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -11,15 +12,8 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-
-#if NETSTANDARD2_0
-using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Internal;
-#elif NETSTANDARD1_4
-#else
-#error target frameworks need to be updated.
-#endif
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -45,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity"> The type of entity being operated on by this set. </typeparam>
-    public abstract partial class DbSet<TEntity>
-        : IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>
+    public abstract class DbSet<TEntity>
+        : IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>, IListSource
         where TEntity : class
     {
         /// <summary>
@@ -507,13 +501,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             get { throw new NotImplementedException(); }
         }
-    }
 
-#if NETSTANDARD2_0
-
-    public abstract partial class DbSet<TEntity> : IListSource
-        where TEntity : class
-    {
         /// <summary>
         ///     <para>
         ///         This method is called by data binding frameworks when attempting to data bind directly to a <see cref="DbSet{TEntity}" />.
@@ -538,8 +526,4 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         bool IListSource.ContainsListCollection => false;
     }
-#elif NETSTANDARD1_4
-#else
-#error target frameworks need to be updated.
-#endif
 }
