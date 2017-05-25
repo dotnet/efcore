@@ -14,36 +14,38 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class StringBuilderCodeWriter : CodeWriter
+    public class CSharpScaffoldingGenerator : ScaffoldingCodeGenerator
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual DbContextWriter DbContextWriter { get; }
+        public virtual CSharpDbContextGenerator CSharpDbContextGenerator { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityTypeWriter EntityTypeWriter { get; }
+        public virtual CSharpEntityTypeGenerator CSharpEntityTypeGenerator { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public StringBuilderCodeWriter(
+        public CSharpScaffoldingGenerator(
             [NotNull] IFileService fileService,
-            [NotNull] DbContextWriter dbContextWriter,
-            [NotNull] EntityTypeWriter entityTypeWriter)
+            [NotNull] CSharpDbContextGenerator cSharpDbContextGenerator,
+            [NotNull] CSharpEntityTypeGenerator cSharpEntityTypeGenerator)
             : base(fileService)
         {
-            Check.NotNull(dbContextWriter, nameof(dbContextWriter));
-            Check.NotNull(entityTypeWriter, nameof(entityTypeWriter));
+            Check.NotNull(cSharpDbContextGenerator, nameof(cSharpDbContextGenerator));
+            Check.NotNull(cSharpEntityTypeGenerator, nameof(cSharpEntityTypeGenerator));
 
-            DbContextWriter = dbContextWriter;
-            EntityTypeWriter = entityTypeWriter;
+            CSharpDbContextGenerator = cSharpDbContextGenerator;
+            CSharpEntityTypeGenerator = cSharpEntityTypeGenerator;
         }
+
+        public override string FileExtension => ".cs";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var resultingFiles = new ReverseEngineerFiles();
 
-            var generatedCode = DbContextWriter.WriteCode(model, @namespace, contextName, connectionString, useDataAnnotations);
+            var generatedCode = CSharpDbContextGenerator.WriteCode(model, @namespace, contextName, connectionString, useDataAnnotations);
 
             // output DbContext .cs file
             var dbContextFileName = contextName + FileExtension;
@@ -78,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                generatedCode = EntityTypeWriter.WriteCode(entityType, @namespace, useDataAnnotations);
+                generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, @namespace, useDataAnnotations);
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.DisplayName() + FileExtension;
