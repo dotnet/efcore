@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Null(GetTypeMapping(typeof(string)).DbType);
             Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).DbType);
             Assert.Null(GetTypeMapping(typeof(TimeSpan)).DbType);
-            Assert.Null(GetTypeMapping(typeof(Guid)).DbType);
+            Assert.Equal(DbType.Guid, GetTypeMapping(typeof(Guid)).DbType); //LAJLAJ - why was this null before?
             Assert.Equal(DbType.Int32, GetTypeMapping(typeof(char)).DbType);
             Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte)).DbType);
             Assert.Null(GetTypeMapping(typeof(double)).DbType);
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short)).DbType);
             Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long)).DbType);
             Assert.Null(GetTypeMapping(typeof(float)).DbType);
-            Assert.Null(GetTypeMapping(typeof(DateTimeOffset)).DbType);
+            Assert.Equal(DbType.DateTimeOffset, GetTypeMapping(typeof(DateTimeOffset)).DbType); //LAJLAJ - why was this null before?
         }
 
         [Fact]
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Null(GetTypeMapping(typeof(string)).DbType);
             Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).DbType);
             Assert.Null(GetTypeMapping(typeof(TimeSpan?)).DbType);
-            Assert.Null(GetTypeMapping(typeof(Guid?)).DbType);
+            Assert.Equal(DbType.Guid, GetTypeMapping(typeof(Guid?)).DbType); //LAJLAJ why was this null before?
             Assert.Equal(DbType.Int32, GetTypeMapping(typeof(char?)).DbType);
             Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte?)).DbType);
             Assert.Null(GetTypeMapping(typeof(double?)).DbType);
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short?)).DbType);
             Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long?)).DbType);
             Assert.Null(GetTypeMapping(typeof(float?)).DbType);
-            Assert.Null(GetTypeMapping(typeof(DateTimeOffset?)).DbType);
+            Assert.Equal(DbType.DateTimeOffset, GetTypeMapping(typeof(DateTimeOffset?)).DbType); //LAJLAJ why was this null before?
         }
 
         [Fact]
@@ -578,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]));
             property.IsConcurrencyToken = true;
 
-            var typeMapping = (SqlServerMaxLengthMapping)new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            var typeMapping = (SqlServerByteArrayTypeMapping)new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("varbinary(max)", typeMapping.StoreType);

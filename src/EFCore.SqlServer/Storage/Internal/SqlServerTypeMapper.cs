@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly DoubleTypeMapping _double = new DoubleTypeMapping("float"); // Note: "float" is correct SQL Server type to map to double
 
-        private readonly DateTimeOffsetTypeMapping _datetimeoffset = new DateTimeOffsetTypeMapping("datetimeoffset");
+        private readonly SqlServerDateTimeOffsetTypeMapping _datetimeoffset = new SqlServerDateTimeOffsetTypeMapping("datetimeoffset");
 
         private readonly FloatTypeMapping _real = new FloatTypeMapping("real"); // Note: "real" is correct SQL Server type to map to float
 

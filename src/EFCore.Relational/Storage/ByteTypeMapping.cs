@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping<byte> CreateCopyT([NotNull] string storeType, int? size)
+        public override RelationalTypeMapping CreateCopyT([NotNull] string storeType, int? size)
             => new ByteTypeMapping(
                 storeType,
                 DbType,

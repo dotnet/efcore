@@ -20,11 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     Initializes a new instance of the <see cref="SqlServerDateTimeOffsetTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
-        public SqlServerDateTimeOffsetTypeMapping(
-            [NotNull] string storeType,
-            [CanBeNull] DbType? dbType)
-            : this(storeType, dbType, unicode: false, size: null)
+        public SqlServerDateTimeOffsetTypeMapping([NotNull] string storeType)
+            : this(storeType, dbType: System.Data.DbType.DateTimeOffset, unicode: false, size: null)
         {
         }
 
@@ -54,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping<DateTimeOffset> CreateCopyT([NotNull] string storeType, int? size)
+        public override RelationalTypeMapping CreateCopyT([NotNull] string storeType, int? size)
             => new SqlServerDateTimeOffsetTypeMapping(
                 storeType,
                 DbType,

@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
+using System.Data.Common;
 using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] string storeType,
             bool unicode = false,
             int? size = null)
-            : this(storeType, System.Data.DbType.Binary, unicode, size: size)
+            : this(storeType, System.Data.DbType.Binary, unicode, size)
         {
         }
 
@@ -57,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override RelationalTypeMapping<byte[]> CreateCopyT(string storeType, int? size)
+        public override RelationalTypeMapping CreateCopyT(string storeType, int? size)
             => new SqlServerByteArrayTypeMapping(
                 storeType,
                 DbType,
@@ -65,6 +67,25 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 size,
                 HasNonDefaultUnicode,
                 hasNonDefaultSize: size != Size);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override void ConfigureParameter(DbParameter parameter)
+        {
+            // For strings and byte arrays, set the max length to the size facet if specified, or
+            // 8000 bytes if no size facet specified, if the data will fit so as to avoid query cache
+            // fragmentation by setting lots of different Size values otherwise always set to 
+            // -1 (unbounded) to avoid SQL client size inference.
+
+            var value = parameter.Value;
+            var length = (value as string)?.Length ?? (value as byte[])?.Length;
+
+            parameter.Size = value == null || value == DBNull.Value || (length != null && length <= Size.Value)
+                ? Size.Value
+                : -1;
+        }
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.

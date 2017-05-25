@@ -98,21 +98,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
             StoreType = storeType;
         }
 
-        /// <summary>
-        ///     Creates a copy of this mapping.
-        /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <returns> The newly created mapping. </returns>
-        public virtual RelationalTypeMapping CreateCopy([NotNull] string storeType, int? size)
-            => new RelationalTypeMapping(
-                storeType,
-                ClrType,
-                DbType,
-                IsUnicode,
-                size,
-                HasNonDefaultUnicode,
-                hasNonDefaultSize: size != Size);
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     Creates a copy of this mapping.
+//LAJLAJ        /// </summary>
+//LAJLAJ        /// <param name="storeType"> The name of the database type. </param>
+//LAJLAJ        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+//LAJLAJ        /// <returns> The newly created mapping. </returns>
+//LAJLAJ        public virtual RelationalTypeMapping CreateCopy([NotNull] string storeType, int? size)
+//LAJLAJ            => new RelationalTypeMapping(
+//LAJLAJ                storeType,
+//LAJLAJ                ClrType,
+//LAJLAJ                DbType,
+//LAJLAJ                IsUnicode,
+//LAJLAJ                size,
+//LAJLAJ                HasNonDefaultUnicode,
+//LAJLAJ                hasNonDefaultSize: size != Size);
 
         /// <summary>
         ///     Creates a copy of this mapping.
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public virtual RelationalTypeMapping CreateCopy([NotNull] string storeType, int? size)
+        public virtual RelationalTypeMapping CreateCopyT([NotNull] string storeType, int? size)
             => new RelationalTypeMapping(
                 storeType,
                 ClrType,
