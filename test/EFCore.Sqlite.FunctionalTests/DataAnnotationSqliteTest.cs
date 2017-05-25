@@ -109,19 +109,19 @@ FROM ""Sample"" AS ""r""
 WHERE ""r"".""UniqueNo"" = 1
 LIMIT 1
 
-@p2: 1 (DbType = String)
+@p2: 1
 @p0: ModifiedData (Nullable = false)
-@p1: 00000000-0000-0000-0003-000000000001 (DbType = String)
-@p3: 00000001-0000-0000-0000-000000000001 (DbType = String)
+@p1: 00000000-0000-0000-0003-000000000001
+@p3: 00000001-0000-0000-0000-000000000001
 
 UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
 WHERE ""UniqueNo"" = @p2 AND ""RowVersion"" = @p3;
 SELECT changes();
 
-@p2: 1 (DbType = String)
+@p2: 1
 @p0: ChangedData (Nullable = false)
-@p1: 00000000-0000-0000-0002-000000000001 (DbType = String)
-@p3: 00000001-0000-0000-0000-000000000001 (DbType = String)
+@p1: 00000000-0000-0000-0002-000000000001
+@p3: 00000001-0000-0000-0000-000000000001
 
 UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
 WHERE ""UniqueNo"" = @p2 AND ""RowVersion"" = @p3;
@@ -135,7 +135,7 @@ SELECT changes();",
 
             Assert.Contains(@"@p0:  (DbType = String)
 @p1: Third (Nullable = false)
-@p2: 00000000-0000-0000-0000-000000000003 (DbType = String)
+@p2: 00000000-0000-0000-0000-000000000003
 
 INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
 VALUES (@p0, @p1, @p2);
@@ -173,7 +173,7 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
 
             Assert.Contains(@"@p0:  (DbType = String)
 @p1: ValidString (Nullable = false)
-@p2: 00000000-0000-0000-0000-000000000001 (DbType = String)
+@p2: 00000000-0000-0000-0000-000000000001
 
 INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
 VALUES (@p0, @p1, @p2);
@@ -184,7 +184,7 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
 
             Assert.Contains(@"@p0:  (DbType = String)
 @p1:  (Nullable = false) (DbType = String)
-@p2: 00000000-0000-0000-0000-000000000002 (DbType = String)
+@p2: 00000000-0000-0000-0000-000000000002
 
 INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
 VALUES (@p0, @p1, @p2);

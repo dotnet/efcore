@@ -1404,7 +1404,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalCommandBuilder.Append(
                 value == null
                     ? "NULL"
-                    : GetTypeMapping(value).GenerateSqlLiteral(value));
+                    : Dependencies.RelationalTypeMapper.GetMappingForValue(value).GenerateSqlLiteral(value));
 
             return constantExpression;
         }
