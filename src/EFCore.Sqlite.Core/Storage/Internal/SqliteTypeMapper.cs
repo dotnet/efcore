@@ -45,21 +45,21 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { typeof(string), new StringTypeMapping(_textTypeName) },
                     { typeof(byte[]), new ByteArrayTypeMapping(_blobTypeName) },
                     { typeof(bool), new BoolTypeMapping(_integerTypeName) },
-                    { typeof(byte), new SqliteTypeMapping(_integerTypeName, typeof(long)) },
-                    { typeof(char), new SqliteTypeMapping(_integerTypeName, typeof(long)) },
-                    { typeof(int), new SqliteTypeMapping(_integerTypeName, typeof(long)) },
+                    { typeof(byte), new ByteTypeMapping(_integerTypeName) },
+                    { typeof(char), new CharTypeMapping(_integerTypeName) },
+                    { typeof(int), new IntTypeMapping(_integerTypeName) },
                     { typeof(long), new LongTypeMapping(_integerTypeName) },
-                    { typeof(sbyte), new SqliteTypeMapping(_integerTypeName, typeof(long)) },
-                    { typeof(short), new SqliteTypeMapping(_integerTypeName, typeof(long)) },
-                    { typeof(uint), new SqliteTypeMapping(_integerTypeName, typeof(long)) },
-                    { typeof(ulong), new SqliteTypeMapping(_integerTypeName, typeof(long)) },
-                    { typeof(ushort), new SqliteTypeMapping(_integerTypeName, typeof(long)) },
+                    { typeof(sbyte), new IntTypeMapping(_integerTypeName) },
+                    { typeof(short), new ShortTypeMapping(_integerTypeName) },
+                    { typeof(uint), new LongTypeMapping(_integerTypeName) },
+                    { typeof(ulong), new LongTypeMapping(_integerTypeName) }, //LAJLAJ - ulong does not fit in long??
+                    { typeof(ushort), new IntTypeMapping(_integerTypeName) },
                     { typeof(DateTime), new SqliteDateTimeTypeMapping(_textTypeName, System.Data.DbType.DateTime) },
                     { typeof(DateTimeOffset), new SqliteDateTimeOffsetTypeMapping(_textTypeName) },
                     { typeof(TimeSpan), new TimeSpanTypeMapping(_textTypeName) },
                     { typeof(decimal), new DecimalTypeMapping(_textTypeName) },
-                    { typeof(double), new DoubleTypeMapping(_realTypeName) }, //LAJLAJ - change to FloatTypeMapping
-                    { typeof(float), new DoubleTypeMapping(_realTypeName) },
+                    { typeof(double), new DoubleTypeMapping(_realTypeName) },
+                    { typeof(float), new FloatTypeMapping(_realTypeName) },
                     { typeof(Guid), new SqliteGuidTypeMapping(_blobTypeName) }
                 };
         }

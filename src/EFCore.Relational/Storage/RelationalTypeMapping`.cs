@@ -58,13 +58,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
         }
 
-        /// <summary>
-        ///     Creates a copy of this mapping.
-        /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <returns> The newly created mapping. </returns>
-        public abstract RelationalTypeMapping<T> CreateCopyT([NotNull] string storeType, int? size);
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     Creates a copy of this mapping.
+//LAJLAJ        /// </summary>
+//LAJLAJ        /// <param name="storeType"> The name of the database type. </param>
+//LAJLAJ        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+//LAJLAJ        /// <returns> The newly created mapping. </returns>
+//LAJLAJ        public abstract RelationalTypeMapping<T> CreateCopyT([NotNull] string storeType, int? size);
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.

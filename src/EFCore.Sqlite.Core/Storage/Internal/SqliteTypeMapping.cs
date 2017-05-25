@@ -92,25 +92,25 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected override string DateTimeOffsetFormatString => DateTimeOffsetFormatStringConst;
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override string GenerateSqlLiteralValue(DateTime value)
-            => $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override string GenerateSqlLiteralValue(DateTimeOffset value)
-            => $"'{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override string GenerateSqlLiteralValue(Guid value)
-            => base.GenerateSqlLiteralValue(value.ToByteArray());
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        protected override string GenerateSqlLiteralValue(DateTime value)
+//LAJLAJ            => $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
+//LAJLAJ
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        protected override string GenerateSqlLiteralValue(DateTimeOffset value)
+//LAJLAJ            => $"'{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
+//LAJLAJ
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        protected override string GenerateSqlLiteralValue(Guid value)
+//LAJLAJ            => base.GenerateSqlLiteralValue(value.ToByteArray());
     }
 }

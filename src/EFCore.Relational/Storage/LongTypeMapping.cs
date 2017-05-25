@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
         public LongTypeMapping([NotNull] string storeType)
-            : this(storeType, dbType: null, unicode: false, size: null)
+            : this(storeType, dbType: System.Data.DbType.Int64, unicode: false, size: null)
         {
         }
 

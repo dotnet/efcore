@@ -6,30 +6,30 @@ using System.Data;
 using System.Globalization;
 using JetBrains.Annotations;
 
-namespace Microsoft.EntityFrameworkCore.Storage
+namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     /// <summary>
-    ///     <para>
-    ///         Represents the mapping between a .NET <see cref="Guid" /> type and a database type.
-    ///     </para>
-    ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class GuidTypeMapping : RelationalTypeMapping<Guid>
+    public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     {
+        private const string DateTimeFormatConst = "yyyy-MM-ddTHH:mm:ss.fffK";
+
         /// <summary>
-        ///     Initializes a new instance of the <see cref="GuidTypeMapping" /> class.
+        ///     Initializes a new instance of the <see cref="SqlServerDateTimeTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
-        public GuidTypeMapping([NotNull] string storeType)
-            : this(storeType, System.Data.DbType.Guid, unicode: false, size: null)
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        public SqlServerDateTimeTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] DbType? dbType)
+            : this(storeType, dbType, unicode: false, size: null)
         {
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="GuidTypeMapping" /> class.
+        ///     Initializes a new instance of the <see cref="DateTimeTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <param name="hasNonDefaultUnicode"> A value indicating whether the Unicode setting has been manually configured to a non-default value. </param>
         /// <param name="hasNonDefaultSize"> A value indicating whether the size setting has been manually configured to a non-default value. </param>
-        public GuidTypeMapping(
+        public SqlServerDateTimeTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType,
             bool unicode,
@@ -54,14 +54,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping<Guid> CreateCopyT([NotNull] string storeType, int? size)
-            => new GuidTypeMapping(
+        public override RelationalTypeMapping<DateTime> CreateCopyT([NotNull] string storeType, int? size)
+            => new SqlServerDateTimeTypeMapping(
                 storeType,
                 DbType,
                 IsUnicode,
                 size,
                 HasNonDefaultUnicode,
                 hasNonDefaultSize: size != Size);
+
+        /// <summary>
+        ///     Gets the date time format.
+        /// </summary>
+        protected override string DateTimeFormat => DateTimeFormatConst;
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.
@@ -73,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override string GenerateSqlLiteral([CanBeNull]object value)
         {
             return value != null
-                ? string.Format(CultureInfo.InvariantCulture, "'{0}'", (Guid)value)
+                ? $"'{((DateTime)value).ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'" // Interpolation okay; strings
                 : base.GenerateSqlLiteral(value);
         }
     }

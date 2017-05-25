@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
         public ByteArrayTypeMapping([NotNull] string storeType)
-            : this(storeType, dbType: null, unicode: false, size: null)
+            : this(storeType, dbType: System.Data.DbType.Binary, unicode: false, size: null)
         {
         }
 
@@ -80,7 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return base.GenerateSqlLiteral(value);
         }
-
 
         /// <summary>
         ///     Generates the SQL representation of a byte[] literal value.
