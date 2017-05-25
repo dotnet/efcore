@@ -16,15 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public abstract class CodeWriter
+    public abstract class ScaffoldingCodeGenerator
     {
-        private const string DefaultFileExtension = ".cs";
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected CodeWriter([NotNull] IFileService fileService)
+        protected ScaffoldingCodeGenerator([NotNull] IFileService fileService)
         {
             Check.NotNull(fileService, nameof(fileService));
 
@@ -41,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string FileExtension { get; [param: NotNull] set; } = DefaultFileExtension;
+        public abstract string FileExtension { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

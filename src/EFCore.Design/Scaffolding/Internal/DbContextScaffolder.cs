@@ -18,34 +18,36 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ReverseEngineeringGenerator
+    public class DbContextScaffolder
     {
         private readonly IScaffoldingModelFactory _factory;
+        private readonly CSharpUtilities _cSharpUtilities;
         private static readonly char[] _directorySeparatorChars = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
         private const string DbContextSuffix = "Context";
         private const string DefaultDbContextName = "Model" + DbContextSuffix;
-
-
+        
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ReverseEngineeringGenerator(
+        public DbContextScaffolder(
             [NotNull] IScaffoldingModelFactory scaffoldingModelFactory,
-            [NotNull] CodeWriter codeWriter)
+            [NotNull] ScaffoldingCodeGenerator scaffoldingCodeGenerator,
+            [NotNull] CSharpUtilities cSharpUtilities)
         {
             Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
-            Check.NotNull(codeWriter, nameof(codeWriter));
+            Check.NotNull(scaffoldingCodeGenerator, nameof(scaffoldingCodeGenerator));
 
             _factory = scaffoldingModelFactory;
-            CodeWriter = codeWriter;
+            ScaffoldingCodeGenerator = scaffoldingCodeGenerator;
+            _cSharpUtilities = cSharpUtilities;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual CodeWriter CodeWriter { get; }
+        private ScaffoldingCodeGenerator ScaffoldingCodeGenerator { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -70,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             cancellationToken.ThrowIfCancellationRequested();
 
             if (!string.IsNullOrWhiteSpace(contextName)
-                && (!CSharpUtilities.Instance.IsValidIdentifier(contextName)
-                    || CSharpUtilities.Instance.IsCSharpKeyword(contextName)))
+                && (!_cSharpUtilities.IsValidIdentifier(contextName)
+                    || _cSharpUtilities.IsCSharpKeyword(contextName)))
             {
                 throw new ArgumentException(
                     DesignStrings.ContextClassNotValidCSharpIdentifier(contextName));
@@ -101,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 @namespace += "." + string.Join(
                                   ".", relativeOutputPath
                                       .Split(_directorySeparatorChars, StringSplitOptions.RemoveEmptyEntries)
-                                      .Select(p => CSharpUtilities.Instance.GenerateCSharpIdentifier(p, existingIdentifiers: null)));
+                                      .Select(p => _cSharpUtilities.GenerateCSharpIdentifier(p, existingIdentifiers: null)));
             }
 
             if (string.IsNullOrEmpty(contextName))
@@ -111,13 +113,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 var annotatedName = model.Scaffolding().DatabaseName;
                 if (!string.IsNullOrEmpty(annotatedName))
                 {
-                    contextName = CSharpUtilities.Instance.GenerateCSharpIdentifier(annotatedName + DbContextSuffix, existingIdentifiers: null);
+                    contextName = _cSharpUtilities.GenerateCSharpIdentifier(annotatedName + DbContextSuffix, existingIdentifiers: null);
                 }
             }
 
             CheckOutputFiles(fullOutputPath, contextName, model, overwriteFiles);
 
-            return CodeWriter.WriteCodeAsync(model, fullOutputPath, @namespace, contextName, connectionString, useDataAnnotations, cancellationToken);
+            return ScaffoldingCodeGenerator.WriteCodeAsync(model, fullOutputPath, @namespace, contextName, connectionString, useDataAnnotations, cancellationToken);
         }
 
         private void CheckOutputFiles(
@@ -130,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));
             Check.NotNull(metadataModel, nameof(metadataModel));
 
-            var readOnlyFiles = CodeWriter.GetReadOnlyFilePaths(
+            var readOnlyFiles = ScaffoldingCodeGenerator.GetReadOnlyFilePaths(
                 outputPath, dbContextClassName, metadataModel.GetEntityTypes());
 
             if (readOnlyFiles.Count > 0)
@@ -144,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (!overwriteFiles)
             {
-                var existingFiles = CodeWriter.GetExistingFilePaths(
+                var existingFiles = ScaffoldingCodeGenerator.GetExistingFilePaths(
                     outputPath, dbContextClassName, metadataModel.GetEntityTypes());
                 if (existingFiles.Count > 0)
                 {
