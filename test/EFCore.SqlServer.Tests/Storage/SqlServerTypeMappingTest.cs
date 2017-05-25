@@ -5,7 +5,6 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 

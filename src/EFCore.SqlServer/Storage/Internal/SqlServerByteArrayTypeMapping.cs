@@ -4,6 +4,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
+using System.Text;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -12,53 +14,36 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqlServerMaxLengthMapping : SqlServerTypeMapping
+    public class SqlServerByteArrayTypeMapping : ByteArrayTypeMapping
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Initializes a new instance of the <see cref="SqlServerByteArrayTypeMapping" /> class.
         /// </summary>
-        public SqlServerMaxLengthMapping(
+        /// <param name="storeType"> The name of the database type. </param>
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        /// <param name="hasNonDefaultSize"> A value indicating whether the size setting has been manually configured to a non-default value. </param>
+        public SqlServerByteArrayTypeMapping(
             [NotNull] string storeType,
-            [NotNull] Type clrType,
-            DbType? dbType = null)
-            : this(storeType, clrType, dbType, unicode: false, size: null)
-        {
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public SqlServerMaxLengthMapping(
-            [NotNull] string storeType,
-            [NotNull] Type clrType,
-            DbType? dbType,
-            bool unicode,
-            int? size,
-            bool hasNonDefaultUnicode = false,
+            [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
+            int? size = null,
             bool hasNonDefaultSize = false)
-            : base(storeType, clrType, dbType, unicode, CalculateSize(unicode, size), hasNonDefaultUnicode, hasNonDefaultSize)
+            : base(storeType, dbType, CalculateSize(size), hasNonDefaultSize)
         {
         }
 
-        private static int CalculateSize(bool unicode, int? size)
-            => unicode
-                ? size.HasValue && size < 4000 ? size.Value : 4000
-                : size.HasValue && size < 8000 ? size.Value : 8000;
+        private static int CalculateSize(int? size)
+            => size.HasValue && size < 8000 ? size.Value : 8000;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override RelationalTypeMapping CreateCopy(string storeType, int? size)
-            => new SqlServerMaxLengthMapping(
+            => new SqlServerByteArrayTypeMapping(
                 storeType,
-                ClrType,
                 DbType,
-                IsUnicode,
                 size,
-                HasNonDefaultUnicode,
                 hasNonDefaultSize: size != Size);
 
         /// <summary>
@@ -78,6 +63,26 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             parameter.Size = value == null || value == DBNull.Value || (length != null && length <= Size.Value)
                 ? Size.Value
                 : -1;
+        }
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns>
+        ///     The generated string.
+        /// </returns>
+        protected override string GenerateNonNullSqlLiteral(object value)
+        {
+            var builder = new StringBuilder();
+            builder.Append("0x");
+
+            foreach (var @byte in (byte[])value)
+            {
+                builder.Append(@byte.ToString("X2", CultureInfo.InvariantCulture));
+            }
+
+            return builder.ToString();
         }
     }
 }

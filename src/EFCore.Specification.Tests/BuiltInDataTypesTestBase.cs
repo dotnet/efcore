@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
                         TestByte = 255,
                         TestUnsignedInt16 = 1234,
                         TestUnsignedInt32 = 1234565789U,
-                        TestUnsignedInt64 = 1234567890123456789UL,
+                        TestUnsignedInt64 = 12345678901234567890UL,
                         TestCharacter = 'a',
                         TestSignedByte = -128,
                         Enum64 = Enum64.SomeValue,
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (entityType.FindProperty("TestUnsignedInt64") != null)
                 {
-                    var param18 = 1234567890123456789UL;
+                    var param18 = 12345678901234567890UL;
                     Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestUnsignedInt64 == param18));
                 }
 
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore
                         TestNullableByte = 255,
                         TestNullableUnsignedInt16 = 1234,
                         TestNullableUnsignedInt32 = 1234565789U,
-                        TestNullableUnsignedInt64 = 1234567890123456789UL,
+                        TestNullableUnsignedInt64 = 12345678901234567890UL,
                         TestNullableCharacter = 'a',
                         TestNullableSignedByte = -128,
                         Enum64 = Enum64.SomeValue,

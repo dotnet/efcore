@@ -337,6 +337,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder
                     .Append(" AS ")
                     .Append(typeMapping.StoreType);
+
+                // set the typeMapping for use with operation.StartValue (i.e. a long) below
+                typeMapping = Dependencies.TypeMapper.GetMapping(typeof(long));
             }
 
             builder

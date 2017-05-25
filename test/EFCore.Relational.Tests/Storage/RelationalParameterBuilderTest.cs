@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
@@ -98,13 +99,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         builder.AddParameter(
                             "FirstInvariant",
                             "FirstName",
-                            new RelationalTypeMapping("int", typeof(int)),
+                            new IntTypeMapping("int", DbType.Int32),
                             nullable: false);
 
                         builder.AddParameter(
                             "SecondInvariant",
                             "SecondName",
-                            new RelationalTypeMapping("nvarchae(max)", typeof(string)),
+                            new StringTypeMapping("nvarchar(max)"),
                             nullable: true);
                     });
 
