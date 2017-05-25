@@ -3,10 +3,9 @@
 
 using System;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Design;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Design
 {
     public abstract class DesignTimeProviderServicesTest
     {

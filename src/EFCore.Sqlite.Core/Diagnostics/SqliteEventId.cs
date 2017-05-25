@@ -25,7 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             // Model validation events
             SchemaConfiguredWarning = CoreEventId.ProviderBaseId,
-            SequenceConfiguredWarning
+            SequenceConfiguredWarning,
+
+            // Scaffolding events
+            ColumnFound = CoreEventId.ProviderBaseId + 100,
+            ForeignKeyColumnFound,
+            SchemasNotSupportedWarning
         }
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
@@ -42,5 +47,26 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
         /// </summary>
         public static readonly EventId SequenceConfiguredWarning = MakeValidationId(Id.SequenceConfiguredWarning);
+
+        private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
+        private static EventId MakeScaffoldingId(Id id) => new EventId((int)id, _scaffoldingPrefix + id);
+
+        /// <summary>
+        ///     A column was found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId ColumnFound = MakeScaffoldingId(Id.ColumnFound);
+
+        /// <summary>
+        ///     A column of a foreign key was found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId ForeignKeyColumnFound = MakeScaffoldingId(Id.ForeignKeyColumnFound);
+
+        /// <summary>
+        ///     SQLite does not support schemas.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId SchemasNotSupportedWarning = MakeScaffoldingId(Id.SchemasNotSupportedWarning);
     }
 }

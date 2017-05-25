@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 new FakeScaffoldingModelFactory(new FakeDiagnosticsLogger<DbLoggerCategory.Scaffolding>()),
                 new CSharpScaffoldingGenerator(
                     new InMemoryFileService(),
-                    new CSharpDbContextGenerator(CSharpUtilities.Instance),
+                    new CSharpDbContextGenerator(new FakeScaffoldingHelper(), CSharpUtilities.Instance),
                     new CSharpEntityTypeGenerator(CSharpUtilities.Instance)),
                 CSharpUtilities.Instance);
 
@@ -43,6 +43,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 overwriteFiles: false)
                             .Result)
                     .Message);
+        }
+
+        public class FakeScaffoldingHelper : IScaffoldingHelper
+        {
+            public string GetProviderOptionsBuilder(string connectionString)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

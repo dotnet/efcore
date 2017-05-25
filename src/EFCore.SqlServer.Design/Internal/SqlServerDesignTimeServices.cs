@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             => serviceCollection
                 .AddSingleton<IScaffoldingModelFactory, SqlServerScaffoldingModelFactory>()
                 .AddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
-                .AddSingleton<IDatabaseModelFactory, SqlServerDatabaseModelFactory>();
+                .AddSingleton<IDatabaseModelFactory, SqlServerDatabaseModelFactory>()
+                .AddSingleton<IScaffoldingHelper, SqlServerScaffoldingHelper>();
     }
 }

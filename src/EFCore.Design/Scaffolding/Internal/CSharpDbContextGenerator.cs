@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     {
         private const string EntityLambdaIdentifier = "entity";
 
-        private CSharpUtilities CSharpUtilities { get; }
+        private readonly CSharpUtilities _cSharpUtilities;
+        private readonly IScaffoldingHelper _scaffoldingHelper;
         private IndentedStringBuilder _sb;
         private bool _entityTypeBuilderInitialized;
 
@@ -31,11 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public CSharpDbContextGenerator(
+            [NotNull] IScaffoldingHelper scaffoldingHelper,
             [NotNull] CSharpUtilities cSharpUtilities)
         {
+            Check.NotNull(scaffoldingHelper, nameof(scaffoldingHelper));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
 
-            CSharpUtilities = cSharpUtilities;
+            _scaffoldingHelper = scaffoldingHelper;
+            _cSharpUtilities = cSharpUtilities;
         }
 
         /// <summary>
@@ -80,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 GenerateDbSets(model);
                 GenerateEntityTypeErrors(model);
-                GenerateOnConfiguring(model, connectionString);
+                GenerateOnConfiguring(connectionString);
                 GenerateOnModelCreating(model, useDataAnnotations);
             }
 
@@ -113,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateOnConfiguring(IModel model, string connectionString)
+        private void GenerateOnConfiguring(string connectionString)
         {
             _sb.AppendLine("protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)");
             _sb.AppendLine("{");
@@ -127,14 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     _sb.AppendLine("#warning " + DesignStrings.SensitiveInformationWarning);
 
-                    var methodName = model.Scaffolding().UseProviderMethodName;
-
-                    if (string.IsNullOrEmpty(methodName))
-                    {
-                        throw new InvalidOperationException(RelationalDesignStrings.MissingUseProviderMethodNameAnnotation);
-                    }
-
-                    _sb.AppendLine($"optionsBuilder.{methodName}({CSharpUtilities.GenerateVerbatimStringLiteral(connectionString)});");
+                    _sb.AppendLine($"optionsBuilder.{_scaffoldingHelper.GetProviderOptionsBuilder(connectionString)}");
                 }
 
                 _sb.AppendLine("}");
@@ -271,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (explicitName)
             {
-                lines.Add($".{nameof(RelationalKeyBuilderExtensions.HasName)}({CSharpUtilities.DelimitString(key.Relational().Name)})");
+                lines.Add($".{nameof(RelationalKeyBuilderExtensions.HasName)}({_cSharpUtilities.DelimitString(key.Relational().Name)})");
             }
 
             AppendMultiLineFluentApi(key.DeclaringEntityType, lines);
@@ -288,10 +285,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (explicitTable)
             {
-                var parameterString = CSharpUtilities.DelimitString(tableName);
+                var parameterString = _cSharpUtilities.DelimitString(tableName);
                 if (explicitSchema)
                 {
-                    parameterString += ", " + CSharpUtilities.DelimitString(schema);
+                    parameterString += ", " + _cSharpUtilities.DelimitString(schema);
                 }
 
                 var lines = new List<string>
@@ -312,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (!string.IsNullOrEmpty(index.Relational().Name))
             {
-                lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasName)}({CSharpUtilities.DelimitString(index.Relational().Name)})");
+                lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasName)}({_cSharpUtilities.DelimitString(index.Relational().Name)})");
             }
 
             if (index.IsUnique)
@@ -322,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (index.Relational().Filter != null)
             {
-                lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasFilter)}({CSharpUtilities.DelimitString(index.Relational().Filter)})");
+                lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasFilter)}({_cSharpUtilities.DelimitString(index.Relational().Filter)})");
             }
 
             AppendMultiLineFluentApi(index.DeclaringEntityType, lines);
@@ -349,37 +346,37 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 if (columnName != null
                     && columnName != property.Name)
                 {
-                    lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}({CSharpUtilities.DelimitString(columnName)})");
+                    lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}({_cSharpUtilities.DelimitString(columnName)})");
                 }
 
                 var columnType = property.Relational().ColumnType;
 
                 if (columnType != null)
                 {
-                    lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}({CSharpUtilities.DelimitString(columnType)})");
+                    lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}({_cSharpUtilities.DelimitString(columnType)})");
                 }
 
                 var maxLength = property.GetMaxLength();
 
                 if (maxLength.HasValue)
                 {
-                    lines.Add($".{nameof(PropertyBuilder.HasMaxLength)}({CSharpUtilities.GenerateLiteral(maxLength.Value)})");
+                    lines.Add($".{nameof(PropertyBuilder.HasMaxLength)}({_cSharpUtilities.GenerateLiteral(maxLength.Value)})");
                 }
             }
 
             if (property.Relational().DefaultValue != null)
             {
-                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}({CSharpUtilities.GenerateLiteral((dynamic)property.Relational().DefaultValue)})");
+                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}({_cSharpUtilities.GenerateLiteral((dynamic)property.Relational().DefaultValue)})");
             }
 
             if (property.Relational().DefaultValueSql != null)
             {
-                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql)}({CSharpUtilities.DelimitString(property.Relational().DefaultValueSql)})");
+                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql)}({_cSharpUtilities.DelimitString(property.Relational().DefaultValueSql)})");
             }
 
             if (property.Relational().ComputedColumnSql != null)
             {
-                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}({CSharpUtilities.DelimitString(property.Relational().ComputedColumnSql)})");
+                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}({_cSharpUtilities.DelimitString(property.Relational().ComputedColumnSql)})");
             }
 
             var valueGenerated = property.ValueGenerated;
@@ -453,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (foreignKey.DeleteBehavior != defaultOnDeleteAction)
             {
                 canUseDataAnnotations = false;
-                lines.Add($".{nameof(ReferenceReferenceBuilder.OnDelete)}({CSharpUtilities.GenerateLiteral(foreignKey.DeleteBehavior)})");
+                lines.Add($".{nameof(ReferenceReferenceBuilder.OnDelete)}({_cSharpUtilities.GenerateLiteral(foreignKey.DeleteBehavior)})");
             }
 
             if (foreignKey.Relational().Name !=
@@ -463,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     foreignKey.Properties.Select(p => p.Relational().ColumnName)))
             {
                 canUseDataAnnotations = false;
-                lines.Add($".{nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)}({CSharpUtilities.DelimitString(foreignKey.Relational().Name)})");
+                lines.Add($".{nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)}({_cSharpUtilities.DelimitString(foreignKey.Relational().Name)})");
             }
 
             if (!useDataAnnotations || !canUseDataAnnotations)
@@ -478,15 +475,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (sequence.ClrType != Sequence.DefaultClrType)
             {
-                methodName += $"<{CSharpUtilities.GetTypeName(sequence.ClrType)}>";
+                methodName += $"<{_cSharpUtilities.GetTypeName(sequence.ClrType)}>";
             }
 
-            var parameters = CSharpUtilities.DelimitString(sequence.Name);
+            var parameters = _cSharpUtilities.DelimitString(sequence.Name);
 
             if (string.IsNullOrEmpty(sequence.Schema)
                 && sequence.Model.Relational().DefaultSchema != sequence.Schema)
             {
-                parameters += $", {CSharpUtilities.DelimitString(sequence.Schema)}";
+                parameters += $", {_cSharpUtilities.DelimitString(sequence.Schema)}";
             }
 
             var lines = new List<string>

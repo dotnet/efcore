@@ -4,17 +4,66 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
-    /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
-    public static class SqliteDesignLoggerExtensions
+    public static class SqliteLoggerExtensions
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void SchemaConfiguredWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] IEntityType entityType,
+            [NotNull] string schema)
+        {
+            var definition = SqliteStrings.LogSchemaConfigured;
+
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, entityType.DisplayName(), schema);
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        EntityType = entityType,
+                        Schema = schema
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void SequenceConfiguredWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] ISequence sequence)
+        {
+            var definition = SqliteStrings.LogSequenceConfigured;
+
+            definition.Log(diagnostics, sequence.Name);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        Sequence = sequence
+                    });
+            }
+        }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -29,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             int? primaryKeyOrdinal,
             [CanBeNull] string defaultValue)
         {
-            var definition = SqliteDesignStrings.LogFoundColumn;
+            var definition = SqliteStrings.LogFoundColumn;
 
             Debug.Assert(LogLevel.Debug == definition.Level);
 
@@ -81,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string deleteAction,
             int? ordinal)
         {
-            var definition = SqliteDesignStrings.LogFoundForeignKeyColumn;
+            var definition = SqliteStrings.LogFoundForeignKeyColumn;
 
             Debug.Assert(LogLevel.Debug == definition.Level);
 
@@ -126,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void SchemasNotSupportedWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
         {
-            var definition = SqliteDesignStrings.LogUsingSchemaSelectionsWarning;
+            var definition = SqliteStrings.LogUsingSchemaSelectionsWarning;
 
             definition.Log(diagnostics);
 
