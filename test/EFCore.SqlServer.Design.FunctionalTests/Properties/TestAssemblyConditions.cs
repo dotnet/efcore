@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
-[assembly: TestFramework("Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit.ConditionalTestFramework", "Microsoft.EntityFrameworkCore.Specification.Tests")]
+[assembly: TestFramework("Microsoft.EntityFrameworkCore.TestUtilities.Xunit.ConditionalTestFramework", "Microsoft.EntityFrameworkCore.Specification.Tests")]
 
 // Skip the entire assembly if not on Windows and no external SQL Server is configured
 
