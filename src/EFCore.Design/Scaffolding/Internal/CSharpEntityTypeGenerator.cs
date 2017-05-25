@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class EntityTypeWriter
+    public class CSharpEntityTypeGenerator
     {
         private CSharpUtilities CSharpUtilities { get; }
 
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public EntityTypeWriter(
+        public CSharpEntityTypeGenerator(
             [NotNull] CSharpUtilities cSharpUtilities)
         {
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
