@@ -3,8 +3,6 @@
     <CoreFxVersion>4.4.0-*</CoreFxVersion>
     <InternalAspNetCoreSdkVersion>2.1.0-*</InternalAspNetCoreSdkVersion>
     <NETFrameworkPackageVersion>2.0.0-*</NETFrameworkPackageVersion>
-    <NETStandardImplicitPackageVersion>$(BundledNETStandardPackageVersion)</NETStandardImplicitPackageVersion>
-    <OldCoreFxVersion>4.3.0</OldCoreFxVersion>
     <SQLitePCLRawVersion>1.1.5</SQLitePCLRawVersion>
     <StyleCopAnalyzersVersion>1.0.0</StyleCopAnalyzersVersion>
     <TestSdkVersion>15.3.0-*</TestSdkVersion>

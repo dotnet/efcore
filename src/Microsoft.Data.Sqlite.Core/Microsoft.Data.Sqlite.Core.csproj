@@ -17,7 +17,7 @@ Microsoft.Data.Sqlite.SqliteException
 Microsoft.Data.Sqlite.SqliteFactory
 Microsoft.Data.Sqlite.SqliteParameter
 Microsoft.Data.Sqlite.SqliteTransaction</Description>
-    <TargetFrameworks>netstandard2.0;netstandard1.4</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>Microsoft.Data.Sqlite.Core.ruleset</CodeAnalysisRuleSet>
     <IncludeSymbols>true</IncludeSymbols>
@@ -33,11 +33,6 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   <ItemGroup>
     <PackageReference Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawVersion)" />
     <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersVersion)" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
-    <PackageReference Include="System.Data.Common" Version="$(OldCoreFxVersion)" />
-    <PackageReference Include="System.ValueTuple" Version="$(CoreFxVersion)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -159,13 +159,11 @@ namespace Microsoft.Data.Sqlite
             return true;
         }
 
-#if NETSTANDARD2_0
         /// <summary>
         /// Closes the data reader.
         /// </summary>
         public override void Close()
             => Dispose(true);
-#endif
 
         /// <summary>
         /// Releases any resources used by the data reader and closes it.
