@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
                     b.Ignore(dt => dt.TestUnsignedInt64);
                     b.Ignore(dt => dt.TestCharacter);
                     b.Ignore(dt => dt.TestSignedByte);
-                    b.Property(dt => dt.TestDecimal).ForSqlServerHasColumnType("decimal(18,2)");
+                    b.Property(dt => dt.TestDecimal).HasColumnType("decimal(18,2)");
                 });
 
             modelBuilder.Entity<BuiltInNullableDataTypes>(b =>

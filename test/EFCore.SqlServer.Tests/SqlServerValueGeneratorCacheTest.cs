@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Block_size_is_obtained_from_specified_sequence()
         {
             var property = CreateConventionModelBuilder()
-                .ForSqlServerHasSequence("DaneelOlivaw", b => b.IncrementsBy(11))
+                .HasSequence("DaneelOlivaw", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Non_positive_block_sizes_are_not_allowed()
         {
             var property = CreateConventionModelBuilder()
-                .ForSqlServerHasSequence("DaneelOlivaw", b => b.IncrementsBy(-1))
+                .HasSequence("DaneelOlivaw", b => b.IncrementsBy(-1))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var property = CreateConventionModelBuilder()
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
-                .ForSqlServerHasSequence("DaneelOlivaw", b => b.IncrementsBy(11))
+                .HasSequence("DaneelOlivaw", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .Metadata;
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Sequence_name_is_obtained_from_specified_sequence()
         {
             var property = CreateConventionModelBuilder()
-                .ForSqlServerHasSequence("DaneelOlivaw", b => b.IncrementsBy(11))
+                .HasSequence("DaneelOlivaw", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var property = CreateConventionModelBuilder()
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
-                .ForSqlServerHasSequence("DaneelOlivaw", b => b.IncrementsBy(11))
+                .HasSequence("DaneelOlivaw", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .Metadata;
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Schema_qualified_sequence_name_is_obtained_from_specified_sequence()
         {
             var property = CreateConventionModelBuilder()
-                .ForSqlServerHasSequence("DaneelOlivaw", "R", b => b.IncrementsBy(11))
+                .HasSequence("DaneelOlivaw", "R", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw", "R")
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var property = CreateConventionModelBuilder()
                 .ForSqlServerUseSequenceHiLo("DaneelOlivaw", "R")
-                .ForSqlServerHasSequence("DaneelOlivaw", "R", b => b.IncrementsBy(11))
+                .HasSequence("DaneelOlivaw", "R", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .Metadata;

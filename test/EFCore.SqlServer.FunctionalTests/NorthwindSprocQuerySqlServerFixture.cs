@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
 
             modelBuilder.Entity<OrderDetail>()
                 .Property(od => od.UnitPrice)
-                .ForSqlServerHasColumnType("money");
+                .HasColumnType("money");
         }
 
         public void Dispose() => _testStore.Dispose();

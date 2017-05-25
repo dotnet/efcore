@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Product>()
-                .Property(p => p.Price).ForSqlServerHasColumnType("decimal(18,2)");
+                .Property(p => p.Price).HasColumnType("decimal(18,2)");
         }
     }
 }

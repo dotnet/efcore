@@ -757,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder
                     .Entity<Black>()
-                    .ForSqlServerToTable("Black", "Apple")
+                    .ToTable("Black", "Apple")
                     .HasKey(e => e.MyKey);
             }
         }
@@ -945,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Customer>(b =>
                     {
                         b.HasKey(c => c.CustomerID);
-                        b.ForSqlServerToTable("Customers");
+                        b.ToTable("Customers");
                     });
             }
         }

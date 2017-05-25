@@ -14,22 +14,6 @@ namespace Microsoft.EntityFrameworkCore
     public static class SqlServerKeyBuilderExtensions
     {
         /// <summary>
-        ///     Configures the name of the key constraint in the database when targeting SQL Server.
-        /// </summary>
-        /// <param name="keyBuilder"> The builder for the key being configured. </param>
-        /// <param name="name"> The name of the key. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static KeyBuilder ForSqlServerHasName([NotNull] this KeyBuilder keyBuilder, [CanBeNull] string name)
-        {
-            Check.NotNull(keyBuilder, nameof(keyBuilder));
-            Check.NullButNotEmpty(name, nameof(name));
-
-            keyBuilder.Metadata.SqlServer().Name = name;
-
-            return keyBuilder;
-        }
-
-        /// <summary>
         ///     Configures whether the key is clustered when targeting SQL Server.
         /// </summary>
         /// <param name="keyBuilder"> The builder for the key being configured. </param>

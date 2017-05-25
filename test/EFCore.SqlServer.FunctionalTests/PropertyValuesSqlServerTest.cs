@@ -48,10 +48,10 @@ namespace Microsoft.EntityFrameworkCore
                 base.OnModelCreating(modelBuilder);
 
                 modelBuilder.Entity<Building>()
-                    .Property(b => b.Value).ForSqlServerHasColumnType("decimal(18,2)");
+                    .Property(b => b.Value).HasColumnType("decimal(18,2)");
 
                 modelBuilder.Entity<CurrentEmployee>()
-                    .Property(ce => ce.LeaveBalance).ForSqlServerHasColumnType("decimal(18,2)");
+                    .Property(ce => ce.LeaveBalance).HasColumnType("decimal(18,2)");
             }
 
             public override DbContext CreateContext(SqlServerTestStore testStore)

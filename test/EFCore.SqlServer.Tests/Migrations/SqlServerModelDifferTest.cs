@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id").ForSqlServerHasName("PK_People");
-                            x.ForSqlServerToTable("People", "dbo");
+                            x.HasKey("Id").HasName("PK_People");
+                            x.ToTable("People", "dbo");
                         }),
                 operations =>
                     {
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             x.Property<int>("Id");
                             x.HasKey("Id").HasName("PK_Person");
-                            x.ForSqlServerToTable("People", "dbo");
+                            x.ToTable("People", "dbo");
                         }),
                 operations =>
                     {
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             x.Property<int>("Id");
                             x.HasKey("Id");
-                            x.ForSqlServerToTable("People", "dbo");
+                            x.ToTable("People", "dbo");
                         }),
                 _ => { },
                 operations =>
@@ -173,16 +173,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.HasKey("Id").ForSqlServerHasName("PK_People");
-                        x.ForSqlServerToTable("People", "dbo");
+                        x.HasKey("Id").HasName("PK_People");
+                        x.ToTable("People", "dbo");
                     }),
                 modelBuilder => modelBuilder.Entity(
                     "Person",
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.HasKey("Id").ForSqlServerHasName("PK_People");
-                        x.ForSqlServerToTable("People", "dbo");
+                        x.HasKey("Id").HasName("PK_People");
+                        x.ToTable("People", "dbo");
                         x.Property<string>("FirstName");
                         x.Property<string>("FullName").HasComputedColumnSql("[FirstName] + [LastName]");
                         x.Property<string>("LastName");
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             x.Property<int>("Id");
                             x.HasKey("Id");
-                            x.Property<int>("Value").ForSqlServerHasColumnName("PersonValue");
+                            x.Property<int>("Value").HasColumnName("PersonValue");
                         }),
                 operations =>
                     {
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("Value")
-                                .ForSqlServerHasColumnType("varchar(8000)")
+                                .HasColumnType("varchar(8000)")
                                 .HasDefaultValueSql("1 + 1");
                         }),
                 operations =>
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.ToTable("Sheep", "bah");
                             x.Property<int>("Id");
                             x.HasKey("Id");
-                            x.Property<int>("Now").ForSqlServerHasComputedColumnSql("CAST(CURRENT_TIMESTAMP AS int)");
+                            x.Property<int>("Now").HasComputedColumnSql("CAST(CURRENT_TIMESTAMP AS int)");
                         }),
                 operations =>
                     {
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             x.Property<int>("Id");
                             x.HasKey("Id");
-                            x.Property<int>("Value").ForSqlServerHasColumnName("PersonValue");
+                            x.Property<int>("Value").HasColumnName("PersonValue");
                         }),
                 operations =>
                     {
@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             x.Property<int>("Id");
                             x.HasKey("Id");
-                            x.Property<int>("Value").ForSqlServerHasColumnName("PersonValue");
+                            x.Property<int>("Value").HasColumnName("PersonValue");
                         }),
                 target => target.Entity(
                     "Person",
@@ -485,7 +485,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("AlternateId");
-                            x.HasAlternateKey("AlternateId").ForSqlServerHasName("AK_Ewe");
+                            x.HasAlternateKey("AlternateId").HasName("AK_Ewe");
                         }),
                 operations =>
                     {
@@ -510,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("AlternateId");
-                            x.HasAlternateKey("AlternateId").ForSqlServerHasName("AK_Ewe");
+                            x.HasAlternateKey("AlternateId").HasName("AK_Ewe");
                         }),
                 target => target.Entity(
                     "Ewe",
@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("ParentId");
-                            x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").ForSqlServerHasConstraintName("FK_Amoeba_Parent");
+                            x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").HasConstraintName("FK_Amoeba_Parent");
                         }),
                 operations =>
                     {
@@ -583,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("ParentId");
-                            x.HasOne("Anemone").WithMany().HasForeignKey("ParentId").ForSqlServerHasConstraintName("FK_Anemone_Parent");
+                            x.HasOne("Anemone").WithMany().HasForeignKey("ParentId").HasConstraintName("FK_Anemone_Parent");
                         }),
                 target => target.Entity(
                     "Anemone",
@@ -673,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("Value");
-                            x.HasIndex("Value").ForSqlServerHasName("IX_dbo.Donkey_Value");
+                            x.HasIndex("Value").HasName("IX_dbo.Donkey_Value");
                         }),
                 operations =>
                     {
@@ -708,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("Value");
-                            x.HasIndex("Value").ForSqlServerHasName("IX_HipVal");
+                            x.HasIndex("Value").HasName("IX_HipVal");
                         }),
                 operations =>
                     {
@@ -734,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.HasKey("Id");
                             x.Property<int>("Value");
                             x.ForSqlServerIsMemoryOptimized();
-                            x.HasIndex("Value").ForSqlServerHasName("IX_HorseVal").ForSqlServerIsClustered(true);
+                            x.HasIndex("Value").HasName("IX_HorseVal").ForSqlServerIsClustered(true);
                         }),
                 target => target.Entity(
                     "Horse",
@@ -764,7 +764,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.ForSqlServerHasSequence("Tango", "dbo"),
+                modelBuilder => modelBuilder.HasSequence("Tango", "dbo"),
                 operations =>
                     {
                         Assert.Equal(2, operations.Count);
@@ -781,7 +781,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public void Drop_sequence_overridden()
         {
             Execute(
-                modelBuilder => modelBuilder.ForSqlServerHasSequence("Bravo", "dbo"),
+                modelBuilder => modelBuilder.HasSequence("Bravo", "dbo"),
                 _ => { },
                 operations =>
                     {
@@ -798,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Execute(
                 source => source.HasSequence("Bravo"),
-                target => target.ForSqlServerHasSequence("Bravo").IncrementsBy(2),
+                target => target.HasSequence("Bravo").IncrementsBy(2),
                 operations =>
                     {
                         Assert.Equal(1, operations.Count);

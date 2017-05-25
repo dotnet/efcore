@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
                     .Entity("Person", x =>
                         {
-                            x.Property<string>("FullName").ForSqlServerHasComputedColumnSql("[FirstName] + ' ' + [LastName]");
+                            x.Property<string>("FullName").HasComputedColumnSql("[FirstName] + ' ' + [LastName]");
                             x.HasIndex("FullName");
                         }),
                 new AlterColumnOperation

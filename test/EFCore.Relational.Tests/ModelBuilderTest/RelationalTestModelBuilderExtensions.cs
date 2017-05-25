@@ -17,5 +17,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilderTest
 
             return builder;
         }
+
+        public static ModelBuilding.ModelBuilderTest.TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
+            this ModelBuilding.ModelBuilderTest.TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> builder, string name)
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            var genericBuilder = (builder as IInfrastructure<ReferenceOwnershipBuilder<TEntity, TRelatedEntity>>)?.Instance;
+            genericBuilder?.ToTable(name);
+
+            return builder;
+        }
     }
 }

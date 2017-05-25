@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         public override void Detects_duplicate_column_names()
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
-            modelBuilder.Entity<Animal>().Property(b => b.Id).ForSqlServerHasColumnName("Name");
+            modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
 
             VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(nameof(Animal), nameof(Animal.Id),
                     nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "int", "nvarchar(max)"),
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
             var fk1 = modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
-                .OnDelete(DeleteBehavior.Cascade).ForSqlServerHasConstraintName("FK_Animal_Person_Name").Metadata;
+                .OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_Animal_Person_Name").Metadata;
             var fk2 = modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
                 .OnDelete(DeleteBehavior.SetNull).Metadata;
 
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            var index1 = modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique().ForSqlServerHasName("IX_Animal_Name").Metadata;
+            var index1 = modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique().HasName("IX_Animal_Name").Metadata;
             var index2 = modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsUnique(false).Metadata;
 
             Validate(modelBuilder.Model);

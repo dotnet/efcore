@@ -14,38 +14,6 @@ namespace Microsoft.EntityFrameworkCore
     public static class SqlServerIndexBuilderExtensions
     {
         /// <summary>
-        ///     Configures the name of the index in the database when targeting SQL Server.
-        /// </summary>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="name"> The name of the index. </param>
-        /// <returns> A builder to further configure the index. </returns>
-        public static IndexBuilder ForSqlServerHasName([NotNull] this IndexBuilder indexBuilder, [CanBeNull] string name)
-        {
-            Check.NotNull(indexBuilder, nameof(indexBuilder));
-            Check.NullButNotEmpty(name, nameof(name));
-
-            indexBuilder.Metadata.SqlServer().Name = name;
-
-            return indexBuilder;
-        }
-
-        /// <summary>
-        ///     Determines whether the specified index has filter expression when targeting SQL Server.
-        /// </summary>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="sql"> The filter expression for the index. </param>
-        /// <returns> A builder to further configure the index. </returns>
-        public static IndexBuilder ForSqlServerHasFilter([NotNull] this IndexBuilder indexBuilder, [CanBeNull] string sql)
-        {
-            Check.NotNull(indexBuilder, nameof(indexBuilder));
-            Check.NullButNotEmpty(sql, nameof(sql));
-
-            indexBuilder.Metadata.SqlServer().Filter = sql;
-
-            return indexBuilder;
-        }
-
-        /// <summary>
         ///     Configures whether the index is clustered when targeting SQL Server.
         /// </summary>
         /// <param name="indexBuilder"> The builder for the index being configured. </param>

@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Customer>().ForSqlServerToTable("Customers");
+                => modelBuilder.Entity<Customer>().ToTable("Customers");
 
             public class Customer
             {

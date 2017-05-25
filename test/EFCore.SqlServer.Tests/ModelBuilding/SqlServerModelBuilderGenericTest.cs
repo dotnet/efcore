@@ -55,11 +55,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal("[RelationalName] IS NOT NULL", index.SqlServer().Filter);
 
-                entityTypeBuilder.Property(e => e.Name).ForSqlServerHasColumnName("SqlServerName");
+                entityTypeBuilder.Property(e => e.Name).HasColumnName("SqlServerName");
 
                 Assert.Equal("[SqlServerName] IS NOT NULL", index.SqlServer().Filter);
 
-                entityTypeBuilder.Property(e => e.Name).ForSqlServerHasColumnName(null);
+                entityTypeBuilder.Property(e => e.Name).HasColumnName(null);
 
                 Assert.Equal("[Name] IS NOT NULL", index.SqlServer().Filter);
             }
@@ -196,8 +196,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Book.AlternateLabel) + "_" + nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
                     bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).SqlServer().ColumnName);
 
-                bookOwnershipBuilder1.ForSqlServerToTable("Label");
-                bookOwnershipBuilder2.ForSqlServerToTable("AlternateLabel");
+                bookOwnershipBuilder1.ToTable("Label");
+                bookOwnershipBuilder2.ToTable("AlternateLabel");
 
                 Assert.Equal(nameof(BookLabel.Id),
                     bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).SqlServer().ColumnName);

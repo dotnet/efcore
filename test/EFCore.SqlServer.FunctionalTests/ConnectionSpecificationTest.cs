@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Customer>(b =>
                     {
                         b.HasKey(c => c.CustomerID);
-                        b.ForSqlServerToTable("Customers");
+                        b.ToTable("Customers");
                     });
             }
         }

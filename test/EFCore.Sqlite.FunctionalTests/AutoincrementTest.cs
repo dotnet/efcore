@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             modelBuilder.Entity<Person>(b =>
                 {
-                    b.ForSqliteToTable("People2");
+                    b.ToTable("People2");
                     b.HasKey(t => t.Name);
                     b.Property(t => t.Name).ValueGeneratedOnAdd();
                 });

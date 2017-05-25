@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ForSqlServerHasColumnName("MyNameIs");
+                .HasColumnName("MyNameIs");
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
@@ -48,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ForSqlServerHasColumnType("nvarchar(DA)");
+                .HasColumnType("nvarchar(DA)");
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ForSqlServerHasDefaultValueSql("VanillaCoke");
+                .HasDefaultValueSql("VanillaCoke");
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
@@ -89,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>()
                 .Property(e => e.Name)
                 .ValueGeneratedNever()
-                .ForSqlServerHasDefaultValueSql("VanillaCoke");
+                .HasDefaultValueSql("VanillaCoke");
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
@@ -113,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ForSqlServerHasComputedColumnSql("VanillaCoke");
+                .HasComputedColumnSql("VanillaCoke");
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
@@ -138,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>()
                 .Property(e => e.Name)
                 .ValueGeneratedNever()
-                .ForSqlServerHasComputedColumnSql("VanillaCoke");
+                .HasComputedColumnSql("VanillaCoke");
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
@@ -167,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Offset)
-                .ForSqlServerHasDefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
+                .HasDefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Offset");
 
@@ -189,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Offset)
-                .ForSqlServerHasDefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
+                .HasDefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Offset");
 
@@ -206,9 +205,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServerHasComputedColumnSql("0")
-                .ForSqlServerHasDefaultValueSql("1")
-                .ForSqlServerHasDefaultValue(2);
+                .HasComputedColumnSql("0")
+                .HasDefaultValueSql("1")
+                .HasDefaultValue(2);
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
 
@@ -225,9 +224,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServerHasComputedColumnSql("0")
-                .ForSqlServerHasDefaultValue(2)
-                .ForSqlServerHasDefaultValueSql("1");
+                .HasComputedColumnSql("0")
+                .HasDefaultValue(2)
+                .HasDefaultValueSql("1");
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
 
@@ -244,9 +243,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServerHasDefaultValueSql("1")
-                .ForSqlServerHasDefaultValue(2)
-                .ForSqlServerHasComputedColumnSql("0");
+                .HasDefaultValueSql("1")
+                .HasDefaultValue(2)
+                .HasComputedColumnSql("0");
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
 
@@ -263,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServerHasDefaultValueSql("1")
+                .HasDefaultValueSql("1")
                 .HasComputedColumnSql("0")
                 .HasDefaultValue(2);
 
@@ -285,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServerHasDefaultValue(2)
+                .HasDefaultValue(2)
                 .HasDefaultValueSql("1")
                 .HasComputedColumnSql("0");
 
@@ -307,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServerHasComputedColumnSql("0")
+                .HasComputedColumnSql("0")
                 .HasDefaultValue(2)
                 .HasDefaultValueSql("1");
 
@@ -390,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>()
                 .HasKey(e => e.Id)
                 .HasName("KeyLimePie")
-                .ForSqlServerHasName("LemonSupreme");
+                .HasName("LemonSupreme");
 
             var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
 
@@ -406,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .HasConstraintName("LemonSupreme")
-                .ForSqlServerHasConstraintName("ChocolateLimes");
+                .HasConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -415,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
-                .ForSqlServerHasConstraintName(null);
+                .HasConstraintName(null);
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.SqlServer().Name);
@@ -430,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .HasForeignKey(e => e.CustomerId)
                 .HasConstraintName("LemonSupreme")
-                .ForSqlServerHasConstraintName("ChocolateLimes");
+                .HasConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -446,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .HasConstraintName("LemonSupreme")
-                .ForSqlServerHasConstraintName("ChocolateLimes");
+                .HasConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -455,7 +454,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
-                .ForSqlServerHasConstraintName(null);
+                .HasConstraintName(null);
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.SqlServer().Name);
@@ -470,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .HasForeignKey(e => e.CustomerId)
                 .HasConstraintName("LemonSupreme")
-                .ForSqlServerHasConstraintName("ChocolateLimes");
+                .HasConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -487,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .HasPrincipalKey<Order>(e => e.OrderId)
                 .HasConstraintName("LemonSupreme")
-                .ForSqlServerHasConstraintName("ChocolateLimes");
+                .HasConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -496,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
-                .ForSqlServerHasConstraintName(null);
+                .HasConstraintName(null);
 
             Assert.Equal("FK_OrderDetails_Order_OrderId", foreignKey.Relational().Name);
             Assert.Equal("FK_OrderDetails_Order_OrderId", foreignKey.SqlServer().Name);
@@ -511,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .HasForeignKey<OrderDetails>(e => e.Id)
                 .HasConstraintName("LemonSupreme")
-                .ForSqlServerHasConstraintName("ChocolateLimes");
+                .HasConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -528,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>()
                 .HasIndex(e => e.Id)
                 .HasName("Eeeendeeex")
-                .ForSqlServerHasName("Dexter");
+                .HasName("Dexter");
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
@@ -545,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>()
                 .HasIndex(e => e.Id)
                 .HasFilter("Generic expression")
-                .ForSqlServerHasFilter("SqlServer-specific expression");
+                .HasFilter("SqlServer-specific expression");
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
@@ -561,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .ToTable("Customizer")
-                .ForSqlServerToTable("Custardizer");
+                .ToTable("Custardizer");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
@@ -578,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity(typeof(Customer))
                 .ToTable("Customizer")
-                .ForSqlServerToTable("Custardizer");
+                .ToTable("Custardizer");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
@@ -595,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .ToTable("Customizer", "db0")
-                .ForSqlServerToTable("Custardizer", "dbOh");
+                .ToTable("Custardizer", "dbOh");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
@@ -614,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity(typeof(Customer))
                 .ToTable("Customizer", "db0")
-                .ForSqlServerToTable("Custardizer", "dbOh");
+                .ToTable("Custardizer", "dbOh");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
@@ -797,7 +796,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence<int>("Snook", "Tasty")
+                .HasSequence<int>("Snook", "Tasty")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
@@ -1020,7 +1019,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence<int>("Snook", "Tasty")
+                .HasSequence<int>("Snook", "Tasty")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
@@ -1049,7 +1048,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence<int>("Snook", "Tasty", b =>
+                .HasSequence<int>("Snook", "Tasty", b =>
                     {
                         b.IncrementsBy(11)
                             .StartsAt(1729)
@@ -1098,7 +1097,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder.ForSqlServerHasSequence("Snook");
+            modelBuilder.HasSequence("Snook");
 
             Assert.NotNull(modelBuilder.Model.Relational().FindSequence("Snook"));
             var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook");
@@ -1117,7 +1116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder.ForSqlServerHasSequence("Snook", "Tasty");
+            modelBuilder.HasSequence("Snook", "Tasty");
 
             Assert.NotNull(modelBuilder.Model.Relational().FindSequence("Snook", "Tasty"));
             var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook", "Tasty");
@@ -1137,7 +1136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence<int>("Snook")
+                .HasSequence<int>("Snook")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
@@ -1153,7 +1152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence(typeof(int), "Snook")
+                .HasSequence(typeof(int), "Snook")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
@@ -1169,7 +1168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence<int>("Snook", b =>
+                .HasSequence<int>("Snook", b =>
                     {
                         b.IncrementsBy(11)
                             .StartsAt(1729)
@@ -1187,7 +1186,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence(typeof(int), "Snook", b =>
+                .HasSequence(typeof(int), "Snook", b =>
                     {
                         b.IncrementsBy(11)
                             .StartsAt(1729)
@@ -1216,7 +1215,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence<int>("Snook", "Tasty")
+                .HasSequence<int>("Snook", "Tasty")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
@@ -1232,7 +1231,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence(typeof(int), "Snook", "Tasty")
+                .HasSequence(typeof(int), "Snook", "Tasty")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
@@ -1248,7 +1247,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence<int>("Snook", "Tasty", b => { b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222); });
+                .HasSequence<int>("Snook", "Tasty", b => { b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222); });
 
             ValidateSchemaNamedSpecificSequence(modelBuilder.Model.Relational().FindSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(modelBuilder.Model.SqlServer().FindSequence("Snook", "Tasty"));
@@ -1260,7 +1259,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence(typeof(int), "Snook", "Tasty", b => { b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222); });
+                .HasSequence(typeof(int), "Snook", "Tasty", b => { b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222); });
 
             ValidateSchemaNamedSpecificSequence(modelBuilder.Model.Relational().FindSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(modelBuilder.Model.SqlServer().FindSequence("Snook", "Tasty"));
@@ -1274,12 +1273,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
-                    .ForSqlServerToTable("Will"));
+                    .ToTable("Will"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
-                    .ForSqlServerToTable("Jay", "Simon"));
+                    .ToTable("Jay", "Simon"));
         }
 
         [Fact]
@@ -1289,11 +1288,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .ForSqlServerToTable("Will");
+                .ToTable("Will");
 
             modelBuilder
                 .Entity<Customer>()
-                .ForSqlServerToTable("Jay", "Simon");
+                .ToTable("Jay", "Simon");
         }
 
         [Fact]
@@ -1305,31 +1304,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .ForSqlServerHasColumnName("Will"));
+                    .HasColumnName("Will"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .ForSqlServerHasColumnType("Jay"));
+                    .HasColumnType("Jay"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .ForSqlServerHasDefaultValueSql("Simon"));
+                    .HasDefaultValueSql("Simon"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .ForSqlServerHasComputedColumnSql("Simon"));
+                    .HasComputedColumnSql("Simon"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .ForSqlServerHasDefaultValue("Neil"));
+                    .HasDefaultValue("Neil"));
 
             AssertIsGeneric(
                 modelBuilder
@@ -1352,52 +1351,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
-                .ForSqlServerHasColumnName("Will");
+                .HasColumnName("Will");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .ForSqlServerHasColumnName("Jay");
+                .HasColumnName("Jay");
 
             modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
-                .ForSqlServerHasColumnType("Simon");
+                .HasColumnType("Simon");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .ForSqlServerHasColumnType("Neil");
+                .HasColumnType("Neil");
 
             modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
-                .ForSqlServerHasDefaultValueSql("Simon");
+                .HasDefaultValueSql("Simon");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .ForSqlServerHasDefaultValueSql("Neil");
+                .HasDefaultValueSql("Neil");
 
             modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
-                .ForSqlServerHasDefaultValue("Simon");
+                .HasDefaultValue("Simon");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .ForSqlServerHasDefaultValue("Neil");
+                .HasDefaultValue("Neil");
 
             modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
-                .ForSqlServerHasComputedColumnSql("Simon");
+                .HasComputedColumnSql("Simon");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .ForSqlServerHasComputedColumnSql("Neil");
+                .HasComputedColumnSql("Neil");
 
             modelBuilder
                 .Entity(typeof(Customer))
@@ -1429,21 +1428,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 modelBuilder
                     .Entity<Customer>().HasMany(e => e.Orders)
                     .WithOne(e => e.Customer)
-                    .ForSqlServerHasConstraintName("Will"));
+                    .HasConstraintName("Will"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Order>()
                     .HasOne(e => e.Customer)
                     .WithMany(e => e.Orders)
-                    .ForSqlServerHasConstraintName("Jay"));
+                    .HasConstraintName("Jay"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Order>()
                     .HasOne(e => e.Details)
                     .WithOne(e => e.Order)
-                    .ForSqlServerHasConstraintName("Simon"));
+                    .HasConstraintName("Simon"));
         }
 
         [Fact]
@@ -1454,19 +1453,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>().HasMany(typeof(Order), "Orders")
                 .WithOne("Customer")
-                .ForSqlServerHasConstraintName("Will");
+                .HasConstraintName("Will");
 
             modelBuilder
                 .Entity<Order>()
                 .HasOne(e => e.Customer)
                 .WithMany(e => e.Orders)
-                .ForSqlServerHasConstraintName("Jay");
+                .HasConstraintName("Jay");
 
             modelBuilder
                 .Entity<Order>()
                 .HasOne(e => e.Details)
                 .WithOne(e => e.Order)
-                .ForSqlServerHasConstraintName("Simon");
+                .HasConstraintName("Simon");
         }
 
         private void AssertIsGeneric(EntityTypeBuilder<Customer> _)

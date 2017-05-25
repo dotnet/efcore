@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore
             => builder.Entity<Customer>(b =>
                 {
                     b.HasKey(c => c.CustomerID);
-                    b.ForSqlServerToTable("Customers");
+                    b.ToTable("Customers");
                 });
     }
 }

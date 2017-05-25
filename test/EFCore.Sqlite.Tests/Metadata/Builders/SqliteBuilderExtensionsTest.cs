@@ -12,12 +12,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_column_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ForSqliteHasColumnName("MyNameIs")
+                .HasColumnName("MyNameIs")
                 .Metadata;
 
             Assert.Equal("MyNameIs", property.Sqlite().ColumnName);
@@ -26,12 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_column_name_non_generic()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property<string>("Name")
-                .ForSqliteHasColumnName("MyNameIs")
+                .HasColumnName("MyNameIs")
                 .Metadata;
 
             Assert.Equal("MyNameIs", property.Sqlite().ColumnName);
@@ -40,12 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_column_type()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ForSqliteHasColumnType("nvarchar(DA)")
+                .HasColumnType("nvarchar(DA)")
                 .Metadata;
 
             Assert.Equal("nvarchar(DA)", property.Sqlite().ColumnType);
@@ -54,12 +54,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_column_type_non_generic()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property<string>("Name")
-                .ForSqliteHasColumnType("nvarchar(DA)")
+                .HasColumnType("nvarchar(DA)")
                 .Metadata;
 
             Assert.Equal("nvarchar(DA)", property.Sqlite().ColumnType);
@@ -68,12 +68,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_column_default_expression()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ForSqliteHasDefaultValueSql("VanillaCoke")
+                .HasDefaultValueSql("VanillaCoke")
                 .Metadata;
 
             Assert.Equal("VanillaCoke", property.Sqlite().DefaultValueSql);
@@ -83,12 +83,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_column_default_expression_non_generic()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property<string>("Name")
-                .ForSqliteHasDefaultValueSql("VanillaCoke")
+                .HasDefaultValueSql("VanillaCoke")
                 .Metadata;
 
             Assert.Equal("VanillaCoke", property.Sqlite().DefaultValueSql);
@@ -98,13 +98,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Setting_column_default_expression_does_not_modify_explicitly_set_value_generated()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
                 .ValueGeneratedNever()
-                .ForSqliteHasDefaultValueSql("VanillaCoke")
+                .HasDefaultValueSql("VanillaCoke")
                 .Metadata;
 
             Assert.Equal("VanillaCoke", property.Sqlite().DefaultValueSql);
@@ -114,13 +114,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Setting_column_default_expression_does_not_modify_explicitly_set_value_generated_non_generic()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property<string>("Name")
                 .ValueGeneratedNever()
-                .ForSqliteHasDefaultValueSql("VanillaCoke")
+                .HasDefaultValueSql("VanillaCoke")
                 .Metadata;
 
             Assert.Equal("VanillaCoke", property.Sqlite().DefaultValueSql);
@@ -130,13 +130,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_column_default_value()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
             var valueString = "DefaultValue";
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ForSqliteHasDefaultValue(valueString)
+                .HasDefaultValue(valueString)
                 .Metadata;
 
             Assert.Equal(valueString, property.Sqlite().DefaultValue);
@@ -146,13 +146,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_column_default_value_non_generic()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
             var valueString = "DefaultValue";
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property<string>("Name")
-                .ForSqliteHasDefaultValue(valueString)
+                .HasDefaultValue(valueString)
                 .Metadata;
 
             Assert.Equal(valueString, property.Sqlite().DefaultValue);
@@ -162,14 +162,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Setting_column_default_value_does_not_modify_explicitly_set_value_generated()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
             var valueString = "DefaultValue";
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
                 .ValueGeneratedNever()
-                .ForSqliteHasDefaultValue(valueString)
+                .HasDefaultValue(valueString)
                 .Metadata;
 
             Assert.Equal(valueString, property.Sqlite().DefaultValue);
@@ -179,14 +179,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Setting_column_default_value_does_not_modify_explicitly_set_value_generated_non_generic()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
             var valueString = "DefaultValue";
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property<string>("Name")
                 .ValueGeneratedNever()
-                .ForSqliteHasDefaultValue(valueString)
+                .HasDefaultValue(valueString)
                 .Metadata;
 
             Assert.Equal(valueString, property.Sqlite().DefaultValue);
@@ -196,12 +196,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_key_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var key = modelBuilder
                 .Entity<Customer>()
                 .HasKey(e => e.Id)
-                .ForSqliteHasName("LemonSupreme")
+                .HasName("LemonSupreme")
                 .Metadata;
 
             Assert.Equal("LemonSupreme", key.Sqlite().Name);
@@ -210,11 +210,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_foreign_key_name_for_one_to_many()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var foreignKey = modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
-                .ForSqliteHasConstraintName("ChocolateLimes")
+                .HasConstraintName("ChocolateLimes")
                 .Metadata;
 
             Assert.Equal("ChocolateLimes", foreignKey.Sqlite().Name);
@@ -223,11 +223,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_foreign_key_name_for_one_to_many_non_generic()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var foreignKey = modelBuilder
                 .Entity<Customer>().HasMany(typeof(Order)).WithOne()
-                .ForSqliteHasConstraintName("ChocolateLimes")
+                .HasConstraintName("ChocolateLimes")
                 .Metadata;
 
             Assert.Equal("ChocolateLimes", foreignKey.Sqlite().Name);
@@ -236,11 +236,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_foreign_key_name_for_many_to_one()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var foreignKey = modelBuilder
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
-                .ForSqliteHasConstraintName("ChocolateLimes")
+                .HasConstraintName("ChocolateLimes")
                 .Metadata;
 
             Assert.Equal("ChocolateLimes", foreignKey.Sqlite().Name);
@@ -249,11 +249,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_foreign_key_name_for_many_to_one_non_generic()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var foreignKey = modelBuilder
                 .Entity<Order>().HasOne(typeof(Customer)).WithMany()
-                .ForSqliteHasConstraintName("ChocolateLimes")
+                .HasConstraintName("ChocolateLimes")
                 .Metadata;
 
             Assert.Equal("ChocolateLimes", foreignKey.Sqlite().Name);
@@ -262,11 +262,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_foreign_key_name_for_one_to_one()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var foreignKey = modelBuilder
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
-                .ForSqliteHasConstraintName("ChocolateLimes")
+                .HasConstraintName("ChocolateLimes")
                 .Metadata;
 
             Assert.Equal("ChocolateLimes", foreignKey.Sqlite().Name);
@@ -275,11 +275,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_foreign_key_name_for_one_to_one_non_generic()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var foreignKey = modelBuilder
                 .Entity<Order>().HasOne(typeof(OrderDetails)).WithOne()
-                .ForSqliteHasConstraintName("ChocolateLimes")
+                .HasConstraintName("ChocolateLimes")
                 .Metadata;
 
             Assert.Equal("ChocolateLimes", foreignKey.Sqlite().Name);
@@ -288,12 +288,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_index_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var index = modelBuilder
                 .Entity<Customer>()
                 .HasIndex(e => e.Id)
-                .ForSqliteHasName("Dexter")
+                .HasName("Dexter")
                 .Metadata;
 
             Assert.Equal("Dexter", index.Sqlite().Name);
@@ -302,11 +302,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_table_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
-                .ForSqliteToTable("Custardizer")
+                .ToTable("Custardizer")
                 .Metadata;
 
             Assert.Equal("Custardizer", entityType.Sqlite().TableName);
@@ -315,14 +315,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [Fact]
         public void Can_set_table_name_non_generic()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = CreateConventionModelBuilder();
 
             var entityType = modelBuilder
                 .Entity("Customer")
-                .ForSqliteToTable("Custardizer")
+                .ToTable("Custardizer")
                 .Metadata;
 
             Assert.Equal("Custardizer", entityType.Sqlite().TableName);
+        }
+
+        protected virtual ModelBuilder CreateConventionModelBuilder()
+        {
+            return SqliteTestHelpers.Instance.CreateConventionBuilder();
         }
 
         private class Customer
