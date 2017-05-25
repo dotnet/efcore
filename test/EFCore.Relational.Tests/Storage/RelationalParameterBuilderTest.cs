@@ -98,13 +98,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         builder.AddParameter(
                             "FirstInvariant",
                             "FirstName",
-                            new RelationalTypeMapping("int", typeof(int)),
+                            new IntTypeMapping("int"),
                             nullable: false);
 
                         builder.AddParameter(
                             "SecondInvariant",
                             "SecondName",
-                            new RelationalTypeMapping("nvarchae(max)", typeof(string)),
+                            new StringTypeMapping("nvarchar(max)", dbType: null),
                             nullable: true);
                     });
 

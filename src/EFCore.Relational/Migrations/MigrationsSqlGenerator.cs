@@ -337,6 +337,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder
                     .Append(" AS ")
                     .Append(typeMapping.StoreType);
+
+                // reset typeMapping so that we can use it with GenerateSqlLiteral() below
+                typeMapping = Dependencies.TypeMapper.GetMapping(typeof(long));
             }
 
             builder

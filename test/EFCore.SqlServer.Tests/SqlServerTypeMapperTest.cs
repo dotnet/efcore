@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("int", GetTypeMapping(typeof(int)).StoreType);
             Assert.Equal("datetime2", GetTypeMapping(typeof(DateTime)).StoreType);
             Assert.Equal("uniqueidentifier", GetTypeMapping(typeof(Guid)).StoreType);
-            Assert.Equal("int", GetTypeMapping(typeof(char)).StoreType);
+            Assert.Equal("char(1)", GetTypeMapping(typeof(char)).StoreType);
             Assert.Equal("tinyint", GetTypeMapping(typeof(byte)).StoreType);
             Assert.Equal("float", GetTypeMapping(typeof(double)).StoreType);
             Assert.Equal("bit", GetTypeMapping(typeof(bool)).StoreType);
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("int", GetTypeMapping(typeof(int?)).StoreType);
             Assert.Equal("datetime2", GetTypeMapping(typeof(DateTime?)).StoreType);
             Assert.Equal("uniqueidentifier", GetTypeMapping(typeof(Guid?)).StoreType);
-            Assert.Equal("int", GetTypeMapping(typeof(char?)).StoreType);
+            Assert.Equal("char(1)", GetTypeMapping(typeof(char?)).StoreType);
             Assert.Equal("tinyint", GetTypeMapping(typeof(byte?)).StoreType);
             Assert.Equal("float", GetTypeMapping(typeof(double?)).StoreType);
             Assert.Equal("bit", GetTypeMapping(typeof(bool?)).StoreType);
@@ -67,15 +67,15 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(GetTypeMapping(typeof(string)).DbType);
             Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).DbType);
             Assert.Null(GetTypeMapping(typeof(TimeSpan)).DbType);
-            Assert.Null(GetTypeMapping(typeof(Guid)).DbType);
-            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(char)).DbType);
+            Assert.Equal(DbType.Guid, GetTypeMapping(typeof(Guid)).DbType);
+            Assert.Null(GetTypeMapping(typeof(char)).DbType);
             Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte)).DbType);
             Assert.Null(GetTypeMapping(typeof(double)).DbType);
             Assert.Null(GetTypeMapping(typeof(bool)).DbType);
             Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short)).DbType);
             Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long)).DbType);
             Assert.Null(GetTypeMapping(typeof(float)).DbType);
-            Assert.Null(GetTypeMapping(typeof(DateTimeOffset)).DbType);
+            Assert.Equal(DbType.DateTimeOffset, GetTypeMapping(typeof(DateTimeOffset)).DbType);
         }
 
         [Fact]
@@ -85,15 +85,15 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(GetTypeMapping(typeof(string)).DbType);
             Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).DbType);
             Assert.Null(GetTypeMapping(typeof(TimeSpan?)).DbType);
-            Assert.Null(GetTypeMapping(typeof(Guid?)).DbType);
-            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(char?)).DbType);
+            Assert.Equal(DbType.Guid, GetTypeMapping(typeof(Guid?)).DbType);
+            Assert.Null(GetTypeMapping(typeof(char?)).DbType);
             Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte?)).DbType);
             Assert.Null(GetTypeMapping(typeof(double?)).DbType);
             Assert.Null(GetTypeMapping(typeof(bool?)).DbType);
             Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short?)).DbType);
             Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long?)).DbType);
             Assert.Null(GetTypeMapping(typeof(float?)).DbType);
-            Assert.Null(GetTypeMapping(typeof(DateTimeOffset?)).DbType);
+            Assert.Equal(DbType.DateTimeOffset, GetTypeMapping(typeof(DateTimeOffset?)).DbType);
         }
 
         [Fact]
@@ -576,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]));
             property.IsConcurrencyToken = true;
 
-            var typeMapping = (SqlServerMaxLengthMapping)new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("varbinary(max)", typeMapping.StoreType);

@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -12,33 +13,39 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqlServerMaxLengthMapping : SqlServerTypeMapping
+    public class SqlServerStringTypeMapping : StringTypeMapping
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Initializes a new instance of the <see cref="SqlServerStringTypeMapping" /> class.
         /// </summary>
-        public SqlServerMaxLengthMapping(
+        /// <param name="storeType"> The name of the database type. </param>
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
+        public SqlServerStringTypeMapping(
             [NotNull] string storeType,
-            [NotNull] Type clrType,
-            DbType? dbType = null)
-            : this(storeType, clrType, dbType, unicode: false, size: null)
+            [CanBeNull] DbType? dbType,
+            bool unicode = false)
+            : this(storeType, dbType, unicode, size: null)
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Initializes a new instance of the <see cref="SqlServerStringTypeMapping" /> class.
         /// </summary>
-        public SqlServerMaxLengthMapping(
+        /// <param name="storeType"> The name of the database type. </param>
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
+        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        /// <param name="hasNonDefaultUnicode"> A value indicating whether the Unicode setting has been manually configured to a non-default value. </param>
+        /// <param name="hasNonDefaultSize"> A value indicating whether the size setting has been manually configured to a non-default value. </param>
+        public SqlServerStringTypeMapping(
             [NotNull] string storeType,
-            [NotNull] Type clrType,
-            DbType? dbType,
+            [CanBeNull] DbType? dbType,
             bool unicode,
             int? size,
             bool hasNonDefaultUnicode = false,
             bool hasNonDefaultSize = false)
-            : base(storeType, clrType, dbType, unicode, CalculateSize(unicode, size), hasNonDefaultUnicode, hasNonDefaultSize)
+            : base(storeType, dbType, unicode, CalculateSize(unicode, size), hasNonDefaultUnicode, hasNonDefaultSize)
         {
         }
 
@@ -52,9 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override RelationalTypeMapping CreateCopy(string storeType, int? size)
-            => new SqlServerMaxLengthMapping(
+            => new SqlServerStringTypeMapping(
                 storeType,
-                ClrType,
                 DbType,
                 IsUnicode,
                 size,
@@ -79,5 +85,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 ? Size.Value
                 : -1;
         }
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns>
+        ///     The generated string.
+        /// </returns>
+        protected override string GenerateNonNullSqlLiteral([NotNull]string value)
+            => (IsUnicode
+                    ? $"N'{EscapeSqlLiteral(value)}'" // Interpolation okay; strings
+                    : $"'{EscapeSqlLiteral(value)}'");
     }
 }

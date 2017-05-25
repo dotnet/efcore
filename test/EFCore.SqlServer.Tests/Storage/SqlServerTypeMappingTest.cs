@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
@@ -15,9 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         protected override DbCommand CreateTestCommand()
             => new SqlCommand();
-
-        protected override DbType DefaultParameterType
-            => DbType.Int32;
 
         [Fact]
         public override void GenerateSqlLiteral_returns_ByteArray_literal()

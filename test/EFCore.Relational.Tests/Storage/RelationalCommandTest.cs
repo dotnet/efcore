@@ -404,8 +404,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
                 {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
-                    new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
+                    new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                     new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                 });
 
@@ -440,8 +440,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
                 {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
-                    new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
+                    new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                     new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                 });
 
@@ -482,8 +482,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
                 {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
-                    new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
+                    new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                     new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                 });
 
@@ -611,8 +611,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         "CompositeInvariant",
                         new[]
                         {
-                            new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
-                            new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                            new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
+                            new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                             new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                         })
                 });
@@ -676,8 +676,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         "CompositeInvariant",
                         new[]
                         {
-                            new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
-                            new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                            new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
+                            new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                             new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                         })
                 });
@@ -722,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         "CompositeInvariant",
                         new[]
                         {
-                            new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
+                            new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
                         })
                 });
 
@@ -908,7 +908,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 commandText: "Logged Command",
                 parameters: new[]
                 {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
+                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
                 });
 
             var parameterValues = new Dictionary<string, object>
@@ -962,7 +962,7 @@ Logged Command",
                 commandText: "Logged Command",
                 parameters: new[]
                 {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
+                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
                 });
 
             var parameterValues = new Dictionary<string, object>
@@ -1015,7 +1015,7 @@ Logged Command",
                     new ListDiagnosticSource(diagnostic)),
                 parameters: new[]
                 {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
+                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
                 });
 
             var parameterValues = new Dictionary<string, object>
@@ -1083,7 +1083,7 @@ Logged Command",
                     new ListDiagnosticSource(diagnostic)),
                 parameters: new[]
                 {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
+                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
                 });
 
             var parameterValues = new Dictionary<string, object>
