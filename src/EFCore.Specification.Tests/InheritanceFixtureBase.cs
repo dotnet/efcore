@@ -7,48 +7,19 @@ namespace Microsoft.EntityFrameworkCore
 {
     public abstract class InheritanceFixtureBase
     {
-        private static readonly object _sync = new object();
-
         private DbContextOptions _options;
 
         public abstract DbContextOptions BuildOptions();
 
-        public InheritanceContext CreateContext(bool enableFilters = false)
-        {
-            EnableFilters = enableFilters;
-
-            if (!IsSeeded)
-            {
-                lock (_sync)
-                {
-                    if (!IsSeeded)
-                    {
-                        using (var context = CreateContextCore())
-                        {
-                            if (context.Database.EnsureCreated())
-                            {
-                                SeedData(context);
-                            }
-                        }
-
-                        ClearLog();
-
-                        IsSeeded = true;
-                    }
-                }
-            }
-
-            return CreateContextCore();
-        }
-
+        public abstract InheritanceContext CreateContext(bool enableFilters = false);
+        
         protected virtual void ClearLog()
         {
         }
 
-        private bool IsSeeded { get; set; }
-        private bool EnableFilters { get; set; }
+        protected bool EnableFilters { get; set; }
 
-        private InheritanceContext CreateContextCore()
+        protected InheritanceContext CreateContextCore()
         {
             return new InheritanceContext(_options ?? (_options = BuildOptions()));
         }

@@ -7,6 +7,37 @@ namespace Microsoft.EntityFrameworkCore
 {
     public abstract class InheritanceRelationalFixture : InheritanceFixtureBase
     {
+        private static readonly object _sync = new object();
+        private static bool _seeded;
+
+        public override InheritanceContext CreateContext(bool enableFilters = false)
+        {
+            EnableFilters = enableFilters;
+
+            if (!_seeded)
+            {
+                lock (_sync)
+                {
+                    if (!_seeded)
+                    {
+                        using (var context = CreateContextCore())
+                        {
+                            if (context.Database.EnsureCreated())
+                            {
+                                SeedData(context);
+                            }
+                        }
+
+                        ClearLog();
+
+                        _seeded = true;
+                    }
+                }
+            }
+
+            return CreateContextCore();
+        }
+
         public override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
