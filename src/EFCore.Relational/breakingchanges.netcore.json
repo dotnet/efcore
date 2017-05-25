@@ -1347,5 +1347,15 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
       "MemberId": "System.Void GenerateLiteral(System.Text.StringBuilder builder, System.Object value, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping = null)",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+      "MemberId": "protected abstract Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension Clone()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+      "MemberId": "public abstract System.Boolean ApplyServices(Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
+      "Kind": "Addition"
     }
-]
+  ]
