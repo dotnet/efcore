@@ -50,17 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override IModel Create(string connectionString, TableSelectionSet tableSelectionSet)
-        {
-            var model = base.Create(connectionString, tableSelectionSet);
-            model.Scaffolding().UseProviderMethodName = nameof(SqlServerDbContextOptionsExtensions.UseSqlServer);
-            return model;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         protected override PropertyBuilder VisitColumn(EntityTypeBuilder builder, ColumnModel column)
         {
             var propertyBuilder = base.VisitColumn(builder, column);

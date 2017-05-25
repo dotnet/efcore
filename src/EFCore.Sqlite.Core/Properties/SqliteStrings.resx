@@ -134,4 +134,16 @@
   <data name="SequencesNotSupported" xml:space="preserve">
     <value>SQLite does not support sequences. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
   </data>
+  <data name="LogUsingSchemaSelectionsWarning" xml:space="preserve">
+    <value>SQLite doesn't support schemas. The specified schema selection arguments will be ignored.</value>
+    <comment>Warning SqliteEventId.SchemasNotSupportedWarning</comment>
+  </data>
+  <data name="LogFoundColumn" xml:space="preserve">
+    <value>Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, not nullable: {isNotNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}.</value>
+    <comment>Debug SqliteEventId.ColumnFound string string string int? bool? int? string</comment>
+  </data>
+  <data name="LogFoundForeignKeyColumn" xml:space="preserve">
+    <value>Found foreign key column on table: {tableName}, id: {id}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, delete action: {deleteAction}, ordinal: {ordinal}.</value>
+    <comment>Debug SqliteEventId.ForeignKeyColumnFound string int string string string string int?</comment>
+  </data>
 </root>

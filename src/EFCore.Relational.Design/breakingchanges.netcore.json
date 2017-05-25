@@ -12,5 +12,15 @@
     "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.RelationalScaffoldingModelFactory : Microsoft.EntityFrameworkCore.Scaffolding.IScaffoldingModelFactory",
     "MemberId": "public .ctor(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, Microsoft.EntityFrameworkCore.Scaffolding.IDatabaseModelFactory databaseModelFactory, Microsoft.EntityFrameworkCore.Scaffolding.Internal.CandidateNamingService candidateNamingService)",
     "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ScaffoldingModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations",
+    "MemberId": "public virtual System.String get_UseProviderMethodName()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ScaffoldingModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations",
+    "MemberId": "public virtual System.Void set_UseProviderMethodName(System.String value)",
+    "Kind": "Removal"
   }
 ]
