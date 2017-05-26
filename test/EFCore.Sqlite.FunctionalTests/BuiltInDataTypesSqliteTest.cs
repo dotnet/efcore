@@ -3,6 +3,10 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -794,6 +798,28 @@ namespace Microsoft.EntityFrameworkCore
 
                 entity = context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Single(e => e.AltId == 179);
                 Assert.Equal(101.1m, entity.Decimal);
+            }
+        }
+
+        [Fact]
+        public void Can_get_column_types_from_built_model()
+        {
+            using (var context = CreateContext())
+            {
+                var typeMapper = context.GetService<IRelationalTypeMapper>();
+
+                foreach (var property in context.Model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
+                {
+                    var columnType = property.Relational().ColumnType;
+                    Assert.NotNull(columnType);
+
+                    if (property[RelationalAnnotationNames.ColumnType] == null)
+                    {
+                        Assert.Equal(
+                            columnType.ToLowerInvariant(),
+                            typeMapper.FindMapping(property).StoreType.ToLowerInvariant());
+                    }
+                }
             }
         }
     }

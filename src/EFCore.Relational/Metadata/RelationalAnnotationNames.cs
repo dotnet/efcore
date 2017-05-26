@@ -79,5 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for filter annotations.
         /// </summary>
         public const string Filter = Prefix + "Filter";
+
+        /// <summary>
+        ///     The name for filter annotations.
+        /// </summary>
+        public const string TypeMapping = Prefix + "TypeMapping";
     }
 }
