@@ -25,6 +25,11 @@ namespace Microsoft.EntityFrameworkCore
                         base.Discriminator_with_cast_in_shadow_property()).Message);
         }
 
+        public override void Can_use_of_type_animal()
+        {
+            base.Can_use_of_type_animal();
+        }
+
         public InheritanceInMemoryTest(InheritanceInMemoryFixture fixture)
             : base(fixture)
         {
