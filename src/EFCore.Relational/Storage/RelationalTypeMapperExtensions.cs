@@ -43,7 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(property, nameof(property));
 
-            var mapping = typeMapper.FindMapping(property);
+            var mapping = (RelationalTypeMapping)property[RelationalAnnotationNames.TypeMapping]
+                ?? typeMapper.FindMapping(property);
+
             if (mapping != null)
             {
                 return mapping;
