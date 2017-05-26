@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -61,6 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.PropertyAnnotationSetConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
             conventionSet.ForeignKeyUniquenessConventions.Add(sharedTableConvention);
             conventionSet.ForeignKeyOwnershipConventions.Add(sharedTableConvention);
+
+            conventionSet.ModelBuiltConventions.Add(new RelationalTypeMappingConvention(Dependencies.TypeMapper));
 
             return conventionSet;
         }

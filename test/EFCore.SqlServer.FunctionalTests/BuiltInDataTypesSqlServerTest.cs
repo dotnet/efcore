@@ -5,6 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
@@ -2010,6 +2014,28 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
         private const string FileLineEnding = @"
 ";
+
+        [Fact]
+        public void Can_get_column_types_from_built_model()
+        {
+            using (var context = CreateContext())
+            {
+                var typeMapper = context.GetService<IRelationalTypeMapper>();
+
+                foreach (var property in context.Model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
+                {
+                    var columnType = property.Relational().ColumnType;
+                    Assert.NotNull(columnType);
+
+                    if (property[RelationalAnnotationNames.ColumnType] == null)
+                    {
+                        Assert.Equal(
+                            columnType.ToLowerInvariant(),
+                            typeMapper.FindMapping(property).StoreType.ToLowerInvariant());
+                    }
+                }
+            }
+        }
 
         private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
 

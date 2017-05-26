@@ -9,6 +9,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -126,7 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual string ColumnType
         {
-            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.ColumnType);
+            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.ColumnType)
+                ?? ((RelationalTypeMapping)Annotations.GetAnnotation(RelationalAnnotationNames.TypeMapping))?.StoreType;
             [param: CanBeNull] set => SetColumnType(value);
         }
 
