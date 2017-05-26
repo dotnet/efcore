@@ -346,16 +346,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append($".{nameof(IndexBuilder.IsUnique)}()");
                 }
 
-                if (index.Relational().Filter != null)
-                {
-                    stringBuilder
-                        .AppendLine()
-                        .Append($".{nameof(RelationalIndexBuilderExtensions.HasFilter)}({index.Relational().Filter})");
-                }
-
                 var annotations = index.GetAnnotations().ToList();
 
                 GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.Name, nameof(RelationalIndexBuilderExtensions.HasName), stringBuilder);
+                GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.Filter, nameof(RelationalIndexBuilderExtensions.HasFilter), stringBuilder);
 
                 GenerateAnnotations(annotations, stringBuilder);
             }

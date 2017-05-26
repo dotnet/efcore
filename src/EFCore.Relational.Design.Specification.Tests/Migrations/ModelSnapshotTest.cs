@@ -1297,6 +1297,38 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                 o => { Assert.Equal("IndexName", o.GetEntityTypes().First().GetIndexes().First()["Relational:Name"]); });
         }
 
+
+        [Fact]
+        public virtual void Index_filter_is_stored_in_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId)
+                        .HasFilter("AlternateId <> 0");
+                    builder.Ignore<EntityWithOneProperty>();
+                },
+               GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<int>(""AlternateId"");
+
+        b.HasKey(""Id"");
+
+        b.HasIndex(""AlternateId"")
+            .HasFilter(""AlternateId <> 0"");
+
+        b.ToTable(""EntityWithTwoProperties"");
+    });
+",
+                o => Assert.Equal(
+                    "AlternateId <> 0",
+                    o.GetEntityTypes().First().GetIndexes().First().Relational().Filter));
+        }
+
         [Fact]
         public virtual void Index_multiple_annotations_are_stored_in_snapshot()
         {
