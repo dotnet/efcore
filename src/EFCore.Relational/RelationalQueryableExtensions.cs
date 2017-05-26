@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <code>context.Blogs.FromSql("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
         ///     </para>
         ///     <para>
-        ///         You can also construct a DbParameter and supply it to as a parameter value. This allows you to use named
+        ///         This overload also accepts DbParameter instances as parameter values. This allows you to use named 
         ///         parameters in the SQL query string -
         ///         <code>context.Blogs.FromSql("SELECT * FROM [dbo].[SearchBlogs]({@searchTerm})", new SqlParameter("@searchTerm", userSuppliedSearchTerm))</code>
         ///     </para>
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Creates a LINQ query based on an interpolated string SQL query.
+        ///         Creates a LINQ query based on an interpolated string representing a SQL query.
         ///     </para>
         ///     <para>
         ///         If the database provider supports composing on the supplied SQL, you can compose on top of the raw SQL query using
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="source">
         ///     An <see cref="IQueryable{T}" /> to use as the base of the interpolated string SQL query (typically a <see cref="DbSet{TEntity}" />).
         /// </param>
-        /// <param name="sql"> The interpolated string SQL query. </param>
+        /// <param name="sql"> The interpolated string representing a SQL query. </param>
         /// <returns> An <see cref="IQueryable{T}" /> representing the interpolated string SQL query. </returns>
         public static IQueryable<TEntity> FromSql<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
