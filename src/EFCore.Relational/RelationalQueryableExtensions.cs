@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     An <see cref="IQueryable{T}" /> to use as the base of the raw SQL query (typically a <see cref="DbSet{TEntity}" />).
         /// </param>
         /// <param name="sql">
-        ///     The raw SQL query. NB. A string literal may be passed here because <see cref="SqlFormat" />
+        ///     The raw SQL query. NB. A string literal may be passed here because <see cref="RawSqlString" />
         ///     is implicitly convertible to string.
         /// </param>
         /// <param name="parameters"> The values to be assigned to parameters. </param>
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         [StringFormatMethod("sql")]
         public static IQueryable<TEntity> FromSql<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
-            [NotParameterized] SqlFormat sql,
+            [NotParameterized] RawSqlString sql,
             [NotNull] params object[] parameters)
             where TEntity : class
         {
@@ -107,20 +107,8 @@ namespace Microsoft.EntityFrameworkCore
                     null,
                     FromSqlMethodInfo.MakeGenericMethod(typeof(TEntity)),
                     source.Expression,
-                    Expression.Constant(new SqlFormat(sql.Format)),
+                    Expression.Constant(new RawSqlString(sql.Format)),
                     Expression.Constant(sql.GetArguments())));
-        }
-
-        /// <summary>
-        ///     A SQL format string. This type enables overload resolution between
-        ///     the regular and interpolated FromSql overloads.
-        /// </summary>
-        public struct SqlFormat
-        {
-            public static implicit operator SqlFormat([NotNull] string s) => new SqlFormat(s);
-            public static implicit operator SqlFormat([NotNull] FormattableString fs) => default(SqlFormat);
-            public SqlFormat([NotNull] string s) => Format = s;
-            public string Format { get; }
         }
     }
 }
