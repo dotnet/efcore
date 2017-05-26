@@ -149,18 +149,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual string DateTimeOffsetFormatString => DateTimeOffsetFormatStringConst;
 
-        private readonly Dictionary<DbType, string> _dbTypeNameMapping = new Dictionary<DbType, string>
-        {
-            { System.Data.DbType.Byte, "tinyint" },
-            { System.Data.DbType.Decimal, "decimal" },
-            { System.Data.DbType.Double, "float" },
-            { System.Data.DbType.Int16, "smallint" },
-            { System.Data.DbType.Int32, "int" },
-            { System.Data.DbType.Int64, "bigint" },
-            { System.Data.DbType.String, "nvarchar" },
-            { System.Data.DbType.Date, "date" }
-        };
-
         /// <summary>
         ///     Gets the name of the database type.
         /// </summary>
@@ -378,14 +366,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             stringBuilder.Append("'");
             return stringBuilder.ToString();
         }
-
-        /// <summary>
-        ///     Generates the SQL representation of a literal value.
-        /// </summary>
-        /// <param name="value">The literal value.</param>
-        /// <returns> The generated string. </returns>
-        protected virtual string GenerateSqlLiteralValue(DbType value)
-            => _dbTypeNameMapping[value];
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.
