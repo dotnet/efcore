@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             args.Add("/nologo");
 
 
-            var exitCode = Exe.Run("dotnet", args);
+            var exitCode = Exe.Run("dotnet", args, interceptOutput: true);
             if (exitCode != 0)
             {
                 throw new CommandException(Resources.BuildFailed);

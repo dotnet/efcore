@@ -9,7 +9,11 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     internal static class Exe
     {
-        public static int Run(string executable, IReadOnlyList<string> args, string workingDirectory = null)
+        public static int Run(
+            string executable,
+            IReadOnlyList<string> args,
+            string workingDirectory = null,
+            bool interceptOutput = false)
         {
             var arguments = ToArguments(args);
 
@@ -19,17 +23,28 @@ namespace Microsoft.EntityFrameworkCore.Tools
             {
                 FileName = executable,
                 Arguments = arguments,
-                UseShellExecute = false
+                UseShellExecute = false,
+                RedirectStandardOutput = interceptOutput
             };
             if (workingDirectory != null)
             {
                 startInfo.WorkingDirectory = workingDirectory;
             }
 
-            var build = Process.Start(startInfo);
-            build.WaitForExit();
+            var process = Process.Start(startInfo);
 
-            return build.ExitCode;
+            if (interceptOutput)
+            {
+                string line;
+                while ((line = process.StandardOutput.ReadLine()) != null)
+                {
+                    Reporter.WriteVerbose(line);
+                }
+            }
+
+            process.WaitForExit();
+
+            return process.ExitCode;
         }
 
         private static string ToArguments(IReadOnlyList<string> args)
