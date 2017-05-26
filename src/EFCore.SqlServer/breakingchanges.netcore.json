@@ -1,41 +1,174 @@
-  [
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.SqlServerAnnotationProvider : Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder, Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqlServerOptionsExtension>",
-      "MemberId": "protected override Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqlServerOptionsExtension CloneExtension()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder, Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqlServerOptionsExtension>",
-      "MemberId": "public virtual System.Void UseRowNumberForPaging()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.SqlServerMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator",
-      "MemberId": "protected virtual System.Void CreateIndexes(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.SqlServerMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator",
-      "MemberId": "protected virtual System.Void DropIndexes(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.SqlServerMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory commandBuilderFactory, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider annotations, Microsoft.EntityFrameworkCore.Migrations.IMigrationsAnnotationProvider migrationsAnnotations)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.SqlServerConventionSetBuilder : Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.RelationalConventionSetBuilder",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext currentContext, Microsoft.EntityFrameworkCore.Internal.IDbSetFinder setFinder)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public static class Microsoft.Extensions.DependencyInjection.SqlServerServiceCollectionExtensions",
-      "MemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlServer(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
-      "Kind": "Removal"
-    }
-  ]
+[
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.SqlServerAnnotationProvider : Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder, Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqlServerOptionsExtension>",
+    "MemberId": "protected override Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqlServerOptionsExtension CloneExtension()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder, Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqlServerOptionsExtension>",
+    "MemberId": "public virtual System.Void UseRowNumberForPaging()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.SqlServerMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator",
+    "MemberId": "protected virtual System.Void CreateIndexes(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.SqlServerMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator",
+    "MemberId": "protected virtual System.Void DropIndexes(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.SqlServerMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory commandBuilderFactory, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider annotations, Microsoft.EntityFrameworkCore.Migrations.IMigrationsAnnotationProvider migrationsAnnotations)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.SqlServerConventionSetBuilder : Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.RelationalConventionSetBuilder",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper, Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext currentContext, Microsoft.EntityFrameworkCore.Internal.IDbSetFinder setFinder)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.Extensions.DependencyInjection.SqlServerServiceCollectionExtensions",
+    "MemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlServer(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerReferenceCollectionBuilderExtensions",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerReferenceReferenceBuilderExtensions",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerEntityTypeBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ForSqlServerToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, System.String name)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerEntityTypeBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ForSqlServerToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, System.String name, System.String schema)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerEntityTypeBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0> ForSqlServerToTable<T0>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0> entityTypeBuilder, System.String name) where T0 : class",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerEntityTypeBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0> ForSqlServerToTable<T0>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0> entityTypeBuilder, System.String name, System.String schema) where T0 : class",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerIndexBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder ForSqlServerHasName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder indexBuilder, System.String name)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerKeyBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder ForSqlServerHasName(this Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder keyBuilder, System.String name)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerPropertyBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder ForSqlServerHasColumnName(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder, System.String name)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerPropertyBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder ForSqlServerHasColumnType(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder, System.String typeName)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerPropertyBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder ForSqlServerHasComputedColumnSql(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder, System.String sql)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerPropertyBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder ForSqlServerHasDefaultValue(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder, System.Object value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerPropertyBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder ForSqlServerHasDefaultValueSql(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder, System.String sql)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerPropertyBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> ForSqlServerHasColumnName<T0>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> propertyBuilder, System.String name)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerPropertyBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> ForSqlServerHasColumnType<T0>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> propertyBuilder, System.String typeName)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerPropertyBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> ForSqlServerHasComputedColumnSql<T0>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> propertyBuilder, System.String sql)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerPropertyBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> ForSqlServerHasDefaultValue<T0>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> propertyBuilder, System.Object value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerPropertyBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> ForSqlServerHasDefaultValueSql<T0>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> propertyBuilder, System.String sql)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerModelBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder ForSqlServerHasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.Type clrType, System.String name, System.String schema = null)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerModelBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.ModelBuilder ForSqlServerHasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.Type clrType, System.String name, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerModelBuilderExtensions",
+    "MemberId": "public static Microsoft.EntityFrameworkCore.ModelBuilder ForSqlServerHasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.Type clrType, System.String name, System.String schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerModelBuilderExtensions",
+    "MemberId": "public static new Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder ForSqlServerHasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.String schema = null)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerModelBuilderExtensions",
+    "MemberId": "public static new Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder ForSqlServerHasSequence<T0>(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.String schema = null)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerModelBuilderExtensions",
+    "MemberId": "public static new Microsoft.EntityFrameworkCore.ModelBuilder ForSqlServerHasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerModelBuilderExtensions",
+    "MemberId": "public static new Microsoft.EntityFrameworkCore.ModelBuilder ForSqlServerHasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.String schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerModelBuilderExtensions",
+    "MemberId": "public static new Microsoft.EntityFrameworkCore.ModelBuilder ForSqlServerHasSequence<T0>(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqlServerModelBuilderExtensions",
+    "MemberId": "public static new Microsoft.EntityFrameworkCore.ModelBuilder ForSqlServerHasSequence<T0>(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.String schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
+    "Kind": "Removal"
+  }
+]
