@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -94,11 +95,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </returns>
         public override string GenerateSqlLiteral([CanBeNull]object value)
         {
-            return value != null
-                ? (IsUnicode
+            if (value == null)
+            {
+                return base.GenerateSqlLiteral(value);
+            }
+
+            if (value.GetType() == typeof(char))
+            {
+                value = string.Format(CultureInfo.InvariantCulture, "{0}", value);
+            }
+
+            return (IsUnicode
                     ? $"N'{EscapeSqlLiteral((string)value)}'" // Interpolation okay; strings
-                    : $"'{EscapeSqlLiteral((string)value)}'")
-                : base.GenerateSqlLiteral(value);
+                    : $"'{EscapeSqlLiteral((string)value)}'");
         }
     }
 }

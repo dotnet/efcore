@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data;
+using System.Globalization;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -75,9 +76,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public override string GenerateSqlLiteral([CanBeNull]object value)
         {
-            return  value != null
-                ? $"'{EscapeSqlLiteral((string)value)}'"
-                : base.GenerateSqlLiteral(value);
+            if (value == null)
+            {
+                return base.GenerateSqlLiteral(value);
+            }
+
+            if (value.GetType() == typeof(char))
+            {
+                value = string.Format(CultureInfo.InvariantCulture, "{0}", value);
+            }
+
+            return $"'{EscapeSqlLiteral((string)value)}'";
         }
     }
 }

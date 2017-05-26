@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { typeof(byte), _tinyint },
                     { typeof(double), _double },
                     { typeof(DateTimeOffset), _datetimeoffset },
-                    { typeof(char), _int },
+                    { typeof(char), new CharTypeMapping("singleCharacter") },
                     { typeof(short), _smallint },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },

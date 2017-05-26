@@ -11,5 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             : base(fixture)
         {
         }
+
+        [Xunit.Fact]
+        public override void String_starts_with_on_argument_with_wildcard_column()
+        {
+            base.String_starts_with_on_argument_with_wildcard_column();
+
+    }
     }
 }
