@@ -828,21 +828,55 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            builder.Append("IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'");
+
+            if (operation.Schema != null)
+            {
+                builder
+                    .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(operation.Schema))
+                    .Append(".");
+            }
+
             builder
-                .Append("SET IDENTITY_INSERT ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" ON")
-                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(operation.Table))
+                .AppendLine("'))");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("SET IDENTITY_INSERT ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append(" ON")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
 
             base.Generate(operation, model, builder, terminate: false);
 
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .Append("SET IDENTITY_INSERT ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" OFF")
-                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .EndCommand();
+                .Append("IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'");
+
+            if (operation.Schema != null)
+            {
+                builder
+                    .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(operation.Schema))
+                    .Append(".");
+            }
+
+            builder
+                .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(operation.Table))
+                .AppendLine("'))");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("SET IDENTITY_INSERT ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append(" OFF")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
+
+            builder.EndCommand();
         }
 
         protected override void ColumnDefinition(
