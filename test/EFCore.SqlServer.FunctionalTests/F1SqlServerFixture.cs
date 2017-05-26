@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
                     var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
+                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration().CommandTimeout(300))
                         .UseInternalServiceProvider(_serviceProvider);
 
                     using (var context = new F1Context(optionsBuilder.Options))
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
         public override F1Context CreateContext(SqlServerTestStore testStore)
         {
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
+                .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration().CommandTimeout(300))
                 .UseInternalServiceProvider(_serviceProvider);
 
             var context = new F1Context(optionsBuilder.Options);

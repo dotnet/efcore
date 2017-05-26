@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
             await Exists_returns_false_when_database_doesnt_exist_test(async: false, file: false);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Test is flaky")]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public async Task Exists_returns_false_when_database_with_filename_doesnt_exist()
         {
