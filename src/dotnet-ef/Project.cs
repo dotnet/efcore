@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             try
             {
                 var propertyArg = "/property:EFProjectMetadataFile=" + metadataFile;
-                if (configuration != null)
+                if (framework != null)
                 {
                     propertyArg += ";TargetFramework=" + framework;
                 }
