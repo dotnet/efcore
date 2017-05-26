@@ -167,12 +167,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         && int.TryParse(storeType.Substring(openParen + 1, closeParen - openParen - 1), out var size)
                         && mapping.Size != size)
                     {
-                        return mapping.CreateCopy(storeType, size);
+                        return mapping.CreateCopyT(storeType, size);
                     }
                 }
             }
 
-            return mapping?.CreateCopy(storeType, mapping.Size);
+            return mapping?.CreateCopyT(storeType, mapping.Size);
         }
 
         /// <summary>

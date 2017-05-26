@@ -47,19 +47,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 ? size.HasValue && size < 4000 ? size.Value : 4000
                 : size.HasValue && size < 8000 ? size.Value : 8000;
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
-            => new SqlServerMaxLengthMapping(
-                storeType,
-                ClrType,
-                DbType,
-                IsUnicode,
-                size,
-                HasNonDefaultUnicode,
-                hasNonDefaultSize: size != Size);
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
+//LAJLAJ            => new SqlServerMaxLengthMapping(
+//LAJLAJ                storeType,
+//LAJLAJ                ClrType,
+//LAJLAJ                DbType,
+//LAJLAJ                IsUnicode,
+//LAJLAJ                size,
+//LAJLAJ                HasNonDefaultUnicode,
+//LAJLAJ                hasNonDefaultSize: size != Size);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

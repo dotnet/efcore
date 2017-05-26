@@ -64,8 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                 {
                     Sql.Append(" OFFSET ");
 
+                    var existingTypeMapping = _typeMapping;
+                    _typeMapping = null;
                     Visit(selectExpression.Offset);
+                    _typeMapping = existingTypeMapping;
                 }
+
             }
         }
     }

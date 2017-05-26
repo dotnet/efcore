@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private IRelationalCommandBuilder _relationalCommandBuilder;
         private IReadOnlyDictionary<string, object> _parametersValues;
         private ParameterNameGenerator _parameterNameGenerator;
-        private RelationalTypeMapping _typeMapping;
+        protected RelationalTypeMapping _typeMapping;
         private NullComparisonTransformingVisitor _nullComparisonTransformingVisitor;
         private RelationalNullsExpandingVisitor _relationalNullsExpandingVisitor;
         private PredicateReductionExpressionOptimizer _predicateReductionExpressionOptimizer;
@@ -945,7 +945,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 _relationalCommandBuilder.Append("TOP(");
 
+                var existingTypeMapping = _typeMapping;
+                _typeMapping = null;
                 Visit(selectExpression.Limit);
+                _typeMapping = existingTypeMapping;
 
                 _relationalCommandBuilder.Append(") ");
             }
@@ -964,6 +967,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.AppendLine()
                     .Append("OFFSET ");
 
+                var existingTypeMapping = _typeMapping;
+                _typeMapping = null;
                 Visit(selectExpression.Offset);
 
                 _relationalCommandBuilder.Append(" ROWS");
@@ -972,10 +977,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 {
                     _relationalCommandBuilder.Append(" FETCH NEXT ");
 
+                    _typeMapping = null;
                     Visit(selectExpression.Limit);
 
                     _relationalCommandBuilder.Append(" ROWS ONLY");
                 }
+
+                _typeMapping = existingTypeMapping;
             }
         }
 

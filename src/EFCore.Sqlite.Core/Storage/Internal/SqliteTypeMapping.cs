@@ -54,19 +54,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
-            => new SqliteTypeMapping(
-                storeType,
-                ClrType,
-                DbType,
-                IsUnicode,
-                size,
-                HasNonDefaultUnicode,
-                hasNonDefaultSize: size != Size);
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
+//LAJLAJ            => new SqliteTypeMapping(
+//LAJLAJ                storeType,
+//LAJLAJ                ClrType,
+//LAJLAJ                DbType,
+//LAJLAJ                IsUnicode,
+//LAJLAJ                size,
+//LAJLAJ                HasNonDefaultUnicode,
+//LAJLAJ                hasNonDefaultSize: size != Size);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -92,25 +92,25 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected override string DateTimeOffsetFormatString => DateTimeOffsetFormatStringConst;
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override string GenerateSqlLiteralValue(DateTime value)
-            => $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override string GenerateSqlLiteralValue(DateTimeOffset value)
-            => $"'{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override string GenerateSqlLiteralValue(Guid value)
-            => GenerateSqlLiteralValue(value.ToByteArray());
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        protected override string GenerateSqlLiteralValue(DateTime value)
+//LAJLAJ            => $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
+//LAJLAJ
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        protected override string GenerateSqlLiteralValue(DateTimeOffset value)
+//LAJLAJ            => $"'{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
+//LAJLAJ
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        protected override string GenerateSqlLiteralValue(Guid value)
+//LAJLAJ            => base.GenerateSqlLiteralValue(value.ToByteArray());
     }
 }

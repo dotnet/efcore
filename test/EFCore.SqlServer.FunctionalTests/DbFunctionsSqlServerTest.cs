@@ -44,7 +44,7 @@ WHERE [c].[ContactName] LIKE [c].[ContactName]",
             Assert.Equal(
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'!%' ESCAPE '!'",
+WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'",
                 Sql);
         }
 

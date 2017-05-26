@@ -69,19 +69,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
-            => new SqlServerTypeMapping(
-                storeType,
-                ClrType,
-                DbType,
-                IsUnicode,
-                size,
-                HasNonDefaultUnicode,
-                hasNonDefaultSize: size != Size);
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
+//LAJLAJ            => new SqlServerTypeMapping(
+//LAJLAJ                storeType,
+//LAJLAJ                ClrType,
+//LAJLAJ                DbType,
+//LAJLAJ                IsUnicode,
+//LAJLAJ                size,
+//LAJLAJ                HasNonDefaultUnicode,
+//LAJLAJ                hasNonDefaultSize: size != Size);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -107,46 +107,46 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected override string DateTimeOffsetFormatString => DateTimeOffsetFormatStringConst;
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override string GenerateSqlLiteralValue(byte[] value)
-        {
-            Check.NotNull(value, nameof(value));
-
-            var builder = new StringBuilder();
-            builder.Append("0x");
-
-            foreach (var @byte in value)
-            {
-                builder.Append(@byte.ToString("X2", CultureInfo.InvariantCulture));
-            }
-
-            return builder.ToString();
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override string GenerateSqlLiteralValue(string value)
-            => IsUnicode
-                ? $"N'{EscapeSqlLiteral(Check.NotNull(value, nameof(value)))}'" // Interpolation okay; strings
-                : $"'{EscapeSqlLiteral(Check.NotNull(value, nameof(value)))}'";
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override string GenerateSqlLiteralValue(DateTime value)
-            => $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override string GenerateSqlLiteralValue(DateTimeOffset value)
-            => $"'{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        protected override string GenerateSqlLiteralValue(byte[] value)
+//LAJLAJ        {
+//LAJLAJ            Check.NotNull(value, nameof(value));
+//LAJLAJ
+//LAJLAJ            var builder = new StringBuilder();
+//LAJLAJ            builder.Append("0x");
+//LAJLAJ
+//LAJLAJ            foreach (var @byte in value)
+//LAJLAJ            {
+//LAJLAJ                builder.Append(@byte.ToString("X2", CultureInfo.InvariantCulture));
+//LAJLAJ            }
+//LAJLAJ
+//LAJLAJ            return builder.ToString();
+//LAJLAJ        }
+//LAJLAJ
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        protected override string GenerateSqlLiteralValue(string value)
+//LAJLAJ            => IsUnicode
+//LAJLAJ                ? $"N'{EscapeSqlLiteral(Check.NotNull(value, nameof(value)))}'" // Interpolation okay; strings
+//LAJLAJ                : $"'{EscapeSqlLiteral(Check.NotNull(value, nameof(value)))}'";
+//LAJLAJ
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        protected override string GenerateSqlLiteralValue(DateTime value)
+//LAJLAJ            => $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
+//LAJLAJ
+//LAJLAJ        /// <summary>
+//LAJLAJ        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+//LAJLAJ        ///     directly from your code. This API may change or be removed in future releases.
+//LAJLAJ        /// </summary>
+//LAJLAJ        protected override string GenerateSqlLiteralValue(DateTimeOffset value)
+//LAJLAJ            => $"'{value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture)}'"; // Interpolation okay; strings
     }
 }
