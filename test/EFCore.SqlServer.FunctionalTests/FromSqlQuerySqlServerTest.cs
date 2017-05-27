@@ -131,8 +131,8 @@ WHERE [c].[CustomerID] = [o].[CustomerID]");
             base.From_sql_queryable_multiple_composed_with_closure_parameters();
 
             AssertSql(
-                @"@__8__locals1_startDate_1: 01/01/1997 00:00:00
-@__8__locals1_endDate_2: 01/01/1998 00:00:00
+                @"@__8__locals1_startDate_1='01/01/1997 00:00:00'
+@__8__locals1_endDate_2='01/01/1998 00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -149,9 +149,9 @@ WHERE [c].[CustomerID] = [o].[CustomerID]");
             base.From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@__8__locals1_startDate_1: 01/01/1997 00:00:00
-@__8__locals1_endDate_2: 01/01/1998 00:00:00
+                @"@p0='London' (Size = 4000)
+@__8__locals1_startDate_1='01/01/1997 00:00:00'
+@__8__locals1_endDate_2='01/01/1998 00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -162,9 +162,9 @@ CROSS JOIN (
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]",
                 //
-                @"@p0: Berlin (Size = 4000)
-@__8__locals1_startDate_1: 04/01/1998 00:00:00
-@__8__locals1_endDate_2: 05/01/1998 00:00:00
+                @"@p0='Berlin' (Size = 4000)
+@__8__locals1_startDate_1='04/01/1998 00:00:00'
+@__8__locals1_endDate_2='05/01/1998 00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -204,8 +204,8 @@ WHERE [c].[City] = N'London'");
             base.From_sql_queryable_with_parameters();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@p1: Sales Representative (Size = 4000)
+                @"@p0='London' (Size = 4000)
+@p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
@@ -215,8 +215,8 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
             base.From_sql_queryable_with_parameters_inline();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@p1: Sales Representative (Size = 4000)
+                @"@p0='London' (Size = 4000)
+@p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
@@ -226,8 +226,8 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
             base.From_sql_queryable_with_parameters_interpolated();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@p1: Sales Representative (Size = 4000)
+                @"@p0='London' (Size = 4000)
+@p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
@@ -237,8 +237,8 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
             base.From_sql_queryable_with_parameters_inline_interpolated();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@p1: Sales Representative (Size = 4000)
+                @"@p0='London' (Size = 4000)
+@p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
@@ -248,9 +248,9 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
             base.From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@p1: 01/01/1997 00:00:00
-@p2: 01/01/1998 00:00:00
+                @"@p0='London' (Size = 4000)
+@p1='01/01/1997 00:00:00'
+@p2='01/01/1998 00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -261,9 +261,9 @@ CROSS JOIN (
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]",
                 //
-                @"@p0: Berlin (Size = 4000)
-@p1: 04/01/1998 00:00:00
-@p2: 05/01/1998 00:00:00
+                @"@p0='Berlin' (Size = 4000)
+@p1='04/01/1998 00:00:00'
+@p2='05/01/1998 00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -280,7 +280,7 @@ WHERE [c].[CustomerID] = [o].[CustomerID]");
             base.From_sql_queryable_with_null_parameter();
 
             AssertSql(
-                @"@p0:  (Nullable = false) (DbType = String)
+                @"@p0='' (Nullable = false) (DbType = String)
 
 SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL AND @p0 IS NULL)");
         }
@@ -290,8 +290,8 @@ SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL 
             base.From_sql_queryable_with_parameters_and_closure();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@__contactTitle_1: Sales Representative (Size = 4000)
+                @"@p0='London' (Size = 4000)
+@__contactTitle_1='Sales Representative' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
@@ -315,13 +315,13 @@ WHERE [c].[ContactTitle] = @__contactTitle_1");
             base.From_sql_queryable_with_parameters_cache_key_includes_parameters();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@p1: Sales Representative (Size = 4000)
+                @"@p0='London' (Size = 4000)
+@p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
                 //
-                @"@p0: Madrid (Size = 4000)
-@p1: Accounting Manager (Size = 4000)
+                @"@p0='Madrid' (Size = 4000)
+@p1='Accounting Manager' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
@@ -422,7 +422,7 @@ WHERE ([c].[ContactName] = [c].[CompanyName]) OR ([c].[ContactName] IS NULL AND 
             base.From_sql_with_dbParameter();
 
             AssertSql(
-                @"@city: London (Nullable = false) (Size = 6)
+                @"@city='London' (Nullable = false) (Size = 6)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @city");
         }
@@ -432,13 +432,13 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @city");
             base.From_sql_with_dbParameter_mixed();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@title: Sales Representative (Nullable = false) (Size = 20)
+                @"@p0='London' (Size = 4000)
+@title='Sales Representative' (Nullable = false) (Size = 20)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @title",
                 //
-                @"@city: London (Nullable = false) (Size = 6)
-@p1: Sales Representative (Size = 4000)
+                @"@city='London' (Nullable = false) (Size = 6)
+@p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1");
         }
@@ -448,11 +448,11 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1");
             base.From_sql_with_db_parameters_called_multiple_times();
 
             AssertSql(
-                @"@id: ALFKI (Nullable = false) (Size = 5)
+                @"@id='ALFKI' (Nullable = false) (Size = 5)
 
 SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id",
                 //
-                @"@id: ALFKI (Nullable = false) (Size = 5)
+                @"@id='ALFKI' (Nullable = false) (Size = 5)
 
 SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id");
         }

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
             base.Executes_stored_procedure_with_parameter();
 
             AssertSql(
-                @"@CustomerID: ALFKI (Nullable = false) (Size = 5)
+                @"@CustomerID='ALFKI' (Nullable = false) (Size = 5)
 
 [dbo].[CustOrderHist] @CustomerID");
         }
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
             base.Executes_stored_procedure_with_generated_parameter();
 
             AssertSql(
-                @"@p0: ALFKI (Size = 4000)
+                @"@p0='ALFKI' (Size = 4000)
 
 [dbo].[CustOrderHist] @CustomerID = @p0");
         }
@@ -49,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore
             base.Query_with_parameters();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@p1: Sales Representative (Size = 4000)
+                @"@p0='London' (Size = 4000)
+@p1='Sales Representative' (Size = 4000)
 
 SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
@@ -60,8 +60,8 @@ SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @
             base.Query_with_parameters_interpolated();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@p1: Sales Representative (Size = 4000)
+                @"@p0='London' (Size = 4000)
+@p1='Sales Representative' (Size = 4000)
 
 SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
@@ -71,8 +71,8 @@ SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @
             await base.Query_with_parameters_async();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@p1: Sales Representative (Size = 4000)
+                @"@p0='London' (Size = 4000)
+@p1='Sales Representative' (Size = 4000)
 
 SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
@@ -82,8 +82,8 @@ SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @
             await base.Query_with_parameters_interpolated_async();
 
             AssertSql(
-                @"@p0: London (Size = 4000)
-@p1: Sales Representative (Size = 4000)
+                @"@p0='London' (Size = 4000)
+@p1='Sales Representative' (Size = 4000)
 
 SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }

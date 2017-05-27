@@ -642,7 +642,7 @@ WHERE [e].[NullableStringA] IS NULL");
             base.Compare_nullable_with_non_null_parameter_not_equal();
 
             AssertSql(
-                @"@__prm_0: Foo (Size = 4000)
+                @"@__prm_0='Foo' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
@@ -724,7 +724,7 @@ WHERE ([e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL)");
             base.Where_multiple_ands_with_nullable_parameter_and_constant();
 
             AssertSql(
-                @"@__prm3_2: Blah (Size = 4000)
+                @"@__prm3_2='Blah' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
@@ -736,7 +736,7 @@ WHERE [e].[NullableStringA] NOT IN (N'Foo', @__prm3_2) AND [e].[NullableStringA]
             base.Where_multiple_ands_with_nullable_parameter_and_constant_not_optimized();
 
             AssertSql(
-                @"@__prm3_2: Blah (Size = 4000)
+                @"@__prm3_2='Blah' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
@@ -876,7 +876,7 @@ WHERE ((CHARINDEX([e].[NullableStringB], [e].[NullableStringA]) > 0) OR ([e].[Nu
             base.Where_conditional_search_condition_in_result();
 
             AssertSql(
-                @"@__prm_0: True
+                @"@__prm_0='True'
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
@@ -888,7 +888,7 @@ WHERE CASE
     END ELSE CAST(0 AS BIT)
 END = 1",
                 //
-                @"@__prm_0: True
+                @"@__prm_0='True'
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
@@ -906,8 +906,8 @@ END = 1");
             base.Where_nested_conditional_search_condition_in_result();
 
             AssertSql(
-                @"@__prm1_0: True
-@__prm2_1: False
+                @"@__prm1_0='True'
+@__prm2_1='False'
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
@@ -980,7 +980,7 @@ WHERE [e].[NullableBoolA] IS NOT NULL AND ([e].[NullableBoolA] = 1)");
             base.Where_equal_using_relational_null_semantics_with_parameter();
 
             AssertSql(
-                @"@__prm_0:  (DbType = String)
+                @"@__prm_0='' (DbType = String)
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
@@ -1012,7 +1012,7 @@ WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]");
             base.Where_not_equal_using_relational_null_semantics_with_parameter();
 
             AssertSql(
-                @"@__prm_0:  (DbType = String)
+                @"@__prm_0='' (DbType = String)
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
@@ -1034,13 +1034,13 @@ WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]");
             base.Where_comparison_null_constant_and_null_parameter();
 
             AssertSql(
-                @"@__prm_0:  (Size = 4000) (DbType = String)
+                @"@__prm_0='' (Size = 4000) (DbType = String)
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
 WHERE @__prm_0 IS NULL",
                 //
-                @"@__prm_0:  (Size = 4000) (DbType = String)
+                @"@__prm_0='' (Size = 4000) (DbType = String)
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
@@ -1052,13 +1052,13 @@ WHERE @__prm_0 IS NOT NULL");
             base.Where_comparison_null_constant_and_nonnull_parameter();
 
             AssertSql(
-                @"@__prm_0: Foo (Size = 4000)
+                @"@__prm_0='Foo' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
 WHERE @__prm_0 IS NULL",
                 //
-                @"@__prm_0: Foo (Size = 4000)
+                @"@__prm_0='Foo' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
@@ -1107,7 +1107,7 @@ WHERE [e].[NullableBoolA] = [e].[NullableBoolB]");
             base.Switching_parameter_value_to_null_produces_different_cache_entry();
 
             AssertSql(
-                @"@__prm_0: Foo (Size = 4000)
+                @"@__prm_0='Foo' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]

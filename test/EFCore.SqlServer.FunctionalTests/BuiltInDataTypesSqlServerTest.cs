@@ -67,7 +67,7 @@ WHERE [e].[Time] = '00:01:02'",
 
                 Assert.Equal(0, results.Count);
                 Assert.Equal(
-                    @"@__timeSpan_0: 02:01:00
+                    @"@__timeSpan_0='02:01:00'
 
 SELECT [e].[Int]
 FROM [MappedNullableDataTypes] AS [e]
@@ -323,36 +323,36 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0: 77
-@p1: 78
-@p2: 0x5D5E5F60 (Nullable = false) (Size = 8000)
-@p3: True
-@p4: Your (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p5: strong (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p6: 01/02/2015 10:11:12 (DbType = DateTime)
-@p7: 01/02/2019 14:11:12 (DbType = DateTime)
-@p8: 01/02/2017 12:11:12
-@p9: 01/02/2016 11:11:12 +00:00
-@p10: 102.2
-@p11: 101.1
-@p12: 85.5
-@p13: 83.3
-@p14: 0x61626364 (Nullable = false) (Size = 8000)
-@p15: 81.1
-@p16: help (Nullable = false) (Size = 4000)
-@p17: anyone! (Nullable = false) (Size = 4000)
-@p18: Gumball Rules OK! (Nullable = false) (Size = 4000)
-@p19: 103.3
-@p20: don't (Nullable = false) (Size = 4000)
-@p21: 84.4
-@p22: 01/02/2018 13:11:12 (DbType = DateTime)
-@p23: 79
-@p24: 82.2
-@p25: Gumball Rules! (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p26: 11:15:12
-@p27: 80 (Size = 1)
-@p28: 0x595A5B5C (Nullable = false) (Size = 8000)
-@p29: C (Nullable = false) (Size = 8000) (DbType = AnsiString)",
+                @"@p0='77'
+@p1='78'
+@p2='0x5D5E5F60' (Nullable = false) (Size = 8000)
+@p3='True'
+@p4='Your' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p5='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p6='01/02/2015 10:11:12' (DbType = DateTime)
+@p7='01/02/2019 14:11:12' (DbType = DateTime)
+@p8='01/02/2017 12:11:12'
+@p9='01/02/2016 11:11:12 +00:00'
+@p10='102.2'
+@p11='101.1'
+@p12='85.5'
+@p13='83.3'
+@p14='0x61626364' (Nullable = false) (Size = 8000)
+@p15='81.1'
+@p16='help' (Nullable = false) (Size = 4000)
+@p17='anyone!' (Nullable = false) (Size = 4000)
+@p18='Gumball Rules OK!' (Nullable = false) (Size = 4000)
+@p19='103.3'
+@p20='don't' (Nullable = false) (Size = 4000)
+@p21='84.4'
+@p22='01/02/2018 13:11:12' (DbType = DateTime)
+@p23='79'
+@p24='82.2'
+@p25='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p26='11:15:12'
+@p27='80' (Size = 1)
+@p28='0x595A5B5C' (Nullable = false) (Size = 8000)
+@p29='C' (Nullable = false) (Size = 8000) (DbType = AnsiString)",
                 parameters);
 
             using (var context = CreateContext())
@@ -445,36 +445,36 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0: 77
-@p1: 78 (Nullable = true)
-@p2: 0x5D5E5F60 (Size = 8000)
-@p3: True (Nullable = true)
-@p4: Your (Size = 8000) (DbType = AnsiString)
-@p5: strong (Size = 8000) (DbType = AnsiString)
-@p6: 01/02/2015 10:11:12 (Nullable = true) (DbType = DateTime)
-@p7: 01/02/2019 14:11:12 (Nullable = true) (DbType = DateTime)
-@p8: 01/02/2017 12:11:12 (Nullable = true)
-@p9: 01/02/2016 11:11:12 +00:00 (Nullable = true)
-@p10: 102.2 (Nullable = true)
-@p11: 101.1 (Nullable = true)
-@p12: 85.5 (Nullable = true)
-@p13: 83.3 (Nullable = true)
-@p14: 0x61626364 (Size = 8000)
-@p15: 81.1 (Nullable = true)
-@p16: help (Size = 4000)
-@p17: anyone! (Size = 4000)
-@p18: Gumball Rules OK! (Size = 4000)
-@p19: 103.3 (Nullable = true)
-@p20: don't (Size = 4000)
-@p21: 84.4 (Nullable = true)
-@p22: 01/02/2018 13:11:12 (Nullable = true) (DbType = DateTime)
-@p23: 79 (Nullable = true)
-@p24: 82.2 (Nullable = true)
-@p25: Gumball Rules! (Size = 8000) (DbType = AnsiString)
-@p26: 11:15:12 (Nullable = true)
-@p27: 80 (Nullable = true) (Size = 1)
-@p28: 0x595A5B5C (Size = 8000)
-@p29: C (Size = 8000) (DbType = AnsiString)",
+                @"@p0='77'
+@p1='78' (Nullable = true)
+@p2='0x5D5E5F60' (Size = 8000)
+@p3='True' (Nullable = true)
+@p4='Your' (Size = 8000) (DbType = AnsiString)
+@p5='strong' (Size = 8000) (DbType = AnsiString)
+@p6='01/02/2015 10:11:12' (Nullable = true) (DbType = DateTime)
+@p7='01/02/2019 14:11:12' (Nullable = true) (DbType = DateTime)
+@p8='01/02/2017 12:11:12' (Nullable = true)
+@p9='01/02/2016 11:11:12 +00:00' (Nullable = true)
+@p10='102.2' (Nullable = true)
+@p11='101.1' (Nullable = true)
+@p12='85.5' (Nullable = true)
+@p13='83.3' (Nullable = true)
+@p14='0x61626364' (Size = 8000)
+@p15='81.1' (Nullable = true)
+@p16='help' (Size = 4000)
+@p17='anyone!' (Size = 4000)
+@p18='Gumball Rules OK!' (Size = 4000)
+@p19='103.3' (Nullable = true)
+@p20='don't' (Size = 4000)
+@p21='84.4' (Nullable = true)
+@p22='01/02/2018 13:11:12' (Nullable = true) (DbType = DateTime)
+@p23='79' (Nullable = true)
+@p24='82.2' (Nullable = true)
+@p25='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p26='11:15:12' (Nullable = true)
+@p27='80' (Nullable = true) (Size = 1)
+@p28='0x595A5B5C' (Size = 8000)
+@p29='C' (Size = 8000) (DbType = AnsiString)",
                 parameters);
 
             using (var context = CreateContext())
@@ -564,36 +564,36 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0: 78
-@p1:  (DbType = Int64)
-@p2:  (Size = 8000) (DbType = Binary)
-@p3:  (DbType = String)
-@p4:  (Size = 8000)
-@p5:  (Size = 8000)
-@p6:  (DbType = DateTime)
-@p7:  (DbType = DateTime)
-@p8:  (DbType = DateTime2)
-@p9:  (DbType = String)
-@p10:  (DbType = String)
-@p11:  (DbType = String)
-@p12:  (DbType = String)
-@p13:  (DbType = String)
-@p14:  (Size = 8000) (DbType = Binary)
-@p15:  (DbType = String)
-@p16:  (Size = 4000) (DbType = String)
-@p17:  (Size = 4000) (DbType = String)
-@p18:  (Size = 4000) (DbType = String)
-@p19:  (DbType = String)
-@p20:  (Size = 4000) (DbType = String)
-@p21:  (DbType = String)
-@p22:  (DbType = DateTime)
-@p23:  (DbType = Int16)
-@p24:  (DbType = String)
-@p25:  (Size = 8000)
-@p26:  (DbType = String)
-@p27:  (DbType = Byte)
-@p28:  (Size = 8000) (DbType = Binary)
-@p29:  (Size = 8000)",
+                @"@p0='78'
+@p1='' (DbType = Int64)
+@p2='' (Size = 8000) (DbType = Binary)
+@p3='' (DbType = String)
+@p4='' (Size = 8000)
+@p5='' (Size = 8000)
+@p6='' (DbType = DateTime)
+@p7='' (DbType = DateTime)
+@p8='' (DbType = DateTime2)
+@p9='' (DbType = String)
+@p10='' (DbType = String)
+@p11='' (DbType = String)
+@p12='' (DbType = String)
+@p13='' (DbType = String)
+@p14='' (Size = 8000) (DbType = Binary)
+@p15='' (DbType = String)
+@p16='' (Size = 4000) (DbType = String)
+@p17='' (Size = 4000) (DbType = String)
+@p18='' (Size = 4000) (DbType = String)
+@p19='' (DbType = String)
+@p20='' (Size = 4000) (DbType = String)
+@p21='' (DbType = String)
+@p22='' (DbType = DateTime)
+@p23='' (DbType = Int16)
+@p24='' (DbType = String)
+@p25='' (Size = 8000)
+@p26='' (DbType = String)
+@p27='' (DbType = Byte)
+@p28='' (Size = 8000) (DbType = Binary)
+@p29='' (Size = 8000)",
                 parameters);
 
             using (var context = CreateContext())
@@ -648,20 +648,20 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0: 77
-@p1: 0x0A0B0C (Size = 3)
-@p2: 0x0C0D0E (Size = 3)
-@p3: Wor (Size = 3) (DbType = AnsiStringFixedLength)
-@p4: Thr (Size = 3) (DbType = AnsiString)
-@p5: Lon (Size = 3) (DbType = AnsiStringFixedLength)
-@p6: Let (Size = 3) (DbType = AnsiString)
-@p7: The (Size = 3)
-@p8: Squ (Size = 3) (DbType = StringFixedLength)
-@p9: Col (Size = 3)
-@p10: Won (Size = 3) (DbType = StringFixedLength)
-@p11: Int (Size = 3)
-@p12: 0x0B0C0D (Size = 3)
-@p13: Tha (Size = 3) (DbType = AnsiString)",
+                @"@p0='77'
+@p1='0x0A0B0C' (Size = 3)
+@p2='0x0C0D0E' (Size = 3)
+@p3='Wor' (Size = 3) (DbType = AnsiStringFixedLength)
+@p4='Thr' (Size = 3) (DbType = AnsiString)
+@p5='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
+@p6='Let' (Size = 3) (DbType = AnsiString)
+@p7='The' (Size = 3)
+@p8='Squ' (Size = 3) (DbType = StringFixedLength)
+@p9='Col' (Size = 3)
+@p10='Won' (Size = 3) (DbType = StringFixedLength)
+@p11='Int' (Size = 3)
+@p12='0x0B0C0D' (Size = 3)
+@p13='Tha' (Size = 3) (DbType = AnsiString)",
                 parameters);
 
             using (var context = CreateContext())
@@ -719,20 +719,20 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0: 78
-@p1:  (Size = 3) (DbType = Binary)
-@p2:  (Size = 3) (DbType = Binary)
-@p3:  (Size = 3) (DbType = AnsiStringFixedLength)
-@p4:  (Size = 3)
-@p5:  (Size = 3) (DbType = AnsiStringFixedLength)
-@p6:  (Size = 3)
-@p7:  (Size = 3) (DbType = String)
-@p8:  (Size = 3) (DbType = StringFixedLength)
-@p9:  (Size = 3) (DbType = String)
-@p10:  (Size = 3) (DbType = StringFixedLength)
-@p11:  (Size = 3) (DbType = String)
-@p12:  (Size = 3) (DbType = Binary)
-@p13:  (Size = 3)",
+                @"@p0='78'
+@p1='' (Size = 3) (DbType = Binary)
+@p2='' (Size = 3) (DbType = Binary)
+@p3='' (Size = 3) (DbType = AnsiStringFixedLength)
+@p4='' (Size = 3)
+@p5='' (Size = 3) (DbType = AnsiStringFixedLength)
+@p6='' (Size = 3)
+@p7='' (Size = 3) (DbType = String)
+@p8='' (Size = 3) (DbType = StringFixedLength)
+@p9='' (Size = 3) (DbType = String)
+@p10='' (Size = 3) (DbType = StringFixedLength)
+@p11='' (Size = 3) (DbType = String)
+@p12='' (Size = 3) (DbType = Binary)
+@p13='' (Size = 3)",
                 parameters);
 
             using (var context = CreateContext())
@@ -771,14 +771,14 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0: 77
-@p1: 01/02/2017 12:11:12
-@p2: 01/02/2016 11:11:12 +00:00
-@p3: 102.2
-@p4: 101.1
-@p5: 85.5
-@p6: 83.3
-@p7: 103.3",
+                @"@p0='77'
+@p1='01/02/2017 12:11:12'
+@p2='01/02/2016 11:11:12 +00:00'
+@p3='102.2'
+@p4='101.1'
+@p5='85.5'
+@p6='83.3'
+@p7='103.3'",
                 parameters);
 
             using (var context = CreateContext())
@@ -824,10 +824,10 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0: 77
-@p1: 102.2
-@p2: 101.1
-@p3: 103.3",
+                @"@p0='77'
+@p1='102.2'
+@p2='101.1'
+@p3='103.3'",
                 parameters);
 
             using (var context = CreateContext())
@@ -865,36 +865,36 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0: 78
-@p1: 0x5D5E5F60 (Size = 8000)
-@p2: True
-@p3: Your (Size = 8000) (DbType = AnsiString)
-@p4: strong (Size = 8000) (DbType = AnsiString)
-@p5: 01/02/2015 10:11:12 (DbType = DateTime)
-@p6: 01/02/2019 14:11:12 (DbType = DateTime)
-@p7: 01/02/2017 12:11:12
-@p8: 01/02/2016 11:11:12 +00:00
-@p9: 102.2
-@p10: 101.1
-@p11: 85.5
-@p12: 83.3
-@p13: 0x61626364 (Size = 8000)
-@p14: 77
-@p15: 81.1
-@p16: help (Size = 4000)
-@p17: anyone! (Size = 4000)
-@p18: Gumball Rules OK! (Size = 4000)
-@p19: 103.3
-@p20: don't (Size = 4000)
-@p21: 84.4
-@p22: 01/02/2018 13:11:12 (DbType = DateTime)
-@p23: 79
-@p24: 82.2
-@p25: Gumball Rules! (Size = 8000) (DbType = AnsiString)
-@p26: 11:15:12
-@p27: 80 (Size = 1)
-@p28: 0x595A5B5C (Size = 8000)
-@p29: C (Size = 8000) (DbType = AnsiString)",
+                @"@p0='78'
+@p1='0x5D5E5F60' (Size = 8000)
+@p2='True'
+@p3='Your' (Size = 8000) (DbType = AnsiString)
+@p4='strong' (Size = 8000) (DbType = AnsiString)
+@p5='01/02/2015 10:11:12' (DbType = DateTime)
+@p6='01/02/2019 14:11:12' (DbType = DateTime)
+@p7='01/02/2017 12:11:12'
+@p8='01/02/2016 11:11:12 +00:00'
+@p9='102.2'
+@p10='101.1'
+@p11='85.5'
+@p12='83.3'
+@p13='0x61626364' (Size = 8000)
+@p14='77'
+@p15='81.1'
+@p16='help' (Size = 4000)
+@p17='anyone!' (Size = 4000)
+@p18='Gumball Rules OK!' (Size = 4000)
+@p19='103.3'
+@p20='don't' (Size = 4000)
+@p21='84.4'
+@p22='01/02/2018 13:11:12' (DbType = DateTime)
+@p23='79'
+@p24='82.2'
+@p25='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p26='11:15:12'
+@p27='80' (Size = 1)
+@p28='0x595A5B5C' (Size = 8000)
+@p29='C' (Size = 8000) (DbType = AnsiString)",
                 parameters);
 
             using (var context = CreateContext())
@@ -984,36 +984,36 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0: 78 (Nullable = true)
-@p1: 0x5D5E5F60 (Size = 8000)
-@p2: True (Nullable = true)
-@p3: Your (Size = 8000) (DbType = AnsiString)
-@p4: strong (Size = 8000) (DbType = AnsiString)
-@p5: 01/02/2015 10:11:12 (Nullable = true) (DbType = DateTime)
-@p6: 01/02/2019 14:11:12 (Nullable = true) (DbType = DateTime)
-@p7: 01/02/2017 12:11:12 (Nullable = true)
-@p8: 01/02/2016 11:11:12 +00:00 (Nullable = true)
-@p9: 102.2 (Nullable = true)
-@p10: 101.1 (Nullable = true)
-@p11: 85.5 (Nullable = true)
-@p12: 83.3 (Nullable = true)
-@p13: 0x61626364 (Size = 8000)
-@p14: 77 (Nullable = true)
-@p15: 81.1 (Nullable = true)
-@p16: help (Size = 4000)
-@p17: anyone! (Size = 4000)
-@p18: Gumball Rules OK! (Size = 4000)
-@p19: 103.3 (Nullable = true)
-@p20: don't (Size = 4000)
-@p21: 84.4 (Nullable = true)
-@p22: 01/02/2018 13:11:12 (Nullable = true) (DbType = DateTime)
-@p23: 79 (Nullable = true)
-@p24: 82.2 (Nullable = true)
-@p25: Gumball Rules! (Size = 8000) (DbType = AnsiString)
-@p26: 11:15:12 (Nullable = true)
-@p27: 80 (Nullable = true) (Size = 1)
-@p28: 0x595A5B5C (Size = 8000)
-@p29: C (Size = 8000) (DbType = AnsiString)",
+                @"@p0='78' (Nullable = true)
+@p1='0x5D5E5F60' (Size = 8000)
+@p2='True' (Nullable = true)
+@p3='Your' (Size = 8000) (DbType = AnsiString)
+@p4='strong' (Size = 8000) (DbType = AnsiString)
+@p5='01/02/2015 10:11:12' (Nullable = true) (DbType = DateTime)
+@p6='01/02/2019 14:11:12' (Nullable = true) (DbType = DateTime)
+@p7='01/02/2017 12:11:12' (Nullable = true)
+@p8='01/02/2016 11:11:12 +00:00' (Nullable = true)
+@p9='102.2' (Nullable = true)
+@p10='101.1' (Nullable = true)
+@p11='85.5' (Nullable = true)
+@p12='83.3' (Nullable = true)
+@p13='0x61626364' (Size = 8000)
+@p14='77' (Nullable = true)
+@p15='81.1' (Nullable = true)
+@p16='help' (Size = 4000)
+@p17='anyone!' (Size = 4000)
+@p18='Gumball Rules OK!' (Size = 4000)
+@p19='103.3' (Nullable = true)
+@p20='don't' (Size = 4000)
+@p21='84.4' (Nullable = true)
+@p22='01/02/2018 13:11:12' (Nullable = true) (DbType = DateTime)
+@p23='79' (Nullable = true)
+@p24='82.2' (Nullable = true)
+@p25='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p26='11:15:12' (Nullable = true)
+@p27='80' (Nullable = true) (Size = 1)
+@p28='0x595A5B5C' (Size = 8000)
+@p29='C' (Size = 8000) (DbType = AnsiString)",
                 parameters);
 
             using (var context = CreateContext())
@@ -1103,36 +1103,36 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0:  (DbType = Int64)
-@p1:  (Size = 8000) (DbType = Binary)
-@p2:  (DbType = String)
-@p3:  (Size = 8000)
-@p4:  (Size = 8000)
-@p5:  (DbType = DateTime)
-@p6:  (DbType = DateTime)
-@p7:  (DbType = DateTime2)
-@p8:  (DbType = String)
-@p9:  (DbType = String)
-@p10:  (DbType = String)
-@p11:  (DbType = String)
-@p12:  (DbType = String)
-@p13:  (Size = 8000) (DbType = Binary)
-@p14: 78 (Nullable = true)
-@p15:  (DbType = String)
-@p16:  (Size = 4000) (DbType = String)
-@p17:  (Size = 4000) (DbType = String)
-@p18:  (Size = 4000) (DbType = String)
-@p19:  (DbType = String)
-@p20:  (Size = 4000) (DbType = String)
-@p21:  (DbType = String)
-@p22:  (DbType = DateTime)
-@p23:  (DbType = Int16)
-@p24:  (DbType = String)
-@p25:  (Size = 8000)
-@p26:  (DbType = String)
-@p27:  (DbType = Byte)
-@p28:  (Size = 8000) (DbType = Binary)
-@p29:  (Size = 8000)",
+                @"@p0='' (DbType = Int64)
+@p1='' (Size = 8000) (DbType = Binary)
+@p2='' (DbType = String)
+@p3='' (Size = 8000)
+@p4='' (Size = 8000)
+@p5='' (DbType = DateTime)
+@p6='' (DbType = DateTime)
+@p7='' (DbType = DateTime2)
+@p8='' (DbType = String)
+@p9='' (DbType = String)
+@p10='' (DbType = String)
+@p11='' (DbType = String)
+@p12='' (DbType = String)
+@p13='' (Size = 8000) (DbType = Binary)
+@p14='78' (Nullable = true)
+@p15='' (DbType = String)
+@p16='' (Size = 4000) (DbType = String)
+@p17='' (Size = 4000) (DbType = String)
+@p18='' (Size = 4000) (DbType = String)
+@p19='' (DbType = String)
+@p20='' (Size = 4000) (DbType = String)
+@p21='' (DbType = String)
+@p22='' (DbType = DateTime)
+@p23='' (DbType = Int16)
+@p24='' (DbType = String)
+@p25='' (Size = 8000)
+@p26='' (DbType = String)
+@p27='' (DbType = Byte)
+@p28='' (Size = 8000) (DbType = Binary)
+@p29='' (Size = 8000)",
                 parameters);
 
             using (var context = CreateContext())
@@ -1188,20 +1188,20 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0: 0x0A0B0C (Size = 3)
-@p1: 0x0C0D0E (Size = 3)
-@p2: Wor (Size = 3) (DbType = AnsiStringFixedLength)
-@p3: Thr (Size = 3) (DbType = AnsiString)
-@p4: Lon (Size = 3) (DbType = AnsiStringFixedLength)
-@p5: Let (Size = 3) (DbType = AnsiString)
-@p6: 77
-@p7: The (Size = 3)
-@p8: Squ (Size = 3) (DbType = StringFixedLength)
-@p9: Col (Size = 3)
-@p10: Won (Size = 3) (DbType = StringFixedLength)
-@p11: Int (Size = 3)
-@p12: 0x0B0C0D (Size = 3)
-@p13: Tha (Size = 3) (DbType = AnsiString)",
+                @"@p0='0x0A0B0C' (Size = 3)
+@p1='0x0C0D0E' (Size = 3)
+@p2='Wor' (Size = 3) (DbType = AnsiStringFixedLength)
+@p3='Thr' (Size = 3) (DbType = AnsiString)
+@p4='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
+@p5='Let' (Size = 3) (DbType = AnsiString)
+@p6='77'
+@p7='The' (Size = 3)
+@p8='Squ' (Size = 3) (DbType = StringFixedLength)
+@p9='Col' (Size = 3)
+@p10='Won' (Size = 3) (DbType = StringFixedLength)
+@p11='Int' (Size = 3)
+@p12='0x0B0C0D' (Size = 3)
+@p13='Tha' (Size = 3) (DbType = AnsiString)",
                 parameters);
 
             using (var context = CreateContext())
@@ -1259,20 +1259,20 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0:  (Size = 3) (DbType = Binary)
-@p1:  (Size = 3) (DbType = Binary)
-@p2:  (Size = 3) (DbType = AnsiStringFixedLength)
-@p3:  (Size = 3)
-@p4:  (Size = 3) (DbType = AnsiStringFixedLength)
-@p5:  (Size = 3)
-@p6: 78
-@p7:  (Size = 3) (DbType = String)
-@p8:  (Size = 3) (DbType = StringFixedLength)
-@p9:  (Size = 3) (DbType = String)
-@p10:  (Size = 3) (DbType = StringFixedLength)
-@p11:  (Size = 3) (DbType = String)
-@p12:  (Size = 3) (DbType = Binary)
-@p13:  (Size = 3)",
+                @"@p0='' (Size = 3) (DbType = Binary)
+@p1='' (Size = 3) (DbType = Binary)
+@p2='' (Size = 3) (DbType = AnsiStringFixedLength)
+@p3='' (Size = 3)
+@p4='' (Size = 3) (DbType = AnsiStringFixedLength)
+@p5='' (Size = 3)
+@p6='78'
+@p7='' (Size = 3) (DbType = String)
+@p8='' (Size = 3) (DbType = StringFixedLength)
+@p9='' (Size = 3) (DbType = String)
+@p10='' (Size = 3) (DbType = StringFixedLength)
+@p11='' (Size = 3) (DbType = String)
+@p12='' (Size = 3) (DbType = Binary)
+@p13='' (Size = 3)",
                 parameters);
 
             using (var context = CreateContext())
@@ -1311,14 +1311,14 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0: 01/02/2017 12:11:12
-@p1: 01/02/2016 11:11:12 +00:00
-@p2: 102.2
-@p3: 101.1
-@p4: 85.5
-@p5: 83.3
-@p6: 77
-@p7: 103.3",
+                @"@p0='01/02/2017 12:11:12'
+@p1='01/02/2016 11:11:12 +00:00'
+@p2='102.2'
+@p3='101.1'
+@p4='85.5'
+@p5='83.3'
+@p6='77'
+@p7='103.3'",
                 parameters);
 
             using (var context = CreateContext())
@@ -1365,10 +1365,10 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0: 102.2
-@p1: 101.1
-@p2: 77
-@p3: 103.3",
+                @"@p0='102.2'
+@p1='101.1'
+@p2='77'
+@p3='103.3'",
                 parameters);
 
             using (var context = CreateContext())

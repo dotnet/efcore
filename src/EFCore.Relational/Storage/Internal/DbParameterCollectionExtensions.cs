@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             builder
                 .Append(name)
-                .Append(": ");
+                .Append("=");
 
             FormatParameterValue(builder, value);
 
@@ -128,6 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private static void FormatParameterValue(StringBuilder builder, object parameterValue)
         {
+            builder.Append('\'');
+
             if (parameterValue?.GetType() != typeof(byte[]))
             {
                 builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));
@@ -147,6 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     builder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
                 }
             }
+
+            builder.Append('\'');
         }
 
         private static bool IsNormalDbType(DbType dbType, Type clrType)

@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
             base.Skip();
 
             AssertSql(
-                @"@__p_0: 5
+                @"@__p_0='5'
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
 FROM (
@@ -45,7 +45,7 @@ WHERE [t].[__RowNumber__] > @__p_0");
             base.Skip_no_orderby();
 
             AssertSql(
-                @"@__p_0: 5
+                @"@__p_0='5'
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
 FROM (
@@ -60,8 +60,8 @@ WHERE [t].[__RowNumber__] > @__p_0");
             base.Skip_Take();
 
             AssertSql(
-                @"@__p_0: 5
-@__p_1: 10
+                @"@__p_0='5'
+@__p_1='10'
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
 FROM (
@@ -76,8 +76,8 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
             base.Join_Customers_Orders_Skip_Take();
 
             AssertSql(
-                @"@__p_0: 10
-@__p_1: 5
+                @"@__p_0='10'
+@__p_1='5'
 
 SELECT [t].[ContactName], [t].[OrderID]
 FROM (
@@ -93,8 +93,8 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
             base.Join_Customers_Orders_Projection_With_String_Concat_Skip_Take();
 
             AssertSql(
-                @"@__p_0: 10
-@__p_1: 5
+                @"@__p_0='10'
+@__p_1='5'
 
 SELECT [t].[Contact], [t].[OrderID]
 FROM (
@@ -110,8 +110,8 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
             base.Join_Customers_Orders_Orders_Skip_Take_Same_Properties();
 
             AssertSql(
-                @"@__p_0: 10
-@__p_1: 5
+                @"@__p_0='10'
+@__p_1='5'
 
 SELECT [t].[OrderID], [t].[CustomerIDA], [t].[CustomerIDB], [t].[ContactNameA], [t].[ContactNameB]
 FROM (
@@ -128,8 +128,8 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
             base.Take_Skip();
 
             AssertSql(
-                @"@__p_0: 10
-@__p_1: 5
+                @"@__p_0='10'
+@__p_1='5'
 
 SELECT [t0].*
 FROM (
@@ -148,8 +148,8 @@ WHERE [t0].[__RowNumber__] > @__p_1");
             base.Take_Skip_Distinct();
 
             AssertSql(
-                @"@__p_0: 10
-@__p_1: 5
+                @"@__p_0='10'
+@__p_1='5'
 
 SELECT DISTINCT [t0].*
 FROM (
@@ -171,8 +171,8 @@ FROM (
             base.Take_skip_null_coalesce_operator();
 
             AssertSql(
-                @"@__p_0: 10
-@__p_1: 5
+                @"@__p_0='10'
+@__p_1='5'
 
 SELECT DISTINCT [t0].*
 FROM (
@@ -194,8 +194,8 @@ FROM (
             base.Select_take_skip_null_coalesce_operator();
 
             AssertSql(
-                @"@__p_0: 10
-@__p_1: 5
+                @"@__p_0='10'
+@__p_1='5'
 
 SELECT [t0].*
 FROM (
@@ -230,7 +230,7 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
                 entryCount: 34);
 
             AssertSql(
-                @"@__LocalMethod1_0: M (Size = 4000)
+                @"@__LocalMethod1_0='M' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -242,8 +242,8 @@ WHERE (CHARINDEX(@__LocalMethod1_0, [c].[ContactName]) > 0) OR (@__LocalMethod1_
             base.OrderBy_skip_take();
 
             AssertSql(
-                @"@__p_0: 5
-@__p_1: 8
+                @"@__p_0='5'
+@__p_1='8'
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
 FROM (
@@ -258,9 +258,9 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
             base.OrderBy_skip_take_take();
 
             AssertSql(
-                @"@__p_2: 3
-@__p_0: 5
-@__p_1: 8
+                @"@__p_2='3'
+@__p_0='5'
+@__p_1='8'
 
 SELECT TOP(@__p_2) [t].*
 FROM (
@@ -279,11 +279,11 @@ ORDER BY [t].[ContactTitle], [t].[ContactName]");
             base.OrderBy_skip_take_take_take_take();
 
             AssertSql(
-                @"@__p_4: 5
-@__p_3: 8
-@__p_2: 10
-@__p_0: 5
-@__p_1: 15
+                @"@__p_4='5'
+@__p_3='8'
+@__p_2='10'
+@__p_0='5'
+@__p_1='15'
 
 SELECT TOP(@__p_4) [t1].*
 FROM (
@@ -310,11 +310,11 @@ ORDER BY [t1].[ContactTitle], [t1].[ContactName]");
             base.OrderBy_skip_take_skip_take_skip();
 
             AssertSql(
-                @"@__p_0: 5
-@__p_1: 15
-@__p_2: 2
-@__p_3: 8
-@__p_4: 5
+                @"@__p_0='5'
+@__p_1='15'
+@__p_2='2'
+@__p_3='8'
+@__p_4='5'
 
 SELECT [t3].*
 FROM (
@@ -343,8 +343,8 @@ WHERE [t3].[__RowNumber__2] > @__p_4");
             base.OrderBy_skip_take_distinct();
 
             AssertSql(
-                @"@__p_0: 5
-@__p_1: 15
+                @"@__p_0='5'
+@__p_1='15'
 
 SELECT DISTINCT [t].*
 FROM (
@@ -362,7 +362,7 @@ FROM (
             base.OrderBy_coalesce_take_distinct();
 
             AssertSql(
-                @"@__p_0: 15
+                @"@__p_0='15'
 
 SELECT DISTINCT [t].*
 FROM (
@@ -377,8 +377,8 @@ FROM (
             base.OrderBy_coalesce_skip_take_distinct();
 
             AssertSql(
-                @"@__p_0: 5
-@__p_1: 15
+                @"@__p_0='5'
+@__p_1='15'
 
 SELECT DISTINCT [t].*
 FROM (
@@ -396,9 +396,9 @@ FROM (
             base.OrderBy_coalesce_skip_take_distinct_take();
 
             AssertSql(
-                @"@__p_2: 5
-@__p_0: 5
-@__p_1: 15
+                @"@__p_2='5'
+@__p_0='5'
+@__p_1='15'
 
 SELECT DISTINCT TOP(@__p_2) [t].*
 FROM (
@@ -416,9 +416,9 @@ FROM (
             base.OrderBy_skip_take_distinct_orderby_take();
 
             AssertSql(
-                @"@__p_2: 8
-@__p_0: 5
-@__p_1: 15
+                @"@__p_2='8'
+@__p_0='5'
+@__p_1='15'
 
 SELECT TOP(@__p_2) [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM (
@@ -440,8 +440,8 @@ ORDER BY [t0].[ContactTitle]");
             base.Skip_Take_Any();
 
             AssertSql(
-                @"@__p_0: 5
-@__p_1: 10
+                @"@__p_0='5'
+@__p_1='10'
 
 SELECT CASE
     WHEN EXISTS (
@@ -460,8 +460,8 @@ END");
             base.Skip_Take_All();
 
             AssertSql(
-                @"@__p_0: 5
-@__p_1: 10
+                @"@__p_0='5'
+@__p_1='10'
 
 SELECT CASE
     WHEN NOT EXISTS (
@@ -481,8 +481,8 @@ END");
             base.Include_with_orderby_skip_preserves_ordering();
 
             AssertSql(
-                @"@__p_0: 40
-@__p_1: 5
+                @"@__p_0='40'
+@__p_1='5'
 
 SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM (
@@ -492,8 +492,8 @@ FROM (
 ) AS [t0]
 WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 //
-                @"@__p_0: 40
-@__p_1: 5
+                @"@__p_0='40'
+@__p_1='5'
 
 SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
 FROM [Orders] AS [c.Orders]
@@ -514,7 +514,7 @@ ORDER BY [t].[City], [t].[CustomerID]");
             base.GroupJoin_customers_orders_count_preserves_ordering();
 
             AssertSql(
-                @"@__p_0: 5
+                @"@__p_0='5'
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -532,7 +532,7 @@ ORDER BY [t].[City], [t].[CustomerID]");
             base.Select_take_average();
 
             AssertSql(
-                @"@__p_0: 10
+                @"@__p_0='10'
 
 SELECT AVG(CAST([t].[OrderID] AS float))
 FROM (
@@ -547,7 +547,7 @@ FROM (
             base.Select_take_count();
 
             AssertSql(
-                @"@__p_0: 7
+                @"@__p_0='7'
 
 SELECT COUNT(*)
 FROM (
@@ -561,7 +561,7 @@ FROM (
             base.Select_orderBy_take_count();
 
             AssertSql(
-                @"@__p_0: 7
+                @"@__p_0='7'
 
 SELECT COUNT(*)
 FROM (
@@ -576,7 +576,7 @@ FROM (
             base.Select_take_long_count();
 
             AssertSql(
-                @"@__p_0: 7
+                @"@__p_0='7'
 
 SELECT COUNT_BIG(*)
 FROM (
@@ -590,7 +590,7 @@ FROM (
             base.Select_orderBy_take_long_count();
 
             AssertSql(
-                @"@__p_0: 7
+                @"@__p_0='7'
 
 SELECT COUNT_BIG(*)
 FROM (
@@ -605,7 +605,7 @@ FROM (
             base.Select_take_max();
 
             AssertSql(
-                @"@__p_0: 10
+                @"@__p_0='10'
 
 SELECT MAX([t].[OrderID])
 FROM (
@@ -620,7 +620,7 @@ FROM (
             base.Select_take_min();
 
             AssertSql(
-                @"@__p_0: 10
+                @"@__p_0='10'
 
 SELECT MIN([t].[OrderID])
 FROM (
@@ -635,7 +635,7 @@ FROM (
             base.Select_take_sum();
 
             AssertSql(
-                @"@__p_0: 10
+                @"@__p_0='10'
 
 SELECT SUM([t].[OrderID])
 FROM (
@@ -650,7 +650,7 @@ FROM (
             base.Select_skip_average();
 
             AssertSql(
-                @"@__p_0: 10
+                @"@__p_0='10'
 
 SELECT AVG(CAST([t].[OrderID] AS float))
 FROM (
@@ -668,7 +668,7 @@ FROM (
             base.Select_skip_count();
 
             AssertSql(
-                @"@__p_0: 7
+                @"@__p_0='7'
 
 SELECT COUNT(*)
 FROM (
@@ -686,7 +686,7 @@ FROM (
             base.Select_orderBy_skip_count();
 
             AssertSql(
-                @"@__p_0: 7
+                @"@__p_0='7'
 
 SELECT COUNT(*)
 FROM (
@@ -704,7 +704,7 @@ FROM (
             base.Select_skip_long_count();
 
             AssertSql(
-                @"@__p_0: 7
+                @"@__p_0='7'
 
 SELECT COUNT_BIG(*)
 FROM (
@@ -722,7 +722,7 @@ FROM (
             base.Select_orderBy_skip_long_count();
 
             AssertSql(
-                @"@__p_0: 7
+                @"@__p_0='7'
 
 SELECT COUNT_BIG(*)
 FROM (
@@ -740,7 +740,7 @@ FROM (
             base.Select_skip_max();
 
             AssertSql(
-                @"@__p_0: 10
+                @"@__p_0='10'
 
 SELECT MAX([t].[OrderID])
 FROM (
@@ -758,7 +758,7 @@ FROM (
             base.Select_skip_min();
 
             AssertSql(
-                @"@__p_0: 10
+                @"@__p_0='10'
 
 SELECT MIN([t].[OrderID])
 FROM (
@@ -776,7 +776,7 @@ FROM (
             base.Select_skip_sum();
 
             AssertSql(
-                @"@__p_0: 10
+                @"@__p_0='10'
 
 SELECT SUM([t].[OrderID])
 FROM (

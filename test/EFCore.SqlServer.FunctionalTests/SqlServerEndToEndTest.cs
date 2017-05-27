@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(3, loggingFactory.SqlStatements.Count);
                     Assert.Contains("SELECT", loggingFactory.SqlStatements[0]);
                     Assert.Contains("SELECT", loggingFactory.SqlStatements[1]);
-                    Assert.Contains("@p0: " + deletedId, loggingFactory.SqlStatements[2]);
+                    Assert.Contains("@p0='" + deletedId, loggingFactory.SqlStatements[2]);
                     Assert.Contains("DELETE", loggingFactory.SqlStatements[2]);
                     Assert.Contains("UPDATE", loggingFactory.SqlStatements[2]);
                     Assert.Contains("INSERT", loggingFactory.SqlStatements[2]);

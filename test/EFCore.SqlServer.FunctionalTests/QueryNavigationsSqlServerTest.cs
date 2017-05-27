@@ -146,7 +146,7 @@ WHERE CHARINDEX(N'Sea', [o.Customer].[City]) > 0");
             base.Select_Where_Navigation_Deep();
 
             AssertSql(
-                @"@__p_0: 1
+                @"@__p_0='1'
 
 SELECT TOP(@__p_0) [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
@@ -161,19 +161,19 @@ ORDER BY [od].[OrderID], [od].[ProductID]");
             base.Take_Select_Navigation();
 
             AssertSql(
-                @"@__p_0: 2
+                @"@__p_0='2'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_CustomerID = [o].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ANATR (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 450)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -185,7 +185,7 @@ WHERE @_outer_CustomerID = [o].[CustomerID]");
             base.Select_collection_FirstOrDefault_project_single_column1();
 
             AssertSql(
-                @"@__p_0: 2
+                @"@__p_0='2'
 
 SELECT TOP(@__p_0) (
     SELECT TOP(1) [o].[CustomerID]
@@ -201,7 +201,7 @@ ORDER BY [c].[CustomerID]");
             base.Select_collection_FirstOrDefault_project_single_column2();
 
             AssertSql(
-                @"@__p_0: 2
+                @"@__p_0='2'
 
 SELECT TOP(@__p_0) (
     SELECT TOP(1) [o].[CustomerID]
@@ -217,19 +217,19 @@ ORDER BY [c].[CustomerID]");
             base.Select_collection_FirstOrDefault_project_anonymous_type();
 
             AssertSql(
-                @"@__p_0: 2
+                @"@__p_0='2'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE @_outer_CustomerID = [o].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ANATR (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 450)
 
 SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
 FROM [Orders] AS [o]
@@ -241,19 +241,19 @@ WHERE @_outer_CustomerID = [o].[CustomerID]");
             base.Select_collection_FirstOrDefault_project_entity();
 
             AssertSql(
-                @"@__p_0: 2
+                @"@__p_0='2'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_CustomerID = [o].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ANATR (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 450)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -267,21 +267,21 @@ WHERE @_outer_CustomerID = [o].[CustomerID]");
             if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true)
             {
                 AssertSql(
-                    @"@__p_0: 20
+                    @"@__p_0='20'
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 OFFSET @__p_0 ROWS",
                     //
-                    @"@_outer_CustomerID: FAMIA (Size = 450)
+                    @"@_outer_CustomerID='FAMIA' (Size = 450)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_CustomerID = [o].[CustomerID]
 ORDER BY [o].[OrderID]",
                     //
-                    @"@_outer_CustomerID: FISSA (Size = 450)
+                    @"@_outer_CustomerID='FISSA' (Size = 450)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -482,25 +482,25 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
 ORDER BY [c].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_CustomerID = [o].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ANATR (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_CustomerID = [o].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ANTON (Size = 450)
+                @"@_outer_CustomerID='ANTON' (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_CustomerID = [o].[CustomerID]",
                 //
-                @"@_outer_CustomerID: AROUT (Size = 450)
+                @"@_outer_CustomerID='AROUT' (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -517,37 +517,37 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 WHERE [o].[CustomerID] = N'ALFKI'",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
 WHERE @_outer_CustomerID = [o0].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
 WHERE @_outer_CustomerID = [o0].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
 WHERE @_outer_CustomerID = [o0].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
 WHERE @_outer_CustomerID = [o0].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
 WHERE @_outer_CustomerID = [o0].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
@@ -639,13 +639,13 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
 WHERE @_outer_CustomerID = [o0].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ANATR (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 450)
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
@@ -674,13 +674,13 @@ WHERE NOT EXISTS (
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_CustomerID = [o].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ANATR (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 450)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -828,13 +828,13 @@ WHERE (
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_CustomerID = [o].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ANATR (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 450)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -851,28 +851,28 @@ FROM [Customers] AS [e]
 WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) = N'A')
 ORDER BY [e].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT TOP(1) [e.Customer].[CustomerID], [e.Customer].[Address], [e.Customer].[City], [e.Customer].[CompanyName], [e.Customer].[ContactName], [e.Customer].[ContactTitle], [e.Customer].[Country], [e.Customer].[Fax], [e.Customer].[Phone], [e.Customer].[PostalCode], [e.Customer].[Region]
 FROM [Orders] AS [e0]
 LEFT JOIN [Customers] AS [e.Customer] ON [e0].[CustomerID] = [e.Customer].[CustomerID]
 WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011) AND (@_outer_CustomerID = [e0].[CustomerID])",
                 //
-                @"@_outer_CustomerID: ANATR (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 450)
 
 SELECT TOP(1) [e.Customer].[CustomerID], [e.Customer].[Address], [e.Customer].[City], [e.Customer].[CompanyName], [e.Customer].[ContactName], [e.Customer].[ContactTitle], [e.Customer].[Country], [e.Customer].[Fax], [e.Customer].[Phone], [e.Customer].[PostalCode], [e.Customer].[Region]
 FROM [Orders] AS [e0]
 LEFT JOIN [Customers] AS [e.Customer] ON [e0].[CustomerID] = [e.Customer].[CustomerID]
 WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011) AND (@_outer_CustomerID = [e0].[CustomerID])",
                 //
-                @"@_outer_CustomerID: ANTON (Size = 450)
+                @"@_outer_CustomerID='ANTON' (Size = 450)
 
 SELECT TOP(1) [e.Customer].[CustomerID], [e.Customer].[Address], [e.Customer].[City], [e.Customer].[CompanyName], [e.Customer].[ContactName], [e.Customer].[ContactTitle], [e.Customer].[Country], [e.Customer].[Fax], [e.Customer].[Phone], [e.Customer].[PostalCode], [e.Customer].[Region]
 FROM [Orders] AS [e0]
 LEFT JOIN [Customers] AS [e.Customer] ON [e0].[CustomerID] = [e.Customer].[CustomerID]
 WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011) AND (@_outer_CustomerID = [e0].[CustomerID])",
                 //
-                @"@_outer_CustomerID: AROUT (Size = 450)
+                @"@_outer_CustomerID='AROUT' (Size = 450)
 
 SELECT TOP(1) [e.Customer].[CustomerID], [e.Customer].[Address], [e.Customer].[City], [e.Customer].[CompanyName], [e.Customer].[ContactName], [e.Customer].[ContactTitle], [e.Customer].[Country], [e.Customer].[Fax], [e.Customer].[Phone], [e.Customer].[PostalCode], [e.Customer].[Region]
 FROM [Orders] AS [e0]
@@ -1056,7 +1056,7 @@ ORDER BY [c].[CustomerID]",
                 @"SELECT [o4].[OrderID]
 FROM [Orders] AS [o4]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT [o2].[OrderID]
 FROM [Orders] AS [o2]
@@ -1065,7 +1065,7 @@ WHERE @_outer_CustomerID = [o2].[CustomerID]",
                 @"SELECT [o4].[OrderID]
 FROM [Orders] AS [o4]",
                 //
-                @"@_outer_CustomerID: ANATR (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 450)
 
 SELECT [o2].[OrderID]
 FROM [Orders] AS [o2]
@@ -1158,28 +1158,28 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
 ORDER BY [c].[CustomerID]",
                 //
-                @"@_outer_CustomerID: ALFKI (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 450)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_CustomerID = [o].[CustomerID]
 ORDER BY [o].[OrderID]",
                 //
-                @"@_outer_CustomerID: ANATR (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 450)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_CustomerID = [o].[CustomerID]
 ORDER BY [o].[OrderID]",
                 //
-                @"@_outer_CustomerID: ANTON (Size = 450)
+                @"@_outer_CustomerID='ANTON' (Size = 450)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @_outer_CustomerID = [o].[CustomerID]
 ORDER BY [o].[OrderID]",
                 //
-                @"@_outer_CustomerID: AROUT (Size = 450)
+                @"@_outer_CustomerID='AROUT' (Size = 450)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -1192,7 +1192,7 @@ ORDER BY [o].[OrderID]");
             base.Project_single_scalar_value_subquery_in_query_with_optional_navigation_works();
 
             AssertSql(
-                @"@__p_0: 3
+                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [o].[OrderID], (
     SELECT TOP(1) [od].[OrderID]
