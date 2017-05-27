@@ -14,13 +14,55 @@
     "Kind": "Removal"
   },
   {
-    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ScaffoldingModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations",
-    "MemberId": "public virtual System.String get_UseProviderMethodName()",
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel : Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel : Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ForeignKeyColumnModel : Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ForeignKeyModel : Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.IndexColumnModel : Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.IndexModel : Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
     "Kind": "Removal"
   },
   {
     "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ScaffoldingModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations",
-    "MemberId": "public virtual System.Void set_UseProviderMethodName(System.String value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ScaffoldingPropertyAnnotations : Microsoft.EntityFrameworkCore.Metadata.RelationalPropertyAnnotations",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.SequenceModel : Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.Metadata.TableModel : Microsoft.EntityFrameworkCore.Infrastructure.Annotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldingTypeMapper",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.TypeScaffoldingInfo",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.Metadata.ScaffoldingMetadataExtensions",
     "Kind": "Removal"
   }
 ]

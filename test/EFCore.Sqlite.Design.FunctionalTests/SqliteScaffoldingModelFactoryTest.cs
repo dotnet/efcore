@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotNull(entityType);
             Assert.Equal("Column Types", entityType.Sqlite().TableName);
 
-            Assert.Equal("text", entityType.FindProperty("Col1").Sqlite().ColumnType);
+            Assert.Null(entityType.FindProperty("Col1").Sqlite().ColumnType);
             Assert.Equal(typeof(string), entityType.FindProperty("Col1").ClrType);
 
             Assert.Equal("unsigned big int", entityType.FindProperty("Col2").Sqlite().ColumnType);
