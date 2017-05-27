@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             bool keyOrIndex,
             bool rowVersion)
         {
-            Check.NotEmpty(storeType, nameof(storeType));
+            // This is because certain providers can have no type specified as a default type e.g. SQLite
+            Check.NotNull(storeType, nameof(storeType));
 
             var mapping = TypeMapper.FindMapping(storeType);
             if (mapping == null)

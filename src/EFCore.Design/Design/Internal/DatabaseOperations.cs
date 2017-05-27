@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             loggerFactory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, _reporter)));
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            var generator = services.GetRequiredService<DbContextScaffolder>();
+            var generator = services.GetRequiredService<ModelScaffolder>();
 
             return generator.GenerateAsync(
                 connectionString,

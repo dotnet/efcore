@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
             _factory = new FakeScaffoldingModelFactory(
                 new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
                     loggerFactory,
-                    new LoggingOptions(), 
+                    new LoggingOptions(),
                     new DiagnosticListener("Fake")));
         }
 
@@ -104,8 +104,7 @@ namespace Microsoft.EntityFrameworkCore
                             {
                                 Name = "salary",
                                 DataType = "long",
-                                IsNullable = true,
-                                MaxLength = 100
+                                IsNullable = true
                             },
                             new ColumnModel
                             {
@@ -169,7 +168,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal("Salary", col5.Name);
                         Assert.Equal(typeof(long?), col5.ClrType);
                         Assert.True(col5.IsColumnNullable());
-                        Assert.Equal(100, col5.GetMaxLength());
                         Assert.Null(col5.Relational().DefaultValue);
                     });
         }
@@ -905,7 +903,7 @@ namespace Microsoft.EntityFrameworkCore
             var factory = new FakeScaffoldingModelFactory(
                 new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
                     new TestDesignLoggerFactory(),
-                    new LoggingOptions(), 
+                    new LoggingOptions(),
                     new DiagnosticListener("Fake")),
                 new FakePluralizer());
 
@@ -1007,8 +1005,31 @@ namespace Microsoft.EntityFrameworkCore
                 new TestTypeMapper(new RelationalTypeMapperDependencies()),
                 new FakeDatabaseModelFactory(),
                 new CandidateNamingService(),
-                pluralizer)
+                pluralizer,
+                new FakeScaffoldingHelper())
         {
+        }
+    }
+
+    public class FakeScaffoldingHelper : IScaffoldingHelper
+    {
+        public string GetProviderOptionsBuilder(string connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        public TypeScaffoldingInfo GetTypeScaffoldingInfo(ColumnModel columnModel)
+        {
+            if (columnModel.DataType == null)
+            {
+                return null;
+            }
+
+            var dataType = columnModel.DataType + (columnModel.MaxLength.HasValue ? $"({columnModel.MaxLength.Value})" : "");
+
+            var scaffoldingTypeMapper = new ScaffoldingTypeMapper(new TestTypeMapper(new RelationalTypeMapperDependencies()));
+
+            return scaffoldingTypeMapper.FindMapping(dataType, keyOrIndex: false, rowVersion: false);
         }
     }
 

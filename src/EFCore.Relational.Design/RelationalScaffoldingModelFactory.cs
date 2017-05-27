@@ -36,13 +36,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         private readonly IDatabaseModelFactory _databaseModelFactory;
         private readonly HashSet<ColumnModel> _unmappedColumns = new HashSet<ColumnModel>();
         private readonly IPluralizer _pluralizer;
+        private readonly IScaffoldingHelper _scaffoldingHelper;
 
         public RelationalScaffoldingModelFactory(
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] CandidateNamingService candidateNamingService,
-            [NotNull] IPluralizer pluralizer)
+            [NotNull] IPluralizer pluralizer,
+            [NotNull] IScaffoldingHelper scaffoldingHelper)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(typeMapper, nameof(typeMapper));
@@ -55,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             CandidateNamingService = candidateNamingService;
             _databaseModelFactory = databaseModelFactory;
             _pluralizer = pluralizer;
+            _scaffoldingHelper = scaffoldingHelper;
         }
 
         public virtual IModel Create(string connectionString, TableSelectionSet tableSelectionSet)
@@ -281,16 +284,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(column, nameof(column));
 
-            var typeMapping = GetTypeMapping(column);
+            var typeScaffoldingInfo = _scaffoldingHelper.GetTypeScaffoldingInfo(column);
 
-            var clrType = typeMapping?.ClrType;
-            if (clrType == null)
+            if (typeScaffoldingInfo == null)
             {
                 _unmappedColumns.Add(column);
                 Logger.ColumnTypeNotMappedWarning(column.DisplayName, column.DataType);
                 return null;
             }
 
+            var clrType = typeScaffoldingInfo.ClrType;
             if (column.IsNullable)
             {
                 clrType = clrType.MakeNullable();
@@ -298,17 +301,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             var property = builder.Property(clrType, GetPropertyName(column));
 
-            if (TypeMapper.GetMapping(property.Metadata).StoreType != column.DataType
-                && !string.IsNullOrWhiteSpace(column.DataType))
+            property.HasColumnName(column.Name);
+
+            if (!typeScaffoldingInfo.IsInferred)
             {
                 property.HasColumnType(column.DataType);
             }
 
-            property.HasColumnName(column.Name);
-
-            if (column.MaxLength.HasValue)
+            if (typeScaffoldingInfo.ScaffoldUnicode == true)
             {
-                property.HasMaxLength(column.MaxLength.Value);
+                property.IsUnicode();
+            }
+
+            if (typeScaffoldingInfo.ScaffoldMaxLength.HasValue)
+            {
+                property.HasMaxLength(typeScaffoldingInfo.ScaffoldMaxLength.Value);
             }
 
             if (column.ValueGenerated == ValueGenerated.OnAdd)

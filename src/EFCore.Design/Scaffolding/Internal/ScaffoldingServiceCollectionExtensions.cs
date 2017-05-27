@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public static IServiceCollection AddScaffolding([NotNull] this IServiceCollection serviceCollection)
             => serviceCollection.AddSingleton<IFileService, FileSystemFileService>()
                 .AddSingleton<RelationalTypeMapperDependencies>()
-                .AddSingleton<DbContextScaffolder>()
+                .AddSingleton<ModelScaffolder>()
                 .AddSingleton<CandidateNamingService>()
                 .AddSingleton<IPluralizer, NullPluralizer>()
                 .AddSingleton<CSharpUtilities>()
@@ -34,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AddSingleton<ILoggingOptions, LoggingOptions>()
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Root))
-                .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>));
+                .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
+                .AddSingleton<ScaffoldingTypeMapper>();
     }
 }
