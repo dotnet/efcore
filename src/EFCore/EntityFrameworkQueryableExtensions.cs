@@ -2294,29 +2294,6 @@ namespace Microsoft.EntityFrameworkCore
                     : source);
 
         /// <summary>
-        ///     This method exists only for binary compatibility and is obsolete. Use
-        ///     <see
-        ///         cref="ThenInclude{TEntity,TPreviousProperty,TProperty}(IIncludableQueryable{TEntity,IEnumerable{TPreviousProperty}},Expression{System.Func{TPreviousProperty,TProperty}})" />
-        ///     instead.
-        /// </summary>
-        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
-        /// <typeparam name="TPreviousProperty"> The type of the entity that was just included. </typeparam>
-        /// <typeparam name="TProperty"> The type of the related entity to be included. </typeparam>
-        /// <param name="source"> The source query. </param>
-        /// <param name="navigationPropertyPath">
-        ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>).
-        /// </param>
-        /// <returns>
-        ///     A new query with the related data included.
-        /// </returns>
-        [Obsolete(message: "Use overload that takes an IEnumerable<> navigation property instead.")]
-        public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
-            [NotNull] IIncludableQueryable<TEntity, ICollection<TPreviousProperty>> source,
-            [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
-            where TEntity : class
-            => ThenInclude((IIncludableQueryable<TEntity, IEnumerable<TPreviousProperty>>)source, navigationPropertyPath);
-
-        /// <summary>
         ///     Specifies additional related data to be further included based on a related type that was just included.
         /// </summary>
         /// <example>

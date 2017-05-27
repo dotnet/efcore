@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -69,10 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 DbCommandMethod.ExecuteNonQuery,
                 parameterValues);
 
-        int IRelationalCommand.ExecuteNonQuery(
-            IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
-            => ExecuteNonQuery(connection, parameterValues);
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -87,10 +82,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 parameterValues,
                 cancellationToken: cancellationToken).Cast<object, int>();
 
-        Task<int> IRelationalCommand.ExecuteNonQueryAsync(
-            IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
-            => ExecuteNonQueryAsync(connection, parameterValues, cancellationToken);
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -102,9 +93,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteScalar,
                 parameterValues);
-
-        object IRelationalCommand.ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
-            => ExecuteScalar(connection, parameterValues);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -120,10 +108,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 parameterValues,
                 cancellationToken: cancellationToken);
 
-        Task<object> IRelationalCommand.ExecuteScalarAsync(
-            IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
-            => ExecuteScalarAsync(connection, parameterValues, cancellationToken);
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -136,10 +120,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 DbCommandMethod.ExecuteReader,
                 parameterValues,
                 closeConnection: false);
-
-        RelationalDataReader IRelationalCommand.ExecuteReader(
-            IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection)
-            => ExecuteReader(connection, parameterValues);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -155,10 +135,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 parameterValues,
                 closeConnection: false,
                 cancellationToken: cancellationToken).Cast<object, RelationalDataReader>();
-
-        Task<RelationalDataReader> IRelationalCommand.ExecuteReaderAsync(
-            IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, bool manageConnection, CancellationToken cancellationToken)
-            => ExecuteReaderAsync(connection, parameterValues, cancellationToken);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

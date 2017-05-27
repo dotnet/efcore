@@ -246,8 +246,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, p => new PropertyAccessorsFactory().Create(p));
 
         ITypeBase IPropertyBase.DeclaringType => DeclaringType;
-
-        [Obsolete("Use DeclaringType, IProperty.DeclaringEntityType, or INavigation.DeclaringEntityType.")]
-        IEntityType IPropertyBase.DeclaringEntityType => (IEntityType)DeclaringType;
     }
 }
