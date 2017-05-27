@@ -2226,9 +2226,6 @@ namespace Microsoft.EntityFrameworkCore
         internal static readonly MethodInfo ThenIncludeAfterEnumerableMethodInfo
             = GetThenIncludeMethodInfo(typeof(IEnumerable<>));
 
-        internal static readonly MethodInfo ThenIncludeAfterCollectionMethodInfo
-            = GetThenIncludeMethodInfo(typeof(ICollection<>));
-
         private static MethodInfo GetThenIncludeMethodInfo(Type navType)
             => typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
