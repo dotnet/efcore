@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -45,14 +46,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(accessor, nameof(accessor));
 
-            var service = accessor.Instance.GetService<TService>();
+            var internalServiceProvider = accessor.Instance;
+
+            var service = internalServiceProvider.GetService(typeof(TService))
+                          ?? internalServiceProvider.GetService<IDbContextOptions>()
+                              ?.Extensions.OfType<CoreOptionsExtension>().FirstOrDefault()
+                              ?.ApplicationServiceProvider
+                              ?.GetService(typeof(TService));
+
             if (service == null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(TService).DisplayName()));
             }
 
-            return service;
+            return (TService)service;
         }
 
         /// <summary>

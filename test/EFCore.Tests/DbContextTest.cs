@@ -2736,14 +2736,20 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        private class SomeAppService
+        {
+        }
+
         [Fact]
         public void Can_add_derived_context_with_options()
         {
             var appServiceProivder = new ServiceCollection()
                 .AddDbContext<ConstructorTestContextWithOC3A>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                .AddSingleton<SomeAppService>()
                 .BuildServiceProvider();
 
             var singleton = new object[4];
+            SomeAppService appSingleton;
 
             using (var serviceScope = appServiceProivder
                 .GetRequiredService<IServiceScopeFactory>()
@@ -2757,6 +2763,11 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
 
                 Assert.NotNull(context.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>());
+
+                appSingleton = context.GetService<SomeAppService>();
+                Assert.NotNull(appSingleton);
+
+                Assert.Same(appSingleton, serviceScope.ServiceProvider.GetService<SomeAppService>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -2769,6 +2780,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+
+                Assert.Same(appSingleton, context.GetService<SomeAppService>());
+                Assert.Same(appSingleton, serviceScope.ServiceProvider.GetService<SomeAppService>());
             }
         }
 

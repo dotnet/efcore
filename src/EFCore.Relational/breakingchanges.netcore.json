@@ -863,7 +863,6 @@
       "MemberId": "public virtual System.Int32 AddToProjection(Microsoft.EntityFrameworkCore.Query.Expressions.AliasExpression aliasExpression)",
       "Kind": "Removal"
     },
-  Successfully created package 'C:\aspnet\EntityFramework/artifacts\build\Microsoft.EntityFrameworkCore.SqlServer.Design.2.0.0-preview2-t004850761.nupkg'.
     {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
       "MemberId": "public virtual System.Int32 AddToProjection(Microsoft.EntityFrameworkCore.Query.Expressions.ColumnExpression columnExpression)",
