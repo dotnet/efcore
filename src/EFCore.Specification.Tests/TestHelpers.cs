@@ -87,7 +87,9 @@ namespace Microsoft.EntityFrameworkCore
                 .ToList();
 
             var declaredMethods = loggerExtensionsType.GetTypeInfo()
-                .DeclaredMethods.OrderBy(e => e.Name)
+                .DeclaredMethods
+                .Where(m => m.IsPublic)
+                .OrderBy(e => e.Name)
                 .ToList();
 
             var loggerMethods = declaredMethods
@@ -150,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         testLogger.EnabledFor = logLevel;
                         testLogger.LoggedAt = null;
-                        testDiagnostics.Logged = null;
+                        testDiagnostics.LoggedEventName = null;
 
                         loggerMethod.Invoke(null, args);
 
@@ -162,11 +164,15 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (enableFor == eventId.Name)
                         {
-                            Assert.Equal(eventId.Name, testDiagnostics.Logged);
+                            Assert.Equal(eventId.Name, testDiagnostics.LoggedEventName);
+                            if (testDiagnostics.LoggedMessage != null)
+                            {
+                                Assert.Equal(testLogger.Message, testDiagnostics.LoggedMessage);
+                            }
                         }
                         else
                         {
-                            Assert.Null(testDiagnostics.Logged);
+                            Assert.Null(testDiagnostics.LoggedEventName);
                         }
                     }
 
@@ -178,10 +184,9 @@ namespace Microsoft.EntityFrameworkCore
         private class TestLoggerBase
         {
             public LogLevel EnabledFor { get; set; }
-
             public LogLevel? LoggedAt { get; set; }
-
             public EventId LoggedEvent { get; set; }
+            public string Message { get; set; }
 
             public DiagnosticSource DiagnosticSource { get; } = new TestDiagnosticSource();
         }
@@ -205,6 +210,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 LoggedAt = logLevel;
                 Assert.Equal(LoggedEvent, eventId);
+                Message = formatter(state, exception);
             }
 
             public bool ShouldLogSensitiveData() => false;
@@ -215,11 +221,13 @@ namespace Microsoft.EntityFrameworkCore
         private class TestDiagnosticSource : DiagnosticSource
         {
             public string EnableFor { get; set; }
-            public string Logged { get; set; }
+            public string LoggedEventName { get; set; }
+            public string LoggedMessage { get; set; }
 
             public override void Write(string name, object value)
             {
-                Logged = name;
+                LoggedEventName = name;
+                LoggedMessage = (value as EventDataBase)?.ToString();
             }
 
             public override bool IsEnabled(string name) => name == EnableFor;

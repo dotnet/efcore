@@ -16,6 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
+        /// <param name="eventDefinition"> The event definition. </param>
+        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="command">
         ///     The <see cref="DbCommand" /> that was executing when it failed.
         /// </param>
@@ -34,6 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="async">
         ///     Indicates whether or not the command was executed asyncronously.
         /// </param>
+        /// <param name="logParameterValues">
+        ///     Indicates whether or not the application allows logging of parameter values.
+        /// </param>
         /// <param name="startTime">
         ///     The start time of this event.
         /// </param>
@@ -41,15 +46,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The duration this event.
         /// </param>
         public CommandErrorEventData(
+            [NotNull] EventDefinitionBase eventDefinition,
+            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
             [NotNull] DbCommand command,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
             [NotNull] Exception exception,
             bool async,
+            bool logParameterValues,
             DateTimeOffset startTime,
             TimeSpan duration)
-            : base(command, executeMethod, commandId, connectionId, async, startTime, duration) 
+            : base(eventDefinition, messageGenerator, command, executeMethod, commandId, connectionId, async, logParameterValues, startTime, duration) 
             => Exception = exception;
 
         /// <summary>

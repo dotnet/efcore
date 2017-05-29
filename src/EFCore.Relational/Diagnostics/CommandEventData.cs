@@ -5,7 +5,6 @@ using System;
 using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -13,11 +12,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload for
     ///     <see cref="RelationalEventId" /> command events.
     /// </summary>
-    public class CommandEventData
+    public class CommandEventData : EventDataBase
     {
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
+        /// <param name="eventDefinition"> The event definition. </param>
+        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="command">
         ///     The <see cref="DbCommand" />.
         /// </param>
@@ -33,22 +34,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="async">
         ///     Indicates whether or not the command was executed asyncronously.
         /// </param>
+        /// <param name="logParameterValues">
+        ///     Indicates whether or not the application allows logging of parameter values.
+        /// </param>
         /// <param name="startTime">
         ///     The start time of this event.
         /// </param>
         public CommandEventData(
+            [NotNull] EventDefinitionBase eventDefinition,
+            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
             [NotNull] DbCommand command,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
             bool async,
+            bool logParameterValues,
             DateTimeOffset startTime)
+            : base(eventDefinition, messageGenerator)
         {
             Command = command;
             CommandId = commandId;
             ConnectionId = connectionId;
             ExecuteMethod = executeMethod;
             IsAsync = async;
+            LogParameterValues = logParameterValues;
             StartTime = startTime;
         }
 
@@ -76,6 +85,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Indicates whether or not the operation is being executed asyncronously.
         /// </summary>
         public virtual bool IsAsync { get; }
+
+        /// <summary>
+        ///     Indicates whether or not the application allows logging of parameter values.
+        /// </summary>
+        public virtual bool LogParameterValues { get; }
 
         /// <summary>
         ///     The start time of this event.

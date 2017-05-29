@@ -12,11 +12,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload base class for
     ///     <see cref="RelationalEventId" /> connection events.
     /// </summary>
-    public class ConnectionEventData
+    public class ConnectionEventData : EventDataBase
     {
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
+        /// <param name="eventDefinition"> The event definition. </param>
+        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="connection">
         ///     The <see cref="DbConnection" />.
         /// </param>
@@ -30,10 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The start time of this event.
         /// </param>
         public ConnectionEventData(
+            [NotNull] EventDefinitionBase eventDefinition,
+            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
             [NotNull] DbConnection connection,
             Guid connectionId,
             bool async,
             DateTimeOffset startTime)
+            : base(eventDefinition, messageGenerator)
         {
             Connection = connection;
             ConnectionId = connectionId;

@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (Exception exception)
             {
-                _updateLogger.SaveChangesFailed(GetType(), exception);
+                _updateLogger.SaveChangesFailed(this, exception);
 
                 throw;
             }
@@ -407,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (Exception exception)
             {
-                _updateLogger.SaveChangesFailed(GetType(), exception);
+                _updateLogger.SaveChangesFailed(this, exception);
 
                 throw;
             }

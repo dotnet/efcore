@@ -45,92 +45,197 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static EventId MakeMigrationsId(Id id) => new EventId((int)id, _migrationsPrefix + id);
 
         /// <summary>
-        ///     Removing a migration without checking the database.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         Removing a migration without checking the database.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="MigrationDesignEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId MigrationForceRemove = MakeMigrationsId(Id.MigrationForceRemove);
 
         /// <summary>
-        ///     Removing migration.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         Removing migration.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="MigrationDesignEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId MigrationRemoving = MakeMigrationsId(Id.MigrationRemoving);
 
         /// <summary>
-        ///     A migration file was not found.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         A migration file was not found.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="MigrationFileNameEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId MigrationFileNotFound = MakeMigrationsId(Id.MigrationFileNotFound);
 
         /// <summary>
-        ///     A metadata file was not found.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         A metadata file was not found.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="MigrationFileNameEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId MigrationMetadataFileNotFound = MakeMigrationsId(Id.MigrationMetadataFileNotFound);
 
         /// <summary>
-        ///     A manual migration deletion was detected.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         A manual migration deletion was detected.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="MigrationDesignEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId MigrationManuallyDeleted = MakeMigrationsId(Id.MigrationManuallyDeleted);
 
         /// <summary>
-        ///     Removing model snapshot.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         Removing model snapshot.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ModelSnapshotFileNameEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId SnapshotRemoving = MakeMigrationsId(Id.SnapshotRemoving);
 
         /// <summary>
-        ///     No model snapshot file named was found.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         No model snapshot file named was found.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ModelSnapshotFileNameEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId SnapshotFileNotFound = MakeMigrationsId(Id.SnapshotFileNotFound);
 
         /// <summary>
-        ///     Writing model snapshot to file.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         Writing model snapshot to file.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ScaffoldedMigrationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId SnapshotWriting = MakeMigrationsId(Id.SnapshotWriting);
 
         /// <summary>
-        ///     Reusing namespace of a type.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         Reusing namespace of a type.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ResourceReusedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId NamespaceReusing = MakeMigrationsId(Id.NamespaceReusing);
 
         /// <summary>
-        ///     Reusing directory for a file.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         Reusing directory for a file.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ResourceReusedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId DirectoryReusing = MakeMigrationsId(Id.DirectoryReusing);
 
         /// <summary>
-        ///     Reverting model snapshot.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         Reverting model snapshot.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ModelSnapshotFileNameEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId SnapshotReverting = MakeMigrationsId(Id.SnapshotReverting);
 
         /// <summary>
-        ///     Writing migration to file.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         Writing migration to file.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ScaffoldedMigrationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId MigrationWriting = MakeMigrationsId(Id.MigrationWriting);
 
         /// <summary>
-        ///     Resuing model snapshot name.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         Resuing model snapshot name.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="SnapshotNameEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId SnapshotNameReusing = MakeMigrationsId(Id.SnapshotNameReusing);
 
         /// <summary>
-        ///     An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="MigrationOperationsEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId DestructiveOperation = MakeMigrationsId(Id.DestructiveOperation);
 
         /// <summary>
-        ///     The namespace contains migrations for a different context.
-        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     <para>
+        ///         The namespace contains migrations for a different context.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="NamespaceEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId ForeignMigrations = MakeMigrationsId(Id.ForeignMigrations);
     }

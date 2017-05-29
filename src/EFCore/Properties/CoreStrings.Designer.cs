@@ -851,18 +851,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 referencingEntityTypeOrNavigation, referencedEntityTypeOrNavigation, foreignKeyPropertiesWithTypes, primaryKeyPropertiesWithTypes);
 
         /// <summary>
-        ///     The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties}.
-        /// </summary>
-        public static readonly EventDefinition<string, string, string> LogShadowKey
-            = new EventDefinition<string, string, string>(
-                CoreEventId.ModelValidationShadowKeyWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.ModelValidationShadowKeyWarning,
-                    _resourceManager.GetString("LogShadowKey")));
-
-        /// <summary>
         ///     An exception was thrown while attempting to evaluate a LINQ query parameter expression. To show additional information call EnableSensitiveDataLogging() when overriding DbContext.OnConfiguring.
         /// </summary>
         public static string ExpressionParameterizationException

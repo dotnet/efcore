@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -38,11 +37,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        MigrationNamespace = migrationNamespace
-                    });
+                    new NamespaceEventData(
+                        definition,
+                        ForeignMigrations,
+                        migrationNamespace));
             }
+        }
+
+        private static string ForeignMigrations(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (NamespaceEventData)payload;
+            return d.GenerateMessage(p.Namespace);
         }
 
         /// <summary>
@@ -63,11 +69,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        LastModelSnapshotName = lastModelSnapshotName
-                    });
+                    new SnapshotNameEventData(
+                        definition,
+                        SnapshotNameReusing,
+                        lastModelSnapshotName));
             }
+        }
+
+        private static string SnapshotNameReusing(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (SnapshotNameEventData)payload;
+            return d.GenerateMessage(p.SnapshotName);
         }
 
         /// <summary>
@@ -86,10 +99,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Operations = (ICollection<MigrationOperation>)operations.ToList()
-                    });
+                    new MigrationOperationsEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
+                        operations));
             }
         }
 
@@ -115,11 +128,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Migration = migration
-                    });
+                    new MigrationDesignEventData(
+                        definition,
+                        MigrationForceRemove,
+                        migration));
             }
+        }
+
+        private static string MigrationForceRemove(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (MigrationDesignEventData)payload;
+            return d.GenerateMessage(p.Migration.GetId());
         }
 
         /// <summary>
@@ -144,11 +164,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Migration = migration
-                    });
+                    new MigrationDesignEventData(
+                        definition,
+                        MigrationRemoving,
+                        migration));
             }
+        }
+
+        private static string MigrationRemoving(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (MigrationDesignEventData)payload;
+            return d.GenerateMessage(p.Migration.GetId());
         }
 
         /// <summary>
@@ -175,12 +202,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Migration = migration,
-                        FileName = fileName
-                    });
+                    new MigrationFileNameEventData(
+                        definition,
+                        MigrationFileNotFound,
+                        migration,
+                        fileName));
             }
+        }
+
+        private static string MigrationFileNotFound(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (MigrationFileNameEventData)payload;
+            return d.GenerateMessage(p.FileName, p.Migration.GetType().ShortDisplayName());
         }
 
         /// <summary>
@@ -200,12 +234,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Migration = migration,
-                        FileName = fileName
-                    });
+                    new MigrationFileNameEventData(
+                        definition,
+                        MigrationMetadataFileNotFound,
+                        migration,
+                        fileName));
             }
+        }
+
+        private static string MigrationMetadataFileNotFound(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (MigrationFileNameEventData)payload;
+            return d.GenerateMessage(p.FileName);
         }
 
         /// <summary>
@@ -224,10 +265,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Migration = migration
-                    });
+                    new MigrationDesignEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
+                        migration));
             }
         }
 
@@ -248,11 +289,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        ModelSnapshot = modelSnapshot,
-                        FileName = fileName
-                    });
+                    new ModelSnapshotFileNameEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
+                        modelSnapshot,
+                        fileName));
             }
         }
 
@@ -280,12 +321,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        ModelSnapshot = modelSnapshot,
-                        FileName = fileName
-                    });
+                    new ModelSnapshotFileNameEventData(
+                        definition,
+                        SnapshotFileNotFound,
+                        modelSnapshot,
+                        fileName));
             }
+        }
+
+        private static string SnapshotFileNotFound(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ModelSnapshotFileNameEventData)payload;
+            return d.GenerateMessage(p.FileName, p.Snapshot.GetType().ShortDisplayName());
         }
 
         /// <summary>
@@ -305,11 +353,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        ModelSnapshot = modelSnapshot,
-                        FileName = fileName
-                    });
+                    new ModelSnapshotFileNameEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
+                        modelSnapshot,
+                        fileName));
             }
         }
 
@@ -330,12 +378,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        ScaffoldedMigration = scaffoldedMigration,
-                        FileName = fileName
-                    });
+                    new ScaffoldedMigrationEventData(
+                        definition,
+                        MigrationWriting,
+                        scaffoldedMigration,
+                        fileName));
             }
+        }
+
+        private static string MigrationWriting(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (ScaffoldedMigrationEventData)payload;
+            return d.GenerateMessage(p.FileName);
         }
 
         /// <summary>
@@ -355,12 +410,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        ScaffoldedMigration = scaffoldedMigration,
-                        FileName = fileName
-                    });
+                    new ScaffoldedMigrationEventData(
+                        definition,
+                        SnapshotWriting,
+                        scaffoldedMigration,
+                        fileName));
             }
+        }
+
+        private static string SnapshotWriting(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (ScaffoldedMigrationEventData)payload;
+            return d.GenerateMessage(p.FileName);
         }
 
         /// <summary>
@@ -383,11 +445,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Type = type
-                    });
+                    new ResourceReusedEventData(
+                        definition,
+                        NamespaceReusing,
+                        type.ShortDisplayName()));
             }
+        }
+
+        private static string NamespaceReusing(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (ResourceReusedEventData)payload;
+            return d.GenerateMessage(p.ResourceName);
         }
 
         /// <summary>
@@ -406,11 +475,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        FileName = fileName
-                    });
+                    new ResourceReusedEventData(
+                        definition,
+                        DirectoryReusing,
+                        fileName));
             }
+        }
+
+        private static string DirectoryReusing(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (ResourceReusedEventData)payload;
+            return d.GenerateMessage(p.ResourceName);
         }
     }
 }

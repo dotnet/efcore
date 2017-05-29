@@ -11,11 +11,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// <summary>
     ///     <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.DataReaderDisposing" />.
     /// </summary>
-    public class DataReaderDisposingEventData
+    public class DataReaderDisposingEventData : EventDataBase
     {
         /// <summary>
         ///     Constructs a <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.DataReaderDisposing" />.
         /// </summary>
+        /// <param name="eventDefinition"> The event definition. </param>
+        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="command">
         ///     The <see cref="DbCommand" /> that created the reader.
         /// </param>
@@ -38,6 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The duration this event.
         /// </param>
         public DataReaderDisposingEventData(
+            [NotNull] EventDefinitionBase eventDefinition,
+            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
             [NotNull] DbCommand command,
             [NotNull] DbDataReader dataReader,
             Guid commandId,
@@ -45,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             int recordsAffected,
             DateTimeOffset startTime,
             TimeSpan duration)
+            : base(eventDefinition, messageGenerator)
         {
             Command = command;
             DataReader = dataReader;

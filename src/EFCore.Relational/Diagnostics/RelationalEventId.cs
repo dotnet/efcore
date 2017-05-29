@@ -357,6 +357,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="QueryModelExpressionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId QueryClientEvaluationWarning = MakeQueryId(Id.QueryClientEvaluationWarning);
 
@@ -366,6 +369,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="BinaryExpressionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
         public static readonly EventId QueryPossibleUnintendedUseOfEqualsWarning = MakeQueryId(Id.QueryPossibleUnintendedUseOfEqualsWarning);
@@ -379,6 +385,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
         public static readonly EventId ModelValidationKeyDefaultValueWarning = MakeValidationId(Id.ModelValidationKeyDefaultValueWarning);

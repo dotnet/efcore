@@ -17,6 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
+        /// <param name="eventDefinition"> The event definition. </param>
+        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="connection">
         ///     The <see cref="DbConnection" />.
         /// </param>
@@ -33,12 +35,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The duration this event.
         /// </param>
         public ConnectionEndEventData(
+            [NotNull] EventDefinitionBase eventDefinition,
+            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
             [NotNull] DbConnection connection,
             Guid connectionId,
             bool async,
             DateTimeOffset startTime,
             TimeSpan duration)
-            : base(connection, connectionId, async, startTime)
+            : base(eventDefinition, messageGenerator, connection, connectionId, async, startTime)
             => Duration = duration;
 
         /// <summary>

@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
                 { typeof(Type), () => typeof(object) },
+                { typeof(DbContext), () => new DbContext(new DbContextOptionsBuilder().UseInMemoryDatabase("D").Options) },
                 { typeof(QueryModel), () => queryModel },
                 { typeof(string), () => "Fake" },
                 { typeof(IExpressionPrinter), () => new ExpressionPrinter() },

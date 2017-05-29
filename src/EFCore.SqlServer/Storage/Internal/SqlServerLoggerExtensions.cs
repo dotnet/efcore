@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -35,11 +34,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Property = property
-                    });
+                    new PropertyEventData(
+                        definition,
+                        DecimalTypeDefaultWarning,
+                        property));
             }
+        }
+
+        private static string DecimalTypeDefaultWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (PropertyEventData)payload;
+            return d.GenerateMessage(
+                p.Property.Name,
+                p.Property.DeclaringEntityType.DisplayName());
         }
 
         /// <summary>
@@ -62,11 +70,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Property = property
-                    });
+                    new PropertyEventData(
+                        definition,
+                        ByteIdentityColumnWarning,
+                        property));
             }
+        }
+
+        private static string ByteIdentityColumnWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (PropertyEventData)payload;
+            return d.GenerateMessage(
+                p.Property.Name,
+                p.Property.DeclaringEntityType.DisplayName());
         }
     }
 }

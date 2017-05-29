@@ -32,14 +32,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);
 
         /// <summary>
-        ///     No explicit type for a decimal column.
-        ///     This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     <para>
+        ///         No explicit type for a decimal column.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId DecimalTypeDefaultWarning = MakeValidationId(Id.DecimalTypeDefaultWarning);
 
         /// <summary>
-        ///     A byte property is set up to use a SQL Server identity column.
-        ///     This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     <para>
+        ///         A byte property is set up to use a SQL Server identity column.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId ByteIdentityColumnWarning = MakeValidationId(Id.ByteIdentityColumnWarning);
     }

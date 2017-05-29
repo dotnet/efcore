@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
+        /// <param name="eventDefinition"> The event definition. </param>
+        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="transaction">
         ///     The <see cref="DbTransaction" />.
         /// </param>
@@ -36,6 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The duration this event.
         /// </param>
         public TransactionErrorEventData(
+            [NotNull] EventDefinitionBase eventDefinition,
+            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
             Guid connectionId,
@@ -43,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Exception exception,
             DateTimeOffset startTime,
             TimeSpan duration)
-            : base(transaction, transactionId, connectionId, startTime, duration)
+            : base(eventDefinition, messageGenerator, transaction, transactionId, connectionId, startTime, duration)
         {
             Action = action;
             Exception = exception;

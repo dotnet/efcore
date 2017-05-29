@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Update;
 
 // ReSharper disable once CheckNamespace
@@ -29,7 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, null);
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name, 
+                    new EventDataBase(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage()));
             }
         }
 
@@ -50,12 +53,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Entries = entries,
-                        RowsAffected = rowsAffected
-                    });
+                    new SaveChangesEventData(
+                        definition,
+                        ChangesSaved,
+                        entries,
+                        rowsAffected));
             }
+        }
+
+        private static string ChangesSaved(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<int>)definition;
+            var p = (SaveChangesEventData)payload;
+            return d.GenerateMessage(p.RowsAffected);
         }
     }
 }

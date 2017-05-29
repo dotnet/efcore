@@ -34,8 +34,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static EventId MakeTransactionId(Id id) => new EventId((int)id, _transactionPrefix + id);
 
         /// <summary>
-        ///     Changes were saved to the database.
-        ///     This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     <para>
+        ///         Changes were saved to the database.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="EventDataBase" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId TransactionIgnoredWarning = MakeTransactionId(Id.TransactionIgnoredWarning);
 
@@ -43,8 +50,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static EventId MakeUpdateId(Id id) => new EventId((int)id, _updatePrefix + id);
 
         /// <summary>
-        ///     A transaction operation was requested, but ignored because in-memory does not support transactions.
-        ///     This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     <para>
+        ///         A transaction operation was requested, but ignored because in-memory does not support transactions.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="SaveChangesEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId ChangesSaved = MakeUpdateId(Id.ChangesSaved);
     }

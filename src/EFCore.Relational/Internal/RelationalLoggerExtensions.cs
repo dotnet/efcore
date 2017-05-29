@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -56,13 +56,28 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new CommandEventData(
+                        definition,
+                        CommandExecuting,
                         command,
                         executeMethod,
                         commandId,
                         connectionId,
                         async,
+                        ShouldLogParameterValues(diagnostics, command),
                         startTime));
             }
+        }
+
+        private static string CommandExecuting(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, CommandType, int, string, string>)definition;
+            var p = (CommandEventData)payload;
+            return d.GenerateMessage(
+                p.Command.Parameters.FormatParameters(p.LogParameterValues),
+                p.Command.CommandType,
+                p.Command.CommandTimeout,
+                Environment.NewLine,
+                p.Command.CommandText.TrimEnd());
         }
 
         private static bool ShouldLogParameterValues(
@@ -106,15 +121,31 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new CommandExecutedEventData(
+                        definition,
+                        CommandExecuted,
                         command,
                         executeMethod,
                         commandId,
                         connectionId,
                         methodResult,
                         async,
+                        ShouldLogParameterValues(diagnostics, command),
                         startTime,
                         duration));
             }
+        }
+
+        private static string CommandExecuted(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string, CommandType, int, string, string>)definition;
+            var p = (CommandExecutedEventData)payload;
+            return d.GenerateMessage(
+                string.Format(CultureInfo.InvariantCulture, "{0:N0}", p.Duration.Milliseconds),
+                p.Command.Parameters.FormatParameters(p.LogParameterValues),
+                p.Command.CommandType,
+                p.Command.CommandTimeout,
+                Environment.NewLine,
+                p.Command.CommandText.TrimEnd());
         }
 
         /// <summary>
@@ -153,15 +184,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new CommandErrorEventData(
+                        definition,
+                        CommandError,
                         command,
                         executeMethod,
                         commandId,
                         connectionId,
                         exception,
                         async,
+                        ShouldLogParameterValues(diagnostics, command),
                         startTime,
                         duration));
             }
+        }
+
+        private static string CommandError(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string, CommandType, int, string, string>)definition;
+            var p = (CommandErrorEventData)payload;
+            return d.GenerateMessage(
+                string.Format(CultureInfo.InvariantCulture, "{0:N0}", p.Duration.Milliseconds),
+                p.Command.Parameters.FormatParameters(p.LogParameterValues),
+                p.Command.CommandType,
+                p.Command.CommandTimeout,
+                Environment.NewLine,
+                p.Command.CommandText.TrimEnd(),
+                p.Exception);
         }
 
         /// <summary>
@@ -190,11 +238,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new ConnectionEventData(
+                        definition,
+                        ConnectionOpening,
                         connection.DbConnection, 
                         connection.ConnectionId, 
                         async, 
                         startTime));
             }
+        }
+
+        private static string ConnectionOpening(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ConnectionEventData)payload;
+            return d.GenerateMessage(
+                p.Connection.Database,
+                p.Connection.DataSource);
         }
 
         /// <summary>
@@ -224,12 +283,23 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new ConnectionEndEventData(
+                        definition,
+                        ConnectionOpened,
                         connection.DbConnection,
                         connection.ConnectionId,
                         async,
                         startTime,
                         duration));
             }
+        }
+
+        private static string ConnectionOpened(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ConnectionEndEventData)payload;
+            return d.GenerateMessage(
+                p.Connection.Database,
+                p.Connection.DataSource);
         }
 
         /// <summary>
@@ -257,11 +327,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new ConnectionEventData(
+                        definition,
+                        ConnectionClosing,
                         connection.DbConnection,
                         connection.ConnectionId,
                         false,
                         startTime));
             }
+        }
+
+        private static string ConnectionClosing(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ConnectionEventData)payload;
+            return d.GenerateMessage(
+                p.Connection.Database,
+                p.Connection.DataSource);
         }
 
         /// <summary>
@@ -290,12 +371,23 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new ConnectionEndEventData(
+                        definition,
+                        ConnectionClosed,
                         connection.DbConnection,
                         connection.ConnectionId,
                         false,
                         startTime,
                         duration));
             }
+        }
+
+        private static string ConnectionClosed(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ConnectionEndEventData)payload;
+            return d.GenerateMessage(
+                p.Connection.Database,
+                p.Connection.DataSource);
         }
 
         /// <summary>
@@ -327,6 +419,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new ConnectionErrorEventData(
+                        definition,
+                        ConnectionError,
                         connection.DbConnection,
                         connection.ConnectionId,
                         exception,
@@ -334,6 +428,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         startTime,
                         duration));
             }
+        }
+
+        private static string ConnectionError(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ConnectionErrorEventData)payload;
+            return d.GenerateMessage(
+                p.Connection.Database,
+                p.Connection.DataSource);
         }
 
         /// <summary>
@@ -358,11 +461,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new TransactionEventData(
+                        definition,
+                        TransactionStarted,
                         transaction,
                         transactionId,
                         connection.ConnectionId,
                         startDate));
             }
+        }
+
+        private static string TransactionStarted(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (TransactionEventData)payload;
+            return d.GenerateMessage(
+                p.Transaction.IsolationLevel.ToString("G"));
         }
 
         /// <summary>
@@ -387,11 +500,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new TransactionEventData(
+                        definition,
+                        TransactionUsed,
                         transaction,
                         transactionId,
                         connection.ConnectionId,
                         startDate));
             }
+        }
+
+        private static string TransactionUsed(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (TransactionEventData)payload;
+            return d.GenerateMessage(
+                p.Transaction.IsolationLevel.ToString("G"));
         }
 
         /// <summary>
@@ -415,6 +538,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new TransactionEndEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
                         transaction,
                         transactionId,
                         connection.ConnectionId,
@@ -444,6 +569,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new TransactionEndEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
                         transaction,
                         transactionId,
                         connection.ConnectionId,
@@ -472,6 +599,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new TransactionEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
                         transaction,
                         transactionId,
                         connection.ConnectionId,
@@ -502,6 +631,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new TransactionErrorEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
                         transaction,
                         connection.ConnectionId,
                         transactionId,
@@ -530,6 +661,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new ConnectionEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
                         connection.DbConnection,
                         connection.ConnectionId,
                         false,
@@ -560,6 +693,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new DataReaderDisposingEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
                         command,
                         dataReader,
                         commandId,
@@ -597,10 +732,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new MigratorConnectionEventData(
+                        definition,
+                        MigrateUsingConnection,
                         migrator,
                         connection.DbConnection,
                         connection.ConnectionId));
             }
+        }
+
+        private static string MigrateUsingConnection(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (MigratorConnectionEventData)payload;
+            return d.GenerateMessage(
+                p.Connection.Database,
+                p.Connection.DataSource);
         }
 
         /// <summary>
@@ -627,9 +773,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new MigrationEventData(
+                        definition,
+                        MigrationReverting,
                         migrator,
                         migration));
             }
+        }
+
+        private static string MigrationReverting(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (MigrationEventData)payload;
+            return d.GenerateMessage(p.Migration.GetId());
         }
 
         /// <summary>
@@ -656,9 +811,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new MigrationEventData(
+                        definition,
+                        MigrationApplying,
                         migrator,
                         migration));
             }
+        }
+
+        private static string MigrationApplying(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (MigrationEventData)payload;
+            return d.GenerateMessage(p.Migration.GetId());
         }
 
         /// <summary>
@@ -688,12 +852,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new MigrationScriptingEventData(
+                        definition,
+                        MigrationGeneratingDownScript,
                         migrator,
                         migration,
                         fromMigration,
                         toMigration,
                         idempotent));
             }
+        }
+
+        private static string MigrationGeneratingDownScript(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (MigrationScriptingEventData)payload;
+            return d.GenerateMessage(p.Migration.GetId());
         }
 
         /// <summary>
@@ -723,12 +896,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
                     new MigrationScriptingEventData(
+                        definition,
+                        MigrationGeneratingUpScript,
                         migrator,
                         migration,
                         fromMigration,
                         toMigration,
                         idempotent));
             }
+        }
+
+        private static string MigrationGeneratingUpScript(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (MigrationScriptingEventData)payload;
+            return d.GenerateMessage(p.Migration.GetId());
         }
 
         /// <summary>
@@ -748,12 +930,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        QueryModel = queryModel,
-                        Expression = expression
-                    });
+                    new QueryModelExpressionEventData(
+                        definition,
+                        QueryClientEvaluationWarning,
+                        queryModel,
+                        expression));
             }
+        }
+
+        private static string QueryClientEvaluationWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<object>)definition;
+            var p = (QueryModelExpressionEventData)payload;
+            return d.GenerateMessage(p.Expression);
         }
 
         /// <summary>
@@ -776,12 +965,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        MethodCallExpression = methodCallExpression,
-                        Argument = argument
-                    });
+                    new BinaryExpressionEventData(
+                        definition,
+                        QueryPossibleUnintendedUseOfEqualsWarning,
+                        methodCallExpression.Object,
+                        argument));
             }
+        }
+
+        private static string QueryPossibleUnintendedUseOfEqualsWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<object, object>)definition;
+            var p = (BinaryExpressionEventData)payload;
+            return d.GenerateMessage(p.Left, p.Right);
         }
 
         /// <summary>
@@ -807,11 +1003,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Property = property
-                    });
+                    new PropertyEventData(
+                        definition,
+                        ModelValidationKeyDefaultValueWarning,
+                        property));
             }
+        }
+
+        private static string ModelValidationKeyDefaultValueWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (PropertyEventData)payload;
+            return d.GenerateMessage(
+                p.Property.Name,
+                p.Property.DeclaringEntityType.DisplayName());
         }
     }
 }

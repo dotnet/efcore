@@ -5,7 +5,6 @@ using System;
 using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -18,6 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
+        /// <param name="eventDefinition"> The event definition. </param>
+        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="command">
         ///     The <see cref="DbCommand" />.
         /// </param>
@@ -33,6 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="async">
         ///     Indicates whether or not the command was executed asyncronously.
         /// </param>
+        /// <param name="logParameterValues">
+        ///     Indicates whether or not the application allows logging of parameter values.
+        /// </param>
         /// <param name="startTime">
         ///     The start time of this event.
         /// </param>
@@ -40,14 +44,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The duration this event.
         /// </param>
         public CommandEndEventData(
+            [NotNull] EventDefinitionBase eventDefinition,
+            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
             [NotNull] DbCommand command,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
             bool async,
+            bool logParameterValues,
             DateTimeOffset startTime,
             TimeSpan duration)
-            : base(command, executeMethod, commandId, connectionId, async, startTime)
+            : base(eventDefinition, messageGenerator, command, executeMethod, commandId, connectionId, async, logParameterValues, startTime)
             => Duration = duration;
 
         /// <summary>

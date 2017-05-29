@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -32,12 +31,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        EntityType = entityType,
-                        Schema = schema
-                    });
+                    new EntityTypeSchemaEventData(
+                        definition,
+                        SchemaConfiguredWarning,
+                        entityType,
+                        schema));
             }
+        }
+
+        private static string SchemaConfiguredWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (EntityTypeSchemaEventData)payload;
+            return d.GenerateMessage(
+                p.EntityType.DisplayName(),
+                p.Schema);
         }
 
         /// <summary>
@@ -56,11 +64,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Sequence = sequence
-                    });
+                    new SequenceEventData(
+                        definition,
+                        SequenceConfiguredWarning,
+                        sequence));
             }
+        }
+
+        private static string SequenceConfiguredWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (SequenceEventData)payload;
+            return d.GenerateMessage(p.Sequence.Name);
         }
     }
 }

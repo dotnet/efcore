@@ -6,9 +6,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Remotion.Linq;
 
@@ -29,26 +26,33 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void SaveChangesFailed(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] Type contextType,
+            [NotNull] DbContext context,
             [NotNull] Exception exception)
         {
             var definition = CoreStrings.LogExceptionDuringSaveChanges;
 
             definition.Log(
                 diagnostics,
-                contextType, Environment.NewLine, exception,
+                context.GetType(), Environment.NewLine, exception,
                 exception);
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        ContextType = contextType,
-                        Exception = exception
-                    });
+                    new DbContextErrorEventData(
+                        definition,
+                        SaveChangesFailed,
+                        context,
+                        exception));
             }
+        }
+
+        private static string SaveChangesFailed(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<Type, string, Exception>)definition;
+            var p = (DbContextErrorEventData)payload;
+            return d.GenerateMessage(p.Context.GetType(), Environment.NewLine, p.Exception);
         }
 
         /// <summary>
@@ -71,12 +75,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        ContextType = contextType,
-                        Exception = exception
-                    });
+                    new DbContextTypeErrorEventData(
+                        definition,
+                        QueryIterationFailed,
+                        contextType,
+                        exception));
             }
+        }
+
+        private static string QueryIterationFailed(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<Type, string, Exception>)definition;
+            var p = (DbContextTypeErrorEventData)payload;
+            return d.GenerateMessage(p.ContextType, Environment.NewLine, p.Exception);
         }
 
         /// <summary>
@@ -101,11 +112,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        QueryModel = queryModel
-                    });
+                    new QueryModelEventData(
+                        definition,
+                        QueryModelCompiling,
+                        queryModel));
             }
+        }
+
+        private static string QueryModelCompiling(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (QueryModelEventData)payload;
+            return d.GenerateMessage(Environment.NewLine, p.QueryModel.Print());
         }
 
         /// <summary>
@@ -130,11 +148,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        QueryModel = queryModel
-                    });
+                    new QueryModelEventData(
+                        definition,
+                        RowLimitingOperationWithoutOrderByWarning,
+                        queryModel));
             }
+        }
+
+        private static string RowLimitingOperationWithoutOrderByWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (QueryModelEventData)payload;
+            return d.GenerateMessage(p.QueryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
         }
 
         /// <summary>
@@ -159,11 +184,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        QueryModel = queryModel
-                    });
+                    new QueryModelEventData(
+                        definition,
+                        FirstWithoutOrderByAndFilterWarning,
+                        queryModel));
             }
+        }
+
+        private static string FirstWithoutOrderByAndFilterWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (QueryModelEventData)payload;
+            return d.GenerateMessage(p.QueryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
         }
 
         /// <summary>
@@ -188,11 +220,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        QueryModel = queryModel
-                    });
+                    new QueryModelEventData(
+                        definition,
+                        QueryModelOptimized,
+                        queryModel));
             }
+        }
+
+        private static string QueryModelOptimized(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (QueryModelEventData)payload;
+            return d.GenerateMessage(Environment.NewLine, p.QueryModel.Print());
         }
 
         /// <summary>
@@ -213,11 +252,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        IncludeSpecification = includeSpecification
-                    });
+                    new IncludeEventData(
+                        definition,
+                        NavigationIncluded,
+                        includeSpecification));
             }
+        }
+
+        private static string NavigationIncluded(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (IncludeEventData)payload;
+            return d.GenerateMessage(p.IncludeSpecification);
         }
 
         /// <summary>
@@ -243,11 +289,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        QueryExecutorExpression = queryExecutorExpression
-                    });
+                    new QueryExpressionEventData(
+                        definition,
+                        QueryExecutionPlanned,
+                        queryExecutorExpression,
+                        expressionPrinter));
             }
+        }
+
+        private static string QueryExecutionPlanned(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (QueryExpressionEventData)payload;
+            return d.GenerateMessage(p.ExpressionPrinter.Print(p.Expression));
         }
 
         /// <summary>
@@ -266,7 +320,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    null);
+                    new EventDataBase(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage()));
             }
         }
 
@@ -288,11 +344,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        IncludeSpecification = includeSpecification
-                    });
+                    new IncludeEventData(
+                        definition,
+                        IncludeIgnoredWarning,
+                        includeSpecification));
             }
+        }
+
+        private static string IncludeIgnoredWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (IncludeEventData)payload;
+            return d.GenerateMessage(p.IncludeSpecification);
         }
 
         /// <summary>
@@ -313,11 +376,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        NavigationPath = navigationPath
-                    });
+                    new NavigationPathEventData(
+                        definition,
+                        PossibleUnintendedCollectionNavigationNullComparisonWarning,
+                        navigationPath));
             }
+        }
+
+        private static string PossibleUnintendedCollectionNavigationNullComparisonWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (NavigationPathEventData)payload;
+            return d.GenerateMessage(p.NavigationPath);
         }
 
         /// <summary>
@@ -340,45 +410,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        Left = left,
-                        Right = right
-                    });
+                    new BinaryExpressionEventData(
+                        definition,
+                        PossibleUnintendedReferenceComparisonWarning,
+                        left,
+                        right));
             }
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void ModelValidationShadowKeyWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IEntityType entityType,
-            [NotNull] IKey key)
+        private static string PossibleUnintendedReferenceComparisonWarning(EventDefinitionBase definition, EventDataBase payload)
         {
-            var definition = CoreStrings.LogShadowKey;
-
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    Property.Format(key.Properties),
-                    entityType.DisplayName(),
-                    Property.Format(key.Properties));
-            }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        EntityType = entityType,
-                        Key = key
-                    });
-            }
+            var d = (EventDefinition<object, object>)definition;
+            var p = (BinaryExpressionEventData)payload;
+            return d.GenerateMessage(p.Left, p.Right);
         }
 
         /// <summary>
@@ -397,10 +441,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        IServiceProvider = serviceProvider
-                    });
+                    new ServiceProviderEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
+                        serviceProvider));
             }
         }
 
@@ -420,10 +464,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new
-                    {
-                        IServiceProviders = serviceProviders
-                    });
+                    new ServiceProvidersEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
+                        serviceProviders));
             }
         }
     }

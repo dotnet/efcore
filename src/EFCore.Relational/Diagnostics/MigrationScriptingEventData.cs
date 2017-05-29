@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -16,6 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
+        /// <param name="eventDefinition"> The event definition. </param>
+        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="migrator">
         ///     The <see cref="IMigrator" /> in use.
         /// </param>
@@ -32,12 +35,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Indicates whether or not the script is idempotent.
         /// </param>
         public MigrationScriptingEventData(
+            [NotNull] EventDefinitionBase eventDefinition,
+            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration,
             [CanBeNull] string fromMigration,
             [CanBeNull] string toMigration,
             bool idempotent)
-            : base(migrator, migration)
+            : base(eventDefinition, messageGenerator, migrator, migration)
         {
             FromMigration = fromMigration;
             ToMigration = toMigration;
