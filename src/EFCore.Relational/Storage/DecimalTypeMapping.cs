@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data;
-using System.Globalization;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -18,14 +17,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class DecimalTypeMapping : RelationalTypeMapping<decimal>
     {
-        private const string DecimalFormatConst = "0.0###########################";
+        private const string DecimalFormatConst = "{0:0.0###########################}";
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DecimalTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
-        public DecimalTypeMapping([NotNull] string storeType)
-            : this(storeType, dbType: null, unicode: false, size: null)
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        public DecimalTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] DbType? dbType)
+            : this(storeType, dbType, unicode: false, size: null)
         {
         }
 
@@ -55,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping CreateCopy([NotNull] string storeType, int? size)
+        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
             => new DecimalTypeMapping(
                 storeType,
                 DbType,
@@ -65,18 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 hasNonDefaultSize: size != Size);
 
         /// <summary>
-        ///     Gets the decimal format.
+        ///     Gets the string format to be used to generate SQL literals of this type.
         /// </summary>
-        protected virtual string DecimalFormat => DecimalFormatConst;
-
-        /// <summary>
-        ///     Generates the SQL representation of a literal value.
-        /// </summary>
-        /// <param name="value">The literal value.</param>
-        /// <returns>
-        ///     The generated string.
-        /// </returns>
-        protected override string GenerateNonNullSqlLiteral([NotNull]decimal value)
-            => value.ToString(DecimalFormat, CultureInfo.InvariantCulture);
+        public override string SqlLiteralFormatString => DecimalFormatConst;
     }
 }

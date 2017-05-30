@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("int", GetTypeMapping(typeof(int)).StoreType);
             Assert.Equal("datetime2", GetTypeMapping(typeof(DateTime)).StoreType);
             Assert.Equal("uniqueidentifier", GetTypeMapping(typeof(Guid)).StoreType);
-            Assert.Equal("char(1)", GetTypeMapping(typeof(char)).StoreType);
+            Assert.Equal("nchar(1)", GetTypeMapping(typeof(char)).StoreType);
             Assert.Equal("tinyint", GetTypeMapping(typeof(byte)).StoreType);
             Assert.Equal("float", GetTypeMapping(typeof(double)).StoreType);
             Assert.Equal("bit", GetTypeMapping(typeof(bool)).StoreType);
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("int", GetTypeMapping(typeof(int?)).StoreType);
             Assert.Equal("datetime2", GetTypeMapping(typeof(DateTime?)).StoreType);
             Assert.Equal("uniqueidentifier", GetTypeMapping(typeof(Guid?)).StoreType);
-            Assert.Equal("char(1)", GetTypeMapping(typeof(char?)).StoreType);
+            Assert.Equal("nchar(1)", GetTypeMapping(typeof(char?)).StoreType);
             Assert.Equal("tinyint", GetTypeMapping(typeof(byte?)).StoreType);
             Assert.Equal("float", GetTypeMapping(typeof(double?)).StoreType);
             Assert.Equal("bit", GetTypeMapping(typeof(bool?)).StoreType);

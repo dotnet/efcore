@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping CreateCopy([NotNull] string storeType, int? size)
+        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
             => new StringTypeMapping(
                 storeType,
                 DbType,
@@ -84,9 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
-        protected override string GenerateNonNullSqlLiteral([NotNull]string value)
+        protected override string GenerateNonNullSqlLiteral(object value)
         {
-            return $"'{EscapeSqlLiteral(value)}'";
+            return $"'{EscapeSqlLiteral((string)value)}'";
         }
     }
 }

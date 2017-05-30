@@ -569,13 +569,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
         private RelationalTypeMapping GetTypeMapping(object value)
         {
-            if (_typeMapping != null
-                && _typeMapping.ClrType.IsAssignableFrom(value.GetType()))
-            {
-                return _typeMapping;
-            }
-
-            return Dependencies.RelationalTypeMapper.GetMappingForValue(value);
+            return _typeMapping != null
+                    && (value == null
+                        || _typeMapping.ClrType.IsAssignableFrom(value.GetType()))
+                ? _typeMapping
+                : Dependencies.RelationalTypeMapper.GetMappingForValue(value);
         }
 
         /// <summary>

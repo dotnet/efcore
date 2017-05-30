@@ -17,8 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     Initializes a new instance of the <see cref="SqliteGuidTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
-        public SqliteGuidTypeMapping([NotNull] string storeType)
-            : base(storeType)
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        public SqliteGuidTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] DbType? dbType)
+            : base(storeType, dbType)
         {
         }
 
@@ -62,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// <returns>
         ///     The generated string.
         /// </returns>
-        protected override string GenerateNonNullSqlLiteral([NotNull]Guid value)
-            => ByteArrayTypeMapping.GenerateByteArraySqlLiteral(value.ToByteArray());
+        protected override string GenerateNonNullSqlLiteral(object value)
+            => ByteArrayTypeMapping.GenerateByteArraySqlLiteral(((Guid)value).ToByteArray());
    }
 }

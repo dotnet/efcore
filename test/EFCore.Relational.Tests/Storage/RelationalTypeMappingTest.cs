@@ -13,33 +13,33 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_create_simple_parameter()
         {
-            var parameter = new IntTypeMapping("int")
+            var parameter = new IntTypeMapping("int", null)
                 .CreateParameter(CreateTestCommand(), "Name", 17, nullable: false);
 
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
             Assert.Equal("Name", parameter.ParameterName);
             Assert.Equal(17, parameter.Value);
-            Assert.Equal(DbType.Int32, parameter.DbType);
+            Assert.Equal(DefaultParameterType, parameter.DbType);
             Assert.False(parameter.IsNullable);
         }
 
         [Fact]
         public void Can_create_simple_nullable_parameter()
         {
-            var parameter = new IntTypeMapping("int")
+            var parameter = new IntTypeMapping("int", null)
                 .CreateParameter(CreateTestCommand(), "Name", 17, nullable: true);
 
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
             Assert.Equal("Name", parameter.ParameterName);
             Assert.Equal(17, parameter.Value);
-            Assert.Equal(DbType.Int32, parameter.DbType);
+            Assert.Equal(DefaultParameterType, parameter.DbType);
             Assert.True(parameter.IsNullable);
         }
 
         [Fact]
         public void Can_create_simple_parameter_with_DbType()
         {
-            var parameter = new IntTypeMapping("int", DbType.Int32, unicode: false, size: null)
+            var parameter = new IntTypeMapping("int", DbType.Int32)
                 .CreateParameter(CreateTestCommand(), "Name", 17, nullable: false);
 
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_create_simple_nullable_parameter_with_DbType()
         {
-            var parameter = new IntTypeMapping("int", DbType.Int32, unicode: false, size: null)
+            var parameter = new IntTypeMapping("int", DbType.Int32)
                 .CreateParameter(CreateTestCommand(), "Name", 17, nullable: true);
 
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
@@ -93,28 +93,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteral_returns_bool_literal_when_true()
         {
-            var literal = new BoolTypeMapping("bool").GenerateSqlLiteral(true);
+            var literal = new BoolTypeMapping("bool", null).GenerateSqlLiteral(true);
             Assert.Equal("1", literal);
         }
 
         [Fact]
         public virtual void GenerateSqlLiteral_returns_bool_literal_when_false()
         {
-            var literal = new BoolTypeMapping("bool").GenerateSqlLiteral(false);
+            var literal = new BoolTypeMapping("bool", null).GenerateSqlLiteral(false);
             Assert.Equal("0", literal);
         }
 
         [Fact]
         public virtual void GenerateSqlLiteral_returns_char_literal()
         {
-            var literal = new CharTypeMapping("char").GenerateSqlLiteral('A');
+            var literal = new CharTypeMapping("char", null).GenerateSqlLiteral('A');
             Assert.Equal("'A'", literal);
         }
 
         [Fact]
         public virtual void GenerateSqlLiteral_returns_ByteArray_literal()
         {
-            var literal = new ByteArrayTypeMapping("byte[]").GenerateSqlLiteral(new byte[] { 0xDA, 0x7A });
+            var literal = new ByteArrayTypeMapping("byte[]", null).GenerateSqlLiteral(new byte[] { 0xDA, 0x7A });
             Assert.Equal("X'DA7A'", literal);
         }
 
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual void GenerateSqlLiteral_returns_Guid_literal()
         {
             var value = new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292");
-            var literal = new GuidTypeMapping("guid").GenerateSqlLiteral(value);
+            var literal = new GuidTypeMapping("guid", null).GenerateSqlLiteral(value);
             Assert.Equal("'c6f43a9e-91e1-45ef-a320-832ea23b7292'", literal);
         }
 
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual void GenerateSqlLiteral_returns_DateTime_literal()
         {
             var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = new DateTimeTypeMapping("DateTime", dbType: null).GenerateSqlLiteral(value);
+            var literal = new DateTimeTypeMapping("DateTime", null).GenerateSqlLiteral(value);
             Assert.Equal("TIMESTAMP '2015-03-12 13:36:37.3710000'", literal);
         }
 
@@ -138,27 +138,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual void GenerateSqlLiteral_returns_DateTimeOffset_literal()
         {
             var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = new DateTimeOffsetTypeMapping("DateTimeOffset").GenerateSqlLiteral(value);
+            var literal = new DateTimeOffsetTypeMapping("DateTimeOffset", null).GenerateSqlLiteral(value);
             Assert.Equal("TIMESTAMP '2015-03-12 13:36:37.3710000-07:00'", literal);
         }
 
         [Fact]
         public virtual void GenerateSqlLiteral_returns_NullableInt_literal_when_null()
         {
-            var literal = new IntTypeMapping("int?").GenerateSqlLiteral(default(int?));
+            var literal = new IntTypeMapping("int?", DbType.Int32).GenerateSqlLiteral(default(int?));
             Assert.Equal("NULL", literal);
         }
 
         [Fact]
         public virtual void GenerateSqlLiteral_returns_NullableInt_literal_when_not_null()
         {
-            var literal = new IntTypeMapping("int?").GenerateSqlLiteral((int?)123);
+            var literal = new IntTypeMapping("int?", DbType.Int32).GenerateSqlLiteral((int?)123);
             Assert.Equal("123", literal);
         }
         [Fact]
         public virtual void GenerateSqlLiteral_for_Byte_works_for_range_limits()
         {
-            var typeMapping = new ByteTypeMapping("byte");
+            var typeMapping = new ByteTypeMapping("byte", DbType.Byte);
             var literal = typeMapping.GenerateSqlLiteral(byte.MinValue);
             Assert.Equal("0", literal);
 
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteral_for_SByte_works_for_range_limits()
         {
-            var typeMapping = new SByteTypeMapping("sbyte");
+            var typeMapping = new SByteTypeMapping("sbyte", DbType.SByte);
             var literal = typeMapping.GenerateSqlLiteral(sbyte.MinValue);
             Assert.Equal("-128", literal);
 
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteral_for_Short_works_for_range_limits()
         {
-            var typeMapping = new ShortTypeMapping("short");
+            var typeMapping = new ShortTypeMapping("short", DbType.Int16);
             var literal = typeMapping.GenerateSqlLiteral(short.MinValue);
             Assert.Equal("-32768", literal);
 
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteral_for_UShort_works_for_range_limits()
         {
-            var typeMapping = new UShortTypeMapping("ushort");
+            var typeMapping = new UShortTypeMapping("ushort", DbType.UInt16);
             var literal = typeMapping.GenerateSqlLiteral(ushort.MinValue);
             Assert.Equal("0", literal);
 
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteral_for_Int_works_for_range_limits()
         {
-            var typeMapping = new IntTypeMapping("int");
+            var typeMapping = new IntTypeMapping("int", DbType.Int32);
             var literal = typeMapping.GenerateSqlLiteral(int.MinValue);
             Assert.Equal("-2147483648", literal);
 
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteral_for_UInt_works_for_range_limits()
         {
-            var typeMapping = new UIntTypeMapping("uint");
+            var typeMapping = new UIntTypeMapping("uint", DbType.UInt32);
             var literal = typeMapping.GenerateSqlLiteral(uint.MinValue);
             Assert.Equal("0", literal);
 
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteral_for_Long_works_for_range_limits()
         {
-            var typeMapping = new LongTypeMapping("long");
+            var typeMapping = new LongTypeMapping("long", DbType.Int64);
             var literal = typeMapping.GenerateSqlLiteral(long.MinValue);
             Assert.Equal("-9223372036854775808", literal);
 
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteral_for_ULong_works_for_range_limits()
         {
-            var typeMapping = new ULongTypeMapping("ulong");
+            var typeMapping = new ULongTypeMapping("ulong", DbType.UInt64);
             var literal = typeMapping.GenerateSqlLiteral(ulong.MinValue);
             Assert.Equal("0", literal);
 
@@ -244,5 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         protected abstract DbCommand CreateTestCommand();
+
+        protected abstract DbType DefaultParameterType { get; }
     }
 }

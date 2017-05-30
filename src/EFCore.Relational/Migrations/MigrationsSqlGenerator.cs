@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append(" AS ")
                     .Append(typeMapping.StoreType);
 
-                // reset typeMapping so that we can use it with GenerateSqlLiteral() below
+                // set the typeMapping for use with operation.StartValue (i.e. a long) below
                 typeMapping = Dependencies.TypeMapper.GetMapping(typeof(long));
             }
 

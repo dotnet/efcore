@@ -46,21 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public override string GenerateSqlLiteral([CanBeNull]object value)
         {
-            if (value == null)
-            {
-                return base.GenerateSqlLiteral(value);
-            }
-
-            return GenerateNonNullSqlLiteral((T)value);
+            return value == null
+                ? base.GenerateSqlLiteral(value)
+                : GenerateNonNullSqlLiteral((T)value);
         }
-
-        /// <summary>
-        ///     Generates the SQL representation of a literal value.
-        /// </summary>
-        /// <param name="value">The literal value.</param>
-        /// <returns>
-        ///     The generated string.
-        /// </returns>
-        protected abstract string GenerateNonNullSqlLiteral([NotNull]T value);
     }
 }

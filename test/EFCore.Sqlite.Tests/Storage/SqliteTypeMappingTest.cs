@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data;
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -13,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         protected override DbCommand CreateTestCommand()
             => new SqliteCommand();
+
+        protected override DbType DefaultParameterType
+            => DbType.String;
 
         [Theory]
         [InlineData("TEXT", typeof(string))]

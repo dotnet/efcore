@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -114,6 +115,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual bool HasNonDefaultSize { get; }
 
         /// <summary>
+        ///     Gets the string format to be used to generate SQL literals of this type.
+        /// </summary>
+        public virtual string SqlLiteralFormatString { get; } = "{0}";
+
+        /// <summary>
         ///     Creates a <see cref="DbParameter" /> with the appropriate type information configured.
         /// </summary>
         /// <param name="command"> The command the parameter should be created on. </param>
@@ -169,15 +175,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string GenerateSqlLiteral([CanBeNull]object value)
+        public virtual string GenerateSqlLiteral([CanBeNull] object value)
         {
-            if (value == null)
-            {
-                return "NULL";
-            }
-
-            //LAJLAJ What should we throw here?
-            return "ERROR: RelationalTypeMapping.GenerateSqlLiteral() received object of type " + value.GetType() +", with value " + value;
+            return value == null
+                ? "NULL"
+                : GenerateNonNullSqlLiteral(value);
         }
+
+        /// <summary>
+        ///     Generates the SQL representation of a non-null literal value.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns>
+        ///     The generated string.
+        /// </returns>
+        protected virtual string GenerateNonNullSqlLiteral([NotNull] object value)
+            => string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, Check.NotNull(value, "value"));
     }
 }

@@ -80,12 +80,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// <returns>
         ///     The generated string.
         /// </returns>
-        protected override string GenerateNonNullSqlLiteral([NotNull]byte[] value)
+        protected override string GenerateNonNullSqlLiteral(object value)
         {
             var builder = new StringBuilder();
             builder.Append("0x");
 
-            foreach (var @byte in value)
+            foreach (var @byte in (byte[])value)
             {
                 builder.Append(@byte.ToString("X2", CultureInfo.InvariantCulture));
             }

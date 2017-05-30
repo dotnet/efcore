@@ -24,8 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="ByteArrayTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
-        public ByteArrayTypeMapping([NotNull] string storeType)
-            : this(storeType, dbType: System.Data.DbType.Binary, unicode: false, size: null)
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        public ByteArrayTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] DbType? dbType)
+            : this(storeType, dbType, unicode: false, size: null)
         {
         }
 
@@ -55,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping CreateCopy([NotNull] string storeType, int? size)
+        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
             => new ByteArrayTypeMapping(
                 storeType,
                 DbType,
@@ -71,9 +74,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
-        protected override string GenerateNonNullSqlLiteral([NotNull]byte[] value)
+        protected override string GenerateNonNullSqlLiteral(object value)
         {
-            return GenerateByteArraySqlLiteral(value);
+            return GenerateByteArraySqlLiteral((byte[])value);
         }
 
         /// <summary>

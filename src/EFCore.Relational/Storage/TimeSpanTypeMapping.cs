@@ -3,7 +3,6 @@
 
 using System;
 using System.Data;
-using System.Globalization;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -23,8 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="TimeSpanTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
-        public TimeSpanTypeMapping([NotNull] string storeType)
-            : this(storeType, dbType: null, unicode: false, size: null)
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        public TimeSpanTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] DbType? dbType)
+            : this(storeType, dbType, unicode: false, size: null)
         {
         }
 
@@ -54,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping CreateCopy([NotNull] string storeType, int? size)
+        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
             => new TimeSpanTypeMapping(
                 storeType,
                 DbType,
@@ -64,13 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 hasNonDefaultSize: size != Size);
 
         /// <summary>
-        ///     Generates the SQL representation of a literal value.
+        ///     Gets the string format to be used to generate SQL literals of this type.
         /// </summary>
-        /// <param name="value">The literal value.</param>
-        /// <returns>
-        ///     The generated string.
-        /// </returns>
-        protected override string GenerateNonNullSqlLiteral([NotNull]TimeSpan value)
-            => string.Format(CultureInfo.InvariantCulture, "'{0}'", value); // Interpolation okay; strings
+        public override string SqlLiteralFormatString => "'{0}'";
     }
 }
