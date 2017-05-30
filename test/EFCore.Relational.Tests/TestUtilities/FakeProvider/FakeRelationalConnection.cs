@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
@@ -26,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
                     new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
                         new LoggerFactory(),
                         new LoggingOptions(),
-                        new DiagnosticListener("FakeDiagnosticListener"))))
+                        new DiagnosticListener("FakeDiagnosticListener")),
+                    new NamedConnectionStringResolver(options)))
         {
         }
 

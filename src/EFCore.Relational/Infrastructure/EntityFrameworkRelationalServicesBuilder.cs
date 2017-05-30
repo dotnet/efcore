@@ -76,7 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalResultOperatorHandler), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalConnection), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalDatabaseCreator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IHistoryRepository), new ServiceCharacteristics(ServiceLifetime.Scoped) }
+                { typeof(IHistoryRepository), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(INamedConnectionStringResolver), new ServiceCharacteristics(ServiceLifetime.Scoped) }
             };
 
         /// <summary>
@@ -148,6 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ICompiledQueryCacheKeyGenerator, RelationalCompiledQueryCacheKeyGenerator>();
             TryAdd<IExpressionFragmentTranslator, RelationalCompositeExpressionFragmentTranslator>();
             TryAdd<ISqlTranslatingExpressionVisitorFactory, SqlTranslatingExpressionVisitorFactory>();
+            TryAdd<INamedConnectionStringResolver, NamedConnectionStringResolver>();
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalCompositeMemberTranslatorDependencies>()

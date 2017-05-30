@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             else if (!string.IsNullOrWhiteSpace(relationalOptions.ConnectionString))
             {
-                _connectionString = relationalOptions.ConnectionString;
+                _connectionString = dependencies.ConnectionStringResolver.ResolveConnectionString(relationalOptions.ConnectionString);
                 _connection = new LazyRef<DbConnection>(CreateDbConnection);
                 _connectionOwned = true;
             }

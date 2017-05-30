@@ -2,10 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -242,6 +245,45 @@ namespace Microsoft.EntityFrameworkCore
                 optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 Assert.NotSame(_options, optionsBuilder.Options);
+            }
+        }
+
+        [Theory]
+        [InlineData("MyConnectuonString", "name=MyConnectuonString")]
+        [InlineData("ConnectionStrings:DefaultConnection", "name=ConnectionStrings:DefaultConnection")]
+        [InlineData("ConnectionStrings:DefaultConnection", " NamE   =   ConnectionStrings:DefaultConnection  ")]
+        public void Can_use_AddDbContext_and_get_connection_string_from_config(string key, string connectionString)
+        {
+            var configBuilder = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    { key, SqlServerTestStore.NorthwindConnectionString },
+                });
+
+            var serviceProvider
+                = new ServiceCollection()
+                    .AddSingleton<IConfiguration>(configBuilder.Build())
+                    .AddDbContext<UseConfigurationContext>(
+                        b => b.UseSqlServer(connectionString))
+                    .BuildServiceProvider();
+
+            using (SqlServerTestStore.GetNorthwindStore())
+            {
+                using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+                {
+                    using (var context = serviceScope.ServiceProvider.GetRequiredService<UseConfigurationContext>())
+                    {
+                        Assert.True(context.Customers.Any());
+                    }
+                }
+            }
+        }
+
+        private class UseConfigurationContext : NorthwindContextBase
+        {
+            public UseConfigurationContext(DbContextOptions options)
+                : base(options)
+            {
             }
         }
 

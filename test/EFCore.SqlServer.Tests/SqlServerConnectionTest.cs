@@ -87,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore
                 new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
                     new LoggerFactory(),
                     new LoggingOptions(),
-                    new DiagnosticListener("FakeDiagnosticListener")));
+                    new DiagnosticListener("FakeDiagnosticListener")),
+                new NamedConnectionStringResolver(options));
         }
     }
 }
