@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly)
-            : this(reporter, assembly, startupAssembly, new AppServiceProviderFactory(startupAssembly))
+            : this(reporter, assembly, startupAssembly, new AppServiceProviderFactory(startupAssembly, reporter))
         {
         }
 
@@ -97,10 +97,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var contexts = new Dictionary<Type, Func<DbContext>>();
 
             // Look for IDesignTimeDbContextFactory implementations
+            _reporter.WriteVerbose(DesignStrings.FindingContextFactories);
             var contextFactories = _startupAssembly.GetConstructableTypes()
                 .Where(t => typeof(IDesignTimeDbContextFactory<DbContext>).GetTypeInfo().IsAssignableFrom(t));
             foreach (var factory in contextFactories)
             {
+                _reporter.WriteVerbose(DesignStrings.FoundContextFactory(factory.ShortDisplayName()));
                 var manufacturedContexts =
                     from i in factory.ImplementedInterfaces
                     where i.GetTypeInfo().IsGenericType
@@ -108,9 +110,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     select i.GenericTypeArguments[0];
                 foreach (var context in manufacturedContexts)
                 {
+                    _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
                     contexts.Add(
                         context,
-                        () => ((IDesignTimeDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).CreateDbContext(_args));
+                        () => CreateContextFromFactory(factory.AsType()));
                 }
             }
 
@@ -120,6 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .Select(o => o.ContextType);
             foreach (var context in registeredContexts.Where(c => !contexts.ContainsKey(c)))
             {
+                _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
                 contexts.Add(
                     context,
                     FindContextFactory(context)
@@ -127,6 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             // Look for DbContext classes in assemblies
+            _reporter.WriteVerbose(DesignStrings.FindingReferencedContexts);
             var types = _startupAssembly.GetConstructableTypes()
                 .Concat(_assembly.GetConstructableTypes())
                 .ToList();
@@ -139,6 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .Distinct();
             foreach (var context in contextTypes.Where(c => !contexts.ContainsKey(c)))
             {
+                _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
                 contexts.Add(
                     context,
                     FindContextFactory(context) ?? (() =>
@@ -181,7 +187,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return null;
             }
 
-            return () => ((IDesignTimeDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).CreateDbContext(_args);
+            return () => CreateContextFromFactory(factory.AsType());
+        }
+
+        private DbContext CreateContextFromFactory(Type factory)
+        {
+            _reporter.WriteVerbose(DesignStrings.UsingDbContextFactory(factory.ShortDisplayName()));
+
+            return ((IDesignTimeDbContextFactory<DbContext>)Activator.CreateInstance(factory))
+                .CreateDbContext(_args);
         }
 
         private KeyValuePair<Type, Func<DbContext>> FindContextType(string name)

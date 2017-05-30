@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 assembly,
                 startupAssembly);
 
-            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly);
+            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter);
         }
 
         public virtual MigrationFiles AddMigration(

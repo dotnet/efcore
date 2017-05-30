@@ -32,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] DbCommand command,
             DbCommandMethod executeMethod,
-            Guid commandId, 
-            Guid connectionId, 
-            bool async, 
+            Guid commandId,
+            Guid connectionId,
+            bool async,
             DateTimeOffset startTime)
         {
             var definition = RelationalStrings.LogRelationalLoggerExecutingCommand;
@@ -240,9 +240,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     new ConnectionEventData(
                         definition,
                         ConnectionOpening,
-                        connection.DbConnection, 
-                        connection.ConnectionId, 
-                        async, 
+                        connection.DbConnection,
+                        connection.ConnectionId,
+                        async,
                         startTime));
             }
         }
@@ -714,7 +714,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IMigrator migrator,
             [NotNull] IRelationalConnection connection)
         {
-            var definition = RelationalStrings.LogUsingConnection;
+            var definition = RelationalStrings.LogMigrating;
 
             // Checking for enabled here to avoid string formatting if not needed.
             if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
@@ -723,7 +723,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 definition.Log(
                     diagnostics,
-                    dbConnection.Database, 
+                    dbConnection.Database,
                     dbConnection.DataSource);
             }
 
@@ -917,6 +917,67 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static void MigrationsNotApplied(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            [NotNull] IMigrator migrator)
+        {
+            var definition = RelationalStrings.LogNoMigrationsApplied;
+
+            definition.Log(diagnostics);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new MigratorEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
+                        migrator));
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void MigrationsNotFound(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            [NotNull] IMigrator migrator,
+            [NotNull] IMigrationsAssembly migrationsAssembly)
+        {
+            var definition = RelationalStrings.LogNoMigrationsFound;
+
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    migrationsAssembly.Assembly.GetName().Name);
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new MigrationAssemblyEventData(
+                        definition,
+                        MigrationsNotFound,
+                        migrator,
+                        migrationsAssembly));
+            }
+        }
+
+        private static string MigrationsNotFound(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (MigrationAssemblyEventData)payload;
+            return d.GenerateMessage(p.MigrationsAssembly.Assembly.GetName().Name);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static void QueryClientEvaluationWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] QueryModel queryModel,
@@ -995,7 +1056,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 definition.Log(
                     diagnostics,
-                    property.Name, 
+                    property.Name,
                     property.DeclaringEntityType.DisplayName());
             }
 

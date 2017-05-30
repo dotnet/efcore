@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
 
-            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly);
+            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter);
         }
 
         public virtual Task<ReverseEngineerFiles> ScaffoldContextAsync(

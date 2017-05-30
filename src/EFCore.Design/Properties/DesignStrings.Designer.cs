@@ -185,11 +185,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogRevertingSnapshot")));
 
         /// <summary>
-        ///     The migration '{name}' has already been applied to the database. Unapply it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.
+        ///     The migration '{name}' has already been applied to the database. Revert it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.
         /// </summary>
-        public static string UnapplyMigration([CanBeNull] object name)
+        public static string RevertMigration([CanBeNull] object name)
             => string.Format(
-                GetString("UnapplyMigration", nameof(name)),
+                GetString("RevertMigration", nameof(name)),
                 name);
 
         /// <summary>
@@ -421,6 +421,130 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("CouldNotSerialize", nameof(obj), nameof(name)),
                 obj, name);
+
+        /// <summary>
+        ///     Using environment '{environment}'.
+        /// </summary>
+        public static string UsingEnvironment([CanBeNull] object environment)
+            => string.Format(
+                GetString("UsingEnvironment", nameof(environment)),
+                environment);
+
+        /// <summary>
+        ///     Finding BuildWebHost method...
+        /// </summary>
+        public static string FindingBuildWebHost
+            => GetString("FindingBuildWebHost");
+
+        /// <summary>
+        ///     Finding application service provider...
+        /// </summary>
+        public static string FindingServiceProvider
+            => GetString("FindingServiceProvider");
+
+        /// <summary>
+        ///     No BuildWebHost method was found on type '{programClass}'.
+        /// </summary>
+        public static string NoBuildWebHost([CanBeNull] object programClass)
+            => string.Format(
+                GetString("NoBuildWebHost", nameof(programClass)),
+                programClass);
+
+        /// <summary>
+        ///     No entry point was found for assembly '{startupAssembly}'.
+        /// </summary>
+        public static string NoEntryPoint([CanBeNull] object startupAssembly)
+            => string.Format(
+                GetString("NoEntryPoint", nameof(startupAssembly)),
+                startupAssembly);
+
+        /// <summary>
+        ///     No application service provider was found.
+        /// </summary>
+        public static string NoServiceProvider
+            => GetString("NoServiceProvider");
+
+        /// <summary>
+        ///     Using application service provider from BuildWebHost method on '{programClass}'.
+        /// </summary>
+        public static string UsingBuildWebHost([CanBeNull] object programClass)
+            => string.Format(
+                GetString("UsingBuildWebHost", nameof(programClass)),
+                programClass);
+
+        /// <summary>
+        ///     Found DbContext '{contextType}'.
+        /// </summary>
+        public static string FoundDbContext([CanBeNull] object contextType)
+            => string.Format(
+                GetString("FoundDbContext", nameof(contextType)),
+                contextType);
+
+        /// <summary>
+        ///     Using DbContext factory '{factory}'.
+        /// </summary>
+        public static string UsingDbContextFactory([CanBeNull] object factory)
+            => string.Format(
+                GetString("UsingDbContextFactory", nameof(factory)),
+                factory);
+
+        /// <summary>
+        ///     Finding IDesignTimeServices implementations in assembly '{startupAssembly}'...
+        /// </summary>
+        public static string FindingDesignTimeServices([CanBeNull] object startupAssembly)
+            => string.Format(
+                GetString("FindingDesignTimeServices", nameof(startupAssembly)),
+                startupAssembly);
+
+        /// <summary>
+        ///     Finding design-time services for provider '{provider}'...
+        /// </summary>
+        public static string FindingProviderServices([CanBeNull] object provider)
+            => string.Format(
+                GetString("FindingProviderServices", nameof(provider)),
+                provider);
+
+        /// <summary>
+        ///     No design-time services were found.
+        /// </summary>
+        public static string NoDesignTimeServices
+            => GetString("NoDesignTimeServices");
+
+        /// <summary>
+        ///     Using design-time services from class '{designTimeServices}'.
+        /// </summary>
+        public static string UsingDesignTimeServices([CanBeNull] object designTimeServices)
+            => string.Format(
+                GetString("UsingDesignTimeServices", nameof(designTimeServices)),
+                designTimeServices);
+
+        /// <summary>
+        ///     Using design-time services from provider '{provider}'.
+        /// </summary>
+        public static string UsingProviderServices([CanBeNull] object provider)
+            => string.Format(
+                GetString("UsingProviderServices", nameof(provider)),
+                provider);
+
+        /// <summary>
+        ///     Finding IDesignTimeDbContextFactory implementations...
+        /// </summary>
+        public static string FindingContextFactories
+            => GetString("FindingContextFactories");
+
+        /// <summary>
+        ///     Finding DbContext classes in the project...
+        /// </summary>
+        public static string FindingReferencedContexts
+            => GetString("FindingReferencedContexts");
+
+        /// <summary>
+        ///     Found IDesignTimeDbContextFactory implementation '{factory}'.
+        /// </summary>
+        public static string FoundContextFactory([CanBeNull] object factory)
+            => string.Format(
+                GetString("FoundContextFactory", nameof(factory)),
+                factory);
 
         private static string GetString(string name, params string[] formatterNames)
         {

@@ -377,16 +377,40 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogRevertingMigration")));
 
         /// <summary>
-        ///     Using database '{database}' on server '{dataSource}'.
+        ///     Migrating using database '{database}' on server '{dataSource}'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogUsingConnection
+        public static readonly EventDefinition<string, string> LogMigrating
             = new EventDefinition<string, string>(
                 RelationalEventId.MigrateUsingConnection,
                 LogLevel.Debug,
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     RelationalEventId.MigrateUsingConnection,
-                    _resourceManager.GetString("LogUsingConnection")));
+                    _resourceManager.GetString("LogMigrating")));
+
+        /// <summary>
+        ///     No migrations were applied. The database is already up to date.
+        /// </summary>
+        public static readonly EventDefinition LogNoMigrationsApplied
+            = new EventDefinition(
+                RelationalEventId.MigrationsNotApplied,
+                LogLevel.Information,
+                LoggerMessage.Define(
+                    LogLevel.Information,
+                    RelationalEventId.MigrationsNotApplied,
+                    _resourceManager.GetString("LogNoMigrationsApplied")));
+
+        /// <summary>
+        ///     No migrations were found in assembly '{migrationsAssembly}'.
+        /// </summary>
+        public static readonly EventDefinition<string> LogNoMigrationsFound
+            = new EventDefinition<string>(
+                RelationalEventId.MigrationsNotFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    RelationalEventId.MigrationsNotFound,
+                    _resourceManager.GetString("LogNoMigrationsFound")));
 
         /// <summary>
         ///     The required column '{column}' was not present in the results of a 'FromSql' operation.

@@ -178,8 +178,8 @@
     <value>Reverting model snapshot.</value>
     <comment>Information DesignEventId.SnapshotReverting</comment>
   </data>
-  <data name="UnapplyMigration" xml:space="preserve">
-    <value>The migration '{name}' has already been applied to the database. Unapply it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.</value>
+  <data name="RevertMigration" xml:space="preserve">
+    <value>The migration '{name}' has already been applied to the database. Revert it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.</value>
   </data>
   <data name="UnknownOperation" xml:space="preserve">
     <value>The current CSharpMigrationOperationGenerator cannot scaffold operations of type '{operationType}'. Configure your services to use one that can.</value>
@@ -269,5 +269,56 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="CouldNotSerialize" xml:space="preserve">
     <value>Could not serialize {obj} [{name}]</value>
+  </data>
+  <data name="UsingEnvironment" xml:space="preserve">
+    <value>Using environment '{environment}'.</value>
+  </data>
+  <data name="FindingBuildWebHost" xml:space="preserve">
+    <value>Finding BuildWebHost method...</value>
+  </data>
+  <data name="FindingServiceProvider" xml:space="preserve">
+    <value>Finding application service provider...</value>
+  </data>
+  <data name="NoBuildWebHost" xml:space="preserve">
+    <value>No BuildWebHost method was found on type '{programClass}'.</value>
+  </data>
+  <data name="NoEntryPoint" xml:space="preserve">
+    <value>No entry point was found for assembly '{startupAssembly}'.</value>
+  </data>
+  <data name="NoServiceProvider" xml:space="preserve">
+    <value>No application service provider was found.</value>
+  </data>
+  <data name="UsingBuildWebHost" xml:space="preserve">
+    <value>Using application service provider from BuildWebHost method on '{programClass}'.</value>
+  </data>
+  <data name="FoundDbContext" xml:space="preserve">
+    <value>Found DbContext '{contextType}'.</value>
+  </data>
+  <data name="UsingDbContextFactory" xml:space="preserve">
+    <value>Using DbContext factory '{factory}'.</value>
+  </data>
+  <data name="FindingDesignTimeServices" xml:space="preserve">
+    <value>Finding IDesignTimeServices implementations in assembly '{startupAssembly}'...</value>
+  </data>
+  <data name="FindingProviderServices" xml:space="preserve">
+    <value>Finding design-time services for provider '{provider}'...</value>
+  </data>
+  <data name="NoDesignTimeServices" xml:space="preserve">
+    <value>No design-time services were found.</value>
+  </data>
+  <data name="UsingDesignTimeServices" xml:space="preserve">
+    <value>Using design-time services from class '{designTimeServices}'.</value>
+  </data>
+  <data name="UsingProviderServices" xml:space="preserve">
+    <value>Using design-time services from provider '{provider}'.</value>
+  </data>
+  <data name="FindingContextFactories" xml:space="preserve">
+    <value>Finding IDesignTimeDbContextFactory implementations...</value>
+  </data>
+  <data name="FindingReferencedContexts" xml:space="preserve">
+    <value>Finding DbContext classes in the project...</value>
+  </data>
+  <data name="FoundContextFactory" xml:space="preserve">
+    <value>Found IDesignTimeDbContextFactory implementation '{factory}'.</value>
   </data>
 </root>

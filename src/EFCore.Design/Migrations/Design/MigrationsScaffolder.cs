@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     else if (_historyRepository.GetAppliedMigrations().Any(
                         e => e.MigrationId.Equals(migration.GetId(), StringComparison.OrdinalIgnoreCase)))
                     {
-                        throw new OperationException(DesignStrings.UnapplyMigration(migration.GetId()));
+                        throw new OperationException(DesignStrings.RevertMigration(migration.GetId()));
                     }
 
                     var migrationFileName = migration.GetId() + language;

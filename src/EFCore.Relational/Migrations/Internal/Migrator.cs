@@ -167,6 +167,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         return GenerateUpSql(migration);
                     };
             }
+
+            if (migrationsToRevert.Count + migrationsToApply.Count == 0)
+            {
+                _logger.MigrationsNotApplied(this);
+            }
         }
 
         private void PopulateMigrations(
@@ -178,6 +183,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var appliedMigrations = new Dictionary<string, TypeInfo>();
             var unappliedMigrations = new Dictionary<string, TypeInfo>();
             var appliedMigrationEntrySet = new HashSet<string>(appliedMigrationEntries, StringComparer.OrdinalIgnoreCase);
+            if (_migrationsAssembly.Migrations.Count == 0)
+            {
+                _logger.MigrationsNotFound(this, _migrationsAssembly);
+            }
             foreach (var migration in _migrationsAssembly.Migrations)
             {
                 if (appliedMigrationEntrySet.Contains(migration.Key))

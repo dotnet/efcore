@@ -53,6 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             MigrationApplying,
             MigrationGeneratingDownScript,
             MigrationGeneratingUpScript,
+            MigrationsNotApplied,
+            MigrationsNotFound,
 
             // Query events
             QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
@@ -346,6 +348,33 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId MigrationGeneratingUpScript = MakeMigrationsId(Id.MigrationGeneratingUpScript);
+
+        /// <summary>
+        ///     <para>
+        ///         Migrations weren't applied.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="MigratorEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId MigrationsNotApplied = MakeMigrationsId(Id.MigrationsNotApplied);
+
+
+        /// <summary>
+        ///     <para>
+        ///         Migrations weren't found.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="MigrationAssemblyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId MigrationsNotFound = MakeMigrationsId(Id.MigrationsNotFound);
 
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
         private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);

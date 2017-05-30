@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -46,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(DbDataReader), () => new FakeDbDataReader() },
                 { typeof(IMigrator), () => new FakeMigrator() },
                 { typeof(Migration), () => new FakeMigration() },
+                { typeof(IMigrationsAssembly), () => new FakeMigrationsAssembly() },
                 { typeof(QueryModel), () => queryModel },
                 { typeof(MethodCallExpression), () => Expression.Call(constantExpression, typeof(object).GetMethod("ToString")) },
                 { typeof(Expression), () => constantExpression },
@@ -68,6 +70,15 @@ namespace Microsoft.EntityFrameworkCore
             public void Migrate(string targetMigration = null) => throw new NotImplementedException();
             public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
             public string GenerateScript(string fromMigration = null, string toMigration = null, bool idempotent = false) => throw new NotImplementedException();
+        }
+
+        private class FakeMigrationsAssembly : IMigrationsAssembly
+        {
+            public IReadOnlyDictionary<string, TypeInfo> Migrations => throw new NotImplementedException();
+            public ModelSnapshot ModelSnapshot => throw new NotImplementedException();
+            public Assembly Assembly => typeof(FakeMigrationsAssembly).GetTypeInfo().Assembly;
+            public Migration CreateMigration(TypeInfo migrationClass, string activeProvider) => throw new NotImplementedException();
+            public string FindMigrationId(string nameOrId) => throw new NotImplementedException();
         }
 
         private class FakeRelationalConnection : IRelationalConnection

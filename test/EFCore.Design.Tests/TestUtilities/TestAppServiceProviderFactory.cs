@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private readonly Type _programType;
 
         public TestAppServiceProviderFactory(Assembly startupAssembly, Type programType)
-            : base(startupAssembly)
+            : base(startupAssembly, new TestOperationReporter())
             => _programType = programType;
 
         protected override Type FindProgramClass()
