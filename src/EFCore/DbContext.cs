@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
         private IDbContextDependencies _dbContextDependencies;
         private DatabaseFacade _database;
         private ChangeTracker _changeTracker;
-        private IDiagnosticsLogger<DbLoggerCategory.Update> _updateLogger;
+        private IDiagnosticsLogger<EF.LoggerCategories.Update> _updateLogger;
 
         private IServiceScope _serviceScope;
         private IDbContextPool _dbContextPool;
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 contextServices.Initialize(scopedServiceProvider, options, this);
 
-                _updateLogger = scopedServiceProvider.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Update>>();
+                _updateLogger = scopedServiceProvider.GetRequiredService<IDiagnosticsLogger<EF.LoggerCategories.Update>>();
 
                 return contextServices;
             }

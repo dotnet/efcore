@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerScaffoldingModelFactory(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
+            [NotNull] IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> logger,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] CandidateNamingService candidateNamingService,

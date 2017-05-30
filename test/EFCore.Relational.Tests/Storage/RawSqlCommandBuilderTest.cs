@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                    new FakeDiagnosticsLogger<EF.LoggerCategories.Database.Command>(),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                    new FakeDiagnosticsLogger<EF.LoggerCategories.Database.Command>(),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                    new FakeDiagnosticsLogger<EF.LoggerCategories.Database.Command>(),
                     new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));

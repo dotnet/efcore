@@ -104,18 +104,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<T> _InterceptExceptions<T>(
-            IAsyncEnumerable<T> source, Type contextType, IDiagnosticsLogger<DbLoggerCategory.Query> logger, QueryContext queryContext)
+            IAsyncEnumerable<T> source, Type contextType, IDiagnosticsLogger<EF.LoggerCategories.Query> logger, QueryContext queryContext)
             => new ExceptionInterceptor<T>(source, contextType, logger, queryContext);
 
         private sealed class ExceptionInterceptor<T> : IAsyncEnumerable<T>
         {
             private readonly IAsyncEnumerable<T> _innerAsyncEnumerable;
             private readonly Type _contextType;
-            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly IDiagnosticsLogger<EF.LoggerCategories.Query> _logger;
             private readonly QueryContext _queryContext;
 
             public ExceptionInterceptor(
-                IAsyncEnumerable<T> innerAsyncEnumerable, Type contextType, IDiagnosticsLogger<DbLoggerCategory.Query> logger, QueryContext queryContext)
+                IAsyncEnumerable<T> innerAsyncEnumerable, Type contextType, IDiagnosticsLogger<EF.LoggerCategories.Query> logger, QueryContext queryContext)
             {
                 _innerAsyncEnumerable = innerAsyncEnumerable;
                 _contextType = contextType;

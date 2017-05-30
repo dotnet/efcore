@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate();
                 new CoreModelValidator(
                         new ModelValidatorDependencies(
-                            new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
+                            new DiagnosticsLogger<EF.LoggerCategories.Model.Validation>(
                                 new LoggerFactory(),
                                 new LoggingOptions(),
                                 new DiagnosticListener("Fake"))))

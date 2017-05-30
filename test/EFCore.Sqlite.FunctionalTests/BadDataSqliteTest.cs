@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
         private class BadDataCommandBuilderFactory : RelationalCommandBuilderFactory
         {
             public BadDataCommandBuilderFactory(
-                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+                IDiagnosticsLogger<EF.LoggerCategories.Database.Command> logger,
                 IRelationalTypeMapper typeMapper)
                 : base(logger, typeMapper)
             {
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
             public object[] Values { private get; set; }
 
             protected override IRelationalCommandBuilder CreateCore(
-                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+                    IDiagnosticsLogger<EF.LoggerCategories.Database.Command> logger,
                     IRelationalTypeMapper relationalTypeMapper)
                 => new BadDataRelationalCommandBuilder(
                     logger, relationalTypeMapper, Values);
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore
                 private readonly object[] _values;
 
                 public BadDataRelationalCommandBuilder(
-                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+                    IDiagnosticsLogger<EF.LoggerCategories.Database.Command> logger,
                     IRelationalTypeMapper typeMapper,
                     object[] values)
                     : base(logger, typeMapper)
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 protected override IRelationalCommand BuildCore(
-                        IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+                        IDiagnosticsLogger<EF.LoggerCategories.Database.Command> logger,
                         string commandText,
                         IReadOnlyList<IRelationalParameter> parameters)
                     => new BadDataRelationalCommand(logger, commandText, parameters, _values);
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
                     private readonly object[] _values;
 
                     public BadDataRelationalCommand(
-                        IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+                        IDiagnosticsLogger<EF.LoggerCategories.Database.Command> logger,
                         string commandText,
                         IReadOnlyList<IRelationalParameter> parameters,
                         object[] values)

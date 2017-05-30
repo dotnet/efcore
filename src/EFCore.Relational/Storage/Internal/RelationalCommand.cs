@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalCommand(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+            [NotNull] IDiagnosticsLogger<EF.LoggerCategories.Database.Command> logger,
             [NotNull] string commandText,
             [NotNull] IReadOnlyList<IRelationalParameter> parameters)
         {
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
+        protected virtual IDiagnosticsLogger<EF.LoggerCategories.Database.Command> Logger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         ///     </para>
         /// </summary>
         /// <param name="logger"> A logger. </param>
-        public RelationalCompositeMethodCallTranslatorDependencies([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+        public RelationalCompositeMethodCallTranslatorDependencies([NotNull] IDiagnosticsLogger<EF.LoggerCategories.Query> logger)
         {
             Logger = logger;
         }
@@ -48,14 +48,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// <summary>
         ///     The logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
+        public IDiagnosticsLogger<EF.LoggerCategories.Query> Logger { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalCompositeMethodCallTranslatorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+        public RelationalCompositeMethodCallTranslatorDependencies With([NotNull] IDiagnosticsLogger<EF.LoggerCategories.Query> logger)
             => new RelationalCompositeMethodCallTranslatorDependencies(logger);
     }
 }

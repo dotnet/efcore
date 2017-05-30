@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                 .EnsureInitialized(serviceProvider, options);
                         }
 
-                        var logger = serviceProvider.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
+                        var logger = serviceProvider.GetRequiredService<IDiagnosticsLogger<EF.LoggerCategories.Infrastructure>>();
 
                         logger.ServiceProviderCreated(serviceProvider);
 

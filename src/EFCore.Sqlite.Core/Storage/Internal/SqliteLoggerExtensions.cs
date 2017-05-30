@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SchemaConfiguredWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Model.Validation> diagnostics,
             [NotNull] IEntityType entityType,
             [NotNull] string schema)
         {
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SequenceConfiguredWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Model.Validation> diagnostics,
             [NotNull] ISequence sequence)
         {
             var definition = SqliteStrings.LogSequenceConfigured;

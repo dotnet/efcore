@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 IUpdateSqlGenerator sqlGenerator = null)
                 : base(
                     new RelationalCommandBuilderFactory(
-                        new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                        new FakeDiagnosticsLogger<EF.LoggerCategories.Database.Command>(),
                         new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
                     new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                     sqlGenerator ?? new FakeSqlGenerator(

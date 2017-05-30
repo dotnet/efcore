@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
     {
         protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
             => new SqlServerDatabaseModelFactory(
-                new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
+                new DiagnosticsLogger<EF.LoggerCategories.Scaffolding>(
                     loggerFactory,
                     new LoggingOptions(),
                     new DiagnosticListener("Fake")));

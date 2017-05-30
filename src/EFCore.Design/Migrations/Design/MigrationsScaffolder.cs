@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private readonly IMigrationsIdGenerator _idGenerator;
         private readonly MigrationsCodeGenerator _migrationCodeGenerator;
         private readonly IHistoryRepository _historyRepository;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Migrations> _logger;
+        private readonly IDiagnosticsLogger<EF.LoggerCategories.Migrations> _logger;
         private readonly string _activeProvider;
 
         public MigrationsScaffolder(
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] IMigrationsIdGenerator idGenerator,
             [NotNull] MigrationsCodeGenerator migrationCodeGenerator,
             [NotNull] IHistoryRepository historyRepository,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Migrations> logger,
+            [NotNull] IDiagnosticsLogger<EF.LoggerCategories.Migrations> logger,
             [NotNull] IDatabaseProvider databaseProvider)
         {
             Check.NotNull(currentContext, nameof(currentContext));

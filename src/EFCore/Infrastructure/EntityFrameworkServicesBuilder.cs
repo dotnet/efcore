@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetService<IDbContextTransactionManager>());
 
             ServiceCollectionMap
-                .TryAddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Root));
+                .TryAddSingleton<DiagnosticSource>(new DiagnosticListener(EF.LoggerCategories.Root));
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<DatabaseProviderDependencies>()

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var loggerFactory = new LoggerFactory();
             loggerFactory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, reporter)));
 
-            var logger = loggerFactory.CreateLogger(DbLoggerCategory.Database.Command.Name);
+            var logger = loggerFactory.CreateLogger(EF.LoggerCategories.Database.Command.Name);
             logger.Log<object>(
                 LogLevel.Information,
                 RelationalEventId.CommandExecuted,

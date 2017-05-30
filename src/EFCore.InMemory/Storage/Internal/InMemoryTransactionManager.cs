@@ -15,10 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     {
         private static readonly InMemoryTransaction _stubTransaction = new InMemoryTransaction();
 
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> _logger;
+        private readonly IDiagnosticsLogger<EF.LoggerCategories.Database.Transaction> _logger;
 
         public InMemoryTransactionManager(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger)
+            [NotNull] IDiagnosticsLogger<EF.LoggerCategories.Database.Transaction> logger)
         {
             Check.NotNull(logger, nameof(logger));
 

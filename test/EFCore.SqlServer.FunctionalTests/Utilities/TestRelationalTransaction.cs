@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 new RelationalTransaction(
                     connection,
                     transaction,
-                    new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
+                    new DiagnosticsLogger<EF.LoggerCategories.Database.Transaction>(
                         loggerFactory, new LoggingOptions(), diagnosticSource),
                     transactionOwned))
         {

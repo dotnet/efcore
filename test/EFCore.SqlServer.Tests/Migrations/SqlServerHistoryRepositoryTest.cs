@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var typeMapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
 
             var commandBuilderFactory = new RelationalCommandBuilderFactory(
-                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                new FakeDiagnosticsLogger<EF.LoggerCategories.Database.Command>(),
                 typeMapper);
 
             return new SqlServerHistoryRepository(

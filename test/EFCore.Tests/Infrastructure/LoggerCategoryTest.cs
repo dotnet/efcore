@@ -10,33 +10,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public void Logger_categories_have_the_correct_names()
         {
-            Assert.Equal("Microsoft.EntityFrameworkCore.Database", DbLoggerCategory.Database.Name);
-            Assert.Equal("Microsoft.EntityFrameworkCore.Database.Command", DbLoggerCategory.Database.Command.Name);
-            Assert.Equal("Microsoft.EntityFrameworkCore.Database.Connection", DbLoggerCategory.Database.Connection.Name);
-            Assert.Equal("Microsoft.EntityFrameworkCore.Database.Transaction", DbLoggerCategory.Database.Transaction.Name);
-            Assert.Equal("Microsoft.EntityFrameworkCore.Infrastructure", DbLoggerCategory.Infrastructure.Name);
-            Assert.Equal("Microsoft.EntityFrameworkCore.Migrations", DbLoggerCategory.Migrations.Name);
-            Assert.Equal("Microsoft.EntityFrameworkCore.Scaffolding", DbLoggerCategory.Scaffolding.Name);
-            Assert.Equal("Microsoft.EntityFrameworkCore.Model", DbLoggerCategory.Model.Name);
-            Assert.Equal("Microsoft.EntityFrameworkCore.Model.Validation", DbLoggerCategory.Model.Validation.Name);
-            Assert.Equal("Microsoft.EntityFrameworkCore.Query", DbLoggerCategory.Query.Name);
-            Assert.Equal("Microsoft.EntityFrameworkCore.Update", DbLoggerCategory.Update.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Database", EF.LoggerCategories.Database.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Database.Command", EF.LoggerCategories.Database.Command.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Database.Connection", EF.LoggerCategories.Database.Connection.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Database.Transaction", EF.LoggerCategories.Database.Transaction.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Infrastructure", EF.LoggerCategories.Infrastructure.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Migrations", EF.LoggerCategories.Migrations.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Scaffolding", EF.LoggerCategories.Scaffolding.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Model", EF.LoggerCategories.Model.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Model.Validation", EF.LoggerCategories.Model.Validation.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Query", EF.LoggerCategories.Query.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Update", EF.LoggerCategories.Update.Name);
         }
 
         [Fact]
         public void DbLoggerCategory_instances_generate_the_correct_names()
         {
-            Assert.Equal(DbLoggerCategory.Database.Name, new DbLoggerCategory.Database());
-            Assert.Equal(DbLoggerCategory.Database.Command.Name, new DbLoggerCategory.Database.Command());
-            Assert.Equal(DbLoggerCategory.Database.Connection.Name, new DbLoggerCategory.Database.Connection());
-            Assert.Equal(DbLoggerCategory.Database.Transaction.Name, new DbLoggerCategory.Database.Transaction());
-            Assert.Equal(DbLoggerCategory.Infrastructure.Name, new DbLoggerCategory.Infrastructure());
-            Assert.Equal(DbLoggerCategory.Migrations.Name, new DbLoggerCategory.Migrations());
-            Assert.Equal(DbLoggerCategory.Scaffolding.Name, new DbLoggerCategory.Scaffolding());
-            Assert.Equal(DbLoggerCategory.Model.Name, new DbLoggerCategory.Model());
-            Assert.Equal(DbLoggerCategory.Model.Validation.Name, new DbLoggerCategory.Model.Validation());
-            Assert.Equal(DbLoggerCategory.Query.Name, new DbLoggerCategory.Query());
-            Assert.Equal(DbLoggerCategory.Update.Name, new DbLoggerCategory.Update());
+            Assert.Equal(EF.LoggerCategories.Database.Name, new EF.LoggerCategories.Database());
+            Assert.Equal(EF.LoggerCategories.Database.Command.Name, new EF.LoggerCategories.Database.Command());
+            Assert.Equal(EF.LoggerCategories.Database.Connection.Name, new EF.LoggerCategories.Database.Connection());
+            Assert.Equal(EF.LoggerCategories.Database.Transaction.Name, new EF.LoggerCategories.Database.Transaction());
+            Assert.Equal(EF.LoggerCategories.Infrastructure.Name, new EF.LoggerCategories.Infrastructure());
+            Assert.Equal(EF.LoggerCategories.Migrations.Name, new EF.LoggerCategories.Migrations());
+            Assert.Equal(EF.LoggerCategories.Scaffolding.Name, new EF.LoggerCategories.Scaffolding());
+            Assert.Equal(EF.LoggerCategories.Model.Name, new EF.LoggerCategories.Model());
+            Assert.Equal(EF.LoggerCategories.Model.Validation.Name, new EF.LoggerCategories.Model.Validation());
+            Assert.Equal(EF.LoggerCategories.Query.Name, new EF.LoggerCategories.Query());
+            Assert.Equal(EF.LoggerCategories.Update.Name, new EF.LoggerCategories.Update());
         }
     }
 }

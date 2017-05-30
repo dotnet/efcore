@@ -78,90 +78,90 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ManyServiceProvidersCreatedWarning
         }
 
-        private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
+        private static readonly string _updatePrefix = EF.LoggerCategories.Update.Name + ".";
         private static EventId MakeUpdateId(Id id) => new EventId((int)id, _updatePrefix + id);
 
         /// <summary>
         ///     An error occurred while attempting to save changes to the database.
-        ///     This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Update" /> category.
         /// </summary>
         public static readonly EventId SaveChangesFailed = MakeUpdateId(Id.SaveChangesFailed);
 
-        private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
+        private static readonly string _queryPrefix = EF.LoggerCategories.Query.Name + ".";
         private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);
 
         /// <summary>
         ///     An error occurred while processing the results of a query.
-        ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Query" /> category.
         /// </summary>
         public static readonly EventId QueryIterationFailed = MakeQueryId(Id.QueryIterationFailed);
 
         /// <summary>
         ///     A query model is being compiled.
-        ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Query" /> category.
         /// </summary>
         public static readonly EventId QueryModelCompiling = MakeQueryId(Id.QueryModelCompiling);
 
         /// <summary>
         ///     A query uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.
-        ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Query" /> category.
         /// </summary>
         public static readonly EventId RowLimitingOperationWithoutOrderByWarning = MakeQueryId(Id.RowLimitingOperationWithoutOrderByWarning);
 
         /// <summary>
         ///     A query uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.
-        ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Query" /> category.
         /// </summary>
         public static readonly EventId FirstWithoutOrderByAndFilterWarning = MakeQueryId(Id.FirstWithoutOrderByAndFilterWarning);
 
         /// <summary>
         ///     A query model was optimized.
-        ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Query" /> category.
         /// </summary>
         public static readonly EventId QueryModelOptimized = MakeQueryId(Id.QueryModelOptimized);
 
         /// <summary>
         ///     A navigation was included in the query.
-        ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Query" /> category.
         /// </summary>
         public static readonly EventId NavigationIncluded = MakeQueryId(Id.NavigationIncluded);
 
         /// <summary>
         ///     A navigation was ignored while compiling a query.
-        ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Query" /> category.
         /// </summary>
         public static readonly EventId IncludeIgnoredWarning = MakeQueryId(Id.IncludeIgnoredWarning);
 
         /// <summary>
         ///     A query is planned for execution.
-        ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Query" /> category.
         /// </summary>
         public static readonly EventId QueryExecutionPlanned = MakeQueryId(Id.QueryExecutionPlanned);
 
         /// <summary>
         ///     Possible uninteded comparison of collection navigation to null.
-        ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Query" /> category.
         /// </summary>
         public static readonly EventId PossibleUnintendedCollectionNavigationNullComparisonWarning
             = MakeQueryId(Id.PossibleUnintendedCollectionNavigationNullComparisonWarning);
 
         /// <summary>
         ///     Possible uninteded reference comparison.
-        ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Query" /> category.
         /// </summary>
         public static readonly EventId PossibleUnintendedReferenceComparisonWarning
             = MakeQueryId(Id.PossibleUnintendedReferenceComparisonWarning);
 
-        private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
+        private static readonly string _validationPrefix = EF.LoggerCategories.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);
 
         /// <summary>
         ///     A warning during model validation indicating a key is configured on shadow properties.
-        ///     This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Model.Validation" /> category.
         /// </summary>
         public static readonly EventId ModelValidationShadowKeyWarning = MakeValidationId(Id.ModelValidationShadowKeyWarning);
 
-        private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
+        private static readonly string _infraPrefix = EF.LoggerCategories.Infrastructure.Name + ".";
         private static EventId MakeInfraId(Id id) => new EventId((int)id, _infraPrefix + id);
 
         /// <summary>
@@ -172,13 +172,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     A service provider was created for internal use by Entity Framework.
-        ///     This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Infrastructure" /> category.
         /// </summary>
         public static readonly EventId ServiceProviderCreated = MakeInfraId(Id.ServiceProviderCreated);
 
         /// <summary>
         ///     Many service proviers were created in a single app domain.
-        ///     This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Infrastructure" /> category.
         /// </summary>
         public static readonly EventId ManyServiceProvidersCreatedWarning = MakeInfraId(Id.ManyServiceProvidersCreatedWarning);
     }

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ColumnFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName,
             [CanBeNull] string columnName,
             [CanBeNull] string dataTypeName,
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyColumnFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName,
             int id,
             [CanBeNull] string principalTableName,
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SchemasNotSupportedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics)
         {
             var definition = SqliteDesignStrings.LogUsingSchemaSelectionsWarning;
 

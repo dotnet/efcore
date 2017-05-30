@@ -80,11 +80,11 @@ namespace Microsoft.EntityFrameworkCore
 
             return new RelationalConnectionDependencies(
                 options,
-                new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
+                new DiagnosticsLogger<EF.LoggerCategories.Database.Transaction>(
                     new LoggerFactory(),
                     new LoggingOptions(),
                     new DiagnosticListener("FakeDiagnosticListener")),
-                new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
+                new DiagnosticsLogger<EF.LoggerCategories.Database.Connection>(
                     new LoggerFactory(),
                     new LoggingOptions(),
                     new DiagnosticListener("FakeDiagnosticListener")));

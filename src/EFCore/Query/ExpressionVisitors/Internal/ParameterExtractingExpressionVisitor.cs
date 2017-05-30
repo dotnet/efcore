@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
         private readonly IParameterValues _parameterValues;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+        private readonly IDiagnosticsLogger<EF.LoggerCategories.Query> _logger;
 
         private readonly bool _parameterize;
         private readonly bool _generateContextAccessors;
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         public ParameterExtractingExpressionVisitor(
             [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter,
             [NotNull] IParameterValues parameterValues,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+            [NotNull] IDiagnosticsLogger<EF.LoggerCategories.Query> logger,
             bool parameterize,
             bool generateContextAccessors = false)
         {

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void DecimalTypeDefaultWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Model.Validation> diagnostics,
             [NotNull] IProperty property)
         {
             var definition = SqlServerStrings.LogDefaultDecimalTypeColumn;
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ByteIdentityColumnWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Model.Validation> diagnostics,
             [NotNull] IProperty property)
         {
             var definition = SqlServerStrings.LogByteIdentityColumn;

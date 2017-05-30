@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var transaction = new RelationalTransaction(
                 connection,
                 dbTransaction,
-                new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
+                new DiagnosticsLogger<EF.LoggerCategories.Database.Transaction>(
                     loggerFactory,
                     new LoggingOptions(),
                     new DiagnosticListener("Fake")),
