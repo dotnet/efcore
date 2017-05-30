@@ -15,19 +15,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public void Can_filter_for_messages_of_one_category()
         {
-            FilterTest(c => c == DbLoggerCategory.Database.Command.Name, "SQL1", "SQL2");
+            FilterTest(c => c == EF.LoggerCategories.Database.Command.Name, "SQL1", "SQL2");
         }
 
         [Fact]
         public void Can_filter_for_messages_of_one_subcategory()
         {
-            FilterTest(c => c.StartsWith(DbLoggerCategory.Database.Name), "DB1", "SQL1", "DB2", "SQL2");
+            FilterTest(c => c.StartsWith(EF.LoggerCategories.Database.Name), "DB1", "SQL1", "DB2", "SQL2");
         }
 
         [Fact]
         public void Can_filter_for_all_EF_messages()
         {
-            FilterTest(c => c.StartsWith(DbLoggerCategory.Root), "DB1", "SQL1", "Query1", "DB2", "SQL2", "Query2");
+            FilterTest(c => c.StartsWith(EF.LoggerCategories.Root), "DB1", "SQL1", "Query1", "DB2", "SQL2", "Query2");
         }
 
         [Fact]
@@ -43,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             loggerFactory.AddProvider(loggerProvider);
 
-            var dbLogger = new DiagnosticsLogger<DbLoggerCategory.Database>(loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
-            var sqlLogger = new DiagnosticsLogger<DbLoggerCategory.Database.Command>(loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
-            var queryLogger = new DiagnosticsLogger<DbLoggerCategory.Query>(loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
+            var dbLogger = new DiagnosticsLogger<EF.LoggerCategories.Database>(loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
+            var sqlLogger = new DiagnosticsLogger<EF.LoggerCategories.Database.Command>(loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
+            var queryLogger = new DiagnosticsLogger<EF.LoggerCategories.Query>(loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
             var randomLogger = loggerFactory.CreateLogger("Random");
 
             dbLogger.Logger.LogInformation(1, "DB1");

@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => transactionManager.RollbackTransaction()).Message);
         }
 
-        private class FakeLogger : IDiagnosticsLogger<DbLoggerCategory.Database.Transaction>, ILogger
+        private class FakeLogger : IDiagnosticsLogger<EF.LoggerCategories.Database.Transaction>, ILogger
         {
             public void Log<TState>(
                 LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)

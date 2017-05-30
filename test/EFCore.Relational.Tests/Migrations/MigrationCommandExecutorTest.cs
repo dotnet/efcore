@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                new FakeDiagnosticsLogger<EF.LoggerCategories.Database.Command>(),
                 commandText,
                 parameters ?? new IRelationalParameter[0]);
     }

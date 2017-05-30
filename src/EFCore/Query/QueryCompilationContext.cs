@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The logger.
         /// </value>
-        public virtual IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
+        public virtual IDiagnosticsLogger<EF.LoggerCategories.Query> Logger { get; }
 
         /// <summary>
         ///     Gets the linq operator provider.

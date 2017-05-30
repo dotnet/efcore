@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SaveChangesFailed(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Update> diagnostics,
             [NotNull] Type contextType,
             [NotNull] Exception exception)
         {
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void QueryIterationFailed(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Query> diagnostics,
             [NotNull] Type contextType,
             [NotNull] Exception exception)
         {
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void QueryModelCompiling(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Query> diagnostics,
             [NotNull] QueryModel queryModel)
         {
             var definition = CoreStrings.LogCompilingQueryModel;
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void RowLimitingOperationWithoutOrderByWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Query> diagnostics,
             [NotNull] QueryModel queryModel)
         {
             var definition = CoreStrings.LogRowLimitingOperationWithoutOrderBy;
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void FirstWithoutOrderByAndFilterWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Query> diagnostics,
             [NotNull] QueryModel queryModel)
         {
             var definition = CoreStrings.LogFirstWithoutOrderByAndFilter;
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void QueryModelOptimized(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Query> diagnostics,
             [NotNull] QueryModel queryModel)
         {
             var definition = CoreStrings.LogOptimizedQueryModel;
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void NavigationIncluded(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Query> diagnostics,
             [NotNull] string includeSpecification)
         {
             var definition = CoreStrings.LogIncludingNavigation;
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void QueryExecutionPlanned(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Query> diagnostics,
             [NotNull] IExpressionPrinter expressionPrinter,
             [NotNull] Expression queryExecutorExpression)
         {
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void IncludeIgnoredWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Query> diagnostics,
             [NotNull] string includeSpecification)
         {
             var definition = CoreStrings.LogIgnoredInclude;
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void PossibleUnintendedCollectionNavigationNullComparisonWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Query> diagnostics,
             [NotNull] string navigationPath)
         {
             var definition = CoreStrings.LogPossibleUnintendedCollectionNavigationNullComparison;
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void PossibleUnintendedReferenceComparisonWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Query> diagnostics,
             [NotNull] Expression left,
             [NotNull] Expression right)
         {
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ModelValidationShadowKeyWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Model.Validation> diagnostics,
             [NotNull] IEntityType entityType,
             [NotNull] IKey key)
         {
@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ServiceProviderCreated(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Infrastructure> diagnostics,
             [NotNull] IServiceProvider serviceProvider)
         {
             var definition = CoreStrings.LogServiceProviderCreated;
@@ -409,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ManyServiceProvidersCreatedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Infrastructure> diagnostics,
             [NotNull] ICollection<IServiceProvider> serviceProviders)
         {
             var definition = CoreStrings.LogManyServiceProvidersCreated;

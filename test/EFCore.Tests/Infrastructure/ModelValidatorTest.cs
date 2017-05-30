@@ -106,15 +106,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected ModelValidatorTest()
         {
             Log = new List<Tuple<LogLevel, string>>();
-            Logger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
+            Logger = new DiagnosticsLogger<EF.LoggerCategories.Model.Validation>(
+                new ListLoggerFactory(Log, l => l == EF.LoggerCategories.Model.Validation.Name),
                 new LoggingOptions(),
                 new DiagnosticListener("Fake"));
         }
 
         protected List<Tuple<LogLevel, string>> Log { get; }
 
-        protected IDiagnosticsLogger<DbLoggerCategory.Model.Validation> Logger { get; }
+        protected IDiagnosticsLogger<EF.LoggerCategories.Model.Validation> Logger { get; }
 
         protected virtual void VerifyWarning(string expectedMessage, IModel model)
         {

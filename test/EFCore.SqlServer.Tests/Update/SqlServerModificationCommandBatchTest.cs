@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var batch = new SqlServerModificationCommandBatch(
                 new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                    new FakeDiagnosticsLogger<EF.LoggerCategories.Database.Command>(),
                     new SqlServerTypeMapper(new RelationalTypeMapperDependencies())),
                 new SqlServerSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies()),

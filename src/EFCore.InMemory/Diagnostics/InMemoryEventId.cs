@@ -30,21 +30,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ChangesSaved = CoreEventId.ProviderBaseId + 100
         }
 
-        private static readonly string _transactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
+        private static readonly string _transactionPrefix = EF.LoggerCategories.Database.Transaction.Name + ".";
         private static EventId MakeTransactionId(Id id) => new EventId((int)id, _transactionPrefix + id);
 
         /// <summary>
         ///     Changes were saved to the database.
-        ///     This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Database.Transaction" /> category.
         /// </summary>
         public static readonly EventId TransactionIgnoredWarning = MakeTransactionId(Id.TransactionIgnoredWarning);
 
-        private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
+        private static readonly string _updatePrefix = EF.LoggerCategories.Update.Name + ".";
         private static EventId MakeUpdateId(Id id) => new EventId((int)id, _updatePrefix + id);
 
         /// <summary>
         ///     A transaction operation was requested, but ignored because in-memory does not support transactions.
-        ///     This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Update" /> category.
         /// </summary>
         public static readonly EventId ChangesSaved = MakeUpdateId(Id.ChangesSaved);
     }

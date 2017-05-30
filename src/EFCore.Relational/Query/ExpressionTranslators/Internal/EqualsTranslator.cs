@@ -17,13 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class EqualsTranslator : IMethodCallTranslator
     {
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+        private readonly IDiagnosticsLogger<EF.LoggerCategories.Query> _logger;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public EqualsTranslator([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+        public EqualsTranslator([NotNull] IDiagnosticsLogger<EF.LoggerCategories.Query> logger)
         {
             Check.NotNull(logger, nameof(logger));
 

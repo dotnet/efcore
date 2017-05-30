@@ -28,18 +28,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ByteIdentityColumnWarning
         }
 
-        private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
+        private static readonly string _validationPrefix = EF.LoggerCategories.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);
 
         /// <summary>
         ///     No explicit type for a decimal column.
-        ///     This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Model.Validation" /> category.
         /// </summary>
         public static readonly EventId DecimalTypeDefaultWarning = MakeValidationId(Id.DecimalTypeDefaultWarning);
 
         /// <summary>
         ///     A byte property is set up to use a SQL Server identity column.
-        ///     This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     This event is in the <see cref="EF.LoggerCategories.Model.Validation" /> category.
         /// </summary>
         public static readonly EventId ByteIdentityColumnWarning = MakeValidationId(Id.ByteIdentityColumnWarning);
     }

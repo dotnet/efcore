@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                    new FakeDiagnosticsLogger<EF.LoggerCategories.Database.Command>(),
                     new SqlServerTypeMapper(
                         new RelationalTypeMapperDependencies())),
                 new SqlServerSqlGenerationHelper(
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                    new FakeDiagnosticsLogger<EF.LoggerCategories.Database.Command>(),
                     new SqlServerTypeMapper(
                         new RelationalTypeMapperDependencies())),
                 new SqlServerSqlGenerationHelper(

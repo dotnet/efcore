@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public virtual int ExecuteTransaction(
             IEnumerable<IUpdateEntry> entries,
-            IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
+            IDiagnosticsLogger<EF.LoggerCategories.Update> updateLogger)
         {
             var rowsAffected = 0;
 

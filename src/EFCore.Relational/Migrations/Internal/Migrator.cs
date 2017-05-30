@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly IMigrationCommandExecutor _migrationCommandExecutor;
         private readonly IRelationalConnection _connection;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Migrations> _logger;
+        private readonly IDiagnosticsLogger<EF.LoggerCategories.Migrations> _logger;
         private readonly string _activeProvider;
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
             [NotNull] IRelationalConnection connection,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Migrations> logger,
+            [NotNull] IDiagnosticsLogger<EF.LoggerCategories.Migrations> logger,
             [NotNull] IDatabaseProvider databaseProvider)
         {
             Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));

@@ -31,10 +31,10 @@ namespace Microsoft.EntityFrameworkCore
         public RelationalDatabaseModelFactoryTest()
         {
             ILoggerFactory loggerFactory = new TestDesignLoggerFactory();
-            _logger = (TestDesignLoggerFactory.DesignLogger)loggerFactory.CreateLogger(DbLoggerCategory.Scaffolding.Name);
+            _logger = (TestDesignLoggerFactory.DesignLogger)loggerFactory.CreateLogger(EF.LoggerCategories.Scaffolding.Name);
 
             _factory = new FakeScaffoldingModelFactory(
-                new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
+                new DiagnosticsLogger<EF.LoggerCategories.Scaffolding>(
                     loggerFactory,
                     new LoggingOptions(), 
                     new DiagnosticListener("Fake")));
@@ -903,7 +903,7 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             var factory = new FakeScaffoldingModelFactory(
-                new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
+                new DiagnosticsLogger<EF.LoggerCategories.Scaffolding>(
                     new TestDesignLoggerFactory(),
                     new LoggingOptions(), 
                     new DiagnosticListener("Fake")),
@@ -965,7 +965,7 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             var factory = new FakeScaffoldingModelFactory(
-                new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
+                new DiagnosticsLogger<EF.LoggerCategories.Scaffolding>(
                     new TestDesignLoggerFactory(),
                     new LoggingOptions(),
                     new DiagnosticListener("Fake")),
@@ -994,13 +994,13 @@ namespace Microsoft.EntityFrameworkCore
         public IModel Create(DatabaseModel databaseModel) => CreateFromDatabaseModel(databaseModel);
 
         public FakeScaffoldingModelFactory(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger)
+            [NotNull] IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> logger)
             : this(logger, new NullPluralizer())
         {
         }
 
         public FakeScaffoldingModelFactory(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
+            [NotNull] IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> logger,
             [NotNull] IPluralizer pluralizer)
             : base(
                 logger,

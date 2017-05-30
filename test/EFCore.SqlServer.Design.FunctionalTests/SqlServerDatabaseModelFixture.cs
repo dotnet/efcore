@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
             TestStore.ExecuteNonQuery(createSql);
 
             return new SqlServerDatabaseModelFactory(
-                    new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
+                    new DiagnosticsLogger<EF.LoggerCategories.Scaffolding>(
                         TestDesignLoggerFactory,
                         new LoggingOptions(),
                         new DiagnosticListener("Fake")))

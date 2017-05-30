@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private IDbContextTransaction _currentTransaction;
 
         public TestInMemoryTransactionManager(
-            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger)
+            IDiagnosticsLogger<EF.LoggerCategories.Database.Transaction> logger)
             : base(logger)
         {
         }

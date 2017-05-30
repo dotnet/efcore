@@ -37,6 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The logger for the <see cref="ExecutionStrategy" />.
         /// </summary>
-        public virtual IDiagnosticsLogger<DbLoggerCategory.Infrastructure> Logger => Dependencies.Logger;
+        public virtual IDiagnosticsLogger<EF.LoggerCategories.Infrastructure> Logger => Dependencies.Logger;
     }
 }

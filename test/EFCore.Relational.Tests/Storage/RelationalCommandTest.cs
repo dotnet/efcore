@@ -901,7 +901,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var fakeConnection = new FakeRelationalConnection(options);
 
             var relationalCommand = CreateRelationalCommand(
-                new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
+                new DiagnosticsLogger<EF.LoggerCategories.Database.Command>(
                     new ListLoggerFactory(log),
                     new FakeLoggingOptions(false),
                     new DiagnosticListener("Fake")),
@@ -955,7 +955,7 @@ Logged Command",
             var fakeConnection = new FakeRelationalConnection(options);
 
             var relationalCommand = CreateRelationalCommand(
-                new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
+                new DiagnosticsLogger<EF.LoggerCategories.Database.Command>(
                     new ListLoggerFactory(log),
                     new FakeLoggingOptions(true),
                     new DiagnosticListener("Fake")),
@@ -1009,7 +1009,7 @@ Logged Command",
             var diagnostic = new List<Tuple<string, object>>();
 
             var relationalCommand = CreateRelationalCommand(
-                new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
+                new DiagnosticsLogger<EF.LoggerCategories.Database.Command>(
                     new ListLoggerFactory(new List<Tuple<LogLevel, string>>()),
                     new FakeLoggingOptions(false),
                     new ListDiagnosticSource(diagnostic)),
@@ -1077,7 +1077,7 @@ Logged Command",
             var fakeConnection = new FakeRelationalConnection(options);
 
             var relationalCommand = CreateRelationalCommand(
-                new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
+                new DiagnosticsLogger<EF.LoggerCategories.Database.Command>(
                     new ListLoggerFactory(new List<Tuple<LogLevel, string>>()),
                     new FakeLoggingOptions(false),
                     new ListDiagnosticSource(diagnostic)),
@@ -1162,11 +1162,11 @@ Logged Command",
         }
 
         private IRelationalCommand CreateRelationalCommand(
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger = null,
+            IDiagnosticsLogger<EF.LoggerCategories.Database.Command> logger = null,
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                logger ?? new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                logger ?? new FakeDiagnosticsLogger<EF.LoggerCategories.Database.Command>(),
                 commandText,
                 parameters ?? new IRelationalParameter[0]);
     }

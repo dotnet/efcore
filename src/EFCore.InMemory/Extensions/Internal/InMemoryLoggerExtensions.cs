@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void TransactionIgnoredWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics)
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Database.Transaction> diagnostics)
         {
             var definition = InMemoryStrings.LogTransactionsNotSupported;
 
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ChangesSaved(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Update> diagnostics,
             [NotNull] IEnumerable<IUpdateEntry> entries,
             int rowsAffected)
         {

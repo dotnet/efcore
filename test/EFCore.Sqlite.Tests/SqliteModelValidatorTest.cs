@@ -74,8 +74,8 @@ namespace Microsoft.EntityFrameworkCore
         protected override ModelValidator CreateModelValidator()
             => new SqliteModelValidator(
                 new ModelValidatorDependencies(
-                    new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                        new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
+                    new DiagnosticsLogger<EF.LoggerCategories.Model.Validation>(
+                        new ListLoggerFactory(Log, l => l == EF.LoggerCategories.Model.Validation.Name),
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(

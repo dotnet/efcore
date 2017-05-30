@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override IInternalDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
             => new SqliteDatabaseModelFactory(
-                new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
+                new DiagnosticsLogger<EF.LoggerCategories.Scaffolding>(
                     loggerFactory,
                     new LoggingOptions(),
                     new DiagnosticListener("Fake")));

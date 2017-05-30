@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="connectionLogger"> The logger to which connection messages will be written. </param>
         public RelationalConnectionDependencies(
             [NotNull] IDbContextOptions contextOptions,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> transactionLogger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Connection> connectionLogger)
+            [NotNull] IDiagnosticsLogger<EF.LoggerCategories.Database.Transaction> transactionLogger,
+            [NotNull] IDiagnosticsLogger<EF.LoggerCategories.Database.Connection> connectionLogger)
         {
             Check.NotNull(contextOptions, nameof(contextOptions));
             Check.NotNull(transactionLogger, nameof(transactionLogger));
@@ -65,13 +65,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The logger to which transaction messages will be written.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> TransactionLogger { get; }
+        public IDiagnosticsLogger<EF.LoggerCategories.Database.Transaction> TransactionLogger { get; }
 
 
         /// <summary>
         ///     The logger to which connection messages will be written.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Connection> ConnectionLogger { get; }
+        public IDiagnosticsLogger<EF.LoggerCategories.Database.Connection> ConnectionLogger { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A replacement for the current dependency of this type.
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalConnectionDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Connection> connectionLogger)
+        public RelationalConnectionDependencies With([NotNull] IDiagnosticsLogger<EF.LoggerCategories.Database.Connection> connectionLogger)
             => new RelationalConnectionDependencies(ContextOptions, TransactionLogger, connectionLogger);
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A replacement for the current dependency of this type.
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalConnectionDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> transactionLogger)
+        public RelationalConnectionDependencies With([NotNull] IDiagnosticsLogger<EF.LoggerCategories.Database.Transaction> transactionLogger)
             => new RelationalConnectionDependencies(ContextOptions, transactionLogger, ConnectionLogger);
     }
 }

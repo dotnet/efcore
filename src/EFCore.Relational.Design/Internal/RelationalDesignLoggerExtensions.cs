@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MissingSchemaWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string schemaName)
         {
             var definition = RelationalDesignStrings.LogMissingSchema;
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MissingTableWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
             var definition = RelationalDesignStrings.LogMissingTable;
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SequenceNotNamedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics)
         {
             var definition = RelationalDesignStrings.LogSequencesRequireName;
 
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SequenceTypeNotSupportedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string sequenceName,
             [CanBeNull] string dataTypeName)
         {
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void UnableToGenerateEntityTypeWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
             var definition = RelationalDesignStrings.LogUnableToGenerateEntityType;
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ColumnTypeNotMappedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string columnName,
             [CanBeNull] string dataTypeName)
         {
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MissingPrimaryKeyWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
             var definition = RelationalDesignStrings.LogMissingPrimaryKey;
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void PrimaryKeyColumnsNotMappedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName,
             [NotNull] IList<string> unmappedColumnNames)
         {
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void IndexColumnsNotMappedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string indexName,
             [NotNull] IList<string> unmappedColumnNames)
         {
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyReferencesMissingTableWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName)
         {
             var definition = RelationalDesignStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound;
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyReferencesNotMappedTableWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName,
             [NotNull] string principalTableName)
         {
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyColumnsNotMappedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName,
             [NotNull] IList<string> unmappedColumnNames)
         {
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyReferencesMissingPrincipalKeyWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string principalEntityTypeName,
             [NotNull] IList<string> principalColumnNames)
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyPrincipalEndContainsNullableColumnsWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string indexName,
             [CanBeNull] IList<string> nullablePropertyNames)
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SequenceFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string sequenceName,
             [CanBeNull] string sequenceTypeName,
             bool? cyclic,
@@ -428,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void TableFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
             var definition = RelationalDesignStrings.LogFoundTable;
@@ -451,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void TableSkipped(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
             var definition = RelationalDesignStrings.LogTableNotInSelectionSet;
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ColumnSkipped(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName,
             [CanBeNull] string columnName)
         {
@@ -499,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void IndexColumnFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName,
             [CanBeNull] string indexName,
             bool? unique,
@@ -530,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ColumnNotNamedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
             var definition = RelationalDesignStrings.LogColumnNameEmptyOnTable;
@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void IndexColumnSkipped(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName,
             [CanBeNull] string indexName,
             [CanBeNull] string columnName)
@@ -580,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void IndexNotNamedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
             var definition = RelationalDesignStrings.LogIndexNameEmpty;
@@ -603,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void IndexTableMissingWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string indexName,
             [CanBeNull] string tableName)
         {
@@ -628,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void IndexColumnNotNamedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string indexName,
             [CanBeNull] string tableName)
         {
@@ -653,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyNotNamedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
             var definition = RelationalDesignStrings.LogForeignKeyNameEmpty;
@@ -676,7 +676,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyColumnMissingWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string columnName,
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string tableName)
@@ -703,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyReferencesMissingPrincipalTableWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string tableName,
             [CanBeNull] string principalTableName)
@@ -730,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyColumnNotNamedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string tableName)
         {
@@ -755,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void IndexFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string indexName,
             [CanBeNull] string tableName,
             bool? unique)
@@ -782,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyPrincipalColumnMissingWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] this IDiagnosticsLogger<EF.LoggerCategories.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string tableName,
             [CanBeNull] string principalColumnName,
