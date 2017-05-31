@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -21,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IPropertyFieldChangedConvention,
         IForeignKeyUniquenessConvention,
         IKeyConvention,
-        IKeyRemovedConvention
+        IKeyRemovedConvention,
+        IModelConvention
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -396,6 +398,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     Apply(foreignKey.Builder);
                 }
             }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            {
+                foreach (var foreignKey in entityType.GetDeclaredForeignKeys().Where(fk => fk.GetForeignKeyPropertiesConfigurationSource() == null))
+                {
+                    var foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true);
+                    if (foreignKeyProperties != null)
+                    {
+                        var conflictingForeignKey = foreignKey.DeclaringEntityType.FindForeignKeysInHierarchy(foreignKeyProperties)
+                            .FirstOrDefault(fk => fk != foreignKey
+                                                  && ConfigurationSource.Convention.Overrides(fk.GetForeignKeyPropertiesConfigurationSource()));
+                        if (conflictingForeignKey != null)
+                        {
+                            throw new InvalidOperationException(CoreStrings.AmbiguousForeignKeyPropertyCandidates(
+                                conflictingForeignKey.DeclaringEntityType.DisplayName() +
+                                (conflictingForeignKey.DependentToPrincipal == null ? "" : "." + conflictingForeignKey.DependentToPrincipal.Name),
+                                conflictingForeignKey.PrincipalEntityType.DisplayName() +
+                                (conflictingForeignKey.PrincipalToDependent == null ? "" : "." + conflictingForeignKey.PrincipalToDependent.Name),
+                                foreignKey.DeclaringEntityType.DisplayName() +
+                                (foreignKey.DependentToPrincipal == null ? "" : "." + foreignKey.DependentToPrincipal.Name),
+                                foreignKey.PrincipalEntityType.DisplayName() +
+                                (foreignKey.PrincipalToDependent == null ? "" : "." + foreignKey.PrincipalToDependent.Name),
+                                Property.Format(foreignKeyProperties)));
+                        }
+                    }
+                }
+            }
+
+            return modelBuilder;
         }
     }
 }

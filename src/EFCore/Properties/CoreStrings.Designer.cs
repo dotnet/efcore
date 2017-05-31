@@ -1349,6 +1349,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 dependentToPrincipalNavigationSpecification, principalToDependentNavigationSpecification);
 
         /// <summary>
+        ///     Both relationships between '{firstDependentToPrincipalNavigationSpecification}' and '{firstPrincipalToDependentNavigationSpecification}' and between '{secondDependentToPrincipalNavigationSpecification}' and '{secondPrincipalToDependentNavigationSpecification}' could use {foreignKeyProperties} as the foreign key. To resolve this configure the foreign key properties explicitly on at least one of the relationships.
+        /// </summary>
+        public static string AmbiguousForeignKeyPropertyCandidates([CanBeNull] object firstDependentToPrincipalNavigationSpecification, [CanBeNull] object firstPrincipalToDependentNavigationSpecification, [CanBeNull] object secondDependentToPrincipalNavigationSpecification, [CanBeNull] object secondPrincipalToDependentNavigationSpecification, [CanBeNull] object foreignKeyProperties)
+            => string.Format(
+                GetString("AmbiguousForeignKeyPropertyCandidates", nameof(firstDependentToPrincipalNavigationSpecification), nameof(firstPrincipalToDependentNavigationSpecification), nameof(secondDependentToPrincipalNavigationSpecification), nameof(secondPrincipalToDependentNavigationSpecification), nameof(foreignKeyProperties)),
+                firstDependentToPrincipalNavigationSpecification, firstPrincipalToDependentNavigationSpecification, secondDependentToPrincipalNavigationSpecification, secondPrincipalToDependentNavigationSpecification, foreignKeyProperties);
+
+        /// <summary>
         ///     The property expression '{propertyAccessExpression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
         /// </summary>
         public static string InvalidComplexPropertyExpression([CanBeNull] object propertyAccessExpression)
