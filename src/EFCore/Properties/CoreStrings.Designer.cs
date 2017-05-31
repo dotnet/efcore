@@ -801,6 +801,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType, propertyType);
 
         /// <summary>
+        ///     The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because it has been included in a key {key}.
+        /// </summary>
+        public static string KeyPropertyCannotBeNullable([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object key)
+            => string.Format(
+                GetString("KeyPropertyCannotBeNullable", nameof(property), nameof(entityType), nameof(key)),
+                property, entityType, key);
+
+        /// <summary>
         ///     An attempt was made to use the model while it was being created. A DbContext instance cannot be used inside OnModelCreating in any way that makes use of the model that is being created.
         /// </summary>
         public static string RecursiveOnModelCreating
@@ -1743,7 +1751,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogPossibleUnintendedReferenceComparison")));
 
         /// <summary>
-        ///     The same entity is being tracked as different delegated identity entity types '{diet1}' and '{diet2}'. If a property value changes it will result in two store changes, which might not be the desired outcome. 
+        ///     The same entity is being tracked as different delegated identity entity types '{diet1}' and '{diet2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.
         /// </summary>
         public static readonly EventDefinition<string, string> LogDuplicateDietInstance
             = new EventDefinition<string, string>(

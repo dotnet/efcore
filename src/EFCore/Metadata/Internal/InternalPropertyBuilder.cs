@@ -39,6 +39,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     foreach (var key in Metadata.GetContainingKeys().ToList())
                     {
+                        if (configurationSource == ConfigurationSource.Explicit
+                            && key.GetConfigurationSource() == ConfigurationSource.Explicit)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.KeyPropertyCannotBeNullable(Metadata.Name, Metadata.DeclaringEntityType.DisplayName(), Property.Format(key.Properties)));
+                        }
+
                         var removed = key.DeclaringEntityType.Builder.RemoveKey(key, configurationSource);
                         Debug.Assert(removed.HasValue);
                     }

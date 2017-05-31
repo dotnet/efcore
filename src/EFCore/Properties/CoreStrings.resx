@@ -410,6 +410,9 @@
   <data name="CannotBeNullable" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
   </data>
+  <data name="KeyPropertyCannotBeNullable" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because it has been included in a key {key}.</value>
+  </data>
   <data name="RecursiveOnModelCreating" xml:space="preserve">
     <value>An attempt was made to use the model while it was being created. A DbContext instance cannot be used inside OnModelCreating in any way that makes use of the model that is being created.</value>
   </data>
@@ -771,7 +774,7 @@
     <comment>Warning CoreEventId.PossibleUnintendedReferenceComparisonWarning object object</comment>
   </data>
   <data name="LogDuplicateDietInstance" xml:space="preserve">
-    <value>The same entity is being tracked as different delegated identity entity types '{diet1}' and '{diet2}'. If a property value changes it will result in two store changes, which might not be the desired outcome. </value>
-    <comment>Warning CoreEventId.DuplicateDietInstance string string</comment>
+    <value>The same entity is being tracked as different delegated identity entity types '{diet1}' and '{diet2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.</value>
+    <comment>Warning CoreEventId.DuplicateDietInstanceWarning string string</comment>
   </data>
 </root>
