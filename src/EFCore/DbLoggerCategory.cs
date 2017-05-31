@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The root/prefix for all Entity Framework categories.
         /// </summary>
-        public const string Root = "Microsoft.EntityFrameworkCore";
+        public const string Name = "Microsoft.EntityFrameworkCore";
 
         /// <summary>
         ///     Logger categories for messages related to database interactions.

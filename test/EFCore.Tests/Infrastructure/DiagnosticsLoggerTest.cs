@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public void Can_filter_for_all_EF_messages()
         {
-            FilterTest(c => c.StartsWith(DbLoggerCategory.Root), "DB1", "SQL1", "Query1", "DB2", "SQL2", "Query2");
+            FilterTest(c => c.StartsWith(DbLoggerCategory.Name), "DB1", "SQL1", "Query1", "DB2", "SQL2", "Query2");
         }
 
         [Fact]
