@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -134,6 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Func<TState, ExecutionResult<TResult>> verifySucceeded,
             TState state)
         {
+            Check.NotNull(operation, nameof(operation));
+
             if (Suspended)
             {
                 return operation(state);
@@ -223,6 +226,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             TState state,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            Check.NotNull(operation, nameof(operation));
+
             if (Suspended)
             {
                 return operation(state, cancellationToken);
