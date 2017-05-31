@@ -141,6 +141,10 @@
   <data name="RelationalNotInUse" xml:space="preserve">
     <value>Relational-specific methods can only be used when the context is using a relational database provider.</value>
   </data>
+  <data name="LogBoolWithDefaultWarning" xml:space="preserve">
+    <value>The 'bool' property '{property}' on entity type '{entityType}' is configured with a database-generated default. This default will always be used when the property has the value 'false', since this is the CLR default for the 'bool' type. Consider using the nullable 'bool?' type instead so that the default will only be used when the property value is 'null'.</value>
+    <comment>Warning RelationalEventId.BoolWithDefaultWarning string string</comment>
+  </data>
   <data name="UpdateStoreException" xml:space="preserve">
     <value>An error occurred while updating the entries. See the inner exception for details.</value>
   </data>

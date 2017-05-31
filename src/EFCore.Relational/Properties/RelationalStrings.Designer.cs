@@ -73,6 +73,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("RelationalNotInUse");
 
         /// <summary>
+        ///     The 'bool' property '{property}' on entity type '{entityType}' is configured with a database-generated default. This default will always be used when the property has the value 'false', since this is the CLR default for the 'bool' type. Consider using the nullable 'bool?' type instead so that the default will only be used when the property value is 'null'.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogBoolWithDefaultWarning
+            = new EventDefinition<string, string>(
+                RelationalEventId.BoolWithDefaultWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    RelationalEventId.BoolWithDefaultWarning,
+                    _resourceManager.GetString("LogBoolWithDefaultWarning")));
+
+        /// <summary>
         ///     An error occurred while updating the entries. See the inner exception for details.
         /// </summary>
         public static string UpdateStoreException

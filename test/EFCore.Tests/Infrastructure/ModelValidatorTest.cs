@@ -103,6 +103,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public int SampleEntityId { get; set; }
         }
 
+        protected class E
+        {
+            public int Id { get; set; }
+            public bool ImBool { get; set; }
+            public bool? ImNot { get; set; }
+        }
+
         protected ModelValidatorTest()
         {
             Log = new List<Tuple<LogLevel, string>>();
@@ -120,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Validate(model);
 
+            Assert.Equal(1, Log.Count);
             Assert.Equal(LogLevel.Warning, Log[0].Item1);
             Assert.Equal(expectedMessage, Log[0].Item2);
         }

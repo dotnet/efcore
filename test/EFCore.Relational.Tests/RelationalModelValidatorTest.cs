@@ -17,6 +17,30 @@ namespace Microsoft.EntityFrameworkCore
     public class RelationalModelValidatorTest : ModelValidatorTest
     {
         [Fact]
+        public virtual void Detects_bool_with_default_value()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(E));
+            SetPrimaryKey(entityType);
+            entityType.AddProperty("ImBool", typeof(bool)).Relational().DefaultValue = true;
+            entityType.AddProperty("ImNot", typeof(bool?)).Relational().DefaultValue = true;
+
+            VerifyWarning(RelationalStrings.LogBoolWithDefaultWarning.GenerateMessage("ImBool", "E"), model);
+        }
+
+        [Fact]
+        public virtual void Detects_bool_with_default_expression()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(E));
+            SetPrimaryKey(entityType);
+            entityType.AddProperty("ImBool", typeof(bool)).Relational().DefaultValueSql = "TRUE";
+            entityType.AddProperty("ImNot", typeof(bool?)).Relational().DefaultValueSql = "TRUE";
+
+            VerifyWarning(RelationalStrings.LogBoolWithDefaultWarning.GenerateMessage("ImBool", "E"), model);
+        }
+
+        [Fact]
         public virtual void Detects_primary_key_with_default_value()
         {
             var model = new Model();

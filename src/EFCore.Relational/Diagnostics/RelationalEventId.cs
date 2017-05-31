@@ -61,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             QueryPossibleUnintendedUseOfEqualsWarning,
 
             // Model validation events
-            ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600
+            ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
+            BoolWithDefaultWarning
         }
 
         private static readonly string _connectionPrefix = DbLoggerCategory.Database.Connection.Name + ".";
@@ -420,5 +421,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ModelValidationKeyDefaultValueWarning = MakeValidationId(Id.ModelValidationKeyDefaultValueWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         A bool property is configured with a store-generated default.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId BoolWithDefaultWarning = MakeValidationId(Id.BoolWithDefaultWarning);
     }
 }

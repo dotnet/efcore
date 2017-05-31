@@ -1079,5 +1079,42 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 p.Property.Name,
                 p.Property.DeclaringEntityType.DisplayName());
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void BoolWithDefaultWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] IProperty property)
+        {
+            var definition = RelationalStrings.LogBoolWithDefaultWarning;
+
+            // Checking for enabled here to avoid building strings if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    property.Name,
+                    property.DeclaringEntityType.DisplayName());
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new PropertyEventData(
+                        definition,
+                        BoolWithDefaultWarning,
+                        property));
+            }
+        }
+
+        private static string BoolWithDefaultWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (PropertyEventData)payload;
+            return d.GenerateMessage(p.Property.Name, p.Property.DeclaringEntityType.DisplayName());
+        }
     }
 }

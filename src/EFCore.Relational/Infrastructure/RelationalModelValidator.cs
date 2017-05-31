@@ -55,8 +55,28 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateInheritanceMapping(model);
             ValidateDataTypes(model);
             ValidateDefaultValuesOnKeys(model);
+            ValidateBoolsWithDefaults(model);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void ValidateBoolsWithDefaults([NotNull] IModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            foreach (var property in model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
+            {
+                if (property.ClrType == typeof(bool)
+                    && (property.Relational().DefaultValue != null
+                        || property.Relational().DefaultValueSql != null))
+                {
+                    Dependencies.Logger.BoolWithDefaultWarning(property);
+                }
+            }
+        }
+        
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
