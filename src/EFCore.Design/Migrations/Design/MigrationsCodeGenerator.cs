@@ -10,31 +10,41 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
-    public abstract class MigrationsCodeGenerator
+    public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
     {
+        public MigrationsCodeGenerator([NotNull] MigrationsCodeGeneratorDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
+        }
+
         public abstract string FileExtension { get; }
 
+        protected virtual MigrationsCodeGeneratorDependencies Dependencies { get; }
+
         public abstract string GenerateMigration(
-            [NotNull] string migrationNamespace,
-            [NotNull] string migrationName,
-            [NotNull] IReadOnlyList<MigrationOperation> upOperations,
-            [NotNull] IReadOnlyList<MigrationOperation> downOperations);
+            string migrationNamespace,
+            string migrationName,
+            IReadOnlyList<MigrationOperation> upOperations,
+            IReadOnlyList<MigrationOperation> downOperations);
 
         public abstract string GenerateMetadata(
-            [NotNull] string migrationNamespace,
-            [NotNull] Type contextType,
-            [NotNull] string migrationName,
-            [NotNull] string migrationId,
-            [NotNull] IModel targetModel);
+            string migrationNamespace,
+            Type contextType,
+            string migrationName,
+            string migrationId,
+            IModel targetModel);
 
         public abstract string GenerateSnapshot(
-            [NotNull] string modelSnapshotNamespace,
-            [NotNull] Type contextType,
-            [NotNull] string modelSnapshotName,
-            [NotNull] IModel model);
+            string modelSnapshotNamespace,
+            Type contextType,
+            string modelSnapshotName,
+            IModel model);
 
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IEnumerable<MigrationOperation> operations)
             => operations.OfType<ColumnOperation>().SelectMany(GetColumnNamespaces)

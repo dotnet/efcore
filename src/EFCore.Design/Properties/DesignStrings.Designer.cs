@@ -97,38 +97,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     A manual migration deletion was detected.
         /// </summary>
-        public static readonly EventDefinition LogManuallyDeleted
-            = new EventDefinition(
-                DesignEventId.MigrationManuallyDeleted,
-                LogLevel.Debug,
-                LoggerMessage.Define(
-                    LogLevel.Debug,
-                    DesignEventId.MigrationManuallyDeleted,
-                    _resourceManager.GetString("LogManuallyDeleted")));
+        public static string ManuallyDeleted
+            => GetString("ManuallyDeleted");
 
         /// <summary>
         ///     No file named '{file}' was found. You must manually remove the migration class '{migrationClass}'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogNoMigrationFile
-            = new EventDefinition<string, string>(
-                DesignEventId.MigrationFileNotFound,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    DesignEventId.MigrationFileNotFound,
-                    _resourceManager.GetString("LogNoMigrationFile")));
+        public static string NoMigrationFile([CanBeNull] object file, [CanBeNull] object migrationClass)
+            => string.Format(
+                GetString("NoMigrationFile", nameof(file), nameof(migrationClass)),
+                file, migrationClass);
 
         /// <summary>
         ///     No file named '{file}' was found.
         /// </summary>
-        public static readonly EventDefinition<string> LogNoMigrationMetadataFile
-            = new EventDefinition<string>(
-                DesignEventId.MigrationMetadataFileNotFound,
-                LogLevel.Debug,
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    DesignEventId.MigrationMetadataFileNotFound,
-                    _resourceManager.GetString("LogNoMigrationMetadataFile")));
+        public static string NoMigrationMetadataFile([CanBeNull] object file)
+            => string.Format(
+                GetString("NoMigrationMetadataFile", nameof(file)),
+                file);
 
         /// <summary>
         ///     No ModelSnapshot was found.
@@ -139,50 +125,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     No file named '{file}' was found. You must manually remove the model snapshot class '{snapshotClass}'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogNoSnapshotFile
-            = new EventDefinition<string, string>(
-                DesignEventId.SnapshotFileNotFound,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    DesignEventId.SnapshotFileNotFound,
-                    _resourceManager.GetString("LogNoSnapshotFile")));
+        public static string NoSnapshotFile([CanBeNull] object file, [CanBeNull] object snapshotClass)
+            => string.Format(
+                GetString("NoSnapshotFile", nameof(file), nameof(snapshotClass)),
+                file, snapshotClass);
 
         /// <summary>
         ///     Removing migration '{name}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogRemovingMigration
-            = new EventDefinition<string>(
-                DesignEventId.MigrationRemoving,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    DesignEventId.MigrationRemoving,
-                    _resourceManager.GetString("LogRemovingMigration")));
+        public static string RemovingMigration([CanBeNull] object name)
+            => string.Format(
+                GetString("RemovingMigration", nameof(name)),
+                name);
 
         /// <summary>
         ///     Removing model snapshot.
         /// </summary>
-        public static readonly EventDefinition LogRemovingSnapshot
-            = new EventDefinition(
-                DesignEventId.SnapshotRemoving,
-                LogLevel.Information,
-                LoggerMessage.Define(
-                    LogLevel.Information,
-                    DesignEventId.SnapshotRemoving,
-                    _resourceManager.GetString("LogRemovingSnapshot")));
+        public static string RemovingSnapshot
+            => GetString("RemovingSnapshot");
 
         /// <summary>
         ///     Reverting model snapshot.
         /// </summary>
-        public static readonly EventDefinition LogRevertingSnapshot
-            = new EventDefinition(
-                DesignEventId.SnapshotReverting,
-                LogLevel.Information,
-                LoggerMessage.Define(
-                    LogLevel.Information,
-                    DesignEventId.SnapshotReverting,
-                    _resourceManager.GetString("LogRevertingSnapshot")));
+        public static string RevertingSnapshot
+            => GetString("RevertingSnapshot");
 
         /// <summary>
         ///     The migration '{name}' has already been applied to the database. Revert it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.
@@ -219,50 +185,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.
         /// </summary>
-        public static readonly EventDefinition LogDestructiveOperation
-            = new EventDefinition(
-                DesignEventId.DestructiveOperation,
-                LogLevel.Warning,
-                LoggerMessage.Define(
-                    LogLevel.Warning,
-                    DesignEventId.DestructiveOperation,
-                    _resourceManager.GetString("LogDestructiveOperation")));
+        public static string DestructiveOperation
+            => GetString("DestructiveOperation");
 
         /// <summary>
         ///     Reusing directory of file '{file}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogReusingDirectory
-            = new EventDefinition<string>(
-                DesignEventId.DirectoryReusing,
-                LogLevel.Debug,
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    DesignEventId.DirectoryReusing,
-                    _resourceManager.GetString("LogReusingDirectory")));
+        public static string ReusingDirectory([CanBeNull] object file)
+            => string.Format(
+                GetString("ReusingDirectory", nameof(file)),
+                file);
 
         /// <summary>
         ///     Writing migration to '{file}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogWritingMigration
-            = new EventDefinition<string>(
-                DesignEventId.MigrationWriting,
-                LogLevel.Debug,
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    DesignEventId.MigrationWriting,
-                    _resourceManager.GetString("LogWritingMigration")));
+        public static string WritingMigration([CanBeNull] object file)
+            => string.Format(
+                GetString("WritingMigration", nameof(file)),
+                file);
 
         /// <summary>
         ///     Writing model snapshot to '{file}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogWritingSnapshot
-            = new EventDefinition<string>(
-                DesignEventId.SnapshotWriting,
-                LogLevel.Debug,
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    DesignEventId.SnapshotWriting,
-                    _resourceManager.GetString("LogWritingSnapshot")));
+        public static string WritingSnapshot([CanBeNull] object file)
+            => string.Format(
+                GetString("WritingSnapshot", nameof(file)),
+                file);
 
         /// <summary>
         ///     Done.
@@ -273,26 +221,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Reusing namespace of type '{type}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogReusingNamespace
-            = new EventDefinition<string>(
-                DesignEventId.NamespaceReusing,
-                LogLevel.Debug,
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    DesignEventId.NamespaceReusing,
-                    _resourceManager.GetString("LogReusingNamespace")));
+        public static string ReusingNamespace([CanBeNull] object type)
+            => string.Format(
+                GetString("ReusingNamespace", nameof(type)),
+                type);
 
         /// <summary>
         ///     Reusing model snapshot name '{name}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogReusingSnapshotName
-            = new EventDefinition<string>(
-                DesignEventId.SnapshotNameReusing,
-                LogLevel.Debug,
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    DesignEventId.SnapshotNameReusing,
-                    _resourceManager.GetString("LogReusingSnapshotName")));
+        public static string ReusingSnapshotName([CanBeNull] object name)
+            => string.Format(
+                GetString("ReusingSnapshotName", nameof(name)),
+                name);
 
         /// <summary>
         ///     Unable to find design-time provider assembly. Please install the {designTimeProviderAssemblyName} NuGet package and ensure that the package is referenced by the project.
@@ -335,14 +275,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.
         /// </summary>
-        public static readonly EventDefinition<string> LogForeignMigrations
-            = new EventDefinition<string>(
-                DesignEventId.ForeignMigrations,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    DesignEventId.ForeignMigrations,
-                    _resourceManager.GetString("LogForeignMigrations")));
+        public static string ForeignMigrations([CanBeNull] object migrationsNamespace)
+            => string.Format(
+                GetString("ForeignMigrations", nameof(migrationsNamespace)),
+                migrationsNamespace);
 
         /// <summary>
         ///     ConnectionString is required to generate code.
@@ -389,14 +325,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Removing migration '{name}' without checking the database. If this migration has been applied to the database, you will need to manually reverse the changes it made.
         /// </summary>
-        public static readonly EventDefinition<string> LogForceRemoveMigration
-            = new EventDefinition<string>(
-                DesignEventId.MigrationForceRemove,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    DesignEventId.MigrationForceRemove,
-                    _resourceManager.GetString("LogForceRemoveMigration")));
+        public static string ForceRemoveMigration([CanBeNull] object name)
+            => string.Format(
+                GetString("ForceRemoveMigration", nameof(name)),
+                name);
 
         /// <summary>
         ///     No parameterless constructor was found on '{contextType}'. Either add a parameterless constructor to '{contextType}' or add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' in the same assembly as '{contextType}'.

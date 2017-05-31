@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
@@ -48,23 +47,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var code = new CSharpHelper();
 
             return new MigrationsScaffolder(
-                currentContext,
-                new Model(),
-                new MigrationsAssembly(
+                new MigrationsScaffolderDependencies(
                     currentContext,
-                    new DbContextOptions<TContext>().WithExtension(new FakeRelationalOptionsExtension()),
-                    idGenerator),
-                new MigrationsModelDiffer(
-                    new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()),
-                    new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
-                idGenerator,
-                new CSharpMigrationsGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpSnapshotGenerator(code)),
-                new MockHistoryRepository(),
-                new DiagnosticsLogger<DbLoggerCategory.Migrations>(
-                    new LoggerFactory(), 
-                    new LoggingOptions(),
-                    new DiagnosticListener("Fake")),
-                new MockProvider());
+                    new Model(),
+                    new MigrationsAssembly(
+                        currentContext,
+                        new DbContextOptions<TContext>().WithExtension(new FakeRelationalOptionsExtension()),
+                        idGenerator),
+                    new MigrationsModelDiffer(
+                        new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()),
+                        new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
+                    idGenerator,
+                    new CSharpMigrationsGenerator(
+                        new MigrationsCodeGeneratorDependencies(),
+                        new CSharpMigrationsGeneratorDependencies(
+                            code,
+                            new CSharpMigrationOperationGenerator(
+                                new CSharpMigrationOperationGeneratorDependencies(code)),
+                            new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(code)))),
+                    new MockHistoryRepository(),
+                    new TestOperationReporter(),
+                    new MockProvider()));
         }
 
         private class GenericContext<T> : DbContext

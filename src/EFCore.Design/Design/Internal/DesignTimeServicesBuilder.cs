@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -17,7 +16,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -77,13 +75,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         protected virtual IServiceCollection ConfigureServices([NotNull] IServiceCollection services)
             => services
-                .AddSingleton<CSharpHelper>()
-                .AddSingleton<CSharpMigrationOperationGenerator>()
-                .AddSingleton<CSharpSnapshotGenerator>()
-                .AddSingleton<MigrationsCodeGenerator, CSharpMigrationsGenerator>()
+                .AddSingleton<ICSharpHelper, CSharpHelper>()
+                .AddSingleton<CSharpMigrationOperationGeneratorDependencies>()
+                .AddSingleton<ICSharpMigrationOperationGenerator, CSharpMigrationOperationGenerator>()
+                .AddSingleton<CSharpSnapshotGeneratorDependencies>()
+                .AddSingleton<ICSharpSnapshotGenerator, CSharpSnapshotGenerator>()
+                .AddSingleton<MigrationsCodeGeneratorDependencies>()
+                .AddSingleton<CSharpMigrationsGeneratorDependencies>()
+                .AddSingleton<IMigrationsCodeGenerator, CSharpMigrationsGenerator>()
                 .AddSingleton(_reporter)
-                .AddScaffolding()
-                .AddLogging();
+                .AddScaffolding();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -93,15 +94,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 [NotNull] IServiceProvider contextServices,
                 [NotNull] IServiceCollection services)
             => services
+                .AddTransient<MigrationsScaffolderDependencies>()
                 .AddTransient<MigrationsScaffolder>()
-                .AddTransient(_ => contextServices.GetService<ILoggingOptions>())
-                .AddTransient(_ => contextServices.GetService(typeof(IDiagnosticsLogger<>)))
-                .AddTransient(_ => contextServices.GetService<DiagnosticSource>())
                 .AddTransient(_ => contextServices.GetService<ICurrentDbContext>())
                 .AddTransient(_ => contextServices.GetService<IDatabaseProvider>())
                 .AddTransient(_ => contextServices.GetService<IDbContextOptions>())
                 .AddTransient(_ => contextServices.GetService<IHistoryRepository>())
-                .AddTransient(_ => contextServices.GetService<ILoggerFactory>())
                 .AddTransient(_ => contextServices.GetService<IMigrationsAssembly>())
                 .AddTransient(_ => contextServices.GetService<IMigrationsIdGenerator>())
                 .AddTransient(_ => contextServices.GetService<IMigrationsModelDiffer>())

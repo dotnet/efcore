@@ -7,13 +7,12 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Migrations.Design
+namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
-    public class CSharpHelper
+    public class CSharpHelper : ICSharpHelper
     {
         private static readonly IReadOnlyDictionary<Type, string> _builtInTypes = new Dictionary<Type, string>
         {
@@ -143,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 { typeof(ushort), (c, v) => c.Literal((ushort)v) }
             };
 
-        public virtual string Lambda([NotNull] IReadOnlyList<string> properties)
+        public virtual string Lambda(IReadOnlyList<string> properties)
         {
             Check.NotNull(properties, nameof(properties));
 
@@ -164,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             return builder.ToString();
         }
 
-        public virtual string Lambda([NotNull] string property, [NotNull] string variable)
+        public virtual string Lambda(string property, string variable)
         {
             Check.NotEmpty(property, nameof(property));
             Check.NotEmpty(variable, nameof(variable));
@@ -172,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             return variable + "." + property;
         }
 
-        public virtual string Reference([NotNull] Type type)
+        public virtual string Reference(Type type)
         {
             Check.NotNull(type, nameof(type));
 
@@ -220,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             return builder.ToString();
         }
 
-        public virtual string Identifier([NotNull] string name, [CanBeNull] ICollection<string> scope = null)
+        public virtual string Identifier(string name, ICollection<string> scope = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -272,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             return identifier;
         }
 
-        public virtual string Namespace([NotNull] params string[] name)
+        public virtual string Namespace(params string[] name)
         {
             Check.NotNull(name, nameof(name));
 
@@ -284,12 +283,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     @namespace.Append(identifier)
                         .Append('.');
-                }
+            }
             }
             return @namespace.Length > 0 ? @namespace.Remove(@namespace.Length - 1, 1).ToString() : "_";
         }
 
-        public virtual string Literal([NotNull] string value) =>
+        public virtual string Literal(string value) =>
             value.Contains(Environment.NewLine)
                 ? "@\"" + value.Replace("\"", "\"\"") + "\""
                 : "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
@@ -297,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public virtual string Literal(bool value) => value ? "true" : "false";
         public virtual string Literal(byte value) => "(byte)" + value;
 
-        public virtual string Literal([NotNull] byte[] values) =>
+        public virtual string Literal(byte[] values) =>
             "new byte[] { " + string.Join(", ", values) + " }";
 
         public virtual string Literal(char value) => "\'" + (value == '\'' ? "\\'" : value.ToString()) + "\'";
@@ -342,16 +341,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public virtual string Literal(ulong value) => value + "ul";
         public virtual string Literal(ushort value) => "(ushort)" + value;
 
-        public virtual string Literal<T>([NotNull] T? value) where T : struct =>
+        public virtual string Literal<T>(T? value) where T : struct =>
             UnknownLiteral(value);
 
-        public virtual string Literal<T>([NotNull] IReadOnlyList<T> values) =>
+        public virtual string Literal<T>(IReadOnlyList<T> values) =>
             "new[] { " + string.Join(", ", values.Cast<object>().Select(UnknownLiteral)) + " }";
 
-        public virtual string Literal([NotNull] IReadOnlyList<object> values)
+        public virtual string Literal(IReadOnlyList<object> values)
             => Literal(values, vertical: false);
 
-        public virtual string Literal([NotNull] IReadOnlyList<object> values, bool vertical)
+        public virtual string Literal(IReadOnlyList<object> values, bool vertical)
         {
             if (!vertical)
             {
@@ -384,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             return builder.ToString();
         }
 
-        public virtual string Literal([NotNull] object[,] values)
+        public virtual string Literal(object[,] values)
         {
             var builder = new IndentedStringBuilder();
 
@@ -426,9 +425,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             return builder.ToString();
         }
 
-        public virtual string Literal([NotNull] Enum value) => Reference(value.GetType()) + "." + value;
+        public virtual string Literal(Enum value) => Reference(value.GetType()) + "." + value;
 
-        public virtual string UnknownLiteral([CanBeNull] object value)
+        public virtual string UnknownLiteral(object value)
         {
             if (value == null)
             {

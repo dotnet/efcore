@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -25,9 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             var codeHelper = new CSharpHelper();
             var generator = new CSharpMigrationsGenerator(
-                codeHelper,
-                new CSharpMigrationOperationGenerator(codeHelper),
-                new CSharpSnapshotGenerator(codeHelper));
+                new MigrationsCodeGeneratorDependencies(),
+                new CSharpMigrationsGeneratorDependencies(
+                    codeHelper,
+                    new CSharpMigrationOperationGenerator(
+                        new CSharpMigrationOperationGeneratorDependencies(codeHelper)),
+                    new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(codeHelper))));
 
             var migrationCode = generator.GenerateMigration(
                 "MyNamespace",
@@ -161,9 +165,12 @@ namespace MyNamespace
         {
             var codeHelper = new CSharpHelper();
             var generator = new CSharpMigrationsGenerator(
-                codeHelper,
-                new CSharpMigrationOperationGenerator(codeHelper),
-                new CSharpSnapshotGenerator(codeHelper));
+                new MigrationsCodeGeneratorDependencies(),
+                new CSharpMigrationsGeneratorDependencies(
+                    codeHelper,
+                    new CSharpMigrationOperationGenerator(
+                        new CSharpMigrationOperationGeneratorDependencies(codeHelper)),
+                    new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(codeHelper))));
 
             var model = new Model { ["Some:EnumValue"] = RegexOptions.Multiline };
             var entityType = model.AddEntityType("Cheese");
@@ -214,9 +221,12 @@ namespace MyNamespace
         {
             var codeHelper = new CSharpHelper();
             var generator = new CSharpMigrationsGenerator(
-                codeHelper,
-                new CSharpMigrationOperationGenerator(codeHelper),
-                new CSharpSnapshotGenerator(codeHelper));
+                new MigrationsCodeGeneratorDependencies(),
+                new CSharpMigrationsGeneratorDependencies(
+                    codeHelper,
+                    new CSharpMigrationOperationGenerator(
+                        new CSharpMigrationOperationGeneratorDependencies(codeHelper)),
+                    new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(codeHelper))));
 
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper())).CreateConventionSet());
             modelBuilder.Entity<EntityWithEveryPrimitive>(eb =>
