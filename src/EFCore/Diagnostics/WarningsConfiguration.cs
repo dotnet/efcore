@@ -102,12 +102,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     if no explicit behavior has been set.
         /// </summary>
         public virtual WarningBehavior? GetBehavior(EventId eventId)
-        {
-            WarningBehavior warningBehavior;
-            return _explicitBehaviors.TryGetValue(eventId.Id, out warningBehavior)
+            => _explicitBehaviors.TryGetValue(eventId.Id, out var warningBehavior)
                 ? (WarningBehavior?)warningBehavior
                 : null;
-        }
 
         /// <summary>
         ///     Creates a new instance with the given explicit <see cref="WarningBehavior" /> set for

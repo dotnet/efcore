@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -108,8 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(name, nameof(name));
 
-            ConfigurationSource existingIgnoredConfigurationSource;
-            if (_ignoredMembers.TryGetValue(name, out existingIgnoredConfigurationSource))
+            if (_ignoredMembers.TryGetValue(name, out var existingIgnoredConfigurationSource))
             {
                 _ignoredMembers[name] = configurationSource.Max(existingIgnoredConfigurationSource);
                 return;
@@ -141,8 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotEmpty(name, nameof(name));
 
-            ConfigurationSource ignoredConfigurationSource;
-            if (_ignoredMembers.TryGetValue(name, out ignoredConfigurationSource))
+            if (_ignoredMembers.TryGetValue(name, out var ignoredConfigurationSource))
             {
                 return ignoredConfigurationSource;
             }
@@ -167,8 +166,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _ignoredMembers.Remove(name);
         }
 
-        IModel ITypeBase.Model => Model;
-        IMutableModel IMutableTypeBase.Model => Model;
-        Type ITypeBase.ClrType => ClrType;
+        IModel ITypeBase.Model
+        {
+            [DebuggerStepThrough] get => Model;
+        }
+
+        IMutableModel IMutableTypeBase.Model
+        {
+            [DebuggerStepThrough] get => Model;
+        }
+
+        Type ITypeBase.ClrType
+        {
+            [DebuggerStepThrough] get => ClrType;
+        }
     }
 }

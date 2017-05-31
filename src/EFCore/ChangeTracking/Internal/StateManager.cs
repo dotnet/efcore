@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private IEntityType _singleQueryModeEntityType;
 
         private readonly bool _sensitiveLoggingEnabled;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Update> _updateLogger;
         private readonly IInternalEntityEntryFactory _factory;
         private readonly IInternalEntityEntrySubscriber _subscriber;
         private readonly IModel _model;
@@ -60,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IDatabase database,
             [NotNull] IConcurrencyDetector concurrencyDetector,
             [NotNull] ICurrentDbContext currentContext,
-            [NotNull] ILoggingOptions loggingOptions)
+            [NotNull] ILoggingOptions loggingOptions,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
             _factory = factory;
             _subscriber = subscriber;
@@ -75,6 +77,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _sensitiveLoggingEnabled = true;
             }
+
+            _updateLogger = updateLogger;
         }
 
         /// <summary>
@@ -164,6 +168,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (entityType.HasDelegatedIdentity())
                 {
+                    foreach (var otherDiet in _model.GetDelegatedIdentityEntityTypes(entityType.Name)
+                        .Where(et => et != entityType && TryGetEntry(entity, et) != null))
+                    {
+                        _updateLogger.DuplicateDietInstanceWarning(entityType, otherDiet);
+                    }
+
                     if (!_dietReferenceMap.TryGetValue(entityType, out var entries))
                     {
                         entries = new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
@@ -324,8 +334,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _identityMaps = new Dictionary<IKey, IIdentityMap>();
             }
 
-            IIdentityMap identityMap;
-            if (!_identityMaps.TryGetValue(key, out identityMap))
+            if (!_identityMaps.TryGetValue(key, out var identityMap))
             {
                 identityMap = key.GetIdentityMapFactory()(_sensitiveLoggingEnabled);
                 _identityMaps[key] = identityMap;
@@ -355,9 +364,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return _identityMap1;
             }
 
-            IIdentityMap identityMap;
             if (_identityMaps == null
-                || !_identityMaps.TryGetValue(key, out identityMap))
+                || !_identityMaps.TryGetValue(key, out var identityMap))
             {
                 return null;
             }
@@ -520,8 +528,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void RecordReferencedUntrackedEntity(
             object referencedEntity, INavigation navigation, InternalEntityEntry referencedFromEntry)
         {
-            IList<Tuple<INavigation, InternalEntityEntry>> danglers;
-            if (!_referencedUntrackedEntities.Value.TryGetValue(referencedEntity, out danglers))
+            if (!_referencedUntrackedEntities.Value.TryGetValue(referencedEntity, out var danglers))
             {
                 danglers = new List<Tuple<INavigation, InternalEntityEntry>>();
                 _referencedUntrackedEntities.Value.Add(referencedEntity, danglers);
@@ -535,9 +542,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferers(object referencedEntity, bool clear)
         {
-            IList<Tuple<INavigation, InternalEntityEntry>> danglers;
             if (_referencedUntrackedEntities.HasValue
-                && _referencedUntrackedEntities.Value.TryGetValue(referencedEntity, out danglers))
+                && _referencedUntrackedEntities.Value.TryGetValue(referencedEntity, out var danglers))
             {
                 if (clear)
                 {

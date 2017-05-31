@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
@@ -27,12 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The <see cref="EventId" />.
         /// </summary>
-        public virtual EventId EventId { get; }
+        public virtual EventId EventId { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     The <see cref="Microsoft.Extensions.Logging.LogLevel" /> at which the event will be logged.
         /// </summary>
-        public virtual LogLevel Level { get; }
+        public virtual LogLevel Level { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     Returns a warning-as-error exception wrapping the given message for this event.

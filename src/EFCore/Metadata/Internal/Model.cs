@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType)
         {
-            if (!_delegatedIdentityEntityTypes.TryGetValue(name, out SortedSet<EntityType> entityTypesWithSameType))
+            if (!_delegatedIdentityEntityTypes.TryGetValue(name, out var entityTypesWithSameType))
             {
                 return null;
             }
@@ -329,6 +329,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return entityTypesWithSameType
                 .FirstOrDefault(e => e.DefiningNavigationName == definingNavigationName && e.DefiningEntityType == definingEntityType);
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyCollection<EntityType> GetDelegatedIdentityEntityTypes([NotNull] Type type)
+            => GetDelegatedIdentityEntityTypes(type.DisplayName());
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyCollection<EntityType> GetDelegatedIdentityEntityTypes([NotNull] string name)
+            => _delegatedIdentityEntityTypes.TryGetValue(name, out var entityTypesWithSameType)
+                ? entityTypesWithSameType
+                : (IReadOnlyCollection<EntityType>)new EntityType[0];
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

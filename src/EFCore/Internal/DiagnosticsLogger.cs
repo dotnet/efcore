@@ -82,12 +82,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var warningBehavior = _warningsConfiguration?.GetBehavior(eventId);
 
-            return warningBehavior != null
-                ? warningBehavior.Value
-                : (logLevel == LogLevel.Warning
-                   && _warningsConfiguration?.DefaultBehavior == WarningBehavior.Throw)
-                    ? WarningBehavior.Throw
-                    : WarningBehavior.Log;
+            return warningBehavior ??
+                   (logLevel == LogLevel.Warning
+                    && _warningsConfiguration?.DefaultBehavior == WarningBehavior.Throw
+                       ? WarningBehavior.Throw
+                       : WarningBehavior.Log);
         }
     }
 }

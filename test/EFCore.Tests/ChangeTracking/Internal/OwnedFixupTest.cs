@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -39,6 +40,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     typeof(ChildPN).ShortDisplayName(),
                     "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)),
                     Assert.Throws<InvalidOperationException>(() => context.Entry(dependent)).Message);
+            }
+        }
+
+        [Fact]
+        public void Adding_duplicate_owned_entity_throws_by_default()
+        {
+            using (var context = new FixupContext(false))
+            {
+                var principal = new ParentPN { Id = 77 };
+                var dependent = new ChildPN { Name = "1" };
+                principal.Child1 = dependent;
+                principal.Child2 = dependent;
+
+                var dependentEntry1 = context.Entry(principal).Reference(p => p.Child1).TargetEntry;
+
+                Assert.Same(dependentEntry1.GetInfrastructure(), context.Entry(dependent).GetInfrastructure());
+
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(CoreEventId.DuplicateDietInstanceWarning.ToString(),
+                        CoreStrings.LogDuplicateDietInstance.GenerateMessage(
+                            typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + typeof(ChildPN).ShortDisplayName(),
+                            typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + typeof(ChildPN).ShortDisplayName())),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(principal).Reference(p => p.Child2).TargetEntry).Message);
             }
         }
 
@@ -827,8 +851,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class FixupContext : DbContext
         {
-            public FixupContext()
+            private readonly bool _ignoreDuplicates;
+
+            public FixupContext(bool ignoreDuplicates = true)
             {
+                _ignoreDuplicates = ignoreDuplicates;
+
                 ChangeTracker.AutoDetectChangesEnabled = false;
             }
 
@@ -884,7 +912,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(FixupContext));
+            {
+                optionsBuilder.UseInMemoryDatabase(nameof(FixupContext));
+                if (!_ignoreDuplicates)
+                {
+                    optionsBuilder.ConfigureWarnings(w => w.Default(WarningBehavior.Throw).Log(CoreEventId.ManyServiceProvidersCreatedWarning));
+                }
+            }
         }
 
         private void AssertFixup(DbContext context, Action asserts)

@@ -1734,6 +1734,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     CoreEventId.PossibleUnintendedReferenceComparisonWarning,
                     _resourceManager.GetString("LogPossibleUnintendedReferenceComparison")));
 
+        /// <summary>
+        ///     The same entity is being tracked as different delegated identity entity types '{diet1}' and '{diet2}'. If a property value changes it will result in two store changes, which might not be the desired outcome. 
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogDuplicateDietInstance
+            = new EventDefinition<string, string>(
+                CoreEventId.DuplicateDietInstanceWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    CoreEventId.DuplicateDietInstanceWarning,
+                    _resourceManager.GetString("LogDuplicateDietInstance")));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -25,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(model, nameof(model)).AsModel().FindEntityType(Check.NotNull(type, nameof(type)));
 
         /// <summary>
-        ///     Gets the entity type with delegated identity for the given name, defining navigation name
+        ///     Gets the entity type with delegated identity for the given type, defining navigation name
         ///     and the defining entity type. Returns null if no matching entity type is found.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
@@ -49,6 +50,24 @@ namespace Microsoft.EntityFrameworkCore
                 definingNavigationName,
                 definingEntityType.AsEntityType());
         }
+
+        /// <summary>
+        ///     Gets the entity types with delegated identity for the given type.
+        /// </summary>
+        /// <param name="model"> The model to find the entity type in. </param>
+        /// <param name="type"> The type of the entity type to find. </param>
+        /// <returns> The entity types found. </returns>
+        public static IReadOnlyCollection<EntityType> GetDelegatedIdentityEntityTypes([NotNull] this IModel model, [NotNull] Type type)
+            => model.AsModel().GetDelegatedIdentityEntityTypes(type);
+
+        /// <summary>
+        ///     Gets the entity type with delegated identity for the given name.
+        /// </summary>
+        /// <param name="model"> The model to find the entity type in. </param>
+        /// <param name="name"> The name of the entity type to find. </param>
+        /// <returns> The entity types found. </returns>
+        public static IReadOnlyCollection<EntityType> GetDelegatedIdentityEntityTypes([NotNull] this IModel model, [NotNull] string name)
+            => model.AsModel().GetDelegatedIdentityEntityTypes(name);
 
         /// <summary>
         ///     Gets a value indicating whether the corresponding entity type has delegated identity.

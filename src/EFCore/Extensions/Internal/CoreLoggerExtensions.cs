@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Remotion.Linq;
 
@@ -53,6 +55,38 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var d = (EventDefinition<Type, string, Exception>)definition;
             var p = (DbContextErrorEventData)payload;
             return d.GenerateMessage(p.Context.GetType(), Environment.NewLine, p.Exception);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void DuplicateDietInstanceWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] IEntityType diet1,
+            [NotNull] IEntityType diet2)
+        {
+            var definition = CoreStrings.LogDuplicateDietInstance;
+
+            definition.Log(diagnostics, diet1.DisplayName(), diet2.DisplayName());
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new EntityTypesEventData(
+                        definition,
+                        DuplicateDietInstanceWarning,
+                        diet1,
+                        diet2));
+            }
+        }
+
+        private static string DuplicateDietInstanceWarning(EventDefinitionBase definition, EventDataBase payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (EntityTypesEventData)payload;
+            return d.GenerateMessage(p.FirstEntityType.DisplayName(), p.SecondEntityType.DisplayName());
         }
 
         /// <summary>
