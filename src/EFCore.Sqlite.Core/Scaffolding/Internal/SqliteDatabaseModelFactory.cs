@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             {
                                 Table = table,
                                 Name = columnName,
-                                DataType = dataType,
+                                StoreType = dataType,
                                 Ordinal = ordinal++,
                                 IsNullable = !notNull && !isPk,
                                 PrimaryKeyOrdinal = isPk ? primaryKeyOrdinal : default(int?),

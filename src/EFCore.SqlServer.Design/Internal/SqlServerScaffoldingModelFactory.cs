@@ -60,8 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return null;
             }
 
-            VisitTypeMapping(propertyBuilder, column);
-
             VisitDefaultValue(propertyBuilder, column);
 
             VisitComputedValue(propertyBuilder, column);
@@ -76,13 +74,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         protected override RelationalTypeMapping GetTypeMapping(ColumnModel column)
         {
             RelationalTypeMapping mapping = null;
-            if (column.DataType != null)
+            if (column.StoreType != null)
             {
                 string underlyingDataType = null;
                 column.Table.Database.SqlServer().TypeAliases?.TryGetValue(
-                    SqlServerDatabaseModelFactory.SchemaQualifiedKey(column.DataType, column.SqlServer().DataTypeSchemaName), out underlyingDataType);
+                    SqlServerDatabaseModelFactory.SchemaQualifiedKey(column.StoreType, column.SqlServer().DataTypeSchemaName), out underlyingDataType);
 
-                mapping = TypeMapper.FindMapping(underlyingDataType ?? column.DataType);
+                mapping = TypeMapper.FindMapping(underlyingDataType ?? column.StoreType);
             }
 
             return mapping;
@@ -142,95 +140,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             return indexBuilder;
-        }
-
-        private void VisitTypeMapping(PropertyBuilder propertyBuilder, ColumnModel column)
-        {
-            if (column.SqlServer().IsIdentity)
-            {
-                if (typeof(byte) == propertyBuilder.Metadata.ClrType)
-                {
-                    Logger.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning(
-                        column.DisplayName, column.DataType);
-                }
-                else
-                {
-                    propertyBuilder
-                        .ValueGeneratedOnAdd()
-                        .UseSqlServerIdentityColumn();
-                }
-            }
-
-            var dateTimePrecision = column.SqlServer().DateTimePrecision;
-            if (dateTimePrecision.HasValue
-                && dateTimePrecision.Value != DefaultTimeTimePrecision)
-            {
-                propertyBuilder.Metadata.SetMaxLength(null);
-                propertyBuilder.HasColumnType(
-                    string.Format(CultureInfo.InvariantCulture, "{0}({1})", column.DataType, dateTimePrecision.Value));
-            }
-            else if (!HasTypeAlias(column))
-            {
-                var qualifiedColumnTypeAndMaxLength =
-                    MaxLengthQualifiedDataType(column.DataType, column.MaxLength);
-                if (qualifiedColumnTypeAndMaxLength != null)
-                {
-                    propertyBuilder.HasColumnType(qualifiedColumnTypeAndMaxLength.Item1);
-                    propertyBuilder.Metadata.SetMaxLength(qualifiedColumnTypeAndMaxLength.Item2);
-                }
-            }
-
-            var columnType = propertyBuilder.Metadata.SqlServer().ColumnType;
-            if (columnType != null)
-            {
-                TypeMapper.ValidateTypeName(columnType);
-            }
-        }
-
-        private static bool HasTypeAlias(ColumnModel column)
-            => column.DataType != null
-               && column.Table.Database.SqlServer().TypeAliases?.ContainsKey(
-                   SqlServerDatabaseModelFactory.SchemaQualifiedKey(column.DataType, column.SqlServer().DataTypeSchemaName)) == true;
-
-        // Turns an unqualified SQL Server type name (e.g. varchar) and its
-        // max length into a qualified SQL Server type name (e.g. varchar(max))
-        // and its max length for use on string and byte[] properties.
-        // Null for either value in the tuple means don't use that value.
-        // A null tuple means don't change anything.
-        private Tuple<string, int?> MaxLengthQualifiedDataType(
-            string unqualifiedTypeName, int? maxLength)
-        {
-            var typeMapping = TypeMapper.FindMapping(unqualifiedTypeName);
-            if (typeMapping != null
-                && (typeof(string) == typeMapping.ClrType
-                    || typeof(byte[]) == typeMapping.ClrType)
-                && !_stringAndByteArrayTypesForbiddingMaxLength.Contains(unqualifiedTypeName))
-            {
-                if (typeMapping.StoreType == "nvarchar"
-                    || typeMapping.StoreType == "varbinary")
-                {
-                    // nvarchar is the default column type for string properties,
-                    // so we don't need to define it using HasColumnType() and removing
-                    // the column type allows the HasMaxLength() API to have effect.
-                    // Similarly for varbinary and byte[] properties.
-                    return new Tuple<string, int?>(null, maxLength);
-                }
-                if (_dataTypesAllowingMaxLengthMax.Contains(typeMapping.StoreType))
-                {
-                    return new Tuple<string, int?>(
-                        unqualifiedTypeName
-                        + "("
-                        + (maxLength?.ToString(CultureInfo.InvariantCulture) ?? "max")
-                        + ")",
-                        null);
-                }
-                return new Tuple<string, int?>(
-                    unqualifiedTypeName
-                    + (maxLength == null ? string.Empty : "(" + maxLength + ")"),
-                    null);
-            }
-
-            return null;
         }
 
         private void VisitDefaultValue(PropertyBuilder propertyBuilder, ColumnModel column)

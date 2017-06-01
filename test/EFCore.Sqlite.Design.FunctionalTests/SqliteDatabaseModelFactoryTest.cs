@@ -140,7 +140,7 @@ CREATE TABLE [MountainsColumns] (
                 id =>
                     {
                         Assert.Equal("Id", id.Name);
-                        Assert.Equal("integer", id.DataType);
+                        Assert.Equal("integer", id.StoreType);
                         Assert.Equal(1, id.PrimaryKeyOrdinal);
                         Assert.False(id.IsNullable);
                         Assert.Equal(0, id.Ordinal);
@@ -149,7 +149,7 @@ CREATE TABLE [MountainsColumns] (
                 name =>
                     {
                         Assert.Equal("Name", name.Name);
-                        Assert.Equal("string", name.DataType);
+                        Assert.Equal("string", name.StoreType);
                         Assert.Null(name.PrimaryKeyOrdinal);
                         Assert.False(name.IsNullable);
                         Assert.Equal(1, name.Ordinal);
@@ -158,19 +158,16 @@ CREATE TABLE [MountainsColumns] (
                 lat =>
                     {
                         Assert.Equal("Latitude", lat.Name);
-                        Assert.Equal("numeric", lat.DataType);
+                        Assert.Equal("numeric", lat.StoreType);
                         Assert.Null(lat.PrimaryKeyOrdinal);
                         Assert.True(lat.IsNullable);
                         Assert.Equal(2, lat.Ordinal);
                         Assert.Equal("0.0", lat.DefaultValue);
-                        Assert.Null(lat.Precision);
-                        Assert.Null(lat.Scale);
-                        Assert.Null(lat.MaxLength);
                     },
                 created =>
                     {
                         Assert.Equal("Created", created.Name);
-                        Assert.Equal("datetime", created.DataType);
+                        Assert.Equal("datetime", created.StoreType);
                         Assert.Equal("'October 20, 2015 11am'", created.DefaultValue);
                     });
         }

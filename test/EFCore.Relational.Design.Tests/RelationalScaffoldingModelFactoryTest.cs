@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         private readonly FakeScaffoldingModelFactory _factory;
         private readonly TestDesignLoggerFactory.DesignLogger _logger;
-        private static ColumnModel IdColumn => new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0 };
+        private static ColumnModel IdColumn => new ColumnModel { Name = "Id", StoreType = "long", PrimaryKeyOrdinal = 0 };
 
         public RelationalDatabaseModelFactoryTest()
         {
@@ -97,32 +97,32 @@ namespace Microsoft.EntityFrameworkCore
                             new ColumnModel
                             {
                                 Name = "occupation",
-                                DataType = "string",
+                                StoreType = "string",
                                 DefaultValue = "\"dev\""
                             },
                             new ColumnModel
                             {
                                 Name = "salary",
-                                DataType = "long",
+                                StoreType = "long",
                                 IsNullable = true
                             },
                             new ColumnModel
                             {
                                 Name = "modified",
-                                DataType = "string",
+                                StoreType = "string",
                                 IsNullable = false,
                                 ValueGenerated = ValueGenerated.OnAddOrUpdate
                             },
                             new ColumnModel
                             {
                                 Name = "created",
-                                DataType = "string",
+                                StoreType = "string",
                                 ValueGenerated = ValueGenerated.OnAdd
                             },
                             new ColumnModel
                             {
                                 Name = "current",
-                                DataType = "string",
+                                StoreType = "string",
                                 ComputedValue = "compute_this()"
                             }
                         }
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore
         [Theory]
         [InlineData("string", null)]
         [InlineData("alias for string", "alias for string")]
-        public void Column_type_annotation(string dataType, string expectedColumnType)
+        public void Column_type_annotation(string StoreType, string expectedColumnType)
         {
             var info = new DatabaseModel
             {
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore
                             new ColumnModel
                             {
                                 Name = "Col",
-                                DataType = dataType,
+                                StoreType = StoreType,
                                 PrimaryKeyOrdinal = 1
                             }
                         }
@@ -217,20 +217,20 @@ namespace Microsoft.EntityFrameworkCore
                             new ColumnModel
                             {
                                 Name = "Col1",
-                                DataType = "string",
+                                StoreType = "string",
                                 PrimaryKeyOrdinal = 1,
                                 Ordinal = 1
                             },
                             new ColumnModel
                             {
                                 Name = "Col2",
-                                DataType = "string",
+                                StoreType = "string",
                                 Ordinal = 2
                             },
                             new ColumnModel
                             {
                                 Name = "Col3",
-                                DataType = "string",
+                                StoreType = "string",
                                 Ordinal = 3
                             }
                         }
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore
         [Theory]
         [InlineData("cheese")]
         [InlineData(null)]
-        public void Unmappable_column_type(string dataType)
+        public void Unmappable_column_type(string StoreType)
         {
             var info = new DatabaseModel
             {
@@ -271,11 +271,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Table = info.Tables.First(),
                         Name = "Coli",
-                        DataType = dataType
+                        StoreType = StoreType
                     });
 
             Assert.Single(_factory.Create(info).FindEntityType("E").GetProperties());
-            Assert.Single(_logger.Statements, t => t.Contains(RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("E.Coli", dataType)));
+            Assert.Single(_logger.Statements, t => t.Contains(RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("E.Coli", StoreType)));
         }
 
         [Theory]
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore
                     new TableModel
                     {
                         Name = "PkTable",
-                        Columns = keyProps.Select(k => new ColumnModel { PrimaryKeyOrdinal = ordinal++, Name = k, DataType = "long" }).ToList()
+                        Columns = keyProps.Select(k => new ColumnModel { PrimaryKeyOrdinal = ordinal++, Name = k, StoreType = "long" }).ToList()
                     }
                 }
             };
@@ -309,9 +309,9 @@ namespace Microsoft.EntityFrameworkCore
                 Name = "T",
                 Columns =
                 {
-                    new ColumnModel { Name = "C1", DataType = "long", PrimaryKeyOrdinal = 1 },
-                    new ColumnModel { Name = "C2", DataType = "long" },
-                    new ColumnModel { Name = "C3", DataType = "long" }
+                    new ColumnModel { Name = "C1", StoreType = "long", PrimaryKeyOrdinal = 1 },
+                    new ColumnModel { Name = "C2", StoreType = "long" },
+                    new ColumnModel { Name = "C3", StoreType = "long" }
                 }
             };
             table.Indexes.Add(
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new ColumnModel { Name = "ParentId", DataType = "long", IsNullable = true }
+                    new ColumnModel { Name = "ParentId", StoreType = "long", IsNullable = true }
                 }
             };
             childrenTable.ForeignKeys.Add(
@@ -473,8 +473,8 @@ namespace Microsoft.EntityFrameworkCore
                 Name = "Parent",
                 Columns =
                 {
-                    new ColumnModel { Name = "Id_A", DataType = "long", PrimaryKeyOrdinal = 1 },
-                    new ColumnModel { Name = "Id_B", DataType = "long", PrimaryKeyOrdinal = 2 }
+                    new ColumnModel { Name = "Id_A", StoreType = "long", PrimaryKeyOrdinal = 1 },
+                    new ColumnModel { Name = "Id_B", StoreType = "long", PrimaryKeyOrdinal = 2 }
                 }
             };
             var childrenTable = new TableModel
@@ -483,8 +483,8 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new ColumnModel { Name = "ParentId_A", DataType = "long" },
-                    new ColumnModel { Name = "ParentId_B", DataType = "long" }
+                    new ColumnModel { Name = "ParentId_A", StoreType = "long" },
+                    new ColumnModel { Name = "ParentId_B", StoreType = "long" }
                 }
             };
             childrenTable.ForeignKeys.Add(
@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new ColumnModel { Name = "ParentId", DataType = "long", IsNullable = false }
+                    new ColumnModel { Name = "ParentId", StoreType = "long", IsNullable = false }
                 }
             };
             table.ForeignKeys.Add(
@@ -578,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new ColumnModel { Name = "NotPkId", DataType = "long", PrimaryKeyOrdinal = null }
+                    new ColumnModel { Name = "NotPkId", StoreType = "long", PrimaryKeyOrdinal = null }
                 }
             };
             var childrenTable = new TableModel
@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new ColumnModel { Name = "ParentId", DataType = "long" }
+                    new ColumnModel { Name = "ParentId", StoreType = "long" }
                 }
             };
             childrenTable.ForeignKeys.Add(
@@ -624,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new ColumnModel { Name = "BuddyId", DataType = "long", IsNullable = true }
+                    new ColumnModel { Name = "BuddyId", StoreType = "long", IsNullable = true }
                 }
             };
             table.Indexes.Add(
@@ -671,7 +671,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new ColumnModel { Name = "BuddyId", DataType = "long", IsNullable = true }
+                    new ColumnModel { Name = "BuddyId", StoreType = "long", IsNullable = true }
                 }
             };
             table.Indexes.Add(
@@ -724,8 +724,8 @@ namespace Microsoft.EntityFrameworkCore
                 Name = "Parent",
                 Columns =
                 {
-                    new ColumnModel { Name = "Id_A", DataType = "long", PrimaryKeyOrdinal = 1 },
-                    new ColumnModel { Name = "Id_B", DataType = "long", PrimaryKeyOrdinal = 2 }
+                    new ColumnModel { Name = "Id_A", StoreType = "long", PrimaryKeyOrdinal = 1 },
+                    new ColumnModel { Name = "Id_B", StoreType = "long", PrimaryKeyOrdinal = 2 }
                 }
             };
             var childrenTable = new TableModel
@@ -734,8 +734,8 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new ColumnModel { Name = "ParentId_A", DataType = "long" },
-                    new ColumnModel { Name = "ParentId_B", DataType = "long" }
+                    new ColumnModel { Name = "ParentId_A", StoreType = "long" },
+                    new ColumnModel { Name = "ParentId_B", StoreType = "long" }
                 }
             };
             childrenTable.Indexes.Add(
@@ -792,16 +792,16 @@ namespace Microsoft.EntityFrameworkCore
                         Name = "E F",
                         Columns =
                         {
-                            new ColumnModel { Name = "San itized", DataType = "long" },
-                            new ColumnModel { Name = "San+itized", DataType = "long" }
+                            new ColumnModel { Name = "San itized", StoreType = "long" },
+                            new ColumnModel { Name = "San+itized", StoreType = "long" }
                         }
                     },
                     new TableModel { Name = "E+F" }
                 }
             };
 
-            info.Tables.ElementAt(0).Columns.Add(new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0, Table = info.Tables.ElementAt(0) });
-            info.Tables.ElementAt(1).Columns.Add(new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0, Table = info.Tables.ElementAt(1) });
+            info.Tables.ElementAt(0).Columns.Add(new ColumnModel { Name = "Id", StoreType = "long", PrimaryKeyOrdinal = 0, Table = info.Tables.ElementAt(0) });
+            info.Tables.ElementAt(1).Columns.Add(new ColumnModel { Name = "Id", StoreType = "long", PrimaryKeyOrdinal = 0, Table = info.Tables.ElementAt(1) });
 
             var model = _factory.Create(info);
 
@@ -936,7 +936,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new ColumnModel { Name = "BlogId", DataType = "long", IsNullable = true }
+                    new ColumnModel { Name = "BlogId", StoreType = "long", IsNullable = true }
                 }
             };
 
@@ -1020,16 +1020,14 @@ namespace Microsoft.EntityFrameworkCore
 
         public TypeScaffoldingInfo GetTypeScaffoldingInfo(ColumnModel columnModel)
         {
-            if (columnModel.DataType == null)
+            if (columnModel.StoreType == null)
             {
                 return null;
             }
 
-            var dataType = columnModel.DataType + (columnModel.MaxLength.HasValue ? $"({columnModel.MaxLength.Value})" : "");
-
             var scaffoldingTypeMapper = new ScaffoldingTypeMapper(new TestTypeMapper(new RelationalTypeMapperDependencies()));
 
-            return scaffoldingTypeMapper.FindMapping(dataType, keyOrIndex: false, rowVersion: false);
+            return scaffoldingTypeMapper.FindMapping(columnModel.StoreType, keyOrIndex: false, rowVersion: false);
         }
     }
 
