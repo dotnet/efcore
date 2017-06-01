@@ -13,14 +13,22 @@ namespace E2ETest.Namespace
         public long BigintColumn { get; set; }
         [Column("bitColumn")]
         public bool BitColumn { get; set; }
-        [Column("decimalColumn", TypeName = "decimal")]
+        [Column("decimalColumn", TypeName = "decimal(18, 0)")]
         public decimal DecimalColumn { get; set; }
+        [Column("decimal105Column", TypeName = "decimal(10, 5)")]
+        public decimal Decimal105Column { get; set; }
+        [Column("decimalDefaultColumn")]
+        public decimal DecimalDefaultColumn { get; set; }
         [Column("intColumn")]
         public int IntColumn { get; set; }
         [Column("moneyColumn", TypeName = "money")]
         public decimal MoneyColumn { get; set; }
-        [Column("numericColumn", TypeName = "numeric")]
+        [Column("numericColumn", TypeName = "numeric(18, 0)")]
         public decimal NumericColumn { get; set; }
+        [Column("numeric152Column", TypeName = "numeric(15, 2)")]
+        public decimal Numeric152Column { get; set; }
+        [Column("numericDefaultColumn", TypeName = "numeric(18, 2)")]
+        public decimal NumericDefaultColumn { get; set; }
         [Column("smallintColumn")]
         public short SmallintColumn { get; set; }
         [Column("smallmoneyColumn", TypeName = "smallmoney")]
@@ -55,11 +63,13 @@ namespace E2ETest.Namespace
         public string Char10Column { get; set; }
         [Column("textColumn", TypeName = "text")]
         public string TextColumn { get; set; }
-        [Column("varcharColumn", TypeName = "varchar(1)")]
+        [Column("varcharColumn")]
+        [StringLength(1)]
         public string VarcharColumn { get; set; }
-        [Column("varchar66Column", TypeName = "varchar(66)")]
+        [Column("varchar66Column")]
+        [StringLength(66)]
         public string Varchar66Column { get; set; }
-        [Column("varcharMaxColumn", TypeName = "varchar(max)")]
+        [Column("varcharMaxColumn")]
         public string VarcharMaxColumn { get; set; }
         [Column("ncharColumn", TypeName = "nchar(1)")]
         public string NcharColumn { get; set; }
@@ -105,21 +115,25 @@ namespace E2ETest.Namespace
         public byte[] BinaryVarying133Column { get; set; }
         [Column("binaryVaryingMaxColumn")]
         public byte[] BinaryVaryingMaxColumn { get; set; }
-        [Column("charVaryingColumn", TypeName = "varchar(1)")]
+        [Column("charVaryingColumn")]
+        [StringLength(1)]
         public string CharVaryingColumn { get; set; }
-        [Column("charVarying144Column", TypeName = "varchar(144)")]
+        [Column("charVarying144Column")]
+        [StringLength(144)]
         public string CharVarying144Column { get; set; }
-        [Column("charVaryingMaxColumn", TypeName = "varchar(max)")]
+        [Column("charVaryingMaxColumn")]
         public string CharVaryingMaxColumn { get; set; }
         [Column("characterColumn", TypeName = "char(1)")]
         public string CharacterColumn { get; set; }
         [Column("character155Column", TypeName = "char(155)")]
         public string Character155Column { get; set; }
-        [Column("characterVaryingColumn", TypeName = "varchar(1)")]
+        [Column("characterVaryingColumn")]
+        [StringLength(1)]
         public string CharacterVaryingColumn { get; set; }
-        [Column("characterVarying166Column", TypeName = "varchar(166)")]
+        [Column("characterVarying166Column")]
+        [StringLength(166)]
         public string CharacterVarying166Column { get; set; }
-        [Column("characterVaryingMaxColumn", TypeName = "varchar(max)")]
+        [Column("characterVaryingMaxColumn")]
         public string CharacterVaryingMaxColumn { get; set; }
         [Column("nationalCharacterColumn", TypeName = "nchar(1)")]
         public string NationalCharacterColumn { get; set; }

@@ -9,9 +9,13 @@ namespace E2ETest.Namespace
         public long BigintColumn { get; set; }
         public bool BitColumn { get; set; }
         public decimal DecimalColumn { get; set; }
+        public decimal Decimal105Column { get; set; }
+        public decimal DecimalDefaultColumn { get; set; }
         public int IntColumn { get; set; }
         public decimal MoneyColumn { get; set; }
         public decimal NumericColumn { get; set; }
+        public decimal Numeric152Column { get; set; }
+        public decimal NumericDefaultColumn { get; set; }
         public short SmallintColumn { get; set; }
         public decimal SmallmoneyColumn { get; set; }
         public byte TinyintColumn { get; set; }
