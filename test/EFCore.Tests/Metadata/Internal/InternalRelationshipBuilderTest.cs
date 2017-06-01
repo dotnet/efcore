@@ -281,6 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             derivedDependentEntityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.Convention);
             derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit);
             var idProperty = derivedDependentEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention).Metadata;
+            idProperty.ValueGenerated = ValueGenerated.OnAdd;
 
             var relationship = derivedDependentEntityBuilder.Relationship(
                 principalEntityBuilder,

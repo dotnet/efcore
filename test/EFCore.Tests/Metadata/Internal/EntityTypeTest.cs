@@ -1795,6 +1795,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var model = new Model();
             var baseType = model.AddEntityType(typeof(BaseType));
             var idProperty = baseType.GetOrAddProperty(Customer.IdProperty);
+            idProperty.ValueGenerated = ValueGenerated.OnAdd;
             var idProperty2 = baseType.GetOrAddProperty("id2", typeof(int));
             var key = baseType.GetOrAddKey(new[] { idProperty, idProperty2 });
             IMutableEntityType entityType = model.AddEntityType(typeof(Customer));

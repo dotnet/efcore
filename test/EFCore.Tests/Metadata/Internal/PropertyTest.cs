@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -145,6 +146,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
+        public void Marking_a_property_ValueGenerated_throws_if_part_of_a_key_and_inherited_foreign_key()
+        {
+            var model = new Model();
+            var baseType = model.AddEntityType(typeof(BaseType));
+            var idProperty = baseType.GetOrAddProperty(nameof(Customer.Id), typeof(int));
+            var idProperty2 = baseType.GetOrAddProperty("id2", typeof(int));
+            var key = baseType.GetOrAddKey(new[] { idProperty, idProperty2 });
+            IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
+            entityType.BaseType = baseType;
+            var fkProperty = entityType.AddProperty("fk", typeof(int));
+            entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType);
+
+            Assert.Equal(
+                CoreStrings.ForeignKeyPropertyInKey(
+                    nameof(Customer.Id),
+                    typeof(Customer).Name,
+                    "{'" + nameof(Customer.Id) + "'" + ", 'id2'}",
+                    typeof(BaseType).Name),
+                Assert.Throws<InvalidOperationException>(() => idProperty.ValueGenerated = ValueGenerated.OnAdd).Message);
+        }
+
+        [Fact]
         public void Property_is_not_concurrency_token_by_default()
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
@@ -267,6 +290,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             public string Name { get; set; }
             public int? Id { get; set; }
+        }
+
+        private class BaseType
+        {
+            public int Id { get; set; }
+        }
+
+        private class Customer : BaseType
+        {
+            public int AlternateId { get; set; }
+            public Guid Unique { get; set; }
+            public string Name { get; set; }
+            public string Mane { get; set; }
+            public ICollection<Order> Orders { get; set; }
+
+            public IEnumerable<Order> EnumerableOrders { get; set; }
+            public Order NotCollectionOrders { get; set; }
+        }
+
+        private class Order : BaseType
+        {
+            public int CustomerId { get; set; }
+            public Guid CustomerUnique { get; set; }
+            public Customer Customer { get; set; }
+
+            public Order OrderCustomer { get; set; }
         }
     }
 }
