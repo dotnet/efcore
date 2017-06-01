@@ -30,13 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             = new SqlServerStringTypeMapping("varchar(900)", dbType: DbType.AnsiString, unicode: false, size: 900, hasNonDefaultUnicode: true);
 
         private readonly SqlServerByteArrayTypeMapping _unboundedBinary
-            = new SqlServerByteArrayTypeMapping("varbinary(max)", dbType: DbType.Binary, unicode: false, size: null);
+            = new SqlServerByteArrayTypeMapping("varbinary(max)");
 
         private readonly SqlServerByteArrayTypeMapping _keyBinary
-            = new SqlServerByteArrayTypeMapping("varbinary(900)", dbType: DbType.Binary, unicode: false, size: 900);
+            = new SqlServerByteArrayTypeMapping("varbinary(900)", dbType: DbType.Binary, size: 900);
 
         private readonly SqlServerByteArrayTypeMapping _rowversion
-            = new SqlServerByteArrayTypeMapping("rowversion", dbType: DbType.Binary, unicode: false, size: 8);
+            = new SqlServerByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
 
         private readonly IntTypeMapping _int = new IntTypeMapping("int", DbType.Int32);
 
@@ -191,9 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     size => new SqlServerByteArrayTypeMapping(
                         "varbinary(" + size + ")",
                         DbType.Binary,
-                        unicode: false,
                         size: size,
-                        hasNonDefaultUnicode: false,
                         hasNonDefaultSize: true));
 
             StringMapper

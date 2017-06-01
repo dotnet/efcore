@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly RelationalTypeMapping _ansiStringKey = new StringTypeMapping("ansi_string(900)", dbType: null, unicode: true, size: 450);
         private static readonly RelationalTypeMapping _unboundedBinary = new ByteArrayTypeMapping("just_binary(max)", dbType: DbType.Binary);
         private static readonly RelationalTypeMapping _binary = new ByteArrayTypeMapping("just_binary(max)", dbType: DbType.Binary);
-        private static readonly RelationalTypeMapping _binaryKey = new ByteArrayTypeMapping("just_binary(900)", dbType: DbType.Binary, unicode: true, size: 900);
-        private static readonly RelationalTypeMapping _rowversion = new ByteArrayTypeMapping("rowversion", dbType: DbType.Binary, unicode: true, size: 8);
+        private static readonly RelationalTypeMapping _binaryKey = new ByteArrayTypeMapping("just_binary(900)", dbType: DbType.Binary, size: 900);
+        private static readonly RelationalTypeMapping _rowversion = new ByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
 
         private static readonly RelationalTypeMapping _defaultIntMapping
             = new IntTypeMapping("default_int_mapping", dbType: DbType.Int32);
@@ -104,9 +104,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 _rowversion, size => new ByteArrayTypeMapping(
                     "just_binary(" + size + ")",
                     DbType.Binary,
-                    unicode: false,
                     size: size,
-                    hasNonDefaultUnicode: false,
                     hasNonDefaultSize: true));
 
         public override IStringRelationalTypeMapper StringMapper { get; }

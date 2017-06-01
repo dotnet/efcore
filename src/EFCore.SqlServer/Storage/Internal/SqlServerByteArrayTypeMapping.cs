@@ -21,25 +21,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
-        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <param name="hasNonDefaultUnicode"> A value indicating whether the Unicode setting has been manually configured to a non-default value. </param>
         /// <param name="hasNonDefaultSize"> A value indicating whether the size setting has been manually configured to a non-default value. </param>
         public SqlServerByteArrayTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-            bool unicode = false,
             int? size = null,
-            bool hasNonDefaultUnicode = false,
             bool hasNonDefaultSize = false)
-            : base(storeType, dbType, unicode, CalculateSize(unicode, size), hasNonDefaultUnicode, hasNonDefaultSize)
+            : base(storeType, dbType, CalculateSize(size), hasNonDefaultSize)
         {
         }
 
-        private static int CalculateSize(bool unicode, int? size)
-            => unicode
-                ? size.HasValue && size < 4000 ? size.Value : 4000
-                : size.HasValue && size < 8000 ? size.Value : 8000;
+        private static int CalculateSize(int? size)
+            => size.HasValue && size < 8000 ? size.Value : 8000;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -49,9 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => new SqlServerByteArrayTypeMapping(
                 storeType,
                 DbType,
-                IsUnicode,
                 size,
-                HasNonDefaultUnicode,
                 hasNonDefaultSize: size != Size);
 
         /// <summary>
