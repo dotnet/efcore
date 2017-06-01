@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Configuration;
@@ -15,27 +16,36 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public class NamedConnectionStringResolverTest
     {
         [Fact]
-        public void Returns_given_string_if_no_app_service_provider()
+        public void Throws_if_no_app_service_provider()
         {
             var resolver = new NamedConnectionStringResolver(new FakeOptions(null, false));
 
-            Assert.Equal("name=foo", resolver.ResolveConnectionString("name=foo"));
+            Assert.Equal(
+                RelationalStrings.NamedConnectionStringNotFound("foo"),
+                Assert.Throws<InvalidOperationException>(
+                    () => resolver.ResolveConnectionString("name=foo")).Message);
         }
 
         [Fact]
-        public void Returns_given_string_if_no_IConfiguration()
+        public void Throws_if_no_IConfiguration()
         {
             var resolver = new NamedConnectionStringResolver(new FakeOptions(null));
 
-            Assert.Equal("name=foo", resolver.ResolveConnectionString("name=foo"));
+            Assert.Equal(
+                RelationalStrings.NamedConnectionStringNotFound("foo"),
+                Assert.Throws<InvalidOperationException>(
+                    () => resolver.ResolveConnectionString("name=foo")).Message);
         }
 
         [Fact]
-        public void Returns_given_string_if_IConfiguration_does_not_contain_key()
+        public void Throws_if_IConfiguration_does_not_contain_key()
         {
             var resolver = new NamedConnectionStringResolver(new FakeOptions(new ConfigurationBuilder().Build()));
 
-            Assert.Equal("name=foo", resolver.ResolveConnectionString("name=foo"));
+            Assert.Equal(
+                RelationalStrings.NamedConnectionStringNotFound("foo"),
+                Assert.Throws<InvalidOperationException>(
+                    () => resolver.ResolveConnectionString("name=foo")).Message);
         }
 
         [Fact]

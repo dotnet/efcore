@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -40,13 +41,21 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             {
                 return connectionString;
             }
+
             var configuration = _options.FindExtension<CoreOptionsExtension>()
                 ?.ApplicationServiceProvider
                 ?.GetService<IConfiguration>();
 
-            return configuration?[connectionName]
-                   ?? configuration?[DefaultSection + connectionName]
-                   ?? connectionString;
+            var resolved = configuration?[connectionName]
+                           ?? configuration?[DefaultSection + connectionName];
+
+            if (resolved == null)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.NamedConnectionStringNotFound(connectionName));
+            }
+
+            return resolved;
         }
 
         private static string TryGetConnectionName(string connectionString)
