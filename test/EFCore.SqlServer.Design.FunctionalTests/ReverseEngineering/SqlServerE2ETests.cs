@@ -63,21 +63,21 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
 
         private static readonly List<string> _expectedEntityTypeFiles = new List<string>
         {
-            "AllDataTypes.expected",
-            "MultipleFKsDependent.expected",
-            "MultipleFKsPrincipal.expected",
-            "OneToManyDependent.expected",
-            "OneToManyPrincipal.expected",
-            "OneToOneDependent.expected",
-            "OneToOneFKToUniqueKeyDependent.expected",
-            "OneToOneFKToUniqueKeyPrincipal.expected",
-            "OneToOnePrincipal.expected",
-            "OneToOneSeparateFKDependent.expected",
-            "OneToOneSeparateFKPrincipal.expected",
-            "PropertyConfiguration.expected",
-            "SelfReferencing.expected",
-            "TestSpacesKeywordsTable.expected",
-            "UnmappablePKColumn.expected"
+            "AllDataTypes.cs",
+            "MultipleFKsDependent.cs",
+            "MultipleFKsPrincipal.cs",
+            "OneToManyDependent.cs",
+            "OneToManyPrincipal.cs",
+            "OneToOneDependent.cs",
+            "OneToOneFKToUniqueKeyDependent.cs",
+            "OneToOneFKToUniqueKeyPrincipal.cs",
+            "OneToOnePrincipal.cs",
+            "OneToOneSeparateFKDependent.cs",
+            "OneToOneSeparateFKPrincipal.cs",
+            "PropertyConfiguration.cs",
+            "SelfReferencing.cs",
+            "TestSpacesKeywordsTable.cs",
+            "UnmappablePKColumn.cs"
         };
 
         [Fact]
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                 contents => contents.Replace("namespace " + TestNamespace, "namespace " + TestNamespace + "." + TestSubDir)
                     .Replace("{{connectionString}}", _connectionString))
             {
-                Files = new List<string> { "AttributesContext.expected" }
+                Files = new List<string> { "AttributesContext.cs" }
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                 Path.Combine("ReverseEngineering", "Expected", "AllFluentApi"),
                 inputFile => inputFile.Replace("{{connectionString}}", _connectionString))
             {
-                Files = new List<string> { "SqlServerReverseEngineerTestE2EContext.expected" }
+                Files = new List<string> { "SqlServerReverseEngineerTestE2EContext.cs" }
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 
@@ -225,7 +225,7 @@ CREATE SEQUENCE NumericSequence
                     Path.Combine("ReverseEngineering", "Expected"),
                     contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
                 {
-                    Files = new List<string> { "SequenceContext.expected" }
+                    Files = new List<string> { "SequenceContext.cs" }
                 };
 
                 var filePaths = Generator.GenerateAsync(
@@ -283,8 +283,8 @@ CREATE TABLE PrimaryKeyWithSequence (
                 {
                     Files = new List<string>
                     {
-                        "PrimaryKeyWithSequenceContext.expected",
-                        "PrimaryKeyWithSequence.expected"
+                        "PrimaryKeyWithSequenceContext.cs",
+                        "PrimaryKeyWithSequence.cs"
                     }
                 };
 
@@ -333,8 +333,8 @@ CREATE INDEX Unicorn_Filtered_Index
                 {
                     Files = new List<string>
                     {
-                        "FilteredIndexContext.expected",
-                        "FilteredIndex.expected",
+                        "FilteredIndexContext.cs",
+                        "FilteredIndex.cs",
                     }
                 };
 
@@ -384,8 +384,8 @@ WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.History));
                 {
                     Files = new List<string>
                     {
-                        "SystemVersionedContext.expected",
-                        "SystemVersioned.expected",
+                        "SystemVersionedContext.cs",
+                        "SystemVersioned.cs",
                     }
                 };
 
