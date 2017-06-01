@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.ApplicationInsights
 
         void IObserver<DiagnosticListener>.OnNext(DiagnosticListener diagnosticListener)
         {
-            if (diagnosticListener.Name == DbLoggerCategory.Root)
+            if (diagnosticListener.Name == DbLoggerCategory.Name)
             {
                 lock (_sync)
                 {
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.ApplicationInsights
                 var eventName = value.Key;
                 var eventData = value.Value;
 
-                Debug.Assert(eventName.StartsWith(DbLoggerCategory.Root, StringComparison.Ordinal));
+                Debug.Assert(eventName.StartsWith(DbLoggerCategory.Name, StringComparison.Ordinal));
                 Debug.Assert(eventData != null);
 
                 switch (eventData)
