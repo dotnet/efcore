@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
@@ -728,7 +729,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
             Test(
                 builder =>
                     {
-                        builder.Entity<EntityWithOneProperty>().Property<int>("Id").HasAnnotation("AnnotationName", "AnnotationValue");
+                        builder.Entity<EntityWithOneProperty>()
+                            .Property<int>("Id")
+                            .HasAnnotation("AnnotationName", "AnnotationValue")
+                            .HasAnnotation(RelationalAnnotationNames.TypeMapping, new RelationalTypeMapping("int", typeof(int)));
+
                         builder.Ignore<EntityWithTwoProperties>();
                     },
                GetHeading() + @"

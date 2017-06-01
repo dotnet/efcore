@@ -259,7 +259,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.MaxLengthAnnotation, nameof(PropertyBuilder.HasMaxLength), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.UnicodeAnnotation, nameof(PropertyBuilder.IsUnicode), stringBuilder);
 
-            IgnoreAnnotations(annotations, CoreAnnotationNames.ValueGeneratorFactoryAnnotation);
+            IgnoreAnnotations(
+                annotations, 
+                CoreAnnotationNames.ValueGeneratorFactoryAnnotation,
+                RelationalAnnotationNames.TypeMapping);
 
             GenerateAnnotations(annotations, stringBuilder);
         }
