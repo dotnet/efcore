@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -1862,7 +1863,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Base
             buildModel(modelBuilder);
             var model = modelBuilder.Model;
 
-            var generator = new CSharpSnapshotGenerator(new CSharpHelper());
+            var generator = new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(new CSharpHelper()));
 
             var builder = new IndentedStringBuilder();
             generator.Generate("builder", model, builder);

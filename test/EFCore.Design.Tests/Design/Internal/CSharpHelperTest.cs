@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Migrations.Design
+namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class CSharpHelperTest
     {

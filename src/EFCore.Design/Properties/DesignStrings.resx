@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -147,36 +147,29 @@
   <data name="Cancelled" xml:space="preserve">
     <value>Cancelled.</value>
   </data>
-  <data name="LogManuallyDeleted" xml:space="preserve">
+  <data name="ManuallyDeleted" xml:space="preserve">
     <value>A manual migration deletion was detected.</value>
-    <comment>Debug DesignEventId.MigrationManuallyDeleted</comment>
   </data>
-  <data name="LogNoMigrationFile" xml:space="preserve">
+  <data name="NoMigrationFile" xml:space="preserve">
     <value>No file named '{file}' was found. You must manually remove the migration class '{migrationClass}'.</value>
-    <comment>Warning DesignEventId.MigrationFileNotFound string string</comment>
   </data>
-  <data name="LogNoMigrationMetadataFile" xml:space="preserve">
+  <data name="NoMigrationMetadataFile" xml:space="preserve">
     <value>No file named '{file}' was found.</value>
-    <comment>Debug DesignEventId.MigrationMetadataFileNotFound string</comment>
   </data>
   <data name="NoSnapshot" xml:space="preserve">
     <value>No ModelSnapshot was found.</value>
   </data>
-  <data name="LogNoSnapshotFile" xml:space="preserve">
+  <data name="NoSnapshotFile" xml:space="preserve">
     <value>No file named '{file}' was found. You must manually remove the model snapshot class '{snapshotClass}'.</value>
-    <comment>Warning DesignEventId.SnapshotFileNotFound string string</comment>
   </data>
-  <data name="LogRemovingMigration" xml:space="preserve">
+  <data name="RemovingMigration" xml:space="preserve">
     <value>Removing migration '{name}'.</value>
-    <comment>Warning DesignEventId.MigrationRemoving string</comment>
   </data>
-  <data name="LogRemovingSnapshot" xml:space="preserve">
+  <data name="RemovingSnapshot" xml:space="preserve">
     <value>Removing model snapshot.</value>
-    <comment>Information DesignEventId.SnapshotRemoving</comment>
   </data>
-  <data name="LogRevertingSnapshot" xml:space="preserve">
+  <data name="RevertingSnapshot" xml:space="preserve">
     <value>Reverting model snapshot.</value>
-    <comment>Information DesignEventId.SnapshotReverting</comment>
   </data>
   <data name="RevertMigration" xml:space="preserve">
     <value>The migration '{name}' has already been applied to the database. Revert it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.</value>
@@ -190,32 +183,26 @@
   <data name="CannotFindRuntimeProviderAssembly" xml:space="preserve">
     <value>Unable to find provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.</value>
   </data>
-  <data name="LogDestructiveOperation" xml:space="preserve">
+  <data name="DestructiveOperation" xml:space="preserve">
     <value>An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.</value>
-    <comment>Warning DesignEventId.DestructiveOperation</comment>
   </data>
-  <data name="LogReusingDirectory" xml:space="preserve">
+  <data name="ReusingDirectory" xml:space="preserve">
     <value>Reusing directory of file '{file}'.</value>
-    <comment>Debug DesignEventId.DirectoryReusing string</comment>
   </data>
-  <data name="LogWritingMigration" xml:space="preserve">
+  <data name="WritingMigration" xml:space="preserve">
     <value>Writing migration to '{file}'.</value>
-    <comment>Debug DesignEventId.MigrationWriting string</comment>
   </data>
-  <data name="LogWritingSnapshot" xml:space="preserve">
+  <data name="WritingSnapshot" xml:space="preserve">
     <value>Writing model snapshot to '{file}'.</value>
-    <comment>Debug DesignEventId.SnapshotWriting string</comment>
   </data>
   <data name="Done" xml:space="preserve">
     <value>Done.</value>
   </data>
-  <data name="LogReusingNamespace" xml:space="preserve">
+  <data name="ReusingNamespace" xml:space="preserve">
     <value>Reusing namespace of type '{type}'.</value>
-    <comment>Debug DesignEventId.NamespaceReusing string</comment>
   </data>
-  <data name="LogReusingSnapshotName" xml:space="preserve">
+  <data name="ReusingSnapshotName" xml:space="preserve">
     <value>Reusing model snapshot name '{name}'.</value>
-    <comment>Debug DesignEventId.SnapshotNameReusing string</comment>
   </data>
   <data name="CannotFindDesignTimeProviderAssembly" xml:space="preserve">
     <value>Unable to find design-time provider assembly. Please install the {designTimeProviderAssemblyName} NuGet package and ensure that the package is referenced by the project.</value>
@@ -232,9 +219,8 @@
   <data name="FindingContexts" xml:space="preserve">
     <value>Finding DbContext classes...</value>
   </data>
-  <data name="LogForeignMigrations" xml:space="preserve">
+  <data name="ForeignMigrations" xml:space="preserve">
     <value>The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.</value>
-    <comment>Warning DesignEventId.ForeignMigrations string</comment>
   </data>
   <data name="ConnectionStringRequired" xml:space="preserve">
     <value>ConnectionString is required to generate code.</value>
@@ -257,9 +243,8 @@ Change your target project to the migrations project by using the Package Manage
     <value>To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.</value>
     <comment>Localize the URL if we have localized docs.</comment>
   </data>
-  <data name="LogForceRemoveMigration" xml:space="preserve">
+  <data name="ForceRemoveMigration" xml:space="preserve">
     <value>Removing migration '{name}' without checking the database. If this migration has been applied to the database, you will need to manually reverse the changes it made.</value>
-    <comment>Warning DesignEventId.MigrationForceRemove string</comment>
   </data>
   <data name="NoParameterlessConstructor" xml:space="preserve">
     <value>No parameterless constructor was found on '{contextType}'. Either add a parameterless constructor to '{contextType}' or add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' in the same assembly as '{contextType}'.</value>

@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -18,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         [Fact]
         public void Generate_seperates_operations_by_a_blank_line()
         {
-            var generator = new CSharpMigrationOperationGenerator(new CSharpHelper());
+            var generator = new CSharpMigrationOperationGenerator(
+                new CSharpMigrationOperationGeneratorDependencies(new CSharpHelper()));
             var builder = new IndentedStringBuilder();
 
             generator.Generate(
@@ -2545,7 +2547,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private void Test<T>(T operation, string expectedCode, Action<T> assert)
             where T : MigrationOperation
         {
-            var generator = new CSharpMigrationOperationGenerator(new CSharpHelper());
+            var generator = new CSharpMigrationOperationGenerator(
+                new CSharpMigrationOperationGeneratorDependencies(new CSharpHelper()));
 
             var builder = new IndentedStringBuilder();
             generator.Generate("mb", new[] { operation }, builder);

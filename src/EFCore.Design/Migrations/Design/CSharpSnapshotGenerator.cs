@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -15,21 +16,23 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
-    public class CSharpSnapshotGenerator
+    public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     {
-        private readonly CSharpHelper _code;
-
-        public CSharpSnapshotGenerator([NotNull] CSharpHelper codeHelper)
+        public CSharpSnapshotGenerator([NotNull] CSharpSnapshotGeneratorDependencies dependencies)
         {
-            Check.NotNull(codeHelper, nameof(codeHelper));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _code = codeHelper;
+            Dependencies = dependencies;
         }
 
-        public virtual void Generate(
-            [NotNull] string builderName,
-            [NotNull] IModel model,
-            [NotNull] IndentedStringBuilder stringBuilder)
+        /// <summary>
+        ///     Parameter object containing dependencies for this service.
+        /// </summary>
+        protected virtual CSharpSnapshotGeneratorDependencies Dependencies { get; }
+
+        private ICSharpHelper Code => Dependencies.CSharpHelper;
+
+        public virtual void Generate(string builderName, IModel model, IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(builderName, nameof(builderName));
             Check.NotNull(model, nameof(model));
@@ -101,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             stringBuilder
                 .Append(builderName)
                 .Append(".Entity(")
-                .Append(_code.Literal(entityType.Name))
+                .Append(Code.Literal(entityType.Name))
                 .AppendLine(", b =>");
 
             using (stringBuilder.Indent())
@@ -139,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             stringBuilder
                 .Append(builderName)
                 .Append(".Entity(")
-                .Append(_code.Literal(entityType.Name))
+                .Append(Code.Literal(entityType.Name))
                 .AppendLine(", b =>");
 
             using (stringBuilder.Indent())
@@ -166,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 stringBuilder
                     .AppendLine()
                     .Append("b.HasBaseType(")
-                    .Append(_code.Literal(baseType.Name))
+                    .Append(Code.Literal(baseType.Name))
                     .AppendLine(");");
             }
         }
@@ -202,9 +205,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             stringBuilder
                 .AppendLine()
                 .Append("b.Property<")
-                .Append(_code.Reference(property.ClrType.UnwrapEnumType()))
+                .Append(Code.Reference(property.ClrType.UnwrapEnumType()))
                 .Append(">(")
-                .Append(_code.Literal(property.Name))
+                .Append(Code.Literal(property.Name))
                 .Append(")");
 
             using (stringBuilder.Indent())
@@ -297,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .AppendLine()
                 .AppendLine()
                 .Append(primary ? "b.HasKey(" : "b.HasAlternateKey(")
-                .Append(string.Join(", ", key.Properties.Select(p => _code.Literal(p.Name))))
+                .Append(string.Join(", ", key.Properties.Select(p => Code.Literal(p.Name))))
                 .Append(")");
 
             using (stringBuilder.Indent())
@@ -334,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             stringBuilder
                 .AppendLine()
                 .Append($"b.{nameof(EntityTypeBuilder.HasIndex)}(")
-                .Append(string.Join(", ", index.Properties.Select(p => _code.Literal(p.Name))))
+                .Append(string.Join(", ", index.Properties.Select(p => Code.Literal(p.Name))))
                 .Append(")");
 
             using (stringBuilder.Indent())
@@ -372,14 +375,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append("b.")
                 .Append(nameof(RelationalEntityTypeBuilderExtensions.ToTable))
                 .Append("(")
-                .Append(_code.Literal((string)tableNameAnnotation?.Value ?? entityType.DisplayName()));
+                .Append(Code.Literal((string)tableNameAnnotation?.Value ?? entityType.DisplayName()));
             annotations.Remove(tableNameAnnotation);
 
             if (schemaAnnotation?.Value != null)
             {
                 stringBuilder
                     .Append(",")
-                    .Append(_code.Literal((string)schemaAnnotation.Value));
+                    .Append(Code.Literal((string)schemaAnnotation.Value));
                 annotations.Remove(schemaAnnotation);
             }
 
@@ -401,9 +404,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     var propertyClrType = entityType.FindProperty((string)discriminatorPropertyAnnotation.Value)?.ClrType;
                     stringBuilder
                         .Append("<")
-                        .Append(_code.Reference(propertyClrType.UnwrapEnumType()))
+                        .Append(Code.Reference(propertyClrType.UnwrapEnumType()))
                         .Append(">(")
-                        .Append(_code.UnknownLiteral(discriminatorPropertyAnnotation.Value))
+                        .Append(Code.UnknownLiteral(discriminatorPropertyAnnotation.Value))
                         .Append(")");
                 }
                 else
@@ -418,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(".")
                         .Append(nameof(DiscriminatorBuilder.HasValue))
                         .Append("(")
-                        .Append(_code.UnknownLiteral(discriminatorValueAnnotation.Value))
+                        .Append(Code.UnknownLiteral(discriminatorValueAnnotation.Value))
                         .Append(")");
                 }
 
@@ -481,13 +484,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             stringBuilder
                 .AppendLine()
                 .Append("b.HasOne(")
-                .Append(_code.Literal(foreignKey.PrincipalEntityType.Name));
+                .Append(Code.Literal(foreignKey.PrincipalEntityType.Name));
 
             if (foreignKey.DependentToPrincipal != null)
             {
                 stringBuilder
                     .Append(", ")
-                    .Append(_code.Literal(foreignKey.DependentToPrincipal.Name));
+                    .Append(Code.Literal(foreignKey.DependentToPrincipal.Name));
             }
 
             stringBuilder
@@ -504,15 +507,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     if (foreignKey.PrincipalToDependent != null)
                     {
                         stringBuilder
-                            .Append(_code.Literal(foreignKey.PrincipalToDependent.Name));
+                            .Append(Code.Literal(foreignKey.PrincipalToDependent.Name));
                     }
 
                     stringBuilder
                         .AppendLine(")")
                         .Append(".HasForeignKey(")
-                        .Append(_code.Literal(foreignKey.DeclaringEntityType.Name))
+                        .Append(Code.Literal(foreignKey.DeclaringEntityType.Name))
                         .Append(", ")
-                        .Append(string.Join(", ", foreignKey.Properties.Select(p => _code.Literal(p.Name))))
+                        .Append(string.Join(", ", foreignKey.Properties.Select(p => Code.Literal(p.Name))))
                         .Append(")");
 
                     GenerateForeignKeyAnnotations(foreignKey, stringBuilder);
@@ -522,9 +525,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         stringBuilder
                             .AppendLine()
                             .Append(".HasPrincipalKey(")
-                            .Append(_code.Literal(foreignKey.PrincipalEntityType.Name))
+                            .Append(Code.Literal(foreignKey.PrincipalEntityType.Name))
                             .Append(", ")
-                            .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => _code.Literal(p.Name))))
+                            .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(p.Name))))
                             .Append(")");
                     }
                 }
@@ -536,13 +539,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     if (foreignKey.PrincipalToDependent != null)
                     {
                         stringBuilder
-                            .Append(_code.Literal(foreignKey.PrincipalToDependent.Name));
+                            .Append(Code.Literal(foreignKey.PrincipalToDependent.Name));
                     }
 
                     stringBuilder
                         .AppendLine(")")
                         .Append(".HasForeignKey(")
-                        .Append(string.Join(", ", foreignKey.Properties.Select(p => _code.Literal(p.Name))))
+                        .Append(string.Join(", ", foreignKey.Properties.Select(p => Code.Literal(p.Name))))
                         .Append(")");
 
                     GenerateForeignKeyAnnotations(foreignKey, stringBuilder);
@@ -552,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         stringBuilder
                             .AppendLine()
                             .Append(".HasPrincipalKey(")
-                            .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => _code.Literal(p.Name))))
+                            .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(p.Name))))
                             .Append(")");
                     }
                 }
@@ -562,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     stringBuilder
                         .AppendLine()
                         .Append(".OnDelete(")
-                        .Append(_code.Literal(foreignKey.DeleteBehavior))
+                        .Append(Code.Literal(foreignKey.DeleteBehavior))
                         .Append(")");
                 }
             }
@@ -631,7 +634,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(".")
                     .Append(fluentApiMethodName)
                     .Append("(")
-                    .Append(_code.UnknownLiteral(annotation.Value))
+                    .Append(Code.UnknownLiteral(annotation.Value))
                     .Append(")");
 
                 annotations.Remove(annotation);
@@ -646,9 +649,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             stringBuilder
                 .Append(".HasAnnotation(")
-                .Append(_code.Literal(annotation.Name))
+                .Append(Code.Literal(annotation.Name))
                 .Append(", ")
-                .Append(_code.UnknownLiteral(annotation.Value))
+                .Append(Code.UnknownLiteral(annotation.Value))
                 .Append(")");
         }
     }
