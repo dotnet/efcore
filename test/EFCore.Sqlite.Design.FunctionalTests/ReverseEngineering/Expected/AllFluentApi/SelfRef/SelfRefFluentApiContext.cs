@@ -21,6 +21,8 @@ namespace E2E.Sqlite
         {
             modelBuilder.Entity<SelfRef>(entity =>
             {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
                 entity.HasOne(d => d.SelfForeignKeyNavigation)
                     .WithMany(p => p.InverseSelfForeignKeyNavigation)
                     .HasForeignKey(d => d.SelfForeignKey);

@@ -2,7 +2,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace E2ETest.Namespace
+namespace E2ETest.Namespace.SubDir
 {
     public partial class AttributesContext : DbContext
     {
@@ -116,7 +116,8 @@ namespace E2ETest.Namespace
 
                 entity.HasIndex(e => new { e.OneToOneFktoUniqueKeyDependentFk1, e.OneToOneFktoUniqueKeyDependentFk2 })
                     .HasName("UK_OneToOneFKToUniqueKeyDependent")
-                    .IsUnique();
+                    .IsUnique()
+                    .ForSqlServerIsClustered();
 
                 entity.HasOne(d => d.OneToOneFktoUniqueKeyDependentFk)
                     .WithOne(p => p.OneToOneFktoUniqueKeyDependent)

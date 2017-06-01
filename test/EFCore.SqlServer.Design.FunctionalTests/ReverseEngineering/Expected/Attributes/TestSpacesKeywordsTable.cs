@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace E2ETest.Namespace
+namespace E2ETest.Namespace.SubDir
 {
     [Table("Test Spaces Keywords Table")]
     public partial class TestSpacesKeywordsTable

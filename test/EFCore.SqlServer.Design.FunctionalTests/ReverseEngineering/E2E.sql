@@ -371,7 +371,7 @@ CREATE TABLE "OneToOneFKToUniqueKeyDependent" (
 	"SomeColumn" nvarchar (20) NOT NULL,
 	"OneToOneFKToUniqueKeyDependentFK1" "int" NULL,
 	"OneToOneFKToUniqueKeyDependentFK2" "int" NULL,
-	CONSTRAINT "PK_OneToOneFKToUniqueKeyDependent" PRIMARY KEY CLUSTERED 
+	CONSTRAINT "PK_OneToOneFKToUniqueKeyDependent" PRIMARY KEY
 	(
 		"OneToOneFKToUniqueKeyDependentID1", "OneToOneFKToUniqueKeyDependentID2"
 	),
@@ -381,7 +381,7 @@ CREATE TABLE "OneToOneFKToUniqueKeyDependent" (
 	) REFERENCES "dbo"."OneToOneFKToUniqueKeyPrincipal" (
 		"OneToOneFKToUniqueKeyPrincipalUniqueKey1", "OneToOneFKToUniqueKeyPrincipalUniqueKey2"
 	),
-	CONSTRAINT "UK_OneToOneFKToUniqueKeyDependent" UNIQUE
+	CONSTRAINT "UK_OneToOneFKToUniqueKeyDependent" UNIQUE CLUSTERED
 	(
 		"OneToOneFKToUniqueKeyDependentFK1", "OneToOneFKToUniqueKeyDependentFK2"
 	)

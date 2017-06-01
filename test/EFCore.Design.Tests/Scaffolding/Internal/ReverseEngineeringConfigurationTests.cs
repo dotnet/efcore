@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ReverseEngineering;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -26,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 new FakeScaffoldingModelFactory(new FakeDiagnosticsLogger<DbLoggerCategory.Scaffolding>()),
                 new CSharpScaffoldingGenerator(
                     new InMemoryFileService(),
-                    new CSharpDbContextGenerator(new FakeScaffoldingHelper(), CSharpUtilities.Instance),
+                    new CSharpDbContextGenerator(new FakeScaffoldingHelper(), new FakeAnnotationRenderer(), CSharpUtilities.Instance),
                     new CSharpEntityTypeGenerator(CSharpUtilities.Instance)),
                 CSharpUtilities.Instance);
 
@@ -54,6 +57,69 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             public TypeScaffoldingInfo GetTypeScaffoldingInfo(ColumnModel columnModel)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public class FakeAnnotationRenderer : IAnnotationRenderer
+        {
+            public string GenerateFluentApi(IModel model, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string GenerateFluentApi(IEntityType entityType, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string GenerateFluentApi(IKey key, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string GenerateFluentApi(IProperty property, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string GenerateFluentApi(IForeignKey foreignKey, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string GenerateFluentApi(IIndex index, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsHandledByConvention(IModel model, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsHandledByConvention(IEntityType entityType, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsHandledByConvention(IKey key, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsHandledByConvention(IProperty property, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsHandledByConvention(IForeignKey foreignKey, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsHandledByConvention(IIndex index, IAnnotation annotation)
             {
                 throw new NotImplementedException();
             }

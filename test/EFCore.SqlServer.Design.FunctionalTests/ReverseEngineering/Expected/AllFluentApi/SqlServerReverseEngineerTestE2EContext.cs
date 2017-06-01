@@ -383,7 +383,8 @@ namespace E2ETest.Namespace
 
                 entity.HasIndex(e => new { e.OneToOneFktoUniqueKeyDependentFk1, e.OneToOneFktoUniqueKeyDependentFk2 })
                     .HasName("UK_OneToOneFKToUniqueKeyDependent")
-                    .IsUnique();
+                    .IsUnique()
+                    .ForSqlServerIsClustered();
 
                 entity.Property(e => e.OneToOneFktoUniqueKeyDependentId1).HasColumnName("OneToOneFKToUniqueKeyDependentID1");
 

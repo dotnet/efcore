@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -148,6 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             VisitTables(modelBuilder, databaseModel.Tables);
             VisitForeignKeys(modelBuilder, databaseModel.Tables.SelectMany(table => table.ForeignKeys).ToList());
 
+            modelBuilder.Model.AddAnnotations(databaseModel.GetAnnotations());
+
             return modelBuilder;
         }
 
@@ -264,6 +267,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             VisitIndexes(builder, table.Indexes);
 
+            builder.Metadata.AddAnnotations(table.GetAnnotations());
+
             return builder;
         }
 
@@ -350,14 +355,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             }
 
             property.Metadata.Scaffolding().ColumnOrdinal = column.Ordinal;
+
+            property.Metadata.AddAnnotations(column.GetAnnotations());
+
             return property;
-        }
-
-        protected virtual RelationalTypeMapping GetTypeMapping([NotNull] ColumnModel column)
-        {
-            Check.NotNull(column, nameof(column));
-
-            return column.StoreType == null ? null : TypeMapper.FindMapping(column.StoreType);
         }
 
         protected virtual KeyBuilder VisitPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] TableModel table)
@@ -386,7 +387,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 return null;
             }
 
-            return builder.HasKey(keyColumns.Select(GetPropertyName).ToArray());
+            var keyBuilder = builder.HasKey(keyColumns.Select(GetPropertyName).ToArray());
+
+            var pkColumns = table.Columns.Where(c => c.PrimaryKeyOrdinal.HasValue).ToList();
+            if (pkColumns.Count == 1
+                && pkColumns[0].ValueGenerated == null
+                && pkColumns[0].DefaultValue == null)
+            {
+                var property = builder.Metadata.FindProperty(GetPropertyName(pkColumns[0]))?.AsProperty();
+                if (property != null)
+                {
+                    var conventionalValueGenerated = new RelationalValueGeneratorConvention().GetValueGenerated(property);
+                    if (conventionalValueGenerated == ValueGenerated.OnAdd)
+                    {
+                        property.ValueGenerated = ValueGenerated.Never;
+                    }
+                }
+            }
+
+            return keyBuilder;
         }
 
         protected virtual EntityTypeBuilder VisitIndexes([NotNull] EntityTypeBuilder builder, [NotNull] ICollection<IndexModel> indexes)
@@ -457,6 +476,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             {
                 indexBuilder.HasName(index.Name);
             }
+
+            indexBuilder.Metadata.AddAnnotations(index.GetAnnotations());
 
             return indexBuilder;
         }
@@ -596,6 +617,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             key.Relational().Name = foreignKey.Name;
 
             AssignOnDeleteAction(foreignKey, key);
+
+            key.AddAnnotations(foreignKey.GetAnnotations());
 
             return key;
         }

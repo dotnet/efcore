@@ -20,6 +20,11 @@ namespace E2E.Sqlite
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {}
+        {
+            modelBuilder.Entity<Dependent>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+            });
+        }
     }
 }
