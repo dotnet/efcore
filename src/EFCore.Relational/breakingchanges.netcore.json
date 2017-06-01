@@ -1387,5 +1387,15 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
       "MemberId": "System.String get_Filter()",
       "Kind": "Addition"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public .ctor(System.String storeType, System.Type clrType)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public .ctor(System.String storeType, System.Type clrType, System.Nullable<System.Data.DbType> dbType)",
+      "Kind": "Removal"
     }
   ]
