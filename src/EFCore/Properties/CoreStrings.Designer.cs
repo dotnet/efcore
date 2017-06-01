@@ -801,6 +801,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType, propertyType);
 
         /// <summary>
+        ///     The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because it has been included in a key {key}.
+        /// </summary>
+        public static string KeyPropertyCannotBeNullable([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object key)
+            => string.Format(
+                GetString("KeyPropertyCannotBeNullable", nameof(property), nameof(entityType), nameof(key)),
+                property, entityType, key);
+
+        /// <summary>
         ///     An attempt was made to use the model while it was being created. A DbContext instance cannot be used inside OnModelCreating in any way that makes use of the model that is being created.
         /// </summary>
         public static string RecursiveOnModelCreating
@@ -1349,6 +1357,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 dependentToPrincipalNavigationSpecification, principalToDependentNavigationSpecification);
 
         /// <summary>
+        ///     Both relationships between '{firstDependentToPrincipalNavigationSpecification}' and '{firstPrincipalToDependentNavigationSpecification}' and between '{secondDependentToPrincipalNavigationSpecification}' and '{secondPrincipalToDependentNavigationSpecification}' could use {foreignKeyProperties} as the foreign key. To resolve this configure the foreign key properties explicitly on at least one of the relationships.
+        /// </summary>
+        public static string AmbiguousForeignKeyPropertyCandidates([CanBeNull] object firstDependentToPrincipalNavigationSpecification, [CanBeNull] object firstPrincipalToDependentNavigationSpecification, [CanBeNull] object secondDependentToPrincipalNavigationSpecification, [CanBeNull] object secondPrincipalToDependentNavigationSpecification, [CanBeNull] object foreignKeyProperties)
+            => string.Format(
+                GetString("AmbiguousForeignKeyPropertyCandidates", nameof(firstDependentToPrincipalNavigationSpecification), nameof(firstPrincipalToDependentNavigationSpecification), nameof(secondDependentToPrincipalNavigationSpecification), nameof(secondPrincipalToDependentNavigationSpecification), nameof(foreignKeyProperties)),
+                firstDependentToPrincipalNavigationSpecification, firstPrincipalToDependentNavigationSpecification, secondDependentToPrincipalNavigationSpecification, secondPrincipalToDependentNavigationSpecification, foreignKeyProperties);
+
+        /// <summary>
         ///     The property expression '{propertyAccessExpression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
         /// </summary>
         public static string InvalidComplexPropertyExpression([CanBeNull] object propertyAccessExpression)
@@ -1735,7 +1751,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogPossibleUnintendedReferenceComparison")));
 
         /// <summary>
-        ///     The same entity is being tracked as different delegated identity entity types '{diet1}' and '{diet2}'. If a property value changes it will result in two store changes, which might not be the desired outcome. 
+        ///     The same entity is being tracked as different delegated identity entity types '{diet1}' and '{diet2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.
         /// </summary>
         public static readonly EventDefinition<string, string> LogDuplicateDietInstance
             = new EventDefinition<string, string>(

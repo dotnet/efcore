@@ -115,6 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ModelBuiltConventions.Add(new IgnoredMembersValidationConvention());
             conventionSet.ModelBuiltConventions.Add(new PropertyMappingValidationConvention(Dependencies.TypeMapper));
             conventionSet.ModelBuiltConventions.Add(new RelationshipValidationConvention());
+            conventionSet.ModelBuiltConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             conventionSet.NavigationAddedConventions.Add(backingFieldConvention);
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention());

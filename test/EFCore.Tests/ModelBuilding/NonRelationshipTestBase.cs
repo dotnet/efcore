@@ -476,6 +476,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
+            public virtual void Key_properties_cannot_be_made_optional()
+            {
+                Assert.Equal(CoreStrings.KeyPropertyCannotBeNullable(nameof(Quarks.Down), nameof(Quarks), "{'" + nameof(Quarks.Down) + "'}"),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        CreateModelBuilder().Entity<Quarks>(b =>
+                            {
+                                b.HasAlternateKey(e => new { e.Down });
+                                b.Property(e => e.Down).IsRequired(false);
+                            })).Message);
+            }
+
+            [Fact]
             public virtual void Non_nullable_properties_cannot_be_made_optional()
             {
                 var modelBuilder = CreateModelBuilder();

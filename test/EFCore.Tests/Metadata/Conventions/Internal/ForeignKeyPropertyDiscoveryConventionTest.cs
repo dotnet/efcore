@@ -1,9 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -719,6 +721,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(newFk.DeclaringEntityType, fk.PrincipalEntityType);
             Assert.Same(newFk.PrincipalEntityType, fk.DeclaringEntityType);
             Assert.True(newFk.IsUnique);
+        }
+
+        [Fact]
+        public void Throws_on_ambiguous_relationship()
+        {
+            DependentType.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
+            DependentType.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention);
+            DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
+
+            var relationshipBuilder = DependentType.Relationship(
+                PrincipalType,
+                "SomeNav",
+                null,
+                ConfigurationSource.Convention);
+
+            var convention = new ForeignKeyPropertyDiscoveryConvention();
+            var newRelationshipBuilder = convention.Apply(relationshipBuilder);
+            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+
+            var otherRelationshipBuilder = DependentType.Relationship(
+                PrincipalType,
+                (string)null,
+                null,
+                ConfigurationSource.Convention);
+
+            var otherNewRelationshipBuilder = convention.Apply(otherRelationshipBuilder);
+            Assert.Same(otherRelationshipBuilder, otherNewRelationshipBuilder);
+
+            Assert.Equal(CoreStrings.AmbiguousForeignKeyPropertyCandidates(
+                nameof(DependentEntity) + ".SomeNav",
+                nameof(PrincipalEntity),
+                nameof(DependentEntity),
+                nameof(PrincipalEntity),
+                "{'" + nameof(DependentEntity.PrincipalEntityPeEKaY) + "'}"),
+                Assert.Throws<InvalidOperationException>(() => convention.Apply(DependentType.Metadata.Model.Builder)).Message);
+
+            newRelationshipBuilder.Metadata.UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource.Explicit);
+
+            convention.Apply(DependentType.Metadata.Model.Builder);
         }
 
         private static InternalModelBuilder BuildModel()
