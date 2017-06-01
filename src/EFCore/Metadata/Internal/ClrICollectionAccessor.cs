@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual object Create(IEnumerable<object> values)
+        public virtual object Create()
         {
             if (_createCollection == null)
             {
@@ -92,13 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     _propertyName, typeof(TEntity).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
             }
 
-            var collection = (ICollection<TElement>)_createCollection();
-            foreach (TElement value in values)
-            {
-                collection.Add(value);
-            }
-
-            return collection;
+            return _createCollection();
         }
 
         /// <summary>

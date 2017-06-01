@@ -12,13 +12,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
@@ -230,6 +233,137 @@ namespace Microsoft.EntityFrameworkCore.Query
                     QueryContextParameter);
 
         /// <summary>
+        /// Rewrites collection navigation projections so that they can be handled by the Include pipeline.
+        /// </summary>
+        /// <param name="queryModel"> The query. </param>
+        protected virtual void RewriteProjectedCollectionNavigationsToIncludes([NotNull] QueryModel queryModel)
+        {
+            var collectionNavigationIncludeRewriter = new CollectionNavigationIncludeExpressionRewriter(this);
+            queryModel.SelectClause.Selector = collectionNavigationIncludeRewriter.Visit(queryModel.SelectClause.Selector);
+            _queryCompilationContext.QueryAnnotations =
+                new ReadOnlyCollection<IQueryAnnotation>(
+                    _queryCompilationContext.QueryAnnotations
+                        .Concat(collectionNavigationIncludeRewriter.CollectionNavigationIncludeResultOperators)
+                        .ToList());
+        }
+
+        private class CollectionNavigationIncludeExpressionRewriter : ExpressionVisitorBase
+        {
+            private readonly EntityQueryModelVisitor _queryModelVisitor;
+
+            public List<IQueryAnnotation> CollectionNavigationIncludeResultOperators { get; }
+
+            public CollectionNavigationIncludeExpressionRewriter(
+                EntityQueryModelVisitor queryModelVisitor)
+            {
+                _queryModelVisitor = queryModelVisitor;
+                CollectionNavigationIncludeResultOperators = new List<IQueryAnnotation>();
+            }
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                var result = _queryModelVisitor.BindNavigationPathPropertyExpression(
+                    node,
+                    (ps, qs) => RewritePropertyAccess(node, ps, qs));
+
+                return result ?? base.VisitMember(node);
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                Expression result = null;
+                if (node.Method.IsEFPropertyMethod())
+                {
+                    result = _queryModelVisitor.BindNavigationPathPropertyExpression(
+                        node,
+                        (ps, qs) => RewritePropertyAccess(node, ps, qs));
+                }
+
+                return result ?? base.VisitMethodCall(node);
+            }
+
+            private Expression RewritePropertyAccess(
+                Expression expression, 
+                IReadOnlyList<IPropertyBase> properties, 
+                IQuerySource querySource)
+            {
+                if (querySource != null 
+                    && properties.Count > 0 
+                    && properties.All(p => p is INavigation) 
+                    && properties[properties.Count - 1] is INavigation lastNavigation 
+                    && lastNavigation.IsCollection())
+                {
+                    CollectionNavigationIncludeResultOperators.Add(
+                        new IncludeResultOperator(properties.Select(p => p.Name), new QuerySourceReferenceExpression(querySource)));
+
+                    var navigationMethodInfo = _navigationMethodInfo.MakeGenericMethod(querySource.ItemType, expression.Type);
+                    var parameter = Expression.Parameter(querySource.ItemType, "prm");
+                    var body = new CollectionNavigationIncludeReplacingExpressionVisitor(querySource, parameter).Visit(expression);
+                    var emptyCollection = lastNavigation.GetCollectionAccessor().Create();
+
+                    return Expression.Call(
+                        navigationMethodInfo,
+                        new QuerySourceReferenceExpression(querySource),
+                        new SuppressNavigationRewriteExpression(
+                            Expression.Lambda(
+                                Expression.Coalesce(body, Expression.Constant(emptyCollection)),
+                                parameter)));
+                }
+
+                return expression;
+            }
+
+            private class CollectionNavigationIncludeReplacingExpressionVisitor : ExpressionVisitorBase
+            {
+                private readonly IQuerySource _querySource;
+                private readonly Expression _replacementExpression;
+
+                public CollectionNavigationIncludeReplacingExpressionVisitor(IQuerySource querySource, Expression replacementExpression)
+                {
+                    _querySource = querySource;
+                    _replacementExpression = replacementExpression;
+                }
+
+                protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
+                    => expression.ReferencedQuerySource == _querySource
+                        ? _replacementExpression
+                        : expression;
+
+                protected override Expression VisitMember(MemberExpression memberExpression)
+                {
+                    var newExpression = Visit(memberExpression.Expression);
+                    var newMemberExpression = memberExpression.Update(newExpression);
+
+                    return new NullConditionalExpression(newExpression, newMemberExpression);
+                }
+
+                protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+                {
+                    if (methodCallExpression.Method.IsEFPropertyMethod())
+                    {
+                        var propertyName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                        var memberExpression = Expression.Property(methodCallExpression.Arguments[0], propertyName);
+
+                        return Visit(memberExpression);
+                    }
+
+                    return base.VisitMethodCall(methodCallExpression);
+                }
+            }
+
+            protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+                => subQueryExpression;
+
+            private static readonly MethodInfo _navigationMethodInfo
+                = typeof(CollectionNavigationIncludeExpressionRewriter).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(_ProjectCollectionNavigation));
+
+            // ReSharper disable once InconsistentNaming
+            private static TResult _ProjectCollectionNavigation<TEntity, TResult>(TEntity entity, Func<TEntity, TResult> accessor)
+                => accessor(entity);
+        }
+
+        /// <summary>
         ///     Populates <see cref="Query.QueryCompilationContext.QueryAnnotations" /> based on annotations found in the query.
         /// </summary>
         /// <param name="queryModel"> The query. </param>
@@ -259,6 +393,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger).VisitQueryModel(queryModel);
 
             // Rewrite includes/navigations
+
+            RewriteProjectedCollectionNavigationsToIncludes(queryModel);
 
             var includeCompiler = new IncludeCompiler(QueryCompilationContext, _querySourceTracingExpressionVisitorFactory);
 

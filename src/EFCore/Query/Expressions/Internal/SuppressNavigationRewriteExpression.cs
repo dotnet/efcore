@@ -1,58 +1,79 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public interface IClrCollectionAccessor
+    public class SuppressNavigationRewriteExpression : Expression
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        bool Add([NotNull] object instance, [NotNull] object value);
+        public SuppressNavigationRewriteExpression([NotNull]Expression operand)
+        {
+            Check.NotNull(operand, nameof(operand));
+
+            Operand = operand;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        void AddRange([NotNull] object instance, [NotNull] IEnumerable<object> values);
+        public virtual Expression Operand { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        bool Contains([NotNull] object instance, [NotNull] object value);
+        public override bool CanReduce => true;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        void Remove([NotNull] object instance, [NotNull] object value);
+        public override Type Type => Operand.Type;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        object Create();
+        public override ExpressionType NodeType => ExpressionType.Extension;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        object GetOrCreate([NotNull] object instance);
+        public override Expression Reduce()
+            => Operand;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        Type CollectionType { get; }
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            var newOperand = visitor.Visit(Operand);
+
+            return newOperand != Operand
+                ? new SuppressNavigationRewriteExpression(newOperand)
+                : this;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override string ToString()
+            => "SuppressNavigationRewrite(" + Operand + ")";
     }
 }
