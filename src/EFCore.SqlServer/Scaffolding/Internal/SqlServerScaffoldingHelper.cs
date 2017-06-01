@@ -26,16 +26,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         public virtual TypeScaffoldingInfo GetTypeScaffoldingInfo(ColumnModel columnModel)
         {
-            if (columnModel.DataType == null)
+            if (columnModel.StoreType == null)
             {
                 return null;
             }
 
             string underlyingDataType = null;
             columnModel.Table.Database.SqlServer().TypeAliases?.TryGetValue(
-                SchemaQualifiedKey(columnModel.DataType, columnModel.SqlServer().DataTypeSchemaName), out underlyingDataType);
+                SchemaQualifiedKey(columnModel.StoreType, columnModel.SqlServer().DataTypeSchemaName), out underlyingDataType);
 
-            var dataType = underlyingDataType ?? (columnModel.DataType + (columnModel.MaxLength.HasValue ? $"({columnModel.MaxLength.Value})" : ""));
+            var dataType = underlyingDataType ?? columnModel.StoreType;
 
             var typeScaffoldingInfo = _scaffoldingTypeMapper.FindMapping(dataType, keyOrIndex: false, rowVersion: false);
 

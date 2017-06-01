@@ -9,7 +9,6 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -38,11 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static string SchemaQualifiedKey([NotNull] string name, [CanBeNull] string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
+
         private static string TableKey(TableModel table) => SchemaQualifiedKey(table.Name, table.SchemaName);
         private static string ColumnKey(TableModel table, string columnName) => TableKey(table) + ".[" + columnName + "]";
 
         private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string> { "datetimeoffset", "datetime2", "time" };
         private const int DefaultDateTimePrecision = 7;
+
         // see https://msdn.microsoft.com/en-us/library/ff878091.aspx
         private static readonly Dictionary<string, long[]> _defaultSequenceMinMax = new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
         {
@@ -143,8 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private bool SupportsSequences => _serverVersion?.Major >= 11;
 
         private string MemoryOptimizedTableColumn =>
-            _serverVersion?.Major >= 12 ? @",
-    t.is_memory_optimized" : string.Empty;
+            _serverVersion?.Major >= 12
+                ? @",
+    t.is_memory_optimized"
+                : string.Empty;
 
         private string TemporalTableWhereClause =>
             _serverVersion?.Major >= 13 ? " AND t.temporal_type <> 1" : string.Empty;
@@ -233,8 +236,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         Max = reader.GetValueOrDefault<long?>("maximum_value")
                     };
 
-                    Logger.SequenceFound(sequence.DisplayName, sequence.DataType, sequence.IsCyclic,
-                            sequence.IncrementBy, sequence.Start, sequence.Min, sequence.Max);
+                    Logger.SequenceFound(
+                        sequence.DisplayName, sequence.DataType, sequence.IsCyclic,
+                        sequence.IncrementBy, sequence.Start, sequence.Min, sequence.Max);
 
                     if (string.IsNullOrEmpty(sequence.Name))
                     {
@@ -342,8 +346,8 @@ FROM sys.index_columns ic
     LEFT JOIN sys.computed_columns cc ON cc.object_id = c.object_id AND cc.column_id = c.column_id
     JOIN sys.tables AS t ON t.object_id = c.object_id
 WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
-            TemporalTableWhereClause +
-            IsHiddenColumnWhereClause;
+                                  TemporalTableWhereClause +
+                                  IsHiddenColumnWhereClause;
 
             using (var reader = command.ExecuteReader())
             {
@@ -381,15 +385,17 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                         continue;
                     }
 
-                    TableModel table;
-                    if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out table))
+                    if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out var table))
                     {
                         Logger.MissingTableWarning(DisplayName(schemaName, tableName));
                         continue;
                     }
 
-                    if (dataTypeName == "nvarchar"
-                        || dataTypeName == "nchar")
+                    // TODO: Check for aliased type and skip following processing altogether
+
+                    if ((dataTypeName == "nvarchar"
+                         || dataTypeName == "nchar")
+                        && maxLength != -1)
                     {
                         maxLength /= 2;
                     }
@@ -397,38 +403,43 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                     if (dataTypeName == "decimal"
                         || dataTypeName == "numeric")
                     {
-                        // maxlength here represents storage bytes. The server determines this, not the client.
-                        maxLength = null;
+                        dataTypeName = $"{dataTypeName}({precision}, {scale})";
                     }
-
-                    var dateTimePrecision = default(int?);
-                    if (_dateTimePrecisionTypes.Contains(dataTypeName))
+                    else if (_dateTimePrecisionTypes.Contains(dataTypeName)
+                             && scale != null)
                     {
-                        dateTimePrecision = scale ?? DefaultDateTimePrecision;
-                        scale = null;
+                        dataTypeName = $"{dataTypeName}({scale})";
+                    }
+                    else
+                    {
+                        if (maxLength == -1)
+                        {
+                            dataTypeName = $"{dataTypeName}(max)";
+                        }
+                        else if (maxLength.HasValue)
+                        {
+                            dataTypeName = $"{dataTypeName}({maxLength.Value})";
+                        }
                     }
 
                     var column = new ColumnModel
                     {
                         Table = table,
-                        DataType = dataTypeName,
                         Name = columnName,
+                        StoreType = dataTypeName,
                         Ordinal = ordinal - 1,
                         IsNullable = nullable,
                         PrimaryKeyOrdinal = primaryKeyOrdinal,
                         DefaultValue = defaultValue,
                         ComputedValue = computedValue,
-                        Precision = precision,
-                        Scale = scale,
-                        MaxLength = maxLength <= 0 ? default(int?) : maxLength,
                         ValueGenerated = isIdentity
                             ? ValueGenerated.OnAdd
                             : isComputed || dataTypeName == "timestamp"
                                 ? ValueGenerated.OnAddOrUpdate
                                 : default(ValueGenerated?)
                     };
+
                     column.SqlServer().IsIdentity = isIdentity;
-                    column.SqlServer().DateTimePrecision = dateTimePrecision;
                     column.SqlServer().DataTypeSchemaName = dataTypeSchemaName;
 
                     table.Columns.Add(column);
@@ -476,7 +487,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     var filterDefinition = reader.GetValueOrDefault<string>("filter_definition");
 
                     Logger.IndexColumnFound(
-                            DisplayName(schemaName, tableName), indexName, isUnique, columnName, indexOrdinal);
+                        DisplayName(schemaName, tableName), indexName, isUnique, columnName, indexOrdinal);
 
                     if (!_tableSelectionSet.Allows(schemaName, tableName))
                     {
@@ -522,7 +533,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     }
                     else if (!_tableColumns.TryGetValue(ColumnKey(index.Table, columnName), out column))
                     {
-                        Logger.IndexColumnsNotMappedWarning(indexName, new [] { columnName });
+                        Logger.IndexColumnsNotMappedWarning(indexName, new[] { columnName });
                     }
                     else
                     {
@@ -577,8 +588,8 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
                     var ordinal = reader.GetValueOrDefault<int>("constraint_column_id");
 
                     Logger.ForeignKeyColumnFound(
-                            DisplayName(schemaName, tableName), fkName, DisplayName(principalTableSchemaName, principalTableName),
-                            fromColumnName, toColumnName, updateAction, deleteAction, ordinal);
+                        DisplayName(schemaName, tableName), fkName, DisplayName(principalTableSchemaName, principalTableName),
+                        fromColumnName, toColumnName, updateAction, deleteAction, ordinal);
 
                     if (string.IsNullOrEmpty(fkName))
                     {
@@ -612,7 +623,7 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
                         if (principalTable == null)
                         {
                             Logger.ForeignKeyReferencesMissingPrincipalTableWarning(
-                                    fkName, DisplayName(schemaName, tableName), DisplayName(principalTableSchemaName, principalTableName));
+                                fkName, DisplayName(schemaName, tableName), DisplayName(principalTableSchemaName, principalTableName));
                         }
 
                         fkInfo = new ForeignKeyModel
@@ -653,7 +664,7 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
 
         private static string DisplayName(string schema, string name)
             => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
-        
+
         private ColumnModel FindColumnForForeignKey(
             string columnName, TableModel table, string fkName)
         {

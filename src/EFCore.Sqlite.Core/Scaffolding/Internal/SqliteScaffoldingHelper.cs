@@ -25,16 +25,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         public virtual TypeScaffoldingInfo GetTypeScaffoldingInfo(ColumnModel columnModel)
         {
-            if (columnModel.DataType == null)
+            if (columnModel.StoreType == null)
             {
                 return null;
             }
 
-            var dataType = columnModel.DataType + (columnModel.MaxLength.HasValue ? $"({columnModel.MaxLength.Value})" : "");
+            var typeScaffoldingInfo = _scaffoldingTypeMapper.FindMapping(columnModel.StoreType, keyOrIndex: false, rowVersion: false);
 
-            var typeScaffoldingInfo = _scaffoldingTypeMapper.FindMapping(dataType, keyOrIndex: false, rowVersion: false);
-
-            if (columnModel.DataType == "")
+            if (columnModel.StoreType == "")
             {
                 return new TypeScaffoldingInfo(
                     typeScaffoldingInfo.ClrType,

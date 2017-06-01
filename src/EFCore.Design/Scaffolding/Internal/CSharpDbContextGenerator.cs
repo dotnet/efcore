@@ -364,6 +364,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
+            if (property.IsUnicode() != null)
+            {
+                lines.Add($".{nameof(PropertyBuilder.IsUnicode)}({(property.IsUnicode() == false ? _cSharpUtilities.GenerateLiteral(false) : "")})");
+            }
+
             if (property.Relational().DefaultValue != null)
             {
                 lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}({_cSharpUtilities.GenerateLiteral((dynamic)property.Relational().DefaultValue)})");
