@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var columns = (await testStore.QueryAsync<string>(
                     "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_NAME = 'Blogs' ORDER BY TABLE_NAME, COLUMN_NAME")).ToArray();
-                Assert.Equal(15, columns.Length);
+                Assert.Equal(14, columns.Length);
 
                 Assert.Equal(
                     new[]
@@ -359,7 +359,6 @@ namespace Microsoft.EntityFrameworkCore
                             "Blogs.AndChew (varbinary)",
                             "Blogs.AndRow (timestamp)",
                             "Blogs.Cheese (nvarchar)",
-                            "Blogs.CupOfChar (int)",
                             "Blogs.ErMilan (int)",
                             "Blogs.Fuse (smallint)",
                             "Blogs.George (bit)",
@@ -627,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("Blogs", tables.Single());
 
                     var columns = await testDatabase.QueryAsync<string>("SELECT TABLE_NAME + '.' + COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Blogs'");
-                    Assert.Equal(15, columns.Count());
+                    Assert.Equal(14, columns.Count());
                     Assert.True(columns.Any(c => c == "Blogs.Key1"));
                     Assert.True(columns.Any(c => c == "Blogs.Key2"));
                     Assert.True(columns.Any(c => c == "Blogs.Cheese"));
@@ -636,7 +635,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(columns.Any(c => c == "Blogs.TheGu"));
                     Assert.True(columns.Any(c => c == "Blogs.NotFigTime"));
                     Assert.True(columns.Any(c => c == "Blogs.ToEat"));
-                    Assert.True(columns.Any(c => c == "Blogs.CupOfChar"));
                     Assert.True(columns.Any(c => c == "Blogs.OrNothing"));
                     Assert.True(columns.Any(c => c == "Blogs.Fuse"));
                     Assert.True(columns.Any(c => c == "Blogs.WayRound"));
@@ -816,7 +814,6 @@ namespace Microsoft.EntityFrameworkCore
             public Guid TheGu { get; set; }
             public DateTime NotFigTime { get; set; }
             public byte ToEat { get; set; }
-            public char CupOfChar { get; set; }
             public double OrNothing { get; set; }
             public short Fuse { get; set; }
             public long WayRound { get; set; }
