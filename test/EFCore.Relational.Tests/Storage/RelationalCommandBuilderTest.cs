@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             commandBuilder.ParameterBuilder.AddParameter(
                 "InvariantName",
                 "Name",
-                new StringTypeMapping("nvarchar(100)", dbType: null),
+                new StringTypeMapping("nvarchar(100)"),
                 nullable: true);
 
             var command = commandBuilder.Build();

@@ -1022,8 +1022,8 @@ namespace Microsoft.EntityFrameworkCore
 
     public class TestTypeMapper : RelationalTypeMapper
     {
-        private static readonly StringTypeMapping _string = new StringTypeMapping("string", dbType: null);
-        private static readonly LongTypeMapping _long = new LongTypeMapping("long", dbType: null);
+        private static readonly StringTypeMapping _string = new StringTypeMapping("string");
+        private static readonly LongTypeMapping _long = new LongTypeMapping("long");
 
         public TestTypeMapper(RelationalTypeMapperDependencies dependencies)
             : base(dependencies)

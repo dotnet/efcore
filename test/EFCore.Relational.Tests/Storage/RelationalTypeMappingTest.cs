@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_create_simple_parameter()
         {
-            var parameter = new IntTypeMapping("int", null)
+            var parameter = new IntTypeMapping("int")
                 .CreateParameter(CreateTestCommand(), "Name", 17, nullable: false);
 
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_create_simple_nullable_parameter()
         {
-            var parameter = new IntTypeMapping("int", null)
+            var parameter = new IntTypeMapping("int")
                 .CreateParameter(CreateTestCommand(), "Name", 17, nullable: true);
 
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
@@ -93,28 +93,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteral_returns_bool_literal_when_true()
         {
-            var literal = new BoolTypeMapping("bool", null).GenerateSqlLiteral(true);
+            var literal = new BoolTypeMapping("bool").GenerateSqlLiteral(true);
             Assert.Equal("1", literal);
         }
 
         [Fact]
         public virtual void GenerateSqlLiteral_returns_bool_literal_when_false()
         {
-            var literal = new BoolTypeMapping("bool", null).GenerateSqlLiteral(false);
+            var literal = new BoolTypeMapping("bool").GenerateSqlLiteral(false);
             Assert.Equal("0", literal);
         }
 
         [Fact]
         public virtual void GenerateSqlLiteral_returns_char_literal()
         {
-            var literal = new CharTypeMapping("char", null).GenerateSqlLiteral('A');
+            var literal = new CharTypeMapping("char").GenerateSqlLiteral('A');
             Assert.Equal("'A'", literal);
         }
 
         [Fact]
         public virtual void GenerateSqlLiteral_returns_ByteArray_literal()
         {
-            var literal = new ByteArrayTypeMapping("byte[]", null).GenerateSqlLiteral(new byte[] { 0xDA, 0x7A });
+            var literal = new ByteArrayTypeMapping("byte[]").GenerateSqlLiteral(new byte[] { 0xDA, 0x7A });
             Assert.Equal("X'DA7A'", literal);
         }
 
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual void GenerateSqlLiteral_returns_Guid_literal()
         {
             var value = new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292");
-            var literal = new GuidTypeMapping("guid", null).GenerateSqlLiteral(value);
+            var literal = new GuidTypeMapping("guid").GenerateSqlLiteral(value);
             Assert.Equal("'c6f43a9e-91e1-45ef-a320-832ea23b7292'", literal);
         }
 
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual void GenerateSqlLiteral_returns_DateTime_literal()
         {
             var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = new DateTimeTypeMapping("DateTime", null).GenerateSqlLiteral(value);
+            var literal = new DateTimeTypeMapping("DateTime").GenerateSqlLiteral(value);
             Assert.Equal("TIMESTAMP '2015-03-12 13:36:37.3710000'", literal);
         }
 
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual void GenerateSqlLiteral_returns_DateTimeOffset_literal()
         {
             var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = new DateTimeOffsetTypeMapping("DateTimeOffset", null).GenerateSqlLiteral(value);
+            var literal = new DateTimeOffsetTypeMapping("DateTimeOffset").GenerateSqlLiteral(value);
             Assert.Equal("TIMESTAMP '2015-03-12 13:36:37.3710000-07:00'", literal);
         }
 

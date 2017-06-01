@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         builder.AddParameter(
                             "SecondInvariant",
                             "SecondName",
-                            new StringTypeMapping("nvarchar(max)", dbType: null),
+                            new StringTypeMapping("nvarchar(max)"),
                             nullable: true);
                     });
 

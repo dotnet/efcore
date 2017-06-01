@@ -11,8 +11,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestRelationalTypeMapper : RelationalTypeMapper
     {
-        private static readonly RelationalTypeMapping _string = new StringTypeMapping("just_string(2000)", dbType: null);
-        private static readonly RelationalTypeMapping _unboundedString = new StringTypeMapping("just_string(max)", dbType: null);
+        private static readonly RelationalTypeMapping _string = new StringTypeMapping("just_string(2000)");
+        private static readonly RelationalTypeMapping _unboundedString = new StringTypeMapping("just_string(max)");
         private static readonly RelationalTypeMapping _stringKey = new StringTypeMapping("just_string(450)", dbType: null, unicode: true, size: 450);
         private static readonly RelationalTypeMapping _ansiStringKey = new StringTypeMapping("ansi_string(900)", dbType: null, unicode: true, size: 450);
         private static readonly RelationalTypeMapping _unboundedBinary = new ByteArrayTypeMapping("just_binary(max)", dbType: DbType.Binary);
@@ -33,31 +33,31 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             = new ByteTypeMapping("default_byte_mapping", dbType: DbType.Byte);
 
         private static readonly RelationalTypeMapping _defaultBoolMapping
-            = new BoolTypeMapping("default_bool_mapping", dbType: null);
+            = new BoolTypeMapping("default_bool_mapping");
 
         private static readonly RelationalTypeMapping _someIntMapping
-            = new IntTypeMapping("some_int_mapping", dbType: null);
+            = new IntTypeMapping("some_int_mapping");
 
         private static readonly RelationalTypeMapping _defaultDecimalMapping
-            = new DecimalTypeMapping("default_decimal_mapping", dbType: null);
+            = new DecimalTypeMapping("default_decimal_mapping");
 
         private static readonly RelationalTypeMapping _defaultDateTimeMapping
             = new DateTimeTypeMapping("default_datetime_mapping", dbType: DbType.DateTime2);
 
         private static readonly RelationalTypeMapping _defaultDoubleMapping
-            = new DoubleTypeMapping("default_double_mapping", dbType: null);
+            = new DoubleTypeMapping("default_double_mapping");
 
         private static readonly RelationalTypeMapping _defaultDateTimeOffsetMapping
-            = new DateTimeOffsetTypeMapping("default_datetimeoffset_mapping", dbType: null);
+            = new DateTimeOffsetTypeMapping("default_datetimeoffset_mapping");
 
         private static readonly RelationalTypeMapping _defaultFloatMapping
-            = new FloatTypeMapping("default_float_mapping", dbType: null);
+            = new FloatTypeMapping("default_float_mapping");
 
         private static readonly RelationalTypeMapping _defaultGuidMapping
-            = new GuidTypeMapping("default_guid_mapping", dbType: null);
+            = new GuidTypeMapping("default_guid_mapping");
 
         private static readonly RelationalTypeMapping _defaultTimeSpanMapping
-            = new TimeSpanTypeMapping("default_timespan_mapping", dbType: null);
+            = new TimeSpanTypeMapping("default_timespan_mapping");
 
         public TestRelationalTypeMapper(RelationalTypeMapperDependencies dependencies)
             : base(dependencies)

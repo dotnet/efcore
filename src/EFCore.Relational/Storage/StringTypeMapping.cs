@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         public StringTypeMapping(
             [NotNull] string storeType,
-            [CanBeNull] DbType? dbType,
+            [CanBeNull] DbType? dbType = null,
             bool unicode = false)
             : this(storeType, dbType, unicode: false, size: null)
         {
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string EscapeSqlLiteral([NotNull]string literal)
+        protected virtual string EscapeSqlLiteral([NotNull]string literal)
             => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
 
         /// <summary>
@@ -85,8 +85,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The generated string.
         /// </returns>
         protected override string GenerateNonNullSqlLiteral(object value)
-        {
-            return $"'{EscapeSqlLiteral((string)value)}'";
-        }
+            => $"'{EscapeSqlLiteral((string)value)}'";
     }
 }

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("int", GetTypeMapping(typeof(int)).StoreType);
             Assert.Equal("datetime2", GetTypeMapping(typeof(DateTime)).StoreType);
             Assert.Equal("uniqueidentifier", GetTypeMapping(typeof(Guid)).StoreType);
-            Assert.Equal("nchar(1)", GetTypeMapping(typeof(char)).StoreType);
+            Assert.Equal("int", GetTypeMapping(typeof(char)).StoreType);
             Assert.Equal("tinyint", GetTypeMapping(typeof(byte)).StoreType);
             Assert.Equal("float", GetTypeMapping(typeof(double)).StoreType);
             Assert.Equal("bit", GetTypeMapping(typeof(bool)).StoreType);
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("int", GetTypeMapping(typeof(int?)).StoreType);
             Assert.Equal("datetime2", GetTypeMapping(typeof(DateTime?)).StoreType);
             Assert.Equal("uniqueidentifier", GetTypeMapping(typeof(Guid?)).StoreType);
-            Assert.Equal("nchar(1)", GetTypeMapping(typeof(char?)).StoreType);
+            Assert.Equal("int", GetTypeMapping(typeof(char?)).StoreType);
             Assert.Equal("tinyint", GetTypeMapping(typeof(byte?)).StoreType);
             Assert.Equal("float", GetTypeMapping(typeof(double?)).StoreType);
             Assert.Equal("bit", GetTypeMapping(typeof(bool?)).StoreType);
@@ -45,6 +45,26 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("bigint", GetTypeMapping(typeof(long?)).StoreType);
             Assert.Equal("real", GetTypeMapping(typeof(float?)).StoreType);
             Assert.Equal("datetimeoffset", GetTypeMapping(typeof(DateTimeOffset?)).StoreType);
+        }
+
+        [Fact]
+        public void Throws_for_SQL_Server_mappings_to_unsupported_types()
+        {
+            var ex = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(sbyte)).StoreType);
+            Assert.Equal(RelationalStrings.UnsupportedPropertyType("MyType", "MyProp", "sbyte"), ex.Message);
+
+            ex = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(ushort)).StoreType);
+            Assert.Equal(RelationalStrings.UnsupportedPropertyType("MyType", "MyProp", "ushort"), ex.Message);
+
+            ex = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(uint)).StoreType);
+            Assert.Equal(RelationalStrings.UnsupportedPropertyType("MyType", "MyProp", "uint"), ex.Message);
+
+            //TODO: We should uncomment this once issue https://github.com/aspnet/EntityFramework/issues/8656 is fixed
+            // ex = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(char)).StoreType);
+            // Assert.Equal(RelationalStrings.UnsupportedPropertyType("MyType", "MyProp", "char"), ex.Message);
+
+            ex = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(ulong)).StoreType);
+            Assert.Equal(RelationalStrings.UnsupportedPropertyType("MyType", "MyProp", "ulong"), ex.Message);
         }
 
         [Fact]

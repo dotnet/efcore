@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore
                             "Blogs.AndChew (varbinary)",
                             "Blogs.AndRow (timestamp)",
                             "Blogs.Cheese (nvarchar)",
-                            "Blogs.CupOfChar (nchar)",
+                            "Blogs.CupOfChar (int)",
                             "Blogs.ErMilan (int)",
                             "Blogs.Fuse (smallint)",
                             "Blogs.George (bit)",

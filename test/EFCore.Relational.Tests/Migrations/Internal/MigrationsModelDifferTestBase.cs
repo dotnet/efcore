@@ -69,15 +69,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
-                    { typeof(int), new IntTypeMapping("int", dbType: null) },
-                    { typeof(bool), new BoolTypeMapping("boolean", dbType: null) }
+                    { typeof(int), new IntTypeMapping("int") },
+                    { typeof(bool), new BoolTypeMapping("boolean") }
                 };
 
             private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
                 = new Dictionary<string, RelationalTypeMapping>
                 {
                     { "varchar", new StringTypeMapping("varchar", dbType: null, unicode: false, size: null, hasNonDefaultUnicode: true) },
-                    { "bigint", new LongTypeMapping("bigint",  dbType: null) }
+                    { "bigint", new LongTypeMapping("bigint") }
                 };
 
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()

@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the string format to be used to generate SQL literals of this type.
         /// </summary>
-        public virtual string SqlLiteralFormatString { get; } = "{0}";
+        protected virtual string SqlLiteralFormatString { get; } = "{0}";
 
         /// <summary>
         ///     Creates a <see cref="DbParameter" /> with the appropriate type information configured.
@@ -176,11 +176,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The generated string.
         /// </returns>
         public virtual string GenerateSqlLiteral([CanBeNull] object value)
-        {
-            return value == null
+            => (value == null
                 ? "NULL"
-                : GenerateNonNullSqlLiteral(value);
-        }
+                : GenerateNonNullSqlLiteral(value));
 
         /// <summary>
         ///     Generates the SQL representation of a non-null literal value.

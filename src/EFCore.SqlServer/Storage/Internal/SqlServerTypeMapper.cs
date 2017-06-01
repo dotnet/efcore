@@ -40,19 +40,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly IntTypeMapping _int = new IntTypeMapping("int", DbType.Int32);
 
-        private readonly UIntTypeMapping _uint = new UIntTypeMapping("bigint", DbType.UInt32); // need bigint to contain C# uint
-
         private readonly LongTypeMapping _long = new LongTypeMapping("bigint", DbType.Int64);
-
-        private readonly ULongTypeMapping _ulong = new ULongTypeMapping("decimal(20)", DbType.UInt64);  // need decimal(20) to contain a C# ulong
 
         private readonly ShortTypeMapping _short = new ShortTypeMapping("smallint", DbType.Int16);
 
-        private readonly UShortTypeMapping _ushort = new UShortTypeMapping("int", DbType.UInt16); // need int to contain C# ushort
-
         private readonly ByteTypeMapping _byte = new ByteTypeMapping("tinyint", DbType.Byte);
-
-        private readonly SByteTypeMapping _sbyte = new SByteTypeMapping("smallint", DbType.SByte); // need smallint to contain C# sbyte
 
         private readonly BoolTypeMapping _bool = new BoolTypeMapping("bit", null);
 
@@ -146,23 +138,22 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "xml", _xml }
                 };
 
+            // Note: sbyte, ushort, uint and ulong type mappings are not supported by SQL Server.
+            // We would need the type conversions feature to allow this to work - see https://github.com/aspnet/EntityFramework/issues/242.
+            // char mapping is included but only temporarily - see https://github.com/aspnet/EntityFramework/issues/8656
             _clrTypeMappings
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
                     { typeof(int), _int },
-                    { typeof(uint), _uint },
                     { typeof(long), _long },
-                    { typeof(ulong), _ulong },
                     { typeof(DateTime), _datetime2 },
                     { typeof(Guid), _uniqueidentifier },
                     { typeof(bool), _bool },
                     { typeof(byte), _byte },
-                    { typeof(sbyte), _sbyte },
                     { typeof(double), _double },
                     { typeof(DateTimeOffset), _datetimeoffset },
-                    { typeof(char), new CharTypeMapping("nchar(1)", null) },
+                    { typeof(char), new CharTypeMapping("int") },
                     { typeof(short), _short },
-                    { typeof(ushort), _ushort },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
                     { typeof(TimeSpan), _time }

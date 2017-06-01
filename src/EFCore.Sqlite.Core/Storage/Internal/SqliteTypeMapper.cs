@@ -20,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private const string _blobTypeName = "BLOB";
         private const string _textTypeName = "TEXT";
 
-        private static readonly LongTypeMapping _integer = new LongTypeMapping(_integerTypeName, dbType: null);
-        private static readonly DoubleTypeMapping _real = new DoubleTypeMapping(_realTypeName, dbType: null);
-        private static readonly ByteArrayTypeMapping _blob = new ByteArrayTypeMapping(_blobTypeName, dbType: null);
-        private static readonly StringTypeMapping _text = new StringTypeMapping(_textTypeName, dbType: null);
+        private static readonly LongTypeMapping _integer = new LongTypeMapping(_integerTypeName);
+        private static readonly DoubleTypeMapping _real = new DoubleTypeMapping(_realTypeName);
+        private static readonly ByteArrayTypeMapping _blob = new ByteArrayTypeMapping(_blobTypeName);
+        private static readonly StringTypeMapping _text = new StringTypeMapping(_textTypeName);
 
         private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
@@ -43,23 +43,23 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 {
                     { typeof(string), _text },
                     { typeof(byte[]), _blob },
-                    { typeof(bool), new BoolTypeMapping(_integerTypeName, dbType: null) },
-                    { typeof(byte), new ByteTypeMapping(_integerTypeName, dbType: null) },
-                    { typeof(char), new CharTypeMapping(_integerTypeName, dbType: null) },
-                    { typeof(int), new IntTypeMapping(_integerTypeName, dbType: null) },
+                    { typeof(bool), new BoolTypeMapping(_integerTypeName) },
+                    { typeof(byte), new ByteTypeMapping(_integerTypeName) },
+                    { typeof(char), new CharTypeMapping(_integerTypeName) },
+                    { typeof(int), new IntTypeMapping(_integerTypeName) },
                     { typeof(long), _integer },
-                    { typeof(sbyte), new SByteTypeMapping(_integerTypeName, dbType: null) },
-                    { typeof(short), new ShortTypeMapping(_integerTypeName, dbType: null) },
-                    { typeof(uint), new UIntTypeMapping(_integerTypeName, dbType: null) },
-                    { typeof(ulong), new ULongTypeMapping(_integerTypeName, dbType: null) },
-                    { typeof(ushort), new UShortTypeMapping(_integerTypeName, dbType: null) },
-                    { typeof(DateTime), new SqliteDateTimeTypeMapping(_textTypeName, dbType: null) },
-                    { typeof(DateTimeOffset), new SqliteDateTimeOffsetTypeMapping(_textTypeName, dbType: null) },
-                    { typeof(TimeSpan), new TimeSpanTypeMapping(_textTypeName, dbType: null) },
-                    { typeof(decimal), new DecimalTypeMapping(_textTypeName, dbType: null) },
+                    { typeof(sbyte), new SByteTypeMapping(_integerTypeName) },
+                    { typeof(short), new ShortTypeMapping(_integerTypeName) },
+                    { typeof(uint), new UIntTypeMapping(_integerTypeName) },
+                    { typeof(ulong), new ULongTypeMapping(_integerTypeName) },
+                    { typeof(ushort), new UShortTypeMapping(_integerTypeName) },
+                    { typeof(DateTime), new SqliteDateTimeTypeMapping(_textTypeName) },
+                    { typeof(DateTimeOffset), new SqliteDateTimeOffsetTypeMapping(_textTypeName) },
+                    { typeof(TimeSpan), new TimeSpanTypeMapping(_textTypeName) },
+                    { typeof(decimal), new DecimalTypeMapping(_textTypeName) },
                     { typeof(double), _real },
-                    { typeof(float), new FloatTypeMapping(_realTypeName, dbType: null) },
-                    { typeof(Guid), new SqliteGuidTypeMapping(_blobTypeName, dbType: null) }
+                    { typeof(float), new FloatTypeMapping(_realTypeName) },
+                    { typeof(Guid), new SqliteGuidTypeMapping(_blobTypeName) }
                 };
         }
 

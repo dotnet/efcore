@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         public ByteArrayTypeMapping(
             [NotNull] string storeType,
-            [CanBeNull] DbType? dbType)
+            [CanBeNull] DbType? dbType = null)
             : this(storeType, dbType, unicode: false, size: null)
         {
         }
