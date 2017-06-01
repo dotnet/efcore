@@ -59,9 +59,9 @@ CREATE TABLE IF NOT EXISTS Dependent (
                 {
                     Files =
                     {
-                        "OneToOne" + DbSuffix + "Context.expected",
-                        "Dependent.expected",
-                        "Principal.expected"
+                        "OneToOne" + DbSuffix + "Context.cs",
+                        "Dependent.cs",
+                        "Principal.cs"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
@@ -113,9 +113,9 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                 {
                     Files =
                     {
-                        "OneToMany" + DbSuffix + "Context.expected",
-                        "OneToManyDependent.expected",
-                        "OneToManyPrincipal.expected"
+                        "OneToMany" + DbSuffix + "Context.cs",
+                        "OneToManyDependent.cs",
+                        "OneToManyPrincipal.cs"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
@@ -161,10 +161,10 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                 {
                     Files =
                     {
-                        "ManyToMany" + DbSuffix + "Context.expected",
-                        "Groups.expected",
-                        "Users.expected",
-                        "UsersGroups.expected"
+                        "ManyToMany" + DbSuffix + "Context.cs",
+                        "Groups.cs",
+                        "Users.cs",
+                        "UsersGroups.cs"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
@@ -203,8 +203,8 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                 {
                     Files =
                     {
-                        "SelfRef" + DbSuffix + "Context.expected",
-                        "SelfRef.expected"
+                        "SelfRef" + DbSuffix + "Context.cs",
+                        "SelfRef.cs"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
@@ -284,8 +284,8 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
                 {
                     Files =
                     {
-                        "NoPrincipalPk" + DbSuffix + "Context.expected",
-                        "Dependent.expected"
+                        "NoPrincipalPk" + DbSuffix + "Context.cs",
+                        "Dependent.cs"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
@@ -380,9 +380,9 @@ CREATE TABLE IF NOT EXISTS Comment (
                 {
                     Files =
                     {
-                        "FkToAltKeyContext.expected",
-                        "Comment.expected",
-                        "User.expected"
+                        "FkToAltKeyContext.cs",
+                        "Comment.cs",
+                        "User.cs"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
