@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         private static readonly MethodInfo _methodInfoWithEscape
             = typeof(DbFunctionsExtensions).GetRuntimeMethod(
                 nameof(DbFunctionsExtensions.Like),
-                new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(char) });
+                new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
