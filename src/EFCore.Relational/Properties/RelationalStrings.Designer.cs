@@ -59,6 +59,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("NoConnectionOrConnectionString");
 
         /// <summary>
+        ///     A named connection string was used, but the name '{name}' was not found in the application's configuration. Note that named connection strings are only supported when using 'IConfiguration' and a service provider, such as in a typical ASP.NET Core application. See https://go.microsoft.com/fwlink/?linkid=850912 for more information.
+        /// </summary>
+        public static string NamedConnectionStringNotFound([CanBeNull] object name)
+            => string.Format(
+                GetString("NamedConnectionStringNotFound", nameof(name)),
+                name);
+
+        /// <summary>
         ///     No mapping to a relational type can be found for the CLR type '{clrType}'.
         /// </summary>
         public static string UnsupportedType([CanBeNull] object clrType)
