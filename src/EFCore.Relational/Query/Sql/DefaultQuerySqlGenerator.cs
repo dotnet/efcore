@@ -568,7 +568,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         private RelationalTypeMapping GetTypeMapping(object value)
-            => _typeMapping ?? Dependencies.RelationalTypeMapper.GetMappingForValue(value);
+        {
+            return _typeMapping != null
+                    && (value == null
+                        || _typeMapping.ClrType.IsAssignableFrom(value.GetType()))
+                ? _typeMapping
+                : Dependencies.RelationalTypeMapper.GetMappingForValue(value);
+        }
 
         /// <summary>
         ///     Visit a TableExpression.

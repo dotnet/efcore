@@ -17,89 +17,72 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class SqlServerTypeMapper : RelationalTypeMapper
     {
-        private readonly SqlServerMaxLengthMapping _nvarcharmax
-            = new SqlServerMaxLengthMapping("nvarchar(max)", typeof(string), dbType: null, unicode: true, size: null);
+        private readonly SqlServerStringTypeMapping _unboundedUnicodeString
+            = new SqlServerStringTypeMapping("nvarchar(max)", dbType: null, unicode: true, size: null);
 
-        private readonly SqlServerMaxLengthMapping _nvarchar450
-            = new SqlServerMaxLengthMapping("nvarchar(450)", typeof(string), dbType: null, unicode: true, size: 450);
+        private readonly SqlServerStringTypeMapping _keyUnicodeString
+            = new SqlServerStringTypeMapping("nvarchar(450)", dbType: null, unicode: true, size: 450);
 
-        private readonly SqlServerMaxLengthMapping _varcharmax
-            = new SqlServerMaxLengthMapping("varchar(max)", typeof(string), dbType: DbType.AnsiString, unicode: false, size: null, hasNonDefaultUnicode: true);
+        private readonly SqlServerStringTypeMapping _unboundedAnsiString
+            = new SqlServerStringTypeMapping("varchar(max)", dbType: DbType.AnsiString, unicode: false, size: null, hasNonDefaultUnicode: true);
 
-        private readonly SqlServerMaxLengthMapping _varchar900
-            = new SqlServerMaxLengthMapping("varchar(900)", typeof(string), dbType: DbType.AnsiString, unicode: false, size: 900, hasNonDefaultUnicode: true);
+        private readonly SqlServerStringTypeMapping _keyAnsiString
+            = new SqlServerStringTypeMapping("varchar(900)", dbType: DbType.AnsiString, unicode: false, size: 900, hasNonDefaultUnicode: true);
 
-        private readonly SqlServerMaxLengthMapping _varbinarymax
-            = new SqlServerMaxLengthMapping("varbinary(max)", typeof(byte[]), dbType: DbType.Binary, unicode: false, size: null);
+        private readonly SqlServerByteArrayTypeMapping _unboundedBinary
+            = new SqlServerByteArrayTypeMapping("varbinary(max)");
 
-        private readonly SqlServerMaxLengthMapping _varbinary900
-            = new SqlServerMaxLengthMapping("varbinary(900)", typeof(byte[]), dbType: DbType.Binary, unicode: false, size: 900);
+        private readonly SqlServerByteArrayTypeMapping _keyBinary
+            = new SqlServerByteArrayTypeMapping("varbinary(900)", dbType: DbType.Binary, size: 900);
 
-        private readonly SqlServerTypeMapping _rowversion
-            = new SqlServerTypeMapping("rowversion", typeof(byte[]), dbType: DbType.Binary, unicode: false, size: 8);
+        private readonly SqlServerByteArrayTypeMapping _rowversion
+            = new SqlServerByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
 
-        private readonly SqlServerTypeMapping _int
-            = new SqlServerTypeMapping("int", typeof(int), dbType: DbType.Int32);
+        private readonly IntTypeMapping _int = new IntTypeMapping("int", DbType.Int32);
 
-        private readonly SqlServerTypeMapping _bigint
-            = new SqlServerTypeMapping("bigint", typeof(long), dbType: DbType.Int64);
+        private readonly LongTypeMapping _long = new LongTypeMapping("bigint", DbType.Int64);
 
-        private readonly SqlServerTypeMapping _smallint
-            = new SqlServerTypeMapping("smallint", typeof(short), dbType: DbType.Int16);
+        private readonly ShortTypeMapping _short = new ShortTypeMapping("smallint", DbType.Int16);
 
-        private readonly SqlServerTypeMapping _tinyint
-            = new SqlServerTypeMapping("tinyint", typeof(byte), dbType: DbType.Byte);
+        private readonly ByteTypeMapping _byte = new ByteTypeMapping("tinyint", DbType.Byte);
 
-        private readonly SqlServerTypeMapping _bit
-            = new SqlServerTypeMapping("bit", typeof(bool));
+        private readonly BoolTypeMapping _bool = new BoolTypeMapping("bit", null);
 
-        private readonly SqlServerMaxLengthMapping _nchar
-            = new SqlServerMaxLengthMapping("nchar", typeof(string), dbType: DbType.StringFixedLength, unicode: true, size: null);
+        private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
+            = new SqlServerStringTypeMapping("nchar", dbType: DbType.StringFixedLength, unicode: true, size: null);
 
-        private readonly SqlServerMaxLengthMapping _nvarchar
-            = new SqlServerMaxLengthMapping("nvarchar", typeof(string), dbType: null, unicode: true, size: null);
+        private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
+            = new SqlServerStringTypeMapping("nvarchar", dbType: null, unicode: true, size: null);
 
-        private readonly SqlServerMaxLengthMapping _char
-            = new SqlServerMaxLengthMapping("char", typeof(string), dbType: DbType.AnsiStringFixedLength, unicode: false, size: null, hasNonDefaultUnicode: true);
+        private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
+            = new SqlServerStringTypeMapping("char", dbType: DbType.AnsiStringFixedLength, unicode: false, size: null, hasNonDefaultUnicode: true);
 
-        private readonly SqlServerMaxLengthMapping _varchar
-            = new SqlServerMaxLengthMapping("varchar", typeof(string), dbType: DbType.AnsiString, unicode: false, size: null, hasNonDefaultUnicode: true);
+        private readonly SqlServerStringTypeMapping _variableLengthAnsiString
+            = new SqlServerStringTypeMapping("varchar", dbType: DbType.AnsiString, unicode: false, size: null, hasNonDefaultUnicode: true);
 
-        private readonly SqlServerMaxLengthMapping _varbinary
-            = new SqlServerMaxLengthMapping("varbinary", typeof(byte[]), dbType: DbType.Binary);
+        private readonly SqlServerByteArrayTypeMapping _variableLengthBinary = new SqlServerByteArrayTypeMapping("varbinary");
 
-        private readonly SqlServerMaxLengthMapping _binary
-            = new SqlServerMaxLengthMapping("binary", typeof(byte[]), dbType: DbType.Binary);
+        private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary = new SqlServerByteArrayTypeMapping("binary");
 
-        private readonly SqlServerTypeMapping _date
-            = new SqlServerTypeMapping("date", typeof(DateTime), dbType: DbType.Date);
+        private readonly SqlServerDateTimeTypeMapping _date = new SqlServerDateTimeTypeMapping("date", dbType: DbType.Date);
 
-        private readonly SqlServerTypeMapping _datetime
-            = new SqlServerTypeMapping("datetime", typeof(DateTime), dbType: DbType.DateTime);
+        private readonly SqlServerDateTimeTypeMapping _datetime = new SqlServerDateTimeTypeMapping("datetime", dbType: DbType.DateTime);
 
-        private readonly SqlServerTypeMapping _datetime2
-            = new SqlServerTypeMapping("datetime2", typeof(DateTime), dbType: DbType.DateTime2);
+        private readonly SqlServerDateTimeTypeMapping _datetime2 = new SqlServerDateTimeTypeMapping("datetime2", dbType: DbType.DateTime2);
 
-        private readonly SqlServerTypeMapping _double
-            = new SqlServerTypeMapping("float", typeof(double));
+        private readonly DoubleTypeMapping _double = new DoubleTypeMapping("float", null); // Note: "float" is correct SQL Server type to map to CLR-type double
 
-        private readonly SqlServerTypeMapping _datetimeoffset
-            = new SqlServerTypeMapping("datetimeoffset", typeof(DateTimeOffset));
+        private readonly SqlServerDateTimeOffsetTypeMapping _datetimeoffset = new SqlServerDateTimeOffsetTypeMapping("datetimeoffset");
 
-        private readonly SqlServerTypeMapping _real
-            = new SqlServerTypeMapping("real", typeof(float));
+        private readonly FloatTypeMapping _real = new FloatTypeMapping("real", null); // Note: "real" is correct SQL Server type to map to CLR-type float
 
-        private readonly SqlServerTypeMapping _uniqueidentifier
-            = new SqlServerTypeMapping("uniqueidentifier", typeof(Guid));
+        private readonly GuidTypeMapping _uniqueidentifier = new GuidTypeMapping("uniqueidentifier", DbType.Guid);
 
-        private readonly SqlServerTypeMapping _decimal
-            = new SqlServerTypeMapping("decimal(18, 2)", typeof(decimal));
+        private readonly DecimalTypeMapping _decimal = new DecimalTypeMapping("decimal(18, 2)", null);
 
-        private readonly SqlServerTypeMapping _time
-            = new SqlServerTypeMapping("time", typeof(TimeSpan));
+        private readonly TimeSpanTypeMapping _time = new TimeSpanTypeMapping("time", null);
 
-        private readonly SqlServerMaxLengthMapping _xml
-            = new SqlServerMaxLengthMapping("xml", typeof(string), dbType: null, unicode: true, size: null);
+        private readonly SqlServerStringTypeMapping _xml = new SqlServerStringTypeMapping("xml", dbType: null, unicode: true);
 
         private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
@@ -115,14 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             _storeTypeMappings
                 = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "bigint", _bigint },
-                    { "binary varying", _varbinary },
-                    { "binary", _binary },
-                    { "bit", _bit },
-                    { "char varying", _varchar },
-                    { "char", _char },
-                    { "character varying", _varchar },
-                    { "character", _char },
+                    { "bigint", _long },
+                    { "binary varying", _variableLengthBinary },
+                    { "binary", _fixedLengthBinary },
+                    { "bit", _bool },
+                    { "char varying", _variableLengthAnsiString },
+                    { "char", _fixedLengthAnsiString },
+                    { "character varying", _variableLengthAnsiString },
+                    { "character", _fixedLengthAnsiString },
                     { "date", _date },
                     { "datetime", _datetime },
                     { "datetime2", _datetime2 },
@@ -130,44 +113,47 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "dec", _decimal },
                     { "decimal", _decimal },
                     { "float", _double },
-                    { "image", _varbinary },
+                    { "image", _variableLengthBinary },
                     { "int", _int },
                     { "money", _decimal },
-                    { "national char varying", _nvarchar },
-                    { "national character varying", _nvarchar },
-                    { "national character", _nchar },
-                    { "nchar", _nchar },
-                    { "ntext", _nvarchar },
+                    { "national char varying", _variableLengthUnicodeString },
+                    { "national character varying", _variableLengthUnicodeString },
+                    { "national character", _fixedLengthUnicodeString },
+                    { "nchar", _fixedLengthUnicodeString },
+                    { "ntext", _variableLengthUnicodeString },
                     { "numeric", _decimal },
-                    { "nvarchar", _nvarchar },
+                    { "nvarchar", _variableLengthUnicodeString },
                     { "real", _real },
                     { "rowversion", _rowversion },
                     { "smalldatetime", _datetime },
-                    { "smallint", _smallint },
+                    { "smallint", _short },
                     { "smallmoney", _decimal },
-                    { "text", _varchar },
+                    { "text", _variableLengthAnsiString },
                     { "time", _time },
                     { "timestamp", _rowversion },
-                    { "tinyint", _tinyint },
+                    { "tinyint", _byte },
                     { "uniqueidentifier", _uniqueidentifier },
-                    { "varbinary", _varbinary },
-                    { "varchar", _varchar },
+                    { "varbinary", _variableLengthBinary },
+                    { "varchar", _variableLengthAnsiString },
                     { "xml", _xml }
                 };
 
+            // Note: sbyte, ushort, uint and ulong type mappings are not supported by SQL Server.
+            // We would need the type conversions feature to allow this to work - see https://github.com/aspnet/EntityFramework/issues/242.
+            // char mapping is included but only temporarily - see https://github.com/aspnet/EntityFramework/issues/8656
             _clrTypeMappings
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
                     { typeof(int), _int },
-                    { typeof(long), _bigint },
+                    { typeof(long), _long },
                     { typeof(DateTime), _datetime2 },
                     { typeof(Guid), _uniqueidentifier },
-                    { typeof(bool), _bit },
-                    { typeof(byte), _tinyint },
+                    { typeof(bool), _bool },
+                    { typeof(byte), _byte },
                     { typeof(double), _double },
                     { typeof(DateTimeOffset), _datetimeoffset },
-                    { typeof(char), _int },
-                    { typeof(short), _smallint },
+                    { typeof(char), new CharTypeMapping("int") },
+                    { typeof(short), _short },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
                     { typeof(TimeSpan), _time }
@@ -198,40 +184,35 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             ByteArrayMapper
                 = new ByteArrayRelationalTypeMapper(
                     8000,
-                    _varbinarymax,
-                    _varbinarymax,
-                    _varbinary900,
+                    _unboundedBinary,
+                    _unboundedBinary,
+                    _keyBinary,
                     _rowversion,
-                    size => new SqlServerMaxLengthMapping(
+                    size => new SqlServerByteArrayTypeMapping(
                         "varbinary(" + size + ")",
-                        typeof(byte[]),
                         DbType.Binary,
-                        unicode: false,
                         size: size,
-                        hasNonDefaultUnicode: false,
                         hasNonDefaultSize: true));
 
             StringMapper
                 = new StringRelationalTypeMapper(
                     8000,
-                    _varcharmax,
-                    _varcharmax,
-                    _varchar900,
-                    size => new SqlServerMaxLengthMapping(
+                    _unboundedAnsiString,
+                    _unboundedAnsiString,
+                    _keyAnsiString,
+                    size => new SqlServerStringTypeMapping(
                         "varchar(" + size + ")",
-                        typeof(string),
                         dbType: DbType.AnsiString,
                         unicode: false,
                         size: size,
                         hasNonDefaultUnicode: true,
                         hasNonDefaultSize: true),
                     4000,
-                    _nvarcharmax,
-                    _nvarcharmax,
-                    _nvarchar450,
-                    size => new SqlServerMaxLengthMapping(
+                    _unboundedUnicodeString,
+                    _unboundedUnicodeString,
+                    _keyUnicodeString,
+                    size => new SqlServerStringTypeMapping(
                         "nvarchar(" + size + ")",
-                        typeof(string),
                         dbType: null,
                         unicode: true,
                         size: size,
@@ -294,9 +275,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             clrType = clrType.UnwrapNullableType().UnwrapEnumType();
 
             return clrType == typeof(string)
-                ? _nvarcharmax
+                ? _unboundedUnicodeString
                 : (clrType == typeof(byte[])
-                    ? _varbinarymax
+                    ? _unboundedBinary
                     : base.FindMapping(clrType));
         }
 
