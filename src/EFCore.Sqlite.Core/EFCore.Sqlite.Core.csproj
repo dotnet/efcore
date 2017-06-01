@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" />
-    <ProjectReference Include="..\EFCore.Relational.Design\EFCore.Relational.Design.csproj" />
   </ItemGroup>
 
   <ItemGroup>

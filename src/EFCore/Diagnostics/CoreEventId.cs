@@ -34,11 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public const int RelationalBaseId = 200000;
 
         /// <summary>
-        ///     The lower-bound for event IDs used by any relational database provider design-time and tooling.
-        /// </summary>
-        public const int RelationalDesignBaseId = 250000;
-
-        /// <summary>
         ///     The lower-bound for event IDs used only by database providers.
         /// </summary>
         public const int ProviderBaseId = 300000;

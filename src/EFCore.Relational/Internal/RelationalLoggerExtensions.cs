@@ -2,9 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -14,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -1115,6 +1119,560 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var d = (EventDefinition<string, string>)definition;
             var p = (PropertyEventData)payload;
             return d.GenerateMessage(p.Property.Name, p.Property.DeclaringEntityType.DisplayName());
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void MissingTableWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName)
+        {
+            var definition = RelationalStrings.LogMissingTable;
+
+            definition.Log(diagnostics, tableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        TableName = tableName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void SequenceNotNamedWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
+        {
+            var definition = RelationalStrings.LogSequencesRequireName;
+
+            definition.Log(diagnostics);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, null);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void IndexColumnsNotMappedWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string indexName,
+            [NotNull] IList<string> unmappedColumnNames)
+        {
+            var definition = RelationalStrings.LogUnableToScaffoldIndexMissingProperty;
+
+            definition.Log(
+                diagnostics,
+                indexName,
+                string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnNames));
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        IndexName = indexName,
+                        UnmappedColumnNames = unmappedColumnNames
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ForeignKeyReferencesMissingTableWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string foreignKeyName)
+        {
+            var definition = RelationalStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound;
+
+            definition.Log(diagnostics, foreignKeyName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        ForeignKeyName = foreignKeyName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ForeignKeyColumnsNotMappedWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string foreignKeyName,
+            [NotNull] IList<string> unmappedColumnNames)
+        {
+            var definition = RelationalStrings.LogForeignKeyScaffoldErrorPropertyNotFound;
+
+            definition.Log(
+                diagnostics,
+                foreignKeyName,
+                string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnNames));
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        ForeignKeyName = foreignKeyName,
+                        UnmappedColumnNames = unmappedColumnNames
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void SequenceFound(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string sequenceName,
+            [CanBeNull] string sequenceTypeName,
+            bool? cyclic,
+            int? increment,
+            long? start,
+            long? min,
+            long? max)
+        {
+            var definition = RelationalStrings.LogFoundSequence;
+
+            Debug.Assert(LogLevel.Debug == definition.Level);
+
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    l => l.LogDebug(
+                        definition.EventId,
+                        null,
+                        definition.MessageFormat,
+                        sequenceName,
+                        sequenceTypeName,
+                        cyclic,
+                        increment,
+                        start,
+                        min,
+                        max));
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        SequenceName = sequenceName,
+                        SequenceTypeName = sequenceTypeName,
+                        Cyclic = cyclic,
+                        Increment = increment,
+                        Start = start,
+                        Min = min,
+                        Max = max
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void TableFound(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName)
+        {
+            var definition = RelationalStrings.LogFoundTable;
+
+            definition.Log(diagnostics, tableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        TableName = tableName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void TableSkipped(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName)
+        {
+            var definition = RelationalStrings.LogTableNotInSelectionSet;
+
+            definition.Log(diagnostics, tableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        TableName = tableName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ColumnSkipped(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName,
+            [CanBeNull] string columnName)
+        {
+            var definition = RelationalStrings.LogColumnNotInSelectionSet;
+
+            definition.Log(diagnostics, columnName, tableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        TableName = tableName,
+                        ColumnName = columnName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void IndexColumnFound(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName,
+            [CanBeNull] string indexName,
+            bool? unique,
+            [CanBeNull] string columnName,
+            int? ordinal)
+        {
+            var definition = RelationalStrings.LogFoundIndexColumn;
+
+            definition.Log(diagnostics, indexName, tableName, columnName, ordinal);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        TableName = tableName,
+                        IndexName = indexName,
+                        Unique = unique,
+                        ColumnName = columnName,
+                        Ordinal = ordinal
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ColumnNotNamedWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName)
+        {
+            var definition = RelationalStrings.LogColumnNameEmptyOnTable;
+
+            definition.Log(diagnostics, tableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        TableName = tableName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void IndexColumnSkipped(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName,
+            [CanBeNull] string indexName,
+            [CanBeNull] string columnName)
+        {
+            var definition = RelationalStrings.LogIndexColumnNotInSelectionSet;
+
+            definition.Log(diagnostics, columnName, indexName, tableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        TableName = tableName,
+                        IndexName = indexName,
+                        ColumnName = columnName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void IndexNotNamedWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName)
+        {
+            var definition = RelationalStrings.LogIndexNameEmpty;
+
+            definition.Log(diagnostics, tableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        TableName = tableName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void IndexTableMissingWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string indexName,
+            [CanBeNull] string tableName)
+        {
+            var definition = RelationalStrings.LogUnableToFindTableForIndex;
+
+            definition.Log(diagnostics, indexName, tableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        IndexName = indexName,
+                        TableName = tableName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void IndexColumnNotNamedWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string indexName,
+            [CanBeNull] string tableName)
+        {
+            var definition = RelationalStrings.LogColumnNameEmptyOnIndex;
+
+            definition.Log(diagnostics, indexName, tableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        IndexName = indexName,
+                        TableName = tableName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ForeignKeyNotNamedWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName)
+        {
+            var definition = RelationalStrings.LogForeignKeyNameEmpty;
+
+            definition.Log(diagnostics, tableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        TableName = tableName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ForeignKeyColumnMissingWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string columnName,
+            [CanBeNull] string foreignKeyName,
+            [CanBeNull] string tableName)
+        {
+            var definition = RelationalStrings.LogForeignKeyColumnNotInSelectionSet;
+
+            definition.Log(diagnostics, columnName, foreignKeyName, tableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        ColumnName = columnName,
+                        ForeignKeyName = foreignKeyName,
+                        TableName = tableName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ForeignKeyReferencesMissingPrincipalTableWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string foreignKeyName,
+            [CanBeNull] string tableName,
+            [CanBeNull] string principalTableName)
+        {
+            var definition = RelationalStrings.LogPrincipalTableNotInSelectionSet;
+
+            definition.Log(diagnostics, foreignKeyName, tableName, principalTableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        ForeignKeyName = foreignKeyName,
+                        TableName = tableName,
+                        PrincipalTableName = principalTableName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ForeignKeyColumnNotNamedWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string foreignKeyName,
+            [CanBeNull] string tableName)
+        {
+            var definition = RelationalStrings.LogColumnNameEmptyOnForeignKey;
+
+            definition.Log(diagnostics, tableName, foreignKeyName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        ForeignKeyName = foreignKeyName,
+                        TableName = tableName
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void IndexFound(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string indexName,
+            [CanBeNull] string tableName,
+            bool? unique)
+        {
+            var definition = RelationalStrings.LogFoundIndex;
+
+            definition.Log(diagnostics, indexName, tableName, unique);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        IndexName = indexName,
+                        TableName = tableName,
+                        Unique = unique
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ForeignKeyPrincipalColumnMissingWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string foreignKeyName,
+            [CanBeNull] string tableName,
+            [CanBeNull] string principalColumnName,
+            [CanBeNull] string principalTableName)
+        {
+            var definition = RelationalStrings.LogPrincipalColumnNotFound;
+
+            definition.Log(diagnostics, foreignKeyName, tableName, principalColumnName, principalTableName);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new
+                    {
+                        ForeignKeyName = foreignKeyName,
+                        TableName = tableName,
+                        PrincipalColumnName = principalColumnName,
+                        PrincipalTableName = principalTableName
+                    });
+            }
         }
     }
 }

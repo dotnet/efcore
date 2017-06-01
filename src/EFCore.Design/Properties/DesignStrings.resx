@@ -297,4 +297,49 @@ Change your target project to the migrations project by using the Package Manage
   <data name="FoundContextFactory" xml:space="preserve">
     <value>Found IDesignTimeDbContextFactory implementation '{factory}'.</value>
   </data>
+  <data name="ProviderReturnedNullModel" xml:space="preserve">
+    <value>Metadata model returned should not be null. Provider: {providerTypeName}.</value>
+  </data>
+  <data name="ReadOnlyFiles" xml:space="preserve">
+    <value>No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.</value>
+  </data>
+  <data name="ExistingFiles" xml:space="preserve">
+    <value>The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.</value>
+  </data>
+  <data name="LogCannotFindTypeMappingForColumn" xml:space="preserve">
+    <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
+    <comment>Warning DesignEventId.ColumnTypeNotMappedWarning string string</comment>
+  </data>
+  <data name="LogForeignKeyScaffoldErrorPrincipalKeyNotFound" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.</value>
+    <comment>Warning DesignEventId.ForeignKeyReferencesMissingPrincipalKeyWarning string string string</comment>
+  </data>
+  <data name="LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principaltableName}' could not be scaffolded.</value>
+    <comment>Warning DesignEventId.ForeignKeyReferencesNotMappedTableWarning string string</comment>
+  </data>
+  <data name="LogPrimaryKeyErrorPropertyNotFound" xml:space="preserve">
+    <value>Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.</value>
+    <comment>Warning DesignEventId.PrimaryKeyColumnsNotMappedWarning string string</comment>
+  </data>
+  <data name="LogMissingPrimaryKey" xml:space="preserve">
+    <value>Unable to identify the primary key for table '{tableName}'.</value>
+    <comment>Warning DesignEventId.MissingPrimaryKeyWarning string</comment>
+  </data>
+  <data name="LogUnableToGenerateEntityType" xml:space="preserve">
+    <value>Unable to generate entity type for table '{tableName}'.</value>
+    <comment>Warning DesignEventId.UnableToGenerateEntityTypeWarning string</comment>
+  </data>
+  <data name="LogBadSequenceType" xml:space="preserve">
+    <value>For sequence '{sequenceName}'. Unable to scaffold because it uses an unsupported type: '{typeName}'.</value>
+    <comment>Warning DesignEventId.SequenceTypeNotSupportedWarning string string</comment>
+  </data>
+  <data name="LogMissingSchema" xml:space="preserve">
+    <value>Unable to find a schema in the database matching the selected schema {schema}.</value>
+    <comment>Warning DesignEventId.MissingSchemaWarning string</comment>
+  </data>
+  <data name="LogForeignKeyPrincipalEndContainsNullableColumns" xml:space="preserve">
+    <value>The principal end of the foreign key '{foreignKeyName}' is supported by the unique index '{indexName}' and contains the following nullable columns '{columnNames}'. Entity Framework requires the properties representing those columns to be non-nullable.</value>
+    <comment>Warning DesignEventId.ForeignKeyPrincipalEndContainsNullableColumnsWarning string string string</comment>
+  </data>
 </root>

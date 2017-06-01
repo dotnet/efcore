@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (model == null)
             {
                 throw new InvalidOperationException(
-                    RelationalDesignStrings.ProviderReturnedNullModel(
+                    DesignStrings.ProviderReturnedNullModel(
                         _factory.GetType().ShortDisplayName()));
             }
 
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (readOnlyFiles.Count > 0)
             {
                 throw new InvalidOperationException(
-                    RelationalDesignStrings.ReadOnlyFiles(
+                    DesignStrings.ReadOnlyFiles(
                         outputPath,
                         string.Join(
                             CultureInfo.CurrentCulture.TextInfo.ListSeparator, readOnlyFiles)));
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 if (existingFiles.Count > 0)
                 {
                     throw new InvalidOperationException(
-                        RelationalDesignStrings.ExistingFiles(
+                        DesignStrings.ExistingFiles(
                             outputPath,
                             string.Join(
                                 CultureInfo.CurrentCulture.TextInfo.ListSeparator, existingFiles)));

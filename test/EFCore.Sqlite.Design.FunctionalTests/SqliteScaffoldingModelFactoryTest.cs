@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
                 _loggerFactory.Logger.Statements,
                 t => t.Contains(
                     "Warning: " +
-                    RelationalDesignStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0")));
+                    RelationalStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0")));
         }
 
         [Fact]
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore
                 _loggerFactory.Logger.Statements,
                 t => t.Contains(
                     "Warning: " +
-                    RelationalDesignStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "Children", "Id", "Parent")));
+                    RelationalStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "Children", "Id", "Parent")));
         }
 
         [Fact]

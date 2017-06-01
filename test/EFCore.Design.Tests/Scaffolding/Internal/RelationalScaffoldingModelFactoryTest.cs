@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
             Assert.Single(_factory.Create(info).FindEntityType("E").GetProperties());
-            Assert.Single(_logger.Statements, t => t.Contains(RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("E.Coli", StoreType)));
+            Assert.Single(_logger.Statements, t => t.Contains(DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("E.Coli", StoreType)));
         }
 
         [Theory]
@@ -611,7 +611,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Single(
                 _logger.Statements, t => t.Contains(
                     "Warning: " +
-                    RelationalDesignStrings.LogForeignKeyScaffoldErrorPrincipalKeyNotFound.GenerateMessage(
+                    DesignStrings.LogForeignKeyScaffoldErrorPrincipalKeyNotFound.GenerateMessage(
                         childrenTable.ForeignKeys.ElementAt(0).DisplayName, "NotPkId", "Parent")));
         }
 
@@ -712,7 +712,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Single(
                 _logger.Statements, t => t.Contains(
                     "Warning: " +
-                    RelationalDesignStrings.LogForeignKeyPrincipalEndContainsNullableColumns.GenerateMessage(
+                    DesignStrings.LogForeignKeyPrincipalEndContainsNullableColumns.GenerateMessage(
                         table.ForeignKeys.ElementAt(0).DisplayName, "FriendsNameUniqueIndex", "BuddyId")));
         }
 

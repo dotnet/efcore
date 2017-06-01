@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         public virtual string GetProviderOptionsBuilder(string connectionString)
         {
-            return $"{nameof(SqliteDbContextOptionsBuilderExtensions.UseSqlite)}({CSharpUtilities.Instance.GenerateVerbatimStringLiteral(connectionString)});";
+            return $"{nameof(SqliteDbContextOptionsBuilderExtensions.UseSqlite)}({GenerateVerbatimStringLiteral(connectionString)});";
         }
 
         public virtual TypeScaffoldingInfo GetTypeScaffoldingInfo(ColumnModel columnModel)
@@ -43,5 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             return typeScaffoldingInfo;
         }
+
+        private static string GenerateVerbatimStringLiteral(string value) => "@\"" + value.Replace("\"", "\"\"") + "\"";
     }
 }

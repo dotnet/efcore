@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" />
-    <ProjectReference Include="..\EFCore.Relational.Design\EFCore.Relational.Design.csproj" />
+    <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" />
     <ProjectReference Include="..\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
   </ItemGroup>
 
