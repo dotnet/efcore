@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private string GetDefaultTableName()
-            => EntityType.HasDelegatedIdentity()
+            => EntityType.HasDefiningNavigation()
                 ? $"{GetAnnotations(EntityType.DefiningEntityType).TableName}_{EntityType.DefiningNavigationName}"
                 : EntityType.ShortName();
 
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private string GetDefaultSchema()
-            => EntityType.HasDelegatedIdentity()
+            => EntityType.HasDefiningNavigation()
                 ? GetAnnotations(EntityType.DefiningEntityType).Schema
                 : GetAnnotations(EntityType.Model).DefaultSchema;
 

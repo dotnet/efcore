@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && ConfigurationSource.Convention.Overrides(entityType.GetPrimaryKeyConfigurationSource()))
             {
                 IReadOnlyList<string> keyPropertyNames = null;
-                if (entityType.HasDelegatedIdentity())
+                if (entityType.HasDefiningNavigation())
                 {
                     var definingFk = entityType.FindDefiningNavigation()?.ForeignKey;
                     if (definingFk != null)
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
             var entityType = relationshipBuilder.Metadata.DeclaringEntityType;
-            if (entityType.HasDelegatedIdentity())
+            if (entityType.HasDefiningNavigation())
             {
                 Apply(entityType.Builder);
             }
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
         {
-            if (entityTypeBuilder.Metadata.HasDelegatedIdentity())
+            if (entityTypeBuilder.Metadata.HasDefiningNavigation())
             {
                 Apply(entityTypeBuilder);
             }

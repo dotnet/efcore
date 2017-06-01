@@ -87,25 +87,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityTypeBuilder AddDelegatedIdentityEntity(
+        public virtual InternalEntityTypeBuilder Entity(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType,
             ConfigurationSource configurationSource)
-            => AddDelegatedIdentityEntity(new TypeIdentity(name), definingNavigationName, definingEntityType, configurationSource);
+            => Entity(new TypeIdentity(name), definingNavigationName, definingEntityType, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityTypeBuilder AddDelegatedIdentityEntity(
+        public virtual InternalEntityTypeBuilder Entity(
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType,
             ConfigurationSource configurationSource)
-            => AddDelegatedIdentityEntity(new TypeIdentity(type), definingNavigationName, definingEntityType, configurationSource);
+            => Entity(new TypeIdentity(type), definingNavigationName, definingEntityType, configurationSource);
 
-        private InternalEntityTypeBuilder AddDelegatedIdentityEntity(
+        private InternalEntityTypeBuilder Entity(
             TypeIdentity type,
             string definingNavigationName,
             EntityType definingEntityType,
@@ -134,13 +134,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 Metadata.Unignore(type.Name);
 
-                entityType = Metadata.AddDelegatedIdentityEntityType(type.Name, definingNavigationName, definingEntityType, configurationSource);
+                entityType = Metadata.AddEntityType(type.Name, definingNavigationName, definingEntityType, configurationSource);
             }
             else
             {
                 Metadata.Unignore(clrType);
 
-                entityType = Metadata.AddDelegatedIdentityEntityType(clrType, definingNavigationName, definingEntityType, configurationSource);
+                entityType = Metadata.AddEntityType(clrType, definingNavigationName, definingEntityType, configurationSource);
             }
 
             return entityType?.Builder;
@@ -239,7 +239,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private bool RemoveEntityType(EntityType entityType, ConfigurationSource configurationSource)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool RemoveEntityType([NotNull] EntityType entityType, ConfigurationSource configurationSource)
         {
             var entityTypeConfigurationSource = entityType.GetConfigurationSource();
             if (!configurationSource.Overrides(entityTypeConfigurationSource))
@@ -271,18 +275,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Debug.Assert(derivedEntityTypeBuilder != null);
             }
 
-            foreach (var definedDelegatedTypes in Metadata.GetEntityTypes().Where(e => e.DefiningEntityType == entityType).ToList())
+            using (Metadata.ConventionDispatcher.StartBatch())
             {
-                RemoveDelegatedIdentityEntityType(definedDelegatedTypes, configurationSource);
-            }
+                foreach (var definedType in Metadata.GetEntityTypes().Where(e => e.DefiningEntityType == entityType).ToList())
+                {
+                    RemoveEntityType(definedType, configurationSource);
+                }
 
-            if (entityType.HasDelegatedIdentity())
-            {
-                Metadata.RemoveDelegatedIdentityEntityType(entityType);
-            }
-            else
-            {
-                Metadata.RemoveEntityType(entityType.Name);
+                Metadata.RemoveEntityType(entityType);
             }
 
             return true;
@@ -299,25 +299,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 // Ignoring the type prevents it from being rediscovered by conventions that run as part of the removal
                 Ignore(orphan, configurationSource);
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual bool RemoveDelegatedIdentityEntityType([NotNull] EntityType entityType, ConfigurationSource configurationSource)
-        {
-            if (!entityType.HasDelegatedIdentity())
-            {
-                return false;
-            }
-
-            using (Metadata.ConventionDispatcher.StartBatch())
-            {
-                RemoveEntityType(entityType, configurationSource);
-
-                return true;
             }
         }
 
@@ -366,15 +347,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return new List<InternalEntityTypeBuilder>();
         }
 
-        private int GetDerivedLevel(TypeInfo derivedType, Dictionary<TypeInfo, int> cache)
+        private static int GetDerivedLevel(TypeInfo derivedType, Dictionary<TypeInfo, int> cache)
         {
             if (derivedType?.BaseType == null)
             {
                 return int.MaxValue;
             }
 
-            int level;
-            if (cache.TryGetValue(derivedType, out level))
+            if (cache.TryGetValue(derivedType, out var level))
             {
                 return level;
             }

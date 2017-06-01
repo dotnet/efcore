@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
-        public virtual void Detects_delegated_identity_entity_type_without_defining_navigation()
+        public virtual void Detects_dependent_entity_type_without_defining_navigation()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
-        public virtual void Detects_delegated_identity_entity_type_with_multiple_ownerships()
+        public virtual void Detects_dependent_entity_type_with_multiple_ownerships()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
-        public virtual void Detects_delegated_identity_entity_type_with_non_defining_ownership()
+        public virtual void Detects_dependent_entity_type_with_non_defining_ownership()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
-        public virtual void Detects_delegated_identity_entity_type_without_ownership()
+        public virtual void Detects_dependent_entity_type_without_ownership()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
             var anotherEntityTypeBuilder = modelBuilder.Entity(typeof(AnotherSampleEntity), ConfigurationSource.Convention);
             anotherEntityTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntity.Id) }, ConfigurationSource.Convention);
-            var nonOwnedTypeBuilder = modelBuilder.Metadata.AddDelegatedIdentityEntityType(
+            var nonOwnedTypeBuilder = modelBuilder.Metadata.AddEntityType(
                 typeof(ReferencedEntity), nameof(AnotherSampleEntity.ReferencedEntity), anotherEntityTypeBuilder.Metadata).Builder;
             nonOwnedTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntity.Id) }, ConfigurationSource.Convention);
             anotherEntityTypeBuilder.Navigation(nonOwnedTypeBuilder, nameof(AnotherSampleEntity.ReferencedEntity), ConfigurationSource.Convention);

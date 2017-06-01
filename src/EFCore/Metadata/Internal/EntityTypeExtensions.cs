@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return type.Name;
             }
 
-            if (!type.HasDelegatedIdentity())
+            if (!type.HasDefiningNavigation())
             {
                 return ((ITypeBase)type).DisplayName();
             }
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static INavigation FindDefiningNavigation([NotNull] this IEntityType entityType)
-            => entityType.HasDelegatedIdentity() ? entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName) : null;
+            => entityType.HasDefiningNavigation() ? entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName) : null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

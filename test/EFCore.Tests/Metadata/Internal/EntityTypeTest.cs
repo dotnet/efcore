@@ -3089,9 +3089,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             IMutableModel model = new Model();
             var customerType = model.AddEntityType(typeof(Customer));
-            var baseType = model.AddDelegatedIdentityEntityType(typeof(BaseType), nameof(Customer.Orders), customerType);
-            var orderType = model.AddDelegatedIdentityEntityType(typeof(Order), nameof(Customer.Orders), customerType);
-            var derivedType = model.AddDelegatedIdentityEntityType(typeof(SpecialOrder), nameof(Customer.Orders), customerType);
+            var baseType = model.AddEntityType(typeof(BaseType), nameof(Customer.Orders), customerType);
+            var orderType = model.AddEntityType(typeof(Order), nameof(Customer.Orders), customerType);
+            var derivedType = model.AddEntityType(typeof(SpecialOrder), nameof(Customer.Orders), customerType);
 
             Assert.Equal(CoreStrings.DelegatedIdentityDerivedType(
                 nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
@@ -3107,7 +3107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IMutableModel model = new Model();
             var customerType = model.AddEntityType(typeof(Customer));
             var baseType = model.AddEntityType(typeof(BaseType));
-            var orderType = model.AddDelegatedIdentityEntityType(typeof(Order), nameof(Customer.Orders), customerType);
+            var orderType = model.AddEntityType(typeof(Order), nameof(Customer.Orders), customerType);
             var derivedType = model.AddEntityType(typeof(SpecialOrder));
 
             Assert.Equal(CoreStrings.DelegatedIdentityDerivedType(

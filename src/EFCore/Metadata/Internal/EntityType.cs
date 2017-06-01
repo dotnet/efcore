@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            if (this.HasDelegatedIdentity())
+            if (this.HasDefiningNavigation())
             {
                 throw new InvalidOperationException(CoreStrings.DelegatedIdentityDerivedType(this.DisplayName()));
             }
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         throw new InvalidOperationException(CoreStrings.NotAssignableClrBaseType(this.DisplayName(), entityType.DisplayName(), ClrType.ShortDisplayName(), entityType.ClrType.ShortDisplayName()));
                     }
 
-                    if (entityType.HasDelegatedIdentity())
+                    if (entityType.HasDefiningNavigation())
                     {
                         throw new InvalidOperationException(CoreStrings.DelegatedIdentityBaseType(this.DisplayName(), entityType.DisplayName()));
                     }

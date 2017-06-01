@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     if (entityType != null
-                        || _model.IsDelegatedIdentityEntityType(entityQueryable.ElementType))
+                        || _model.HasEntityTypeWithDefiningNavigation(entityQueryable.ElementType))
                     {
                         _referencedEntityTypes++;
                     }

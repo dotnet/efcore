@@ -1728,7 +1728,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var existingNavigation = Metadata
                     .FindNavigationsInHierarchy(navigation.Name)
-                    .SingleOrDefault(n => n.GetTargetType().Name == targetEntityType.Name && n.GetTargetType().HasDelegatedIdentity());
+                    .SingleOrDefault(n => n.GetTargetType().Name == targetEntityType.Name && n.GetTargetType().HasDefiningNavigation());
                 var builder = existingNavigation?.ForeignKey.Builder;
                 if (builder != null)
                 {
@@ -1739,8 +1739,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 ownedEntityType = targetEntityType.Type == null
-                    ? ModelBuilder.AddDelegatedIdentityEntity(targetEntityType.Name, navigation.Name, Metadata, configurationSource)
-                    : ModelBuilder.AddDelegatedIdentityEntity(targetEntityType.Type, navigation.Name, Metadata, configurationSource);
+                    ? ModelBuilder.Entity(targetEntityType.Name, navigation.Name, Metadata, configurationSource)
+                    : ModelBuilder.Entity(targetEntityType.Type, navigation.Name, Metadata, configurationSource);
 
                 if (ownedEntityType == null)
                 {
@@ -1760,7 +1760,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (ownedEntityType.Metadata.Builder != null)
                 {
-                    ModelBuilder.RemoveDelegatedIdentityEntityType(ownedEntityType.Metadata, configurationSource);
+                    ModelBuilder.RemoveEntityType(ownedEntityType.Metadata, configurationSource);
                 }
                 return null;
             }

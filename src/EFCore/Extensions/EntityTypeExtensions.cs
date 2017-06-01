@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> True if this entity type has delegated identity. </returns>
         [DebuggerStepThrough]
-        public static bool HasDelegatedIdentity([NotNull] this IEntityType entityType)
+        public static bool HasDefiningNavigation([NotNull] this IEntityType entityType)
             => entityType.DefiningEntityType != null;
 
         /// <summary>
