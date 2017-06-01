@@ -141,7 +141,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", true),
-                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", true),
                         BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", true),
                         BuildReference.ByName("Microsoft.Extensions.Caching.Memory", true),

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         public virtual string GetProviderOptionsBuilder(string connectionString)
         {
-            return $"{nameof(SqlServerDbContextOptionsExtensions.UseSqlServer)}({CSharpUtilities.Instance.GenerateVerbatimStringLiteral(connectionString)});";
+            return $"{nameof(SqlServerDbContextOptionsExtensions.UseSqlServer)}({GenerateVerbatimStringLiteral(connectionString)});";
         }
 
         public virtual TypeScaffoldingInfo GetTypeScaffoldingInfo(ColumnModel columnModel)
@@ -52,5 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         private static string SchemaQualifiedKey(string name, string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
+
+        private static string GenerateVerbatimStringLiteral(string value) => "@\"" + value.Replace("\"", "\"\"") + "\"";
     }
 }

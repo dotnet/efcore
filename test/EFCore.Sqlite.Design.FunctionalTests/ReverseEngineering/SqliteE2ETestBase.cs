@@ -233,12 +233,12 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                var errorMessage = RelationalDesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Alicia");
+                var errorMessage = DesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Alicia");
                 var expectedLog = new LoggerMessages
                 {
                     Warn =
                     {
-                        RelationalDesignStrings.LogMissingPrimaryKey.GenerateMessage("Alicia"),
+                        DesignStrings.LogMissingPrimaryKey.GenerateMessage("Alicia"),
                         errorMessage
                     }
                 };
@@ -273,9 +273,9 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
                 {
                     Warn =
                     {
-                        RelationalDesignStrings.LogMissingPrimaryKey.GenerateMessage("Principal"),
-                        RelationalDesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Principal"),
-                        RelationalDesignStrings.LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError.GenerateMessage("Dependent(PrincipalId)", "Principal")
+                        DesignStrings.LogMissingPrimaryKey.GenerateMessage("Principal"),
+                        DesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Principal"),
+                        DesignStrings.LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError.GenerateMessage("Dependent(PrincipalId)", "Principal")
                     }
                 };
                 AssertLog(expectedLog);
