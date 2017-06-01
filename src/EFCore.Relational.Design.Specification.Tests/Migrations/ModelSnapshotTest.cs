@@ -732,7 +732,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Entity<EntityWithOneProperty>()
                             .Property<int>("Id")
                             .HasAnnotation("AnnotationName", "AnnotationValue")
-                            .HasAnnotation(RelationalAnnotationNames.TypeMapping, new RelationalTypeMapping("int", typeof(int)));
+                            .HasAnnotation(RelationalAnnotationNames.TypeMapping, new RelationalTypeMapping("int", typeof(int), null, false , null));
 
                         builder.Ignore<EntityWithTwoProperties>();
                     },
