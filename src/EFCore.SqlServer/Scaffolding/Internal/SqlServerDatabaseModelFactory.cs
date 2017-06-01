@@ -159,9 +159,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var command = _connection.CreateCommand();
             command.CommandText = "SELECT SCHEMA_NAME()";
-            var schema = command.ExecuteScalar() as string ?? "dbo";
-            Logger.DefaultSchemaFound(schema);
-            _databaseModel.DefaultSchemaName = schema;
+            if (command.ExecuteScalar() is string schema)
+            {
+                Logger.DefaultSchemaFound(schema);
+                _databaseModel.DefaultSchemaName = schema;
+            }
         }
 
         private void GetTypeAliases()
@@ -292,7 +294,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     if (!string.IsNullOrEmpty(MemoryOptimizedTableColumn))
                     {
-                        table[SqlServerAnnotationNames.MemoryOptimized] = reader.GetValueOrDefault<bool?>("is_memory_optimized");
+                        var isTableMemoryOptimized = reader.GetValueOrDefault<bool?>("is_memory_optimized");
+
+                        if (isTableMemoryOptimized == true)
+                        {
+                            table[SqlServerAnnotationNames.MemoryOptimized] = true;
+                        }
                     }
 
                     Logger.TableFound(table.DisplayName);
@@ -422,6 +429,16 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                         }
                     }
 
+                    if (defaultValue == "(NULL)")
+                    {
+                        defaultValue = null;
+                    }
+
+                    if (computedValue == "(NULL)")
+                    {
+                        computedValue = null;
+                    }
+
                     var column = new ColumnModel
                     {
                         Table = table,
@@ -521,7 +538,11 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                             IsUnique = isUnique,
                             Filter = hasFilter ? filterDefinition : null
                         };
-                        index.SqlServer().IsClustered = typeDesc == "CLUSTERED";
+
+                        if (typeDesc == "CLUSTERED")
+                        {
+                            index[SqlServerAnnotationNames.Clustered] = true;
+                        }
 
                         table.Indexes.Add(index);
                     }

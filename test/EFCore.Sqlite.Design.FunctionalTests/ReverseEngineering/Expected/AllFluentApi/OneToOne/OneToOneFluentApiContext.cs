@@ -26,7 +26,9 @@ namespace E2E.Sqlite
                     .HasName("sqlite_autoindex_Dependent_1")
                     .IsUnique();
 
-                entity.Property(e => e.Id).HasColumnType("INT");
+                entity.Property(e => e.Id)
+                    .HasColumnType("INT")
+                    .ValueGeneratedNever();
 
                 entity.Property(e => e.PrincipalId).HasColumnType("INT");
 
@@ -34,6 +36,11 @@ namespace E2E.Sqlite
                     .WithOne(p => p.Dependent)
                     .HasForeignKey<Dependent>(d => d.PrincipalId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Principal>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
             });
         }
     }

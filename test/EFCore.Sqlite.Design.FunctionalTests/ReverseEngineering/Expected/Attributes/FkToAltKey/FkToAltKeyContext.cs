@@ -22,6 +22,8 @@ namespace E2E.Sqlite
         {
             modelBuilder.Entity<Comment>(entity =>
             {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
                 entity.HasOne(d => d.UserAlt)
                     .WithMany(p => p.Comment)
                     .HasPrincipalKey(p => p.AltId)
@@ -34,6 +36,8 @@ namespace E2E.Sqlite
                 entity.HasIndex(e => e.AltId)
                     .HasName("sqlite_autoindex_User_1")
                     .IsUnique();
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
             });
         }
     }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -103,8 +104,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
 
             var expectedFileSet = new FileSet(new FileSystemFileService(),
                 Path.Combine("ReverseEngineering", "Expected", "Attributes"),
-                contents => contents.Replace("namespace " + TestNamespace, "namespace " + TestNamespace + "." + TestSubDir)
-                    .Replace("{{connectionString}}", _connectionString))
+                contents => contents.Replace("{{connectionString}}", _connectionString))
             {
                 Files = new List<string> { "AttributesContext.cs" }
                     .Concat(_expectedEntityTypeFiles).ToList()

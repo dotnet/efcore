@@ -23,6 +23,8 @@ namespace E2E.Sqlite
         {
             modelBuilder.Entity<Dependent>(entity =>
             {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
                 entity.Property(e => e.PrincipalId).HasColumnType("INT");
             });
         }

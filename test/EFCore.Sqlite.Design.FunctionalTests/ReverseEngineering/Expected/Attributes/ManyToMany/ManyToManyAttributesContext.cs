@@ -21,11 +21,23 @@ namespace E2E.Sqlite
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Groups>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<Users>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+            });
+
             modelBuilder.Entity<UsersGroups>(entity =>
             {
                 entity.HasIndex(e => new { e.UserId, e.GroupId })
                     .HasName("sqlite_autoindex_Users_Groups_2")
                     .IsUnique();
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
             });
         }
     }

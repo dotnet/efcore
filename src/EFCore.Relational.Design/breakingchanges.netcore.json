@@ -64,5 +64,10 @@
   {
     "TypeId": "public static class Microsoft.EntityFrameworkCore.Metadata.ScaffoldingMetadataExtensions",
     "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Scaffolding.RelationalScaffoldingModelFactory : Microsoft.EntityFrameworkCore.Scaffolding.IScaffoldingModelFactory",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping GetTypeMapping(Microsoft.EntityFrameworkCore.Scaffolding.Metadata.ColumnModel column)",
+    "Kind": "Removal"
   }
 ]

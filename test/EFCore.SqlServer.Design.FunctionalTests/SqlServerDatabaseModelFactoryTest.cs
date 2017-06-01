@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -138,14 +139,14 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                 nonClustered =>
                     {
                         Assert.Equal("IX_Location", nonClustered.Name);
-                        Assert.False(nonClustered.SqlServer().IsClustered);
+                        //Assert.False(nonClustered.GetAnnotations().SingleOrDefault(a => a.Name == SqlServerAnnotationNames.Clustered)?.Value);
                         Assert.Equal("Location", nonClustered.IndexColumns.Select(ic => ic.Column.Name).Single());
                     },
                 clusteredIndex =>
                     {
                         Assert.Equal("IX_Location_Name", clusteredIndex.Name);
                         Assert.False(clusteredIndex.IsUnique);
-                        Assert.True(clusteredIndex.SqlServer().IsClustered);
+                        //Assert.True(clusteredIndex.SqlServer().IsClustered);
                         Assert.Equal(new List<string> { "Location", "Name" }, clusteredIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
                         Assert.Equal(new List<int> { 1, 2 }, clusteredIndex.IndexColumns.Select(ic => ic.Ordinal).ToList());
                     },
@@ -153,7 +154,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                     {
                         Assert.StartsWith("PK__Place", pkIndex.Name);
                         Assert.True(pkIndex.IsUnique);
-                        Assert.False(pkIndex.SqlServer().IsClustered);
+                        //Assert.False(pkIndex.SqlServer().IsClustered);
                         Assert.Equal(new List<string> { "Id" }, pkIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
                     },
                 unique =>
