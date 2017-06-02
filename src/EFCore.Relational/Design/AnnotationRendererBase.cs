@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Design.Internal
+namespace Microsoft.EntityFrameworkCore.Design
 {
     public class AnnotationRendererBase : IAnnotationRenderer
     {

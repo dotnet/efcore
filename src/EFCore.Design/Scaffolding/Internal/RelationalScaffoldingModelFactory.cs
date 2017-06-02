@@ -20,7 +20,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Scaffolding
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     {
