@@ -16,12 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class KeyDiscoveryConvention :
-        IEntityTypeConvention,
-        IPropertyConvention,
+        IEntityTypeAddedConvention,
+        IPropertyAddedConvention,
         IKeyRemovedConvention,
-        IBaseTypeConvention,
+        IBaseTypeChangedConvention,
         IPropertyFieldChangedConvention,
-        IForeignKeyConvention,
+        IForeignKeyAddedConvention,
         IForeignKeyRemovedConvention
     {
         private const string KeySuffix = "Id";

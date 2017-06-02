@@ -12,10 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class SharedTableConvention :
-        IEntityTypeConvention,
-        IEntityTypeAnnotationSetConvention,
-        IForeignKeyOwnershipConvention,
-        IForeignKeyUniquenessConvention
+        IEntityTypeAddedConvention,
+        IEntityTypeAnnotationChangedConvention,
+        IForeignKeyOwnershipChangedConvention,
+        IForeignKeyUniquenessChangedConvention
     {
 
         /// <summary>

@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public abstract class NavigationAttributeEntityTypeConvention<TAttribute> :
-        IEntityTypeConvention,
+        IEntityTypeAddedConvention,
         IEntityTypeIgnoredConvention,
-        INavigationConvention,
-        IBaseTypeConvention,
+        INavigationAddedConvention,
+        IBaseTypeChangedConvention,
         IEntityTypeMemberIgnoredConvention
         where TAttribute : Attribute
     {

@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.NotNull(modelBuilder.Model.FindEntityType(typeof(Random)));
         }
 
-        private class TestConvention : IEntityTypeConvention
+        private class TestConvention : IEntityTypeAddedConvention
         {
             public bool Applied { get; private set; }
 

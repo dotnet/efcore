@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(builder.Metadata.FindEntityType(typeof(Order)));
         }
 
-        private class EntityTypeConvention : IEntityTypeConvention
+        private class EntityTypeConvention : IEntityTypeAddedConvention
         {
             private readonly bool _terminate;
             private readonly bool _dependent;
@@ -229,12 +229,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new BaseTypeConvention(terminate: false);
-            var convention2 = new BaseTypeConvention(terminate: true);
-            var convention3 = new BaseTypeConvention(terminate: false);
-            conventions.BaseEntityTypeSetConventions.Add(convention1);
-            conventions.BaseEntityTypeSetConventions.Add(convention2);
-            conventions.BaseEntityTypeSetConventions.Add(convention3);
+            var convention1 = new BaseTypeChangedConvention(terminate: false);
+            var convention2 = new BaseTypeChangedConvention(terminate: true);
+            var convention3 = new BaseTypeChangedConvention(terminate: false);
+            conventions.BaseEntityTypeChangedConventions.Add(convention1);
+            conventions.BaseEntityTypeChangedConventions.Add(convention2);
+            conventions.BaseEntityTypeChangedConventions.Add(convention3);
 
             var builder = new InternalModelBuilder(new Model(conventions))
                 .Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
@@ -288,12 +288,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class BaseTypeConvention : IBaseTypeConvention
+        private class BaseTypeChangedConvention : IBaseTypeChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<Type> Calls = new List<Type>();
 
-            public BaseTypeConvention(bool terminate)
+            public BaseTypeChangedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -320,9 +320,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention1 = new EntityTypeAnnotationSetConvention(terminate: false);
             var convention2 = new EntityTypeAnnotationSetConvention(terminate: true);
             var convention3 = new EntityTypeAnnotationSetConvention(terminate: false);
-            conventions.EntityTypeAnnotationSetConventions.Add(convention1);
-            conventions.EntityTypeAnnotationSetConventions.Add(convention2);
-            conventions.EntityTypeAnnotationSetConventions.Add(convention3);
+            conventions.EntityTypeAnnotationChangedConventions.Add(convention1);
+            conventions.EntityTypeAnnotationChangedConventions.Add(convention2);
+            conventions.EntityTypeAnnotationChangedConventions.Add(convention3);
 
             var builder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             //Assert.Empty(convention3.Calls);
         }
 
-        private class EntityTypeAnnotationSetConvention : IEntityTypeAnnotationSetConvention
+        private class EntityTypeAnnotationSetConvention : IEntityTypeAnnotationChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
@@ -547,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
 
-        private class PropertyConvention : IPropertyConvention
+        private class PropertyConvention : IPropertyAddedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
@@ -671,12 +671,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new PropertyNullableConvention(false);
-            var convention2 = new PropertyNullableConvention(true);
-            var convention3 = new PropertyNullableConvention(false);
-            conventions.PropertyNullableChangedConventions.Add(convention1);
-            conventions.PropertyNullableChangedConventions.Add(convention2);
-            conventions.PropertyNullableChangedConventions.Add(convention3);
+            var convention1 = new PropertyNullabilityChangedConvention(false);
+            var convention2 = new PropertyNullabilityChangedConvention(true);
+            var convention3 = new PropertyNullabilityChangedConvention(false);
+            conventions.PropertyNullabilityChangedConventions.Add(convention1);
+            conventions.PropertyNullabilityChangedConventions.Add(convention2);
+            conventions.PropertyNullabilityChangedConventions.Add(convention3);
 
             var builder = new ModelBuilder(conventions);
 
@@ -774,12 +774,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class PropertyNullableConvention : IPropertyNullableConvention
+        private class PropertyNullabilityChangedConvention : IPropertyNullabilityChangedConvention
         {
             public readonly List<bool?> Calls = new List<bool?>();
             private readonly bool _terminate;
 
-            public PropertyNullableConvention(bool terminate)
+            public PropertyNullabilityChangedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -801,12 +801,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new PropertyAnnotationSetConvention(false);
-            var convention2 = new PropertyAnnotationSetConvention(true);
-            var convention3 = new PropertyAnnotationSetConvention(false);
-            conventions.PropertyAnnotationSetConventions.Add(convention1);
-            conventions.PropertyAnnotationSetConventions.Add(convention2);
-            conventions.PropertyAnnotationSetConventions.Add(convention3);
+            var convention1 = new PropertyAnnotationChangedConvention(false);
+            var convention2 = new PropertyAnnotationChangedConvention(true);
+            var convention3 = new PropertyAnnotationChangedConvention(false);
+            conventions.PropertyAnnotationChangedConventions.Add(convention1);
+            conventions.PropertyAnnotationChangedConventions.Add(convention2);
+            conventions.PropertyAnnotationChangedConventions.Add(convention3);
 
             var builder = new InternalModelBuilder(new Model(conventions));
             var propertyBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
@@ -861,12 +861,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             //Assert.Empty(convention3.Calls);
         }
 
-        private class PropertyAnnotationSetConvention : IPropertyAnnotationSetConvention
+        private class PropertyAnnotationChangedConvention : IPropertyAnnotationChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
 
-            public PropertyAnnotationSetConvention(bool terminate)
+            public PropertyAnnotationChangedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -934,7 +934,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class KeyConvention : IKeyConvention
+        private class KeyConvention : IKeyAddedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
@@ -1022,12 +1022,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new PrimaryKeyConvention(terminate: false);
-            var convention2 = new PrimaryKeyConvention(terminate: true);
-            var convention3 = new PrimaryKeyConvention(terminate: false);
-            conventions.PrimaryKeySetConventions.Add(convention1);
-            conventions.PrimaryKeySetConventions.Add(convention2);
-            conventions.PrimaryKeySetConventions.Add(convention3);
+            var convention1 = new PrimaryKeyChangedConvention(terminate: false);
+            var convention2 = new PrimaryKeyChangedConvention(terminate: true);
+            var convention3 = new PrimaryKeyChangedConvention(terminate: false);
+            conventions.PrimaryKeyChangedConventions.Add(convention1);
+            conventions.PrimaryKeyChangedConventions.Add(convention2);
+            conventions.PrimaryKeyChangedConventions.Add(convention3);
 
             var builder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1086,12 +1086,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(entityBuilder.Metadata.GetPrimaryKeyConfigurationSource());
         }
 
-        private class PrimaryKeyConvention : IPrimaryKeyConvention
+        private class PrimaryKeyChangedConvention : IPrimaryKeyChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
 
-            public PrimaryKeyConvention(bool terminate)
+            public PrimaryKeyChangedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -1153,7 +1153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class IndexConvention : IIndexConvention
+        private class IndexConvention : IIndexAddedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
@@ -1242,9 +1242,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention1 = new IndexUniquenessConvention(terminate: false);
             var convention2 = new IndexUniquenessConvention(terminate: true);
             var convention3 = new IndexUniquenessConvention(terminate: false);
-            conventions.IndexUniquenessConventions.Add(convention1);
-            conventions.IndexUniquenessConventions.Add(convention2);
-            conventions.IndexUniquenessConventions.Add(convention3);
+            conventions.IndexUniquenessChangedConventions.Add(convention1);
+            conventions.IndexUniquenessChangedConventions.Add(convention2);
+            conventions.IndexUniquenessChangedConventions.Add(convention3);
 
             var builder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1301,7 +1301,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(index, entityBuilder.Metadata.RemoveIndex(index.Properties));
         }
 
-        private class IndexUniquenessConvention : IIndexUniquenessConvention
+        private class IndexUniquenessConvention : IIndexUniquenessChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<bool> Calls = new List<bool>();
@@ -1330,12 +1330,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new IndexAnnotationSetConvention(terminate: false);
-            var convention2 = new IndexAnnotationSetConvention(terminate: true);
-            var convention3 = new IndexAnnotationSetConvention(terminate: false);
-            conventions.IndexAnnotationSetConventions.Add(convention1);
-            conventions.IndexAnnotationSetConventions.Add(convention2);
-            conventions.IndexAnnotationSetConventions.Add(convention3);
+            var convention1 = new IndexAnnotationChangedConvention(terminate: false);
+            var convention2 = new IndexAnnotationChangedConvention(terminate: true);
+            var convention3 = new IndexAnnotationChangedConvention(terminate: false);
+            conventions.IndexAnnotationChangedConventions.Add(convention1);
+            conventions.IndexAnnotationChangedConventions.Add(convention2);
+            conventions.IndexAnnotationChangedConventions.Add(convention3);
 
             var builder = new InternalModelBuilder(new Model(conventions));
             var indexBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
@@ -1390,12 +1390,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             //Assert.Empty(convention3.Calls);
         }
 
-        private class IndexAnnotationSetConvention : IIndexAnnotationSetConvention
+        private class IndexAnnotationChangedConvention : IIndexAnnotationChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
 
-            public IndexAnnotationSetConvention(bool terminate)
+            public IndexAnnotationChangedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -1465,7 +1465,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class ForeignKeyConvention : IForeignKeyConvention
+        private class ForeignKeyConvention : IForeignKeyAddedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
@@ -1601,7 +1601,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class NavigationConvention : INavigationConvention
+        private class NavigationConvention : INavigationAddedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
@@ -1723,12 +1723,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new ForeignKeyUniquenessConvention(terminate: false);
-            var convention2 = new ForeignKeyUniquenessConvention(terminate: true);
-            var convention3 = new ForeignKeyUniquenessConvention(terminate: false);
-            conventions.ForeignKeyUniquenessConventions.Add(convention1);
-            conventions.ForeignKeyUniquenessConventions.Add(convention2);
-            conventions.ForeignKeyUniquenessConventions.Add(convention3);
+            var convention1 = new ForeignKeyUniquenessChangedConvention(terminate: false);
+            var convention2 = new ForeignKeyUniquenessChangedConvention(terminate: true);
+            var convention3 = new ForeignKeyUniquenessChangedConvention(terminate: false);
+            conventions.ForeignKeyUniquenessChangedConventions.Add(convention1);
+            conventions.ForeignKeyUniquenessChangedConventions.Add(convention2);
+            conventions.ForeignKeyUniquenessChangedConventions.Add(convention3);
 
             var builder = new InternalModelBuilder(new Model(conventions));
             var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1787,12 +1787,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 dependentEntityBuilder.Metadata.RemoveForeignKey(foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
         }
 
-        private class ForeignKeyUniquenessConvention : IForeignKeyUniquenessConvention
+        private class ForeignKeyUniquenessChangedConvention : IForeignKeyUniquenessChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<bool> Calls = new List<bool>();
 
-            public ForeignKeyUniquenessConvention(bool terminate)
+            public ForeignKeyUniquenessChangedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -1819,9 +1819,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention1 = new ForeignKeyOwnershipConvention(terminate: false);
             var convention2 = new ForeignKeyOwnershipConvention(terminate: true);
             var convention3 = new ForeignKeyOwnershipConvention(terminate: false);
-            conventions.ForeignKeyOwnershipConventions.Add(convention1);
-            conventions.ForeignKeyOwnershipConventions.Add(convention2);
-            conventions.ForeignKeyOwnershipConventions.Add(convention3);
+            conventions.ForeignKeyOwnershipChangedConventions.Add(convention1);
+            conventions.ForeignKeyOwnershipChangedConventions.Add(convention2);
+            conventions.ForeignKeyOwnershipChangedConventions.Add(convention3);
 
             var builder = new InternalModelBuilder(new Model(conventions));
             var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1880,7 +1880,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 dependentEntityBuilder.Metadata.RemoveForeignKey(foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
         }
 
-        private class ForeignKeyOwnershipConvention : IForeignKeyOwnershipConvention
+        private class ForeignKeyOwnershipConvention : IForeignKeyOwnershipChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<bool> Calls = new List<bool>();
@@ -1910,8 +1910,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention1 = new PrincipalEndConvention(terminate: false);
             var convention2 = new PrincipalEndConvention(terminate: true);
             var convention3 = new PrincipalEndConvention(terminate: false);
-            conventions.PrincipalEndSetConventions.Add(convention1);
-            conventions.PrincipalEndSetConventions.Add(convention2);
+            conventions.PrincipalEndChangedConventions.Add(convention1);
+            conventions.PrincipalEndChangedConventions.Add(convention2);
             //conventions.PrincipalEndSetConventions.Add(convention3);
 
             var builder = new InternalModelBuilder(new Model(conventions));
@@ -2001,7 +2001,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class PrincipalEndConvention : IPrincipalEndConvention
+        private class PrincipalEndConvention : IPrincipalEndChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
@@ -2028,9 +2028,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new ModelConvention(terminate: false);
-            var convention2 = new ModelConvention(terminate: true);
-            var convention3 = new ModelConvention(terminate: false);
+            var convention1 = new ModelInitializedConvention(terminate: false);
+            var convention2 = new ModelInitializedConvention(terminate: true);
+            var convention3 = new ModelInitializedConvention(terminate: false);
             conventions.ModelInitializedConventions.Add(convention1);
             conventions.ModelInitializedConventions.Add(convention2);
             conventions.ModelInitializedConventions.Add(convention3);
@@ -2049,12 +2049,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(0, convention3.Calls);
         }
 
-        private class ModelConvention : IModelConvention
+        private class ModelInitializedConvention : IModelInitializedConvention
         {
             private readonly bool _terminate;
             public int Calls;
 
-            public ModelConvention(bool terminate)
+            public ModelInitializedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -2076,9 +2076,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new ModelConvention(terminate: false);
-            var convention2 = new ModelConvention(terminate: true);
-            var convention3 = new ModelConvention(terminate: false);
+            var convention1 = new ModelBuiltConvention(terminate: false);
+            var convention2 = new ModelBuiltConvention(terminate: true);
+            var convention3 = new ModelBuiltConvention(terminate: false);
             conventions.ModelBuiltConventions.Add(convention1);
             conventions.ModelBuiltConventions.Add(convention2);
             conventions.ModelBuiltConventions.Add(convention3);
@@ -2097,6 +2097,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(1, convention1.Calls);
             Assert.Equal(1, convention2.Calls);
             Assert.Equal(0, convention3.Calls);
+        }
+
+        private class ModelBuiltConvention : IModelBuiltConvention
+        {
+            private readonly bool _terminate;
+            public int Calls;
+
+            public ModelBuiltConvention(bool terminate)
+            {
+                _terminate = terminate;
+            }
+
+            public InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
+            {
+                Assert.NotNull(modelBuilder.Metadata.Builder);
+
+                Calls++;
+
+                return _terminate ? null : modelBuilder;
+            }
         }
 
         private class Order

@@ -31,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             conventionSet.ModelInitializedConventions.Add(valueGenerationStrategyConvention);
 
             ValueGeneratorConvention valueGeneratorConvention = new SqlServerValueGeneratorConvention();
-            ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.BaseEntityTypeChangedConventions, valueGeneratorConvention);
 
             var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention();
-            conventionSet.EntityTypeAnnotationSetConventions.Add(sqlServerInMemoryTablesConvention);
+            conventionSet.EntityTypeAnnotationChangedConventions.Add(sqlServerInMemoryTablesConvention);
 
-            ReplaceConvention(conventionSet.PrimaryKeySetConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.PrimaryKeyChangedConventions, valueGeneratorConvention);
 
             conventionSet.KeyAddedConventions.Add(sqlServerInMemoryTablesConvention);
 
@@ -48,14 +48,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
             conventionSet.IndexAddedConventions.Add(sqlServerIndexConvention);
 
-            conventionSet.IndexUniquenessConventions.Add(sqlServerIndexConvention);
+            conventionSet.IndexUniquenessChangedConventions.Add(sqlServerIndexConvention);
 
-            conventionSet.IndexAnnotationSetConventions.Add(sqlServerIndexConvention);
+            conventionSet.IndexAnnotationChangedConventions.Add(sqlServerIndexConvention);
 
-            conventionSet.PropertyNullableChangedConventions.Add(sqlServerIndexConvention);
+            conventionSet.PropertyNullabilityChangedConventions.Add(sqlServerIndexConvention);
 
-            conventionSet.PropertyAnnotationSetConventions.Add(sqlServerIndexConvention);
-            conventionSet.PropertyAnnotationSetConventions.Add((SqlServerValueGeneratorConvention)valueGeneratorConvention);
+            conventionSet.PropertyAnnotationChangedConventions.Add(sqlServerIndexConvention);
+            conventionSet.PropertyAnnotationChangedConventions.Add((SqlServerValueGeneratorConvention)valueGeneratorConvention);
 
             return conventionSet;
         }

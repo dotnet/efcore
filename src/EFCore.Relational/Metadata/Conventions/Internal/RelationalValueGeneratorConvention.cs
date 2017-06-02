@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
-    public class RelationalValueGeneratorConvention : ValueGeneratorConvention, IPropertyAnnotationSetConvention
+    public class RelationalValueGeneratorConvention : ValueGeneratorConvention, IPropertyAnnotationChangedConvention
     {
         public virtual Annotation Apply(InternalPropertyBuilder propertyBuilder, string name, Annotation annotation, Annotation oldAnnotation)
         {

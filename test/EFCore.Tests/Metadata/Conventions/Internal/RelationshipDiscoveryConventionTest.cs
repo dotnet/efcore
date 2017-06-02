@@ -994,7 +994,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 conventions.EntityTypeAddedConventions.Add(new TestModelChangeListener(onEntityAdded));
 
                 var relationshipDiscoveryConvention = new RelationshipDiscoveryConvention(new CoreTypeMapper());
-                conventions.BaseEntityTypeSetConventions.Add(relationshipDiscoveryConvention);
+                conventions.BaseEntityTypeChangedConventions.Add(relationshipDiscoveryConvention);
                 conventions.EntityTypeMemberIgnoredConventions.Add(relationshipDiscoveryConvention);
                 conventions.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
                 conventions.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
@@ -1005,7 +1005,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return entityBuilder;
         }
 
-        private class TestModelChangeListener : IEntityTypeConvention
+        private class TestModelChangeListener : IEntityTypeAddedConvention
         {
             private readonly Action<InternalEntityTypeBuilder>[] _onEntityAdded;
 

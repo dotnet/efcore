@@ -53,12 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var foreignKeyIndexConvention = new ForeignKeyIndexConvention();
             var valueGeneratorConvention = new ValueGeneratorConvention();
 
-            conventionSet.BaseEntityTypeSetConventions.Add(propertyDiscoveryConvention);
-            conventionSet.BaseEntityTypeSetConventions.Add(keyDiscoveryConvention);
-            conventionSet.BaseEntityTypeSetConventions.Add(inversePropertyAttributeConvention);
-            conventionSet.BaseEntityTypeSetConventions.Add(relationshipDiscoveryConvention);
-            conventionSet.BaseEntityTypeSetConventions.Add(foreignKeyIndexConvention);
-            conventionSet.BaseEntityTypeSetConventions.Add(valueGeneratorConvention );
+            conventionSet.BaseEntityTypeChangedConventions.Add(propertyDiscoveryConvention);
+            conventionSet.BaseEntityTypeChangedConventions.Add(keyDiscoveryConvention);
+            conventionSet.BaseEntityTypeChangedConventions.Add(inversePropertyAttributeConvention);
+            conventionSet.BaseEntityTypeChangedConventions.Add(relationshipDiscoveryConvention);
+            conventionSet.BaseEntityTypeChangedConventions.Add(foreignKeyIndexConvention);
+            conventionSet.BaseEntityTypeChangedConventions.Add(valueGeneratorConvention );
 
             // An ambiguity might have been resolved
             conventionSet.EntityTypeMemberIgnoredConventions.Add(inversePropertyAttributeConvention);
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.PropertyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.PropertyAddedConventions.Add(keyAttributeConvention);
 
-            conventionSet.PrimaryKeySetConventions.Add(valueGeneratorConvention);
+            conventionSet.PrimaryKeyChangedConventions.Add(valueGeneratorConvention);
 
             conventionSet.KeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.KeyAddedConventions.Add(foreignKeyIndexConvention);
@@ -107,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ForeignKeyRemovedConventions.Add(valueGeneratorConvention );
             conventionSet.ForeignKeyRemovedConventions.Add(foreignKeyIndexConvention);
 
-            conventionSet.ForeignKeyUniquenessConventions.Add(foreignKeyPropertyDiscoveryConvention);
-            conventionSet.ForeignKeyUniquenessConventions.Add(foreignKeyIndexConvention);
+            conventionSet.ForeignKeyUniquenessChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.ForeignKeyUniquenessChangedConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.ModelBuiltConventions.Add(new ModelCleanupConvention());
             conventionSet.ModelBuiltConventions.Add(keyAttributeConvention);
@@ -129,11 +129,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.IndexRemovedConventions.Add(foreignKeyIndexConvention);
 
-            conventionSet.IndexUniquenessConventions.Add(foreignKeyIndexConvention);
+            conventionSet.IndexUniquenessChangedConventions.Add(foreignKeyIndexConvention);
 
-            conventionSet.PropertyNullableChangedConventions.Add(cascadeDeleteConvention);
+            conventionSet.PropertyNullabilityChangedConventions.Add(cascadeDeleteConvention);
 
-            conventionSet.PrincipalEndSetConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.PrincipalEndChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             conventionSet.PropertyFieldChangedConventions.Add(keyDiscoveryConvention);
             conventionSet.PropertyFieldChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);

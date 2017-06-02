@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventions.ForeignKeyAddedConventions.Add(keyConvention);
             conventions.ForeignKeyRemovedConventions.Add(keyConvention);
-            conventions.PrimaryKeySetConventions.Add(keyConvention);
+            conventions.PrimaryKeyChangedConventions.Add(keyConvention);
 
             return new InternalModelBuilder(new Model(conventions));
         }

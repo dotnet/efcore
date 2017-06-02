@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return null;
                 }
 
-                foreach (var entityTypeConvention in _conventionSet.BaseEntityTypeSetConventions)
+                foreach (var entityTypeConvention in _conventionSet.BaseEntityTypeChangedConventions)
                 {
                     if (!entityTypeConvention.Apply(entityTypeBuilder, previousBaseType))
                     {
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return null;
                 }
 
-                foreach (var entityTypeAnnotationSetConvention in _conventionSet.EntityTypeAnnotationSetConventions)
+                foreach (var entityTypeAnnotationSetConvention in _conventionSet.EntityTypeAnnotationChangedConventions)
                 {
                     var newAnnotation = entityTypeAnnotationSetConvention.Apply(entityTypeBuilder, name, annotation, oldAnnotation);
                     if (newAnnotation != annotation)
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return;
                 }
 
-                foreach (var keyConvention in _conventionSet.PrimaryKeySetConventions)
+                foreach (var keyConvention in _conventionSet.PrimaryKeyChangedConventions)
                 {
                     if (!keyConvention.Apply(entityTypeBuilder, previousPrimaryKey))
                     {
@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return false;
                 }
 
-                foreach (var indexUniquenessConvention in _conventionSet.IndexUniquenessConventions)
+                foreach (var indexUniquenessConvention in _conventionSet.IndexUniquenessChangedConventions)
                 {
                     if (!indexUniquenessConvention.Apply(indexBuilder))
                     {
@@ -468,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return null;
                 }
 
-                foreach (var indexAnnotationSetConvention in _conventionSet.IndexAnnotationSetConventions)
+                foreach (var indexAnnotationSetConvention in _conventionSet.IndexAnnotationChangedConventions)
                 {
                     var newAnnotation = indexAnnotationSetConvention.Apply(indexBuilder, name, annotation, oldAnnotation);
                     if (newAnnotation != annotation)
@@ -527,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return null;
                 }
 
-                foreach (var uniquenessConvention in _conventionSet.ForeignKeyUniquenessConventions)
+                foreach (var uniquenessConvention in _conventionSet.ForeignKeyUniquenessChangedConventions)
                 {
                     relationshipBuilder = uniquenessConvention.Apply(relationshipBuilder);
                     if (relationshipBuilder?.Metadata.Builder == null)
@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return null;
                 }
 
-                foreach (var ownershipConvention in _conventionSet.ForeignKeyOwnershipConventions)
+                foreach (var ownershipConvention in _conventionSet.ForeignKeyOwnershipChangedConventions)
                 {
                     relationshipBuilder = ownershipConvention.Apply(relationshipBuilder);
                     if (relationshipBuilder?.Metadata.Builder == null)
@@ -565,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return null;
                 }
 
-                foreach (var relationshipConvention in _conventionSet.PrincipalEndSetConventions)
+                foreach (var relationshipConvention in _conventionSet.PrincipalEndChangedConventions)
                 {
                     relationshipBuilder = relationshipConvention.Apply(relationshipBuilder);
                     if (relationshipBuilder == null)
@@ -606,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return false;
                 }
 
-                foreach (var propertyConvention in _conventionSet.PropertyNullableChangedConventions)
+                foreach (var propertyConvention in _conventionSet.PropertyNullabilityChangedConventions)
                 {
                     if (!propertyConvention.Apply(propertyBuilder))
                     {
@@ -648,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return null;
                 }
 
-                foreach (var propertyAnnotationSetConvention in _conventionSet.PropertyAnnotationSetConventions)
+                foreach (var propertyAnnotationSetConvention in _conventionSet.PropertyAnnotationChangedConventions)
                 {
                     var newAnnotation = propertyAnnotationSetConvention.Apply(propertyBuilder, name, annotation, oldAnnotation);
                     if (newAnnotation != annotation)
