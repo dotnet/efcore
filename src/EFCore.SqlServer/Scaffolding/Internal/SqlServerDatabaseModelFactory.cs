@@ -42,7 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private static string ColumnKey(TableModel table, string columnName) => TableKey(table) + ".[" + columnName + "]";
 
         private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string> { "datetimeoffset", "datetime2", "time" };
-        private const int DefaultDateTimePrecision = 7;
 
         // see https://msdn.microsoft.com/en-us/library/ff878091.aspx
         private static readonly Dictionary<string, long[]> _defaultSequenceMinMax = new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
@@ -101,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        private DatabaseModel Create(DbConnection connection, TableSelectionSet tableSelectionSet)
+        public virtual DatabaseModel Create(DbConnection connection, TableSelectionSet tableSelectionSet)
         {
             ResetState();
 
