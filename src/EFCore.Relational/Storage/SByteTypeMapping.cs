@@ -21,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="SByteTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public SByteTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = null)
-            : base(storeType, dbType, unicode: false, size: null, hasNonDefaultUnicode: false, hasNonDefaultSize: false)
+            : base(storeType, dbType, unicode: false, size: null)
         {
         }
 

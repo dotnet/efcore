@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Null(typeMapping.DbType);
             Assert.Equal("nvarchar(max)", typeMapping.StoreType);
-            Assert.Equal(4000, typeMapping.Size);
+            Assert.Null(typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
             Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Null(typeMapping.DbType);
             Assert.Equal("nvarchar(max)", typeMapping.StoreType);
-            Assert.Equal(4000, typeMapping.Size);
+            Assert.Null(typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
             Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new string('X', 4001)).Size);
         }
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Null(typeMapping.DbType);
             Assert.Equal("nvarchar(max)", typeMapping.StoreType);
-            Assert.Equal(4000, typeMapping.Size);
+            Assert.Null(typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
             Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(DbType.AnsiString, typeMapping.DbType);
             Assert.Equal("varchar(max)", typeMapping.StoreType);
-            Assert.Equal(8000, typeMapping.Size);
+            Assert.Null(typeMapping.Size);
             Assert.False(typeMapping.IsUnicode);
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(DbType.AnsiString, typeMapping.DbType);
             Assert.Equal("varchar(max)", typeMapping.StoreType);
-            Assert.Equal(8000, typeMapping.Size);
+            Assert.Null(typeMapping.Size);
             Assert.False(typeMapping.IsUnicode);
             Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new string('X', 8001)).Size);
         }
@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(DbType.AnsiString, typeMapping.DbType);
             Assert.Equal("varchar(max)", typeMapping.StoreType);
-            Assert.Equal(8000, typeMapping.Size);
+            Assert.Null(typeMapping.Size);
             Assert.False(typeMapping.IsUnicode);
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("varbinary(max)", typeMapping.StoreType);
-            Assert.Equal(8000, typeMapping.Size);
+            Assert.Null(typeMapping.Size);
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[3]).Size);
         }
 
@@ -455,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("varbinary(max)", typeMapping.StoreType);
-            Assert.Equal(8000, typeMapping.Size);
+            Assert.Null(typeMapping.Size);
             Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[8001]).Size);
         }
 
@@ -477,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("varbinary(max)", typeMapping.StoreType);
-            Assert.Equal(8000, typeMapping.Size);
+            Assert.Null(typeMapping.Size);
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[3]).Size);
         }
 
@@ -672,21 +672,21 @@ namespace Microsoft.EntityFrameworkCore
 
         [Theory]
         [InlineData("bigint", typeof(long), null, false)]
-        [InlineData("binary varying", typeof(byte[]), 8000, false)]
+        [InlineData("binary varying", typeof(byte[]), null, false)]
         [InlineData("binary varying(333)", typeof(byte[]), 333, false)]
-        [InlineData("binary varying(max)", typeof(byte[]), 8000, false)]
-        [InlineData("binary", typeof(byte[]), 8000, false)]
+        [InlineData("binary varying(max)", typeof(byte[]), null, false)]
+        [InlineData("binary", typeof(byte[]), null, false)]
         [InlineData("binary(333)", typeof(byte[]), 333, false)]
         [InlineData("bit", typeof(bool), null, false)]
-        [InlineData("char varying", typeof(string), 8000, false)]
+        [InlineData("char varying", typeof(string), null, false)]
         [InlineData("char varying(333)", typeof(string), 333, false)]
-        [InlineData("char varying(max)", typeof(string), 8000, false)]
-        [InlineData("char", typeof(string), 8000, false)]
+        [InlineData("char varying(max)", typeof(string), null, false)]
+        [InlineData("char", typeof(string), null, false)]
         [InlineData("char(333)", typeof(string), 333, false)]
-        [InlineData("character varying", typeof(string), 8000, false)]
+        [InlineData("character varying", typeof(string), null, false)]
         [InlineData("character varying(333)", typeof(string), 333, false)]
-        [InlineData("character varying(max)", typeof(string), 8000, false)]
-        [InlineData("character", typeof(string), 8000, false)]
+        [InlineData("character varying(max)", typeof(string), null, false)]
+        [InlineData("character", typeof(string), null, false)]
         [InlineData("character(333)", typeof(string), 333, false)]
         [InlineData("date", typeof(DateTime), null, false)]
         [InlineData("datetime", typeof(DateTime), null, false)]
@@ -696,43 +696,43 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("decimal", typeof(decimal), null, false)]
         [InlineData("float", typeof(double), null, false)] // This is correct. SQL Server 'float' type maps to C# double
         [InlineData("float(10, 8)", typeof(double), null, false)]
-        [InlineData("image", typeof(byte[]), 8000, false)]
+        [InlineData("image", typeof(byte[]), null, false)]
         [InlineData("int", typeof(int), null, false)]
         [InlineData("money", typeof(decimal), null, false)]
-        [InlineData("national char varying", typeof(string), 4000, true)]
+        [InlineData("national char varying", typeof(string), null, true)]
         [InlineData("national char varying(333)", typeof(string), 333, true)]
-        [InlineData("national char varying(max)", typeof(string), 4000, true)]
-        [InlineData("national character varying", typeof(string), 4000, true)]
+        [InlineData("national char varying(max)", typeof(string), null, true)]
+        [InlineData("national character varying", typeof(string), null, true)]
         [InlineData("national character varying(333)", typeof(string), 333, true)]
-        [InlineData("national character varying(max)", typeof(string), 4000, true)]
-        [InlineData("national character", typeof(string), 4000, true)]
+        [InlineData("national character varying(max)", typeof(string), null, true)]
+        [InlineData("national character", typeof(string), null, true)]
         [InlineData("national character(333)", typeof(string), 333, true)]
-        [InlineData("nchar", typeof(string), 4000, true)]
+        [InlineData("nchar", typeof(string), null, true)]
         [InlineData("nchar(333)", typeof(string), 333, true)]
-        [InlineData("ntext", typeof(string), 4000, true)]
+        [InlineData("ntext", typeof(string), null, true)]
         [InlineData("numeric", typeof(decimal), null, false)]
-        [InlineData("nvarchar", typeof(string), 4000, true)]
+        [InlineData("nvarchar", typeof(string), null, true)]
         [InlineData("nvarchar(333)", typeof(string), 333, true)]
-        [InlineData("nvarchar(max)", typeof(string), 4000, true)]
+        [InlineData("nvarchar(max)", typeof(string), null, true)]
         [InlineData("real", typeof(float), null, false)]
         [InlineData("rowversion", typeof(byte[]), 8, false)]
         [InlineData("smalldatetime", typeof(DateTime), null, false)]
         [InlineData("smallint", typeof(short), null, false)]
         [InlineData("smallmoney", typeof(decimal), null, false)]
-        [InlineData("text", typeof(string), 8000, false)]
+        [InlineData("text", typeof(string), null, false)]
         [InlineData("time", typeof(TimeSpan), null, false)]
         [InlineData("timestamp", typeof(byte[]), 8, false)] // note: rowversion is a synonym but SQL Server stores the data type as 'timestamp'
         [InlineData("tinyint", typeof(byte), null, false)]
         [InlineData("uniqueidentifier", typeof(Guid), null, false)]
-        [InlineData("varbinary", typeof(byte[]), 8000, false)]
+        [InlineData("varbinary", typeof(byte[]), null, false)]
         [InlineData("varbinary(333)", typeof(byte[]), 333, false)]
-        [InlineData("varbinary(max)", typeof(byte[]), 8000, false)]
-        [InlineData("varchar", typeof(string), 8000, false)]
-        [InlineData("VarCHaR", typeof(string), 8000, false)] // case-insensitive
+        [InlineData("varbinary(max)", typeof(byte[]), null, false)]
+        [InlineData("varchar", typeof(string), null, false)]
+        [InlineData("VarCHaR", typeof(string), null, false)] // case-insensitive
         [InlineData("varchar(333)", typeof(string), 333, false)]
-        [InlineData("varchar(max)", typeof(string), 8000, false)]
-        [InlineData("xml", typeof(string), 4000, true)]
-        [InlineData("VARCHAR", typeof(string), 8000, false)]
+        [InlineData("varchar(max)", typeof(string), null, false)]
+        [InlineData("xml", typeof(string), null, true)]
+        [InlineData("VARCHAR", typeof(string), null, false)]
         public void Can_map_by_type_name(string typeName, Type clrType, int? size, bool unicode)
         {
             var mapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(typeName);

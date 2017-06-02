@@ -18,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression Translate(MemberExpression memberExpression)
-            => (memberExpression.Expression != null)
+            => memberExpression.Expression != null
                && (memberExpression.Expression.Type == typeof(DateTime) || memberExpression.Expression.Type == typeof(DateTimeOffset))
-               && (memberExpression.Member.Name == nameof(DateTime.Date))
+               && memberExpression.Member.Name == nameof(DateTime.Date)
                 ? new SqlFunctionExpression("CONVERT",
                     memberExpression.Type,
                     new[]

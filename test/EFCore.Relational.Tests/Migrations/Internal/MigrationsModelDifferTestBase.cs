@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
                 = new Dictionary<string, RelationalTypeMapping>
                 {
-                    { "varchar", new StringTypeMapping("varchar", dbType: null, unicode: false, size: null, hasNonDefaultUnicode: true) },
+                    { "varchar", new StringTypeMapping("varchar", dbType: null, unicode: false, size: null) },
                     { "bigint", new LongTypeMapping("bigint") }
                 };
 

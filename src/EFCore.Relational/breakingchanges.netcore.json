@@ -1,5 +1,20 @@
 [
   {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+    "MemberId": "public .ctor(System.String storeType, System.Type clrType, System.Nullable<System.Data.DbType> dbType, System.Boolean unicode, System.Nullable<System.Int32> size, System.Boolean hasNonDefaultUnicode = False, System.Boolean hasNonDefaultSize = False)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+    "MemberId": "public virtual System.Boolean get_HasNonDefaultSize()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+    "MemberId": "public virtual System.Boolean get_HasNonDefaultUnicode()",
+    "Kind": "Removal"
+  },
+  {
     "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<T0, T1> where T0 : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<T0, T1> where T1 : Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension",
     "Kind": "Removal"
   },

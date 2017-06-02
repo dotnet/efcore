@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             var baseEntityTypeBuilder = EntityTypeBuilder;
             if (!baseEntityTypeBuilder.Metadata.IsAssignableFrom(entityTypeBuilder.Metadata)
-                && (entityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, AnnotationsBuilder.ConfigurationSource) == null))
+                && entityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, AnnotationsBuilder.ConfigurationSource) == null)
             {
                 throw new InvalidOperationException(RelationalStrings.DiscriminatorEntityTypeNotDerived(
                     entityTypeBuilder.Metadata.DisplayName(),

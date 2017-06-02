@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </summary>
         public virtual Expression Translate(MemberExpression memberExpression)
         {
-            if ((memberExpression.Expression == null)
-                && (memberExpression.Member.DeclaringType == typeof(DateTime)))
+            if (memberExpression.Expression == null
+                && memberExpression.Member.DeclaringType == typeof(DateTime))
             {
                 switch (memberExpression.Member.Name)
                 {

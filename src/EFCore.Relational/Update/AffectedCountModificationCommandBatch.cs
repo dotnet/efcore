@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 if (!reader.Read())
                 {
                     var expectedRowsAffected = rowsAffected + 1;
-                    while ((++commandIndex < CommandResultSet.Count)
+                    while (++commandIndex < CommandResultSet.Count
                            && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
                     {
                         expectedRowsAffected++;
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 tableModification.PropagateResults(valueBufferFactory.Create(reader));
                 rowsAffected++;
             }
-            while ((++commandIndex < CommandResultSet.Count)
+            while (++commandIndex < CommandResultSet.Count
                    && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet);
 
             return commandIndex;
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 if (!await reader.ReadAsync(cancellationToken))
                 {
                     var expectedRowsAffected = rowsAffected + 1;
-                    while ((++commandIndex < CommandResultSet.Count)
+                    while (++commandIndex < CommandResultSet.Count
                            && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
                     {
                         expectedRowsAffected++;
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 tableModification.PropagateResults(valueBufferFactory.Create(reader));
                 rowsAffected++;
             }
-            while ((++commandIndex < CommandResultSet.Count)
+            while (++commandIndex < CommandResultSet.Count
                    && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet);
 
             return commandIndex;
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual int ConsumeResultSetWithoutPropagation(int commandIndex, [NotNull] DbDataReader reader)
         {
             var expectedRowsAffected = 1;
-            while ((++commandIndex < CommandResultSet.Count)
+            while (++commandIndex < CommandResultSet.Count
                    && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
             {
                 Debug.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             int commandIndex, [NotNull] DbDataReader reader, CancellationToken cancellationToken)
         {
             var expectedRowsAffected = 1;
-            while ((++commandIndex < CommandResultSet.Count)
+            while (++commandIndex < CommandResultSet.Count
                    && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
             {
                 Debug.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);

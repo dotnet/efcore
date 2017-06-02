@@ -24,16 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <param name="hasNonDefaultUnicode"> A value indicating whether the Unicode setting has been manually configured to a non-default value. </param>
-        /// <param name="hasNonDefaultSize"> A value indicating whether the size setting has been manually configured to a non-default value. </param>
         public RelationalTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType,
             bool unicode,
-            int? size,
-            bool hasNonDefaultUnicode = false,
-            bool hasNonDefaultSize = false)
-            : base(storeType, typeof(T), dbType, unicode, size, hasNonDefaultUnicode, hasNonDefaultSize)
+            int? size)
+            : base(storeType, typeof(T), dbType, unicode, size)
         {
         }
 
@@ -44,10 +40,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public override string GenerateSqlLiteral([CanBeNull]object value)
+        public override string GenerateSqlLiteral(object value)
         {
             return value == null
-                ? base.GenerateSqlLiteral(value)
+                ? base.GenerateSqlLiteral(value: null)
+                // This ensures that the Enum type is cast to underlying type
                 : GenerateNonNullSqlLiteral((T)value);
         }
     }

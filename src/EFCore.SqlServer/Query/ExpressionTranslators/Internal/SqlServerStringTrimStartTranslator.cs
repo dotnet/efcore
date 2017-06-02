@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             if (_methodInfo.Equals(methodCallExpression.Method)
                 // SqlServer LTRIM does not take arguments
-                && (((methodCallExpression.Arguments[0] as ConstantExpression)?.Value as Array)?.Length == 0))
+                && ((methodCallExpression.Arguments[0] as ConstantExpression)?.Value as Array)?.Length == 0)
             {
                 var sqlArguments = new[] { methodCallExpression.Object };
                 return new SqlFunctionExpression("LTRIM", methodCallExpression.Type, sqlArguments);

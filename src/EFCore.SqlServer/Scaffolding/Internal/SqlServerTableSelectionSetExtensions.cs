@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public static bool Allows(this TableSelectionSet tableSelectionSet, [CanBeNull] string schemaName, [NotNull] string tableName)
         {
             if (tableSelectionSet == null
-                || (tableSelectionSet.Schemas.Count == 0
-                    && tableSelectionSet.Tables.Count == 0))
+                || tableSelectionSet.Schemas.Count == 0
+                && tableSelectionSet.Tables.Count == 0)
             {
                 return true;
             }

@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return node;
             }
 
-            if ((node.NodeType == ExpressionType.Equal)
-                || (node.NodeType == ExpressionType.NotEqual))
+            if (node.NodeType == ExpressionType.Equal
+                || node.NodeType == ExpressionType.NotEqual)
             {
                 var leftIsNull = BuildIsNullExpression(newLeft);
                 var rightIsNull = BuildIsNullExpression(newRight);
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var leftNullable = leftIsNull != null;
                 var rightNullable = rightIsNull != null;
 
-                if ((node.NodeType == ExpressionType.Equal)
+                if (node.NodeType == ExpressionType.Equal
                     && leftNullable
                     && rightNullable)
                 {
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         Expression.AndAlso(leftIsNull, rightIsNull));
                 }
 
-                if ((node.NodeType == ExpressionType.NotEqual)
+                if (node.NodeType == ExpressionType.NotEqual
                     && (leftNullable || rightNullable))
                 {
                     IsOptimalExpansion = false;

@@ -34,16 +34,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <param name="hasNonDefaultUnicode"> A value indicating whether the Unicode setting has been manually configured to a non-default value. </param>
-        /// <param name="hasNonDefaultSize"> A value indicating whether the size setting has been manually configured to a non-default value. </param>
         public RelationalTypeMapping(
             [NotNull] string storeType,
             [NotNull] Type clrType,
             [CanBeNull] DbType? dbType,
             bool unicode,
-            int? size,
-            bool hasNonDefaultUnicode = false,
-            bool hasNonDefaultSize = false)
+            int? size)
             : this(storeType)
         {
             Check.NotNull(clrType, nameof(clrType));
@@ -52,8 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbType = dbType;
             IsUnicode = unicode;
             Size = size;
-            HasNonDefaultUnicode = hasNonDefaultUnicode;
-            HasNonDefaultSize = hasNonDefaultSize;
         }
 
         private RelationalTypeMapping([NotNull] string storeType)
@@ -75,9 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ClrType,
                 DbType,
                 IsUnicode,
-                size,
-                HasNonDefaultUnicode,
-                hasNonDefaultSize: size != Size);
+                size);
 
         /// <summary>
         ///     Gets the name of the database type.
@@ -103,16 +95,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the size of data the property is configured to store, or null if no size is configured.
         /// </summary>
         public virtual int? Size { get; }
-
-        /// <summary>
-        ///     Gets a value indicating whether the Unicode setting has been manually configured to a non-default value.
-        /// </summary>
-        public virtual bool HasNonDefaultUnicode { get; }
-
-        /// <summary>
-        ///     Gets a value indicating whether the size setting has been manually configured to a non-default value.
-        /// </summary>
-        public virtual bool HasNonDefaultSize { get; }
 
         /// <summary>
         ///     Gets the string format to be used to generate SQL literals of this type.
@@ -176,9 +158,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The generated string.
         /// </returns>
         public virtual string GenerateSqlLiteral([CanBeNull] object value)
-            => (value == null
+            => value == null
                 ? "NULL"
-                : GenerateNonNullSqlLiteral(value));
+                : GenerateNonNullSqlLiteral(value);
 
         /// <summary>
         ///     Generates the SQL representation of a non-null literal value.
@@ -188,6 +170,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The generated string.
         /// </returns>
         protected virtual string GenerateNonNullSqlLiteral([NotNull] object value)
-            => string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, Check.NotNull(value, "value"));
+            => string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, Check.NotNull(value, nameof(value)));
     }
 }

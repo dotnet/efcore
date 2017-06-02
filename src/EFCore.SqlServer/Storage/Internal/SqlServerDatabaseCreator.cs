@@ -210,11 +210,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             //   System.Data.SqlClient.SqlException: Unable to Attach database file as database xxxxxxx.
             // And (Number 5120)
             //   System.Data.SqlClient.SqlException: Unable to open the physical file xxxxxxx.
-            if ((exception.Number == 233
-                 || exception.Number == -2
-                 || exception.Number == 4060
-                 || exception.Number == 1832
-                 || exception.Number == 5120))
+            if (exception.Number == 233
+                || exception.Number == -2
+                || exception.Number == 4060
+                || exception.Number == 1832
+                || exception.Number == 5120)
             {
                 ClearPool();
                 return true;

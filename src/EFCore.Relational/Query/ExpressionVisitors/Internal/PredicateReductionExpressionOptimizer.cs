@@ -30,16 +30,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (node.NodeType == ExpressionType.AndAlso)
                 {
-                    if ((constantLeft != null)
-                        && (constantLeft.Type == typeof(bool)))
+                    if (constantLeft != null
+                        && constantLeft.Type == typeof(bool))
                     {
                         // true && a => a
                         // false && a => false
                         return (bool)constantLeft.Value ? newRight : newLeft;
                     }
 
-                    if ((constantRight != null)
-                        && (constantRight.Type == typeof(bool)))
+                    if (constantRight != null
+                        && constantRight.Type == typeof(bool))
                     {
                         // a && true => a
                         // a && false => false
@@ -49,16 +49,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (node.NodeType == ExpressionType.OrElse)
                 {
-                    if ((constantLeft != null)
-                        && (constantLeft.Type == typeof(bool)))
+                    if (constantLeft != null
+                        && constantLeft.Type == typeof(bool))
                     {
                         // true || a => true
                         // false || a => a
                         return (bool)constantLeft.Value ? newLeft : newRight;
                     }
 
-                    if ((constantRight != null)
-                        && (constantRight.Type == typeof(bool)))
+                    if (constantRight != null
+                        && constantRight.Type == typeof(bool))
                     {
                         // a || true => true
                         // a || false => a

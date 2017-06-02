@@ -639,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 || !Equals(sourceAnnotations.DefaultValue, targetAnnotations.DefaultValue)
                 || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
-                var isDestructiveChange = (isNullableChanged && isSourceColumnNullable)
+                var isDestructiveChange = isNullableChanged && isSourceColumnNullable
                                           // TODO: Detect type narrowing
                                           || columnTypeChanged;
 
@@ -748,9 +748,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 (s, t) => Diff(s, t, diffContext),
                 t => Add(t, diffContext),
                 s => Remove(s, diffContext),
-                (s, t) => (s.Relational().Name == t.Relational().Name)
+                (s, t) => s.Relational().Name == t.Relational().Name
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
-                          && (s.IsPrimaryKey() == t.IsPrimaryKey())
+                          && s.IsPrimaryKey() == t.IsPrimaryKey()
                           && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t)));
 
         /// <summary>
@@ -852,7 +852,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 (s, t) => Diff(s, t, diffContext),
                 t => Add(t, diffContext),
                 s => Remove(s, diffContext),
-                (s, t) => (s.Relational().Name == t.Relational().Name)
+                (s, t) => s.Relational().Name == t.Relational().Name
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
                           && diffContext.FindTarget(diffContext.FindSourceTable(s.PrincipalEntityType))
                             == diffContext.FindTargetTable(t.PrincipalEntityType)
@@ -1049,9 +1049,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Remove,
                 (s, t) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
                           && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                          && (s.ClrType == t.ClrType),
+                          && s.ClrType == t.ClrType,
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                          && (s.ClrType == t.ClrType));
+                          && s.ClrType == t.ClrType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1085,10 +1085,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var sourceMigrationsAnnotations = MigrationsAnnotations.For(source).ToList();
             var targetMigrationsAnnotations = MigrationsAnnotations.For(target).ToList();
 
-            if ((source.IncrementBy != target.IncrementBy)
-                || (source.MaxValue != target.MaxValue)
-                || (source.MinValue != target.MinValue)
-                || (source.IsCyclic != target.IsCyclic)
+            if (source.IncrementBy != target.IncrementBy
+                || source.MaxValue != target.MaxValue
+                || source.MinValue != target.MinValue
+                || source.IsCyclic != target.IsCyclic
                 || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
                 var alterSequenceOperation = new AlterSequenceOperation
@@ -1228,7 +1228,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var annotation in source)
             {
-                var index = unmatched.FindIndex(a => (a.Name == annotation.Name) && Equals(a.Value, annotation.Value));
+                var index = unmatched.FindIndex(a => a.Name == annotation.Name && Equals(a.Value, annotation.Value));
                 if (index == -1)
                 {
                     return true;

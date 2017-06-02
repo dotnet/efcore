@@ -39,16 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <param name="hasNonDefaultUnicode"> A value indicating whether the Unicode setting has been manually configured to a non-default value. </param>
-        /// <param name="hasNonDefaultSize"> A value indicating whether the size setting has been manually configured to a non-default value. </param>
         public StringTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType,
             bool unicode,
-            int? size,
-            bool hasNonDefaultUnicode = false,
-            bool hasNonDefaultSize = false)
-            : base(storeType, dbType, unicode, size, hasNonDefaultUnicode, hasNonDefaultSize)
+            int? size)
+            : base(storeType, dbType, unicode, size)
         {
         }
 
@@ -63,9 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 storeType,
                 DbType,
                 IsUnicode,
-                size,
-                HasNonDefaultUnicode,
-                hasNonDefaultSize: size != Size);
+                size);
 
         /// <summary>
         ///     Generates the escaped SQL representation of a literal value.

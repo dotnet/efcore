@@ -20,6 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual bool? IsCyclic { get; [param: CanBeNull] set; }
 
         public virtual string DisplayName
-            => !string.IsNullOrEmpty(SchemaName) ? (SchemaName + "." + Name) : Name;
+            => !string.IsNullOrEmpty(SchemaName) ? SchemaName + "." + Name : Name;
     }
 }
