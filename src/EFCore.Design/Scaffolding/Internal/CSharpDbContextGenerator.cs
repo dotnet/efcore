@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     _sb.AppendLine("#warning " + DesignStrings.SensitiveInformationWarning);
 
-                    _sb.AppendLine($"optionsBuilder.{_scaffoldingHelper.GetProviderOptionsBuilder(connectionString)}");
+                    _sb.AppendLine($"optionsBuilder{_scaffoldingHelper.GetProviderOptionsBuilder(connectionString)};");
                 }
 
                 _sb.AppendLine("}");
