@@ -429,7 +429,29 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Assert.Equal(pair.l2oItem.Orders, pair.efItem.Orders);
                         }
-                    });
+                    },
+                entryCount: 30);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_entity_and_collection_navigation()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.CustomerID.StartsWith("A")
+                      orderby c.CustomerID
+                      select new { c, c.Orders },
+                asserter: (l2oItems, efItems) =>
+                    {
+                        foreach (var pair in
+                            from dynamic l2oItem in l2oItems
+                            join dynamic efItem in efItems on l2oItem.c.CustomerID equals efItem.c.CustomerID
+                            select new { l2oItem, efItem })
+                        {
+                            Assert.Equal(pair.l2oItem.Orders, pair.efItem.Orders);
+                        }
+                    },
+                entryCount: 34);
         }
 
         [ConditionalFact]
@@ -444,6 +466,27 @@ namespace Microsoft.EntityFrameworkCore
                         foreach (var pair in
                             from dynamic l2oItem in l2oItems
                             join dynamic efItem in efItems on l2oItem.OrderID equals efItem.OrderID
+                            select new { l2oItem, efItem })
+                        {
+                            Assert.Equal(pair.l2oItem.Orders, pair.efItem.Orders);
+                        }
+                    },
+                entryCount: 6);
+        }
+
+        [ConditionalFact]
+        public virtual void Elements_of_materialized_collection_navigation_not_tracked_for_queries_with_AsNoTracking()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs.AsNoTracking()
+                      where c.CustomerID.StartsWith("A")
+                      orderby c.CustomerID
+                      select new { c.CustomerID, c.Orders },
+                asserter: (l2oItems, efItems) =>
+                    {
+                        foreach (var pair in
+                            from dynamic l2oItem in l2oItems
+                            join dynamic efItem in efItems on l2oItem.CustomerID equals efItem.CustomerID
                             select new { l2oItem, efItem })
                         {
                             Assert.Equal(pair.l2oItem.Orders, pair.efItem.Orders);

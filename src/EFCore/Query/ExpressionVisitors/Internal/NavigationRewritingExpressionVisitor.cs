@@ -206,8 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
-            : this(queryModelVisitor, navigationExpansionSubquery: false)
+        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor, bool trackingQuery)
+            : this(queryModelVisitor, /*navigationExpansionSubquery:*/ false, trackingQuery)
         {
         }
 
@@ -215,12 +215,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor, bool navigationExpansionSubquery)
+        public NavigationRewritingExpressionVisitor(
+            [NotNull] EntityQueryModelVisitor queryModelVisitor, 
+            bool navigationExpansionSubquery, 
+            bool trackingQuery)
         {
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
             _queryModelVisitor = queryModelVisitor;
-            _navigationRewritingQueryModelVisitor = new NavigationRewritingQueryModelVisitor(this, _queryModelVisitor, navigationExpansionSubquery);
+            _navigationRewritingQueryModelVisitor = new NavigationRewritingQueryModelVisitor(this, _queryModelVisitor, navigationExpansionSubquery, trackingQuery);
         }
 
         /// <summary>
@@ -1364,10 +1367,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             public NavigationRewritingQueryModelVisitor(
                 NavigationRewritingExpressionVisitor transformingVisitor,
                 EntityQueryModelVisitor queryModelVisitor,
-                bool navigationExpansionSubquery)
+                bool navigationExpansionSubquery,
+                bool trackingQuery)
                 : base(transformingVisitor)
             {
-                _subqueryInjector = new CollectionNavigationSubqueryInjector(queryModelVisitor, shouldInject: true);
+                _subqueryInjector = new CollectionNavigationSubqueryInjector(queryModelVisitor, /*shouldInject*/ true, trackingQuery);
                 _navigationExpansionSubquery = navigationExpansionSubquery;
             }
 
