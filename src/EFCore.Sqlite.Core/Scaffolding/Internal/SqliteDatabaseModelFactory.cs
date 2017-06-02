@@ -10,12 +10,10 @@ using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
