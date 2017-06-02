@@ -1783,6 +1783,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
+            public virtual void Annotations_are_preserved_when_rebuilding()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Customer>();
+                modelBuilder.Entity<Order>();
+                modelBuilder.Ignore<OrderDetails>();
+                modelBuilder.Ignore<CustomerDetails>();
+
+                var builder = modelBuilder.Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer);
+                builder = builder.HasAnnotation("Fus", "Ro");
+                builder = builder.HasForeignKey("ShadowFK");
+
+                Assert.Equal("Ro", builder.Metadata["Fus"]);
+            }
+
+            [Fact]
             public virtual void Nullable_FK_are_optional_by_default()
             {
                 var modelBuilder = HobNobBuilder();
