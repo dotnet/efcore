@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         INavigationConvention
     {
         private readonly ITypeMapper _typeMapper;
-        
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 InternalEntityTypeBuilder candidateTargetEntityTypeBuilder = null;
-                if (!entityTypeBuilder.ModelBuilder.Metadata.IsDelegatedIdentityEntityType(targetClrType))
+                if (!entityTypeBuilder.ModelBuilder.Metadata.HasEntityTypeWithDefiningNavigation(targetClrType))
                 {
                     candidateTargetEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(targetClrType, ConfigurationSource.Convention);
                 }
@@ -94,9 +94,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     candidateTargetEntityTypeBuilder =
                         entityTypeBuilder.Metadata.FindNavigation(navigationPropertyInfo.Name)?.GetTargetType().Builder
-                        ?? entityTypeBuilder.ModelBuilder.Metadata.FindDelegatedIdentityEntityType(
+                        ?? entityTypeBuilder.ModelBuilder.Metadata.FindEntityType(
                             targetClrType, navigationPropertyInfo.Name, entityTypeBuilder.Metadata)?.Builder
-                        ?? entityTypeBuilder.ModelBuilder.AddDelegatedIdentityEntity(
+                        ?? entityTypeBuilder.ModelBuilder.Entity(
                             targetClrType, navigationPropertyInfo.Name, entityTypeBuilder.Metadata, ConfigurationSource.Convention);
                 }
 
@@ -235,11 +235,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     filteredRelationshipCandidates.Add(relationshipCandidate);
                 }
-                else if (filteredRelationshipCandidates.All(c =>
-                    c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
+                else if (relationshipCandidate.TargetTypeBuilder.Metadata.HasDefiningNavigation()
+                         && filteredRelationshipCandidates.All(c =>
+                             c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
                 {
                     entityTypeBuilder.ModelBuilder
-                        .RemoveDelegatedIdentityEntityType(relationshipCandidate.TargetTypeBuilder.Metadata, ConfigurationSource.Convention);
+                        .RemoveEntityType(relationshipCandidate.TargetTypeBuilder.Metadata, ConfigurationSource.Convention);
                 }
             }
 
@@ -374,11 +375,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     filteredRelationshipCandidates.Add(relationshipCandidate);
                 }
-                else if(filteredRelationshipCandidates.All(c =>
-                    c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
+                else if (relationshipCandidate.TargetTypeBuilder.Metadata.HasDefiningNavigation()
+                         && filteredRelationshipCandidates.All(c =>
+                             c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
                 {
                     entityTypeBuilder.ModelBuilder
-                        .RemoveDelegatedIdentityEntityType(relationshipCandidate.TargetTypeBuilder.Metadata, ConfigurationSource.Convention);
+                        .RemoveEntityType(relationshipCandidate.TargetTypeBuilder.Metadata, ConfigurationSource.Convention);
                 }
             }
 
@@ -472,11 +474,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var unusedEntityType in unusedEntityTypes)
             {
-                if (unusedEntityType.HasDelegatedIdentity()
+                if (unusedEntityType.HasDefiningNavigation()
                     && unusedEntityType.DefiningEntityType.FindNavigation(unusedEntityType.DefiningNavigationName) == null)
                 {
                     entityTypeBuilder.ModelBuilder.
-                        RemoveDelegatedIdentityEntityType(unusedEntityType, ConfigurationSource.Convention);
+                        RemoveEntityType(unusedEntityType, ConfigurationSource.Convention);
                 }
             }
         }

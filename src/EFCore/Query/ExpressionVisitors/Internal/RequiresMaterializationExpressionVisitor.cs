@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 || comparison == ExpressionType.NotEqual)
             {
                 var isEntityTypeExpression = _model.FindEntityType(operand.Type) != null
-                                             || _model.IsDelegatedIdentityEntityType(operand.Type);
+                                             || _model.HasEntityTypeWithDefiningNavigation(operand.Type);
 
                 if (isEntityTypeExpression)
                 {

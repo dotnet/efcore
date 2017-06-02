@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly IDictionary<Type, EntityType> _clrTypeMap
             = new Dictionary<Type, EntityType>();
 
-        private readonly SortedDictionary<string, SortedSet<EntityType>> _delegatedIdentityEntityTypes
+        private readonly SortedDictionary<string, SortedSet<EntityType>> _entityTypesWithDefiningNavigation
             = new SortedDictionary<string, SortedSet<EntityType>>();
 
         private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<EntityType> GetEntityTypes()
-            => _entityTypes.Values.Concat(_delegatedIdentityEntityTypes.Values.SelectMany(e => e));
+            => _entityTypes.Values.Concat(_entityTypesWithDefiningNavigation.Values.SelectMany(e => e));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -115,16 +115,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private EntityType AddEntityType(EntityType entityType)
         {
             var entityTypeName = entityType.Name;
-            if (_delegatedIdentityEntityTypes.ContainsKey(entityTypeName))
+            if (entityType.HasDefiningNavigation())
             {
-                throw new InvalidOperationException(CoreStrings.ClashingDelegatedIdentityEntityType(entityType.DisplayName()));
-            }
+                if (_entityTypes.ContainsKey(entityTypeName))
+                {
+                    throw new InvalidOperationException(CoreStrings.ClashingNonDelegatedIdentityEntityType(entityType.DisplayName()));
+                }
 
-            var previousLength = _entityTypes.Count;
-            _entityTypes[entityTypeName] = entityType;
-            if (previousLength == _entityTypes.Count)
+                if (!_entityTypesWithDefiningNavigation.TryGetValue(entityTypeName, out SortedSet<EntityType> entityTypesWithSameType))
+                {
+                    entityTypesWithSameType = new SortedSet<EntityType>(EntityTypePathComparer.Instance);
+                    _entityTypesWithDefiningNavigation[entityTypeName] = entityTypesWithSameType;
+                }
+
+                var added = entityTypesWithSameType.Add(entityType);
+                Debug.Assert(added);
+            }
+            else
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
+                if (_entityTypesWithDefiningNavigation.ContainsKey(entityTypeName))
+                {
+                    throw new InvalidOperationException(CoreStrings.ClashingDelegatedIdentityEntityType(entityType.DisplayName()));
+                }
+
+                var previousLength = _entityTypes.Count;
+                _entityTypes[entityTypeName] = entityType;
+                if (previousLength == _entityTypes.Count)
+                {
+                    throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
+                }
             }
 
             return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
@@ -167,24 +186,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityType RemoveEntityType([NotNull] Type type)
-        {
-            var entityType = FindEntityType(type);
-            return entityType == null
-                ? null
-                : RemoveEntityType(entityType);
-        }
+            => RemoveEntityType(FindEntityType(type));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityType RemoveEntityType([NotNull] string name)
-        {
-            var entityType = FindEntityType(name);
-            return entityType == null
-                ? null
-                : RemoveEntityType(entityType);
-        }
+            => RemoveEntityType(FindEntityType(name));
 
         private void AssertCanRemove(EntityType entityType)
         {
@@ -218,19 +227,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private EntityType RemoveEntityType([NotNull] EntityType entityType)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual EntityType RemoveEntityType([CanBeNull] EntityType entityType)
         {
-            AssertCanRemove(entityType);
-
-            if (entityType.ClrType != null)
+            if (entityType?.Builder == null)
             {
-                _clrTypeMap.Remove(entityType.ClrType);
+                return null;
             }
 
-            var removed = _entityTypes.Remove(entityType.Name);
-            Debug.Assert(removed);
-            entityType.Builder = null;
+            AssertCanRemove(entityType);
 
+            var entityTypeName = entityType.Name;
+            if (entityType.HasDefiningNavigation())
+            {
+                if (!_entityTypesWithDefiningNavigation.TryGetValue(entityTypeName, out var entityTypesWithSameType))
+                {
+                    return null;
+                }
+
+                var removed = entityTypesWithSameType.Remove(entityType);
+                Debug.Assert(removed);
+
+                if (entityTypesWithSameType.Count == 0)
+                {
+                    _entityTypesWithDefiningNavigation.Remove(entityTypeName);
+                }
+            }
+            else
+            {
+                var removed = _entityTypes.Remove(entityTypeName);
+                Debug.Assert(removed);
+
+                if (entityType.ClrType != null)
+                {
+                    removed = _clrTypeMap.Remove(entityType.ClrType);
+                    Debug.Assert(removed);
+                }
+            }
+
+            entityType.Builder = null;
             return entityType;
         }
 
@@ -238,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType AddDelegatedIdentityEntityType(
+        public virtual EntityType AddEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType,
@@ -248,14 +286,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var entityType = new EntityType(name, this, definingNavigationName, definingEntityType, configurationSource);
 
-            return AddDelegatedIdentityEntityType(entityType);
+            return AddEntityType(entityType);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType AddDelegatedIdentityEntityType(
+        public virtual EntityType AddEntityType(
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType,
@@ -265,63 +303,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var entityType = new EntityType(type, this, definingNavigationName, definingEntityType, configurationSource);
 
-            return AddDelegatedIdentityEntityType(entityType);
-        }
-
-        private EntityType AddDelegatedIdentityEntityType(EntityType entityType)
-        {
-            var entityTypeName = entityType.Name;
-            if (_entityTypes.ContainsKey(entityTypeName))
-            {
-                throw new InvalidOperationException(CoreStrings.ClashingNonDelegatedIdentityEntityType(entityType.DisplayName()));
-            }
-
-            if (!_delegatedIdentityEntityTypes.TryGetValue(entityTypeName, out SortedSet<EntityType> entityTypesWithSameType))
-            {
-                entityTypesWithSameType = new SortedSet<EntityType>(EntityTypePathComparer.Instance);
-                _delegatedIdentityEntityTypes[entityTypeName] = entityTypesWithSameType;
-            }
-
-            var added = entityTypesWithSameType.Add(entityType);
-            Debug.Assert(added);
-
-            return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
+            return AddEntityType(entityType);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool IsDelegatedIdentityEntityType([NotNull] Type clrType)
-            => _delegatedIdentityEntityTypes.ContainsKey(clrType.DisplayName());
+        public virtual bool HasEntityTypeWithDefiningNavigation([NotNull] Type clrType)
+            => _entityTypesWithDefiningNavigation.ContainsKey(clrType.DisplayName());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool IsDelegatedIdentityEntityType([NotNull] string name)
-            => _delegatedIdentityEntityTypes.ContainsKey(name);
+        public virtual bool HasEntityTypeWithDefiningNavigation([NotNull] string name)
+            => _entityTypesWithDefiningNavigation.ContainsKey(name);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType FindDelegatedIdentityEntityType(
+        public virtual EntityType FindEntityType(
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType)
-            => FindDelegatedIdentityEntityType(type.DisplayName(), definingNavigationName, definingEntityType);
+            => FindEntityType(type.DisplayName(), definingNavigationName, definingEntityType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType FindDelegatedIdentityEntityType(
+        public virtual EntityType FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType)
         {
-            if (!_delegatedIdentityEntityTypes.TryGetValue(name, out var entityTypesWithSameType))
+            if (!_entityTypesWithDefiningNavigation.TryGetValue(name, out var entityTypesWithSameType))
             {
                 return null;
             }
@@ -334,70 +352,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyCollection<EntityType> GetDelegatedIdentityEntityTypes([NotNull] Type type)
-            => GetDelegatedIdentityEntityTypes(type.DisplayName());
+        public virtual IReadOnlyCollection<EntityType> GetEntityTypes([NotNull] Type type)
+            => GetEntityTypes(type.DisplayName());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyCollection<EntityType> GetDelegatedIdentityEntityTypes([NotNull] string name)
-            => _delegatedIdentityEntityTypes.TryGetValue(name, out var entityTypesWithSameType)
-                ? entityTypesWithSameType
-                : (IReadOnlyCollection<EntityType>)new EntityType[0];
+        public virtual IReadOnlyCollection<EntityType> GetEntityTypes([NotNull] string name)
+        {
+            if (_entityTypesWithDefiningNavigation.TryGetValue(name, out var entityTypesWithSameType))
+            {
+                return entityTypesWithSameType;
+            }
+
+            var entityType = FindEntityType(name);
+            return entityType == null ? new EntityType[0] : new[] { entityType };
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType RemoveDelegatedIdentityEntityType(
+        public virtual EntityType RemoveEntityType(
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType)
-            => RemoveDelegatedIdentityEntityType(FindDelegatedIdentityEntityType(type, definingNavigationName, definingEntityType));
+            => RemoveEntityType(FindEntityType(type, definingNavigationName, definingEntityType));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType RemoveDelegatedIdentityEntityType(
+        public virtual EntityType RemoveEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType)
-            => RemoveDelegatedIdentityEntityType(FindDelegatedIdentityEntityType(name, definingNavigationName, definingEntityType));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual EntityType RemoveDelegatedIdentityEntityType([CanBeNull] EntityType entityType)
-        {
-            if (entityType == null)
-            {
-                return null;
-            }
-
-            AssertCanRemove(entityType);
-
-            var entityTypeName = entityType.Name;
-            if (!_delegatedIdentityEntityTypes.TryGetValue(entityTypeName, out SortedSet<EntityType> entityTypesWithSameType))
-            {
-                return null;
-            }
-
-            entityType.Builder = null;
-
-            if (entityTypesWithSameType.Remove(entityType))
-            {
-                if (entityTypesWithSameType.Count == 0)
-                {
-                    _delegatedIdentityEntityTypes.Remove(entityTypeName);
-                }
-                return entityType;
-            }
-
-            return null;
-        }
+            => RemoveEntityType(FindEntityType(name, definingNavigationName, definingEntityType));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -485,28 +476,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableEntityType IMutableModel.AddEntityType(Type type) => AddEntityType(type);
         IMutableEntityType IMutableModel.RemoveEntityType(string name) => RemoveEntityType(name);
 
-        IEntityType IModel.FindDelegatedIdentityEntityType(string name, string definingNavigationName, IEntityType definingEntityType)
-            => FindDelegatedIdentityEntityType(name, definingNavigationName, (EntityType)definingEntityType);
+        IEntityType IModel.FindEntityType(string name, string definingNavigationName, IEntityType definingEntityType)
+            => FindEntityType(name, definingNavigationName, (EntityType)definingEntityType);
 
-        IMutableEntityType IMutableModel.FindDelegatedIdentityEntityType(
+        IMutableEntityType IMutableModel.FindEntityType(
             string name, string definingNavigationName, IMutableEntityType definingEntityType)
-            => FindDelegatedIdentityEntityType(name, definingNavigationName, (EntityType)definingEntityType);
+            => FindEntityType(name, definingNavigationName, (EntityType)definingEntityType);
 
-        IMutableEntityType IMutableModel.AddDelegatedIdentityEntityType(
+        IMutableEntityType IMutableModel.AddEntityType(
             string name,
             string definingNavigationName,
             IMutableEntityType definingEntityType)
-            => AddDelegatedIdentityEntityType(name, definingNavigationName, (EntityType)definingEntityType);
+            => AddEntityType(name, definingNavigationName, (EntityType)definingEntityType);
 
-        IMutableEntityType IMutableModel.AddDelegatedIdentityEntityType(
+        IMutableEntityType IMutableModel.AddEntityType(
             Type type,
             string definingNavigationName,
             IMutableEntityType definingEntityType)
-            => AddDelegatedIdentityEntityType(type, definingNavigationName, (EntityType)definingEntityType);
+            => AddEntityType(type, definingNavigationName, (EntityType)definingEntityType);
 
-        IMutableEntityType IMutableModel.RemoveDelegatedIdentityEntityType(
+        IMutableEntityType IMutableModel.RemoveEntityType(
             string name, string definingNavigationName, IMutableEntityType definingEntityType)
-            => RemoveDelegatedIdentityEntityType(name, definingNavigationName, (EntityType)definingEntityType);
+            => RemoveEntityType(name, definingNavigationName, (EntityType)definingEntityType);
 
         IEnumerable<IMutableEntityType> IMutableModel.GetEntityTypes() => GetEntityTypes();
 

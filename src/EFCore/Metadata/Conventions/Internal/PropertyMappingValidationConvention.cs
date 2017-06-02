@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                             var isDelegatedIdentityEntityType
                                 = targetType != null
-                                  && modelBuilder.Metadata.IsDelegatedIdentityEntityType(targetType);
+                                  && modelBuilder.Metadata.HasEntityTypeWithDefiningNavigation(targetType);
 
                             if (targetType != null
                                 && (targetEntityType != null

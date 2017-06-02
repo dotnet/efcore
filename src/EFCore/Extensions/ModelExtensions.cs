@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore
     public static class ModelExtensions
     {
         /// <summary>
-        ///     Gets the entity that maps the given entity class. Returns null if no entity type with the given name is found.
+        ///     Gets the entity that maps the given entity class. Returns null if no entity type with the given name is found
+        ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(model, nameof(model)).AsModel().FindEntityType(Check.NotNull(type, nameof(type)));
 
         /// <summary>
-        ///     Gets the entity type with delegated identity for the given type, defining navigation name
+        ///     Gets the entity type for the given type, defining navigation name
         ///     and the defining entity type. Returns null if no matching entity type is found.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or null if none are found. </returns>
-        public static IEntityType FindDelegatedIdentityEntityType(
+        public static IEntityType FindEntityType(
             [NotNull] this IModel model,
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
@@ -45,48 +46,48 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(definingNavigationName, nameof(definingNavigationName));
             Check.NotNull(definingEntityType, nameof(definingEntityType));
 
-            return model.AsModel().FindDelegatedIdentityEntityType(
+            return model.AsModel().FindEntityType(
                 type,
                 definingNavigationName,
                 definingEntityType.AsEntityType());
         }
 
         /// <summary>
-        ///     Gets the entity types with delegated identity for the given type.
+        ///     Gets the entity types for the given type.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
-        public static IReadOnlyCollection<EntityType> GetDelegatedIdentityEntityTypes([NotNull] this IModel model, [NotNull] Type type)
-            => model.AsModel().GetDelegatedIdentityEntityTypes(type);
+        public static IReadOnlyCollection<EntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] Type type)
+            => model.AsModel().GetEntityTypes(type);
 
         /// <summary>
-        ///     Gets the entity type with delegated identity for the given name.
+        ///     Gets the entity types for the given name.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
-        public static IReadOnlyCollection<EntityType> GetDelegatedIdentityEntityTypes([NotNull] this IModel model, [NotNull] string name)
-            => model.AsModel().GetDelegatedIdentityEntityTypes(name);
+        public static IReadOnlyCollection<EntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] string name)
+            => model.AsModel().GetEntityTypes(name);
 
         /// <summary>
-        ///     Gets a value indicating whether the corresponding entity type has delegated identity.
+        ///     Gets a value indicating whether the corresponding entity type has a defining navigation.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
-        /// <param name="type"> The type used to find an entity type with delegated identity. </param>
-        /// <returns> true if the model contains a corresponding entity type with delegated identity. </returns>
-        public static bool IsDelegatedIdentityEntityType([NotNull] this IModel model, [NotNull] Type type)
-            => Check.NotNull(model, nameof(model)).AsModel().IsDelegatedIdentityEntityType(Check.NotNull(type, nameof(type)));
+        /// <param name="type"> The type used to find an entity type a defining navigation. </param>
+        /// <returns> true if the model contains a corresponding entity type with a defining navigation. </returns>
+        public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] Type type)
+            => Check.NotNull(model, nameof(model)).AsModel().HasEntityTypeWithDefiningNavigation(Check.NotNull(type, nameof(type)));
 
         /// <summary>
-        ///     Gets a value indicating whether the corresponding entity type has delegated identity.
+        ///     Gets a value indicating whether the corresponding entity type has a defining navigation.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
-        /// <param name="name"> The name used to find an entity type with delegated identity. </param>
-        /// <returns> true if the model contains a corresponding entity type with delegated identity. </returns>
-        public static bool IsDelegatedIdentityEntityType([NotNull] this IModel model, [NotNull] string name)
+        /// <param name="name"> The name used to find an entity type with a defining navigation. </param>
+        /// <returns> true if the model contains a corresponding entity type with a defining navigation. </returns>
+        public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] string name)
             => Check.NotNull(model, nameof(model)).AsModel()
-                .IsDelegatedIdentityEntityType(Check.NotNull(name, nameof(name)));
+                .HasEntityTypeWithDefiningNavigation(Check.NotNull(name, nameof(name)));
 
         /// <summary>
         ///     Gets the default change tracking strategy being used for entities in the model. This strategy indicates how the

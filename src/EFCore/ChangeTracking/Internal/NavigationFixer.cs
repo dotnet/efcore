@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         // Clear the inverse reference, unless it has already been changed
                         if (inverse != null
                             && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
-                            && (!oldTargetEntry.EntityType.HasDelegatedIdentity()
+                            && (!oldTargetEntry.EntityType.HasDefiningNavigation()
                                 || entry.EntityType.GetNavigations().All(n =>
                                     n == navigation || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
                         {
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 stateManager.RecordReferencedUntrackedEntity(newValue, navigation, entry);
                 entry.SetRelationshipSnapshotValue(navigation, newValue);
-                var targetEntry = targetEntityType.HasDelegatedIdentity()
+                var targetEntry = targetEntityType.HasDefiningNavigation()
                     ? stateManager.GetOrCreateEntry(newValue, targetEntityType)
                     : stateManager.GetOrCreateEntry(newValue);
                 _attacher.AttachGraph(targetEntry, EntityState.Added);

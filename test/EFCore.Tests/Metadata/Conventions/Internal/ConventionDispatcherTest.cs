@@ -25,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new EntityTypeConvention(terminate: false, delegatedIdentity: false);
-            var convention2 = new EntityTypeConvention(terminate: true, delegatedIdentity: false);
-            var convention3 = new EntityTypeConvention(terminate: false, delegatedIdentity: false);
+            var convention1 = new EntityTypeConvention(terminate: false, dependent: false);
+            var convention2 = new EntityTypeConvention(terminate: true, dependent: false);
+            var convention3 = new EntityTypeConvention(terminate: false, dependent: false);
             conventions.EntityTypeAddedConventions.Add(convention1);
             conventions.EntityTypeAddedConventions.Add(convention2);
             conventions.EntityTypeAddedConventions.Add(convention3);
@@ -73,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new EntityTypeConvention(terminate: false, delegatedIdentity: true);
-            var convention2 = new EntityTypeConvention(terminate: true, delegatedIdentity: true);
-            var convention3 = new EntityTypeConvention(terminate: false, delegatedIdentity: true);
+            var convention1 = new EntityTypeConvention(terminate: false, dependent: true);
+            var convention2 = new EntityTypeConvention(terminate: true, dependent: true);
+            var convention3 = new EntityTypeConvention(terminate: false, dependent: true);
             conventions.EntityTypeAddedConventions.Add(convention1);
             conventions.EntityTypeAddedConventions.Add(convention2);
             conventions.EntityTypeAddedConventions.Add(convention3);
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
             else
             {
-                var result = builder.Metadata.AddDelegatedIdentityEntityType(
+                var result = builder.Metadata.AddEntityType(
                     typeof(Order), nameof(OrderDetails.Order), orderDetails.Metadata, ConfigurationSource.Convention);
 
                 Assert.Equal(!useScope, result == null);
@@ -110,43 +110,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(1, convention2.Calls);
             Assert.Equal(0, convention3.Calls);
 
-            Assert.Empty(builder.Metadata.GetEntityTypes().Where(e => e.HasDelegatedIdentity()));
+            Assert.Empty(builder.Metadata.GetEntityTypes().Where(e => e.HasDefiningNavigation()));
             Assert.Null(builder.Metadata.FindEntityType(typeof(Order)));
         }
 
         private class EntityTypeConvention : IEntityTypeConvention
         {
             private readonly bool _terminate;
-            private readonly bool _delegatedIdentity;
+            private readonly bool _dependent;
             public int Calls;
 
-            public EntityTypeConvention(bool terminate, bool delegatedIdentity)
+            public EntityTypeConvention(bool terminate, bool dependent)
             {
                 _terminate = terminate;
-                _delegatedIdentity = delegatedIdentity;
+                _dependent = dependent;
             }
 
             public InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
             {
                 Assert.Same(entityTypeBuilder, entityTypeBuilder.Metadata.Builder);
-                if (entityTypeBuilder.Metadata.HasDelegatedIdentity() == _delegatedIdentity)
+                if (entityTypeBuilder.Metadata.HasDefiningNavigation() == _dependent)
                 {
                     Calls++;
                 }
 
                 if (_terminate)
                 {
-                    if (entityTypeBuilder.Metadata.HasDelegatedIdentity())
+                    if (entityTypeBuilder.Metadata.HasDefiningNavigation())
                     {
-                        if (_delegatedIdentity)
+                        if (_dependent)
                         {
-                            entityTypeBuilder.ModelBuilder.RemoveDelegatedIdentityEntityType(
+                            entityTypeBuilder.ModelBuilder.RemoveEntityType(
                                 entityTypeBuilder.Metadata, ConfigurationSource.Convention);
                         }
                     }
                     else
                     {
-                        if (!_delegatedIdentity)
+                        if (!_dependent)
                         {
                             entityTypeBuilder.Metadata.Model.RemoveEntityType(entityTypeBuilder.Metadata.Name);
                         }

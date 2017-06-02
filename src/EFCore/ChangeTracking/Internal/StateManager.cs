@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (entityType == null)
                 {
-                    if (_model.IsDelegatedIdentityEntityType(entity.GetType()))
+                    if (_model.HasEntityTypeWithDefiningNavigation(entity.GetType()))
                     {
                         throw new InvalidOperationException(CoreStrings.UntrackedDelegatedIdentityEntity(
                             entity.GetType().ShortDisplayName(),
@@ -166,9 +166,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 entry = _factory.Create(this, entityType, entity);
 
-                if (entityType.HasDelegatedIdentity())
+                if (entityType.HasDefiningNavigation())
                 {
-                    foreach (var otherDiet in _model.GetDelegatedIdentityEntityTypes(entityType.Name)
+                    foreach (var otherDiet in _model.GetEntityTypes(entityType.Name)
                         .Where(et => et != entityType && TryGetEntry(entity, et) != null))
                     {
                         _updateLogger.DuplicateDietInstanceWarning(entityType, otherDiet);
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (existingEntry == null
                 || existingEntry == entry)
             {
-                if (entityType.HasDelegatedIdentity())
+                if (entityType.HasDefiningNavigation())
                 {
                     _dietReferenceMap[entityType][mapKey] = entry;
                 }
@@ -439,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entityType = entry.EntityType;
             var mapKey = entry.Entity ?? entry;
 
-            if (entityType.HasDelegatedIdentity())
+            if (entityType.HasDefiningNavigation())
             {
                 var entries = _dietReferenceMap[entityType];
                 entries.Remove(mapKey);

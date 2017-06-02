@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = entityTypeBuilder.Metadata;
             var clrType = entityType.ClrType;
             if (clrType == null
-                || entityType.HasDelegatedIdentity())
+                || entityType.HasDefiningNavigation())
             {
                 return entityTypeBuilder;
             }

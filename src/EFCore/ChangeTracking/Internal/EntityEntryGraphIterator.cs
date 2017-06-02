@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     else
                     {
                         var targetEntityType = navigation.GetTargetType();
-                        var targetEntry = targetEntityType.HasDelegatedIdentity()
+                        var targetEntry = targetEntityType.HasDefiningNavigation()
                             ? stateManager.GetOrCreateEntry(navigationValue, targetEntityType)
                             : stateManager.GetOrCreateEntry(navigationValue);
                         TraverseGraph(node.CreateNode(node, targetEntry, navigation), handleNode);
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     else
                     {
                         var targetType = navigation.GetTargetType();
-                        var entry = targetType.HasDelegatedIdentity()
+                        var entry = targetType.HasDefiningNavigation()
                             ? stateManager.GetOrCreateEntry(navigationValue, targetType)
                             : stateManager.GetOrCreateEntry(navigationValue);
                         await TraverseGraphAsync(

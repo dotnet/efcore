@@ -679,6 +679,26 @@ function ShowConsole
     $powerConsoleWindow.Show()
 }
 
+function WriteErrorLine($message)
+{
+    try
+    {
+        # Call the internal API NuGet uses to display errors
+        $componentModel = Get-VSComponentModel
+        $powerConsoleWindow = $componentModel.GetService([NuGetConsole.IPowerConsoleWindow])
+        $bindingFlags = [Reflection.BindingFlags]::Instance -bor [Reflection.BindingFlags]::NonPublic
+        $activeHostInfo = $powerConsoleWindow.GetType().GetProperty('ActiveHostInfo', $bindingFlags).GetValue($powerConsoleWindow)
+        $internalHost = $activeHostInfo.WpfConsole.Host
+        $reportErrorMethod = $internalHost.GetType().GetMethod('ReportError', $bindingFlags, $null, [Exception], $null)
+        $exception = New-Object Exception $message
+        $reportErrorMethod.Invoke($internalHost, $exception)
+    }
+    catch
+    {
+        Write-Host $message -ForegroundColor DarkRed
+    }
+}
+
 function EF($project, $startupProject, $params, [switch] $skipBuild)
 {
     if (IsUWP $project)
@@ -885,7 +905,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
 
         switch ($level)
         {
-            'error' { throw $text }
+            'error' { WriteErrorLine $text }
             'warn' { Write-Warning $text }
             'info' { Write-Host $text }
             'data' { Write-Output $text }
@@ -895,6 +915,11 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     }
 
     $process.WaitForExit()
+    
+    if ($process.ExitCode)
+    {
+        exit
+    }
 }
 
 function IsXproj($project)

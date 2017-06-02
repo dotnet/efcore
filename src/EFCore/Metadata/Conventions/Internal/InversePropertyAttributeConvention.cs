@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(navigationPropertyInfo, nameof(navigationPropertyInfo));
             Check.NotNull(attribute, nameof(attribute));
 
-            if (entityTypeBuilder.Metadata.HasDelegatedIdentity()
-                || entityTypeBuilder.ModelBuilder.Metadata.IsDelegatedIdentityEntityType(targetClrType))
+            if (entityTypeBuilder.Metadata.HasDefiningNavigation()
+                || entityTypeBuilder.ModelBuilder.Metadata.HasEntityTypeWithDefiningNavigation(targetClrType))
             {
                 return entityTypeBuilder;
             }
@@ -174,8 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public override InternalRelationshipBuilder Apply(
             InternalRelationshipBuilder relationshipBuilder, Navigation navigation, InversePropertyAttribute attribute)
         {
-            if (relationshipBuilder.Metadata.DeclaringEntityType.HasDelegatedIdentity()
-                || relationshipBuilder.Metadata.PrincipalEntityType.HasDelegatedIdentity())
+            if (relationshipBuilder.Metadata.DeclaringEntityType.HasDefiningNavigation()
+                || relationshipBuilder.Metadata.PrincipalEntityType.HasDefiningNavigation())
             {
                 return relationshipBuilder;
             }
@@ -274,10 +274,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 var inverseTargetEntityType = entityType.Model.FindEntityType(referencingTuple.Item2);
 
-                var isInverseDelegated = entityType.Model.IsDelegatedIdentityEntityType(referencingTuple.Item2);
+                var isInverseDependent = entityType.Model.HasEntityTypeWithDefiningNavigation(referencingTuple.Item2);
                 if ((inverseTargetEntityType == null
                      || inverseTargetEntityType.Builder.IsIgnored(referencingTuple.Item1.Name, ConfigurationSource.DataAnnotation))
-                    && !isInverseDelegated)
+                    && !isInverseDependent)
                 {
                     continue;
                 }
@@ -287,8 +287,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return true;
                 }
 
-                if (isInverseDelegated && entityType.ClrType != referencingTuple.Item2
-                    || !isInverseDelegated && !entityType.IsSameHierarchy(inverseTargetEntityType))
+                if (isInverseDependent && entityType.ClrType != referencingTuple.Item2
+                    || !isInverseDependent && !entityType.IsSameHierarchy(inverseTargetEntityType))
                 {
                     return true;
                 }
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         if (referencingNavigationsWithAttribute.Count == 1)
                         {
                             var clrType = referencingNavigationsWithAttribute[0].Item2;
-                            if (!entityType.Model.IsDelegatedIdentityEntityType(clrType))
+                            if (!entityType.Model.HasEntityTypeWithDefiningNavigation(clrType))
                             {
                                 targetEntityType.Builder.Relationship(
                                     entityType.Model.Builder.Entity(clrType, ConfigurationSource.DataAnnotation),

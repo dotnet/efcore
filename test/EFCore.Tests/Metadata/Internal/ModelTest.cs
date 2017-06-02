@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var customerType = model.AddEntityType(typeof(Customer));
             var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
             var customerKey = customerType.AddKey(idProperty);
-            var delegatedOrderType = model.AddDelegatedIdentityEntityType(typeof(Order), nameof(Customer.Orders), customerType);
+            var delegatedOrderType = model.AddEntityType(typeof(Order), nameof(Customer.Orders), customerType);
 
             var fkProperty = delegatedOrderType.AddProperty("ShadowId", typeof(int));
             var orderKey = delegatedOrderType.AddKey(fkProperty);
@@ -110,19 +110,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(fk, delegatedOrderType.GetForeignKeys().Single());
             Assert.Same(index, delegatedOrderType.GetIndexes().Single());
             Assert.Equal(new[] { customerType, delegatedOrderType }, model.GetEntityTypes());
-            Assert.True(model.IsDelegatedIdentityEntityType(typeof(Order)));
-            Assert.True(model.IsDelegatedIdentityEntityType(typeof(Order).DisplayName()));
+            Assert.True(model.HasEntityTypeWithDefiningNavigation(typeof(Order)));
+            Assert.True(model.HasEntityTypeWithDefiningNavigation(typeof(Order).DisplayName()));
             Assert.Same(delegatedOrderType,
-                model.FindDelegatedIdentityEntityType(typeof(Order).DisplayName(), nameof(Customer.Orders), customerType));
+                model.FindEntityType(typeof(Order).DisplayName(), nameof(Customer.Orders), customerType));
             Assert.Same(delegatedOrderType,
-                model.FindDelegatedIdentityEntityType(typeof(Order).DisplayName(), nameof(Customer.Orders), (IEntityType)customerType));
+                model.FindEntityType(typeof(Order).DisplayName(), nameof(Customer.Orders), (IEntityType)customerType));
 
             Assert.Equal(CoreStrings.ClashingDelegatedIdentityEntityType(typeof(Order).DisplayName(fullName: false)),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Order))).Message);
             Assert.Equal(CoreStrings.ClashingNonDelegatedIdentityEntityType(
                 nameof(Customer) + "." + nameof(Customer.Orders) + "#"
                 + nameof(Order) + "." + nameof(Order.Customer) + "#" + nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(() => model.AddDelegatedIdentityEntityType(typeof(Customer), nameof(Order.Customer), delegatedOrderType)).Message);
+                Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer), nameof(Order.Customer), delegatedOrderType)).Message);
 
             Assert.Equal(CoreStrings.ForeignKeySelfReferencingDelegatedIdentity(
                 nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
@@ -132,14 +132,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(CoreStrings.EntityTypeInUseByForeignKey(
                 nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order),
                 nameof(Customer), Property.Format(fk.Properties)),
-                Assert.Throws<InvalidOperationException>(() => model.RemoveDelegatedIdentityEntityType(delegatedOrderType)).Message);
+                Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(delegatedOrderType)).Message);
 
             delegatedOrderType.RemoveForeignKey(fk.Properties, fk.PrincipalKey, fk.PrincipalEntityType);
 
-            Assert.Same(delegatedOrderType, model.RemoveDelegatedIdentityEntityType(
+            Assert.Same(delegatedOrderType, model.RemoveEntityType(
                 typeof(Order), nameof(Customer.Orders), customerType));
             Assert.Null(((EntityType)delegatedOrderType).Builder);
-            Assert.Null(model.RemoveDelegatedIdentityEntityType(delegatedOrderType));
+            Assert.Null(model.RemoveEntityType(delegatedOrderType));
         }
 
         [Fact]

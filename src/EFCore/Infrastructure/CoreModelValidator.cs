@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateClrInheritance(model);
             ValidateChangeTrackingStrategy(model);
             ValidateOwnership(model);
-            ValidateDelegatedIdentityNavigations(model);
+            ValidateDefiningNavigations(model);
             ValidateFieldMapping(model);
             ValidateQueryFilters(model);
         }
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void ValidateDelegatedIdentityNavigations([NotNull] IModel model)
+        protected virtual void ValidateDefiningNavigations([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
 
