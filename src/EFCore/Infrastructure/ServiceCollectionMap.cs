@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return this;
         }
 
-        private Type TryGetImplementationType(ServiceDescriptor descriptor)
+        private static Type TryGetImplementationType(ServiceDescriptor descriptor)
             => descriptor.ImplementationType
                ?? descriptor.ImplementationInstance?.GetType()
                // Generic arg on Func may be obejct, but this is the best we can do and matches logic in D.I. container

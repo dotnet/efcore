@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
@@ -2533,8 +2534,8 @@ WHERE 0 = 1");
 
             Assert.True(
                 Fixture.TestSqlLoggerFactory.Log.Contains(
-                    "Possible unintended use of method Equals(object) for arguments of different types: 'e.EmployeeID', '__longPrm_0'. This comparison will always return 'false'."));
-        }
+                    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage("e.EmployeeID.Equals(Convert(__longPrm_0))")));
+          }
 
         public override void Where_equals_using_int_overload_on_mismatched_types()
         {
@@ -2581,11 +2582,11 @@ WHERE 0 = 1");
 
             Assert.True(
                 Fixture.TestSqlLoggerFactory.Log.Contains(
-                    "Possible unintended use of method Equals(object) for arguments of different types: 'e.ReportsTo', '__longPrm_0'. This comparison will always return 'false'."));
+                    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage("__longPrm_0.Equals(Convert(e.ReportsTo))")));
 
             Assert.True(
                 Fixture.TestSqlLoggerFactory.Log.Contains(
-                    "Possible unintended use of method Equals(object) for arguments of different types: '__longPrm_0', 'e.ReportsTo'. This comparison will always return 'false'."));
+                    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage("e.ReportsTo.Equals(Convert(__longPrm_0))")));
         }
 
         public override void Where_equals_on_mismatched_types_nullable_long_nullable_int()
@@ -2603,11 +2604,11 @@ WHERE 0 = 1");
 
             Assert.True(
                 Fixture.TestSqlLoggerFactory.Log.Contains(
-                    "Possible unintended use of method Equals(object) for arguments of different types: '__nullableLongPrm_0', 'e.ReportsTo'. This comparison will always return 'false'."));
+                    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage("__nullableLongPrm_0.Equals(Convert(e.ReportsTo))")));
 
             Assert.True(
                 Fixture.TestSqlLoggerFactory.Log.Contains(
-                    "Possible unintended use of method Equals(object) for arguments of different types: 'e.ReportsTo', '__nullableLongPrm_0'. This comparison will always return 'false'."));
+                    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage("e.ReportsTo.Equals(Convert(__nullableLongPrm_0))")));
         }
 
         public override void Where_equals_on_matched_nullable_int_types()

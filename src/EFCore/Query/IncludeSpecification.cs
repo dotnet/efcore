@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class IncludeSpecification
     {
         /// <summary>
-        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.IncludeSpecification class.
+        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.IncludeResultOperator class.
         /// </summary>
         /// <param name="querySource"> The query source. </param>
         /// <param name="navigationPath"> The set of navigation properties to be included. </param>

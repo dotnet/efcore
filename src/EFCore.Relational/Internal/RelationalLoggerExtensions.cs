@@ -985,29 +985,29 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void QueryClientEvaluationWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] QueryModel queryModel,
-            [NotNull] object expression)
+            [NotNull] object queryModelElement)
         {
             var definition = RelationalStrings.LogClientEvalWarning;
 
-            definition.Log(diagnostics, expression);
+            definition.Log(diagnostics, queryModelElement);
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new QueryModelExpressionEventData(
+                    new QueryModelClientEvalEventData(
                         definition,
                         QueryClientEvaluationWarning,
                         queryModel,
-                        expression));
+                        queryModelElement));
             }
         }
 
         private static string QueryClientEvaluationWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<object>)definition;
-            var p = (QueryModelExpressionEventData)payload;
-            return d.GenerateMessage(p.Expression);
+            var p = (QueryModelClientEvalEventData)payload;
+            return d.GenerateMessage(p.QueryModelElement);
         }
 
         /// <summary>
@@ -1016,33 +1016,28 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void QueryPossibleUnintendedUseOfEqualsWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] MethodCallExpression methodCallExpression,
-            [NotNull] Expression argument)
+            [NotNull] MethodCallExpression methodCallExpression)
         {
             var definition = RelationalStrings.LogPossibleUnintendedUseOfEquals;
 
-            definition.Log(
-                diagnostics,
-                methodCallExpression.Object,
-                argument);
+            definition.Log(diagnostics, methodCallExpression);
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new BinaryExpressionEventData(
+                    new ExpressionEventData(
                         definition,
                         QueryPossibleUnintendedUseOfEqualsWarning,
-                        methodCallExpression.Object,
-                        argument));
+                        methodCallExpression));
             }
         }
 
         private static string QueryPossibleUnintendedUseOfEqualsWarning(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<object, object>)definition;
-            var p = (BinaryExpressionEventData)payload;
-            return d.GenerateMessage(p.Left, p.Right);
+            var d = (EventDefinition<object>)definition;
+            var p = (ExpressionEventData)payload;
+            return d.GenerateMessage(p.Expression);
         }
 
         /// <summary>

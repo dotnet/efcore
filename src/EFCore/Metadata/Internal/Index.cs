@@ -83,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsUnique
         {
-            get { return _isUnique ?? DefaultIsUnique; }
-            set { SetIsUnique(value, ConfigurationSource.Explicit); }
+            get => _isUnique ?? DefaultIsUnique;
+            set => SetIsUnique(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private bool DefaultIsUnique => false;
+        private static bool DefaultIsUnique => false;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

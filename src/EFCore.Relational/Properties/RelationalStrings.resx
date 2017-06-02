@@ -237,7 +237,7 @@
     <comment>Warning RelationalEventId.AmbientTransactionWarning</comment>
   </data>
   <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
-    <value>Possible unintended use of method Equals(object) for arguments of different types: '{left}', '{right}'. This comparison will always return 'false'.</value>
+    <value>Possible unintended use of method Equals(object) for arguments of different types in expression '{expression}'. This comparison will always return 'false'.</value>
     <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning object object</comment>
   </data>
   <data name="StoredProcedureIncludeNotSupported" xml:space="preserve">

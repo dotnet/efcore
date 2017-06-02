@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                             Expression.Convert(argument, unwrappedArgumentType));
                     }
 
-                    _logger.QueryPossibleUnintendedUseOfEqualsWarning(methodCallExpression, argument);
+                    _logger.QueryPossibleUnintendedUseOfEqualsWarning(methodCallExpression);
 
                     // Equals(object) always returns false if when comparing objects of different types
                     return Expression.Constant(false);

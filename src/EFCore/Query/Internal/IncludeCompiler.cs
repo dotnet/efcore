@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             foreach (var includeResultOperator in _includeResultOperators)
             {
-                _queryCompilationContext.Logger.IncludeIgnoredWarning(includeResultOperator.DisplayString());
+                _queryCompilationContext.Logger.IncludeIgnoredWarning(includeResultOperator);
             }
         }
 
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 includeLoadTree.AddLoadPath(navigationPath);
 
-                _queryCompilationContext.Logger.NavigationIncluded(includeResultOperator.DisplayString());
+                _queryCompilationContext.Logger.NavigationIncluded(includeResultOperator);
 
                 _includeResultOperators.Remove(includeResultOperator);
             }

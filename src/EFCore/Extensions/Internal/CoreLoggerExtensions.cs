@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Remotion.Linq;
 
 // ReSharper disable once CheckNamespace
@@ -274,13 +276,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void NavigationIncluded(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] string includeSpecification)
+            [NotNull] IncludeResultOperator includeResultOperator)
         {
             var definition = CoreStrings.LogIncludingNavigation;
 
             definition.Log(
                 diagnostics,
-                includeSpecification);
+                includeResultOperator.DisplayString());
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -289,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     new IncludeEventData(
                         definition,
                         NavigationIncluded,
-                        includeSpecification));
+                        includeResultOperator));
             }
         }
 
@@ -297,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var d = (EventDefinition<string>)definition;
             var p = (IncludeEventData)payload;
-            return d.GenerateMessage(p.IncludeSpecification);
+            return d.GenerateMessage(p.IncludeResultOperator.DisplayString());
         }
 
         /// <summary>
@@ -366,13 +368,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void IncludeIgnoredWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] string includeSpecification)
+            [NotNull] IncludeResultOperator includeResultOperator)
         {
             var definition = CoreStrings.LogIgnoredInclude;
 
             definition.Log(
                 diagnostics,
-                includeSpecification);
+                includeResultOperator.DisplayString());
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -381,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     new IncludeEventData(
                         definition,
                         IncludeIgnoredWarning,
-                        includeSpecification));
+                        includeResultOperator));
             }
         }
 
@@ -389,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var d = (EventDefinition<string>)definition;
             var p = (IncludeEventData)payload;
-            return d.GenerateMessage(p.IncludeSpecification);
+            return d.GenerateMessage(p.IncludeResultOperator.DisplayString());
         }
 
         /// <summary>
@@ -398,13 +400,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void PossibleUnintendedCollectionNavigationNullComparisonWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] string navigationPath)
+            [NotNull] IReadOnlyCollection<IPropertyBase> navigationPath)
         {
             var definition = CoreStrings.LogPossibleUnintendedCollectionNavigationNullComparison;
 
             definition.Log(
                 diagnostics,
-                navigationPath);
+                string.Join(".", navigationPath.Select(p => p.Name)));
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -421,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var d = (EventDefinition<string>)definition;
             var p = (NavigationPathEventData)payload;
-            return d.GenerateMessage(p.NavigationPath);
+            return d.GenerateMessage(string.Join(".", p.NavigationPath.Select(pb => pb.Name)));
         }
 
         /// <summary>

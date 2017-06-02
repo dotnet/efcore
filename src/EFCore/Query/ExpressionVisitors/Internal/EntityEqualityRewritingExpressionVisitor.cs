@@ -74,8 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     {
                         // collection navigation is only null if its parent entity is null (null propagation thru navigation)
                         // it is probable that user wanted to see if the collection is (not) empty, log warning suggesting to use Any() instead.
-                        _queryCompilationContext.Logger.PossibleUnintendedCollectionNavigationNullComparisonWarning(
-                            string.Join(".", nonNullproperties.Select(p => p.Name)));
+                        _queryCompilationContext.Logger
+                            .PossibleUnintendedCollectionNavigationNullComparisonWarning(nonNullproperties);
 
                         var callerExpression = CreateCollectionCallerExpression(nonNullNavigationQsre, nonNullproperties);
 
@@ -198,8 +198,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         private Expression TryRewriteCollectionNavigationComparison(
-            Expression leftExpressionn,
-            Expression rightExpressionn,
+            Expression leftExpression,
+            Expression rightExpression,
             ExpressionType expressionType,
             QuerySourceReferenceExpression leftNavigationQsre,
             QuerySourceReferenceExpression rightNavigationQsre,
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (IsCollectionNavigation(leftNavigationQsre, leftProperties)
                 && IsCollectionNavigation(rightNavigationQsre, rightProperties))
             {
-                _queryCompilationContext.Logger.PossibleUnintendedReferenceComparisonWarning(leftExpressionn, rightExpressionn);
+                _queryCompilationContext.Logger.PossibleUnintendedReferenceComparisonWarning(leftExpression, rightExpression);
 
                 if (leftProperties[leftProperties.Count - 1].Equals(rightProperties[rightProperties.Count - 1]))
                 {
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return null;
         }
 
-        private Expression CreateCollectionCallerExpression(
+        private static Expression CreateCollectionCallerExpression(
             QuerySourceReferenceExpression qsre, 
             IList<IPropertyBase> properties)
         {
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 && properties[properties.Count - 1] is INavigation navigation
                 && navigation.IsCollection();
 
-        private Expression CreateKeyComparison(
+        private static Expression CreateKeyComparison(
             IEntityType entityType, 
             Expression left, 
             Expression right, 
