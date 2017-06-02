@@ -487,6 +487,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         protected override ModelValidator CreateModelValidator()
-            => new CoreModelValidator(new ModelValidatorDependencies(Logger));
+            => new ModelValidator(new ModelValidatorDependencies(Logger));
     }
 }

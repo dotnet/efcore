@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ModelSourceTest
     {
-        private readonly CoreModelValidator _coreModelValidator
-            = new CoreModelValidator(
+        private readonly ModelValidator _coreModelValidator
+            = new ModelValidator(
                 new ModelValidatorDependencies(
                     new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                         new LoggerFactory(),
