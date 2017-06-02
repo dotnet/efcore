@@ -138,9 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "xml", _xml }
                 };
 
-            // Note: sbyte, ushort, uint and ulong type mappings are not supported by SQL Server.
+            // Note: sbyte, ushort, uint, char and ulong type mappings are not supported by SQL Server.
             // We would need the type conversions feature to allow this to work - see https://github.com/aspnet/EntityFramework/issues/242.
-            // char mapping is included but only temporarily - see https://github.com/aspnet/EntityFramework/issues/8656
             _clrTypeMappings
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
@@ -152,7 +151,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { typeof(byte), _byte },
                     { typeof(double), _double },
                     { typeof(DateTimeOffset), _datetimeoffset },
-                    { typeof(char), new CharTypeMapping("int") },
                     { typeof(short), _short },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },

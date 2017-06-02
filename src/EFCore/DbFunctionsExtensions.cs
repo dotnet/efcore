@@ -40,15 +40,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="matchExpression">The string that is to be matched.</param>
         /// <param name="pattern">The pattern which may involve wildcards %,_,[,],^.</param>
         /// <param name="escapeCharacter">
-        ///     The escape character to use in front of %,_,[,],^ if they
-        ///     are not used as wildcards.
+        ///     The escape character (as a single character string) to use in front of %,_,[,],^
+        ///     if they are not used as wildcards.
         /// </param>
         /// <returns>true if there is a match.</returns>
         public static bool Like(
             [CanBeNull] this DbFunctions _,
             [CanBeNull] string matchExpression,
             [CanBeNull] string pattern,
-            char escapeCharacter) 
+            [CanBeNull] string escapeCharacter) 
             => LikeCore(matchExpression, pattern, escapeCharacter);
 
         // Regex special chars defined here:
@@ -67,8 +67,17 @@ namespace Microsoft.EntityFrameworkCore
             return string.Join("|", regexSpecialChars.Select(c => @"\" + c));
         }
 
-        private static bool LikeCore(string matchExpression, string pattern, char? escapeCharacter)
+        private static bool LikeCore(string matchExpression, string pattern, string escapeCharacter)
         {
+            //TODO: this fixes https://github.com/aspnet/EntityFramework/issues/8656 by insisting that
+            // the "escape character" is a string but just using the first character of that string,
+            // but we may later want to allow the complete string as the "escape character"
+            // in which case we need to change the way we construct the regex below.
+            var singleEscapeCharacter =
+                (escapeCharacter == null || escapeCharacter.Length == 0)
+                ? (char?)null
+                : escapeCharacter.First();
+
             if (matchExpression == null
                 || pattern == null)
             {
@@ -87,9 +96,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var escapeRegexCharsPattern
-                = escapeCharacter == null
+                = singleEscapeCharacter == null
                     ? _defaultEscapeRegexCharsPattern
-                    : BuildEscapeRegexCharsPattern(_regexSpecialChars.Where(c => c != escapeCharacter));
+                    : BuildEscapeRegexCharsPattern(_regexSpecialChars.Where(c => c != singleEscapeCharacter));
 
             var regexPattern
                 = Regex.Replace(
@@ -104,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore
             for (var i = 0; i < regexPattern.Length; i++)
             {
                 var c = regexPattern[i];
-                var escaped = i > 0 && regexPattern[i - 1] == escapeCharacter;
+                var escaped = i > 0 && regexPattern[i - 1] == singleEscapeCharacter;
 
                 switch (c)
                 {
@@ -120,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                     default:
                     {
-                        if (c != escapeCharacter)
+                        if (c != singleEscapeCharacter)
                         {
                             stringBuilder.Append(c);
                         }
