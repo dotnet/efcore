@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 
-namespace Microsoft.EntityFrameworkCore.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
     ///     Converts identifiers to the plural and singular equivalents.
