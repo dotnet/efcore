@@ -25,7 +25,8 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.Name)
                     .IsRequired()
-                    .HasColumnType("varchar(50)");
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
             });
         }
     }

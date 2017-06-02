@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
@@ -1034,6 +1035,11 @@ namespace Microsoft.EntityFrameworkCore
     public class FakeDatabaseModelFactory : IDatabaseModelFactory
     {
         public virtual DatabaseModel Create(string connectionString, TableSelectionSet tableSelectionSet)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual DatabaseModel Create(DbConnection connection, TableSelectionSet tableSelectionSet)
         {
             throw new NotImplementedException();
         }
