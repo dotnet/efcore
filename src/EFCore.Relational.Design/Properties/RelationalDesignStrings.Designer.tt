@@ -1,4 +1,0 @@
-<#
-    Session["ResourceFile"] = "RelationalDesignStrings.resx";
-#>
-<#@ include file="..\..\..\tools\Resources.tt" #>

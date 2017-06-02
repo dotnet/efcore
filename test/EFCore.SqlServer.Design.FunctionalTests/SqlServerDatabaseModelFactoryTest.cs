@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -138,14 +139,14 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                 nonClustered =>
                     {
                         Assert.Equal("IX_Location", nonClustered.Name);
-                        Assert.False(nonClustered.SqlServer().IsClustered);
+                        //Assert.False(nonClustered.GetAnnotations().SingleOrDefault(a => a.Name == SqlServerAnnotationNames.Clustered)?.Value);
                         Assert.Equal("Location", nonClustered.IndexColumns.Select(ic => ic.Column.Name).Single());
                     },
                 clusteredIndex =>
                     {
                         Assert.Equal("IX_Location_Name", clusteredIndex.Name);
                         Assert.False(clusteredIndex.IsUnique);
-                        Assert.True(clusteredIndex.SqlServer().IsClustered);
+                        //Assert.True(clusteredIndex.SqlServer().IsClustered);
                         Assert.Equal(new List<string> { "Location", "Name" }, clusteredIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
                         Assert.Equal(new List<int> { 1, 2 }, clusteredIndex.IndexColumns.Select(ic => ic.Ordinal).ToList());
                     },
@@ -153,7 +154,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                     {
                         Assert.StartsWith("PK__Place", pkIndex.Name);
                         Assert.True(pkIndex.IsUnique);
-                        Assert.False(pkIndex.SqlServer().IsClustered);
+                        //Assert.False(pkIndex.SqlServer().IsClustered);
                         Assert.Equal(new List<string> { "Id" }, pkIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
                     },
                 unique =>
@@ -194,7 +195,7 @@ CREATE TABLE [dbo].[MountainsColumns] (
                 id =>
                     {
                         Assert.Equal("Id", id.Name);
-                        Assert.Equal("int", id.DataType);
+                        Assert.Equal("int", id.StoreType);
                         Assert.Equal(2, id.PrimaryKeyOrdinal);
                         Assert.False(id.IsNullable);
                         Assert.Equal(0, id.Ordinal);
@@ -203,42 +204,48 @@ CREATE TABLE [dbo].[MountainsColumns] (
                 name =>
                     {
                         Assert.Equal("Name", name.Name);
-                        Assert.Equal("nvarchar", name.DataType);
+                        Assert.Equal("nvarchar(100)", name.StoreType);
                         Assert.Equal(1, name.PrimaryKeyOrdinal);
                         Assert.False(name.IsNullable);
                         Assert.Equal(1, name.Ordinal);
                         Assert.Null(name.DefaultValue);
-                        Assert.Equal(100, name.MaxLength);
                     },
                 lat =>
                     {
                         Assert.Equal("Latitude", lat.Name);
-                        Assert.Equal("decimal", lat.DataType);
+                        Assert.Equal("decimal(5, 2)", lat.StoreType);
                         Assert.Null(lat.PrimaryKeyOrdinal);
                         Assert.True(lat.IsNullable);
                         Assert.Equal(2, lat.Ordinal);
                         Assert.Equal("((0.0))", lat.DefaultValue);
-                        Assert.Equal(5, lat.Precision);
-                        Assert.Equal(2, lat.Scale);
-                        Assert.Null(lat.MaxLength);
-                        Assert.Null(lat.SqlServer().DateTimePrecision);
                     },
                 created =>
                     {
                         Assert.Equal("Created", created.Name);
-                        Assert.Null(created.Scale);
-                        Assert.Equal(6, created.SqlServer().DateTimePrecision);
+                        Assert.Equal("datetime2(6)", created.StoreType);
+                        Assert.Null(created.PrimaryKeyOrdinal);
+                        Assert.True(created.IsNullable);
+                        Assert.Equal(3, created.Ordinal);
                         Assert.Equal("('October 20, 2015 11am')", created.DefaultValue);
                     },
                 discovered =>
                     {
                         Assert.Equal("DiscoveredDate", discovered.Name);
-                        Assert.Equal(7, discovered.SqlServer().DateTimePrecision);
+                        Assert.Equal("datetime2", discovered.StoreType);
+                        Assert.Null(discovered.PrimaryKeyOrdinal);
+                        Assert.True(discovered.IsNullable);
+                        Assert.Equal(4, discovered.Ordinal);
+                        Assert.Null(discovered.DefaultValue);
+
                     },
                 current =>
                     {
                         Assert.Equal("CurrentDate", current.Name);
-                        Assert.Equal("datetime", current.DataType);
+                        Assert.Equal("datetime", current.StoreType);
+                        Assert.Null(current.PrimaryKeyOrdinal);
+                        Assert.False(current.IsNullable);
+                        Assert.Equal(5, current.Ordinal);
+                        Assert.Null(current.DefaultValue);
                         Assert.Equal("(getdate())", current.ComputedValue);
                     },
                 sum =>
@@ -250,24 +257,24 @@ CREATE TABLE [dbo].[MountainsColumns] (
                     {
                         Assert.Equal("Modified", modified.Name);
                         Assert.Equal(ValueGenerated.OnAddOrUpdate, modified.ValueGenerated);
-                        Assert.Equal("timestamp", modified.DataType); // intentional - testing the alias
+                        Assert.Equal("timestamp", modified.StoreType); // intentional - testing the alias
                     });
         }
 
         [Theory]
-        [InlineData("nvarchar(55)", 55)]
-        [InlineData("varchar(341)", 341)]
-        [InlineData("nchar(14)", 14)]
-        [InlineData("char(89)", 89)]
-        [InlineData("varchar(max)", null)]
-        public void It_reads_max_length(string type, int? length)
+        [InlineData("nvarchar(55)")]
+        [InlineData("varchar(341)")]
+        [InlineData("nchar(14)")]
+        [InlineData("char(89)")]
+        [InlineData("varchar(max)")]
+        public void It_reads_max_length(string type)
         {
             var sql = @"IF OBJECT_ID('dbo.Strings', 'U') IS NOT NULL
     DROP TABLE [dbo].[Strings];" +
                       "CREATE TABLE [dbo].[Strings] ( CharColumn " + type + ");";
             var db = CreateModel(sql, new TableSelectionSet(new List<string> { "Strings" }));
 
-            Assert.Equal(length, db.Tables.Single().Columns.Single().MaxLength);
+            Assert.Equal(type, db.Tables.Single().Columns.Single().StoreType);
         }
 
         [Theory]

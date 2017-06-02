@@ -1,0 +1,21 @@
+using System;
+using System.Collections.Generic;
+
+namespace E2ETest.Namespace
+{
+    public partial class SelfReferencing
+    {
+        public SelfReferencing()
+        {
+            InverseSelfReferenceFkNavigation = new HashSet<SelfReferencing>();
+        }
+
+        public int SelfReferencingId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int? SelfReferenceFk { get; set; }
+
+        public SelfReferencing SelfReferenceFkNavigation { get; set; }
+        public ICollection<SelfReferencing> InverseSelfReferenceFkNavigation { get; set; }
+    }
+}

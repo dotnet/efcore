@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotNull(entityType);
             Assert.Equal("Column Types", entityType.Sqlite().TableName);
 
-            Assert.Equal("text", entityType.FindProperty("Col1").Sqlite().ColumnType);
+            Assert.Null(entityType.FindProperty("Col1").Sqlite().ColumnType);
             Assert.Equal(typeof(string), entityType.FindProperty("Col1").ClrType);
 
             Assert.Equal("unsigned big int", entityType.FindProperty("Col2").Sqlite().ColumnType);
@@ -207,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
                 _loggerFactory.Logger.Statements,
                 t => t.Contains(
                     "Warning: " +
-                    RelationalDesignStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0")));
+                    RelationalStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0")));
         }
 
         [Fact]
@@ -227,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore
                 _loggerFactory.Logger.Statements,
                 t => t.Contains(
                     "Warning: " +
-                    RelationalDesignStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "Children", "Id", "Parent")));
+                    RelationalStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "Children", "Id", "Parent")));
         }
 
         [Fact]

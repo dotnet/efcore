@@ -62,21 +62,18 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             loggerFactory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, _reporter)));
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            var generator = services.GetRequiredService<ReverseEngineeringGenerator>();
-            var tableSelectionSet = new TableSelectionSet(tables, schemas);
-            var configuration = new ReverseEngineeringConfiguration
-            {
-                ConnectionString = connectionString,
-                ContextClassName = dbContextClassName,
-                ProjectPath = _projectDir,
-                ProjectRootNamespace = _rootNamespace,
-                OutputPath = outputDir,
-                TableSelectionSet = tableSelectionSet,
-                UseFluentApiOnly = !useDataAnnotations,
-                OverwriteFiles = overwriteFiles
-            };
+            var generator = services.GetRequiredService<ModelScaffolder>();
 
-            return generator.GenerateAsync(configuration, cancellationToken);
+            return generator.GenerateAsync(
+                connectionString,
+                new TableSelectionSet(tables, schemas),
+                _projectDir,
+                outputDir,
+                _rootNamespace,
+                dbContextClassName,
+                useDataAnnotations,
+                overwriteFiles,
+                cancellationToken);
         }
     }
 }

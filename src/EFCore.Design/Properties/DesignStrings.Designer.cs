@@ -281,30 +281,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 migrationsNamespace);
 
         /// <summary>
-        ///     ConnectionString is required to generate code.
-        /// </summary>
-        public static string ConnectionStringRequired
-            => GetString("ConnectionStringRequired");
-
-        /// <summary>
         ///     The context class name passed in, {contextClassName}, is not a valid C# identifier.
         /// </summary>
         public static string ContextClassNotValidCSharpIdentifier([CanBeNull] object contextClassName)
             => string.Format(
                 GetString("ContextClassNotValidCSharpIdentifier", nameof(contextClassName)),
                 contextClassName);
-
-        /// <summary>
-        ///     ProjectPath is required to generate code.
-        /// </summary>
-        public static string ProjectPathRequired
-            => GetString("ProjectPathRequired");
-
-        /// <summary>
-        ///     Root namespace of the project is required to generate code.
-        /// </summary>
-        public static string RootNamespaceRequired
-            => GetString("RootNamespaceRequired");
 
         /// <summary>
         ///     Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Either change your target project or change your migrations assembly.
@@ -477,6 +459,138 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("FoundContextFactory", nameof(factory)),
                 factory);
+
+        /// <summary>
+        ///     Metadata model returned should not be null. Provider: {providerTypeName}.
+        /// </summary>
+        public static string ProviderReturnedNullModel([CanBeNull] object providerTypeName)
+            => string.Format(
+                GetString("ProviderReturnedNullModel", nameof(providerTypeName)),
+                providerTypeName);
+
+        /// <summary>
+        ///     No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.
+        /// </summary>
+        public static string ReadOnlyFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object readOnlyFiles)
+            => string.Format(
+                GetString("ReadOnlyFiles", nameof(outputDirectoryName), nameof(readOnlyFiles)),
+                outputDirectoryName, readOnlyFiles);
+
+        /// <summary>
+        ///     The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.
+        /// </summary>
+        public static string ExistingFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object existingFiles)
+            => string.Format(
+                GetString("ExistingFiles", nameof(outputDirectoryName), nameof(existingFiles)),
+                outputDirectoryName, existingFiles);
+
+        /// <summary>
+        ///     Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogCannotFindTypeMappingForColumn
+            = new EventDefinition<string, string>(
+                DesignEventId.ColumnTypeNotMappedWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    DesignEventId.ColumnTypeNotMappedWarning,
+                    _resourceManager.GetString("LogCannotFindTypeMappingForColumn")));
+
+        /// <summary>
+        ///     Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string> LogForeignKeyScaffoldErrorPrincipalKeyNotFound
+            = new EventDefinition<string, string, string>(
+                DesignEventId.ForeignKeyReferencesMissingPrincipalKeyWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string, string>(
+                    LogLevel.Warning,
+                    DesignEventId.ForeignKeyReferencesMissingPrincipalKeyWarning,
+                    _resourceManager.GetString("LogForeignKeyScaffoldErrorPrincipalKeyNotFound")));
+
+        /// <summary>
+        ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principaltableName}' could not be scaffolded.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError
+            = new EventDefinition<string, string>(
+                DesignEventId.ForeignKeyReferencesNotMappedTableWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    DesignEventId.ForeignKeyReferencesNotMappedTableWarning,
+                    _resourceManager.GetString("LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError")));
+
+        /// <summary>
+        ///     Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogPrimaryKeyErrorPropertyNotFound
+            = new EventDefinition<string, string>(
+                DesignEventId.PrimaryKeyColumnsNotMappedWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    DesignEventId.PrimaryKeyColumnsNotMappedWarning,
+                    _resourceManager.GetString("LogPrimaryKeyErrorPropertyNotFound")));
+
+        /// <summary>
+        ///     Unable to identify the primary key for table '{tableName}'.
+        /// </summary>
+        public static readonly EventDefinition<string> LogMissingPrimaryKey
+            = new EventDefinition<string>(
+                DesignEventId.MissingPrimaryKeyWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    DesignEventId.MissingPrimaryKeyWarning,
+                    _resourceManager.GetString("LogMissingPrimaryKey")));
+
+        /// <summary>
+        ///     Unable to generate entity type for table '{tableName}'.
+        /// </summary>
+        public static readonly EventDefinition<string> LogUnableToGenerateEntityType
+            = new EventDefinition<string>(
+                DesignEventId.UnableToGenerateEntityTypeWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    DesignEventId.UnableToGenerateEntityTypeWarning,
+                    _resourceManager.GetString("LogUnableToGenerateEntityType")));
+
+        /// <summary>
+        ///     For sequence '{sequenceName}'. Unable to scaffold because it uses an unsupported type: '{typeName}'.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogBadSequenceType
+            = new EventDefinition<string, string>(
+                DesignEventId.SequenceTypeNotSupportedWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    DesignEventId.SequenceTypeNotSupportedWarning,
+                    _resourceManager.GetString("LogBadSequenceType")));
+
+        /// <summary>
+        ///     Unable to find a schema in the database matching the selected schema {schema}.
+        /// </summary>
+        public static readonly EventDefinition<string> LogMissingSchema
+            = new EventDefinition<string>(
+                DesignEventId.MissingSchemaWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    DesignEventId.MissingSchemaWarning,
+                    _resourceManager.GetString("LogMissingSchema")));
+
+        /// <summary>
+        ///     The principal end of the foreign key '{foreignKeyName}' is supported by the unique index '{indexName}' and contains the following nullable columns '{columnNames}'. Entity Framework requires the properties representing those columns to be non-nullable.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string> LogForeignKeyPrincipalEndContainsNullableColumns
+            = new EventDefinition<string, string, string>(
+                DesignEventId.ForeignKeyPrincipalEndContainsNullableColumnsWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string, string>(
+                    LogLevel.Warning,
+                    DesignEventId.ForeignKeyPrincipalEndContainsNullableColumnsWarning,
+                    _resourceManager.GetString("LogForeignKeyPrincipalEndContainsNullableColumns")));
 
         private static string GetString(string name, params string[] formatterNames)
         {

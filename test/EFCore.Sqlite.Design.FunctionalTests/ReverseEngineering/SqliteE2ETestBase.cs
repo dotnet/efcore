@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -42,14 +43,15 @@ CREATE TABLE IF NOT EXISTS Dependent (
 );
 ");
 
-                var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = testStore.ConnectionString,
-                    ProjectPath = TestProjectPath,
-                    ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.All
-                });
+                var results = await Generator.GenerateAsync(
+                    testStore.ConnectionString,
+                    TableSelectionSet.All,
+                    TestProjectPath,
+                    outputPath: null,
+                    rootNamespace: "E2E.Sqlite",
+                    contextName: null,
+                    useDataAnnotations: UseDataAnnotations,
+                    overwriteFiles: false);
 
                 AssertLog(new LoggerMessages());
 
@@ -57,9 +59,9 @@ CREATE TABLE IF NOT EXISTS Dependent (
                 {
                     Files =
                     {
-                        "OneToOne" + DbSuffix + "Context.expected",
-                        "Dependent.expected",
-                        "Principal.expected"
+                        "OneToOne" + DbSuffix + "Context.cs",
+                        "Dependent.cs",
+                        "Principal.cs"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
@@ -95,14 +97,15 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
 );
 ");
 
-                var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = testStore.ConnectionString,
-                    ProjectPath = TestProjectPath,
-                    ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.All
-                });
+                var results = await Generator.GenerateAsync(
+                    testStore.ConnectionString,
+                    TableSelectionSet.All,
+                    TestProjectPath,
+                    outputPath: null,
+                    rootNamespace: "E2E.Sqlite",
+                    contextName: null,
+                    useDataAnnotations: UseDataAnnotations,
+                    overwriteFiles: false);
 
                 AssertLog(new LoggerMessages());
 
@@ -110,9 +113,9 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                 {
                     Files =
                     {
-                        "OneToMany" + DbSuffix + "Context.expected",
-                        "OneToManyDependent.expected",
-                        "OneToManyPrincipal.expected"
+                        "OneToMany" + DbSuffix + "Context.cs",
+                        "OneToManyDependent.cs",
+                        "OneToManyPrincipal.cs"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
@@ -142,25 +145,26 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
 );
 ");
 
-                var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = testStore.ConnectionString,
-                    ProjectPath = TestProjectPath,
-                    ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.All
-                });
-
+                var results = await Generator.GenerateAsync(
+                    testStore.ConnectionString,
+                    TableSelectionSet.All,
+                    TestProjectPath,
+                    outputPath: null,
+                    rootNamespace: "E2E.Sqlite",
+                    contextName: null,
+                    useDataAnnotations: UseDataAnnotations,
+                    overwriteFiles: false);
+                
                 AssertLog(new LoggerMessages());
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "ManyToMany"))
                 {
                     Files =
                     {
-                        "ManyToMany" + DbSuffix + "Context.expected",
-                        "Groups.expected",
-                        "Users.expected",
-                        "UsersGroups.expected"
+                        "ManyToMany" + DbSuffix + "Context.cs",
+                        "Groups.cs",
+                        "Users.cs",
+                        "UsersGroups.cs"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
@@ -183,23 +187,24 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
     FOREIGN KEY (SelfForeignKey) REFERENCES SelfRef (Id)
 );");
 
-                var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = testStore.ConnectionString,
-                    ProjectPath = TestProjectPath,
-                    ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.All
-                });
-
+                var results = await Generator.GenerateAsync(
+                    testStore.ConnectionString,
+                    TableSelectionSet.All,
+                    TestProjectPath,
+                    outputPath: null,
+                    rootNamespace: "E2E.Sqlite",
+                    contextName: null,
+                    useDataAnnotations: UseDataAnnotations,
+                    overwriteFiles: false);
+                
                 AssertLog(new LoggerMessages());
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "SelfRef"))
                 {
                     Files =
                     {
-                        "SelfRef" + DbSuffix + "Context.expected",
-                        "SelfRef.expected"
+                        "SelfRef" + DbSuffix + "Context.cs",
+                        "SelfRef.cs"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
@@ -218,20 +223,22 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
             {
                 testStore.ExecuteNonQuery("CREATE TABLE Alicia ( Keys TEXT );");
 
-                var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = testStore.ConnectionString,
-                    ProjectPath = TestProjectPath,
-                    ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.All
-                });
-                var errorMessage = RelationalDesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Alicia");
+                var results = await Generator.GenerateAsync(
+                    testStore.ConnectionString,
+                    TableSelectionSet.All,
+                    TestProjectPath,
+                    outputPath: null,
+                    rootNamespace: "E2E.Sqlite",
+                    contextName: null,
+                    useDataAnnotations: UseDataAnnotations,
+                    overwriteFiles: false);
+
+                var errorMessage = DesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Alicia");
                 var expectedLog = new LoggerMessages
                 {
                     Warn =
                     {
-                        RelationalDesignStrings.LogMissingPrimaryKey.GenerateMessage("Alicia"),
+                        DesignStrings.LogMissingPrimaryKey.GenerateMessage("Alicia"),
                         errorMessage
                     }
                 };
@@ -252,22 +259,23 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
 );
 CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
 
-                var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = testStore.ConnectionString,
-                    ProjectPath = TestProjectPath,
-                    ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.All
-                });
+                var results = await Generator.GenerateAsync(
+                    testStore.ConnectionString,
+                    TableSelectionSet.All,
+                    TestProjectPath,
+                    outputPath: null,
+                    rootNamespace: "E2E.Sqlite",
+                    contextName: null,
+                    useDataAnnotations: UseDataAnnotations,
+                    overwriteFiles: false);
 
                 var expectedLog = new LoggerMessages
                 {
                     Warn =
                     {
-                        RelationalDesignStrings.LogMissingPrimaryKey.GenerateMessage("Principal"),
-                        RelationalDesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Principal"),
-                        RelationalDesignStrings.LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError.GenerateMessage("Dependent(PrincipalId)", "Principal")
+                        DesignStrings.LogMissingPrimaryKey.GenerateMessage("Principal"),
+                        DesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Principal"),
+                        DesignStrings.LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError.GenerateMessage("Dependent(PrincipalId)", "Principal")
                     }
                 };
                 AssertLog(expectedLog);
@@ -276,8 +284,8 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
                 {
                     Files =
                     {
-                        "NoPrincipalPk" + DbSuffix + "Context.expected",
-                        "Dependent.expected"
+                        "NoPrincipalPk" + DbSuffix + "Context.cs",
+                        "Dependent.cs"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
@@ -319,14 +327,15 @@ CREATE TABLE IF NOT EXISTS String (
 );
 ");
 
-                var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = testStore.ConnectionString,
-                    ProjectPath = TestProjectPath,
-                    ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.All
-                });
+                var results = await Generator.GenerateAsync(
+                    testStore.ConnectionString,
+                    TableSelectionSet.All,
+                    TestProjectPath,
+                    outputPath: null,
+                    rootNamespace: "E2E.Sqlite",
+                    contextName: null,
+                    useDataAnnotations: UseDataAnnotations,
+                    overwriteFiles: false);
 
                 AssertLog(new LoggerMessages());
 
@@ -355,15 +364,15 @@ CREATE TABLE IF NOT EXISTS Comment (
     FOREIGN KEY (UserAltId) REFERENCES User (AltId)
 );");
 
-                var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = testStore.ConnectionString,
-                    ContextClassName = "FkToAltKeyContext",
-                    ProjectPath = TestProjectPath,
-                    ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.All
-                });
+                var results = await Generator.GenerateAsync(
+                    testStore.ConnectionString,
+                    TableSelectionSet.All,
+                    TestProjectPath,
+                    outputPath: null,
+                    rootNamespace: "E2E.Sqlite",
+                    contextName: "FkToAltKeyContext",
+                    useDataAnnotations: UseDataAnnotations,
+                    overwriteFiles: false);
 
                 AssertLog(new LoggerMessages());
 
@@ -371,9 +380,9 @@ CREATE TABLE IF NOT EXISTS Comment (
                 {
                     Files =
                     {
-                        "FkToAltKeyContext.expected",
-                        "Comment.expected",
-                        "User.expected"
+                        "FkToAltKeyContext.cs",
+                        "Comment.cs",
+                        "User.cs"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
@@ -394,7 +403,7 @@ CREATE TABLE IF NOT EXISTS Comment (
 
         protected abstract string DbSuffix { get; } // will be used to create different databases so tests running in parallel don't interfere
         protected abstract string ExpectedResultsParentDir { get; }
-        protected abstract bool UseFluentApiOnly { get; }
+        protected abstract bool UseDataAnnotations { get; }
 
         protected override void ConfigureDesignTimeServices(IServiceCollection services)
             => new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -63,38 +64,38 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
 
         private static readonly List<string> _expectedEntityTypeFiles = new List<string>
         {
-            "AllDataTypes.expected",
-            "MultipleFKsDependent.expected",
-            "MultipleFKsPrincipal.expected",
-            "OneToManyDependent.expected",
-            "OneToManyPrincipal.expected",
-            "OneToOneDependent.expected",
-            "OneToOneFKToUniqueKeyDependent.expected",
-            "OneToOneFKToUniqueKeyPrincipal.expected",
-            "OneToOnePrincipal.expected",
-            "OneToOneSeparateFKDependent.expected",
-            "OneToOneSeparateFKPrincipal.expected",
-            "PropertyConfiguration.expected",
-            "SelfReferencing.expected",
-            "TestSpacesKeywordsTable.expected",
-            "UnmappablePKColumn.expected"
+            "AllDataTypes.cs",
+            "MultipleFKsDependent.cs",
+            "MultipleFKsPrincipal.cs",
+            "OneToManyDependent.cs",
+            "OneToManyPrincipal.cs",
+            "OneToOneDependent.cs",
+            "OneToOneFKToUniqueKeyDependent.cs",
+            "OneToOneFKToUniqueKeyPrincipal.cs",
+            "OneToOnePrincipal.cs",
+            "OneToOneSeparateFKDependent.cs",
+            "OneToOneSeparateFKPrincipal.cs",
+            "PropertyConfiguration.cs",
+            "SelfReferencing.cs",
+            "TestSpacesKeywordsTable.cs",
+            "UnmappablePKColumn.cs"
         };
 
         [Fact]
         [UseCulture("en-US")]
         public void E2ETest_UseAttributesInsteadOfFluentApi()
         {
-            var configuration = new ReverseEngineeringConfiguration
-            {
-                ConnectionString = _connectionString,
-                ContextClassName = "AttributesContext",
-                ProjectPath = TestProjectDir + Path.DirectorySeparatorChar, // tests that ending DirectorySeparatorChar does not affect namespace
-                ProjectRootNamespace = TestNamespace,
-                OutputPath = TestSubDir,
-                TableSelectionSet = Filter
-            };
-
-            var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+            var filePaths = Generator.GenerateAsync(
+                    _connectionString,
+                    Filter,
+                    TestProjectDir + Path.DirectorySeparatorChar, // tests that ending DirectorySeparatorChar does not affect namespace
+                    TestSubDir,
+                    TestNamespace,
+                    contextName: "AttributesContext",
+                    useDataAnnotations: true,
+                    overwriteFiles: false)
+                .GetAwaiter()
+                .GetResult();
 
             var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(Path.Combine(TestProjectDir, TestSubDir)))
             {
@@ -103,10 +104,9 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
 
             var expectedFileSet = new FileSet(new FileSystemFileService(),
                 Path.Combine("ReverseEngineering", "Expected", "Attributes"),
-                contents => contents.Replace("namespace " + TestNamespace, "namespace " + TestNamespace + "." + TestSubDir)
-                    .Replace("{{connectionString}}", _connectionString))
+                contents => contents.Replace("{{connectionString}}", _connectionString))
             {
-                Files = new List<string> { "AttributesContext.expected" }
+                Files = new List<string> { "AttributesContext.cs" }
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 
@@ -117,15 +117,15 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                 Warn =
                 {
                     indexWarn,
-                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geographyColumn", "geography"),
-                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geometryColumn", "geometry"),
-                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
-                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
-                    RelationalDesignStrings.LogUnableToScaffoldIndexMissingProperty.GenerateMessage("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"),
-                    SqlServerDesignStrings.LogDataTypeDoesNotAllowSqlServerIdentityStrategy.GenerateMessage("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
-                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
-                    RelationalDesignStrings.LogPrimaryKeyErrorPropertyNotFound.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"),
-                    RelationalDesignStrings.LogUnableToGenerateEntityType.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn")
+                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geographyColumn", "geography"),
+                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geometryColumn", "geometry"),
+                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
+                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
+                    RelationalStrings.LogUnableToScaffoldIndexMissingProperty.GenerateMessage("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"),
+                    //SqlServerDesignStrings.LogDataTypeDoesNotAllowSqlServerIdentityStrategy.GenerateMessage("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
+                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
+                    DesignStrings.LogPrimaryKeyErrorPropertyNotFound.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"),
+                    DesignStrings.LogUnableToGenerateEntityType.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn")
                 }
             });
             AssertEqualFileContents(expectedFileSet, actualFileSet);
@@ -136,17 +136,17 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
         [UseCulture("en-US")]
         public void E2ETest_AllFluentApi()
         {
-            var configuration = new ReverseEngineeringConfiguration
-            {
-                ConnectionString = _connectionString,
-                ProjectPath = TestProjectDir,
-                ProjectRootNamespace = TestNamespace,
-                OutputPath = null, // not used for this test
-                UseFluentApiOnly = true,
-                TableSelectionSet = Filter
-            };
-
-            var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+            var filePaths = Generator.GenerateAsync(
+                    _connectionString,
+                    Filter,
+                    TestProjectDir,
+                    outputPath: null, // not used for this test
+                    rootNamespace: TestNamespace,
+                    contextName: null,
+                    useDataAnnotations: false,
+                    overwriteFiles: false)
+                .GetAwaiter()
+                .GetResult();
 
             var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
             {
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                 Path.Combine("ReverseEngineering", "Expected", "AllFluentApi"),
                 inputFile => inputFile.Replace("{{connectionString}}", _connectionString))
             {
-                Files = new List<string> { "SqlServerReverseEngineerTestE2EContext.expected" }
+                Files = new List<string> { "SqlServerReverseEngineerTestE2EContext.cs" }
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 
@@ -168,15 +168,15 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                 Warn =
                 {
                     indexWarn,
-                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geographyColumn", "geography"),
-                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geometryColumn", "geometry"),
-                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
-                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
-                    RelationalDesignStrings.LogUnableToScaffoldIndexMissingProperty.GenerateMessage("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"),
-                    SqlServerDesignStrings.LogDataTypeDoesNotAllowSqlServerIdentityStrategy.GenerateMessage("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
-                    RelationalDesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
-                    RelationalDesignStrings.LogPrimaryKeyErrorPropertyNotFound.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"),
-                    RelationalDesignStrings.LogUnableToGenerateEntityType.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn")
+                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geographyColumn", "geography"),
+                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geometryColumn", "geometry"),
+                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
+                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
+                    RelationalStrings.LogUnableToScaffoldIndexMissingProperty.GenerateMessage("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"),
+                    //SqlServerDesignStrings.LogDataTypeDoesNotAllowSqlServerIdentityStrategy.GenerateMessage("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
+                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
+                    DesignStrings.LogPrimaryKeyErrorPropertyNotFound.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"),
+                    DesignStrings.LogUnableToGenerateEntityType.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn")
                 }
             });
             AssertEqualFileContents(expectedFileSet, actualFileSet);
@@ -219,21 +219,26 @@ CREATE SEQUENCE DecimalSequence
 CREATE SEQUENCE NumericSequence
     AS numeric;");
 
-                var configuration = new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = scratch.ConnectionString,
-                    ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
-                    ProjectRootNamespace = TestNamespace,
-                    ContextClassName = "SequenceContext"
-                };
-                var expectedFileSet = new FileSet(new FileSystemFileService(),
+
+                var expectedFileSet = new FileSet(
+                    new FileSystemFileService(),
                     Path.Combine("ReverseEngineering", "Expected"),
                     contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
                 {
-                    Files = new List<string> { "SequenceContext.expected" }
+                    Files = new List<string> { "SequenceContext.cs" }
                 };
 
-                var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+                var filePaths = Generator.GenerateAsync(
+                        scratch.ConnectionString,
+                        TableSelectionSet.All,
+                        TestProjectDir + Path.DirectorySeparatorChar,
+                        outputPath: null, // not used for this test
+                        rootNamespace: TestNamespace,
+                        contextName: "SequenceContext",
+                        useDataAnnotations: false,
+                        overwriteFiles: false)
+                    .GetAwaiter()
+                    .GetResult();
 
                 var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
                 {
@@ -244,8 +249,8 @@ CREATE SEQUENCE NumericSequence
                 {
                     Warn =
                     {
-                        RelationalDesignStrings.LogBadSequenceType.GenerateMessage("DecimalSequence", "decimal"),
-                        RelationalDesignStrings.LogBadSequenceType.GenerateMessage("NumericSequence", "numeric")
+                        DesignStrings.LogBadSequenceType.GenerateMessage("DecimalSequence", "decimal"),
+                        DesignStrings.LogBadSequenceType.GenerateMessage("NumericSequence", "numeric")
                     }
                 });
 
@@ -272,26 +277,28 @@ CREATE TABLE PrimaryKeyWithSequence (
 );
 ");
 
-                var configuration = new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = scratch.ConnectionString,
-                    ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
-                    ProjectRootNamespace = TestNamespace,
-                    ContextClassName = "PrimaryKeyWithSequenceContext",
-                    UseFluentApiOnly = true
-                };
                 var expectedFileSet = new FileSet(new FileSystemFileService(),
                     Path.Combine("ReverseEngineering", "Expected"),
                     contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
                 {
                     Files = new List<string>
                     {
-                        "PrimaryKeyWithSequenceContext.expected",
-                        "PrimaryKeyWithSequence.expected"
+                        "PrimaryKeyWithSequenceContext.cs",
+                        "PrimaryKeyWithSequence.cs"
                     }
                 };
 
-                var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+                var filePaths = Generator.GenerateAsync(
+                        scratch.ConnectionString,
+                        TableSelectionSet.All,
+                        TestProjectDir + Path.DirectorySeparatorChar,
+                        outputPath: null, // not used for this test
+                        rootNamespace: TestNamespace,
+                        contextName: "PrimaryKeyWithSequenceContext",
+                        useDataAnnotations: false,
+                        overwriteFiles: false)
+                    .GetAwaiter()
+                    .GetResult();
 
                 var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
                 {
@@ -320,26 +327,28 @@ CREATE INDEX Unicorn_Filtered_Index
     ON FilteredIndex (Number) WHERE Number > 10
 ");
 
-                var configuration = new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = scratch.ConnectionString,
-                    ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
-                    ProjectRootNamespace = TestNamespace,
-                    ContextClassName = "FilteredIndexContext",
-                    UseFluentApiOnly = true
-                };
                 var expectedFileSet = new FileSet(new FileSystemFileService(),
                     Path.Combine("ReverseEngineering", "Expected"),
                     contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
                 {
                     Files = new List<string>
                     {
-                        "FilteredIndexContext.expected",
-                        "FilteredIndex.expected",
+                        "FilteredIndexContext.cs",
+                        "FilteredIndex.cs",
                     }
                 };
 
-                var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+                var filePaths = Generator.GenerateAsync(
+                        scratch.ConnectionString,
+                        TableSelectionSet.All,
+                        TestProjectDir + Path.DirectorySeparatorChar,
+                        outputPath: null, // not used for this test
+                        rootNamespace: TestNamespace,
+                        contextName: "FilteredIndexContext",
+                        useDataAnnotations: false,
+                        overwriteFiles: false)
+                    .GetAwaiter()
+                    .GetResult();
 
                 var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
                 {
@@ -369,26 +378,29 @@ CREATE TABLE dbo.SystemVersioned
 WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.History));
 ");
 
-                var configuration = new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = scratch.ConnectionString,
-                    ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
-                    ProjectRootNamespace = TestNamespace,
-                    ContextClassName = "SystemVersionedContext",
-                    UseFluentApiOnly = true
-                };
                 var expectedFileSet = new FileSet(new FileSystemFileService(),
                     Path.Combine("ReverseEngineering", "Expected"),
                     contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
                 {
                     Files = new List<string>
                     {
-                        "SystemVersionedContext.expected",
-                        "SystemVersioned.expected",
+                        "SystemVersionedContext.cs",
+                        "SystemVersioned.cs",
                     }
                 };
 
-                var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+                var filePaths = Generator.GenerateAsync(
+                        scratch.ConnectionString,
+                        TableSelectionSet.All,
+                        TestProjectDir + Path.DirectorySeparatorChar,
+                        outputPath: null, // not used for this test
+                        rootNamespace: TestNamespace,
+                        contextName: "SystemVersionedContext",
+                        useDataAnnotations: false,
+                        overwriteFiles: false)
+                    .GetAwaiter()
+                    .GetResult();
+
 
                 scratch.ExecuteNonQuery(@"
 ALTER TABLE dbo.SystemVersioned SET (SYSTEM_VERSIONING = OFF);

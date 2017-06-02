@@ -2,7 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.ReverseEngineering;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -10,54 +16,113 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     public class ReverseEngineeringConfigurationTests
     {
         [Fact]
-        public void Throws_exceptions_for_incorrect_configuration()
+        public void Throws_exceptions_for_invalid_context_name()
         {
-            var configuration = new ReverseEngineeringConfiguration
+            ValidateContextNameInReverseEngineerGenerator("Invalid!CSharp*Class&Name");
+            ValidateContextNameInReverseEngineerGenerator("1CSharpClassNameCannotStartWithNumber");
+            ValidateContextNameInReverseEngineerGenerator("volatile");
+        }
+
+        private void ValidateContextNameInReverseEngineerGenerator(string contextName)
+        {
+            var reverseEngineer = new ModelScaffolder(
+                new FakeScaffoldingModelFactory(new FakeDiagnosticsLogger<DbLoggerCategory.Scaffolding>()),
+                new CSharpScaffoldingGenerator(
+                    new InMemoryFileService(),
+                    new CSharpDbContextGenerator(new FakeScaffoldingHelper(), new FakeAnnotationRenderer(), CSharpUtilities.Instance),
+                    new CSharpEntityTypeGenerator(CSharpUtilities.Instance)),
+                CSharpUtilities.Instance);
+
+            Assert.Equal(
+                DesignStrings.ContextClassNotValidCSharpIdentifier(contextName),
+                Assert.Throws<ArgumentException>(
+                        () => reverseEngineer.GenerateAsync(
+                                connectionString: "connectionstring",
+                                tableSelectionSet: TableSelectionSet.All,
+                                projectPath: "FakeProjectPath",
+                                outputPath: null,
+                                rootNamespace: "FakeNamespace",
+                                contextName: contextName,
+                                useDataAnnotations: false,
+                                overwriteFiles: false)
+                            .Result)
+                    .Message);
+        }
+
+        public class FakeScaffoldingHelper : IScaffoldingHelper
+        {
+            public string GetProviderOptionsBuilder(string connectionString)
             {
-                ConnectionString = null,
-                ProjectPath = null,
-                OutputPath = null
-            };
+                throw new NotImplementedException();
+            }
 
-            Assert.Equal(DesignStrings.ConnectionStringRequired,
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
+            public TypeScaffoldingInfo GetTypeScaffoldingInfo(ColumnModel columnModel)
+            {
+                throw new NotImplementedException();
+            }
+        }
 
-            configuration.ConnectionString = "NonEmptyConnectionString";
-            Assert.Equal(DesignStrings.ProjectPathRequired,
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
+        public class FakeAnnotationRenderer : IAnnotationRenderer
+        {
+            public string GenerateFluentApi(IModel model, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
 
-            configuration.ProjectPath = "NonEmptyProjectPath";
-            Assert.Equal(DesignStrings.RootNamespaceRequired,
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
+            public string GenerateFluentApi(IEntityType entityType, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
 
-            configuration.ContextClassName = @"Invalid!CSharp*Class&Name";
-            Assert.Equal(DesignStrings.ContextClassNotValidCSharpIdentifier(@"Invalid!CSharp*Class&Name"),
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
+            public string GenerateFluentApi(IKey key, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
 
-            configuration.ContextClassName = "1CSharpClassNameCannotStartWithNumber";
-            Assert.Equal(DesignStrings.ContextClassNotValidCSharpIdentifier("1CSharpClassNameCannotStartWithNumber"),
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
+            public string GenerateFluentApi(IProperty property, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
 
-            configuration.ContextClassName = "volatile"; // cannot be C# keyword
-            Assert.Equal(DesignStrings.ContextClassNotValidCSharpIdentifier("volatile"),
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
+            public string GenerateFluentApi(IForeignKey foreignKey, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
 
-            configuration.ContextClassName = "GoodClassName";
-            configuration.OutputPath = @"\AnAbsolutePath";
-            Assert.Equal(DesignStrings.RootNamespaceRequired,
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
+            public string GenerateFluentApi(IIndex index, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
 
-            configuration.OutputPath = @"A\Relative\Path";
-            Assert.Equal(DesignStrings.RootNamespaceRequired,
-                Assert.Throws<ArgumentException>(
-                    () => configuration.CheckValidity()).Message);
+            public bool IsHandledByConvention(IModel model, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsHandledByConvention(IEntityType entityType, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsHandledByConvention(IKey key, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsHandledByConvention(IProperty property, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsHandledByConvention(IForeignKey foreignKey, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsHandledByConvention(IIndex index, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

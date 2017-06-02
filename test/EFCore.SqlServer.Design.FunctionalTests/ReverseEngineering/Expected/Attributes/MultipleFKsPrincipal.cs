@@ -1,0 +1,31 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace E2ETest.Namespace.SubDir
+{
+    [Table("MultipleFKsPrincipal")]
+    public partial class MultipleFksPrincipal
+    {
+        public MultipleFksPrincipal()
+        {
+            MultipleFksDependentRelationA = new HashSet<MultipleFksDependent>();
+            MultipleFksDependentRelationB = new HashSet<MultipleFksDependent>();
+            MultipleFksDependentRelationC = new HashSet<MultipleFksDependent>();
+        }
+
+        [Column("MultipleFKsPrincipalId")]
+        public int MultipleFksPrincipalId { get; set; }
+        [Required]
+        [StringLength(20)]
+        public string SomePrincipalColumn { get; set; }
+
+        [InverseProperty("RelationA")]
+        public ICollection<MultipleFksDependent> MultipleFksDependentRelationA { get; set; }
+        [InverseProperty("RelationB")]
+        public ICollection<MultipleFksDependent> MultipleFksDependentRelationB { get; set; }
+        [InverseProperty("RelationC")]
+        public ICollection<MultipleFksDependent> MultipleFksDependentRelationC { get; set; }
+    }
+}

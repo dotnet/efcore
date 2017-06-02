@@ -1,0 +1,26 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace E2ETest.Namespace.SubDir
+{
+    public partial class OneToManyDependent
+    {
+        [Column("OneToManyDependentID1")]
+        public int OneToManyDependentId1 { get; set; }
+        [Column("OneToManyDependentID2")]
+        public int OneToManyDependentId2 { get; set; }
+        [Required]
+        [StringLength(20)]
+        public string SomeDependentEndColumn { get; set; }
+        [Column("OneToManyDependentFK2")]
+        public int? OneToManyDependentFk2 { get; set; }
+        [Column("OneToManyDependentFK1")]
+        public int? OneToManyDependentFk1 { get; set; }
+
+        [ForeignKey("OneToManyDependentFk1,OneToManyDependentFk2")]
+        [InverseProperty("OneToManyDependent")]
+        public OneToManyPrincipal OneToManyDependentFk { get; set; }
+    }
+}

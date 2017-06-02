@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
                 { typeof(string), () => "Fake" },
+                { typeof(IList<string>), () => new List<string> { "Fake1", "Fake2" } },
                 { typeof(IRelationalConnection), () => new FakeRelationalConnection() },
                 { typeof(DbCommand), () => new FakeDbCommand() },
                 { typeof(DbTransaction), () => new FakeDbTransaction() },

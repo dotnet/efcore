@@ -106,6 +106,60 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("IncompatibleTableMemoryOptimizedMismatch", nameof(table), nameof(entityType), nameof(otherEntityType), nameof(memoryOptimizedEntityType), nameof(nonMemoryOptimizedEntityType)),
                 table, entityType, otherEntityType, memoryOptimizedEntityType, nonMemoryOptimizedEntityType);
 
+        /// <summary>
+        ///     For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogDataTypeDoesNotAllowSqlServerIdentityStrategy
+            = new EventDefinition<string, string>(
+                SqlServerEventId.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    SqlServerEventId.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning,
+                    _resourceManager.GetString("LogDataTypeDoesNotAllowSqlServerIdentityStrategy")));
+
+        /// <summary>
+        ///     Found default schema {defaultSchema}.
+        /// </summary>
+        public static readonly EventDefinition<string> LogFoundDefaultSchema
+            = new EventDefinition<string>(
+                SqlServerEventId.DefaultSchemaFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    SqlServerEventId.DefaultSchemaFound,
+                    _resourceManager.GetString("LogFoundDefaultSchema")));
+
+        /// <summary>
+        ///     Found type alias with name: {alias} which maps to underlying data type {dataType}.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogFoundTypeAlias
+            = new EventDefinition<string, string>(
+                SqlServerEventId.TypeAliasFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    SqlServerEventId.TypeAliasFound,
+                    _resourceManager.GetString("LogFoundTypeAlias")));
+
+        /// <summary>
+        ///     Found column with table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.
+        /// </summary>
+        public static readonly FallbackEventDefinition LogFoundColumn
+            = new FallbackEventDefinition(
+                SqlServerEventId.ColumnFound,
+                LogLevel.Debug,
+                _resourceManager.GetString("LogFoundColumn"));
+
+        /// <summary>
+        ///     Found foreign key column with table: {tableName}, foreign key name: {fkName}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, update action: {updateAction}, delete action: {deleteAction}, ordinal: {ordinal}.
+        /// </summary>
+        public static readonly FallbackEventDefinition LogFoundForeignKeyColumn
+            = new FallbackEventDefinition(
+                SqlServerEventId.ForeignKeyColumnFound,
+                LogLevel.Debug,
+                _resourceManager.GetString("LogFoundForeignKeyColumn"));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
