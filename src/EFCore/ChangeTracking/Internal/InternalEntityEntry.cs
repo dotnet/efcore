@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 // Hot path; do not use LINQ
                 foreach (var property in EntityType.GetProperties())
                 {
-                    if (property.AfterSaveBehavior != PropertyValueBehavior.UseValue)
+                    if (property.AfterSaveBehavior != PropertySaveBehavior.Save)
                     {
                         _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isFlagged: false);
                     }
@@ -789,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var property in EntityType.GetProperties())
                 {
-                    if (property.BeforeSaveBehavior == PropertyValueBehavior.Throw
+                    if (property.BeforeSaveBehavior == PropertySaveBehavior.Throw
                         && !HasTemporaryValue(property)
                         && !HasDefaultValue(property))
                     {
@@ -801,7 +801,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var property in EntityType.GetProperties())
                 {
-                    if (property.AfterSaveBehavior == PropertyValueBehavior.Throw
+                    if (property.AfterSaveBehavior == PropertySaveBehavior.Throw
                         && IsModified(property))
                     {
                         throw new InvalidOperationException(CoreStrings.PropertyReadOnlyAfterSave(property.Name, EntityType.DisplayName()));
@@ -957,12 +957,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual bool IsStoreGenerated(IProperty property)
             => (property.ValueGenerated.ForAdd() &&
                 EntityState == EntityState.Added
-                && (property.BeforeSaveBehavior == PropertyValueBehavior.Ignore
+                && (property.BeforeSaveBehavior == PropertySaveBehavior.Ignore
                     || HasTemporaryValue(property)
                     || HasDefaultValue(property)))
                || (property.ValueGenerated.ForUpdate()
                    && EntityState == EntityState.Modified
-                   && (property.AfterSaveBehavior == PropertyValueBehavior.Ignore
+                   && (property.AfterSaveBehavior == PropertySaveBehavior.Ignore
                        || !IsModified(property)));
 
         private bool HasDefaultValue(IProperty property)

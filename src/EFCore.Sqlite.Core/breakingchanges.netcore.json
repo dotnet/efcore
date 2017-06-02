@@ -1,5 +1,9 @@
 [
   {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.SqliteMetadataExtensions",
+    "Kind": "Removal"
+  },
+  {
     "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsAnnotationProvider : Microsoft.EntityFrameworkCore.Migrations.MigrationsAnnotationProvider",
     "Kind": "Removal"
   },

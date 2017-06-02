@@ -346,26 +346,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Metadata;
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.SqlServer().Name);
-            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).SqlServer().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).Relational().Name);
 
             foreignKey.Relational().Name = "FK";
 
             Assert.Equal("FK", foreignKey.Relational().Name);
-            Assert.Equal("FK", foreignKey.SqlServer().Name);
-            Assert.Equal("FK", ((IForeignKey)foreignKey).SqlServer().Name);
+            Assert.Equal("FK", ((IForeignKey)foreignKey).Relational().Name);
 
-            foreignKey.SqlServer().Name = "KFC";
+            foreignKey.Relational().Name = "KFC";
 
             Assert.Equal("KFC", foreignKey.Relational().Name);
-            Assert.Equal("KFC", foreignKey.SqlServer().Name);
-            Assert.Equal("KFC", ((IForeignKey)foreignKey).SqlServer().Name);
+            Assert.Equal("KFC", ((IForeignKey)foreignKey).Relational().Name);
 
-            foreignKey.SqlServer().Name = null;
+            foreignKey.Relational().Name = null;
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.SqlServer().Name);
-            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).SqlServer().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).Relational().Name);
         }
 
         [Fact]
@@ -379,26 +375,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Metadata;
 
             Assert.Equal("IX_Customer_Id", index.Relational().Name);
-            Assert.Equal("IX_Customer_Id", index.SqlServer().Name);
-            Assert.Equal("IX_Customer_Id", ((IIndex)index).SqlServer().Name);
+            Assert.Equal("IX_Customer_Id", ((IIndex)index).Relational().Name);
 
             index.Relational().Name = "MyIndex";
 
             Assert.Equal("MyIndex", index.Relational().Name);
-            Assert.Equal("MyIndex", index.SqlServer().Name);
-            Assert.Equal("MyIndex", ((IIndex)index).SqlServer().Name);
+            Assert.Equal("MyIndex", ((IIndex)index).Relational().Name);
 
             index.SqlServer().Name = "DexKnows";
 
             Assert.Equal("DexKnows", index.Relational().Name);
-            Assert.Equal("DexKnows", index.SqlServer().Name);
-            Assert.Equal("DexKnows", ((IIndex)index).SqlServer().Name);
+            Assert.Equal("DexKnows", ((IIndex)index).Relational().Name);
 
             index.SqlServer().Name = null;
 
             Assert.Equal("IX_Customer_Id", index.Relational().Name);
-            Assert.Equal("IX_Customer_Id", index.SqlServer().Name);
-            Assert.Equal("IX_Customer_Id", ((IIndex)index).SqlServer().Name);
+            Assert.Equal("IX_Customer_Id", ((IIndex)index).Relational().Name);
         }
 
         [Fact]

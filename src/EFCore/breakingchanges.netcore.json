@@ -452,6 +452,11 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IModel : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IEntityType FindEntityType(System.String name, System.String definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IEntityType definingEntityType)",
+      "Kind": "Addition"
+    },
+    {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
       "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IEntityType get_DefiningEntityType()",
       "Kind": "Addition"
@@ -472,33 +477,53 @@
       "Kind": "Addition"
     },
     {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
-      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.PropertyValueBehavior get_AfterSaveBehavior()",
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableModel : Microsoft.EntityFrameworkCore.Metadata.IModel, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType AddEntityType(System.String name, System.String definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType definingEntityType)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableModel : Microsoft.EntityFrameworkCore.Metadata.IModel, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType AddEntityType(System.Type clrType, System.String definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType definingEntityType)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableModel : Microsoft.EntityFrameworkCore.Metadata.IModel, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType FindEntityType(System.String name, System.String definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType definingEntityType)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableModel : Microsoft.EntityFrameworkCore.Metadata.IModel, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType RemoveEntityType(System.String name, System.String definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType definingEntityType)",
       "Kind": "Addition"
     },
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
-      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.PropertyValueBehavior get_BeforeSaveBehavior()",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior get_AfterSaveBehavior()",
       "Kind": "Addition"
     },
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
-      "MemberId": "System.Void set_AfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertyValueBehavior value)",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior get_BeforeSaveBehavior()",
       "Kind": "Addition"
     },
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
-      "MemberId": "System.Void set_BeforeSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertyValueBehavior value)",
+      "MemberId": "System.Void set_AfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior value)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+      "MemberId": "System.Void set_BeforeSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior value)",
       "Kind": "Addition"
     },
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IProperty : Microsoft.EntityFrameworkCore.Metadata.IPropertyBase",
-      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.PropertyValueBehavior get_AfterSaveBehavior()",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior get_AfterSaveBehavior()",
       "Kind": "Addition"
     },
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IProperty : Microsoft.EntityFrameworkCore.Metadata.IPropertyBase",
-      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.PropertyValueBehavior get_BeforeSaveBehavior()",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior get_BeforeSaveBehavior()",
       "Kind": "Addition"
     },
     {
@@ -545,35 +570,10 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
       "MemberId": "System.Void set_QueryFilter(System.Linq.Expressions.LambdaExpression value)",
       "Kind": "Addition"
-    }, 
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IModel : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
-      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IEntityType FindEntityType(System.String name, System.String definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IEntityType definingEntityType)",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableModel : Microsoft.EntityFrameworkCore.Metadata.IModel, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
-      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType AddEntityType(System.String name, System.String definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType definingEntityType)",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableModel : Microsoft.EntityFrameworkCore.Metadata.IModel, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
-      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType AddEntityType(System.Type clrType, System.String definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType definingEntityType)",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableModel : Microsoft.EntityFrameworkCore.Metadata.IModel, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
-      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType FindEntityType(System.String name, System.String definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType definingEntityType)",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableModel : Microsoft.EntityFrameworkCore.Metadata.IModel, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
-      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType RemoveEntityType(System.String name, System.String definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType definingEntityType)",
-      "Kind": "Addition"
     },
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDatabaseProvider",
-      "MemberId": "System.String get_InvariantName()",
+      "MemberId": "System.String get_Name()",
       "Kind": "Addition"
     },
     {

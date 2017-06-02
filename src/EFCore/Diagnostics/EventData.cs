@@ -11,19 +11,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// <summary>
     ///     A base class for all Entity Framework <see cref="DiagnosticSource" /> event payloads.
     /// </summary>
-    public class EventDataBase
+    public class EventData
     {
         private readonly EventDefinitionBase _eventDefinition;
-        private readonly Func<EventDefinitionBase, EventDataBase, string> _messageGenerator;
+        private readonly Func<EventDefinitionBase, EventData, string> _messageGenerator;
 
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        public EventDataBase(
+        public EventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator)
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator)
         {
             _eventDefinition = eventDefinition;
             _messageGenerator = messageGenerator;

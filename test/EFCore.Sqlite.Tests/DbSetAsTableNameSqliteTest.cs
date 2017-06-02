@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore
     public class DbSetAsTableNameSqliteTest : DbSetAsTableNameTest
     {
         protected override string GetTableName<TEntity>(DbContext context)
-            => context.Model.FindEntityType(typeof(TEntity)).Sqlite().TableName;
+            => context.Model.FindEntityType(typeof(TEntity)).Relational().TableName;
 
         protected override SetsContext CreateContext() => new SqliteSetsContext();
 

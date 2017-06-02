@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _connection = connection;
             _sqlGenerationHelper = sqlGenerationHelper;
             _logger = logger;
-            _activeProvider = databaseProvider.InvariantName;
+            _activeProvider = databaseProvider.Name;
         }
 
         /// <summary>

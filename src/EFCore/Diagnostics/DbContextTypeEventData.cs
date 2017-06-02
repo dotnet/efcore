@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for events that reference
     ///     a <see cref="DbContext" /> type.
     /// </summary>
-    public class DbContextTypeEventData : EventDataBase
+    public class DbContextTypeEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="contextType"> The current <see cref="DbContext" />. </param>
         public DbContextTypeEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] Type contextType)
             : base(eventDefinition, messageGenerator)
         {

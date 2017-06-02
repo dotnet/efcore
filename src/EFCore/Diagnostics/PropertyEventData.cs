@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for events that have
     ///     a property.
     /// </summary>
-    public class PropertyEventData : EventDataBase
+    public class PropertyEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="property"> The property. </param>
         public PropertyEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] IProperty property)
             : base(eventDefinition, messageGenerator)
         {

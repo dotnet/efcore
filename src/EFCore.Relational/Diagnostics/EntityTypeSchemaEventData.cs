@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload base class for events that
     ///     reference an entity type and a schema
     /// </summary>
-    public class EntityTypeSchemaEventData : EventDataBase
+    public class EntityTypeSchemaEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="schema"> The schema. </param>
         public EntityTypeSchemaEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] IEntityType entityType,
             [NotNull] string schema)
             : base(eventDefinition, messageGenerator)

@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string CommandExecuting(EventDefinitionBase definition, EventDataBase payload)
+        private static string CommandExecuting(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, CommandType, int, string, string>)definition;
             var p = (CommandEventData)payload;
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string CommandExecuted(EventDefinitionBase definition, EventDataBase payload)
+        private static string CommandExecuted(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, CommandType, int, string, string>)definition;
             var p = (CommandExecutedEventData)payload;
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string CommandError(EventDefinitionBase definition, EventDataBase payload)
+        private static string CommandError(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, CommandType, int, string, string>)definition;
             var p = (CommandErrorEventData)payload;
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string ConnectionOpening(EventDefinitionBase definition, EventDataBase payload)
+        private static string ConnectionOpening(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (ConnectionEventData)payload;
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string ConnectionOpened(EventDefinitionBase definition, EventDataBase payload)
+        private static string ConnectionOpened(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (ConnectionEndEventData)payload;
@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string ConnectionClosing(EventDefinitionBase definition, EventDataBase payload)
+        private static string ConnectionClosing(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (ConnectionEventData)payload;
@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string ConnectionClosed(EventDefinitionBase definition, EventDataBase payload)
+        private static string ConnectionClosed(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (ConnectionEndEventData)payload;
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string ConnectionError(EventDefinitionBase definition, EventDataBase payload)
+        private static string ConnectionError(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (ConnectionErrorEventData)payload;
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string TransactionStarted(EventDefinitionBase definition, EventDataBase payload)
+        private static string TransactionStarted(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (TransactionEventData)payload;
@@ -513,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string TransactionUsed(EventDefinitionBase definition, EventDataBase payload)
+        private static string TransactionUsed(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (TransactionEventData)payload;
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string MigrateUsingConnection(EventDefinitionBase definition, EventDataBase payload)
+        private static string MigrateUsingConnection(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (MigratorConnectionEventData)payload;
@@ -784,7 +784,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string MigrationReverting(EventDefinitionBase definition, EventDataBase payload)
+        private static string MigrationReverting(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (MigrationEventData)payload;
@@ -822,7 +822,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string MigrationApplying(EventDefinitionBase definition, EventDataBase payload)
+        private static string MigrationApplying(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (MigrationEventData)payload;
@@ -866,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string MigrationGeneratingDownScript(EventDefinitionBase definition, EventDataBase payload)
+        private static string MigrationGeneratingDownScript(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (MigrationScriptingEventData)payload;
@@ -910,7 +910,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string MigrationGeneratingUpScript(EventDefinitionBase definition, EventDataBase payload)
+        private static string MigrationGeneratingUpScript(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (MigrationScriptingEventData)payload;
@@ -971,7 +971,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string MigrationsNotFound(EventDefinitionBase definition, EventDataBase payload)
+        private static string MigrationsNotFound(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (MigrationAssemblyEventData)payload;
@@ -1003,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string QueryClientEvaluationWarning(EventDefinitionBase definition, EventDataBase payload)
+        private static string QueryClientEvaluationWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<object>)definition;
             var p = (QueryModelExpressionEventData)payload;
@@ -1038,7 +1038,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string QueryPossibleUnintendedUseOfEqualsWarning(EventDefinitionBase definition, EventDataBase payload)
+        private static string QueryPossibleUnintendedUseOfEqualsWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<object, object>)definition;
             var p = (BinaryExpressionEventData)payload;
@@ -1075,7 +1075,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string ModelValidationKeyDefaultValueWarning(EventDefinitionBase definition, EventDataBase payload)
+        private static string ModelValidationKeyDefaultValueWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (PropertyEventData)payload;
@@ -1114,7 +1114,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string BoolWithDefaultWarning(EventDefinitionBase definition, EventDataBase payload)
+        private static string BoolWithDefaultWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (PropertyEventData)payload;

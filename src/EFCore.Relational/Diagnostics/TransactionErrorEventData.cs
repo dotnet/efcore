@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload base class for
     ///     <see cref="RelationalEventId" /> transaction error events.
     /// </summary>
-    public class TransactionErrorEventData : TransactionEndEventData
+    public class TransactionErrorEventData : TransactionEndEventData, IErrorEventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         public TransactionErrorEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
             Guid connectionId,

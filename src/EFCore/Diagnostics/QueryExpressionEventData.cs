@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for events that have
     ///     a query expression.
     /// </summary>
-    public class QueryExpressionEventData : EventDataBase
+    public class QueryExpressionEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="expressionPrinter"> An <see cref="IExpressionPrinter" /> that can be used to render the <see cref="Expression" />. </param>
         public QueryExpressionEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] Expression queryExpression,
             [NotNull] IExpressionPrinter expressionPrinter)
             : base(eventDefinition, messageGenerator)

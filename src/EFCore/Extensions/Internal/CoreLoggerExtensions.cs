@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string SaveChangesFailed(EventDefinitionBase definition, EventDataBase payload)
+        private static string SaveChangesFailed(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<Type, string, Exception>)definition;
             var p = (DbContextErrorEventData)payload;
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new EntityTypesEventData(
+                    new SharedDependentEntityEventData(
                         definition,
                         DuplicateDietInstanceWarning,
                         diet1,
@@ -82,10 +82,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string DuplicateDietInstanceWarning(EventDefinitionBase definition, EventDataBase payload)
+        private static string DuplicateDietInstanceWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
-            var p = (EntityTypesEventData)payload;
+            var p = (SharedDependentEntityEventData)payload;
             return d.GenerateMessage(p.FirstEntityType.DisplayName(), p.SecondEntityType.DisplayName());
         }
 
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string QueryIterationFailed(EventDefinitionBase definition, EventDataBase payload)
+        private static string QueryIterationFailed(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<Type, string, Exception>)definition;
             var p = (DbContextTypeErrorEventData)payload;
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string QueryModelCompiling(EventDefinitionBase definition, EventDataBase payload)
+        private static string QueryModelCompiling(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (QueryModelEventData)payload;
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string RowLimitingOperationWithoutOrderByWarning(EventDefinitionBase definition, EventDataBase payload)
+        private static string RowLimitingOperationWithoutOrderByWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (QueryModelEventData)payload;
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string FirstWithoutOrderByAndFilterWarning(EventDefinitionBase definition, EventDataBase payload)
+        private static string FirstWithoutOrderByAndFilterWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (QueryModelEventData)payload;
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string QueryModelOptimized(EventDefinitionBase definition, EventDataBase payload)
+        private static string QueryModelOptimized(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (QueryModelEventData)payload;
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string NavigationIncluded(EventDefinitionBase definition, EventDataBase payload)
+        private static string NavigationIncluded(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (IncludeEventData)payload;
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string QueryExecutionPlanned(EventDefinitionBase definition, EventDataBase payload)
+        private static string QueryExecutionPlanned(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (QueryExpressionEventData)payload;
@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new EventDataBase(
+                    new EventData(
                         definition,
                         (d, p) => ((EventDefinition)d).GenerateMessage()));
             }
@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string IncludeIgnoredWarning(EventDefinitionBase definition, EventDataBase payload)
+        private static string IncludeIgnoredWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (IncludeEventData)payload;
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string PossibleUnintendedCollectionNavigationNullComparisonWarning(EventDefinitionBase definition, EventDataBase payload)
+        private static string PossibleUnintendedCollectionNavigationNullComparisonWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
             var p = (NavigationPathEventData)payload;
@@ -452,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string PossibleUnintendedReferenceComparisonWarning(EventDefinitionBase definition, EventDataBase payload)
+        private static string PossibleUnintendedReferenceComparisonWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<object, object>)definition;
             var p = (BinaryExpressionEventData)payload;

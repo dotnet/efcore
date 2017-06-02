@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore
             var connection = services.GetRequiredService<IRelationalConnection>();
             var databaseProvider = services.GetRequiredService<IDatabaseProvider>();
 
-            var migrationBuilder = new MigrationBuilder(databaseProvider.InvariantName);
+            var migrationBuilder = new MigrationBuilder(databaseProvider.Name);
             buildMigration(migrationBuilder);
             var operations = migrationBuilder.Operations.ToList();
 

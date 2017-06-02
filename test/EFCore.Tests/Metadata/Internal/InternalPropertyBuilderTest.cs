@@ -332,13 +332,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
 
-            Assert.True(builder.BeforeSave(PropertyValueBehavior.Throw, ConfigurationSource.DataAnnotation));
-            Assert.True(builder.BeforeSave(PropertyValueBehavior.Ignore, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.BeforeSave(PropertySaveBehavior.Throw, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.BeforeSave(PropertySaveBehavior.Ignore, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(PropertyValueBehavior.Ignore, metadata.BeforeSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Ignore, metadata.BeforeSaveBehavior);
 
-            Assert.False(builder.BeforeSave(PropertyValueBehavior.UseValue, ConfigurationSource.Convention));
-            Assert.Equal(PropertyValueBehavior.Ignore, metadata.BeforeSaveBehavior);
+            Assert.False(builder.BeforeSave(PropertySaveBehavior.Save, ConfigurationSource.Convention));
+            Assert.Equal(PropertySaveBehavior.Ignore, metadata.BeforeSaveBehavior);
         }
 
         [Fact]
@@ -346,17 +346,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var metadata = CreateProperty();
             Assert.Null(metadata.GetBeforeSaveBehaviorConfigurationSource());
-            metadata.BeforeSaveBehavior = PropertyValueBehavior.Throw;
+            metadata.BeforeSaveBehavior = PropertySaveBehavior.Throw;
             var builder = metadata.Builder;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetBeforeSaveBehaviorConfigurationSource());
-            Assert.True(builder.BeforeSave(PropertyValueBehavior.Throw, ConfigurationSource.DataAnnotation));
-            Assert.False(builder.BeforeSave(PropertyValueBehavior.Ignore, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.BeforeSave(PropertySaveBehavior.Throw, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.BeforeSave(PropertySaveBehavior.Ignore, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(PropertyValueBehavior.Throw, metadata.BeforeSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Throw, metadata.BeforeSaveBehavior);
 
-            Assert.True(builder.BeforeSave(PropertyValueBehavior.Ignore, ConfigurationSource.Explicit));
-            Assert.Equal(PropertyValueBehavior.Ignore, metadata.BeforeSaveBehavior);
+            Assert.True(builder.BeforeSave(PropertySaveBehavior.Ignore, ConfigurationSource.Explicit));
+            Assert.Equal(PropertySaveBehavior.Ignore, metadata.BeforeSaveBehavior);
         }
 
         [Fact]
@@ -365,13 +365,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
 
-            Assert.True(builder.AfterSave(PropertyValueBehavior.Throw, ConfigurationSource.DataAnnotation));
-            Assert.True(builder.AfterSave(PropertyValueBehavior.Ignore, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.AfterSave(PropertySaveBehavior.Throw, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.AfterSave(PropertySaveBehavior.Ignore, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(PropertyValueBehavior.Ignore, metadata.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Ignore, metadata.AfterSaveBehavior);
 
-            Assert.False(builder.AfterSave(PropertyValueBehavior.UseValue, ConfigurationSource.Convention));
-            Assert.Equal(PropertyValueBehavior.Ignore, metadata.AfterSaveBehavior);
+            Assert.False(builder.AfterSave(PropertySaveBehavior.Save, ConfigurationSource.Convention));
+            Assert.Equal(PropertySaveBehavior.Ignore, metadata.AfterSaveBehavior);
         }
 
         [Fact]
@@ -379,17 +379,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var metadata = CreateProperty();
             Assert.Null(metadata.GetAfterSaveBehaviorConfigurationSource());
-            metadata.AfterSaveBehavior = PropertyValueBehavior.Throw;
+            metadata.AfterSaveBehavior = PropertySaveBehavior.Throw;
             var builder = metadata.Builder;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetAfterSaveBehaviorConfigurationSource());
-            Assert.True(builder.AfterSave(PropertyValueBehavior.Throw, ConfigurationSource.DataAnnotation));
-            Assert.False(builder.AfterSave(PropertyValueBehavior.Ignore, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.AfterSave(PropertySaveBehavior.Throw, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.AfterSave(PropertySaveBehavior.Ignore, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(PropertyValueBehavior.Throw, metadata.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Throw, metadata.AfterSaveBehavior);
 
-            Assert.True(builder.AfterSave(PropertyValueBehavior.Ignore, ConfigurationSource.Explicit));
-            Assert.Equal(PropertyValueBehavior.Ignore, metadata.AfterSaveBehavior);
+            Assert.True(builder.AfterSave(PropertySaveBehavior.Ignore, ConfigurationSource.Explicit));
+            Assert.Equal(PropertySaveBehavior.Ignore, metadata.AfterSaveBehavior);
         }
 
         private InternalPropertyBuilder CreateInternalPropertyBuilder()

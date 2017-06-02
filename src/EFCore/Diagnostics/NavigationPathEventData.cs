@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for events that have
     ///     a navigation property.
     /// </summary>
-    public class NavigationPathEventData : EventDataBase
+    public class NavigationPathEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="navigationPath"> The navigation property. </param>
         public NavigationPathEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] string navigationPath)
             : base(eventDefinition, messageGenerator)
         {

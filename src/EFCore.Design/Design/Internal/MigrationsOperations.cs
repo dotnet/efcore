@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             if (migrator == null)
             {
                 var databaseProvider = services.GetService<IDatabaseProvider>();
-                throw new OperationException(DesignStrings.NonRelationalProvider(databaseProvider?.InvariantName ?? "Unknown"));
+                throw new OperationException(DesignStrings.NonRelationalProvider(databaseProvider?.Name ?? "Unknown"));
             }
         }
 

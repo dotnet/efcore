@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for events that have
     ///     a query expression.
     /// </summary>
-    public class BinaryExpressionEventData : EventDataBase
+    public class BinaryExpressionEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="right"> The right <see cref="Expression" />. </param>
         public BinaryExpressionEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] Expression left,
             [NotNull] Expression right)
             : base(eventDefinition, messageGenerator)

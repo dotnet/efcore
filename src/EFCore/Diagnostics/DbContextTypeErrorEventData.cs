@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for error events that reference
     ///     a <see cref="DbContext" /> type.
     /// </summary>
-    public class DbContextTypeErrorEventData : DbContextTypeEventData
+    public class DbContextTypeErrorEventData : DbContextTypeEventData, IErrorEventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="exception"> The exception that triggered this event. </param>
         public DbContextTypeErrorEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] Type contextType,
             [NotNull] Exception exception)
             : base(eventDefinition, messageGenerator, contextType)

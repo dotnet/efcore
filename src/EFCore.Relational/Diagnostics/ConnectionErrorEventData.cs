@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// <summary>
     ///     The <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.ConnectionError" />.
     /// </summary>
-    public class ConnectionErrorEventData : ConnectionEndEventData
+    public class ConnectionErrorEventData : ConnectionEndEventData, IErrorEventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         public ConnectionErrorEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbConnection connection,
             Guid connectionId,
             [NotNull] Exception exception,

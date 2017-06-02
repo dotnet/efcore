@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(dependencies, nameof(dependencies));
 
             _contextType = dependencies.CurrentDbContext.Context.GetType();
-            _activeProvider = dependencies.DatabaseProvider.InvariantName;
+            _activeProvider = dependencies.DatabaseProvider.Name;
             Dependencies = dependencies;
         }
 

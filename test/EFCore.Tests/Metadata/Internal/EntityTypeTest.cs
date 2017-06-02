@@ -1548,11 +1548,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(((IProperty)idProperty).IsReadOnlyBeforeSave);
             Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
 
-            nameProperty.AfterSaveBehavior = PropertyValueBehavior.Throw;
+            nameProperty.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
             Assert.Equal(
                 CoreStrings.KeyPropertyMustBeReadOnly(Customer.NameProperty.Name, nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(() => nameProperty.AfterSaveBehavior = PropertyValueBehavior.UseValue).Message);
+                Assert.Throws<InvalidOperationException>(() => nameProperty.AfterSaveBehavior = PropertySaveBehavior.Save).Message);
 
             nameProperty.IsReadOnlyBeforeSave = true;
 
@@ -1570,23 +1570,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = model.AddEntityType(typeof(Customer));
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.AfterSaveBehavior);
 
             nameProperty.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
-            Assert.Equal(PropertyValueBehavior.Ignore, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertyValueBehavior.Ignore, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.AfterSaveBehavior);
 
-            nameProperty.BeforeSaveBehavior = PropertyValueBehavior.UseValue;
+            nameProperty.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
-            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertyValueBehavior.Ignore, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.AfterSaveBehavior);
 
-            nameProperty.AfterSaveBehavior = PropertyValueBehavior.UseValue;
+            nameProperty.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.AfterSaveBehavior);
         }
 
         [Fact]
@@ -1596,23 +1596,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = model.AddEntityType(typeof(Customer));
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.AfterSaveBehavior);
 
             nameProperty.ValueGenerated = ValueGenerated.OnUpdate;
 
-            Assert.Equal(PropertyValueBehavior.UseValue, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertyValueBehavior.Ignore, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.AfterSaveBehavior);
 
-            nameProperty.BeforeSaveBehavior = PropertyValueBehavior.Throw;
+            nameProperty.BeforeSaveBehavior = PropertySaveBehavior.Throw;
 
-            Assert.Equal(PropertyValueBehavior.Throw, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertyValueBehavior.Ignore, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Throw, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.AfterSaveBehavior);
 
-            nameProperty.AfterSaveBehavior = PropertyValueBehavior.Throw;
+            nameProperty.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
-            Assert.Equal(PropertyValueBehavior.Throw, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertyValueBehavior.Throw, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Throw, nameProperty.BeforeSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Throw, nameProperty.AfterSaveBehavior);
         }
 
         [Fact]

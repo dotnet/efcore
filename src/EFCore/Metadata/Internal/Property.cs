@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private bool? _isConcurrencyToken;
         private bool? _isNullable;
         private ValueGenerated? _valueGenerated;
-        private PropertyValueBehavior? _beforeSaveBehavior;
-        private PropertyValueBehavior? _afterSaveBehavior;
+        private PropertySaveBehavior? _beforeSaveBehavior;
+        private PropertySaveBehavior? _afterSaveBehavior;
 
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _typeConfigurationSource;
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual PropertyValueBehavior BeforeSaveBehavior
+        public virtual PropertySaveBehavior BeforeSaveBehavior
         {
             get => _beforeSaveBehavior ?? DefaultBeforeSaveBehavior;
             set => SetBeforeSaveBehavior(value, ConfigurationSource.Explicit);
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetBeforeSaveBehavior(PropertyValueBehavior? beforeSaveBehavior, ConfigurationSource configurationSource)
+        public virtual void SetBeforeSaveBehavior(PropertySaveBehavior? beforeSaveBehavior, ConfigurationSource configurationSource)
         {
             if (BeforeSaveBehavior != beforeSaveBehavior)
             {
@@ -255,10 +255,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             UpdateBeforeSaveBehaviorConfigurationSource(configurationSource);
         }
 
-        private PropertyValueBehavior DefaultBeforeSaveBehavior
+        private PropertySaveBehavior DefaultBeforeSaveBehavior
             => ValueGenerated == ValueGenerated.OnAddOrUpdate
-                ? PropertyValueBehavior.Ignore
-                : PropertyValueBehavior.UseValue;
+                ? PropertySaveBehavior.Ignore
+                : PropertySaveBehavior.Save;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual PropertyValueBehavior AfterSaveBehavior
+        public virtual PropertySaveBehavior AfterSaveBehavior
         {
             get => _afterSaveBehavior ?? DefaultAfterSaveBehavior;
             set => SetAfterSaveBehavior(value, ConfigurationSource.Explicit);
@@ -283,9 +283,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetAfterSaveBehavior(PropertyValueBehavior? afterSaveBehavior, ConfigurationSource configurationSource)
+        public virtual void SetAfterSaveBehavior(PropertySaveBehavior? afterSaveBehavior, ConfigurationSource configurationSource)
         {
-            if (afterSaveBehavior != PropertyValueBehavior.Throw
+            if (afterSaveBehavior != PropertySaveBehavior.Throw
                 && Keys != null)
             {
                 throw new InvalidOperationException(CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.DisplayName()));
@@ -304,12 +304,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             UpdateAfterSaveBehaviorConfigurationSource(configurationSource);
         }
 
-        private PropertyValueBehavior DefaultAfterSaveBehavior
+        private PropertySaveBehavior DefaultAfterSaveBehavior
             => Keys != null
-                ? PropertyValueBehavior.Throw
+                ? PropertySaveBehavior.Throw
                 : ValueGenerated.ForUpdate()
-                    ? PropertyValueBehavior.Ignore
-                    : PropertyValueBehavior.UseValue;
+                    ? PropertySaveBehavior.Ignore
+                    : PropertySaveBehavior.Save;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -327,12 +327,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Obsolete("Use BeforeSaveBehavior instead.")]
         public virtual bool IsReadOnlyBeforeSave
         {
-            get => BeforeSaveBehavior == PropertyValueBehavior.Throw;
+            get => BeforeSaveBehavior == PropertySaveBehavior.Throw;
             set
             {
                 if (value)
                 {
-                    BeforeSaveBehavior = PropertyValueBehavior.Throw;
+                    BeforeSaveBehavior = PropertySaveBehavior.Throw;
                 }
             }
         }
@@ -344,12 +344,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Obsolete("Use AfterSaveBehavior instead.")]
         public virtual bool IsReadOnlyAfterSave
         {
-            get => AfterSaveBehavior == PropertyValueBehavior.Throw;
+            get => AfterSaveBehavior == PropertySaveBehavior.Throw;
             set
             {
                 if (value)
                 {
-                    AfterSaveBehavior = PropertyValueBehavior.Throw;
+                    AfterSaveBehavior = PropertySaveBehavior.Throw;
                 }
             }
         }
@@ -397,18 +397,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Obsolete("Use BeforeSaveBehavior or AfterSaveBehavior instead.")]
         public virtual bool IsStoreGeneratedAlways
         {
-            get => AfterSaveBehavior == PropertyValueBehavior.Ignore || BeforeSaveBehavior == PropertyValueBehavior.Ignore;
+            get => AfterSaveBehavior == PropertySaveBehavior.Ignore || BeforeSaveBehavior == PropertySaveBehavior.Ignore;
             set
             {
                 if (value)
                 {
-                    BeforeSaveBehavior = PropertyValueBehavior.Ignore;
-                    AfterSaveBehavior = PropertyValueBehavior.Ignore;
+                    BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                    AfterSaveBehavior = PropertySaveBehavior.Ignore;
                 }
                 else
                 {
-                    BeforeSaveBehavior = PropertyValueBehavior.UseValue;
-                    AfterSaveBehavior = PropertyValueBehavior.UseValue;
+                    BeforeSaveBehavior = PropertySaveBehavior.Save;
+                    AfterSaveBehavior = PropertySaveBehavior.Save;
                 }
             }
         }

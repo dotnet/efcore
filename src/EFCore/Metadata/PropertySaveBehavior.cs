@@ -9,12 +9,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Used with <see cref="IMutableProperty.BeforeSaveBehavior" /> and
     ///     <see cref="IMutableProperty.AfterSaveBehavior" />
     /// </summary>
-    public enum PropertyValueBehavior
+    public enum PropertySaveBehavior
     {
         /// <summary>
         ///     The value set or changed will be sent to the database in the normal way.
         /// </summary>
-        UseValue,
+        Save,
 
         /// <summary>
         ///     Any value set or changed will be ignored.

@@ -227,7 +227,18 @@ namespace Microsoft.EntityFrameworkCore
             public override void Write(string name, object value)
             {
                 LoggedEventName = name;
-                LoggedMessage = (value as EventDataBase)?.ToString();
+
+                var eventData = value as EventData;
+                if (eventData != null)
+                {
+                    LoggedMessage = eventData.ToString();
+
+                    var exceptionProperty = eventData.GetType().GetTypeInfo().GetDeclaredProperty("Exception");
+                    if (exceptionProperty != null)
+                    {
+                        Assert.IsAssignableFrom<IErrorEventData>(eventData);
+                    }
+                }
             }
 
             public override bool IsEnabled(string name) => name == EnableFor;

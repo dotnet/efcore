@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event may be in different categories depending on where sensitive data is being logged.
         ///     </para>
         ///     <para>
-        ///         This event uses the <see cref="EventDataBase" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///         This event uses the <see cref="EventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
         public static readonly EventId SensitiveDataLoggingEnabledWarning = MakeInfraId(Id.SensitiveDataLoggingEnabledWarning);

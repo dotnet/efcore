@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="expression"> The expression. </param>
         public QueryModelExpressionEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] QueryModel queryModel,
             [NotNull] object expression)
             : base(eventDefinition, messageGenerator, queryModel)

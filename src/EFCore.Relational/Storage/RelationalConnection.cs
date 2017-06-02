@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Registers a potentially bufferable active query.
         /// </summary>
         /// <param name="bufferable"> The bufferable query. </param>
-        public virtual void RegisterBufferable(IBufferable bufferable)
+        void IRelationalConnection.RegisterBufferable(IBufferable bufferable)
         {
             Check.NotNull(bufferable, nameof(bufferable));
 
@@ -496,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A Task.
         /// </returns>
-        public virtual async Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken)
+        async Task IRelationalConnection.RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken)
         {
             Check.NotNull(bufferable, nameof(bufferable));
 

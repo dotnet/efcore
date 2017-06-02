@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 typeof(SqlServerConnection).GetTypeInfo().Assembly.GetName().Name,
-                new DatabaseProvider<SqlServerOptionsExtension>(new DatabaseProviderDependencies()).InvariantName);
+                new DatabaseProvider<SqlServerOptionsExtension>(new DatabaseProviderDependencies()).Name);
         }
 
         [Fact]

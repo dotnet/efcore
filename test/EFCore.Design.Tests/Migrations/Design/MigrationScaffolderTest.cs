@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         private class MockProvider : IDatabaseProvider
         {
-            public string InvariantName => "Mock.Provider";
+            public string Name => "Mock.Provider";
             public bool IsConfigured(IDbContextOptions options) => true;
         }
     }

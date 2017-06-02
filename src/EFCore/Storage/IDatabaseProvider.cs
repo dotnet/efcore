@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The unique name used to identify the database provider. This should be the same as the NuGet package name
         ///     for the providers runtime.
         /// </summary>
-        string InvariantName { get; }
+        string Name { get; }
 
         /// <summary>
         ///     Gets a value indicating whether this database provider has been configured for a given context.

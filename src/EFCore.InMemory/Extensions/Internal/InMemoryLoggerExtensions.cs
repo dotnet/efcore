@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name, 
-                    new EventDataBase(
+                    new EventData(
                         definition,
                         (d, p) => ((EventDefinition)d).GenerateMessage()));
             }
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string ChangesSaved(EventDefinitionBase definition, EventDataBase payload)
+        private static string ChangesSaved(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<int>)definition;
             var p = (SaveChangesEventData)payload;
