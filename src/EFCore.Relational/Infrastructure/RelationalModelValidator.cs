@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     The validator that enforces rules common for all relational providers.
     /// </summary>
-    public class RelationalModelValidator : CoreModelValidator
+    public class RelationalModelValidator : ModelValidator
     {
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalModelValidator" />.
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
             }
         }
-        
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.

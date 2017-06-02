@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual TestModelBuilder Validate()
             {
                 var modelBuilder = ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate();
-                new CoreModelValidator(
+                new ModelValidator(
                         new ModelValidatorDependencies(
                             new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                                 new LoggerFactory(),

@@ -1584,7 +1584,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             validationConvention.Apply(modelBuilder);
 
-            var modelValidator = new CoreModelValidator(
+            var modelValidator = new ModelValidator(
                 new ModelValidatorDependencies(
                     new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                         new LoggerFactory(),

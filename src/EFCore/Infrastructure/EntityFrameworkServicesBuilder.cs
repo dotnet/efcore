@@ -142,8 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         protected virtual ServiceCharacteristics GetServiceCharacteristics([NotNull] Type serviceType)
         {
-            ServiceCharacteristics characteristics;
-            if (!_coreServices.TryGetValue(serviceType, out characteristics))
+            if (!_coreServices.TryGetValue(serviceType, out var characteristics))
             {
                 throw new InvalidOperationException(CoreStrings.NotAnEFService(serviceType.Name));
             }
@@ -206,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IDbContextDependencies, DbContextDependencies>();
             TryAdd<IValueGeneratorSelector, ValueGeneratorSelector>();
             TryAdd<IConventionSetBuilder, NullConventionSetBuilder>();
-            TryAdd<IModelValidator, CoreModelValidator>();
+            TryAdd<IModelValidator, ModelValidator>();
             TryAdd<IExecutionStrategyFactory, ExecutionStrategyFactory>();
             TryAdd<ICompiledQueryCache, CompiledQueryCache>();
             TryAdd<IAsyncQueryProvider, EntityQueryProvider>();
