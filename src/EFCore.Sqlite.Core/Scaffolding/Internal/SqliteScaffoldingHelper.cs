@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         public virtual string GetProviderOptionsBuilder(string connectionString)
         {
-            return $"{nameof(SqliteDbContextOptionsBuilderExtensions.UseSqlite)}({GenerateVerbatimStringLiteral(connectionString)});";
+            return $".{nameof(SqliteDbContextOptionsBuilderExtensions.UseSqlite)}({GenerateVerbatimStringLiteral(connectionString)})";
         }
 
         public virtual TypeScaffoldingInfo GetTypeScaffoldingInfo(ColumnModel columnModel)

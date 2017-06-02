@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         public virtual string GetProviderOptionsBuilder(string connectionString)
         {
-            return $"{nameof(SqlServerDbContextOptionsExtensions.UseSqlServer)}({GenerateVerbatimStringLiteral(connectionString)});";
+            return $".{nameof(SqlServerDbContextOptionsExtensions.UseSqlServer)}({GenerateVerbatimStringLiteral(connectionString)})";
         }
 
         public virtual TypeScaffoldingInfo GetTypeScaffoldingInfo(ColumnModel columnModel)
