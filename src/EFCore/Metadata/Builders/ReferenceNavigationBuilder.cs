@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
         }
 
-        private void ThrowForConflictingNavigation(ForeignKey foreingKey, string newInverseName, bool newToPrincipal)
+        private static void ThrowForConflictingNavigation(ForeignKey foreingKey, string newInverseName, bool newToPrincipal)
         {
             throw new InvalidOperationException(CoreStrings.ConflictingRelationshipNavigation(
                 foreingKey.PrincipalEntityType.DisplayName(),

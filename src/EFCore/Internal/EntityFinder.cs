@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         IQueryable IEntityFinder.Query(INavigation navigation, InternalEntityEntry entry)
             => Query(navigation, entry);
 
-        private object[] GetLoadValues(INavigation navigation, InternalEntityEntry entry)
+        private static object[] GetLoadValues(INavigation navigation, InternalEntityEntry entry)
         {
             var properties = navigation.IsDependentToPrincipal()
                 ? navigation.ForeignKey.Properties
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return values;
         }
 
-        private IReadOnlyList<IProperty> GetLoadProperties(INavigation navigation)
+        private static IReadOnlyList<IProperty> GetLoadProperties(INavigation navigation)
             => navigation.IsDependentToPrincipal()
                 ? navigation.ForeignKey.PrincipalKey.Properties
                 : navigation.ForeignKey.Properties;

@@ -1089,7 +1089,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private void RemovePropertyIfUnused(Property property)
+        private static void RemovePropertyIfUnused(Property property)
         {
             if (!property.DeclaringEntityType.Builder.CanRemoveProperty(property, ConfigurationSource.Convention))
             {

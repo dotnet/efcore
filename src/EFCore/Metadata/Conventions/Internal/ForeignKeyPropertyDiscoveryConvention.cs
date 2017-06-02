@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                     else
                     {
-                        foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true, matchPK: true);
+                        foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true, matchPk: true);
                     }
                 }
             }
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
         }
 
-        private InternalRelationshipBuilder SetForeignKeyProperties(
+        private static InternalRelationshipBuilder SetForeignKeyProperties(
             InternalRelationshipBuilder relationshipBuilder, IReadOnlyList<Property> foreignKeyProperties)
         {
             if (foreignKeyProperties == null)
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return relationshipBuilder;
         }
 
-        private IReadOnlyList<Property> FindCandidateForeignKeyProperties(ForeignKey foreignKey, bool onDependent, bool matchPK = false)
+        private static IReadOnlyList<Property> FindCandidateForeignKeyProperties(ForeignKey foreignKey, bool onDependent, bool matchPk = false)
         {
             var baseNames = new List<string>();
             var navigation = onDependent
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var baseName in baseNames)
             {
-                var match = FindMatchingProperties(foreignKey, baseName, onDependent, matchPK);
+                var match = FindMatchingProperties(foreignKey, baseName, onDependent, matchPk);
                 if (match != null)
                 {
                     return match;
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return null;
         }
 
-        private IReadOnlyList<Property> FindMatchingProperties(
+        private static IReadOnlyList<Property> FindMatchingProperties(
             ForeignKey foreignKey, string baseName, bool onDependent, bool matchPK = false)
         {
             var dependentEntityType = onDependent

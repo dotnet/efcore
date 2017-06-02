@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
-        private void ShiftBodyClauses(QueryModel oldQueryModel, QueryModel newQueryModel)
+        private static void ShiftBodyClauses(QueryModel oldQueryModel, QueryModel newQueryModel)
         {
             var querySourceMapping = new QuerySourceMapping();
 

@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private bool TryPropagateValue(InternalEntityEntry entry, IProperty property)
+        private static bool TryPropagateValue(InternalEntityEntry entry, IProperty property)
         {
             var entityType = entry.EntityType;
             var stateManager = entry.StateManager;
