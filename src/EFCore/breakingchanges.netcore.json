@@ -575,5 +575,80 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDatabaseProvider",
       "MemberId": "System.String get_InvariantName()",
       "Kind": "Addition"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IBaseTypeConvention> get_BaseEntityTypeSetConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IEntityTypeAnnotationSetConvention> get_EntityTypeAnnotationSetConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IEntityTypeConvention> get_EntityTypeAddedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IForeignKeyConvention> get_ForeignKeyAddedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IForeignKeyUniquenessConvention> get_ForeignKeyUniquenessConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IIndexConvention> get_IndexAddedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IIndexUniquenessConvention> get_IndexUniquenessConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IKeyConvention> get_KeyAddedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IModelConvention> get_ModelBuiltConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IModelConvention> get_ModelInitializedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.INavigationConvention> get_NavigationAddedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPrimaryKeyConvention> get_PrimaryKeySetConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPrincipalEndConvention> get_PrincipalEndSetConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPropertyConvention> get_PropertyAddedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPropertyNullableConvention> get_PropertyNullableChangedConventions()",
+      "Kind": "Removal"
     }
   ]

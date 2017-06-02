@@ -19,11 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class RelationshipDiscoveryConvention :
-        IEntityTypeConvention,
-        IBaseTypeConvention,
+        IEntityTypeAddedConvention,
+        IBaseTypeChangedConvention,
         INavigationRemovedConvention,
         IEntityTypeMemberIgnoredConvention,
-        INavigationConvention
+        INavigationAddedConvention
     {
         private readonly ITypeMapper _typeMapper;
 

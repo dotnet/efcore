@@ -11,11 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class SqlServerIndexConvention :
-        IIndexConvention,
-        IIndexUniquenessConvention,
-        IIndexAnnotationSetConvention,
-        IPropertyNullableConvention,
-        IPropertyAnnotationSetConvention
+        IIndexAddedConvention,
+        IIndexUniquenessChangedConvention,
+        IIndexAnnotationChangedConvention,
+        IPropertyNullabilityChangedConvention,
+        IPropertyAnnotationChangedConvention
     {
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
@@ -24,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             _sqlGenerationHelper = sqlGenerationHelper;
         }
 
-        InternalIndexBuilder IIndexConvention.Apply(InternalIndexBuilder indexBuilder)
+        InternalIndexBuilder IIndexAddedConvention.Apply(InternalIndexBuilder indexBuilder)
             => SetIndexFilter(indexBuilder);
 
-        bool IIndexUniquenessConvention.Apply(InternalIndexBuilder indexBuilder)
+        bool IIndexUniquenessChangedConvention.Apply(InternalIndexBuilder indexBuilder)
         {
             SetIndexFilter(indexBuilder);
             return true;

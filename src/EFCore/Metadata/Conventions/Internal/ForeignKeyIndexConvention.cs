@@ -14,15 +14,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class ForeignKeyIndexConvention :
-        IForeignKeyConvention,
+        IForeignKeyAddedConvention,
         IForeignKeyRemovedConvention,
-        IForeignKeyUniquenessConvention,
-        IKeyConvention,
+        IForeignKeyUniquenessChangedConvention,
+        IKeyAddedConvention,
         IKeyRemovedConvention,
-        IBaseTypeConvention,
-        IIndexConvention,
+        IBaseTypeChangedConvention,
+        IIndexAddedConvention,
         IIndexRemovedConvention,
-        IIndexUniquenessConvention
+        IIndexUniquenessChangedConvention
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        InternalRelationshipBuilder IForeignKeyUniquenessConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
+        InternalRelationshipBuilder IForeignKeyUniquenessChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
         {
             var foreignKey = relationshipBuilder.Metadata;
             var index = foreignKey.DeclaringEntityType.FindIndex(foreignKey.Properties);
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        bool IIndexUniquenessConvention.Apply(InternalIndexBuilder indexBuilder)
+        bool IIndexUniquenessChangedConvention.Apply(InternalIndexBuilder indexBuilder)
         {
             var index = indexBuilder.Metadata;
             if (index.IsUnique)

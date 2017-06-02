@@ -39,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention();
 
-            ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, valueGeneratorConvention);
-            ReplaceConvention(conventionSet.PrimaryKeySetConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.BaseEntityTypeChangedConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.PrimaryKeyChangedConventions, valueGeneratorConvention);
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGeneratorConvention);
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
@@ -52,14 +52,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(sharedTableConvention);
-            conventionSet.BaseEntityTypeSetConventions.Add(new DiscriminatorConvention());
-            conventionSet.BaseEntityTypeSetConventions.Add(
+            conventionSet.BaseEntityTypeChangedConventions.Add(new DiscriminatorConvention());
+            conventionSet.BaseEntityTypeChangedConventions.Add(
                 new TableNameFromDbSetConvention(Dependencies.Context?.Context, Dependencies.SetFinder));
-            conventionSet.EntityTypeAnnotationSetConventions.Add(sharedTableConvention);
+            conventionSet.EntityTypeAnnotationChangedConventions.Add(sharedTableConvention);
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
-            conventionSet.PropertyAnnotationSetConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
-            conventionSet.ForeignKeyUniquenessConventions.Add(sharedTableConvention);
-            conventionSet.ForeignKeyOwnershipConventions.Add(sharedTableConvention);
+            conventionSet.PropertyAnnotationChangedConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
+            conventionSet.ForeignKeyUniquenessChangedConventions.Add(sharedTableConvention);
+            conventionSet.ForeignKeyOwnershipChangedConventions.Add(sharedTableConvention);
 
             conventionSet.ModelBuiltConventions.Add(new RelationalTypeMappingConvention(Dependencies.TypeMapper));
 

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when an entity type is added to the model.
         /// </summary>
-        public virtual IList<IEntityTypeConvention> EntityTypeAddedConventions { get; } = new List<IEntityTypeConvention>();
+        public virtual IList<IEntityTypeAddedConvention> EntityTypeAddedConventions { get; } = new List<IEntityTypeAddedConvention>();
 
         /// <summary>
         ///     Conventions to run when an entity type is ignored.
@@ -27,20 +27,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; } = new List<IEntityTypeMemberIgnoredConvention>();
 
         /// <summary>
-        ///     Conventions to run when the base entity type is set or removed.
+        ///     Conventions to run when the base entity type is changed.
         /// </summary>
-        public virtual IList<IBaseTypeConvention> BaseEntityTypeSetConventions { get; } = new List<IBaseTypeConvention>();
+        public virtual IList<IBaseTypeChangedConvention> BaseEntityTypeChangedConventions { get; } = new List<IBaseTypeChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when an annotation is set or removed on an entity type.
         /// </summary>
-        public virtual IList<IEntityTypeAnnotationSetConvention> EntityTypeAnnotationSetConventions { get; }
-            = new List<IEntityTypeAnnotationSetConvention>();
+        public virtual IList<IEntityTypeAnnotationChangedConvention> EntityTypeAnnotationChangedConventions { get; }
+            = new List<IEntityTypeAnnotationChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when a foreign key is added.
         /// </summary>
-        public virtual IList<IForeignKeyConvention> ForeignKeyAddedConventions { get; } = new List<IForeignKeyConvention>();
+        public virtual IList<IForeignKeyAddedConvention> ForeignKeyAddedConventions { get; } = new List<IForeignKeyAddedConvention>();
 
         /// <summary>
         ///     Conventions to run when a foreign key is removed.
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when a key is added.
         /// </summary>
-        public virtual IList<IKeyConvention> KeyAddedConventions { get; } = new List<IKeyConvention>();
+        public virtual IList<IKeyAddedConvention> KeyAddedConventions { get; } = new List<IKeyAddedConvention>();
 
         /// <summary>
         ///     Conventions to run when a key is removed.
@@ -58,14 +58,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IKeyRemovedConvention> KeyRemovedConventions { get; } = new List<IKeyRemovedConvention>();
 
         /// <summary>
-        ///     Conventions to run when a primary key is configured.
+        ///     Conventions to run when a primary key is changed.
         /// </summary>
-        public virtual IList<IPrimaryKeyConvention> PrimaryKeySetConventions { get; } = new List<IPrimaryKeyConvention>();
+        public virtual IList<IPrimaryKeyChangedConvention> PrimaryKeyChangedConventions { get; } = new List<IPrimaryKeyChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when an index is added.
         /// </summary>
-        public virtual IList<IIndexConvention> IndexAddedConventions { get; } = new List<IIndexConvention>();
+        public virtual IList<IIndexAddedConvention> IndexAddedConventions { get; } = new List<IIndexAddedConvention>();
 
         /// <summary>
         ///     Conventions to run when an index is removed.
@@ -75,32 +75,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when the uniqueness of an index is changed.
         /// </summary>
-        public virtual IList<IIndexUniquenessConvention> IndexUniquenessConventions { get; } = new List<IIndexUniquenessConvention>();
+        public virtual IList<IIndexUniquenessChangedConvention> IndexUniquenessChangedConventions { get; } = new List<IIndexUniquenessChangedConvention>();
 
         /// <summary>
-        ///     Conventions to run when an annotation is set or removed on an index.
+        ///     Conventions to run when an annotation is changed on an index.
         /// </summary>
-        public virtual IList<IIndexAnnotationSetConvention> IndexAnnotationSetConventions { get; } = new List<IIndexAnnotationSetConvention>();
+        public virtual IList<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; } = new List<IIndexAnnotationChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when the principal end of a relationship is configured.
         /// </summary>
-        public virtual IList<IPrincipalEndConvention> PrincipalEndSetConventions { get; } = new List<IPrincipalEndConvention>();
+        public virtual IList<IPrincipalEndChangedConvention> PrincipalEndChangedConventions { get; } = new List<IPrincipalEndChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when model building is completed.
         /// </summary>
-        public virtual IList<IModelConvention> ModelBuiltConventions { get; } = new List<IModelConvention>();
+        public virtual IList<IModelBuiltConvention> ModelBuiltConventions { get; } = new List<IModelBuiltConvention>();
 
         /// <summary>
         ///     Conventions to run to setup the initial model.
         /// </summary>
-        public virtual IList<IModelConvention> ModelInitializedConventions { get; } = new List<IModelConvention>();
+        public virtual IList<IModelInitializedConvention> ModelInitializedConventions { get; } = new List<IModelInitializedConvention>();
 
         /// <summary>
         ///     Conventions to run when a navigation property is added.
         /// </summary>
-        public virtual IList<INavigationConvention> NavigationAddedConventions { get; } = new List<INavigationConvention>();
+        public virtual IList<INavigationAddedConvention> NavigationAddedConventions { get; } = new List<INavigationAddedConvention>();
 
         /// <summary>
         ///     Conventions to run when a navigation property is removed.
@@ -110,22 +110,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when the uniqueness of a foreign key is changed.
         /// </summary>
-        public virtual IList<IForeignKeyUniquenessConvention> ForeignKeyUniquenessConventions { get; } = new List<IForeignKeyUniquenessConvention>();
+        public virtual IList<IForeignKeyUniquenessChangedConvention> ForeignKeyUniquenessChangedConventions { get; } = new List<IForeignKeyUniquenessChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when the ownership of a foreign key is changed.
         /// </summary>
-        public virtual IList<IForeignKeyOwnershipConvention> ForeignKeyOwnershipConventions { get; } = new List<IForeignKeyOwnershipConvention>();
+        public virtual IList<IForeignKeyOwnershipChangedConvention> ForeignKeyOwnershipChangedConventions { get; } = new List<IForeignKeyOwnershipChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when a property is added.
         /// </summary>
-        public virtual IList<IPropertyConvention> PropertyAddedConventions { get; } = new List<IPropertyConvention>();
+        public virtual IList<IPropertyAddedConvention> PropertyAddedConventions { get; } = new List<IPropertyAddedConvention>();
 
         /// <summary>
         ///     Conventions to run when the nullability of a property is changed.
         /// </summary>
-        public virtual IList<IPropertyNullableConvention> PropertyNullableChangedConventions { get; } = new List<IPropertyNullableConvention>();
+        public virtual IList<IPropertyNullabilityChangedConvention> PropertyNullabilityChangedConventions { get; } = new List<IPropertyNullabilityChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when the field of a property is changed.
@@ -134,8 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             new List<IPropertyFieldChangedConvention>();
 
         /// <summary>
-        ///     Conventions to run when an annotation is set or removed on a property.
+        ///     Conventions to run when an annotation is changed on a property.
         /// </summary>
-        public virtual IList<IPropertyAnnotationSetConvention> PropertyAnnotationSetConventions { get; } = new List<IPropertyAnnotationSetConvention>();
+        public virtual IList<IPropertyAnnotationChangedConvention> PropertyAnnotationChangedConventions { get; } = new List<IPropertyAnnotationChangedConvention>();
     }
 }
