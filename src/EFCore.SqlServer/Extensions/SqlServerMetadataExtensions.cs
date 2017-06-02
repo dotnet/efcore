@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -77,22 +76,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The SQL Server specific metadata for the index. </returns>
         public static ISqlServerIndexAnnotations SqlServer([NotNull] this IIndex index)
             => new SqlServerIndexAnnotations(Check.NotNull(index, nameof(index)));
-
-        /// <summary>
-        ///     Gets the SQL Server specific metadata for a foreign key.
-        /// </summary>
-        /// <param name="foreignKey"> The foreign key to get metadata for. </param>
-        /// <returns> The SQL Server specific metadata for the foreign key. </returns>
-        public static RelationalForeignKeyAnnotations SqlServer([NotNull] this IMutableForeignKey foreignKey)
-            => (RelationalForeignKeyAnnotations)SqlServer((IForeignKey)foreignKey);
-
-        /// <summary>
-        ///     Gets the SQL Server specific metadata for a foreign key.
-        /// </summary>
-        /// <param name="foreignKey"> The foreign key to get metadata for. </param>
-        /// <returns> The SQL Server specific metadata for the foreign key. </returns>
-        public static IRelationalForeignKeyAnnotations SqlServer([NotNull] this IForeignKey foreignKey)
-            => new RelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)));
 
         /// <summary>
         ///     Gets the SQL Server specific metadata for a model.

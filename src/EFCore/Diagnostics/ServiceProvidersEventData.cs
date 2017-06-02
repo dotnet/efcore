@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for events that reference
     ///     multiple <see cref="IServiceProvider" /> containers.
     /// </summary>
-    public class ServiceProvidersEventData : EventDataBase
+    public class ServiceProvidersEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="serviceProviders"> The <see cref="IServiceProvider" />s. </param>
         public ServiceProvidersEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] ICollection<IServiceProvider> serviceProviders)
             : base(eventDefinition, messageGenerator)
         {

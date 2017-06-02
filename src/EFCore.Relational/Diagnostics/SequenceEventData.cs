@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload base class for events that
     ///     reference a sequence.
     /// </summary>
-    public class SequenceEventData : EventDataBase
+    public class SequenceEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="sequence"> The sequence. </param>
         public SequenceEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] ISequence sequence)
             : base(eventDefinition, messageGenerator)
         {

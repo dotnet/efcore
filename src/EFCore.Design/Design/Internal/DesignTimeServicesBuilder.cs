@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var contextServices = ((IInfrastructure<IServiceProvider>)context).Instance;
             ConfigureContextServices(((IInfrastructure<IServiceProvider>)context).Instance, services);
 
-            ConfigureProviderServices(contextServices.GetRequiredService<IDatabaseProvider>().InvariantName, services);
+            ConfigureProviderServices(contextServices.GetRequiredService<IDatabaseProvider>().Name, services);
 
             ConfigureUserServices(services);
 

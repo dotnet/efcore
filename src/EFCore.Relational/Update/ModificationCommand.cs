@@ -141,9 +141,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                     var writeValue = !readValue
                                      && ((adding
-                                          && property.BeforeSaveBehavior == PropertyValueBehavior.UseValue)
+                                          && property.BeforeSaveBehavior == PropertySaveBehavior.Save)
                                          || (!adding
-                                             && property.AfterSaveBehavior == PropertyValueBehavior.UseValue
+                                             && property.AfterSaveBehavior == PropertySaveBehavior.Save
                                              && entry.IsModified(property)));
 
                     if (readValue

@@ -186,8 +186,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     <para>
-        ///         Returns the invariant name of the database provider currently in use.
-        ///         The invariant name is typically the name of the provider assembly.
+        ///         Returns the name of the database provider currently in use.
+        ///         The name is typically the name of the provider assembly.
         ///         It is usually easier to use a sugar method auch as 'IsSqlServer()' instead of
         ///         calling this method directly.
         ///     </para>
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         public virtual string ProviderName
             => _context.GetService<IEnumerable<IDatabaseProvider>>()
-                ?.Select(p => p.InvariantName)
+                ?.Select(p => p.Name)
                 .FirstOrDefault();
 
         /// <summary>

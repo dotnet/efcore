@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         public MigratorConnectionEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] IMigrator migrator,
             [NotNull] DbConnection connection,
             Guid connectionId)

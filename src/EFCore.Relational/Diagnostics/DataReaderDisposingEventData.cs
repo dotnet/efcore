@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// <summary>
     ///     <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.DataReaderDisposing" />.
     /// </summary>
-    public class DataReaderDisposingEventData : EventDataBase
+    public class DataReaderDisposingEventData : EventData
     {
         /// <summary>
         ///     Constructs a <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.DataReaderDisposing" />.
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         public DataReaderDisposingEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbCommand command,
             [NotNull] DbDataReader dataReader,
             Guid commandId,

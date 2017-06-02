@@ -462,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (string.IsNullOrEmpty(propertyName))
             {
                 foreach (var property in entityType.GetProperties()
-                    .Where(p => p.AfterSaveBehavior == PropertyValueBehavior.UseValue))
+                    .Where(p => p.AfterSaveBehavior == PropertySaveBehavior.Save))
                 {
                     yield return property;
                 }

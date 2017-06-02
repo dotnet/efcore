@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload base class for
     ///     <see cref="RelationalEventId" /> connection events.
     /// </summary>
-    public class ConnectionEventData : EventDataBase
+    public class ConnectionEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         public ConnectionEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbConnection connection,
             Guid connectionId,
             bool async,

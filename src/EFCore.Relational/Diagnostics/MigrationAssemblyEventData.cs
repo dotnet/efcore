@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="migrationsAssembly"> The <see cref="IMigrationsAssembly"/> in use. </param>
         public MigrationAssemblyEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] IMigrator migrator,
             [NotNull] IMigrationsAssembly migrationsAssembly)
             : base(eventDefinition, messageGenerator, migrator)

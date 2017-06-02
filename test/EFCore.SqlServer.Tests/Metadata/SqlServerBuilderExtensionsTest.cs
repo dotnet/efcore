@@ -394,7 +394,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
 
             Assert.Equal("LemonSupreme", key.Relational().Name);
-            Assert.Equal("LemonSupreme", key.SqlServer().Name);
         }
 
         [Fact]
@@ -410,14 +409,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
-            Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
 
             modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .HasConstraintName(null);
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.SqlServer().Name);
         }
 
         [Fact]
@@ -434,7 +431,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
-            Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
         }
 
         [Fact]
@@ -450,14 +446,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
-            Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .HasConstraintName(null);
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.SqlServer().Name);
         }
 
         [Fact]
@@ -474,7 +468,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
-            Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
         }
 
         [Fact]
@@ -491,14 +484,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
             Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
-            Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .HasConstraintName(null);
 
             Assert.Equal("FK_OrderDetails_Order_OrderId", foreignKey.Relational().Name);
-            Assert.Equal("FK_OrderDetails_Order_OrderId", foreignKey.SqlServer().Name);
         }
 
         [Fact]
@@ -515,7 +506,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
             Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
-            Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
         }
 
         [Fact]
@@ -532,7 +522,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.Equal("Dexter", index.Relational().Name);
-            Assert.Equal("Dexter", index.SqlServer().Name);
         }
 
         [Fact]
@@ -549,7 +538,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.Equal("SqlServer-specific expression", index.Relational().Filter);
-            Assert.Equal("SqlServer-specific expression", index.SqlServer().Filter);
         }
 
         [Fact]

@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool BeforeSave(PropertyValueBehavior? behavior, ConfigurationSource configurationSource)
+        public virtual bool BeforeSave(PropertySaveBehavior? behavior, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetBeforeSaveBehaviorConfigurationSource())
                 || Metadata.BeforeSaveBehavior == behavior)
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool AfterSave(PropertyValueBehavior? behavior, ConfigurationSource configurationSource)
+        public virtual bool AfterSave(PropertySaveBehavior? behavior, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetAfterSaveBehaviorConfigurationSource())
                 || Metadata.AfterSaveBehavior == behavior)

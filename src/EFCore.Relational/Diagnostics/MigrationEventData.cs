@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         public MigrationEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration)
             : base(eventDefinition, messageGenerator, migrator)

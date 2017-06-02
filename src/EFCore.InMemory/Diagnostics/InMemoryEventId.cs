@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
         ///     </para>
         ///     <para>
-        ///         This event uses the <see cref="EventDataBase" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///         This event uses the <see cref="EventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
         public static readonly EventId TransactionIgnoredWarning = MakeTransactionId(Id.TransactionIgnoredWarning);

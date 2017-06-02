@@ -227,12 +227,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" Concurrency");
             }
 
-            if (property.BeforeSaveBehavior != PropertyValueBehavior.UseValue)
+            if (property.BeforeSaveBehavior != PropertySaveBehavior.Save)
             {
                 builder.Append(" BeforeSave:").Append(property.BeforeSaveBehavior);
             }
 
-            if (property.AfterSaveBehavior != PropertyValueBehavior.UseValue)
+            if (property.AfterSaveBehavior != PropertySaveBehavior.Save)
             {
                 builder.Append(" AfterSave:").Append(property.AfterSaveBehavior);
             }

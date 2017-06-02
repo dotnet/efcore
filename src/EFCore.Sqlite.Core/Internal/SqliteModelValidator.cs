@@ -27,15 +27,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         protected virtual void ValidateNoSchemas([NotNull] IModel model)
         {
-            foreach (var entityType in model.GetEntityTypes().Where(e => e.Sqlite().Schema != null))
+            foreach (var entityType in model.GetEntityTypes().Where(e => e.Relational().Schema != null))
             {
-                Dependencies.Logger.SchemaConfiguredWarning(entityType, entityType.Sqlite().Schema);
+                Dependencies.Logger.SchemaConfiguredWarning(entityType, entityType.Relational().Schema);
             }
         }
 
         protected virtual void ValidateNoSequences([NotNull] IModel model)
         {
-            foreach (var sequence in model.Sqlite().Sequences)
+            foreach (var sequence in model.Relational().Sequences)
             {
                 Dependencies.Logger.SequenceConfiguredWarning(sequence);
             }

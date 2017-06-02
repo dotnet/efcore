@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             propertyBuilder.IsRequired(true, configurationSource);
-            propertyBuilder.AfterSave(PropertyValueBehavior.Throw, configurationSource);
+            propertyBuilder.AfterSave(PropertySaveBehavior.Throw, configurationSource);
             propertyBuilder.HasValueGenerator(
                 (property, entityType) => new DiscriminatorValueGenerator(GetAnnotations(entityType).DiscriminatorValue),
                 configurationSource);

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for events that have
     ///     a query model.
     /// </summary>
-    public class QueryModelEventData : EventDataBase
+    public class QueryModelEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="queryModel"> The <see cref="QueryModel" />. </param>
         public QueryModelEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] QueryModel queryModel)
             : base(eventDefinition, messageGenerator)
         {

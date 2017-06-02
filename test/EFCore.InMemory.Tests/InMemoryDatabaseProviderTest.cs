@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 typeof(InMemoryDatabase).GetTypeInfo().Assembly.GetName().Name,
-                new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).InvariantName);
+                new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).Name);
         }
 
         [Fact]

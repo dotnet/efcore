@@ -28,16 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         saved to the database.
         ///     </para>
         ///     <para>
-        ///         If <see cref="PropertyValueBehavior.Throw" />, then an exception
+        ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
         ///         will be thrown if a value is assigned to this property when it is in
         ///         the <see cref="EntityState.Added" /> state.
         ///     </para>
         ///     <para>
-        ///         If <see cref="PropertyValueBehavior.Ignore" />, then any value
+        ///         If <see cref="PropertySaveBehavior.Ignore" />, then any value
         ///         set will be ignored when it is in the <see cref="EntityState.Added" /> state.
         ///     </para>
         /// </summary>
-        PropertyValueBehavior BeforeSaveBehavior { get; }
+        PropertySaveBehavior BeforeSaveBehavior { get; }
 
         /// <summary>
         ///     <para>
@@ -45,15 +45,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         saved to the database.
         ///     </para>
         ///     <para>
-        ///         If <see cref="PropertyValueBehavior.Throw" />, then an exception
+        ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
         ///         will be thrown if a new value is assigned to this property after the entity exists in the database.
         ///     </para>
         ///     <para>
-        ///         If <see cref="PropertyValueBehavior.Ignore" />, then any modification to the
+        ///         If <see cref="PropertySaveBehavior.Ignore" />, then any modification to the
         ///         property value of an entity that already exists in the database will be ignored.
         ///     </para>
         /// </summary>
-        PropertyValueBehavior AfterSaveBehavior { get; }
+        PropertySaveBehavior AfterSaveBehavior { get; }
 
         /// <summary>
         ///     This property is obsolete. Use <see cref="BeforeSaveBehavior"/> instead.

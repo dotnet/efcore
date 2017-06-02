@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// <summary>
     ///     The <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.CommandError" />.
     /// </summary>
-    public class CommandErrorEventData : CommandEndEventData
+    public class CommandErrorEventData : CommandEndEventData, IErrorEventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         public CommandErrorEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbCommand command,
             DbCommandMethod executeMethod,
             Guid commandId,

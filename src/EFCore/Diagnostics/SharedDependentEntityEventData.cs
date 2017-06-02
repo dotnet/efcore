@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for events that reference
     ///     two <see cref="IEntityType" /> instances.
     /// </summary>
-    public class EntityTypesEventData : EventDataBase
+    public class SharedDependentEntityEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="firstEntityType"> The first <see cref="IEntityType" />. </param>
         /// <param name="secondEntityType"> The second <see cref="IEntityType" />. </param>
-        public EntityTypesEventData(
+        public SharedDependentEntityEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] IEntityType firstEntityType,
             [NotNull] IEntityType secondEntityType)
             : base(eventDefinition, messageGenerator)

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for events that have
     ///     an <see cref="EntityFrameworkQueryableExtensions.Include{TEntity,TProperty}" /> specification.
     /// </summary>
-    public class IncludeEventData : EventDataBase
+    public class IncludeEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="includeSpecification"> The Include specification. </param>
         public IncludeEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] string includeSpecification)
             : base(eventDefinition, messageGenerator)
         {

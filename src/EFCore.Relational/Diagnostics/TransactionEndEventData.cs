@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         public TransactionEndEventData(
             [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventDataBase, string> messageGenerator,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
             Guid connectionId,

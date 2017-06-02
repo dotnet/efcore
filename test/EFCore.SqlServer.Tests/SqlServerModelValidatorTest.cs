@@ -86,9 +86,7 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder.Model);
 
             Assert.Equal("FK_Animal_Person_Name", fk1.Relational().Name);
-            Assert.Equal("FK_Animal_Person_Name", fk1.SqlServer().Name);
             Assert.Equal("FK_Animal_Person_Name0", fk2.Relational().Name);
-            Assert.Equal("FK_Animal_Person_Name0", fk2.SqlServer().Name);
         }
 
         [Fact]
