@@ -9,9 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class SqliteScaffoldingHelper : IScaffoldingHelper
     {
-        private readonly ScaffoldingTypeMapper _scaffoldingTypeMapper;
+        private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
 
-        public SqliteScaffoldingHelper([NotNull] ScaffoldingTypeMapper scaffoldingTypeMapper)
+        public SqliteScaffoldingHelper([NotNull] IScaffoldingTypeMapper scaffoldingTypeMapper)
         {
             Check.NotNull(scaffoldingTypeMapper, nameof(scaffoldingTypeMapper));
 

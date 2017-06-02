@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Scaffolding> Logger { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
-        protected virtual CandidateNamingService CandidateNamingService { get; }
+        protected virtual ICandidateNamingService CandidateNamingService { get; }
 
         private Dictionary<TableModel, CSharpUniqueNamer<ColumnModel>> _columnNamers;
         private readonly TableModel _nullTable = new TableModel();
@@ -38,20 +37,23 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly HashSet<ColumnModel> _unmappedColumns = new HashSet<ColumnModel>();
         private readonly IPluralizer _pluralizer;
         private readonly IScaffoldingHelper _scaffoldingHelper;
+        private readonly ICSharpUtilities _cSharpUtilities;
 
         public RelationalScaffoldingModelFactory(
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
-            [NotNull] CandidateNamingService candidateNamingService,
+            [NotNull] ICandidateNamingService candidateNamingService,
             [NotNull] IPluralizer pluralizer,
-            [NotNull] IScaffoldingHelper scaffoldingHelper)
+            [NotNull] IScaffoldingHelper scaffoldingHelper,
+            [NotNull] ICSharpUtilities cSharpUtilities)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(candidateNamingService, nameof(candidateNamingService));
             Check.NotNull(pluralizer, nameof(pluralizer));
+            Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
 
             Logger = logger;
             TypeMapper = typeMapper;
@@ -59,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _databaseModelFactory = databaseModelFactory;
             _pluralizer = pluralizer;
             _scaffoldingHelper = scaffoldingHelper;
+            _cSharpUtilities = cSharpUtilities;
         }
 
         public virtual IModel Create(string connectionString, TableSelectionSet tableSelectionSet)
@@ -93,7 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
-            _tableNamer = new CSharpUniqueNamer<TableModel>(t => CandidateNamingService.GenerateCandidateIdentifier(t.Name));
+            _tableNamer = new CSharpUniqueNamer<TableModel>(
+                t => CandidateNamingService.GenerateCandidateIdentifier(t.Name),
+                _cSharpUtilities);
             _columnNamers = new Dictionary<TableModel, CSharpUniqueNamer<ColumnModel>>();
 
             VisitDatabaseModel(modelBuilder, databaseModel);
@@ -124,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 _columnNamers.Add(
                     table,
                     new CSharpUniqueNamer<ColumnModel>(
-                        c => CandidateNamingService.GenerateCandidateIdentifier(c.Name), usedNames));
+                        c => CandidateNamingService.GenerateCandidateIdentifier(c.Name), usedNames, _cSharpUtilities));
             }
 
             return _columnNamers[table].GetName(column);
@@ -631,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var dependentEndNavigationPropertyCandidateName =
                 CandidateNamingService.GetDependentEndCandidateNavigationPropertyName(foreignKey);
             var dependentEndNavigationPropertyName =
-                CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                _cSharpUtilities.GenerateCSharpIdentifier(
                     dependentEndNavigationPropertyCandidateName,
                     dependentEndExistingIdentifiers,
                     NavigationUniquifier);
@@ -654,7 +659,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var principalEndNavigationPropertyName =
-                CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                _cSharpUtilities.GenerateCSharpIdentifier(
                     principalEndNavigationPropertyCandidateName,
                     principalEndExistingIdentifiers,
                     NavigationUniquifier);

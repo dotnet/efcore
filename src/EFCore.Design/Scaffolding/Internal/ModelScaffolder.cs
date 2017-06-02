@@ -18,10 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ModelScaffolder
+    public class ModelScaffolder : IModelScaffolder
     {
         private readonly IScaffoldingModelFactory _factory;
-        private readonly CSharpUtilities _cSharpUtilities;
+        private readonly ICSharpUtilities _cSharpUtilities;
         private static readonly char[] _directorySeparatorChars = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
         private const string DbContextSuffix = "Context";
         private const string DefaultDbContextName = "Model" + DbContextSuffix;
@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public ModelScaffolder(
             [NotNull] IScaffoldingModelFactory scaffoldingModelFactory,
-            [NotNull] ScaffoldingCodeGenerator scaffoldingCodeGenerator,
-            [NotNull] CSharpUtilities cSharpUtilities)
+            [NotNull] IScaffoldingCodeGenerator scaffoldingCodeGenerator,
+            [NotNull] ICSharpUtilities cSharpUtilities)
         {
             Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
             Check.NotNull(scaffoldingCodeGenerator, nameof(scaffoldingCodeGenerator));
@@ -47,19 +47,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        private ScaffoldingCodeGenerator ScaffoldingCodeGenerator { get; }
+        private IScaffoldingCodeGenerator ScaffoldingCodeGenerator { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<ReverseEngineerFiles> GenerateAsync(
-            [NotNull] string connectionString,
-            [NotNull] TableSelectionSet tableSelectionSet,
-            [NotNull] string projectPath,
-            [CanBeNull] string outputPath,
-            [NotNull] string rootNamespace,
-            [CanBeNull] string contextName,
+            string connectionString,
+            TableSelectionSet tableSelectionSet,
+            string projectPath,
+            string outputPath,
+            string rootNamespace,
+            string contextName,
             bool useDataAnnotations,
             bool overwriteFiles,
             CancellationToken cancellationToken = default(CancellationToken))

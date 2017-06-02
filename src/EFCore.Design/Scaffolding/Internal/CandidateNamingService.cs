@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -16,13 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class CandidateNamingService
+    public class CandidateNamingService : ICandidateNamingService
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string GenerateCandidateIdentifier([NotNull] string originalIdentifier)
+        public virtual string GenerateCandidateIdentifier(string originalIdentifier)
         {
             Check.NotEmpty(originalIdentifier, nameof(originalIdentifier));
 
@@ -59,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string GetDependentEndCandidateNavigationPropertyName([NotNull] IForeignKey foreignKey)
+        public virtual string GetDependentEndCandidateNavigationPropertyName(IForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
@@ -78,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string GetPrincipalEndCandidateNavigationPropertyName(
-            [NotNull] IForeignKey foreignKey,
-            [NotNull] string dependentEndNavigationPropertyName)
+            IForeignKey foreignKey,
+            string dependentEndNavigationPropertyName)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotEmpty(dependentEndNavigationPropertyName, nameof(dependentEndNavigationPropertyName));

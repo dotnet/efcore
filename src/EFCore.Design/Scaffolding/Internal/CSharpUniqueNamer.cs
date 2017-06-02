@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public CSharpUniqueNamer([NotNull] Func<T, string> nameGetter)
-            : this(nameGetter, null)
+        public CSharpUniqueNamer([NotNull] Func<T, string> nameGetter, [NotNull] ICSharpUtilities cSharpUtilities)
+            : this(nameGetter, null, cSharpUtilities)
         {
         }
 
@@ -29,8 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public CSharpUniqueNamer([NotNull] Func<T, string> nameGetter,
-            [CanBeNull] IEnumerable<string> usedNames)
-            : base(nameGetter)
+            [CanBeNull] IEnumerable<string> usedNames,
+            [NotNull] ICSharpUtilities cSharpUtilities)
+            : base(nameGetter, cSharpUtilities)
         {
             if (usedNames != null)
             {

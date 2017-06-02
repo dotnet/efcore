@@ -6,9 +6,9 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -23,16 +23,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IServiceCollection AddScaffolding([NotNull] this IServiceCollection serviceCollection)
-            => serviceCollection.AddSingleton<IFileService, FileSystemFileService>()
+            => serviceCollection
+                .AddSingleton<AnnotationRendererDependencies>()
+                .AddSingleton<IFileService, FileSystemFileService>()
                 .AddSingleton<RelationalTypeMapperDependencies>()
-                .AddSingleton<ModelScaffolder>()
-                .AddSingleton<CandidateNamingService>()
+                .AddSingleton<IModelScaffolder, ModelScaffolder>()
+                .AddSingleton<ICandidateNamingService, CandidateNamingService>()
                 .AddSingleton<IPluralizer, NullPluralizer>()
-                .AddSingleton<CSharpUtilities>()
-                .AddSingleton<CSharpDbContextGenerator>()
-                .AddSingleton<CSharpEntityTypeGenerator>()
-                .AddSingleton<ScaffoldingTypeMapper>()
-                .AddSingleton<ScaffoldingCodeGenerator, CSharpScaffoldingGenerator>()
+                .AddSingleton<ICSharpUtilities, CSharpUtilities>()
+                .AddSingleton<ICSharpDbContextGenerator, CSharpDbContextGenerator>()
+                .AddSingleton<ICSharpEntityTypeGenerator, CSharpEntityTypeGenerator>()
+                .AddSingleton<ScaffoldingTypeMapperDependencies>()
+                .AddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
+                .AddSingleton<IScaffoldingCodeGenerator, CSharpScaffoldingGenerator>()
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<ILoggingOptions, LoggingOptions>()
                 .AddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name))
