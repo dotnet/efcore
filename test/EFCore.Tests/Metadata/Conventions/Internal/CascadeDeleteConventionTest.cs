@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 .HasMany(e => e.Posts)
                 .WithOne(e => e.Blog).Metadata;
 
-            Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.ClientSetNull, fk.DeleteBehavior);
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 .Property(e => e.BlogId)
                 .IsRequired(false);
 
-            Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.ClientSetNull, fk.DeleteBehavior);
         }
 
         [Fact]

@@ -3307,7 +3307,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
                     .HasForeignKey<Nob>(e => e.HobId1);
 
-                Assert.Equal(DeleteBehavior.Restrict, dependentType.GetNavigations().Single().ForeignKey.DeleteBehavior);
+                Assert.Equal(DeleteBehavior.ClientSetNull, dependentType.GetNavigations().Single().ForeignKey.DeleteBehavior);
 
                 modelBuilder
                     .Entity<Nob>().HasKey(e => e.HobId1);

@@ -621,7 +621,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var defaultOnDeleteAction = foreignKey.IsRequired
                 ? DeleteBehavior.Cascade
-                : DeleteBehavior.Restrict;
+                : DeleteBehavior.ClientSetNull;
 
             if (foreignKey.DeleteBehavior != defaultOnDeleteAction)
             {

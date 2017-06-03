@@ -35,7 +35,7 @@ namespace E2E.Sqlite
                 entity.HasOne(d => d.Principal)
                     .WithOne(p => p.Dependent)
                     .HasForeignKey<Dependent>(d => d.PrincipalId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<Principal>(entity =>

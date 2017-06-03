@@ -44,6 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual DeleteBehavior TargetDeleteBehavior([NotNull] ForeignKey foreignKey)
-            => foreignKey.IsRequired ? DeleteBehavior.Cascade : DeleteBehavior.Restrict;
+            => foreignKey.IsRequired ? DeleteBehavior.Cascade : DeleteBehavior.ClientSetNull;
     }
 }

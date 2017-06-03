@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -324,7 +325,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             }
                         }
 
-                        if (newPrincipalEntry != null)
+                        if (newPrincipalEntry != null
+                            && !entry.IsConceptualNull(property))
                         {
                             // Add this entity to the collection of the new principal, or set the navigation for a 1:1
                             SetReferenceOrAddToCollection(newPrincipalEntry, principalToDependent, collectionAccessor, entry.Entity);
@@ -358,7 +360,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 }
                             }
 
-                            SetNavigation(entry, dependentToPrincipal, newPrincipalEntry.Entity);
+                            if (!entry.IsConceptualNull(property))
+                            {
+                                SetNavigation(entry, dependentToPrincipal, newPrincipalEntry.Entity);
+                            }
                         }
                         else if (oldPrincipalEntry != null
                                  && ReferenceEquals(entry[dependentToPrincipal], oldPrincipalEntry.Entity))

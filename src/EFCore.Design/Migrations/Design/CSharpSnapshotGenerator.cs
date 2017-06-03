@@ -563,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     }
                 }
 
-                if (foreignKey.DeleteBehavior != DeleteBehavior.Restrict)
+                if (foreignKey.DeleteBehavior != DeleteBehavior.ClientSetNull)
                 {
                     stringBuilder
                         .AppendLine()

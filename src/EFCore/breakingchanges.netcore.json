@@ -1,5 +1,59 @@
   [
     {
+      "TypeId": "public enum Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IForeignKey : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior get_DeleteBehavior()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior get_DeleteBehavior()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "System.Void set_DeleteBehavior(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior deleteBehavior)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1> : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder where T0 : class where T1 : class",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1> OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior deleteBehavior)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior deleteBehavior)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1> : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder where T0 : class where T1 : class",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1> OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior deleteBehavior)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IForeignKey : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.DeleteBehavior get_DeleteBehavior()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.DeleteBehavior get_DeleteBehavior()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "System.Void set_DeleteBehavior(Microsoft.EntityFrameworkCore.DeleteBehavior value)",
+      "Kind": "Addition"
+    },
+    {
       "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.DatabaseProviderServices : Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
       "Kind": "Removal"
     },

@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(relationshipBuilder.IsUnique(true, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.IsRequired(true, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.IsOwnership(true, ConfigurationSource.DataAnnotation));
-            Assert.Null(relationshipBuilder.DeleteBehavior(DeleteBehavior.Restrict, ConfigurationSource.DataAnnotation));
+            Assert.Null(relationshipBuilder.DeleteBehavior(DeleteBehavior.ClientSetNull, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.DependentEntityType(
                 relationshipBuilder.Metadata.PrincipalEntityType, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.DependentToPrincipal((string)null, ConfigurationSource.DataAnnotation));
