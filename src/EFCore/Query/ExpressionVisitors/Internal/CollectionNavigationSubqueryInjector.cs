@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -101,6 +102,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return newMethodCallExpression ?? base.VisitMethodCall(methodCallExpression);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitExtension(Expression extensionExpression)
+            => extensionExpression is SuppressNavigationRewriteExpression
+                ? extensionExpression
+                : base.VisitExtension(extensionExpression);
+
         private static Expression InjectSubquery(Expression expression, INavigation collectionNavigation)
         {
             var targetType = collectionNavigation.GetTargetType().ClrType;
@@ -122,11 +132,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         [UsedImplicitly]
-        private static ICollection<TEntity> MaterializeCollectionNavigation<TEntity>(INavigation navigation, IEnumerable<object> elements)
+        private static ICollection<TEntity> MaterializeCollectionNavigation<TEntity>(INavigation navigation, IEnumerable<TEntity> elements)
         {
-            var collection = navigation.GetCollectionAccessor().Create(elements);
+            var collection = (ICollection<TEntity>)navigation.GetCollectionAccessor().Create();
+            foreach (var element in elements)
+            {
+                collection.Add(element);
+            }
 
-            return (ICollection<TEntity>)collection;
+            return collection;
         }
     }
 }

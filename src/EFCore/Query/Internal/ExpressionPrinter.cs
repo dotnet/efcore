@@ -768,6 +768,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     VisitNullConditionalEqualExpression(nullConditionalEqualExpression);
                     break;
 
+                case SuppressNavigationRewriteExpression suppressNavigationRewriteExpression:
+                    VisitSuppressNavigationRewriteExpression(suppressNavigationRewriteExpression);
+                    break;
+
                 default:
                     UnhandledExpressionType(extensionExpression);
                     break;
@@ -819,6 +823,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Visit(nullConditionalEqualExpression.OuterKey);
             _stringBuilder.Append(" ?= ");
             Visit(nullConditionalEqualExpression.InnerKey);
+        }
+
+        private void VisitSuppressNavigationRewriteExpression(SuppressNavigationRewriteExpression suppressNavigationRewriteExpression)
+        {
+            _stringBuilder.Append("SuppressNavigationRewrite(");
+            Visit(suppressNavigationRewriteExpression.Operand);
+            _stringBuilder.Append(")");
         }
 
         private void VisitArguments(IList<Expression> arguments, Action<string> appendAction, string lastSeparator = "")
