@@ -3,11 +3,10 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class ScaffoldingModelAnnotations : RelationalModelAnnotations
     {

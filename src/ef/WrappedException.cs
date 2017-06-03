@@ -5,7 +5,7 @@ using System;
 
 namespace Microsoft.EntityFrameworkCore.Tools
 {
-    public class WrappedException : Exception
+    internal class WrappedException : Exception
     {
         private readonly string _stackTrace;
 

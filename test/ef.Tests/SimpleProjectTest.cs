@@ -150,6 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         BuildReference.ByName("Microsoft.Extensions.Logging", true),
                         BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", true),
                         BuildReference.ByName("Microsoft.Extensions.Options", true),
+                        BuildReference.ByName("Microsoft.Extensions.Primitives", true),
                         BuildReference.ByName("Remotion.Linq", true)
                     },
                     Sources = { @"
