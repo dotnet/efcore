@@ -3499,6 +3499,114 @@ FROM [Faction] AS [f]
 WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')");
         }
 
+        public override void Project_collection_navigation_with_inheritance1()
+        {
+            base.Project_collection_navigation_with_inheritance1();
+
+            AssertSql(
+                @"SELECT [h].[Id] AS [Id0], [h].[CapitalName], [h].[Discriminator], [h].[Name], [h].[CommanderName], [h].[Eradicated], [t].[Name], [t].[Discriminator], [t].[LocustHordeId], [t].[ThreatLevel], [t].[DefeatedByNickname], [t].[DefeatedBySquadId], [t0].[Id], [t0].[CapitalName], [t0].[Discriminator], [t0].[Name], [t0].[CommanderName], [t0].[Eradicated]
+FROM [Faction] AS [h]
+LEFT JOIN (
+    SELECT [h.Commander].*
+    FROM [LocustLeader] AS [h.Commander]
+    WHERE [h.Commander].[Discriminator] = N'LocustCommander'
+) AS [t] ON [h].[CommanderName] = [t].[Name]
+LEFT JOIN (
+    SELECT [h.Commander.CommandingFaction].*
+    FROM [Faction] AS [h.Commander.CommandingFaction]
+    WHERE [h.Commander.CommandingFaction].[Discriminator] = N'LocustHorde'
+) AS [t0] ON [t].[Name] = [t0].[CommanderName]
+WHERE [h].[Discriminator] = N'LocustHorde'
+ORDER BY [t0].[Id]",
+                //
+                @"SELECT [h.Commander.CommandingFaction.Leaders].[Name], [h.Commander.CommandingFaction.Leaders].[Discriminator], [h.Commander.CommandingFaction.Leaders].[LocustHordeId], [h.Commander.CommandingFaction.Leaders].[ThreatLevel], [h.Commander.CommandingFaction.Leaders].[DefeatedByNickname], [h.Commander.CommandingFaction.Leaders].[DefeatedBySquadId]
+FROM [LocustLeader] AS [h.Commander.CommandingFaction.Leaders]
+INNER JOIN (
+    SELECT DISTINCT [t2].[Id]
+    FROM [Faction] AS [h0]
+    LEFT JOIN (
+        SELECT [h.Commander0].*
+        FROM [LocustLeader] AS [h.Commander0]
+        WHERE [h.Commander0].[Discriminator] = N'LocustCommander'
+    ) AS [t1] ON [h0].[CommanderName] = [t1].[Name]
+    LEFT JOIN (
+        SELECT [h.Commander.CommandingFaction0].*
+        FROM [Faction] AS [h.Commander.CommandingFaction0]
+        WHERE [h.Commander.CommandingFaction0].[Discriminator] = N'LocustHorde'
+    ) AS [t2] ON [t1].[Name] = [t2].[CommanderName]
+    WHERE [h0].[Discriminator] = N'LocustHorde'
+) AS [t3] ON [h.Commander.CommandingFaction.Leaders].[LocustHordeId] = [t3].[Id]
+WHERE [h.Commander.CommandingFaction.Leaders].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
+ORDER BY [t3].[Id]");
+        }
+        public override void Project_collection_navigation_with_inheritance2()
+        {
+            base.Project_collection_navigation_with_inheritance2();
+
+            AssertSql(
+                @"SELECT [h].[Id], [t0].[Nickname], [t0].[SquadId]
+FROM [Faction] AS [h]
+LEFT JOIN (
+    SELECT [h.Commander].*
+    FROM [LocustLeader] AS [h.Commander]
+    WHERE [h.Commander].[Discriminator] = N'LocustCommander'
+) AS [t] ON [h].[CommanderName] = [t].[Name]
+LEFT JOIN (
+    SELECT [h.Commander.DefeatedBy].*
+    FROM [Gear] AS [h.Commander.DefeatedBy]
+    WHERE [h.Commander.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON ([t].[DefeatedByNickname] = [t0].[Nickname]) AND ([t].[DefeatedBySquadId] = [t0].[SquadId])
+WHERE [h].[Discriminator] = N'LocustHorde'",
+                //
+                @"@_outer_Nickname='Marcus' (Size = 4000)
+@_outer_SquadId='1'
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((@_outer_Nickname = [g].[LeaderNickname]) AND (@_outer_SquadId = [g].[LeaderSquadId]))",
+                //
+                @"@_outer_Nickname='' (Size = 4000) (DbType = String)
+@_outer_SquadId='' (Nullable = false) (DbType = Int32)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((@_outer_Nickname = [g].[LeaderNickname]) AND (@_outer_SquadId = [g].[LeaderSquadId]))");
+        }
+
+        public override void Project_collection_navigation_with_inheritance3()
+        {
+            base.Project_collection_navigation_with_inheritance3();
+
+            AssertSql(
+                @"SELECT [f].[Id], [t0].[Nickname], [t0].[SquadId]
+FROM [Faction] AS [f]
+LEFT JOIN (
+    SELECT [f.Commander].*
+    FROM [LocustLeader] AS [f.Commander]
+    WHERE [f.Commander].[Discriminator] = N'LocustCommander'
+) AS [t] ON [f].[CommanderName] = [t].[Name]
+LEFT JOIN (
+    SELECT [f.Commander.DefeatedBy].*
+    FROM [Gear] AS [f.Commander.DefeatedBy]
+    WHERE [f.Commander.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON ([t].[DefeatedByNickname] = [t0].[Nickname]) AND ([t].[DefeatedBySquadId] = [t0].[SquadId])
+WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')",
+                //
+                @"@_outer_Nickname='Marcus' (Size = 4000)
+@_outer_SquadId='1'
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((@_outer_Nickname = [g].[LeaderNickname]) AND (@_outer_SquadId = [g].[LeaderSquadId]))",
+                //
+                @"@_outer_Nickname='' (Size = 4000) (DbType = String)
+@_outer_SquadId='' (Nullable = false) (DbType = Int32)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((@_outer_Nickname = [g].[LeaderNickname]) AND (@_outer_SquadId = [g].[LeaderSquadId]))");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -308,6 +308,42 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        public override void Project_collection_navigation()
+        {
+        }
+
+        public override void Project_collection_navigation_nested()
+        {
+        }
+
+        public override void Project_collection_navigation_using_ef_property()
+        {
+        }
+
+        public override void Project_collection_navigation_nested_anonymous()
+        {
+        }
+
+        public override void Project_collection_navigation_count()
+        {
+        }
+
+        public override void Project_collection_navigation_composed()
+        {
+        }
+
+        public override void Project_collection_and_root_entity()
+        {
+        }
+
+        public override void Project_collection_and_include()
+        {
+        }
+
+        public override void Project_navigation_and_collection()
+        {
+        }
+
         protected override IQueryable<Level1> GetExpectedLevelOne()
             => ComplexNavigationsData.SplitLevelOnes.AsQueryable();
 

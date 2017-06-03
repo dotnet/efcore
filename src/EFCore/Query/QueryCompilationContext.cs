@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -186,6 +186,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 _queryAnnotations = value;
             }
+        }
+
+        /// <summary>
+        ///     Adds query annotations to the exisiting list.
+        /// </summary>
+        /// <param name="annotations">The query annotations.</param>
+        public virtual void AddAnnotations([NotNull] IEnumerable<IQueryAnnotation> annotations)
+        {
+            Check.NotNull(annotations, nameof(annotations));
+
+            _queryAnnotations = new ReadOnlyCollection<IQueryAnnotation>(_queryAnnotations.ToList().Concat(annotations).ToList());
         }
 
         /// <summary>

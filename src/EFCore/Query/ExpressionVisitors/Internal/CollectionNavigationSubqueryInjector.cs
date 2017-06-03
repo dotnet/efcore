@@ -78,6 +78,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
+            if (methodCallExpression.Method.MethodIsClosedFormOf(
+                CollectionNavigationIncludeExpressionRewriter.ProjectCollectionNavigationMethodInfo))
+            {
+                var newArgument = Visit(methodCallExpression.Arguments[0]);
+
+                return newArgument != methodCallExpression.Arguments[0]
+                    ? methodCallExpression.Update(methodCallExpression.Object, new[] { newArgument, methodCallExpression.Arguments[1] })
+                    : methodCallExpression;
+            }
+
             if (!methodCallExpression.Method.IsEFPropertyMethod())
             {
                 _shouldInject = true;
@@ -122,7 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         [UsedImplicitly]
-        private static ICollection<TEntity> MaterializeCollectionNavigation<TEntity>(INavigation navigation, IEnumerable<object> elements)
+        private static ICollection<TEntity> MaterializeCollectionNavigation<TEntity>(
+            INavigation navigation, 
+            IEnumerable<object> elements)
         {
             var collection = navigation.GetCollectionAccessor().Create(elements);
 

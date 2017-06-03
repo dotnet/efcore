@@ -3713,6 +3713,64 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public virtual void Project_collection_navigation_with_inheritance1()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Factions.OfType<LocustHorde>()
+                    .Select(h => new
+                    {
+                        h.Id,
+                        Leaders = EF.Property<ICollection<LocustLeader>>(h.Commander.CommandingFaction, "Leaders")
+                    });
+
+                var result = query.ToList();
+                Assert.Equal(2, result.Count);
+                Assert.Equal(1, result.Count(r => r.Id == 1 && r.Leaders.Count == 4));
+                Assert.Equal(1, result.Count(r => r.Id == 2 && r.Leaders.Count == 1));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Project_collection_navigation_with_inheritance2()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Factions.OfType<LocustHorde>()
+                    .Select(h => new
+                    {
+                        h.Id,
+                        Gears = EF.Property<ICollection<Gear>>((Officer)h.Commander.DefeatedBy, "Reports")
+                    });
+
+                var result = query.ToList();
+                Assert.Equal(2, result.Count);
+                Assert.Equal(1, result.Count(r => r.Id == 1 && r.Gears.Count == 3));
+                Assert.Equal(1, result.Count(r => r.Id == 2 && r.Gears.Count == 0));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Project_collection_navigation_with_inheritance3()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Factions
+                    .Where(f => f is LocustHorde)
+                    .Select(f => new
+                    {
+                        f.Id,
+                        Gears = EF.Property<ICollection<Gear>>((Officer)((LocustHorde)f).Commander.DefeatedBy, "Reports")
+                    });
+
+                var result = query.ToList();
+                Assert.Equal(2, result.Count);
+                Assert.Equal(1, result.Count(r => r.Id == 1 && r.Gears.Count == 3));
+                Assert.Equal(1, result.Count(r => r.Id == 2 && r.Gears.Count == 0));
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

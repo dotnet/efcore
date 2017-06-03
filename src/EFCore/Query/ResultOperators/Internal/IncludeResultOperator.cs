@@ -26,7 +26,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
     public class IncludeResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
     {
         private List<string> _navigationPropertyPaths;
+        private INavigation[] _navigationPath;
         private IQuerySource _querySource;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public IncludeResultOperator(
+            [NotNull] INavigation[] navigationPath, [NotNull] Expression pathFromQuerySource)
+            : this(navigationPath.Select(n => n.Name), pathFromQuerySource)
+        {
+            _navigationPath = navigationPath;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -93,51 +105,54 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         public virtual INavigation[] GetNavigationPath([NotNull] QueryCompilationContext queryCompilationContext)
         {
-            IEntityType entityType = null;
-            if (PathFromQuerySource is QuerySourceReferenceExpression qsre)
+            if (_navigationPath == null)
             {
-                entityType = queryCompilationContext.FindEntityType(qsre.ReferencedQuerySource);
-            }
-            if (entityType == null)
-            {
-                entityType = queryCompilationContext.Model.FindEntityType(PathFromQuerySource.Type);
+                IEntityType entityType = null;
+                if (PathFromQuerySource is QuerySourceReferenceExpression qsre)
+                {
+                    entityType = queryCompilationContext.FindEntityType(qsre.ReferencedQuerySource);
+                }
+                if (entityType == null)
+                {
+                    entityType = queryCompilationContext.Model.FindEntityType(PathFromQuerySource.Type);
+
+                    if (entityType == null)
+                    {
+                        var pathFromSource = MemberAccessBindingExpressionVisitor.GetPropertyPath(
+                            PathFromQuerySource, queryCompilationContext, out qsre);
+                        if (pathFromSource.Count > 0
+                            && pathFromSource[pathFromSource.Count - 1] is INavigation navigation)
+                        {
+                            entityType = navigation.GetTargetType();
+                        }
+                    }
+                }
 
                 if (entityType == null)
                 {
-                    var pathFromSource = MemberAccessBindingExpressionVisitor.GetPropertyPath(
-                        PathFromQuerySource, queryCompilationContext, out qsre);
-                    if (pathFromSource.Count > 0
-                        && pathFromSource[pathFromSource.Count - 1] is INavigation navigation)
-                    {
-                        entityType = navigation.GetTargetType();
-                    }
+                    throw new NotSupportedException(
+                        CoreStrings.IncludeNotSpecifiedDirectlyOnEntityType(
+                            ToString(),
+                            NavigationPropertyPaths.FirstOrDefault()));
                 }
-            }
 
-            if (entityType == null)
-            {
-                throw new NotSupportedException(
-                    CoreStrings.IncludeNotSpecifiedDirectlyOnEntityType(
-                        ToString(), 
-                        NavigationPropertyPaths.FirstOrDefault()));
-            }
+                _navigationPath = new INavigation[NavigationPropertyPaths.Count];
 
-            var navigationPath = new INavigation[NavigationPropertyPaths.Count];
-
-            for (var i = 0; i < NavigationPropertyPaths.Count; i++)
-            {
-                navigationPath[i] = entityType.FindNavigation(NavigationPropertyPaths[i]);
-
-                if (navigationPath[i] == null)
+                for (var i = 0; i < NavigationPropertyPaths.Count; i++)
                 {
-                    throw new InvalidOperationException(
-                        CoreStrings.IncludeBadNavigation(NavigationPropertyPaths[i], entityType.DisplayName()));
-                }
+                    _navigationPath[i] = entityType.FindNavigation(NavigationPropertyPaths[i]);
 
-                entityType = navigationPath[i].GetTargetType();
+                    if (_navigationPath[i] == null)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.IncludeBadNavigation(NavigationPropertyPaths[i], entityType.DisplayName()));
+                    }
+
+                    entityType = _navigationPath[i].GetTargetType();
+                }
             }
 
-            return navigationPath;
+            return _navigationPath;
         }
 
         /// <summary>
