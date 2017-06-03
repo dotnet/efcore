@@ -568,6 +568,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(node, nameof(node));
 
+            if (node.Method.MethodIsClosedFormOf(
+                CollectionNavigationIncludeExpressionRewriter.ProjectCollectionNavigationMethodInfo))
+            {
+                var newArgument = Visit(node.Arguments[0]);
+
+                return newArgument != node.Arguments[0]
+                    ? node.Update(node.Object, new[] { newArgument, node.Arguments[1] })
+                    : node;
+            }
+
             if (node.Method.IsEFPropertyMethod())
             {
                 var result = _queryModelVisitor.BindNavigationPathPropertyExpression(
