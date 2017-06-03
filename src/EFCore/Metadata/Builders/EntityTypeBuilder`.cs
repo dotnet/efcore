@@ -88,19 +88,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
-        ///     Creates a new unique constraint for this entity type if one does not already exist over the specified
-        ///     properties.
+        ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
+        ///     properties. This will force the properties to be read-only. Use <see cref="HasIndex"/> to specify uniqueness
+        ///     in the model that does not force properties to be read-only.
         /// </summary>
         /// <param name="keyExpression">
         ///     <para>
-        ///         A lambda expression representing the unique constraint property(s) (<c>blog => blog.Url</c>).
+        ///         A lambda expression representing the key property(s) (<c>blog => blog.Url</c>).
         ///     </para>
         ///     <para>
-        ///         If the unique constraint is made up of multiple properties then specify an anonymous type including
+        ///         If the key is made up of multiple properties then specify an anonymous type including
         ///         the properties (<c>post => new { post.Title, post.BlogId }</c>).
         ///     </para>
         /// </param>
-        /// <returns> An object that can be used to configure the unique constraint. </returns>
+        /// <returns> An object that can be used to configure the key. </returns>
         public virtual KeyBuilder HasAlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
             => new KeyBuilder(Builder.HasKey(
                 Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));

@@ -94,11 +94,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new KeyBuilder(Builder.PrimaryKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit));
 
         /// <summary>
-        ///     Creates a new unique constraint for this entity type if one does not already exist over the specified
-        ///     properties.
+        ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
+        ///     properties. This will force the properties to be read-only. Use <see cref="HasIndex"/> to specify uniqueness
+        ///     in the model that does not force properties to be read-only.
         /// </summary>
-        /// <param name="propertyNames"> The names of the properties that make up the unique constraint. </param>
-        /// <returns> An object that can be used to configure the unique constraint. </returns>
+        /// <param name="propertyNames"> The names of the properties that make up the key. </param>
+        /// <returns> An object that can be used to configure the key. </returns>
         public virtual KeyBuilder HasAlternateKey([NotNull] params string[] propertyNames)
             => new KeyBuilder(Builder.HasKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit));
 
