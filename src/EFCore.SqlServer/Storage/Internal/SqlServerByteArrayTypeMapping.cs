@@ -16,20 +16,21 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class SqlServerByteArrayTypeMapping : ByteArrayTypeMapping
     {
+        private readonly int _maxSpecificSize;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqlServerByteArrayTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <param name="hasNonDefaultSize"> A value indicating whether the size setting has been manually configured to a non-default value. </param>
         public SqlServerByteArrayTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-            int? size = null,
-            bool hasNonDefaultSize = false)
-            : base(storeType, dbType, CalculateSize(size), hasNonDefaultSize)
+            int? size = null)
+            : base(storeType, dbType, size)
         {
+            _maxSpecificSize = CalculateSize(size);
         }
 
         private static int CalculateSize(int? size)
@@ -43,8 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => new SqlServerByteArrayTypeMapping(
                 storeType,
                 DbType,
-                size,
-                hasNonDefaultSize: size != Size);
+                size);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -60,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             var value = parameter.Value;
             var length = (value as string)?.Length ?? (value as byte[])?.Length;
 
-            parameter.Size = value == null || value == DBNull.Value || (length != null && length <= Size.Value)
-                ? Size.Value
+            parameter.Size = value == null || value == DBNull.Value || length != null && length <= _maxSpecificSize
+                ? _maxSpecificSize
                 : -1;
         }
 

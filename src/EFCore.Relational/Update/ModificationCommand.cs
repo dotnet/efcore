@@ -140,11 +140,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                     var readValue = entry.IsStoreGenerated(property);
 
                     var writeValue = !readValue
-                                     && ((adding
-                                          && property.BeforeSaveBehavior == PropertySaveBehavior.Save)
-                                         || (!adding
-                                             && property.AfterSaveBehavior == PropertySaveBehavior.Save
-                                             && entry.IsModified(property)));
+                                     && (adding
+                                         && property.BeforeSaveBehavior == PropertySaveBehavior.Save
+                                         || !adding
+                                         && property.AfterSaveBehavior == PropertySaveBehavior.Save
+                                         && entry.IsModified(property));
 
                     if (readValue
                         || writeValue

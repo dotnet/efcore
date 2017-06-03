@@ -104,8 +104,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 _rowversion, size => new ByteArrayTypeMapping(
                     "just_binary(" + size + ")",
                     DbType.Binary,
-                    size: size,
-                    hasNonDefaultSize: true));
+                    size: size));
 
         public override IStringRelationalTypeMapper StringMapper { get; }
             = new StringRelationalTypeMapper(
@@ -117,9 +116,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     "just_string(" + size + ")",
                     dbType: DbType.AnsiString,
                     unicode: false,
-                    size: size,
-                    hasNonDefaultUnicode: true,
-                    hasNonDefaultSize: true),
+                    size: size),
                 2000,
                 _string,
                 _unboundedString,
@@ -128,9 +125,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     "just_string(" + size + ")",
                     dbType: null,
                     unicode: true,
-                    size: size,
-                    hasNonDefaultUnicode: false,
-                    hasNonDefaultSize: true));
+                    size: size));
 
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _simpleMappings;

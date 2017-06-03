@@ -21,6 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual ICollection<ForeignKeyModel> ForeignKeys { get; } = new List<ForeignKeyModel>();
 
         public virtual string DisplayName
-            => !string.IsNullOrEmpty(SchemaName) ? (SchemaName + "." + Name) : Name;
+            => !string.IsNullOrEmpty(SchemaName) ? SchemaName + "." + Name : Name;
     }
 }

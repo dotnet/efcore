@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         public virtual bool UseOriginalValueParameter => IsCondition && IsConcurrencyToken;
 
-        public virtual bool UseCurrentValueParameter => IsWrite || (IsCondition && !IsConcurrencyToken);
+        public virtual bool UseCurrentValueParameter => IsWrite || IsCondition && !IsConcurrencyToken;
 
         public virtual string ParameterName
             => _parameterName ?? (_parameterName = _generateParameterName());

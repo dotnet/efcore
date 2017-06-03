@@ -30,12 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected override Expression VisitBinary(BinaryExpression node)
         {
             var currentExpression = node;
-            if ((currentExpression.NodeType == ExpressionType.Equal)
-                || (currentExpression.NodeType == ExpressionType.NotEqual))
+            if (currentExpression.NodeType == ExpressionType.Equal
+                || currentExpression.NodeType == ExpressionType.NotEqual)
             {
                 var leftUnary = currentExpression.Left as UnaryExpression;
-                if ((leftUnary != null)
-                    && (leftUnary.NodeType == ExpressionType.Not))
+                if (leftUnary != null
+                    && leftUnary.NodeType == ExpressionType.Not)
                 {
                     var leftNullable = BuildIsNullExpression(leftUnary.Operand) != null;
                     var rightNullable = BuildIsNullExpression(currentExpression.Right) != null;
@@ -53,8 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
 
                 var rightUnary = currentExpression.Right as UnaryExpression;
-                if ((rightUnary != null)
-                    && (rightUnary.NodeType == ExpressionType.Not))
+                if (rightUnary != null
+                    && rightUnary.NodeType == ExpressionType.Not)
                 {
                     var leftNullable = BuildIsNullExpression(currentExpression.Left) != null;
                     var rightNullable = BuildIsNullExpression(rightUnary) != null;
@@ -92,8 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (node.NodeType == ExpressionType.Not)
             {
                 var innerUnary = node.Operand as UnaryExpression;
-                if ((innerUnary != null)
-                    && (innerUnary.NodeType == ExpressionType.Not))
+                if (innerUnary != null
+                    && innerUnary.NodeType == ExpressionType.Not)
                 {
                     // !(!(a)) => a
                     return Visit(innerUnary.Operand);
@@ -104,8 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (innerBinary != null)
                 {
                     Expression result = null;
-                    if ((innerBinary.NodeType == ExpressionType.Equal)
-                        || (innerBinary.NodeType == ExpressionType.NotEqual))
+                    if (innerBinary.NodeType == ExpressionType.Equal
+                        || innerBinary.NodeType == ExpressionType.NotEqual)
                     {
                         // TODO: this is only valid for non-nullable terms, or if null semantics expansion is performed
                         // if user opts-out of the null semantics, we should not apply this rule

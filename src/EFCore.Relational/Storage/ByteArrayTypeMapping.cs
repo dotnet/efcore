@@ -24,15 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="ByteArrayTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <param name="hasNonDefaultSize"> A value indicating whether the size setting has been manually configured to a non-default value. </param>
         public ByteArrayTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = null,
-            int? size = null,
-            bool hasNonDefaultSize = false)
-            : base(storeType, dbType, false, size, false, hasNonDefaultSize)
+            int? size = null)
+            : base(storeType, dbType, unicode: false, size: size)
         {
         }
 
@@ -46,8 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new ByteArrayTypeMapping(
                 storeType,
                 DbType,
-                size,
-                hasNonDefaultSize: size != Size);
+                size);
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.

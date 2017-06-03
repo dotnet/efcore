@@ -22,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var newLeft = Visit(node.Left);
             var newRight = Visit(node.Right);
 
-            if (((node.NodeType == ExpressionType.Equal)
-                 || (node.NodeType == ExpressionType.NotEqual))
-                && (node.Left.Type == typeof(bool))
-                && (node.Right.Type == typeof(bool)))
+            if ((node.NodeType == ExpressionType.Equal
+                 || node.NodeType == ExpressionType.NotEqual)
+                && node.Left.Type == typeof(bool)
+                && node.Right.Type == typeof(bool))
             {
                 var simpleLeft = node.Left.IsSimpleExpression();
                 var simpleRight = node.Right.IsSimpleExpression();

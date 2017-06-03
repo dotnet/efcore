@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 valueBufferFactoryFactory)
         {
             if (maxBatchSize.HasValue
-                && (maxBatchSize.Value <= 0))
+                && maxBatchSize.Value <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(maxBatchSize), RelationalStrings.InvalidMaxBatchSize);
             }
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             if (newModificationCommand.EntityState == EntityState.Added)
             {
-                if ((_bulkInsertCommands.Count > 0)
+                if (_bulkInsertCommands.Count > 0
                     && !CanBeInsertedInSameStatement(_bulkInsertCommands[0], newModificationCommand))
                 {
                     CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
