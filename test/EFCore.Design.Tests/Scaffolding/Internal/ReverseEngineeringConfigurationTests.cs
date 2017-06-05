@@ -25,13 +25,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void ValidateContextNameInReverseEngineerGenerator(string contextName)
         {
+            var cSharpUtilities = new CSharpUtilities();
             var reverseEngineer = new ModelScaffolder(
                 new FakeScaffoldingModelFactory(new FakeDiagnosticsLogger<DbLoggerCategory.Scaffolding>()),
                 new CSharpScaffoldingGenerator(
                     new InMemoryFileService(),
-                    new CSharpDbContextGenerator(new FakeScaffoldingHelper(), new FakeAnnotationRenderer(), CSharpUtilities.Instance),
-                    new CSharpEntityTypeGenerator(CSharpUtilities.Instance)),
-                CSharpUtilities.Instance);
+                    new CSharpDbContextGenerator(new FakeScaffoldingHelper(), new FakeAnnotationRenderer(), cSharpUtilities),
+                    new CSharpEntityTypeGenerator(cSharpUtilities)),
+                cSharpUtilities);
 
             Assert.Equal(
                 DesignStrings.ContextClassNotValidCSharpIdentifier(contextName),

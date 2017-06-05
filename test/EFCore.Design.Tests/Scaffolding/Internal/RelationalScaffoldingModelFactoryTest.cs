@@ -1008,7 +1008,8 @@ namespace Microsoft.EntityFrameworkCore
                 new FakeDatabaseModelFactory(),
                 new CandidateNamingService(),
                 pluralizer,
-                new FakeScaffoldingHelper())
+                new FakeScaffoldingHelper(),
+                new CSharpUtilities())
         {
         }
     }
@@ -1027,7 +1028,9 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            var scaffoldingTypeMapper = new ScaffoldingTypeMapper(new TestTypeMapper(new RelationalTypeMapperDependencies()));
+
+            var scaffoldingTypeMapper = new ScaffoldingTypeMapper(
+                new ScaffoldingTypeMapperDependencies(new TestTypeMapper(new RelationalTypeMapperDependencies())));
 
             return scaffoldingTypeMapper.FindMapping(columnModel.StoreType, keyOrIndex: false, rowVersion: false);
         }

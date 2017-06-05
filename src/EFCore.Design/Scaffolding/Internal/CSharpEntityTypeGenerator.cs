@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class CSharpEntityTypeGenerator
+    public class CSharpEntityTypeGenerator : ICSharpEntityTypeGenerator
     {
-        private CSharpUtilities CSharpUtilities { get; }
+        private ICSharpUtilities CSharpUtilities { get; }
 
         private IndentedStringBuilder _sb;
         private bool _useDataAnnotations;
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public CSharpEntityTypeGenerator(
-            [NotNull] CSharpUtilities cSharpUtilities)
+            [NotNull] ICSharpUtilities cSharpUtilities)
         {
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
 
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string WriteCode([NotNull] IEntityType entityType, [NotNull] string @namespace, bool useDataAnnotations)
+        public virtual string WriteCode(IEntityType entityType, string @namespace, bool useDataAnnotations)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(@namespace, nameof(@namespace));

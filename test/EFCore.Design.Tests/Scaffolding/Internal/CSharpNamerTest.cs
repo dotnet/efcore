@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("8ball", "_8ball")]
         public void Sanitizes_name(string input, string output)
         {
-            Assert.Equal(output, new CSharpNamer<string>(s => s).GetName(input));
+            Assert.Equal(output, new CSharpNamer<string>(s => s, new CSharpUtilities()).GetName(input));
         }
     }
 }

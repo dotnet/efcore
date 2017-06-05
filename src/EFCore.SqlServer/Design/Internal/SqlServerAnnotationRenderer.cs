@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -11,6 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class SqlServerAnnotationRenderer : AnnotationRendererBase
     {
+        public SqlServerAnnotationRenderer([NotNull] AnnotationRendererDependencies dependencies)
+            : base(dependencies)
+        {
+        }
+
         public override bool IsHandledByConvention(IModel model, IAnnotation annotation)
         {
             Check.NotNull(model, nameof(model));

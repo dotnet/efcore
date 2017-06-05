@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
         private readonly ITestOutputHelper _output;
         protected InMemoryOperationReporter _reporter;
         protected InMemoryFileService InMemoryFiles;
-        protected readonly ModelScaffolder Generator;
+        protected readonly IModelScaffolder Generator;
         protected readonly IScaffoldingModelFactory ScaffoldingModelFactory;
 
         protected E2ETestBase(ITestOutputHelper output)
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
             factory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, _reporter)));
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            Generator = serviceProvider.GetRequiredService<ModelScaffolder>();
+            Generator = serviceProvider.GetRequiredService<IModelScaffolder>();
             ScaffoldingModelFactory = serviceProvider.GetRequiredService<IScaffoldingModelFactory>();
         }
 

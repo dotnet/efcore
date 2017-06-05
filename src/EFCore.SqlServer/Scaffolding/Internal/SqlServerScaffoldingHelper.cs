@@ -10,9 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class SqlServerScaffoldingHelper : IScaffoldingHelper
     {
-        private readonly ScaffoldingTypeMapper _scaffoldingTypeMapper;
+        private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
 
-        public SqlServerScaffoldingHelper([NotNull] ScaffoldingTypeMapper scaffoldingTypeMapper)
+        public SqlServerScaffoldingHelper([NotNull] IScaffoldingTypeMapper scaffoldingTypeMapper)
         {
             Check.NotNull(scaffoldingTypeMapper, nameof(scaffoldingTypeMapper));
 

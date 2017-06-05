@@ -20,13 +20,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual CSharpDbContextGenerator CSharpDbContextGenerator { get; }
+        public virtual ICSharpDbContextGenerator CSharpDbContextGenerator { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual CSharpEntityTypeGenerator CSharpEntityTypeGenerator { get; }
+        public virtual ICSharpEntityTypeGenerator CSharpEntityTypeGenerator { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public CSharpScaffoldingGenerator(
             [NotNull] IFileService fileService,
-            [NotNull] CSharpDbContextGenerator cSharpDbContextGenerator,
-            [NotNull] CSharpEntityTypeGenerator cSharpEntityTypeGenerator)
+            [NotNull] ICSharpDbContextGenerator cSharpDbContextGenerator,
+            [NotNull] ICSharpEntityTypeGenerator cSharpEntityTypeGenerator)
             : base(fileService)
         {
             Check.NotNull(cSharpDbContextGenerator, nameof(cSharpDbContextGenerator));

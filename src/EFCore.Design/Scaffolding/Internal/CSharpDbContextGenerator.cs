@@ -20,11 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class CSharpDbContextGenerator
+    public class CSharpDbContextGenerator : ICSharpDbContextGenerator
     {
         private const string EntityLambdaIdentifier = "entity";
 
-        private readonly CSharpUtilities _cSharpUtilities;
+        private readonly ICSharpUtilities _cSharpUtilities;
         private readonly IScaffoldingHelper _scaffoldingHelper;
         private readonly IAnnotationRenderer _annotationRenderer;
         private IndentedStringBuilder _sb;
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public CSharpDbContextGenerator(
             [NotNull] IScaffoldingHelper scaffoldingHelper,
             [NotNull] IAnnotationRenderer annotationRenderer,
-            [NotNull] CSharpUtilities cSharpUtilities)
+            [NotNull] ICSharpUtilities cSharpUtilities)
         {
             Check.NotNull(scaffoldingHelper, nameof(scaffoldingHelper));
             Check.NotNull(annotationRenderer, nameof(annotationRenderer));
@@ -53,10 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string WriteCode(
-            [NotNull] IModel model,
-            [NotNull] string @namespace,
-            [NotNull] string contextName,
-            [NotNull] string connectionString,
+            IModel model,
+            string @namespace,
+            string contextName,
+            string connectionString,
             bool useDataAnnotations)
         {
             Check.NotNull(model, nameof(model));

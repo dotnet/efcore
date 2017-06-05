@@ -129,6 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         private static ScaffoldingTypeMapper CreateMapper()
-            => new ScaffoldingTypeMapper(new SqliteTypeMapper(new RelationalTypeMapperDependencies()));
+            => new ScaffoldingTypeMapper(
+                new ScaffoldingTypeMapperDependencies(new SqliteTypeMapper(new RelationalTypeMapperDependencies())));
     }
 }

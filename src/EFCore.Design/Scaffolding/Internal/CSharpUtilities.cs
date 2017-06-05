@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class CSharpUtilities
+    public class CSharpUtilities : ICSharpUtilities
     {
         private static readonly HashSet<string> _cSharpKeywords = new HashSet<string>
         {
@@ -108,13 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static CSharpUtilities Instance { get; } = new CSharpUtilities();
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual string DelimitString([NotNull] string value)
+        public virtual string DelimitString(string value)
         {
             Check.NotNull(value, nameof(value));
 
@@ -127,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string EscapeString([NotNull] string str)
+        public virtual string EscapeString(string str)
         {
             Check.NotNull(str, nameof(str));
 
@@ -138,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string EscapeVerbatimString([NotNull] string str)
+        public virtual string EscapeVerbatimString(string str)
         {
             Check.NotEmpty(str, nameof(str));
 
@@ -149,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string GenerateLiteral([NotNull] byte[] value)
+        public virtual string GenerateLiteral(byte[] value)
         {
             Check.NotNull(value, nameof(value));
 
@@ -232,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string GenerateLiteral([NotNull] string value)
+        public virtual string GenerateLiteral(string value)
         {
             Check.NotNull(value, nameof(value));
 
@@ -243,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string GenerateVerbatimStringLiteral([NotNull] string value)
+        public virtual string GenerateVerbatimStringLiteral(string value)
         {
             Check.NotNull(value, nameof(value));
 
@@ -254,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string GenerateLiteral([NotNull] object value)
+        public virtual string GenerateLiteral(object value)
         {
             Check.NotNull(value, nameof(value));
 
@@ -270,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool IsCSharpKeyword([NotNull] string identifier)
+        public virtual bool IsCSharpKeyword(string identifier)
             => _cSharpKeywords.Contains(identifier);
 
         /// <summary>
@@ -278,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string GenerateCSharpIdentifier(
-            [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers)
+            string identifier, [CanBeNull] ICollection<string> existingIdentifiers)
             => GenerateCSharpIdentifier(identifier, existingIdentifiers, Uniquifier);
 
         /// <summary>
@@ -286,8 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string GenerateCSharpIdentifier(
-            [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers,
-            [NotNull] Func<string, ICollection<string>, string> uniquifier)
+            string identifier, [CanBeNull] ICollection<string> existingIdentifiers,
+            Func<string, ICollection<string>, string> uniquifier)
         {
             Check.NotNull(identifier, nameof(identifier));
             Check.NotNull(uniquifier, nameof(uniquifier));
@@ -321,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Uniquifier(
-            [NotNull] string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
+            string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
         {
             Check.NotEmpty(proposedIdentifier, nameof(proposedIdentifier));
 
@@ -364,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string GetTypeName([NotNull] Type type)
+        public virtual string GetTypeName(Type type)
         {
             Check.NotNull(type, nameof(type));
 

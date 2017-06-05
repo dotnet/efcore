@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Returns_unique_name_for_type()
         {
-            var namer = new CSharpUniqueNamer<ColumnModel>(s => s.Name);
+            var namer = new CSharpUniqueNamer<ColumnModel>(s => s.Name, new CSharpUtilities());
             var input1 = new ColumnModel
             {
                 Name = "Id"
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Uses_comparer()
         {
-            var namer = new CSharpUniqueNamer<TableModel>(t => t.Name);
+            var namer = new CSharpUniqueNamer<TableModel>(t => t.Name, new CSharpUtilities());
             var table1 = new TableModel { Name = "A B C" };
             var table2 = new TableModel { Name = "A_B_C" };
             Assert.Equal("A_B_C", namer.GetName(table1));
