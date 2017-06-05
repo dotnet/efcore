@@ -587,9 +587,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         QueryContextParameter,
                         _queryContextAddParameterMethodInfo,
                         Expression.Constant(keyValuePair.Key),
-                        Expression.Invoke(
-                            (LambdaExpression)keyValuePair.Value,
-                            contextVariableExpression)));
+                        Expression.Convert(
+                            Expression.Invoke(
+                                (LambdaExpression)keyValuePair.Value,
+                                contextVariableExpression),
+                            typeof(object))));
             }
 
             return blockExpressions;
