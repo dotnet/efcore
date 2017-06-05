@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 base.VisitSelectClause(selectClause, queryModel);
             }
 
-            private string ResultOperatorString(ResultOperatorBase resultOperator)
+            private static string ResultOperatorString(ResultOperatorBase resultOperator)
             {
                 switch(resultOperator)
                 {

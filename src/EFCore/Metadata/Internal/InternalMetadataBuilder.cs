@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
-        private bool CanSetAnnotationValue(
+        private static bool CanSetAnnotationValue(
             ConventionalAnnotation annotation, object value, ConfigurationSource configurationSource, bool canOverrideSameSource)
         {
             if (annotation.Value.Equals(value))

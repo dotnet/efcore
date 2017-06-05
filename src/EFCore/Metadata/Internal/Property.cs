@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private ValueGenerated DefaultValueGenerated => ValueGenerated.Never;
+        private static ValueGenerated DefaultValueGenerated => ValueGenerated.Never;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             UpdateIsConcurrencyTokenConfigurationSource(configurationSource);
         }
 
-        private bool DefaultIsConcurrencyToken => false;
+        private static bool DefaultIsConcurrencyToken => false;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public NavigationPathEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] string navigationPath)
+            [NotNull] IReadOnlyCollection<IPropertyBase> navigationPath)
             : base(eventDefinition, messageGenerator)
         {
             NavigationPath = navigationPath;
@@ -31,6 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The navigation property.
         /// </summary>
-        public virtual string NavigationPath { get; }
+        public virtual IReadOnlyCollection<IPropertyBase> NavigationPath { get; }
     }
 }

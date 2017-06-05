@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType RemoveEntityType([NotNull] string name)
             => RemoveEntityType(FindEntityType(name));
 
-        private void AssertCanRemove(EntityType entityType)
+        private static void AssertCanRemove(EntityType entityType)
         {
             var foreignKey = entityType.GetDeclaredForeignKeys().FirstOrDefault(fk => fk.PrincipalEntityType != entityType);
             if (foreignKey != null)

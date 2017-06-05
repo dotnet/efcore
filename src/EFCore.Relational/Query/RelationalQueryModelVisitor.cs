@@ -957,7 +957,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresClientFilter)
             {
-                WarnClientEval(queryModel, whereClause.Predicate);
+                WarnClientEval(queryModel, whereClause);
 
                 base.VisitWhereClause(whereClause, queryModel, index);
             }
@@ -1162,14 +1162,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generated a client-eval warning
         /// </summary>
         /// <param name="queryModel"> The query model </param>
-        /// <param name="expression"> The expression being client-eval'd. </param>
+        /// <param name="queryModelElement"> The expression being client-eval'd. </param>
         protected virtual void WarnClientEval(
             [NotNull] QueryModel queryModel,
-            [NotNull] object expression)
+            [NotNull] object queryModelElement)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(queryModelElement, nameof(queryModelElement));
 
-            QueryCompilationContext.Logger.QueryClientEvaluationWarning(queryModel, expression);
+            QueryCompilationContext.Logger.QueryClientEvaluationWarning(queryModel, queryModelElement);
         }
 
         private class TypeIsExpressionTranslatingVisitor : ExpressionVisitorBase

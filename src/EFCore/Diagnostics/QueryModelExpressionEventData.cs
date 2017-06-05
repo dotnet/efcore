@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for events that have
     ///     a query model and an expression.
     /// </summary>
-    public class QueryModelExpressionEventData : QueryModelEventData
+    public class QueryModelClientEvalEventData : QueryModelEventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -20,20 +20,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="queryModel"> The <see cref="QueryModel" />. </param>
-        /// <param name="expression"> The expression. </param>
-        public QueryModelExpressionEventData(
+        /// <param name="queryModelElement"> The query model element requiring client-eval. </param>
+        public QueryModelClientEvalEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] QueryModel queryModel,
-            [NotNull] object expression)
+            [NotNull] object queryModelElement)
             : base(eventDefinition, messageGenerator, queryModel)
         {
-            Expression = expression;
+            QueryModelElement = queryModelElement;
         }
 
         /// <summary>
         ///     The expression.
         /// </summary>
-        public virtual object Expression { get; }
+        public virtual object QueryModelElement { get; }
     }
 }

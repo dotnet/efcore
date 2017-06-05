@@ -331,13 +331,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogAmbientTransaction")));
 
         /// <summary>
-        ///     Possible unintended use of method Equals(object) for arguments of different types: '{left}', '{right}'. This comparison will always return 'false'.
+        ///     Possible unintended use of method Equals(object) for arguments of different types in expression '{expression}'. This comparison will always return 'false'.
         /// </summary>
-        public static readonly EventDefinition<object, object> LogPossibleUnintendedUseOfEquals
-            = new EventDefinition<object, object>(
+        public static readonly EventDefinition<object> LogPossibleUnintendedUseOfEquals
+            = new EventDefinition<object>(
                 RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
                 LogLevel.Warning,
-                LoggerMessage.Define<object, object>(
+                LoggerMessage.Define<object>(
                     LogLevel.Warning,
                     RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
                     _resourceManager.GetString("LogPossibleUnintendedUseOfEquals")));
