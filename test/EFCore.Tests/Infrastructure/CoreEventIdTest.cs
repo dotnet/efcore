@@ -40,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IPropertyBase), () => property },
                 { typeof(IServiceProvider), () => new FakeServiceProvider() },
                 { typeof(ICollection<IServiceProvider>), () => new List<IServiceProvider>() },
+                { typeof(IReadOnlyCollection<IPropertyBase>), () => new [] { property } },
                 { typeof(IncludeResultOperator), () => includeResultOperator }
             };
 
