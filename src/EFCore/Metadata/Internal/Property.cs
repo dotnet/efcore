@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && ((property.PropertyInfo != null
                          && entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null)
                         || (property.FieldInfo != null
-                            && entityType.ClrType.GetRuntimeFields().FirstOrDefault(p => p.Name == property.Name) != null))));
+                            && entityType.ClrType.GetFieldInfo(property.Name) != null))));
         }
 
         /// <summary>

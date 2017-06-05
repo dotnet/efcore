@@ -43,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var foreignKey = relationshipBuilder.Metadata;
 
-            var fkPropertyOnPrincipal 
+            var fkPropertyOnPrincipal
                 = FindForeignKeyAttributeOnProperty(foreignKey.PrincipalEntityType, foreignKey.PrincipalToDependent?.Name);
 
-            var fkPropertyOnDependent 
+            var fkPropertyOnDependent
                 = FindForeignKeyAttributeOnProperty(foreignKey.DeclaringEntityType, foreignKey.DependentToPrincipal?.Name);
 
             if (!string.IsNullOrEmpty(fkPropertyOnDependent)
@@ -62,10 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 fkPropertyOnPrincipal = null;
             }
 
-            var fkPropertiesOnPrincipalToDependent 
+            var fkPropertiesOnPrincipalToDependent
                 = FindCandidateDependentPropertiesThroughNavigation(relationshipBuilder, pointsToPrincipal: false);
 
-            var fkPropertiesOnDependentToPrincipal 
+            var fkPropertiesOnDependentToPrincipal
                 = FindCandidateDependentPropertiesThroughNavigation(relationshipBuilder, pointsToPrincipal: true);
 
             if (fkPropertiesOnDependentToPrincipal != null
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var memberInfo in clrType.GetRuntimeProperties().Cast<MemberInfo>()
                 .Concat(clrType.GetRuntimeFields()))
             {
-                if (memberInfo is PropertyInfo propertyInfo 
+                if (memberInfo is PropertyInfo propertyInfo
                     && FindCandidateNavigationPropertyType(propertyInfo) != null)
                 {
                     continue;

@@ -66,19 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static FieldInfo GetFieldInfo([NotNull] this Type type, [NotNull] string fieldName)
-        {
-            var typesInHierarchy = type.GetTypesInHierarchy().ToList();
-            foreach (var typeInHierarchy in typesInHierarchy)
-            {
-                var fields = typeInHierarchy.GetRuntimeFields().ToDictionary(f => f.Name);
-                FieldInfo fieldInfo;
-                if (fields.TryGetValue(fieldName, out fieldInfo))
-                {
-                    return fieldInfo;
-                }
-            }
-            return null;
-        }
+            => type.GetRuntimeFields().FirstOrDefault(f => f.Name == fieldName && !f.IsStatic);
 
         private static void AppendGenericArguments(Type[] args, int startIndex, int numberOfArgsToAppend, StringBuilder sb, bool fullName)
         {

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -64,7 +65,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual FieldInfo TryMatchFieldName(
             [NotNull] Type entityType, [NotNull] Type propertyType, [NotNull] string propertyName)
         {
-            var fields = entityType.GetRuntimeFields().ToDictionary(f => f.Name);
+            var fields = new Dictionary<string, FieldInfo>();
+            foreach (var field in entityType.GetRuntimeFields().Where(f => !f.IsStatic))
+            {
+                if (!fields.ContainsKey(field.Name))
+                {
+                    fields[field.Name] = field;
+                }
+            }
 
             var camelized = char.ToLowerInvariant(propertyName[0]) + propertyName.Substring(1);
 

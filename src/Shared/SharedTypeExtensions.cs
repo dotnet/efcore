@@ -175,31 +175,15 @@ namespace System
         public static IEnumerable<MemberInfo> GetMembersInHierarchy(this Type type, string name)
         {
             // Do the whole hierarchy for properties first since looking for fields is slower.
-            var currentType = type;
-            do
+            foreach (var propertyInfo in type.GetRuntimeProperties().Where(pi => pi.Name == name && !(pi.GetMethod ?? pi.SetMethod).IsStatic))
             {
-                var typeInfo = currentType.GetTypeInfo();
-                var propertyInfo = typeInfo.GetDeclaredProperty(name);
-                if (propertyInfo != null
-                    && !(propertyInfo.GetMethod ?? propertyInfo.SetMethod).IsStatic)
-                {
-                    yield return propertyInfo;
-                }
-                currentType = typeInfo.BaseType;
+                yield return propertyInfo;
             }
-            while (currentType != null);
 
-            currentType = type;
-            do
+            foreach (var fieldInfo in type.GetRuntimeFields().Where(f => f.Name == name && !f.IsStatic))
             {
-                var fieldInfo = currentType.GetRuntimeFields().FirstOrDefault(f => f.Name == name && !f.IsStatic);
-                if (fieldInfo != null)
-                {
-                    yield return fieldInfo;
-                }
-                currentType = currentType.GetTypeInfo().BaseType;
+                yield return fieldInfo;
             }
-            while (currentType != null);
         }
 
         private static readonly Dictionary<Type, object> _commonTypeDictionary = new Dictionary<Type, object>

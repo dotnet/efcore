@@ -359,6 +359,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 get { return _onBase; }
                 set { _onBase = value; }
             }
+
+            public new int Unrelated = 1;
         }
 
         private class OfTheMoon
@@ -375,6 +377,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             protected int _onBase;
+
+            public int Unrelated = 2;
         }
     }
 }
