@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
         /// <returns> A builder to further configure the sequence. </returns>
-        public static RelationalSequenceBuilder HasSequence(
+        public static SequenceBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema = null)
@@ -32,8 +32,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            return new RelationalSequenceBuilder(
-                modelBuilder.Model.Relational().GetOrAddSequence(name, schema));
+            return new SequenceBuilder(modelBuilder.Model.Relational().GetOrAddSequence(name, schema));
         }
 
         /// <summary>
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
         public static ModelBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
-            [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            [NotNull] Action<SequenceBuilder> builderAction)
             => modelBuilder.HasSequence(name, null, builderAction);
 
         /// <summary>
@@ -61,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema,
-            [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            [NotNull] Action<SequenceBuilder> builderAction)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotEmpty(name, nameof(name));
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
         /// <returns> A builder to further configure the sequence. </returns>
-        public static RelationalSequenceBuilder HasSequence(
+        public static SequenceBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] Type clrType,
             [NotNull] string name,
@@ -95,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
             var sequence = modelBuilder.Model.Relational().GetOrAddSequence(name, schema);
             sequence.ClrType = clrType;
 
-            return new RelationalSequenceBuilder(sequence);
+            return new SequenceBuilder(sequence);
         }
 
         /// <summary>
@@ -110,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] Type clrType,
             [NotNull] string name,
-            [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            [NotNull] Action<SequenceBuilder> builderAction)
             => modelBuilder.HasSequence(clrType, name, null, builderAction);
 
         /// <summary>
@@ -127,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Type clrType,
             [NotNull] string name,
             [CanBeNull] string schema,
-            [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            [NotNull] Action<SequenceBuilder> builderAction)
         {
             Check.NotNull(clrType, nameof(clrType));
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -148,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
         /// <returns> A builder to further configure the sequence. </returns>
-        public static RelationalSequenceBuilder HasSequence<T>(
+        public static SequenceBuilder HasSequence<T>(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema = null)
@@ -160,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore
             var sequence = modelBuilder.Model.Relational().GetOrAddSequence(name, schema);
             sequence.ClrType = typeof(T);
 
-            return new RelationalSequenceBuilder(sequence);
+            return new SequenceBuilder(sequence);
         }
 
         /// <summary>
@@ -174,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
         public static ModelBuilder HasSequence<T>(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
-            [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            [NotNull] Action<SequenceBuilder> builderAction)
             => modelBuilder.HasSequence<T>(name, null, builderAction);
 
         /// <summary>
@@ -190,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema,
-            [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            [NotNull] Action<SequenceBuilder> builderAction)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotEmpty(name, nameof(name));

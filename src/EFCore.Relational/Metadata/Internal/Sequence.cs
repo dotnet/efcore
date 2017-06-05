@@ -8,12 +8,11 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
-    public class Sequence : ISequence
+    public class Sequence : IMutableSequence
     {
         private readonly IModel _model;
         private readonly string _annotationName;
@@ -26,15 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public static readonly long? DefaultMinValue = default(long?);
         public static readonly bool DefaultIsCyclic = default(bool);
 
-        private Sequence(
+        public Sequence(
             [NotNull] IMutableModel model,
-            [NotNull] string annotationPrefix,
+            [NotNull] string annotationName,
             [NotNull] string name,
             [CanBeNull] string schema = null)
-            : this(model, BuildAnnotationName(annotationPrefix, name, schema))
+            : this(model, annotationName)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotEmpty(annotationPrefix, nameof(annotationPrefix));
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
@@ -48,45 +45,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             });
         }
 
-        private Sequence(IModel model, string annotationName)
+        public Sequence([NotNull] IModel model, [NotNull] string annotationName)
         {
+            Check.NotNull(model, nameof(model));
+            Check.NotEmpty(annotationName, nameof(annotationName));
+
             _model = model;
             _annotationName = annotationName;
         }
 
-        public static Sequence GetOrAddSequence(
-            [NotNull] IMutableModel model,
-            [NotNull] string annotationPrefix,
-            [NotNull] string name,
-            [CanBeNull] string schema = null)
-            => FindSequence(model, annotationPrefix, name, schema) ?? new Sequence(model, annotationPrefix, name, schema);
-
-        private static string BuildAnnotationName(string annotationPrefix, string name, string schema)
-            => annotationPrefix + schema + "." + name;
-
-        public static Sequence FindSequence(
-            [NotNull] IMutableModel model,
-            [NotNull] string annotationPrefix,
-            [NotNull] string name,
-            [CanBeNull] string schema = null)
-            => (Sequence)FindSequence((IModel)model, annotationPrefix, name, schema);
-
-        public static ISequence FindSequence(
-            [NotNull] IModel model,
-            [NotNull] string annotationPrefix,
-            [NotNull] string name,
-            [CanBeNull] string schema = null)
-        {
-            Check.NotNull(model, nameof(model));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            var annotationName = BuildAnnotationName(annotationPrefix, name, schema);
-
-            return model[annotationName] == null ? null : new Sequence(model, annotationName);
-        }
-
-        public static IEnumerable<ISequence> GetSequences([NotNull] IModel model, [NotNull] string annotationPrefix)
+        public static IEnumerable<Sequence> GetSequences([NotNull] IModel model, [NotNull] string annotationPrefix)
         {
             Check.NotNull(model, nameof(model));
             Check.NotEmpty(annotationPrefix, nameof(annotationPrefix));
@@ -104,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual long StartValue
         {
-            get { return GetData().StartValue; }
+            get => GetData().StartValue;
             set
             {
                 var data = GetData();
@@ -115,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual int IncrementBy
         {
-            get { return GetData().IncrementBy; }
+            get => GetData().IncrementBy;
             set
             {
                 var data = GetData();
@@ -126,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual long? MinValue
         {
-            get { return GetData().MinValue; }
+            get => GetData().MinValue;
             set
             {
                 var data = GetData();
@@ -137,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual long? MaxValue
         {
-            get { return GetData().MaxValue; }
+            get => GetData().MaxValue;
             set
             {
                 var data = GetData();
@@ -156,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual Type ClrType
         {
-            get { return GetData().ClrType; }
+            get => GetData().ClrType;
             [param: NotNull]
             set
             {
@@ -173,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual bool IsCyclic
         {
-            get { return GetData().IsCyclic; }
+            get => GetData().IsCyclic;
             set
             {
                 var data = GetData();
@@ -190,18 +158,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         IModel ISequence.Model => _model;
-
-        long ISequence.StartValue => StartValue;
-
-        int ISequence.IncrementBy => IncrementBy;
-
-        long? ISequence.MinValue => MinValue;
-
-        long? ISequence.MaxValue => MaxValue;
-
-        Type ISequence.ClrType => ClrType;
-
-        bool ISequence.IsCyclic => IsCyclic;
 
         private class SequenceData
         {

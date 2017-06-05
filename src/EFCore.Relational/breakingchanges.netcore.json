@@ -3021,5 +3021,73 @@
     "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
     "MemberId": "public .ctor(System.String storeType, System.Type clrType, System.Nullable<System.Data.DbType> dbType)",
     "Kind": "Removal"
-  }
+  },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Sequence : Microsoft.EntityFrameworkCore.Metadata.ISequence",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
+      "MemberId": "public Microsoft.EntityFrameworkCore.Metadata.ISequence FindSequence(System.String name, System.String schema = null)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
+      "MemberId": "public System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.ISequence> get_Sequences()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Sequence GetOrAddSequence(System.String name, System.String schema = null)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalModelBuilderExtensions",
+      "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder HasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.Type clrType, System.String name, System.String schema = null)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalModelBuilderExtensions",
+      "MemberId": "public static Microsoft.EntityFrameworkCore.ModelBuilder HasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.Type clrType, System.String name, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalModelBuilderExtensions",
+      "MemberId": "public static Microsoft.EntityFrameworkCore.ModelBuilder HasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.Type clrType, System.String name, System.String schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalModelBuilderExtensions",
+      "MemberId": "public static new Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder HasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.String schema = null)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalModelBuilderExtensions",
+      "MemberId": "public static new Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder HasSequence<T0>(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.String schema = null)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalModelBuilderExtensions",
+      "MemberId": "public static new Microsoft.EntityFrameworkCore.ModelBuilder HasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalModelBuilderExtensions",
+      "MemberId": "public static new Microsoft.EntityFrameworkCore.ModelBuilder HasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.String schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalModelBuilderExtensions",
+      "MemberId": "public static new Microsoft.EntityFrameworkCore.ModelBuilder HasSequence<T0>(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalModelBuilderExtensions",
+      "MemberId": "public static new Microsoft.EntityFrameworkCore.ModelBuilder HasSequence<T0>(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.String schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
+      "Kind": "Removal"
+    }
 ]

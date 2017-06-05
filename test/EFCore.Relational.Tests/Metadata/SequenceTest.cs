@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void Can_be_created_with_default_values()
         {
-            var sequence = Sequence.GetOrAddSequence(new Model(), RelationalAnnotationNames.SequencePrefix, "Foo");
+            var sequence = new Model().Relational().GetOrAddSequence("Foo");
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void Can_be_created_with_specified_values()
         {
-            var sequence = Sequence.GetOrAddSequence(new Model(), RelationalAnnotationNames.SequencePrefix, "Foo", "Smoo");
+            var sequence = new Model().Relational().GetOrAddSequence("Foo", "Smoo");
             sequence.StartValue = 1729;
             sequence.IncrementBy = 11;
             sequence.MinValue = 2001;
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void Can_only_be_created_for_byte_short_int_and_long()
         {
-            var sequence = Sequence.GetOrAddSequence(new Model(), RelationalAnnotationNames.SequencePrefix, "Foo");
+            var sequence = new Model().Relational().GetOrAddSequence("Foo");
             sequence.ClrType = typeof(byte);
             Assert.Same(typeof(byte), sequence.ClrType);
             sequence.ClrType = typeof(short);
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var model = new Model();
 
-            var sequence = Sequence.GetOrAddSequence(model, RelationalAnnotationNames.SequencePrefix, "Foo");
+            var sequence = model.Relational().GetOrAddSequence("Foo");
 
             Assert.Same(model, sequence.Model);
         }
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var model = new Model();
 
-            var sequence = Sequence.GetOrAddSequence(model, RelationalAnnotationNames.SequencePrefix, "Foo");
+            var sequence = model.Relational().GetOrAddSequence("Foo");
 
             Assert.Null(sequence.Schema);
 
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var model = new Model();
 
             model.Relational().DefaultSchema = "db0";
-            var sequence = Sequence.GetOrAddSequence(model, RelationalAnnotationNames.SequencePrefix, "Foo", "db1");
+            var sequence = model.Relational().GetOrAddSequence("Foo", "db1");
 
             Assert.Equal("db1", sequence.Schema);
         }
@@ -102,14 +102,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_serialize_and_deserialize()
         {
             var model = new Model();
-            var sequence = Sequence.GetOrAddSequence(model, RelationalAnnotationNames.SequencePrefix, "Foo", "Smoo");
+            var sequence = model.Relational().GetOrAddSequence("Foo", "Smoo");
             sequence.StartValue = 1729;
             sequence.IncrementBy = 11;
             sequence.MinValue = 2001;
             sequence.MaxValue = 2010;
             sequence.ClrType = typeof(int);
 
-            Sequence.GetOrAddSequence(model, RelationalAnnotationNames.SequencePrefix, "Foo", "Smoo");
+            model.Relational().GetOrAddSequence("Foo", "Smoo");
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Equal("Smoo", sequence.Schema);
@@ -124,9 +124,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_serialize_and_deserialize_with_defaults()
         {
             var model = new Model();
-            Sequence.GetOrAddSequence(model, RelationalAnnotationNames.SequencePrefix, "Foo");
+            model.Relational().GetOrAddSequence("Foo");
 
-            var sequence = Sequence.GetOrAddSequence(model, RelationalAnnotationNames.SequencePrefix, "Foo");
+            var sequence = model.Relational().GetOrAddSequence("Foo");
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -141,12 +141,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_serialize_and_deserialize_with_funky_names()
         {
             var model = new Model();
-            var sequence = Sequence.GetOrAddSequence(model, RelationalAnnotationNames.SequencePrefix, "'Foo'", "''S'''m'oo'''");
+            var sequence = model.Relational().GetOrAddSequence("'Foo'", "''S'''m'oo'''");
             sequence.StartValue = 1729;
             sequence.IncrementBy = 11;
             sequence.ClrType = typeof(int);
 
-            sequence = Sequence.GetOrAddSequence(model, RelationalAnnotationNames.SequencePrefix, "'Foo'", "''S'''m'oo'''");
+            sequence = model.Relational().GetOrAddSequence("'Foo'", "''S'''m'oo'''");
 
             Assert.Equal("'Foo'", sequence.Name);
             Assert.Equal("''S'''m'oo'''", sequence.Schema);
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Throws_on_bad_serialized_form()
         {
             var model = new Model();
-            var sequence = Sequence.GetOrAddSequence(model, RelationalAnnotationNames.SequencePrefix, "Foo", "Smoo");
+            var sequence = model.Relational().GetOrAddSequence("Foo", "Smoo");
             sequence.StartValue = 1729;
             sequence.IncrementBy = 11;
             sequence.MinValue = 2001;
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 RelationalStrings.BadSequenceString,
                 Assert.Throws<ArgumentException>(
-                    () => Sequence.GetOrAddSequence(model, RelationalAnnotationNames.SequencePrefix, "Foo", "Smoo").ClrType).Message);
+                    () => model.Relational().GetOrAddSequence("Foo", "Smoo").ClrType).Message);
         }
     }
 }
