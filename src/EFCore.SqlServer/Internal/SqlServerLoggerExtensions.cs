@@ -108,6 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] bool? identity,
             [CanBeNull] bool? computed)
         {
+            // No DiagnosticsSource events because these are purely design-time messages
+
             var definition = SqlServerStrings.LogFoundColumn;
 
             Debug.Assert(LogLevel.Debug == definition.Level);
@@ -134,28 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         identity,
                         computed));
             }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName,
-                        ColumnName = columnName,
-                        DataTypeName = dataTypeName,
-                        Ordinal = ordinal,
-                        Nullable = nullable,
-                        PrimaryKeyOrdinal = primaryKeyOrdinal,
-                        DefaultValue = defaultValue,
-                        ComputedValue = computedValue,
-                        Precision = precision,
-                        Scale = scale,
-                        MaxLength = maxLength,
-                        Identity = identity,
-                        Computed = computed
-                    });
-            }
         }
 
         /// <summary>
@@ -173,6 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string deleteAction,
             int? ordinal)
         {
+            // No DiagnosticsSource events because these are purely design-time messages
+
             var definition = SqlServerStrings.LogFoundForeignKeyColumn;
 
             Debug.Assert(LogLevel.Debug == definition.Level);
@@ -194,23 +176,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         deleteAction,
                         ordinal));
             }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName,
-                        ForeignKeyName = foreignKeyName,
-                        PrincipalTableName = principalTableName,
-                        ColumnName = columnName,
-                        PrincipalColumnName = principalColumnName,
-                        UpdateAction = updateAction,
-                        DeleteAction = deleteAction,
-                        Ordinal = ordinal
-                    });
-            }
         }
 
         /// <summary>
@@ -220,21 +185,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void DefaultSchemaFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string schemaName)
-        {
-            var definition = SqlServerStrings.LogFoundDefaultSchema;
-
-            definition.Log(diagnostics, schemaName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        SchemaName = schemaName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => SqlServerStrings.LogFoundDefaultSchema.Log(diagnostics, schemaName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -244,46 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string typeAliasName,
             [CanBeNull] string systemTypeName)
-        {
-            var definition = SqlServerStrings.LogFoundTypeAlias;
-
-            definition.Log(diagnostics, typeAliasName, systemTypeName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TypeAliasName = typeAliasName,
-                        SystemTypeName = systemTypeName
-                    });
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void DataTypeDoesNotAllowSqlServerIdentityStrategyWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string columnName,
-            [CanBeNull] string typeName)
-        {
-            var definition = SqlServerStrings.LogDataTypeDoesNotAllowSqlServerIdentityStrategy;
-
-            definition.Log(diagnostics, columnName, typeName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        ColumnName = columnName,
-                        TypeName = typeName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => SqlServerStrings.LogFoundTypeAlias.Log(diagnostics, typeAliasName, systemTypeName);
     }
 }

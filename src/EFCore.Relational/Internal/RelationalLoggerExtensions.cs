@@ -7,7 +7,6 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -1123,21 +1122,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void MissingTableWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
-        {
-            var definition = RelationalStrings.LogMissingTable;
-
-            definition.Log(diagnostics, tableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogMissingTable.Log(diagnostics, tableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1145,16 +1131,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void SequenceNotNamedWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
-        {
-            var definition = RelationalStrings.LogSequencesRequireName;
-
-            definition.Log(diagnostics);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, null);
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogSequencesRequireName.Log(diagnostics);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1164,25 +1142,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string indexName,
             [NotNull] IList<string> unmappedColumnNames)
-        {
-            var definition = RelationalStrings.LogUnableToScaffoldIndexMissingProperty;
-
-            definition.Log(
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogUnableToScaffoldIndexMissingProperty.Log(
                 diagnostics,
                 indexName,
                 string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnNames));
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        IndexName = indexName,
-                        UnmappedColumnNames = unmappedColumnNames
-                    });
-            }
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1191,21 +1155,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ForeignKeyReferencesMissingTableWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName)
-        {
-            var definition = RelationalStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound;
-
-            definition.Log(diagnostics, foreignKeyName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        ForeignKeyName = foreignKeyName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.Log(diagnostics, foreignKeyName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1215,25 +1166,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName,
             [NotNull] IList<string> unmappedColumnNames)
-        {
-            var definition = RelationalStrings.LogForeignKeyScaffoldErrorPropertyNotFound;
-
-            definition.Log(
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogForeignKeyScaffoldErrorPropertyNotFound.Log(
                 diagnostics,
                 foreignKeyName,
                 string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnNames));
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        ForeignKeyName = foreignKeyName,
-                        UnmappedColumnNames = unmappedColumnNames
-                    });
-            }
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1249,6 +1186,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             long? min,
             long? max)
         {
+            // No DiagnosticsSource events because these are purely design-time messages
             var definition = RelationalStrings.LogFoundSequence;
 
             Debug.Assert(LogLevel.Debug == definition.Level);
@@ -1269,22 +1207,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         min,
                         max));
             }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        SequenceName = sequenceName,
-                        SequenceTypeName = sequenceTypeName,
-                        Cyclic = cyclic,
-                        Increment = increment,
-                        Start = start,
-                        Min = min,
-                        Max = max
-                    });
-            }
         }
 
         /// <summary>
@@ -1294,21 +1216,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void TableFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
-        {
-            var definition = RelationalStrings.LogFoundTable;
-
-            definition.Log(diagnostics, tableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogFoundTable.Log(diagnostics, tableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1317,21 +1226,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void TableSkipped(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
-        {
-            var definition = RelationalStrings.LogTableNotInSelectionSet;
-
-            definition.Log(diagnostics, tableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogTableNotInSelectionSet.Log(diagnostics, tableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1341,22 +1237,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName,
             [CanBeNull] string columnName)
-        {
-            var definition = RelationalStrings.LogColumnNotInSelectionSet;
-
-            definition.Log(diagnostics, columnName, tableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName,
-                        ColumnName = columnName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogColumnNotInSelectionSet.Log(diagnostics, columnName, tableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1369,25 +1251,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             bool? unique,
             [CanBeNull] string columnName,
             int? ordinal)
-        {
-            var definition = RelationalStrings.LogFoundIndexColumn;
-
-            definition.Log(diagnostics, indexName, tableName, columnName, ordinal);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName,
-                        IndexName = indexName,
-                        Unique = unique,
-                        ColumnName = columnName,
-                        Ordinal = ordinal
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogFoundIndexColumn.Log(diagnostics, indexName, tableName, columnName, ordinal);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1396,21 +1261,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ColumnNotNamedWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
-        {
-            var definition = RelationalStrings.LogColumnNameEmptyOnTable;
-
-            definition.Log(diagnostics, tableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogColumnNameEmptyOnTable.Log(diagnostics, tableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1421,23 +1273,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string tableName,
             [CanBeNull] string indexName,
             [CanBeNull] string columnName)
-        {
-            var definition = RelationalStrings.LogIndexColumnNotInSelectionSet;
-
-            definition.Log(diagnostics, columnName, indexName, tableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName,
-                        IndexName = indexName,
-                        ColumnName = columnName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogIndexColumnNotInSelectionSet.Log(diagnostics, columnName, indexName, tableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1446,21 +1283,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void IndexNotNamedWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
-        {
-            var definition = RelationalStrings.LogIndexNameEmpty;
-
-            definition.Log(diagnostics, tableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogIndexNameEmpty.Log(diagnostics, tableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1470,22 +1294,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string indexName,
             [CanBeNull] string tableName)
-        {
-            var definition = RelationalStrings.LogUnableToFindTableForIndex;
-
-            definition.Log(diagnostics, indexName, tableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        IndexName = indexName,
-                        TableName = tableName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogUnableToFindTableForIndex.Log(diagnostics, indexName, tableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1495,22 +1305,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string indexName,
             [CanBeNull] string tableName)
-        {
-            var definition = RelationalStrings.LogColumnNameEmptyOnIndex;
-
-            definition.Log(diagnostics, indexName, tableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        IndexName = indexName,
-                        TableName = tableName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogColumnNameEmptyOnIndex.Log(diagnostics, indexName, tableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1519,21 +1315,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ForeignKeyNotNamedWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
-        {
-            var definition = RelationalStrings.LogForeignKeyNameEmpty;
-
-            definition.Log(diagnostics, tableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogForeignKeyNameEmpty.Log(diagnostics, tableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1544,23 +1327,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string columnName,
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string tableName)
-        {
-            var definition = RelationalStrings.LogForeignKeyColumnNotInSelectionSet;
-
-            definition.Log(diagnostics, columnName, foreignKeyName, tableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        ColumnName = columnName,
-                        ForeignKeyName = foreignKeyName,
-                        TableName = tableName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogForeignKeyColumnNotInSelectionSet.Log(diagnostics, columnName, foreignKeyName, tableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1571,23 +1339,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string tableName,
             [CanBeNull] string principalTableName)
-        {
-            var definition = RelationalStrings.LogPrincipalTableNotInSelectionSet;
-
-            definition.Log(diagnostics, foreignKeyName, tableName, principalTableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        ForeignKeyName = foreignKeyName,
-                        TableName = tableName,
-                        PrincipalTableName = principalTableName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogPrincipalTableNotInSelectionSet.Log(diagnostics, foreignKeyName, tableName, principalTableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1597,22 +1350,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string tableName)
-        {
-            var definition = RelationalStrings.LogColumnNameEmptyOnForeignKey;
-
-            definition.Log(diagnostics, tableName, foreignKeyName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        ForeignKeyName = foreignKeyName,
-                        TableName = tableName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogColumnNameEmptyOnForeignKey.Log(diagnostics, tableName, foreignKeyName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1623,23 +1362,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string indexName,
             [CanBeNull] string tableName,
             bool? unique)
-        {
-            var definition = RelationalStrings.LogFoundIndex;
-
-            definition.Log(diagnostics, indexName, tableName, unique);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        IndexName = indexName,
-                        TableName = tableName,
-                        Unique = unique
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogFoundIndex.Log(diagnostics, indexName, tableName, unique);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1651,23 +1375,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string tableName,
             [CanBeNull] string principalColumnName,
             [CanBeNull] string principalTableName)
-        {
-            var definition = RelationalStrings.LogPrincipalColumnNotFound;
-
-            definition.Log(diagnostics, foreignKeyName, tableName, principalColumnName, principalTableName);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        ForeignKeyName = foreignKeyName,
-                        TableName = tableName,
-                        PrincipalColumnName = principalColumnName,
-                        PrincipalTableName = principalTableName
-                    });
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => RelationalStrings.LogPrincipalColumnNotFound.Log(diagnostics, foreignKeyName, tableName, principalColumnName, principalTableName);
     }
 }

@@ -94,6 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             int? primaryKeyOrdinal,
             [CanBeNull] string defaultValue)
         {
+            // No DiagnosticsSource events because these are purely design-time messages
+
             var definition = SqliteStrings.LogFoundColumn;
 
             Debug.Assert(LogLevel.Debug == definition.Level);
@@ -114,22 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         primaryKeyOrdinal,
                         defaultValue));
             }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName,
-                        ColumnName = columnName,
-                        DataTypeName = dataTypeName,
-                        Ordinal = ordinal,
-                        NotNull = notNull,
-                        PrimaryKeyOrdinal = primaryKeyOrdinal,
-                        DefaultValue = defaultValue
-                    });
-            }
         }
 
         /// <summary>
@@ -146,6 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string deleteAction,
             int? ordinal)
         {
+            // No DiagnosticsSource events because these are purely design-time messages
+
             var definition = SqliteStrings.LogFoundForeignKeyColumn;
 
             Debug.Assert(LogLevel.Debug == definition.Level);
@@ -166,22 +154,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         deleteAction,
                         ordinal));
             }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new
-                    {
-                        TableName = tableName,
-                        Id = id,
-                        PrincipalTableName = principalTableName,
-                        ColumnName = columnName,
-                        PrincipalColumnName = principalColumnName,
-                        DeleteAction = deleteAction,
-                        Ordinal = ordinal
-                    });
-            }
         }
 
         /// <summary>
@@ -190,15 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void SchemasNotSupportedWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
-        {
-            var definition = SqliteStrings.LogUsingSchemaSelectionsWarning;
-
-            definition.Log(diagnostics);
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, null);
-            }
-        }
+            // No DiagnosticsSource events because these are purely design-time messages
+            => SqliteStrings.LogUsingSchemaSelectionsWarning.Log(diagnostics);
     }
 }

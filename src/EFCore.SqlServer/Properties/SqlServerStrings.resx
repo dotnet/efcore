@@ -152,10 +152,6 @@
   <data name="IncompatibleTableMemoryOptimizedMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.</value>
   </data>
-  <data name="LogDataTypeDoesNotAllowSqlServerIdentityStrategy" xml:space="preserve">
-    <value>For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.</value>
-    <comment>Warning SqlServerEventId.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning string string</comment>
-  </data>
   <data name="LogFoundDefaultSchema" xml:space="preserve">
     <value>Found default schema {defaultSchema}.</value>
     <comment>Debug SqlServerEventId.DefaultSchemaFound string</comment>

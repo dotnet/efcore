@@ -107,18 +107,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 table, entityType, otherEntityType, memoryOptimizedEntityType, nonMemoryOptimizedEntityType);
 
         /// <summary>
-        ///     For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogDataTypeDoesNotAllowSqlServerIdentityStrategy
-            = new EventDefinition<string, string>(
-                SqlServerEventId.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    SqlServerEventId.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning,
-                    _resourceManager.GetString("LogDataTypeDoesNotAllowSqlServerIdentityStrategy")));
-
-        /// <summary>
         ///     Found default schema {defaultSchema}.
         /// </summary>
         public static readonly EventDefinition<string> LogFoundDefaultSchema

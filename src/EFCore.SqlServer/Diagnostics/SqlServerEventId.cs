@@ -30,8 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ColumnFound = CoreEventId.ProviderBaseId + 100,
             ForeignKeyColumnFound,
             DefaultSchemaFound,
-            TypeAliasFound,
-            DataTypeDoesNotAllowSqlServerIdentityStrategyWarning
+            TypeAliasFound
         }
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
@@ -89,11 +88,5 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
         public static readonly EventId TypeAliasFound = MakeScaffoldingId(Id.TypeAliasFound);
-
-        /// <summary>
-        ///     The data type does not support the SQL Server identity strategy.
-        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
-        /// </summary>
-        public static readonly EventId DataTypeDoesNotAllowSqlServerIdentityStrategyWarning = MakeScaffoldingId(Id.DataTypeDoesNotAllowSqlServerIdentityStrategyWarning);
     }
 }
