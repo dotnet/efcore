@@ -154,37 +154,48 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         private static void WaitForExists(SqlConnection connection)
-            => GetExecutionStrategy().Execute(
-                connectionScoped =>
+        {
+            if (TestEnvironment.IsSqlAzure)
+            {
+                new TestSqlServerRetryingExecutionStrategy().Execute(connection,
+                    connectionScoped => WaitForExistsImplementation(connectionScoped));
+            }
+            else
+            {
+                WaitForExistsImplementation(connection);
+            }
+        }
+
+        private static void WaitForExistsImplementation(SqlConnection connection)
+        {
+            var retryCount = 0;
+            while (true)
+            {
+                try
+                {
+                    if (connection.State != ConnectionState.Closed)
                     {
-                        var retryCount = 0;
-                        while (true)
-                        {
-                            try
-                            {
-                                if (connectionScoped.State != ConnectionState.Closed)
-                                {
-                                    connectionScoped.Close();
-                                }
+                        connection.Close();
+                    }
 
-                                SqlConnection.ClearPool(connectionScoped);
+                    SqlConnection.ClearPool(connection);
 
-                                connectionScoped.Open();
-                                connectionScoped.Close();
-                                return;
-                            }
-                            catch (SqlException e)
-                            {
-                                if (++retryCount >= 30
-                                    || e.Number != 233 && e.Number != -2 && e.Number != 4060 && e.Number != 1832 && e.Number != 5120)
-                                {
-                                    throw;
-                                }
+                    connection.Open();
+                    connection.Close();
+                    return;
+                }
+                catch (SqlException e)
+                {
+                    if (++retryCount >= 30
+                        || e.Number != 233 && e.Number != -2 && e.Number != 4060 && e.Number != 1832 && e.Number != 5120)
+                    {
+                        throw;
+                    }
 
-                                Thread.Sleep(100);
-                            }
-                        }
-                    }, connection);
+                    Thread.Sleep(100);
+                }
+            }
+        }
 
         private SqlServerTestStore CreateTransient(bool createDatabase, bool deleteDatabase)
         {
@@ -281,22 +292,26 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                                               DROP DATABASE [{0}];
                                           END", name);
 
-        public static IExecutionStrategy GetExecutionStrategy()
-            => TestEnvironment.IsSqlAzure ? new TestSqlServerRetryingExecutionStrategy() : (IExecutionStrategy)NoopExecutionStrategy.Instance;
-
         public override DbConnection Connection => _connection;
 
         public override DbTransaction Transaction => null;
 
         public override void OpenConnection()
         {
-            GetExecutionStrategy().Execute(connection => connection.Open(), _connection);
+            if (TestEnvironment.IsSqlAzure)
+            {
+                new TestSqlServerRetryingExecutionStrategy().Execute(_connection, connection => connection.Open());
+            }
+            else
+            {
+                _connection.Open();
+            }
         }
 
         public Task OpenConnectionAsync()
-        {
-            return GetExecutionStrategy().ExecuteAsync(connection => connection.OpenAsync(), _connection);
-        }
+            => TestEnvironment.IsSqlAzure
+                ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(_connection, connection => connection.OpenAsync())
+                : _connection.OpenAsync();
 
         public T ExecuteScalar<T>(string sql, params object[] parameters)
             => ExecuteScalar<T>(_connection, sql, parameters);
@@ -357,72 +372,86 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 }, sql, false, parameters);
 
         private static T Execute<T>(
-            SqlConnection connection, Func<DbCommand, T> execute, string sql, bool useTransaction = false, object[] parameters = null)
-            => GetExecutionStrategy().Execute(state =>
-                {
-                    if (state.connection.State != ConnectionState.Closed)
-                    {
-                        state.connection.Close();
-                    }
-                    state.connection.Open();
-                    try
-                    {
-                        using (var transaction = useTransaction ? state.connection.BeginTransaction() : null)
-                        {
-                            T result;
-                            using (var command = CreateCommand(state.connection, sql, parameters))
-                            {
-                                command.Transaction = transaction;
-                                result = execute(command);
-                            }
-                            transaction?.Commit();
+            SqlConnection connection, Func<DbCommand, T> execute, string sql,
+            bool useTransaction = false, object[] parameters = null)
+            => TestEnvironment.IsSqlAzure
+                ? new TestSqlServerRetryingExecutionStrategy().Execute(new { connection, execute, sql, useTransaction, parameters },
+                    state => ExecuteCommand(state.connection, state.execute, state.sql, state.useTransaction, state.parameters))
+                : ExecuteCommand(connection, execute, sql, useTransaction, parameters);
 
-                            return result;
-                        }
-                    }
-                    finally
+        private static T ExecuteCommand<T>(
+            SqlConnection connection, Func<DbCommand, T> execute, string sql, bool useTransaction, object[] parameters)
+        {
+            if (connection.State != ConnectionState.Closed)
+            {
+                connection.Close();
+            }
+            connection.Open();
+            try
+            {
+                using (var transaction = useTransaction ? connection.BeginTransaction() : null)
+                {
+                    T result;
+                    using (var command = CreateCommand(connection, sql, parameters))
                     {
-                        if (state.State == ConnectionState.Closed
-                            && state.connection.State != ConnectionState.Closed)
-                        {
-                            state.connection.Close();
-                        }
+                        command.Transaction = transaction;
+                        result = execute(command);
                     }
-                }, new { connection, connection.State });
+                    transaction?.Commit();
+
+                    return result;
+                }
+            }
+            finally
+            {
+                if (connection.State == ConnectionState.Closed
+                    && connection.State != ConnectionState.Closed)
+                {
+                    connection.Close();
+                }
+            }
+        }
 
         private static Task<T> ExecuteAsync<T>(
-            SqlConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction, 
-            IReadOnlyList<object> parameters = null)
-            => GetExecutionStrategy().ExecuteAsync(async state =>
-                {
-                    if (state.connection.State != ConnectionState.Closed)
-                    {
-                        state.connection.Close();
-                    }
-                    await state.connection.OpenAsync();
-                    try
-                    {
-                        using (var transaction = useTransaction ? state.connection.BeginTransaction() : null)
-                        {
-                            T result;
-                            using (var command = CreateCommand(state.connection, sql, parameters))
-                            {
-                                result = await executeAsync(command);
-                            }
-                            transaction?.Commit();
+            SqlConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql,
+            bool useTransaction = false, IReadOnlyList<object> parameters = null)
+            => TestEnvironment.IsSqlAzure
+                ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
+                    new { connection, executeAsync, sql, useTransaction, parameters },
+                    state => ExecuteCommandAsync(state.connection, state.executeAsync, state.sql, state.useTransaction, state.parameters))
+                : ExecuteCommandAsync(connection, executeAsync, sql, useTransaction, parameters);
 
-                            return result;
-                        }
-                    }
-                    finally
+        private static async Task<T> ExecuteCommandAsync<T>(
+            SqlConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction, IReadOnlyList<object> parameters)
+        {
+            if (connection.State != ConnectionState.Closed)
+            {
+                connection.Close();
+            }
+            await connection.OpenAsync();
+            try
+            {
+                using (var transaction = useTransaction ? connection.BeginTransaction() : null)
+                {
+                    T result;
+                    using (var command = CreateCommand(connection, sql, parameters))
                     {
-                        if (state.State == ConnectionState.Closed
-                            && state.connection.State != ConnectionState.Closed)
-                        {
-                            state.connection.Close();
-                        }
+                        result = await executeAsync(command);
                     }
-                }, new { connection, connection.State });
+                    transaction?.Commit();
+
+                    return result;
+                }
+            }
+            finally
+            {
+                if (connection.State == ConnectionState.Closed
+                    && connection.State != ConnectionState.Closed)
+                {
+                    connection.Close();
+                }
+            }
+        }
 
         private static DbCommand CreateCommand(
             SqlConnection connection, string commandText, IReadOnlyList<object> parameters = null)

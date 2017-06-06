@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
             var newName = "New name";
             using (var c = CreateF1Context())
             {
-                c.Database.CreateExecutionStrategy().Execute(context =>
+                c.Database.CreateExecutionStrategy().Execute(c, context =>
                     {
                         using (var transaction = context.Database.BeginTransaction())
                         {
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
                                 Assert.Throws<DbUpdateConcurrencyException>(() => innerContext.SaveChanges());
                             }
                         }
-                    }, c);
+                    });
             }
         }
 
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var c = CreateF1Context())
             {
-                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(c, async context =>
                     {
                         using (context.Database.BeginTransaction())
                         {
@@ -458,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Equal(EntityState.Added, entry.State);
                         }
-                    }, c);
+                    });
             }
         }
 
@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var c = CreateF1Context())
             {
-                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(c, async context =>
                     {
                         using (context.Database.BeginTransaction())
                         {
@@ -515,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Equal(EntityState.Detached, entry.State);
                         }
-                    }, c);
+                    });
             }
         }
 
@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var c = CreateF1Context())
             {
-                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(c, async context =>
                     {
                         using (context.Database.BeginTransaction())
                         {
@@ -576,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal("Jenson Button", larry.Name);
                             Assert.Equal("Jenson Button", entry.Property(e => e.Name).CurrentValue);
                         }
-                    }, c);
+                    });
             }
         }
 
@@ -647,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var c = CreateF1Context())
             {
-                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(c, async context =>
                     {
                         using (var transaction = context.Database.BeginTransaction())
                         {
@@ -675,7 +675,7 @@ namespace Microsoft.EntityFrameworkCore
                                 }
                             }
                         }
-                    }, c);
+                    });
             }
         }
 

@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         {
         }
 
-        public TestSqlServerRetryingExecutionStrategy(ExecutionStrategyContext context)
-            : base(context, DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
+        public TestSqlServerRetryingExecutionStrategy(ExecutionStrategyDependencies dependencies)
+            : base(dependencies, DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
         {
         }
 

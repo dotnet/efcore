@@ -47,7 +47,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public virtual int Execute(
             IEnumerable<ModificationCommandBatch> commandBatches,
             IRelationalConnection connection)
-            => GetExecutionStrategy().Execute(Execute, Tuple.Create(commandBatches, connection));
+            => CurrentContext.Context.Database.AutoTransactionsEnabled
+                ? ExecutionStrategyFactory.Create().Execute(Tuple.Create(commandBatches, connection), Execute)
+                : Execute(Tuple.Create(commandBatches, connection));
 
         private int Execute(Tuple<IEnumerable<ModificationCommandBatch>, IRelationalConnection> parameters)
         {
@@ -98,7 +100,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             IEnumerable<ModificationCommandBatch> commandBatches,
             IRelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken))
-            => GetExecutionStrategy().ExecuteAsync(ExecuteAsync, Tuple.Create(commandBatches, connection), cancellationToken);
+            => CurrentContext.Context.Database.AutoTransactionsEnabled
+                ? ExecutionStrategyFactory.Create().ExecuteAsync(Tuple.Create(commandBatches, connection), ExecuteAsync, cancellationToken)
+                : ExecuteAsync(Tuple.Create(commandBatches, connection), cancellationToken);
 
         private async Task<int> ExecuteAsync(
             Tuple<IEnumerable<ModificationCommandBatch>, IRelationalConnection> parameters,
@@ -142,10 +146,5 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             return rowsAffected;
         }
-
-        private IExecutionStrategy GetExecutionStrategy()
-            => CurrentContext.Context.Database.AutoTransactionsEnabled
-                ? ExecutionStrategyFactory.Create()
-                : NoopExecutionStrategy.Instance;
     }
 }

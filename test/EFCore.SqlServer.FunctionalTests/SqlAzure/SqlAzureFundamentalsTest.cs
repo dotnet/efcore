@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
         {
             using (var context = _fixture.CreateContext())
             {
-                context.Database.CreateExecutionStrategy().Execute(contextScoped =>
+                context.Database.CreateExecutionStrategy().Execute(context, contextScoped =>
                     {
                         using (contextScoped.Database.BeginTransaction())
                         {
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
                             });
                             Assert.Equal(1, contextScoped.SaveChanges());
                         }
-                    }, context);
+                    });
             }
         }
 
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
         {
             using (var context = _fixture.CreateContext())
             {
-                context.Database.CreateExecutionStrategy().Execute(contextScoped =>
+                context.Database.CreateExecutionStrategy().Execute(context, contextScoped =>
                     {
                         using (contextScoped.Database.BeginTransaction())
                         {
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
 
                             Assert.Equal(1, contextScoped.SaveChanges());
                         }
-                    }, context);
+                    });
             }
         }
 

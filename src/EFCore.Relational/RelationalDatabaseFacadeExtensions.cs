@@ -194,20 +194,19 @@ namespace Microsoft.EntityFrameworkCore
             => databaseFacade.GetRelationalService<IRelationalConnection>().DbConnection;
 
         public static void OpenConnection([NotNull] this DatabaseFacade databaseFacade)
-            => databaseFacade.CreateExecutionStrategy().Execute(
-                database => database.GetRelationalService<IRelationalConnection>().Open(), databaseFacade);
+            => databaseFacade.CreateExecutionStrategy().Execute(databaseFacade, database => database.GetRelationalService<IRelationalConnection>().Open());
 
         public static Task OpenConnectionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default(CancellationToken))
-            => databaseFacade.CreateExecutionStrategy().ExecuteAsync((database, ct) =>
-                database.GetRelationalService<IRelationalConnection>().OpenAsync(cancellationToken), databaseFacade, cancellationToken);
+            => databaseFacade.CreateExecutionStrategy().ExecuteAsync(databaseFacade, (database, ct) =>
+                database.GetRelationalService<IRelationalConnection>().OpenAsync(cancellationToken), cancellationToken);
 
         public static void CloseConnection([NotNull] this DatabaseFacade databaseFacade)
             => databaseFacade.GetRelationalService<IRelationalConnection>().Close();
 
         public static IDbContextTransaction BeginTransaction([NotNull] this DatabaseFacade databaseFacade, IsolationLevel isolationLevel)
-            => databaseFacade.CreateExecutionStrategy().Execute(database =>
+            => databaseFacade.CreateExecutionStrategy().Execute(databaseFacade, database =>
                 {
                     var transactionManager = database.GetTransactionManager();
 
@@ -216,13 +215,13 @@ namespace Microsoft.EntityFrameworkCore
                     return relationalTransactionManager != null
                         ? relationalTransactionManager.BeginTransaction(isolationLevel)
                         : transactionManager.BeginTransaction();
-                }, databaseFacade);
+                });
 
         public static Task<IDbContextTransaction> BeginTransactionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default(CancellationToken))
-            => databaseFacade.CreateExecutionStrategy().ExecuteAsync((database, ct) =>
+            => databaseFacade.CreateExecutionStrategy().ExecuteAsync(databaseFacade, (database, ct) =>
                 {
                     var transactionManager = database.GetTransactionManager();
 
@@ -231,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore
                     return relationalTransactionManager != null
                         ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, ct)
                         : transactionManager.BeginTransactionAsync(ct);
-                }, databaseFacade, cancellationToken);
+                }, cancellationToken);
 
         public static IDbContextTransaction UseTransaction(
             [NotNull] this DatabaseFacade databaseFacade, [CanBeNull] DbTransaction transaction)

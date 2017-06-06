@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     var executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
 
-                    return executionStrategy.Execute(BufferlessMoveNext, executionStrategy.RetriesOnFailure);
+                    return executionStrategy.Execute(executionStrategy.RetriesOnFailure, BufferlessMoveNext);
                 }
 
                 if (_buffer.Count > 0)

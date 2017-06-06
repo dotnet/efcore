@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         var executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
 
                         return await executionStrategy
-                            .ExecuteAsync(BufferlessMoveNext, executionStrategy.RetriesOnFailure, cancellationToken);
+                            .ExecuteAsync(executionStrategy.RetriesOnFailure, BufferlessMoveNext, cancellationToken);
                     }
 
                     if (_buffer.Count > 0)

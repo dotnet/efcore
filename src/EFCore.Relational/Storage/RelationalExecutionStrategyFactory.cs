@@ -15,19 +15,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class RelationalExecutionStrategyFactory : IExecutionStrategyFactory
     {
-        private readonly Func<ExecutionStrategyContext, IExecutionStrategy> _createExecutionStrategy;
+        private readonly Func<ExecutionStrategyDependencies, IExecutionStrategy> _createExecutionStrategy;
 
         /// <summary>
         ///     Creates a new instance of this class with the given service dependencies.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public RelationalExecutionStrategyFactory([NotNull] ExecutionStrategyContextDependencies dependencies)
+        public RelationalExecutionStrategyFactory([NotNull] ExecutionStrategyDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
-
-            Context = new ExecutionStrategyContext(dependencies);
 
             var configuredFactory = dependencies.Options == null
                 ? null
@@ -39,23 +37,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Parameter object containing service dependencies.
         /// </summary>
-        protected virtual ExecutionStrategyContextDependencies Dependencies { get; }
-
-        /// <summary>
-        ///     The <see cref="ExecutionStrategyContext" />.
-        /// </summary>
-        protected virtual ExecutionStrategyContext Context { get; }
+        protected virtual ExecutionStrategyDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates or returns a cached instance of the default <see cref="IExecutionStrategy" /> for the
         ///     current database provider.
         /// </summary>
-        protected virtual IExecutionStrategy CreateDefaultStrategy([NotNull] ExecutionStrategyContext context)
-            => NoopExecutionStrategy.Instance;
+        protected virtual IExecutionStrategy CreateDefaultStrategy([NotNull] ExecutionStrategyDependencies dependencies)
+            => new NoopExecutionStrategy(Dependencies);
 
         /// <summary>
         ///     Creates an <see cref="IExecutionStrategy" /> for the current database provider.
         /// </summary>
-        public virtual IExecutionStrategy Create() => _createExecutionStrategy(Context);
+        public virtual IExecutionStrategy Create() => _createExecutionStrategy(Dependencies);
     }
 }

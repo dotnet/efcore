@@ -82,19 +82,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override bool HasTables()
-            => Dependencies.ExecutionStrategyFactory.Create().Execute(
-                connection => (int)CreateHasTablesCommand().ExecuteScalar(connection) != 0,
-                _connection);
+            => Dependencies.ExecutionStrategyFactory.Create().Execute(_connection, connection => (int)CreateHasTablesCommand().ExecuteScalar(connection) != 0);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
-                async (connection, ct) => (int)await CreateHasTablesCommand().ExecuteScalarAsync(connection, cancellationToken: ct) != 0,
-                _connection,
-                cancellationToken);
+            => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(_connection,
+                async (connection, ct) => (int)await CreateHasTablesCommand().ExecuteScalarAsync(connection, cancellationToken: ct) != 0, cancellationToken);
 
         private IRelationalCommand CreateHasTablesCommand()
             => _rawSqlCommandBuilder
@@ -114,35 +110,34 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => Exists(retryOnNotExists: false);
 
         private bool Exists(bool retryOnNotExists)
-            => Dependencies.ExecutionStrategyFactory.Create().Execute(
-                giveUp =>
+            => Dependencies.ExecutionStrategyFactory.Create().Execute(DateTime.UtcNow + RetryTimeout, giveUp =>
+                {
+                    while (true)
                     {
-                        while (true)
+                        try
                         {
-                            try
-                            {
-                                _connection.Open();
-                                _connection.Close();
-                                return true;
-                            }
-                            catch (SqlException e)
-                            {
-                                if (!retryOnNotExists
-                                    && IsDoesNotExist(e))
-                                {
-                                    return false;
-                                }
-
-                                if (DateTime.UtcNow > giveUp
-                                    || !RetryOnExistsFailure(e))
-                                {
-                                    throw;
-                                }
-
-                                Thread.Sleep(RetryDelay);
-                            }
+                            _connection.Open();
+                            _connection.Close();
+                            return true;
                         }
-                    }, DateTime.UtcNow + RetryTimeout);
+                        catch (SqlException e)
+                        {
+                            if (!retryOnNotExists
+                                && IsDoesNotExist(e))
+                            {
+                                return false;
+                            }
+
+                            if (DateTime.UtcNow > giveUp
+                                || !RetryOnExistsFailure(e))
+                            {
+                                throw;
+                            }
+
+                            Thread.Sleep(RetryDelay);
+                        }
+                    }
+                });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -152,36 +147,35 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
 
         private Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
-            => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
-                async (giveUp, ct) =>
+            => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(DateTime.UtcNow + RetryTimeout, async (giveUp, ct) =>
+                {
+                    while (true)
                     {
-                        while (true)
+                        try
                         {
-                            try
-                            {
-                                await _connection.OpenAsync(ct);
+                            await _connection.OpenAsync(ct);
 
-                                _connection.Close();
-                                return true;
-                            }
-                            catch (SqlException e)
-                            {
-                                if (!retryOnNotExists
-                                    && IsDoesNotExist(e))
-                                {
-                                    return false;
-                                }
-
-                                if (DateTime.UtcNow > giveUp
-                                    || !RetryOnExistsFailure(e))
-                                {
-                                    throw;
-                                }
-
-                                await Task.Delay(RetryDelay, ct);
-                            }
+                            _connection.Close();
+                            return true;
                         }
-                    }, DateTime.UtcNow + RetryTimeout, cancellationToken);
+                        catch (SqlException e)
+                        {
+                            if (!retryOnNotExists
+                                && IsDoesNotExist(e))
+                            {
+                                return false;
+                            }
+
+                            if (DateTime.UtcNow > giveUp
+                                || !RetryOnExistsFailure(e))
+                            {
+                                throw;
+                            }
+
+                            await Task.Delay(RetryDelay, ct);
+                        }
+                    }
+                }, cancellationToken);
 
         // Login failed is thrown when database does not exist (See Issue #776)
         // Unable to attach database file is thrown when file does not exist (See Issue #2810)

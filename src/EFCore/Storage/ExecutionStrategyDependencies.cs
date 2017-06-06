@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="ExecutionStrategyContext" />
+    ///         Service dependencies parameter class for <see cref="IExecutionStrategy" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -19,32 +19,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     </para>
     ///     <para>
     ///         Do not construct instances of this class directly from either provider or application code as the
-    ///         constructor signature may change as new dependencies are added. Instead, use this type in 
-    ///         your constructor so that an instance will be created and injected automatically by the 
-    ///         dependency injection container. To create an instance with some dependent services replaced, 
-    ///         first resolve the object from the dependency injection container, then replace selected 
+    ///         constructor signature may change as new dependencies are added. Instead, use this type in
+    ///         your constructor so that an instance will be created and injected automatically by the
+    ///         dependency injection container. To create an instance with some dependent services replaced,
+    ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class ExecutionStrategyContextDependencies
+    public sealed class ExecutionStrategyDependencies
     {
         /// <summary>
         ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="ExecutionStrategyContext" />.
+        ///         Creates the service dependencies parameter object for a <see cref="IExecutionStrategy" />.
         ///     </para>
         ///     <para>
-        ///         Do not call this constructor directly from either provider or application code as it may change 
-        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance 
-        ///         will be created and injected automatically by the dependency injection container. To create 
-        ///         an instance with some dependent services replaced, first resolve the object from the dependency 
-        ///         injection container, then replace selected services using the 'With...' methods. Do not call 
+        ///         Do not call this constructor directly from either provider or application code as it may change
+        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance
+        ///         will be created and injected automatically by the dependency injection container. To create
+        ///         an instance with some dependent services replaced, first resolve the object from the dependency
+        ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
         /// <param name="currentDbContext"> Indirection to the current <see cref="DbContext" /> instance. </param>
         /// <param name="options"> The options for the current <see cref="DbContext" /> instance. </param>
         /// <param name="logger"> A logger.</param>
-        public ExecutionStrategyContextDependencies(
+        public ExecutionStrategyDependencies(
             [NotNull] ICurrentDbContext currentDbContext,
             [CanBeNull] IDbContextOptions options,
             [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
@@ -76,23 +76,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="currentDbContext"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public ExecutionStrategyContextDependencies With([NotNull] ICurrentDbContext currentDbContext)
-            => new ExecutionStrategyContextDependencies(currentDbContext, Options, Logger);
+        public ExecutionStrategyDependencies With([NotNull] ICurrentDbContext currentDbContext)
+            => new ExecutionStrategyDependencies(currentDbContext, Options, Logger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="options"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public ExecutionStrategyContextDependencies With([NotNull] IDbContextOptions options)
-            => new ExecutionStrategyContextDependencies(CurrentDbContext, options, Logger);
+        public ExecutionStrategyDependencies With([NotNull] IDbContextOptions options)
+            => new ExecutionStrategyDependencies(CurrentDbContext, options, Logger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public ExecutionStrategyContextDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
-            => new ExecutionStrategyContextDependencies(CurrentDbContext, Options, logger);
+        public ExecutionStrategyDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
+            => new ExecutionStrategyDependencies(CurrentDbContext, Options, logger);
     }
 }

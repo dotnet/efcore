@@ -272,13 +272,15 @@ namespace Microsoft.EntityFrameworkCore
             await EnsureCreated_can_create_schema_in_existing_database_test(async: true, file: true);
         }
 
-        private static async Task EnsureCreated_can_create_schema_in_existing_database_test(bool async, bool file)
-        {
-            using (var testDatabase = SqlServerTestStore.CreateScratch(useFileName: file))
-            {
-                await RunDatabaseCreationTest(testDatabase, async);
-            }
-        }
+        private static Task EnsureCreated_can_create_schema_in_existing_database_test(bool async, bool file)
+            => TestEnvironment.IsSqlAzure
+                ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
+                    new { async, file },
+                    async state =>
+                        {
+                            await RunDatabaseCreationTest(true, state.async, state.file);
+                        })
+                : RunDatabaseCreationTest(true, async, file);
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
@@ -309,53 +311,52 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static Task EnsureCreated_can_create_physical_database_and_schema_test(bool async, bool file)
-        {
-            return SqlServerTestStore.GetExecutionStrategy()
-                .ExecuteAsync(
+            => TestEnvironment.IsSqlAzure
+                ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
+                    new { async, file },
                     async state =>
                         {
-                            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: state.file))
-                            {
-                                await RunDatabaseCreationTest(testDatabase, state.async);
-                            }
-                        }, new { async, file });
-        }
+                            await RunDatabaseCreationTest(false, state.async, state.file);
+                        })
+                : RunDatabaseCreationTest(false, async, file);
 
-        private static async Task RunDatabaseCreationTest(SqlServerTestStore testStore, bool async)
+        private static async Task RunDatabaseCreationTest(bool createDatabase, bool async, bool file)
         {
-            using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testStore))
+            using (var testStore = SqlServerTestStore.CreateScratch(createDatabase, useFileName: file))
             {
-                var creator = context.GetService<IRelationalDatabaseCreator>();
-
-                Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
-
-                if (async)
+                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testStore))
                 {
-                    Assert.True(await creator.EnsureCreatedAsync());
-                }
-                else
-                {
-                    Assert.True(creator.EnsureCreated());
-                }
+                    var creator = context.GetService<IRelationalDatabaseCreator>();
 
-                Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
+                    Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
-                if (testStore.Connection.State != ConnectionState.Open)
-                {
-                    await testStore.Connection.OpenAsync();
-                }
-
-                var tables = await testStore.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
-                Assert.Equal(1, tables.Count());
-                Assert.Equal("Blogs", tables.Single());
-
-                var columns = (await testStore.QueryAsync<string>(
-                    "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_NAME = 'Blogs' ORDER BY TABLE_NAME, COLUMN_NAME")).ToArray();
-                Assert.Equal(14, columns.Length);
-
-                Assert.Equal(
-                    new[]
+                    if (async)
                     {
+                        Assert.True(await creator.EnsureCreatedAsync());
+                    }
+                    else
+                    {
+                        Assert.True(creator.EnsureCreated());
+                    }
+
+                    Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
+
+                    if (testStore.Connection.State != ConnectionState.Open)
+                    {
+                        await testStore.Connection.OpenAsync();
+                    }
+
+                    var tables = await testStore.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
+                    Assert.Equal(1, tables.Count());
+                    Assert.Equal("Blogs", tables.Single());
+
+                    var columns = (await testStore.QueryAsync<string>(
+                        "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_NAME = 'Blogs' ORDER BY TABLE_NAME, COLUMN_NAME")).ToArray();
+                    Assert.Equal(14, columns.Length);
+
+                    Assert.Equal(
+                        new[]
+                        {
                             "Blogs.AndChew (varbinary)",
                             "Blogs.AndRow (timestamp)",
                             "Blogs.Cheese (nvarchar)",
@@ -370,8 +371,9 @@ namespace Microsoft.EntityFrameworkCore
                             "Blogs.TheGu (uniqueidentifier)",
                             "Blogs.ToEat (tinyint)",
                             "Blogs.WayRound (bigint)"
-                    },
-                    columns);
+                        },
+                        columns);
+                }
             }
         }
 
@@ -444,6 +446,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 await ((SqlServerDatabaseCreatorTest.TestDatabaseCreator)SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase)).ExecutionStrategyFactory.Create()
                     .ExecuteAsync(
+                    (SqlServerDatabaseCreatorTest.TestDatabaseCreator)SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase),
                         async creator =>
                             {
                                 var errorNumber = async
@@ -456,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore
                                         4060, // Login failed error number
                                         errorNumber);
                                 }
-                            }, (SqlServerDatabaseCreatorTest.TestDatabaseCreator)SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase));
+                            });
             }
         }
 
@@ -763,12 +766,13 @@ namespace Microsoft.EntityFrameworkCore
         // ReSharper disable once ClassNeverInstantiated.Local
         private class TestSqlServerExecutionStrategyFactory : SqlServerExecutionStrategyFactory
         {
-            public TestSqlServerExecutionStrategyFactory(ExecutionStrategyContextDependencies dependencies)
+            public TestSqlServerExecutionStrategyFactory(ExecutionStrategyDependencies dependencies)
                 : base(dependencies)
             {
             }
 
-            protected override IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyContext context) => NoopExecutionStrategy.Instance;
+            protected override IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyDependencies dependencies)
+                => new NoopExecutionStrategy(dependencies);
         }
 
         private static IServiceProvider CreateServiceProvider()

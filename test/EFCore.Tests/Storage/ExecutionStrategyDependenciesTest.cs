@@ -5,12 +5,12 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
-    public class ExecutionStrategyContextDependenciesTest
+    public class ExecutionStrategyDependenciesTest
     {
         [Fact]
         public void Can_use_With_methods_to_clone_and_replace_service()
         {
-            InMemoryTestHelpers.Instance.TestDependenciesClone<ExecutionStrategyContextDependencies>();
+            InMemoryTestHelpers.Instance.TestDependenciesClone<ExecutionStrategyDependencies>();
         }
     }
 }

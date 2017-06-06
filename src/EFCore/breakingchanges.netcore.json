@@ -396,14 +396,98 @@
       "Kind": "Removal"
     },
     {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.Extensions.Logging.ILogger<Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy> logger)",
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static System.Threading.Tasks.Task<T1> ExecuteInTransactionAsync<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<System.Boolean>> verifySucceeded, T0 state, Microsoft.EntityFrameworkCore.DbContext context, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static T1 ExecuteInTransaction<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, T1> operation, System.Func<T0, System.Boolean> verifySucceeded, T0 state, Microsoft.EntityFrameworkCore.DbContext context)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "public virtual System.Threading.Tasks.Task<T1> ExecuteInTransactionAsync<T0, T1>(System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<System.Boolean>> verifySucceeded, T0 state, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "public virtual T1 ExecuteInTransaction<T0, T1>(System.Func<T0, T1> operation, System.Func<T0, System.Boolean> verifySucceeded, T0 state)",
       "Kind": "Removal"
     },
     {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext",
-      "MemberId": "public virtual Microsoft.Extensions.Logging.ILogger<Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy> get_Logger()",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext context, System.Int32 maxRetryCount, System.TimeSpan maxRetryDelay)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.DbContext get_Context()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "public System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>>> verifySucceeded, T0 state, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "public T1 Execute<T0, T1>(System.Func<T0, T1> operation, System.Func<T0, Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>> verifySucceeded, T0 state)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static System.Threading.Tasks.Task ExecuteAsync<T0>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task> operation, T0 state, System.Threading.CancellationToken cancellationToken)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static System.Threading.Tasks.Task ExecuteAsync<T0>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.Tasks.Task> operation, T0 state)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, T0 state, System.Threading.CancellationToken cancellationToken)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.Tasks.Task<T1>> operation, T0 state)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static System.Void Execute<T0>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Action<T0> operation, T0 state)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static T1 Execute<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, T1> operation, T0 state)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>>> verifySucceeded, T0 state, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "T1 Execute<T0, T1>(System.Func<T0, T1> operation, System.Func<T0, Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>> verifySucceeded, T0 state)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(T0 state, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>>> verifySucceeded, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "T1 Execute<T0, T1>(T0 state, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, T1> operation, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>> verifySucceeded)",
+      "Kind": "Addition"
     },
     {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGenerator : Microsoft.EntityFrameworkCore.Query.ICompiledQueryCacheKeyGenerator",

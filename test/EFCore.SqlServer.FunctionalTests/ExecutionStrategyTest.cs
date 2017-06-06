@@ -2,12 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -30,6 +33,49 @@ namespace Microsoft.EntityFrameworkCore
 
         private void Test_commit_failure(bool realFailure)
         {
+            Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
+                () => { db.SaveChanges(acceptAllChangesOnSuccess: false); },
+                () => db.Products.AsNoTracking().Any()));
+
+            Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
+                () => db.SaveChanges(acceptAllChangesOnSuccess: false),
+                () => db.Products.AsNoTracking().Any()));
+
+            Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
+                db,
+                c => { c.SaveChanges(acceptAllChangesOnSuccess: false); },
+                c => c.Products.AsNoTracking().Any()));
+
+            Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
+                db,
+                c => c.SaveChanges(acceptAllChangesOnSuccess: false),
+                c => c.Products.AsNoTracking().Any()));
+
+            Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
+                () => { db.SaveChanges(acceptAllChangesOnSuccess: false); },
+                () => db.Products.AsNoTracking().Any(),
+                IsolationLevel.Serializable));
+
+            Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
+                () => db.SaveChanges(acceptAllChangesOnSuccess: false),
+                () => db.Products.AsNoTracking().Any(),
+                IsolationLevel.Serializable));
+
+            Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
+                db,
+                c => { c.SaveChanges(acceptAllChangesOnSuccess: false); },
+                c => c.Products.AsNoTracking().Any(),
+                IsolationLevel.Serializable));
+
+            Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
+                db,
+                c => c.SaveChanges(acceptAllChangesOnSuccess: false),
+                c => c.Products.AsNoTracking().Any(),
+                IsolationLevel.Serializable));
+        }
+
+        private void Test_commit_failure(bool realFailure, Action<TestSqlServerRetryingExecutionStrategy, ExecutionStrategyContext> execute)
+        {
             CleanContext();
 
             using (var context = CreateContext())
@@ -39,10 +85,7 @@ namespace Microsoft.EntityFrameworkCore
                 connection.CommitFailures.Enqueue(new bool?[] { realFailure });
 
                 context.Products.Add(new Product());
-                new TestSqlServerRetryingExecutionStrategy(context).ExecuteInTransaction(
-                    c => c.SaveChanges(acceptAllChangesOnSuccess: false),
-                    c => c.Products.AsNoTracking().Any(),
-                    context);
+                execute(new TestSqlServerRetryingExecutionStrategy(context), context);
                 context.ChangeTracker.AcceptAllChanges();
 
                 Assert.Equal(realFailure ? 3 : 2, connection.OpenCount);
@@ -51,6 +94,108 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 Assert.Equal(1, context.Products.Count());
+            }
+        }
+
+        [Fact]
+        public Task Does_not_throw_or_retry_on_false_commit_failure_async()
+        {
+            return Test_commit_failure_async(false);
+        }
+
+        [Fact]
+        public Task Retries_on_true_commit_failure_async()
+        {
+            return Test_commit_failure_async(true);
+        }
+
+        private async Task Test_commit_failure_async(bool realFailure)
+        {
+            await Test_commit_failure_async(realFailure, (e, db) => e.ExecuteInTransactionAsync(
+                () => db.SaveChangesAsync(acceptAllChangesOnSuccess: false),
+                () => db.Products.AsNoTracking().AnyAsync()));
+
+            var cancellationToken = CancellationToken.None;
+            await Test_commit_failure_async(realFailure, (e, db) => e.ExecuteInTransactionAsync(
+                async ct => { await db.SaveChangesAsync(acceptAllChangesOnSuccess: false); },
+                ct => db.Products.AsNoTracking().AnyAsync(),
+                cancellationToken));
+
+            await Test_commit_failure_async(realFailure, (e, db) => e.ExecuteInTransactionAsync(
+                ct => db.SaveChangesAsync(acceptAllChangesOnSuccess: false),
+                ct => db.Products.AsNoTracking().AnyAsync(),
+                cancellationToken));
+
+            await Test_commit_failure_async(realFailure, (e, db) => e.ExecuteInTransactionAsync(
+                db,
+                async (c, ct) => { await c.SaveChangesAsync(acceptAllChangesOnSuccess: false); },
+                (c, ct) => c.Products.AsNoTracking().AnyAsync(),
+                cancellationToken));
+
+            await Test_commit_failure_async(realFailure, (e, db) => e.ExecuteInTransactionAsync(
+                db,
+                (c, ct) => c.SaveChangesAsync(acceptAllChangesOnSuccess: false),
+                (c, ct) => c.Products.AsNoTracking().AnyAsync(),
+                cancellationToken));
+
+            await Test_commit_failure_async(realFailure, (e, db) => e.ExecuteInTransactionAsync(
+                () => db.SaveChangesAsync(acceptAllChangesOnSuccess: false),
+                () => db.Products.AsNoTracking().AnyAsync(),
+                IsolationLevel.Serializable));
+
+            await Test_commit_failure_async(realFailure, (e, db) => e.ExecuteInTransactionAsync(
+                async ct => { await db.SaveChangesAsync(acceptAllChangesOnSuccess: false); },
+                ct => db.Products.AsNoTracking().AnyAsync(),
+                IsolationLevel.Serializable,
+                cancellationToken));
+
+            await Test_commit_failure_async(realFailure, (e, db) => e.ExecuteInTransactionAsync(
+                ct => db.SaveChangesAsync(acceptAllChangesOnSuccess: false),
+                ct => db.Products.AsNoTracking().AnyAsync(),
+                IsolationLevel.Serializable,
+                cancellationToken));
+
+            await Test_commit_failure_async(realFailure, (e, db) => e.ExecuteInTransactionAsync(
+                db,
+                async (c, ct) =>
+                    {
+                        await c.SaveChangesAsync(acceptAllChangesOnSuccess: false);
+                    },
+                (c, ct) => c.Products.AsNoTracking().AnyAsync(),
+                IsolationLevel.Serializable,
+                cancellationToken));
+
+            await Test_commit_failure_async(realFailure, (e, db) => e.ExecuteInTransactionAsync(
+                db,
+                (c, ct) =>
+                    {
+                        return c.SaveChangesAsync(acceptAllChangesOnSuccess: false);
+                    },
+                (c, ct) => c.Products.AsNoTracking().AnyAsync(),
+                IsolationLevel.Serializable,
+                cancellationToken));
+        }
+
+        private async Task Test_commit_failure_async(bool realFailure, Func<TestSqlServerRetryingExecutionStrategy, ExecutionStrategyContext, Task> execute)
+        {
+            CleanContext();
+
+            using (var context = CreateContext())
+            {
+                var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
+
+                connection.CommitFailures.Enqueue(new bool?[] { realFailure });
+
+                context.Products.Add(new Product());
+                await execute(new TestSqlServerRetryingExecutionStrategy(context), context);
+                context.ChangeTracker.AcceptAllChanges();
+
+                Assert.Equal(realFailure ? 3 : 2, connection.OpenCount);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(1, await context.Products.CountAsync());
             }
         }
 
@@ -82,17 +227,17 @@ namespace Microsoft.EntityFrameworkCore
                     context2.Products.Add(new Product());
 
                     new TestSqlServerRetryingExecutionStrategy(context1).ExecuteInTransaction(
-                        _ =>
+                        context1,
+                        c1 =>
                             {
                                 context2.Database.UseTransaction(null);
                                 context2.Database.UseTransaction(context1.Database.CurrentTransaction.GetDbTransaction());
 
-                                context1.SaveChanges(acceptAllChangesOnSuccess: false);
+                                c1.SaveChanges(acceptAllChangesOnSuccess: false);
 
                                 return context2.SaveChanges(acceptAllChangesOnSuccess: false);
                             },
-                        c => c.Products.AsNoTracking().Any(),
-                        context1);
+                        c => c.Products.AsNoTracking().Any());
 
                     context1.ChangeTracker.AcceptAllChanges();
                     context2.ChangeTracker.AcceptAllChanges();
@@ -130,14 +275,14 @@ namespace Microsoft.EntityFrameworkCore
                 context.Products.Add(new Product());
                 context.Products.Add(new Product());
                 new TestSqlServerRetryingExecutionStrategy(context).ExecuteInTransaction(
+                    context,
                     c => c.SaveChanges(acceptAllChangesOnSuccess: false),
                     c =>
                         {
                             // This shouldn't be called if SaveChanges failed
                             Assert.True(false);
                             return false;
-                        },
-                    context);
+                        });
                 context.ChangeTracker.AcceptAllChanges();
 
                 Assert.Equal(2, connection.OpenCount);
@@ -166,9 +311,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<RetryLimitExceededException>(() =>
                     new TestSqlServerRetryingExecutionStrategy(context, TimeSpan.FromMilliseconds(100))
                         .ExecuteInTransaction(
+                            context,
                             c => c.SaveChanges(acceptAllChangesOnSuccess: false),
-                            c => false,
-                            context));
+                            c => false));
                 context.ChangeTracker.AcceptAllChanges();
 
                 Assert.Equal(7, connection.OpenCount);

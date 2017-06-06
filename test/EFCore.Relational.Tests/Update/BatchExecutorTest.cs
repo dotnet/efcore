@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 
@@ -31,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var batchExecutor = new BatchExecutor(
-                new CurrentDbContext(new DbContext(new DbContextOptionsBuilder().Options)), new ExecutionStrategyFactory());
+            var batchExecutor = RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IBatchExecutor>();
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
@@ -57,8 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var batchExecutor = new BatchExecutor(
-                new CurrentDbContext(new DbContext(new DbContextOptionsBuilder().Options)), new ExecutionStrategyFactory());
+            var batchExecutor = RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IBatchExecutor>();
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 

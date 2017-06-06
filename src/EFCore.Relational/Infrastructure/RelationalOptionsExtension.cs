@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private string _migrationsAssembly;
         private string _migrationsHistoryTableName;
         private string _migrationsHistoryTableSchema;
-        private Func<ExecutionStrategyContext, IExecutionStrategy> _executionStrategyFactory;
+        private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
 
         protected RelationalOptionsExtension()
         {
@@ -151,10 +151,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return clone;
         }
 
-        public virtual Func<ExecutionStrategyContext, IExecutionStrategy> ExecutionStrategyFactory => _executionStrategyFactory;
+        public virtual Func<ExecutionStrategyDependencies, IExecutionStrategy> ExecutionStrategyFactory => _executionStrategyFactory;
 
         public virtual RelationalOptionsExtension WithExecutionStrategyFactory(
-            [CanBeNull] Func<ExecutionStrategyContext, IExecutionStrategy> executionStrategyFactory)
+            [CanBeNull] Func<ExecutionStrategyDependencies, IExecutionStrategy> executionStrategyFactory)
         {
             var clone = Clone();
 

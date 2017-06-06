@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -13,39 +14,35 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class NoopExecutionStrategy : IExecutionStrategy
     {
-        private NoopExecutionStrategy()
+        private ExecutionStrategyDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool RetriesOnFailure => false;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public NoopExecutionStrategy([NotNull] ExecutionStrategyDependencies dependencies)
         {
+            Dependencies = dependencies;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static NoopExecutionStrategy Instance = new NoopExecutionStrategy();
+        public virtual TResult Execute<TState, TResult>(TState state, Func<DbContext, TState, TResult> operation, Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded)
+            => operation(Dependencies.CurrentDbContext.Context, state);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public bool RetriesOnFailure => false;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public TResult Execute<TState, TResult>(
-            Func<TState, TResult> operation, Func<TState, ExecutionResult<TResult>> verifySucceeded, TState state)
-            => operation(state);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public Task<TResult> ExecuteAsync<TState, TResult>(
-            Func<TState, CancellationToken, Task<TResult>> operation,
-            Func<TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
-            TState state,
-            CancellationToken cancellationToken = default(CancellationToken))
-            => operation(state, cancellationToken);
+        public virtual Task<TResult> ExecuteAsync<TState, TResult>(TState state, Func<DbContext, TState, CancellationToken, Task<TResult>> operation, Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded, CancellationToken cancellationToken = default(CancellationToken))
+            => operation(Dependencies.CurrentDbContext.Context, state, cancellationToken);
     }
 }

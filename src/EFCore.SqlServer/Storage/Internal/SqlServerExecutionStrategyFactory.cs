@@ -16,12 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerExecutionStrategyFactory(
-            [NotNull] ExecutionStrategyContextDependencies dependencies)
+            [NotNull] ExecutionStrategyDependencies dependencies)
             : base(dependencies)
         {
         }
 
-        protected override IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyContext context)
-            => SqlServerExecutionStrategy.Instance;
+        protected override IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyDependencies dependencies)
+            => new SqlServerExecutionStrategy(dependencies);
     }
 }

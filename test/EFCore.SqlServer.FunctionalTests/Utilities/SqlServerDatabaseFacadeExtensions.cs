@@ -9,6 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Utilities
     {
         public static void EnsureClean(this DatabaseFacade databaseFacade)
             => databaseFacade.CreateExecutionStrategy()
-                .Execute(database => new SqlServerDatabaseCleaner().Clean(database), databaseFacade);
+                .Execute(databaseFacade, database => new SqlServerDatabaseCleaner().Clean(database));
     }
 }
