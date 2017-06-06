@@ -771,11 +771,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Including navigation: '{navigation}'
         /// </summary>
-        public static readonly EventDefinition<string> LogIncludingNavigation
-            = new EventDefinition<string>(
+        public static readonly EventDefinition<object> LogIncludingNavigation
+            = new EventDefinition<object>(
                 CoreEventId.NavigationIncluded,
                 LogLevel.Debug,
-                LoggerMessage.Define<string>(
+                LoggerMessage.Define<object>(
                     LogLevel.Debug,
                     CoreEventId.NavigationIncluded,
                     _resourceManager.GetString("LogIncludingNavigation")));

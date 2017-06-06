@@ -401,7 +401,7 @@
   </data>
   <data name="LogIncludingNavigation" xml:space="preserve">
     <value>Including navigation: '{navigation}'</value>
-    <comment>Debug CoreEventId.NavigationIncluded string</comment>
+    <comment>Debug CoreEventId.NavigationIncluded object</comment>
   </data>
   <data name="LogQueryExecutionPlanned" xml:space="preserve">
     <value>{plan}</value>
