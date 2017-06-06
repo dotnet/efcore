@@ -3,6 +3,7 @@ Entity Framework Core
 
 Documentation on using EF Core is available at <https://docs.microsoft.com/ef/>.
 
+[![Travis build status](https://img.shields.io/travis/aspnet/EntityFramework.svg?label=travis-ci&branch=dev&style=flat-square)](https://travis-ci.org/aspnet/EntityFramework/branches)
 [![AppVeyor build status](https://img.shields.io/appveyor/ci/aspnetci/EntityFramework/dev.svg?label=appveyor&style=flat-square)](https://ci.appveyor.com/project/aspnetci/entityframework/branch/dev)
 
 ## EF Core here, EF6 elsewhere
