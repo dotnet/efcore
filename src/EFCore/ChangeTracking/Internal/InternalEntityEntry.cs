@@ -303,7 +303,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     MarkAsTemporary(property, isTemporary: false);
 
                     var index = property.GetOriginalValueIndex();
-                    if (index != -1)
+                    if (index != -1
+                        && !IsConceptualNull(property))
                     {
                         SetOriginalValue(property, this[property], index);
                     }
@@ -659,8 +660,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             get
             {
-                object value;
-                return _storeGeneratedValues.TryGetValue(propertyBase, out value)
+                return _storeGeneratedValues.TryGetValue(propertyBase, out object value)
                     ? value
                     : ReadPropertyValue(propertyBase);
             }
@@ -694,7 +694,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var writeValue = true;
 
                     if (asProperty != null
-                        && !asProperty.IsNullable)
+                        && (!asProperty.IsNullable
+                            || asProperty.GetContainingForeignKeys().Any(
+                                p => p.DeleteBehavior == DeleteBehavior.Cascade
+                                     || p.DeleteBehavior == DeleteBehavior.Restrict)))
                     {
                         if (value == null)
                         {
@@ -833,7 +836,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null))
                     {
-                        if (properties.Any(p => p.IsNullable))
+                        if (properties.Any(p => p.IsNullable)
+                            && foreignKey.DeleteBehavior != DeleteBehavior.Cascade
+                            && foreignKey.DeleteBehavior != DeleteBehavior.Restrict)
                         {
                             foreach (var toNull in properties)
                             {

@@ -468,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             UpdateDeleteBehaviorConfigurationSource(configurationSource);
         }
 
-        private static DeleteBehavior DefaultDeleteBehavior => DeleteBehavior.Restrict;
+        private static DeleteBehavior DefaultDeleteBehavior => DeleteBehavior.ClientSetNull;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

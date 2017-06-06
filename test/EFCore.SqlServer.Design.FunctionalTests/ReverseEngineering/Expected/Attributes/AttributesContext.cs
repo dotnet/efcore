@@ -65,7 +65,7 @@ namespace E2ETest.Namespace.SubDir
                 entity.HasOne(d => d.RelationA)
                     .WithMany(p => p.MultipleFksDependentRelationA)
                     .HasForeignKey(d => d.RelationAid)
-                    .OnDelete(DeleteBehavior.Restrict)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_RelationA");
 
                 entity.HasOne(d => d.RelationB)
@@ -106,7 +106,7 @@ namespace E2ETest.Namespace.SubDir
                 entity.HasOne(d => d.OneToOneDependentNavigation)
                     .WithOne(p => p.OneToOneDependent)
                     .HasForeignKey<OneToOneDependent>(d => new { d.OneToOneDependentId1, d.OneToOneDependentId2 })
-                    .OnDelete(DeleteBehavior.Restrict)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_OneToOneDependent");
             });
 

@@ -463,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var fk = Assert.Single(children.GetForeignKeys());
             Assert.True(fk.IsUnique);
-            Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.ClientSetNull, fk.DeleteBehavior);
         }
 
         [Fact]

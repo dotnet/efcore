@@ -564,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, principalKey, entityType);
 
-            Assert.Equal(DeleteBehavior.Restrict, foreignKey.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.ClientSetNull, foreignKey.DeleteBehavior);
 
             foreignKey.DeleteBehavior = DeleteBehavior.Cascade;
 
@@ -573,6 +573,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
 
             Assert.Equal(DeleteBehavior.Restrict, foreignKey.DeleteBehavior);
+
+            foreignKey.DeleteBehavior = DeleteBehavior.SetNull;
+
+            Assert.Equal(DeleteBehavior.SetNull, foreignKey.DeleteBehavior);
+
+            foreignKey.DeleteBehavior = DeleteBehavior.ClientSetNull;
+
+            Assert.Equal(DeleteBehavior.ClientSetNull, foreignKey.DeleteBehavior);
         }
 
         [Fact]

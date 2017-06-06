@@ -28,7 +28,7 @@ namespace E2E.Sqlite
                     .WithMany(p => p.Comment)
                     .HasPrincipalKey(p => p.AltId)
                     .HasForeignKey(d => d.UserAltId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<User>(entity =>

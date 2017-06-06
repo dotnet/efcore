@@ -1475,7 +1475,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
-        public void Add_required_foreign_key_without_cascade_delete()
+        public void Add_required_foreign_key_with_restrict()
         {
             Execute(
                 source => source.Entity(
@@ -1521,7 +1521,53 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
-        public void Add_optional_foreign_key_wit_set_null()
+        public void Add_required_foreign_key_with_default()
+        {
+            Execute(
+                source => source.Entity(
+                    "Amoeba",
+                    x =>
+                        {
+                            x.ToTable("Amoeba", "dbo");
+                            x.Property<int>("Id");
+                            x.HasKey("Id");
+                            x.Property<int>("ParentId");
+                        }),
+                target => target.Entity(
+                    "Amoeba",
+                    x =>
+                        {
+                            x.ToTable("Amoeba", "dbo");
+                            x.Property<int>("Id");
+                            x.HasKey("Id");
+                            x.Property<int>("ParentId");
+                            x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.ClientSetNull);
+                        }),
+                operations =>
+                    {
+                        Assert.Equal(2, operations.Count);
+
+                        var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[0]);
+                        Assert.Equal("dbo", createIndexOperation.Schema);
+                        Assert.Equal("Amoeba", createIndexOperation.Table);
+                        Assert.Equal("IX_Amoeba_ParentId", createIndexOperation.Name);
+                        Assert.Equal(new[] { "ParentId" }, createIndexOperation.Columns);
+
+                        var addFkOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
+                        Assert.Equal("dbo", addFkOperation.Schema);
+                        Assert.Equal("Amoeba", addFkOperation.Table);
+                        Assert.Equal("FK_Amoeba_Amoeba_ParentId", addFkOperation.Name);
+                        Assert.Equal(new[] { "ParentId" }, addFkOperation.Columns);
+                        Assert.Equal("dbo", addFkOperation.PrincipalSchema);
+                        Assert.Equal("Amoeba", addFkOperation.PrincipalTable);
+                        Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
+                        Assert.Equal(ReferentialAction.Restrict, addFkOperation.OnDelete);
+                        Assert.Equal(ReferentialAction.NoAction, addFkOperation.OnUpdate);
+                    });
+        }
+
+        [Fact]
+        public void Add_optional_foreign_key_with_set_null()
         {
             Execute(
                 source => source.Entity(
@@ -1562,6 +1608,52 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Amoeba", addFkOperation.PrincipalTable);
                         Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
                         Assert.Equal(ReferentialAction.SetNull, addFkOperation.OnDelete);
+                        Assert.Equal(ReferentialAction.NoAction, addFkOperation.OnUpdate);
+                    });
+        }
+
+        [Fact]
+        public void Add_optional_foreign_key_with_restrict()
+        {
+            Execute(
+                source => source.Entity(
+                    "Amoeba",
+                    x =>
+                        {
+                            x.ToTable("Amoeba", "dbo");
+                            x.Property<int>("Id");
+                            x.HasKey("Id");
+                            x.Property<int?>("ParentId");
+                        }),
+                target => target.Entity(
+                    "Amoeba",
+                    x =>
+                        {
+                            x.ToTable("Amoeba", "dbo");
+                            x.Property<int>("Id");
+                            x.HasKey("Id");
+                            x.Property<int?>("ParentId");
+                            x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.Restrict);
+                        }),
+                operations =>
+                    {
+                        Assert.Equal(2, operations.Count);
+
+                        var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[0]);
+                        Assert.Equal("dbo", createIndexOperation.Schema);
+                        Assert.Equal("Amoeba", createIndexOperation.Table);
+                        Assert.Equal("IX_Amoeba_ParentId", createIndexOperation.Name);
+                        Assert.Equal(new[] { "ParentId" }, createIndexOperation.Columns);
+
+                        var addFkOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
+                        Assert.Equal("dbo", addFkOperation.Schema);
+                        Assert.Equal("Amoeba", addFkOperation.Table);
+                        Assert.Equal("FK_Amoeba_Amoeba_ParentId", addFkOperation.Name);
+                        Assert.Equal(new[] { "ParentId" }, addFkOperation.Columns);
+                        Assert.Equal("dbo", addFkOperation.PrincipalSchema);
+                        Assert.Equal("Amoeba", addFkOperation.PrincipalTable);
+                        Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
+                        Assert.Equal(ReferentialAction.Restrict, addFkOperation.OnDelete);
                         Assert.Equal(ReferentialAction.NoAction, addFkOperation.OnUpdate);
                     });
         }
