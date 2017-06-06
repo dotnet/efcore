@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -22,14 +23,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         protected virtual IModel Model => (IModel)Annotations.Metadata;
 
-        public virtual IReadOnlyList<ISequence> Sequences
+        public virtual IReadOnlyList<IMutableSequence> Sequences
             => Sequence.GetSequences(Model, RelationalAnnotationNames.SequencePrefix).ToList();
 
-        public virtual ISequence FindSequence(string name, string schema = null)
-            => Sequence.FindSequence(Model, RelationalAnnotationNames.SequencePrefix, name, schema);
+        public virtual IMutableSequence FindSequence([NotNull] string name, [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
 
-        public virtual Sequence GetOrAddSequence([NotNull] string name, [CanBeNull] string schema = null)
-            => Sequence.GetOrAddSequence((IMutableModel)Model, RelationalAnnotationNames.SequencePrefix, name, schema);
+            var annotationName = BuildAnnotationName(RelationalAnnotationNames.SequencePrefix, name, schema);
+
+            return Model[annotationName] == null ? null : new Sequence(Model, annotationName);
+        }
+
+        public virtual IMutableSequence GetOrAddSequence([NotNull] string name, [CanBeNull] string schema = null)
+            => FindSequence(name, schema)
+               ?? new Sequence((IMutableModel)Model, BuildAnnotationName(RelationalAnnotationNames.SequencePrefix, name, schema), name, schema);
+
+        private static string BuildAnnotationName(string annotationPrefix, string name, string schema)
+            => annotationPrefix + schema + "." + name;
 
         public virtual string DefaultSchema
         {
@@ -41,5 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => Annotations.SetAnnotation(
                 RelationalAnnotationNames.DefaultSchema,
                 Check.NullButNotEmpty(value, nameof(value)));
+
+        ISequence IRelationalModelAnnotations.FindSequence(string name, string schema) => FindSequence(name, schema);
+        IReadOnlyList<ISequence> IRelationalModelAnnotations.Sequences => Sequences;
     }
 }

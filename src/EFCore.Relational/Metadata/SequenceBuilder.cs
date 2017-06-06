@@ -6,48 +6,48 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
-    public class RelationalSequenceBuilder
+    public class SequenceBuilder
     {
-        private readonly Sequence _sequence;
+        private readonly IMutableSequence _sequence;
 
-        public RelationalSequenceBuilder([NotNull] Sequence sequence)
+        public SequenceBuilder([NotNull] IMutableSequence sequence)
         {
             Check.NotNull(sequence, nameof(sequence));
 
             _sequence = sequence;
         }
 
-        public virtual Sequence Metadata => _sequence;
+        public virtual IMutableSequence Metadata => _sequence;
 
-        public virtual RelationalSequenceBuilder IncrementsBy(int increment)
+        public virtual SequenceBuilder IncrementsBy(int increment)
         {
             _sequence.IncrementBy = increment;
 
             return this;
         }
 
-        public virtual RelationalSequenceBuilder StartsAt(long startValue)
+        public virtual SequenceBuilder StartsAt(long startValue)
         {
             _sequence.StartValue = startValue;
 
             return this;
         }
 
-        public virtual RelationalSequenceBuilder HasMax(long maximum)
+        public virtual SequenceBuilder HasMax(long maximum)
         {
             _sequence.MaxValue = maximum;
 
             return this;
         }
 
-        public virtual RelationalSequenceBuilder HasMin(long minimum)
+        public virtual SequenceBuilder HasMin(long minimum)
         {
             _sequence.MinValue = minimum;
 
             return this;
         }
 
-        public virtual RelationalSequenceBuilder IsCyclic(bool cyclic = true)
+        public virtual SequenceBuilder IsCyclic(bool cyclic = true)
         {
             _sequence.IsCyclic = cyclic;
 

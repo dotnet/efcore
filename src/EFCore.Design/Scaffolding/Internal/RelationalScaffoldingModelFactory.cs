@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return modelBuilder;
         }
 
-        protected virtual RelationalSequenceBuilder VisitSequence([NotNull] ModelBuilder modelBuilder, [NotNull] SequenceModel sequence)
+        protected virtual SequenceBuilder VisitSequence([NotNull] ModelBuilder modelBuilder, [NotNull] SequenceModel sequence)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(sequence, nameof(sequence));

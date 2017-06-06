@@ -694,27 +694,27 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (sequence.StartValue != Sequence.DefaultStartValue)
             {
-                lines.Add($".{nameof(RelationalSequenceBuilder.StartsAt)}({sequence.StartValue})");
+                lines.Add($".{nameof(SequenceBuilder.StartsAt)}({sequence.StartValue})");
             }
 
             if (sequence.IncrementBy != Sequence.DefaultIncrementBy)
             {
-                lines.Add($".{nameof(RelationalSequenceBuilder.IncrementsBy)}({sequence.IncrementBy})");
+                lines.Add($".{nameof(SequenceBuilder.IncrementsBy)}({sequence.IncrementBy})");
             }
 
             if (sequence.MinValue != Sequence.DefaultMinValue)
             {
-                lines.Add($".{nameof(RelationalSequenceBuilder.HasMin)}({sequence.MinValue})");
+                lines.Add($".{nameof(SequenceBuilder.HasMin)}({sequence.MinValue})");
             }
 
             if (sequence.MaxValue != Sequence.DefaultMaxValue)
             {
-                lines.Add($".{nameof(RelationalSequenceBuilder.HasMax)}({sequence.MaxValue})");
+                lines.Add($".{nameof(SequenceBuilder.HasMax)}({sequence.MaxValue})");
             }
 
             if (sequence.IsCyclic != Sequence.DefaultIsCyclic)
             {
-                lines.Add($".{nameof(RelationalSequenceBuilder.IsCyclic)}()");
+                lines.Add($".{nameof(SequenceBuilder.IsCyclic)}()");
             }
 
             if (lines.Count == 2)
