@@ -651,11 +651,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            // FKs are not allowed to use properties from inherited keys since this could result in an ambiguous value space
+            // FKs are not allowed to use properties with value generation from inherited keys since this could result in an ambiguous value space
             if (dependentProperties != null
                 && dependentEntityType.BaseType != null)
             {
-                var inheritedKey = dependentProperties.SelectMany(p => p.GetContainingKeys().Where(k => k.DeclaringEntityType != dependentEntityType)).FirstOrDefault();
+                var inheritedKey = dependentProperties.Where(p => p.ValueGenerated != ValueGenerated.Never)
+                    .SelectMany(p => p.GetContainingKeys().Where(k => k.DeclaringEntityType != dependentEntityType)).FirstOrDefault();
                 if (inheritedKey != null)
                 {
                     if (shouldThrow)

@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var newKeyBuilder = entityTypeBuilder.HasKey(propertyNames, configurationSource);
 
-            newKeyBuilder?.MergeAnnotationsFrom(this);
+            newKeyBuilder?.MergeAnnotationsFrom(Metadata);
 
             return newKeyBuilder;
         }

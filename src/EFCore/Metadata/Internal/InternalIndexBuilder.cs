@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             var newIndexBuilder = entityTypeBuilder.HasIndex(properties, configurationSource);
 
-            newIndexBuilder.MergeAnnotationsFrom(this);
+            newIndexBuilder.MergeAnnotationsFrom(Metadata);
 
             var isUniqueConfigurationSource = Metadata.GetIsUniqueConfigurationSource();
             if (isUniqueConfigurationSource.HasValue)

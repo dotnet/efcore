@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return newPropertyBuilder;
             }
 
-            newPropertyBuilder.MergeAnnotationsFrom(this);
+            newPropertyBuilder.MergeAnnotationsFrom(Metadata);
 
             var oldBeforeSaveBehaviorConfigurationSource = Metadata.GetBeforeSaveBehaviorConfigurationSource();
             if (oldBeforeSaveBehaviorConfigurationSource.HasValue)

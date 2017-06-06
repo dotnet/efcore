@@ -203,6 +203,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void SetValueGenerated(ValueGenerated? valueGenerated, ConfigurationSource configurationSource)
         {
+            if (valueGenerated != null
+                && valueGenerated != ValueGenerated.Never
+                && this.IsKey())
+            {
+                var inheritedFk = GetContainingForeignKeys().FirstOrDefault(fk => fk.DeclaringEntityType.BaseType != null);
+                if (inheritedFk != null)
+                {
+                    var key = GetContainingKeys().First();
+                    throw new InvalidOperationException(
+                        CoreStrings.ForeignKeyPropertyInKey(
+                            Name,
+                            inheritedFk.DeclaringEntityType.DisplayName(),
+                            Format(key.Properties),
+                            key.DeclaringEntityType.DisplayName()));
+                }
+            }
+
             _valueGenerated = valueGenerated;
 
             if (valueGenerated == null)

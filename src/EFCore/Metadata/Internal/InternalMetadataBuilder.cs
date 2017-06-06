@@ -116,9 +116,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void MergeAnnotationsFrom([NotNull] InternalMetadataBuilder annotatableBuilder)
+        protected virtual void MergeAnnotationsFrom([NotNull] ConventionalAnnotatable annotatable)
         {
-            foreach (var annotation in annotatableBuilder.Metadata.GetAnnotations())
+            foreach (var annotation in annotatable.GetAnnotations())
             {
                 HasAnnotation(
                     annotation.Name,

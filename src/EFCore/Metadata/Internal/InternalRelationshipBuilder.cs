@@ -1920,6 +1920,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
+                if (Metadata != newRelationshipBuilder.Metadata)
+                {
+                    newRelationshipBuilder.MergeAnnotationsFrom(Metadata);
+                }
+
                 newRelationshipBuilder = batch.Run(newRelationshipBuilder);
             }
 

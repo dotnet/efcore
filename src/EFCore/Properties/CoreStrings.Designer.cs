@@ -1303,7 +1303,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 dependentEntityType, principalEntityType, entityType);
 
         /// <summary>
-        ///     The property '{property}' cannot be part of a foreign key on '{entityType}' because it is contained in the key {key} defined on a base entity type '{baseEntityType}'.
+        ///     The property '{property}' cannot be part of a foreign key on '{entityType}' because it has value generation enabled and is contained in the key {key} defined on a base entity type '{baseEntityType}'.
         /// </summary>
         public static string ForeignKeyPropertyInKey([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object key, [CanBeNull] object baseEntityType)
             => string.Format(
