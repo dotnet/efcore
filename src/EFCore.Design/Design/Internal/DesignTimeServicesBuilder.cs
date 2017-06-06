@@ -165,27 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 throw new InvalidOperationException(message);
             }
 
-            Assembly designTimeProviderAssembly;
-            try
-            {
-                designTimeProviderAssembly = Assembly.Load(new AssemblyName(providerServicesAttribute.AssemblyName));
-            }
-            catch (Exception ex)
-                when (ex is FileNotFoundException || ex is FileLoadException || ex is BadImageFormatException)
-            {
-                var message = DesignStrings.CannotFindDesignTimeProviderAssembly(providerServicesAttribute.PackageName);
-
-                if (!throwOnError)
-                {
-                    _reporter.WriteVerbose(message);
-
-                    return services;
-                }
-
-                throw new OperationException(message, ex);
-            }
-
-            var designTimeServicesType = designTimeProviderAssembly.GetType(
+            var designTimeServicesType = providerAssembly.GetType(
                 providerServicesAttribute.TypeName,
                 throwOnError: true,
                 ignoreCase: false);

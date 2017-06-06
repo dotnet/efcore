@@ -3,7 +3,4 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 
-[assembly: DesignTimeProviderServices(
-               typeName: "Microsoft.EntityFrameworkCore.Design.Internal.SqlServerDesignTimeServices",
-               assemblyName: "Microsoft.EntityFrameworkCore.SqlServer, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
-               packageName: "Microsoft.EntityFrameworkCore.SqlServer")]
+[assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.Design.Internal.SqlServerDesignTimeServices")]
