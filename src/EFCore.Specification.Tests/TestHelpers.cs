@@ -162,7 +162,8 @@ namespace Microsoft.EntityFrameworkCore
                             logged = true;
                         }
 
-                        if (enableFor == eventId.Name)
+                        if (enableFor == eventId.Name
+                            && categoryName != DbLoggerCategory.Scaffolding.Name)
                         {
                             Assert.Equal(eventId.Name, testDiagnostics.LoggedEventName);
                             if (testDiagnostics.LoggedMessage != null)
@@ -228,16 +229,14 @@ namespace Microsoft.EntityFrameworkCore
             {
                 LoggedEventName = name;
 
-                var eventData = value as EventData;
-                if (eventData != null)
-                {
-                    LoggedMessage = eventData.ToString();
+                Assert.IsAssignableFrom<EventData>(value);
 
-                    var exceptionProperty = eventData.GetType().GetTypeInfo().GetDeclaredProperty("Exception");
-                    if (exceptionProperty != null)
-                    {
-                        Assert.IsAssignableFrom<IErrorEventData>(eventData);
-                    }
+                LoggedMessage = value.ToString();
+
+                var exceptionProperty = value.GetType().GetTypeInfo().GetDeclaredProperty("Exception");
+                if (exceptionProperty != null)
+                {
+                    Assert.IsAssignableFrom<IErrorEventData>(value);
                 }
             }
 
