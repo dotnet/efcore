@@ -5,8 +5,8 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
-    public interface IScaffoldingTypeMapper
+    public interface IScaffoldingProviderCodeGenerator
     {
-        TypeScaffoldingInfo FindMapping([NotNull] string storeType, bool keyOrIndex, bool rowVersion);
+        string GenerateUseProvider([NotNull] string connectionString);
     }
 }

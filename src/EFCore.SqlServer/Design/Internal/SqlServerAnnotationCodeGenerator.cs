@@ -5,14 +5,13 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
-    public class SqlServerAnnotationRenderer : AnnotationRendererBase
+    public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     {
-        public SqlServerAnnotationRenderer([NotNull] AnnotationRendererDependencies dependencies)
+        public SqlServerAnnotationCodeGenerator([NotNull] AnnotationCodeGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -24,29 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             if (annotation.Name == RelationalAnnotationNames.DefaultSchema
                 && string.Equals("dbo", (string)annotation.Value))
-            {
-                return true;
-            }
-
-            if (annotation.Name == SqlServerDatabaseModelAnnotationNames.TypeAliases)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        public override bool IsHandledByConvention(IProperty property, IAnnotation annotation)
-        {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(annotation, nameof(annotation));
-
-            if (annotation.Name == SqlServerDatabaseModelAnnotationNames.DataTypeSchemaName)
-            {
-                return true;
-            }
-
-            if (annotation.Name == SqlServerDatabaseModelAnnotationNames.IsIdentity)
             {
                 return true;
             }

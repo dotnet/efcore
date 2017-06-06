@@ -9,38 +9,14 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerDatabaseModelFactoryTest : IClassFixture<SqlServerDatabaseModelFixture>
     {
-        [Fact]
-        public void It_reads_type_aliases_differing_only_by_schema()
-        {
-            _fixture.TestStore.ExecuteNonQuery("CREATE SCHEMA Schema1;");
-            _fixture.TestStore.ExecuteNonQuery("CREATE SCHEMA Schema2;");
-
-            var sql = @"
-CREATE TYPE [Schema1].[TestTypeAlias] FROM int NOT NULL;
-CREATE TYPE [Schema2].[TestTypeAlias] FROM datetime NOT NULL;";
-            var dbModel = CreateModel(sql);
-
-            var testTypeAlias1 = dbModel.SqlServer().TypeAliases.SingleOrDefault(kvp => kvp.Key.Contains("Schema1"));
-            Assert.NotNull(testTypeAlias1);
-            Assert.Equal("[Schema1].[TestTypeAlias]", testTypeAlias1.Key);
-            Assert.Equal("int", testTypeAlias1.Value);
-
-            var testTypeAlias2 = dbModel.SqlServer().TypeAliases.SingleOrDefault(kvp => kvp.Key.Contains("Schema2"));
-            Assert.NotNull(testTypeAlias2);
-            Assert.Equal("[Schema2].[TestTypeAlias]", testTypeAlias2.Key);
-            Assert.Equal("datetime", testTypeAlias2.Value);
-        }
-
         [Fact]
         public void It_reads_tables()
         {
@@ -290,7 +266,6 @@ CREATE TABLE [dbo].[Identities] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "")
 
             var column = Assert.Single(dbModel.Tables.Single().Columns);
             // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Equal(isIdentity, column.SqlServer().IsIdentity);
             Assert.Equal(isIdentity ? ValueGenerated.OnAdd : default(ValueGenerated?), column.ValueGenerated);
         }
 

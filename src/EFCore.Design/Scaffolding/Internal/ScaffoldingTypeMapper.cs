@@ -6,18 +6,18 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Scaffolding
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
     {
-        public ScaffoldingTypeMapper([NotNull] ScaffoldingTypeMapperDependencies dependencies)
+        public ScaffoldingTypeMapper([NotNull] IRelationalTypeMapper typeMapper)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(typeMapper, nameof(typeMapper));
 
-            Dependencies = dependencies;
+            TypeMapper = typeMapper;
         }
 
-        protected virtual ScaffoldingTypeMapperDependencies Dependencies { get; }
+        protected virtual IRelationalTypeMapper TypeMapper { get; }
 
         public virtual TypeScaffoldingInfo FindMapping(
             [NotNull] string storeType,
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             // This is because certain providers can have no type specified as a default type e.g. SQLite
             Check.NotNull(storeType, nameof(storeType));
 
-            var mapping = Dependencies.TypeMapper.FindMapping(storeType);
+            var mapping = TypeMapper.FindMapping(storeType);
             if (mapping == null)
             {
                 return null;
@@ -38,42 +38,42 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             int? scaffoldMaxLengh = null;
 
             if (mapping.ClrType == typeof(byte[])
-                && Dependencies.TypeMapper.ByteArrayMapper != null)
+                && TypeMapper.ByteArrayMapper != null)
             {
                 // Check for inference
-                var byteArrayMapping = Dependencies.TypeMapper.ByteArrayMapper.FindMapping(rowVersion, keyOrIndex, mapping.Size);
+                var byteArrayMapping = TypeMapper.ByteArrayMapper.FindMapping(rowVersion, keyOrIndex, mapping.Size);
 
                 if (byteArrayMapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
                 {
                     canInfer = true;
 
                     // Check for size
-                    var sizedMapping = Dependencies.TypeMapper.ByteArrayMapper.FindMapping(rowVersion, keyOrIndex, size: null);
+                    var sizedMapping = TypeMapper.ByteArrayMapper.FindMapping(rowVersion, keyOrIndex, size: null);
                     scaffoldMaxLengh = sizedMapping.Size != byteArrayMapping.Size ? byteArrayMapping.Size : null;
                 }
             }
             else if (mapping.ClrType == typeof(string)
-                     && Dependencies.TypeMapper.StringMapper != null)
+                     && TypeMapper.StringMapper != null)
             {
                 // Check for inference
-                var stringMapping = Dependencies.TypeMapper.StringMapper.FindMapping(mapping.IsUnicode, keyOrIndex, mapping.Size);
+                var stringMapping = TypeMapper.StringMapper.FindMapping(mapping.IsUnicode, keyOrIndex, mapping.Size);
 
                 if (stringMapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
                 {
                     canInfer = true;
 
                     // Check for unicode
-                    var unicodeMapping = Dependencies.TypeMapper.StringMapper.FindMapping(unicode: true, keyOrIndex: keyOrIndex, maxLength: mapping.Size);
+                    var unicodeMapping = TypeMapper.StringMapper.FindMapping(unicode: true, keyOrIndex: keyOrIndex, maxLength: mapping.Size);
                     scaffoldUnicode = unicodeMapping.IsUnicode != stringMapping.IsUnicode ? (bool?)stringMapping.IsUnicode : null;
 
                     // Check for size
-                    var sizedMapping = Dependencies.TypeMapper.StringMapper.FindMapping(unicode: mapping.IsUnicode, keyOrIndex: keyOrIndex, maxLength: null);
+                    var sizedMapping = TypeMapper.StringMapper.FindMapping(unicode: mapping.IsUnicode, keyOrIndex: keyOrIndex, maxLength: null);
                     scaffoldMaxLengh = sizedMapping.Size != stringMapping.Size ? stringMapping.Size : null;
                 }
             }
             else
             {
-                var defaultMapping = Dependencies.TypeMapper.GetMapping(mapping.ClrType);
+                var defaultMapping = TypeMapper.GetMapping(mapping.ClrType);
 
                 if (defaultMapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
                 {

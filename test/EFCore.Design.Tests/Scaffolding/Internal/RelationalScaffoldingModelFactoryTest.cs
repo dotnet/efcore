@@ -1008,15 +1008,16 @@ namespace Microsoft.EntityFrameworkCore
                 new FakeDatabaseModelFactory(),
                 new CandidateNamingService(),
                 pluralizer,
-                new FakeScaffoldingHelper(),
-                new CSharpUtilities())
+                new FakeScaffoldingCodeGenerator(),
+                new CSharpUtilities(),
+                new ScaffoldingTypeMapper(new TestTypeMapper(new RelationalTypeMapperDependencies())))
         {
         }
     }
 
-    public class FakeScaffoldingHelper : IScaffoldingHelper
+    public class FakeScaffoldingCodeGenerator : IScaffoldingProviderCodeGenerator
     {
-        public string GetProviderOptionsBuilder(string connectionString)
+        public string GenerateUseProvider(string connectionString)
         {
             throw new NotImplementedException();
         }
@@ -1028,9 +1029,8 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-
             var scaffoldingTypeMapper = new ScaffoldingTypeMapper(
-                new ScaffoldingTypeMapperDependencies(new TestTypeMapper(new RelationalTypeMapperDependencies())));
+                new TestTypeMapper(new RelationalTypeMapperDependencies()));
 
             return scaffoldingTypeMapper.FindMapping(columnModel.StoreType, keyOrIndex: false, rowVersion: false);
         }

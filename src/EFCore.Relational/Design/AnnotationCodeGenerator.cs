@@ -8,16 +8,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
-    public class AnnotationRendererBase : IAnnotationRenderer
+    public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     {
-        public AnnotationRendererBase([NotNull] AnnotationRendererDependencies dependencies)
+        public AnnotationCodeGenerator([NotNull] AnnotationCodeGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
         }
 
-        protected virtual AnnotationRendererDependencies Dependencies { get; }
+        protected virtual AnnotationCodeGeneratorDependencies Dependencies { get; }
 
         public virtual bool IsHandledByConvention(IModel model, IAnnotation annotation)
         {

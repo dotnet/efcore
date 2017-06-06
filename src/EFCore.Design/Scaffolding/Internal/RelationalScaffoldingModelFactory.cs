@@ -36,8 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly IDatabaseModelFactory _databaseModelFactory;
         private readonly HashSet<ColumnModel> _unmappedColumns = new HashSet<ColumnModel>();
         private readonly IPluralizer _pluralizer;
-        private readonly IScaffoldingHelper _scaffoldingHelper;
+        private readonly IScaffoldingProviderCodeGenerator _providerCodeGenerator;
         private readonly ICSharpUtilities _cSharpUtilities;
+        private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
 
         public RelationalScaffoldingModelFactory(
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
@@ -45,23 +46,27 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] ICandidateNamingService candidateNamingService,
             [NotNull] IPluralizer pluralizer,
-            [NotNull] IScaffoldingHelper scaffoldingHelper,
-            [NotNull] ICSharpUtilities cSharpUtilities)
+            [NotNull] IScaffoldingProviderCodeGenerator providerCodeGenerator,
+            [NotNull] ICSharpUtilities cSharpUtilities,
+            [NotNull] IScaffoldingTypeMapper scaffoldingTypeMapper)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(candidateNamingService, nameof(candidateNamingService));
             Check.NotNull(pluralizer, nameof(pluralizer));
+            Check.NotNull(providerCodeGenerator, nameof(providerCodeGenerator));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
+            Check.NotNull(scaffoldingTypeMapper, nameof(scaffoldingTypeMapper));
 
             Logger = logger;
             TypeMapper = typeMapper;
             CandidateNamingService = candidateNamingService;
             _databaseModelFactory = databaseModelFactory;
             _pluralizer = pluralizer;
-            _scaffoldingHelper = scaffoldingHelper;
+            _providerCodeGenerator = providerCodeGenerator;
             _cSharpUtilities = cSharpUtilities;
+            _scaffoldingTypeMapper = scaffoldingTypeMapper;
         }
 
         public virtual IModel Create(string connectionString, TableSelectionSet tableSelectionSet)
@@ -295,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(column, nameof(column));
 
-            var typeScaffoldingInfo = _scaffoldingHelper.GetTypeScaffoldingInfo(column);
+            var typeScaffoldingInfo = GetTypeScaffoldingInfo(column);
 
             if (typeScaffoldingInfo == null)
             {
@@ -314,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             property.HasColumnName(column.Name);
 
-            if (!typeScaffoldingInfo.IsInferred)
+            if (!typeScaffoldingInfo.IsInferred && !string.IsNullOrWhiteSpace(column.StoreType))
             {
                 property.HasColumnType(column.StoreType);
             }
@@ -461,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     // HasName() on the primary key.
                     var key = builder.Metadata.FindPrimaryKey();
 
-                    if (index.Name != new RelationalKeyAnnotations(key).GetDefaultName())
+                    if (index.Name != ConstraintNamer.GetDefaultName(key))
                     {
                         builder.HasKey(propertyNames).HasName(index.Name);
                     }
@@ -685,6 +690,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             existingIdentifiers.AddRange(entityType.GetNavigations().Select(p => p.Name));
             return existingIdentifiers;
+        }
+
+        protected virtual TypeScaffoldingInfo GetTypeScaffoldingInfo([NotNull] ColumnModel columnModel)
+        {
+            if (columnModel.StoreType == null)
+            {
+                return null;
+            }
+
+            var typeScaffoldingInfo = _scaffoldingTypeMapper.FindMapping(
+                columnModel.UnderlyingStoreType ?? columnModel.StoreType,
+                keyOrIndex: false,
+                rowVersion: false);
+            if (columnModel.UnderlyingStoreType != null)
+            {
+                return new TypeScaffoldingInfo(
+                    typeScaffoldingInfo.ClrType,
+                    inferred: false,
+                    scaffoldUnicode: typeScaffoldingInfo.ScaffoldUnicode,
+                    scaffoldMaxLength: typeScaffoldingInfo.ScaffoldMaxLength);
+            }
+
+            return typeScaffoldingInfo;
         }
 
         private static void AssignOnDeleteAction(
