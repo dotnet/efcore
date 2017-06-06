@@ -29,13 +29,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         public string TenantPrefix { get; set; } = "B";
 
+        private short _quantity = 50;
+
         public void ConfigureFilters(ModelBuilder modelBuilder)
         {
             // Called explictly from filter test fixtures. Code is here
             // so we can capture TenantPrefix in filter exprs (simulates OnModelCreating).
 
             modelBuilder.Entity<Customer>().HasQueryFilter(c => c.CompanyName.StartsWith(TenantPrefix));
-            modelBuilder.Entity<OrderDetail>().HasQueryFilter(od => od.Quantity > 50);
+            modelBuilder.Entity<OrderDetail>().HasQueryFilter(od => EF.Property<short>(od, "Quantity") > _quantity);
             modelBuilder.Entity<Employee>().HasQueryFilter(e => e.Address.StartsWith("A"));
             modelBuilder.Entity<Product>().HasQueryFilter(p => ClientMethod(p));
         }

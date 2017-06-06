@@ -188,9 +188,11 @@ ORDER BY [p].[ProductID]",
                 @"SELECT [p1].[ProductID], [p1].[Discontinued], [p1].[ProductName], [p1].[UnitPrice], [p1].[UnitsInStock]
 FROM [Products] AS [p1]",
                 //
-                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+                @"@___quantity_0='50'
+
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE [o].[Quantity] > 50");
+WHERE [o].[Quantity] > @___quantity_0");
         }
 
         public override void Navs_query()
@@ -198,7 +200,8 @@ WHERE [o].[Quantity] > 50");
             base.Navs_query();
 
             AssertSql(
-                @"@__TenantPrefix_0='B' (Size = 4000)
+                @"@___quantity_1='50'
+@__TenantPrefix_0='B' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -206,7 +209,7 @@ INNER JOIN [Orders] AS [c.Orders] ON [c].[CustomerID] = [c.Orders].[CustomerID]
 INNER JOIN (
     SELECT [o].*
     FROM [Order Details] AS [o]
-    WHERE [o].[Quantity] > 50
+    WHERE [o].[Quantity] > @___quantity_1
 ) AS [t] ON [c.Orders].[OrderID] = [t].[OrderID]
 WHERE (([c].[CompanyName] LIKE @__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyName], LEN(@__TenantPrefix_0)) = @__TenantPrefix_0)) OR (@__TenantPrefix_0 = N'')) AND ([t].[Discount] < 10E0)");
         }
