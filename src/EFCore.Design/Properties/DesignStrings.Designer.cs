@@ -235,14 +235,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name);
 
         /// <summary>
-        ///     Unable to find design-time provider assembly. Please install the {designTimeProviderAssemblyName} NuGet package and ensure that the package is referenced by the project.
-        /// </summary>
-        public static string CannotFindDesignTimeProviderAssembly([CanBeNull] object designTimeProviderAssemblyName)
-            => string.Format(
-                GetString("CannotFindDesignTimeProviderAssembly", nameof(designTimeProviderAssemblyName)),
-                designTimeProviderAssemblyName);
-
-        /// <summary>
         ///     Unable to find expected assembly attribute named {attributeName} in provider assembly {runtimeProviderAssemblyName}. This attribute is required to identify the class which acts as the design-time service provider factory.
         /// </summary>
         public static string CannotFindDesignTimeProviderAssemblyAttribute([CanBeNull] object attributeName, [CanBeNull] object runtimeProviderAssemblyName)

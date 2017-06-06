@@ -21,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             Assert.NotNull(dtType);
 
             Assert.NotNull(dtAttribute);
-            Assert.Equal(dtType.GetTypeInfo().Assembly.GetName().FullName, dtAttribute.AssemblyName);
             Assert.Equal(dtType.FullName, dtAttribute.TypeName);
         }
     }
