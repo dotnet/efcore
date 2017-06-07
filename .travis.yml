@@ -23,14 +23,9 @@ before_install:
 script:
   - ./build.sh
 after_failure:
-  - ls
-  - find / -iname MSBuild_* 2>/dev/null 
-  - ls -al /tmp/* 
-  - ls /var/tmp/* 
-  - cat /tmp/MSBuild_*.failure.txt 
-  - cat /var/tmp/MSBuild_*.failure.txt 
   - cat /tmp/*.txt 
   - cat /tmp/msbuild/*.txt 
+  - cat msbuild.log
 after_success: 
   - ls -al /tmp/* 
   - cat /tmp/*.txt 
