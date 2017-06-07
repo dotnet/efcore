@@ -292,17 +292,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Determines whether or not this SelectExpression handles the given query source.
         /// </summary>
         /// <param name="querySource"> The query source. </param>
+        /// <param name="queryForOuterParameterBinding"> True if trying to bind to the query using outer paramter, otherwise false. </param>
         /// <returns>
         ///     true if the supplied query source is handled by this SelectExpression; otherwise false.
         /// </returns>
-        public override bool HandlesQuerySource(IQuerySource querySource)
+        public override bool HandlesQuerySource(IQuerySource querySource, bool queryForOuterParameterBinding = false)
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            var processedQuerySource = PreProcessQuerySource(querySource);
+            var processedQuerySource = PreProcessQuerySource(querySource, queryForOuterParameterBinding);
 
-            return _tables.Any(te => te.QuerySource == processedQuerySource || te.HandlesQuerySource(processedQuerySource))
-                   || base.HandlesQuerySource(querySource);
+            return _tables.Any(te => te.QuerySource == processedQuerySource || te.HandlesQuerySource(processedQuerySource, queryForOuterParameterBinding))
+                   || base.HandlesQuerySource(querySource, queryForOuterParameterBinding);
         }
 
         /// <summary>

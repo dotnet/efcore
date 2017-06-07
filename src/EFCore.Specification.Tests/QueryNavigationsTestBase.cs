@@ -1035,6 +1035,150 @@ namespace Microsoft.EntityFrameworkCore
                 entryCount: 31);
         }
 
+        [ConditionalFact(Skip = "issue #8754")]
+        public virtual void Client_groupjoin_with_orderby_key_descending()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from c in ctx.Customers
+                            join o in ctx.Orders on c.CustomerID equals o.CustomerID into grouping
+                            where c.CustomerID.StartsWith("A")
+                            orderby c.CustomerID descending
+                            select grouping.Count();
+
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Navigation_projection_on_groupjoin_qsre()
+        {
+            AssertQuery<Customer, Order, object>(
+                (cs, os) => from c in cs
+                            join o in os on c.CustomerID equals o.CustomerID into grouping
+                            where c.CustomerID == "ALFKI"
+                            select new { c, G = grouping.Select(o => o.OrderDetails).ToList() },
+                asserter: (l2oItems, efItems) =>
+                    {
+                        var l2oResults = l2oItems.Cast<dynamic>().ToList();
+                        var efResults = efItems.Cast<dynamic>().ToList();
+
+                        Assert.Equal(l2oResults.Count, efResults.Count);
+                        for (var i = 0; i < l2oResults.Count; i++)
+                        {
+                            var l2oResult = l2oResults[i];
+                            var efResult = efResults[i];
+
+                            Assert.Equal(l2oResult.c.CustomerID, efResult.c.CustomerID);
+                            Assert.Equal(l2oResult.G.Count, efResult.G.Count);
+                        }
+                    },
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Navigation_projection_on_groupjoin_qsre_no_outer_in_final_result()
+        {
+            AssertQuery<Customer, Order, object>(
+                (cs, os) => from c in cs
+                            join o in os on c.CustomerID equals o.CustomerID into grouping
+                            where c.CustomerID == "ALFKI"
+                            select grouping.Select(o => o.OrderDetails).ToList(),
+                asserter: (l2oItems, efItems) =>
+                    {
+                        var l2oResults = l2oItems.Cast<dynamic>().ToList();
+                        var efResults = efItems.Cast<dynamic>().ToList();
+
+                        Assert.Equal(l2oResults.Count, efResults.Count);
+                        for (var i = 0; i < l2oResults.Count; i++)
+                        {
+                            var l2oResult = l2oResults[i];
+                            var efResult = efResults[i];
+
+                            Assert.Equal(l2oResult.Count, efResult.Count);
+                        }
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void Navigation_projection_on_groupjoin_qsre_with_empty_grouping()
+        {
+            var anatrsOrders = new[] { 10308, 10625, 10759, 10926 };
+
+            AssertQuery<Customer, Order, object>(
+                (cs, os) => from c in cs
+                            join o in os.Where(oo => !anatrsOrders.Contains(oo.OrderID)) on c.CustomerID equals o.CustomerID into grouping
+                            where c.CustomerID.StartsWith("A")
+                            select new { c, G = grouping.Select(o => o.OrderDetails).ToList() },
+                asserter: (l2oItems, efItems) =>
+                        {
+                            var l2oResults = l2oItems.Cast<dynamic>().ToList();
+                            var efResults = efItems.Cast<dynamic>().ToList();
+
+                            for (var i = 0; i < l2oResults.Count; i++)
+                            {
+                                var l2oResult = l2oResults[i];
+                                var efResult = efResults[i];
+
+                                Assert.Equal(l2oResult.c.CustomerID, efResult.c.CustomerID);
+                                Assert.Equal(l2oResult.G.Count, efResult.G.Count);
+                            }
+                        },
+                entryCount: 4);
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_inner_projecting_groupjoin()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from c in ctx.Customers
+                            join o in ctx.Orders.Include(oo => oo.OrderDetails) on c.CustomerID equals o.CustomerID into grouping
+                            where c.CustomerID == "ALFKI"
+                            select grouping.ToList();
+
+                var result = query.ToList();
+                Assert.Equal(1, result.Count);
+                foreach (var order in result[0])
+                {
+                    Assert.True(order.OrderDetails.Count() > 0);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_inner_projecting_groupjoin_complex()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from c in ctx.Customers
+                            join o in ctx.Orders.Include(oo => oo.OrderDetails).ThenInclude(od => od.Product) on c.CustomerID equals o.CustomerID into grouping
+                            where c.CustomerID == "ALFKI"
+                            select grouping.ToList();
+
+                var result = query.ToList();
+                Assert.Equal(1, result.Count);
+                foreach (var order in result[0])
+                {
+                    Assert.True(order.OrderDetails.Count() > 0);
+                    foreach (var detail in order.OrderDetails)
+                    {
+                        Assert.NotNull(detail.Product);
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Group_join_doesnt_get_bound_directly_to_group_join_qsre()
+        {
+            AssertQuery<Customer, Order, object>(
+                (cs, os) => from c in cs
+                            join o in os on c.CustomerID equals o.CustomerID into grouping
+                            where c.CustomerID.StartsWith("A")
+                            select new { G = grouping.Count() });
+        }
+
         protected QueryNavigationsTestBase(TFixture fixture)
         {
             Fixture = fixture;

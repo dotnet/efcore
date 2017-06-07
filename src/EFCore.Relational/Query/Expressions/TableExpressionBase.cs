@@ -4,9 +4,10 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
@@ -82,21 +83,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Determines whether or not this TableExpressionBase handles the given query source.
         /// </summary>
         /// <param name="querySource"> The query source. </param>
+        /// <param name="queryForOuterParameterBinding"> True if trying to bind to the query using outer paramter, otherwise false. </param>
         /// <returns>
         ///     true if the supplied query source is handled by this TableExpressionBase; otherwise false.
         /// </returns>
-        public virtual bool HandlesQuerySource([NotNull] IQuerySource querySource)
+        public virtual bool HandlesQuerySource([NotNull] IQuerySource querySource, bool queryForOuterParameterBinding = false)
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            return _querySource == PreProcessQuerySource(querySource);
+            return _querySource == PreProcessQuerySource(querySource, queryForOuterParameterBinding);
         }
 
-        protected virtual IQuerySource PreProcessQuerySource([NotNull] IQuerySource querySource)
+        protected virtual IQuerySource PreProcessQuerySource([NotNull] IQuerySource querySource, bool queryForOuterParameterBinding)
         {
             Check.NotNull(querySource, nameof(querySource));
 
             var newQuerySource = (querySource as AdditionalFromClause)?.TryGetFlattenedGroupJoinClause() ?? querySource;
+
+            if (queryForOuterParameterBinding)
+            {
+                // if processing query source for binding via outer parameter, we can match more loosely, e.g. we can bind to groupjoin qsre
+                newQuerySource = ((newQuerySource as MainFromClause)?.FromExpression as QuerySourceReferenceExpression)?.ReferencedQuerySource ?? newQuerySource;
+            }
 
             return (newQuerySource as GroupJoinClause)?.JoinClause ?? newQuerySource;
         }

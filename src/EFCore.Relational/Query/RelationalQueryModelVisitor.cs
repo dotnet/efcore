@@ -244,16 +244,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Try and get the active SelectExpression for a given query source.
         /// </summary>
         /// <param name="querySource"> The query source. </param>
+        /// <param name="queryForOuterParameterBinding"> True if trying to bind to the query using outer paramter, otherwise false. </param>
         /// <returns>
         ///     A SelectExpression, or null.
         /// </returns>
-        public virtual SelectExpression TryGetQuery([NotNull] IQuerySource querySource)
+        public virtual SelectExpression TryGetQuery([NotNull] IQuerySource querySource, bool queryForOuterParameterBinding = false)
         {
             Check.NotNull(querySource, nameof(querySource));
 
             return QueriesBySource.TryGetValue(querySource, out SelectExpression selectExpression)
                 ? selectExpression
-                : QueriesBySource.Values.LastOrDefault(se => se.HandlesQuerySource(querySource));
+                : QueriesBySource.Values.LastOrDefault(se => se.HandlesQuerySource(querySource, queryForOuterParameterBinding));
         }
 
         /// <summary>
@@ -1972,13 +1973,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (querySource != null && _canBindPropertyToOuterParameter)
             {
                 var outerQueryModelVisitor = ParentQueryModelVisitor;
-                var outerSelectExpression = outerQueryModelVisitor?.TryGetQuery(querySource);
+                var outerSelectExpression = outerQueryModelVisitor?.TryGetQuery(querySource, queryForOuterParameterBinding: true);
 
                 while (outerSelectExpression == null
                        && outerQueryModelVisitor != null)
                 {
                     outerQueryModelVisitor = outerQueryModelVisitor.ParentQueryModelVisitor;
-                    outerSelectExpression = outerQueryModelVisitor?.TryGetQuery(querySource);
+                    outerSelectExpression = outerQueryModelVisitor?.TryGetQuery(querySource, queryForOuterParameterBinding: true);
                 }
 
                 if (outerSelectExpression != null)
