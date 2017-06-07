@@ -48,9 +48,11 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(_functions.Like("ABC", "a_c"));
             Assert.True(_functions.Like("ABC ", "a_c"));
             Assert.True(_functions.Like("ABC ", "%%%"));
+            Assert.True(_functions.Like("a\\b", "a\\_"));
 
             Assert.False(_functions.Like("ABC", "__"));
             Assert.False(_functions.Like("ab", "___"));
+            Assert.False(_functions.Like("a_", "a\\_"));
         }
 
         [Fact]
