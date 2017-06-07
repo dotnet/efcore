@@ -23,6 +23,7 @@ before_install:
 script:
   - ./build.sh
 after_failure:
+  - ls
   - find / -iname MSBuild_* 2>/dev/null 
   - ls -al /tmp/* 
   - ls /var/tmp/* 
