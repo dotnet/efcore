@@ -1,6 +1,6 @@
 Entity Framework Core
 =====================
-
+ 
 Documentation on using EF Core is available at <https://docs.microsoft.com/ef/>.
 
 [![Travis build status](https://img.shields.io/travis/aspnet/EntityFramework.svg?label=travis-ci&branch=dev&style=flat-square)](https://travis-ci.org/aspnet/EntityFramework/branches)
