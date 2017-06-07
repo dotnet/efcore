@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _valueBufferFactory = _shaperCommandContext.ValueBufferFactory;
                     }
 
-                    var hasNext = await _dbDataReader.ReadAsync(cancellationToken);
+                    var hasNext = await _dataReader.ReadAsync(cancellationToken);
 
                     Current
                         = hasNext
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     using (_dataReader)
                     {
-                        while (await _dbDataReader.ReadAsync(cancellationToken))
+                        while (await _dataReader.ReadAsync(cancellationToken))
                         {
                             _buffer.Enqueue(_valueBufferFactory.Create(_dbDataReader));
                         }
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     using (_dataReader)
                     {
-                        while (_dbDataReader.Read())
+                        while (_dataReader.Read())
                         {
                             _buffer.Enqueue(_valueBufferFactory.Create(_dbDataReader));
                         }

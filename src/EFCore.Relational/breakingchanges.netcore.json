@@ -3164,5 +3164,55 @@
     "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
     "MemberId": "public static System.String GetDefaultIndexName(System.String tableName, System.Collections.Generic.IEnumerable<System.String> propertyNames)",
     "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch : Microsoft.EntityFrameworkCore.Update.ModificationCommandBatch",
+    "MemberId": "protected abstract System.Threading.Tasks.Task ConsumeAsync(System.Data.Common.DbDataReader reader, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch : Microsoft.EntityFrameworkCore.Update.ModificationCommandBatch",
+    "MemberId": "protected abstract System.Void Consume(System.Data.Common.DbDataReader reader)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch : Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch",
+    "MemberId": "protected override System.Threading.Tasks.Task ConsumeAsync(System.Data.Common.DbDataReader reader, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch : Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch",
+    "MemberId": "protected override System.Void Consume(System.Data.Common.DbDataReader reader)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch : Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch",
+    "MemberId": "protected virtual System.Int32 ConsumeResultSetWithoutPropagation(System.Int32 commandIndex, System.Data.Common.DbDataReader reader)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch : Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch",
+    "MemberId": "protected virtual System.Int32 ConsumeResultSetWithPropagation(System.Int32 commandIndex, System.Data.Common.DbDataReader reader)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch : Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch",
+    "MemberId": "protected virtual System.Threading.Tasks.Task<System.Int32> ConsumeResultSetWithoutPropagationAsync(System.Int32 commandIndex, System.Data.Common.DbDataReader reader, System.Threading.CancellationToken cancellationToken)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch : Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch",
+    "MemberId": "protected virtual System.Threading.Tasks.Task<System.Int32> ConsumeResultSetWithPropagationAsync(System.Int32 commandIndex, System.Data.Common.DbDataReader reader, System.Threading.CancellationToken cancellationToken)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch : Microsoft.EntityFrameworkCore.Update.ModificationCommandBatch",
+    "MemberId": "protected abstract System.Threading.Tasks.Task ConsumeAsync(Microsoft.EntityFrameworkCore.Storage.RelationalDataReader reader, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch : Microsoft.EntityFrameworkCore.Update.ModificationCommandBatch",
+    "MemberId": "protected abstract System.Void Consume(Microsoft.EntityFrameworkCore.Storage.RelationalDataReader reader)",
+    "Kind": "Addition"
   }
 ]

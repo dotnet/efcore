@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     connection,
                     parameterValues: storeCommand.ParameterValues))
                 {
-                    Consume(dataReader.DbDataReader);
+                    Consume(dataReader);
                 }
             }
             catch (DbUpdateException)
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     parameterValues: storeCommand.ParameterValues,
                     cancellationToken: cancellationToken))
                 {
-                    await ConsumeAsync(dataReader.DbDataReader, cancellationToken);
+                    await ConsumeAsync(dataReader, cancellationToken);
                 }
             }
             catch (DbUpdateException)
@@ -213,10 +213,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
-        protected abstract void Consume([NotNull] DbDataReader reader);
+        protected abstract void Consume([NotNull] RelationalDataReader reader);
 
         protected abstract Task ConsumeAsync(
-            [NotNull] DbDataReader reader,
+            [NotNull] RelationalDataReader reader,
             CancellationToken cancellationToken = default(CancellationToken));
 
         protected virtual IRelationalValueBufferFactory CreateValueBufferFactory([NotNull] IReadOnlyList<ColumnModification> columnModifications)

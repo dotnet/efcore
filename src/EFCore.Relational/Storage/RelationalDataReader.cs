@@ -4,11 +4,11 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -32,6 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly DateTimeOffset _startTime;
         private readonly Stopwatch _stopwatch;
 
+        private int _readCount;
+        
         private bool _disposed;
 
         /// <summary>
@@ -66,15 +68,41 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected RelationalDataReader()
+        protected RelationalDataReader([NotNull] DbDataReader reader)
         {
             // For testing
+
+            Check.NotNull(reader, nameof(reader));
+
+            _reader = reader;
         }
 
         /// <summary>
         ///     Gets the underlying reader for the result set.
         /// </summary>
         public virtual DbDataReader DbDataReader => _reader;
+
+        /// <summary>
+        ///     Calls Read on the underlying DbDataReader.
+        /// </summary>
+        /// <returns>true if there are more rows; otherwise false.</returns>
+        public virtual bool Read()
+        {
+            _readCount++;
+
+            return _reader.Read();
+        }
+
+        /// <summary>
+        ///     Calls Read on the underlying DbDataReader.
+        /// </summary>
+        /// <returns>true if there are more rows; otherwise false.</returns>
+        public virtual Task<bool> ReadAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            _readCount++;
+            
+            return _reader.ReadAsync(cancellationToken);
+        }
 
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -89,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _reader,
                     _commandId,
                     _reader.RecordsAffected,
+                    _readCount,
                     _startTime,
                     _stopwatch.Elapsed);
 

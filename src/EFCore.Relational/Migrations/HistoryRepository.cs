@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 using (var reader = command.ExecuteReader(Dependencies.Connection))
                 {
-                    while (reader.DbDataReader.Read())
+                    while (reader.Read())
                     {
                         rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
                     }
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 using (var reader = await command.ExecuteReaderAsync(Dependencies.Connection, cancellationToken: cancellationToken))
                 {
-                    while (await reader.DbDataReader.ReadAsync(cancellationToken))
+                    while (await reader.ReadAsync(cancellationToken))
                     {
                         rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
                     }

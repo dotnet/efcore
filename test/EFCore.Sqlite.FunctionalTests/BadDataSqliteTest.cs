@@ -183,17 +183,13 @@ namespace Microsoft.EntityFrameworkCore
 
                     public override RelationalDataReader ExecuteReader(
                             IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
-                        => new BadDataRelationalDataReader(base.ExecuteReader(connection, parameterValues), _values);
+                        => new BadDataRelationalDataReader(_values);
 
                     private class BadDataRelationalDataReader : RelationalDataReader
                     {
-                        private readonly RelationalDataReader _relationalDataReader;
-                        private readonly BadDataDataReader _dataReader;
-
-                        public BadDataRelationalDataReader(RelationalDataReader relationalDataReader, object[] values)
+                        public BadDataRelationalDataReader(object[] values)
+                            : base(new BadDataDataReader(values))
                         {
-                            _relationalDataReader = relationalDataReader;
-                            _dataReader = new BadDataDataReader(values);
                         }
 
                         private class BadDataDataReader : DbDataReader
@@ -232,45 +228,24 @@ namespace Microsoft.EntityFrameworkCore
                                 throw new NotImplementedException();
                             }
 
-                            public override int FieldCount
-                            {
-                                get { throw new NotImplementedException(); }
-                            }
+                            public override int FieldCount => throw new NotImplementedException();
 
-                            public override object this[int ordinal]
-                            {
-                                get { throw new NotImplementedException(); }
-                            }
+                            public override object this[int ordinal] => throw new NotImplementedException();
 
-                            public override object this[string name]
-                            {
-                                get { throw new NotImplementedException(); }
-                            }
+                            public override object this[string name] => throw new NotImplementedException();
 
-                            public override bool HasRows
-                            {
-                                get { throw new NotImplementedException(); }
-                            }
+                            public override bool HasRows => throw new NotImplementedException();
 
-                            public override bool IsClosed
-                            {
-                                get { throw new NotImplementedException(); }
-                            }
+                            public override bool IsClosed => throw new NotImplementedException();
 
-                            public override int RecordsAffected
-                            {
-                                get { throw new NotImplementedException(); }
-                            }
+                            public override int RecordsAffected => throw new NotImplementedException();
 
                             public override bool NextResult()
                             {
                                 throw new NotImplementedException();
                             }
 
-                            public override int Depth
-                            {
-                                get { throw new NotImplementedException(); }
-                            }
+                            public override int Depth => throw new NotImplementedException();
 
                             public override int GetOrdinal(string name)
                             {
@@ -344,10 +319,6 @@ namespace Microsoft.EntityFrameworkCore
 
                             #endregion
                         }
-
-                        public override DbDataReader DbDataReader => _dataReader;
-
-                        public override void Dispose() => _relationalDataReader.Dispose();
                     }
                 }
             }

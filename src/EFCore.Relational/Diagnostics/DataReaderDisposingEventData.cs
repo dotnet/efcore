@@ -33,6 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="recordsAffected">
         ///     Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.
         /// </param>
+        /// <param name="readCount">
+        ///     Gets the number of read operations performed by this reader.
+        /// </param>
         /// <param name="startTime">
         ///     The start time of this event.
         /// </param>
@@ -47,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid commandId,
             Guid connectionId,
             int recordsAffected,
+            int readCount,
             DateTimeOffset startTime,
             TimeSpan duration)
             : base(eventDefinition, messageGenerator)
@@ -56,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandId = commandId;
             ConnectionId = connectionId;
             RecordsAffected = recordsAffected;
+            ReadCount = readCount;
             StartTime = startTime;
             Duration = duration;
         }
@@ -84,6 +89,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.
         /// </summary>
         public virtual int RecordsAffected { get; }
+
+        /// <summary>
+        ///     Gets the number of read operations performed by this reader.
+        /// </summary>
+        public virtual int ReadCount { get; }
 
         /// <summary>
         ///     The start time of this event.

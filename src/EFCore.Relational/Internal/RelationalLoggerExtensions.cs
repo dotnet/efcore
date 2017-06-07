@@ -684,6 +684,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] DbDataReader dataReader,
             Guid commandId,
             int recordsAffected,
+            int readCount,
             DateTimeOffset startTime,
             TimeSpan duration)
         {
@@ -703,6 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         commandId,
                         connection.ConnectionId,
                         recordsAffected,
+                        readCount,
                         startTime,
                         duration));
             }
