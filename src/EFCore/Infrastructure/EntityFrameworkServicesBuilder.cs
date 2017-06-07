@@ -257,6 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<EntityQueryModelVisitorDependencies>()
                 .AddDependencyScoped<DatabaseDependencies>()
                 .AddDependencyScoped<ModelCustomizerDependencies>()
+                .AddDependencyScoped<CoreTypeMapperDependencies>()
                 .AddDependencyScoped<ModelCacheKeyFactoryDependencies>()
                 .AddDependencyScoped<QueryCompilationContextDependencies>()
                 .ServiceCollection.AddMemoryCache();

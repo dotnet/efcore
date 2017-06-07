@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     new Model(
                         new CoreConventionSetBuilder(
                                 new CoreConventionSetBuilderDependencies(
-                                    new CoreTypeMapper()))
+                                    new CoreTypeMapper(new CoreTypeMapperDependencies())))
                             .CreateConventionSet()));
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);

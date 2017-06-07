@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
 
-            new PropertyDiscoveryConvention(new CoreTypeMapper()).Apply(entityBuilder);
+            new PropertyDiscoveryConvention(new CoreTypeMapper(new CoreTypeMapperDependencies())).Apply(entityBuilder);
 
             return entityBuilder;
         }

@@ -3,11 +3,17 @@
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
+        protected override void AddServices(ServiceCollection serviceCollection)
+        {
+            serviceCollection.AddEntityFrameworkInMemoryDatabase();
+        }
+
         protected override Assembly TargetAssembly => typeof(InMemoryDatabase).GetTypeInfo().Assembly;
     }
 }

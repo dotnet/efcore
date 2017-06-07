@@ -8,6 +8,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable StringEndsWithIsCultureSpecific
@@ -21,6 +23,41 @@ namespace Microsoft.EntityFrameworkCore
 
         protected const BindingFlags AnyInstance
             = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        
+        [Fact]
+        public void Service_implementations_should_use_dependencies_parameter_object()
+        {
+            var serviceCollection = new ServiceCollection();
+
+            AddServices(serviceCollection);
+
+            var badServiceTypes
+                = (from sd in serviceCollection
+                   where sd.ServiceType.Namespace.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
+                         && sd.ServiceType != typeof(IDiagnosticsLogger<>)
+                   let it = TryGetImplementationType(sd)
+                   where !it.IsInterface
+                   let ns = it.Namespace
+                   where ns.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
+                         && !ns.EndsWith(".Internal", StringComparison.Ordinal)
+                         && !it.Name.EndsWith("Dependencies", StringComparison.Ordinal)
+                         && (it.GetConstructors().Length != 1
+                             || it.GetConstructors()[0].GetParameters().Length == 0
+                             || it.GetConstructors()[0].GetParameters()[0].Name != "dependencies")
+                   select it)
+                .ToList();
+
+            Assert.False(
+                badServiceTypes.Any(),
+                "\r\n-- Missing or bad dependencies parameter object --\r\n" + string.Join(Environment.NewLine, badServiceTypes));
+        }
+
+        protected abstract void AddServices(ServiceCollection serviceCollection);
+
+        private static Type TryGetImplementationType(ServiceDescriptor descriptor)
+            => descriptor.ImplementationType
+               ?? descriptor.ImplementationInstance?.GetType()
+               ?? descriptor.ImplementationFactory?.GetType().GetTypeInfo().GenericTypeArguments[1];
 
         [Fact]
         public void Public_inheritable_apis_should_be_virtual()
@@ -148,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore
                     from method in type.GetTypeInfo().DeclaredMethods
                     where !method.IsPrivate
                     from parameter in method.GetParameters()
-                    where (parameter.ParameterType.UnwrapNullableType() == typeof(bool))
+                    where parameter.ParameterType.UnwrapNullableType() == typeof(bool)
                           && prefixes.Any(parameter.Name.StartsWith)
                     select $"{type.FullName}.{method.Name}[{parameter.Name}]")
                 .ToList();

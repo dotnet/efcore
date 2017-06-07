@@ -4,14 +4,21 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
+        protected override void AddServices(ServiceCollection serviceCollection)
+        {
+            new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
+        }
+
         public class SampleEntity
         {
         }
@@ -42,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore
                 = from type in GetAllTypes(fluentApiTypes)
                   where type.GetTypeInfo().IsVisible
                   from method in type.GetMethods(PublicInstance)
-                  where (method.DeclaringType == type)
-                        && (method.ReturnType == typeof(void))
+                  where method.DeclaringType == type
+                        && method.ReturnType == typeof(void)
                   select type.Name + "." + method.Name;
 
             Assert.Equal("", string.Join(Environment.NewLine, voidMethods));

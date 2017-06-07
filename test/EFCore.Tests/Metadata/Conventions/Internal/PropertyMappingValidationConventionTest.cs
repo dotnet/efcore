@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         protected virtual PropertyMappingValidationConvention CreateConvention() 
-            => new PropertyMappingValidationConvention(new CoreTypeMapper());
+            => new PropertyMappingValidationConvention(new CoreTypeMapper(new CoreTypeMapperDependencies()));
 
         protected class NonPrimitiveAsPropertyEntity
         {

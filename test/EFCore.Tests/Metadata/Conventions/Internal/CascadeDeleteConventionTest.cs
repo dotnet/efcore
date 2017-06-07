@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static ModelBuilder CreateModelBuilder()
             => new ModelBuilder(
                 new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(new CoreTypeMapper()))
+                        new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies())))
                     .CreateConventionSet());
     }
 }

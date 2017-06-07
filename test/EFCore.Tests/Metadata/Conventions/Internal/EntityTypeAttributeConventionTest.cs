@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = new ModelBuilder(
                 new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(new CoreTypeMapper()))
+                        new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies())))
                     .CreateConventionSet());
 
             modelBuilder.Entity<B>();

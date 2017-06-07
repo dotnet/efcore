@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -12,6 +13,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class CoreTypeMapper : ITypeMapper
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="CoreTypeMapper" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public CoreTypeMapper([NotNull] CoreTypeMapperDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+        }
+
         /// <summary>
         ///     Gets a value indicating whether the given .NET type is mapped.
         /// </summary>

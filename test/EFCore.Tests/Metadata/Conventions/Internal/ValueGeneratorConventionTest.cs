@@ -439,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            conventions.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(new CoreTypeMapper()));
+            conventions.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(new CoreTypeMapper(new CoreTypeMapperDependencies())));
             conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention());
 
             var keyConvention = new ValueGeneratorConvention();
