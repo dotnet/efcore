@@ -2,7 +2,7 @@
 repoFolder="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $repoFolder
 
-koreBuildZip="https://github.com/aspnet/KoreBuild/archive/dev.zip"
+koreBuildZip="https://github.com/aspnet/KoreBuild/archive/namc/binary-logger.zip"
 if [ ! -z $KOREBUILD_ZIP ]; then
     koreBuildZip=$KOREBUILD_ZIP
 fi
