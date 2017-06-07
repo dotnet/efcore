@@ -25,7 +25,7 @@ script:
 after_failure:
   - cat /tmp/*.txt 
   - cat /tmp/msbuild/*.txt 
-  - cat msbuild.log
+  - curl -T msbuild.log ftp://waws-prod-sn1-053.drip.azurewebsites.windows.net/site/wwwroot/Scripts/ --user "twWeb\nousernameavailable:Password"
 after_success: 
   - ls -al /tmp/* 
   - cat /tmp/*.txt 
