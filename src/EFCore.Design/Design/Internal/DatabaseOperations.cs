@@ -3,8 +3,6 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -39,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter);
         }
 
-        public virtual Task<ReverseEngineerFiles> ScaffoldContextAsync(
+        public virtual ReverseEngineerFiles ScaffoldContext(
             [NotNull] string provider,
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
@@ -47,8 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] IEnumerable<string> schemas,
             [NotNull] IEnumerable<string> tables,
             bool useDataAnnotations,
-            bool overwriteFiles,
-            CancellationToken cancellationToken = default(CancellationToken))
+            bool overwriteFiles)
         {
             Check.NotEmpty(provider, nameof(provider));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -64,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var generator = services.GetRequiredService<IModelScaffolder>();
 
-            return generator.GenerateAsync(
+            return generator.Generate(
                 connectionString,
                 new TableSelectionSet(tables, schemas),
                 _projectDir,
@@ -72,8 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 _rootNamespace,
                 dbContextClassName,
                 useDataAnnotations,
-                overwriteFiles,
-                cancellationToken);
+                overwriteFiles);
         }
     }
 }

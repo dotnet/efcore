@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -24,13 +22,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] string dbContextClassName,
             [NotNull] IEnumerable<IEntityType> entityTypes);
 
-        Task<ReverseEngineerFiles> WriteCodeAsync(
+        ReverseEngineerFiles WriteCode(
             [NotNull] IModel model,
             [NotNull] string outputPath,
             [NotNull] string @namespace,
             [NotNull] string contextName,
             [NotNull] string connectionString,
-            bool dataAnnotations,
-            CancellationToken cancellationToken = default(CancellationToken));
+            bool dataAnnotations);
     }
 }
