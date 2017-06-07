@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
-    public sealed class AnnotationRendererDependencies
+    public sealed class AnnotationCodeGeneratorDependencies
     {
     }
 }

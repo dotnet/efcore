@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private const string EntityLambdaIdentifier = "entity";
 
         private readonly ICSharpUtilities _cSharpUtilities;
-        private readonly IScaffoldingHelper _scaffoldingHelper;
-        private readonly IAnnotationRenderer _annotationRenderer;
+        private readonly IScaffoldingProviderCodeGenerator _providerCodeGenerator;
+        private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
         private IndentedStringBuilder _sb;
         private bool _entityTypeBuilderInitialized;
 
@@ -35,16 +35,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public CSharpDbContextGenerator(
-            [NotNull] IScaffoldingHelper scaffoldingHelper,
-            [NotNull] IAnnotationRenderer annotationRenderer,
+            [NotNull] IScaffoldingProviderCodeGenerator providerCodeGenerator,
+            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator,
             [NotNull] ICSharpUtilities cSharpUtilities)
         {
-            Check.NotNull(scaffoldingHelper, nameof(scaffoldingHelper));
-            Check.NotNull(annotationRenderer, nameof(annotationRenderer));
+            Check.NotNull(providerCodeGenerator, nameof(providerCodeGenerator));
+            Check.NotNull(annotationCodeGenerator, nameof(annotationCodeGenerator));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
 
-            _scaffoldingHelper = scaffoldingHelper;
-            _annotationRenderer = annotationRenderer;
+            _providerCodeGenerator = providerCodeGenerator;
+            _annotationCodeGenerator = annotationCodeGenerator;
             _cSharpUtilities = cSharpUtilities;
         }
 
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     _sb.AppendLine("#warning " + DesignStrings.SensitiveInformationWarning);
 
-                    _sb.AppendLine($"optionsBuilder{_scaffoldingHelper.GetProviderOptionsBuilder(connectionString)};");
+                    _sb.AppendLine($"optionsBuilder{_providerCodeGenerator.GenerateUseProvider(connectionString)};");
                 }
 
                 _sb.AppendLine("}");
@@ -164,13 +164,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var annotation in annotations)
             {
-                if (_annotationRenderer.IsHandledByConvention(model, annotation))
+                if (_annotationCodeGenerator.IsHandledByConvention(model, annotation))
                 {
                     annotationsToRemove.Add(annotation);
                 }
                 else
                 {
-                    var line = _annotationRenderer.GenerateFluentApi(model, annotation);
+                    var line = _annotationCodeGenerator.GenerateFluentApi(model, annotation);
 
                     if (line != null)
                     {
@@ -256,13 +256,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var annotation in annotations)
             {
-                if (_annotationRenderer.IsHandledByConvention(entityType, annotation))
+                if (_annotationCodeGenerator.IsHandledByConvention(entityType, annotation))
                 {
                     annotationsToRemove.Add(annotation);
                 }
                 else
                 {
-                    var line = _annotationRenderer.GenerateFluentApi(entityType, annotation);
+                    var line = _annotationCodeGenerator.GenerateFluentApi(entityType, annotation);
 
                     if (line != null)
                     {
@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var annotations = key.GetAnnotations().ToList();
 
-            var explicitName = key.Relational().Name != new RelationalKeyAnnotations(key).GetDefaultName();
+            var explicitName = key.Relational().Name != ConstraintNamer.GetDefaultName(key);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
 
             if (key.Properties.Count == 1)
@@ -363,13 +363,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var annotation in annotations)
             {
-                if (_annotationRenderer.IsHandledByConvention(key, annotation))
+                if (_annotationCodeGenerator.IsHandledByConvention(key, annotation))
                 {
                     annotationsToRemove.Add(annotation);
                 }
                 else
                 {
-                    var line = _annotationRenderer.GenerateFluentApi(key, annotation);
+                    var line = _annotationCodeGenerator.GenerateFluentApi(key, annotation);
 
                     if (line != null)
                     {
@@ -440,13 +440,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var annotation in annotations)
             {
-                if (_annotationRenderer.IsHandledByConvention(index, annotation))
+                if (_annotationCodeGenerator.IsHandledByConvention(index, annotation))
                 {
                     annotationsToRemove.Add(annotation);
                 }
                 else
                 {
-                    var line = _annotationRenderer.GenerateFluentApi(index, annotation);
+                    var line = _annotationCodeGenerator.GenerateFluentApi(index, annotation);
 
                     if (line != null)
                     {
@@ -562,13 +562,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var annotation in annotations)
             {
-                if (_annotationRenderer.IsHandledByConvention(property, annotation))
+                if (_annotationCodeGenerator.IsHandledByConvention(property, annotation))
                 {
                     annotationsToRemove.Add(annotation);
                 }
                 else
                 {
-                    var line = _annotationRenderer.GenerateFluentApi(property, annotation);
+                    var line = _annotationCodeGenerator.GenerateFluentApi(property, annotation);
 
                     if (line != null)
                     {
@@ -631,11 +631,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
 
-            if (foreignKey.Relational().Name !=
-                RelationalForeignKeyAnnotations.GetDefaultForeignKeyName(
-                    foreignKey.DeclaringEntityType.Relational().TableName,
-                    foreignKey.PrincipalEntityType.Relational().TableName,
-                    foreignKey.Properties.Select(p => p.Relational().ColumnName)))
+            if (foreignKey.Relational().Name != ConstraintNamer.GetDefaultName(foreignKey))
             {
                 canUseDataAnnotations = false;
                 lines.Add($".{nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)}({_cSharpUtilities.DelimitString(foreignKey.Relational().Name)})");
@@ -645,13 +641,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var annotation in annotations)
             {
-                if (_annotationRenderer.IsHandledByConvention(foreignKey, annotation))
+                if (_annotationCodeGenerator.IsHandledByConvention(foreignKey, annotation))
                 {
                     annotationsToRemove.Add(annotation);
                 }
                 else
                 {
-                    var line = _annotationRenderer.GenerateFluentApi(foreignKey, annotation);
+                    var line = _annotationCodeGenerator.GenerateFluentApi(foreignKey, annotation);
 
                     if (line != null)
                     {

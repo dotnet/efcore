@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             => serviceCollection
                 .AddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
                 .AddSingleton<IDatabaseModelFactory, SqlServerDatabaseModelFactory>()
-                .AddSingleton<IScaffoldingHelper, SqlServerScaffoldingHelper>()
-                .AddSingleton<IAnnotationRenderer, SqlServerAnnotationRenderer>();
+                .AddSingleton<IScaffoldingProviderCodeGenerator, SqlServerScaffoldingCodeGenerator>()
+                .AddSingleton<IAnnotationCodeGenerator, SqlServerAnnotationCodeGenerator>();
     }
 }

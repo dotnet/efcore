@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual int Ordinal { get; [param: NotNull] set; }
         public virtual bool IsNullable { get; [param: NotNull] set; }
         public virtual string StoreType { get; [param: CanBeNull] set; }
+        public virtual string UnderlyingStoreType { get; [param: CanBeNull] set; }
         public virtual string DefaultValue { get; [param: CanBeNull] set; }
         public virtual string ComputedValue { get; [param: CanBeNull] set; }
         public virtual ValueGenerated? ValueGenerated { get; set; }

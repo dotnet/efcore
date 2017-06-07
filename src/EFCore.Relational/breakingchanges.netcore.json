@@ -3089,5 +3089,80 @@
       "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalModelBuilderExtensions",
       "MemberId": "public static new Microsoft.EntityFrameworkCore.ModelBuilder HasSequence<T0>(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.String name, System.String schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder> builderAction)",
       "Kind": "Removal"
-    }
+    },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyAnnotations",
+    "MemberId": "protected const System.String DefaultAlternateKeyNamePrefix = \"AK\"",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyAnnotations",
+    "MemberId": "protected const System.String DefaultPrimaryKeyNamePrefix = \"PK\"",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyAnnotations",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalEntityTypeAnnotations GetAnnotations(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyAnnotations",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations GetAnnotations(Microsoft.EntityFrameworkCore.Metadata.IProperty property)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyAnnotations",
+    "MemberId": "protected virtual System.String GetDefaultName()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalForeignKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyAnnotations",
+    "MemberId": "protected const System.String DefaultForeignKeyNamePrefix = \"FK\"",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalForeignKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyAnnotations",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalEntityTypeAnnotations GetAnnotations(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalForeignKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyAnnotations",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations GetAnnotations(Microsoft.EntityFrameworkCore.Metadata.IProperty property)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalForeignKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyAnnotations",
+    "MemberId": "protected virtual System.String GetDefaultName()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalForeignKeyAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyAnnotations",
+    "MemberId": "public static System.String GetDefaultForeignKeyName(System.String dependentTableName, System.String principalTableName, System.Collections.Generic.IEnumerable<System.String> dependentEndPropertyNames)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
+    "MemberId": "protected const System.String DefaultIndexNamePrefix = \"IX\"",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalEntityTypeAnnotations GetAnnotations(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations GetAnnotations(Microsoft.EntityFrameworkCore.Metadata.IProperty property)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
+    "MemberId": "protected virtual System.String GetDefaultName()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
+    "MemberId": "public static System.String GetDefaultIndexName(System.String tableName, System.Collections.Generic.IEnumerable<System.String> propertyNames)",
+    "Kind": "Removal"
+  }
 ]

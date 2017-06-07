@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public static IServiceCollection AddScaffolding([NotNull] this IServiceCollection serviceCollection)
             => serviceCollection
-                .AddSingleton<AnnotationRendererDependencies>()
+                .AddSingleton<AnnotationCodeGeneratorDependencies>()
                 .AddSingleton<IFileService, FileSystemFileService>()
                 .AddSingleton<RelationalTypeMapperDependencies>()
                 .AddSingleton<IModelScaffolder, ModelScaffolder>()
@@ -33,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AddSingleton<ICSharpUtilities, CSharpUtilities>()
                 .AddSingleton<ICSharpDbContextGenerator, CSharpDbContextGenerator>()
                 .AddSingleton<ICSharpEntityTypeGenerator, CSharpEntityTypeGenerator>()
-                .AddSingleton<ScaffoldingTypeMapperDependencies>()
                 .AddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
                 .AddSingleton<IScaffoldingCodeGenerator, CSharpScaffoldingGenerator>()
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()

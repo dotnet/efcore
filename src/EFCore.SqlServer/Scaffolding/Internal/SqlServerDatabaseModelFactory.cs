@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -124,7 +123,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
 
                 GetDefaultSchema();
-                GetTypeAliases();
                 GetTables();
                 GetColumns();
                 GetIndexes();
@@ -165,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GetTypeAliases()
+        private IReadOnlyDictionary<string, string> GetTypeAliases()
         {
             var command = _connection.CreateCommand();
             command.CommandText = @"SELECT
@@ -204,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            _databaseModel.SqlServer().TypeAliases = typeAliasMap;
+            return typeAliasMap;
         }
 
         private void GetSequences()
@@ -318,6 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GetColumns()
         {
+            var typeAliases = GetTypeAliases();
             var command = _connection.CreateCommand();
             command.CommandText = @"SELECT DISTINCT
     schema_name(t.schema_id) AS [schema],
@@ -397,35 +396,19 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                         continue;
                     }
 
-                    // TODO: Check for aliased type and skip following processing altogether
-
-                    if ((dataTypeName == "nvarchar"
-                         || dataTypeName == "nchar")
-                        && maxLength != -1)
+                    string storeType;
+                    string underlyingStoreType;
+                    if (typeAliases.TryGetValue(
+                        SchemaQualifiedKey(dataTypeName, dataTypeSchemaName),
+                        out underlyingStoreType))
                     {
-                        maxLength /= 2;
-                    }
-
-                    if (dataTypeName == "decimal"
-                        || dataTypeName == "numeric")
-                    {
-                        dataTypeName = $"{dataTypeName}({precision}, {scale})";
-                    }
-                    else if (_dateTimePrecisionTypes.Contains(dataTypeName)
-                             && scale != null)
-                    {
-                        dataTypeName = $"{dataTypeName}({scale})";
+                        storeType = dataTypeName;
+                        underlyingStoreType = GetStoreType(underlyingStoreType, precision, scale, maxLength);
                     }
                     else
                     {
-                        if (maxLength == -1)
-                        {
-                            dataTypeName = $"{dataTypeName}(max)";
-                        }
-                        else if (maxLength.HasValue)
-                        {
-                            dataTypeName = $"{dataTypeName}({maxLength.Value})";
-                        }
+                        storeType = GetStoreType(dataTypeName, precision, scale, maxLength);
+                        underlyingStoreType = null;
                     }
 
                     if (defaultValue == "(NULL)")
@@ -442,7 +425,8 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                     {
                         Table = table,
                         Name = columnName,
-                        StoreType = dataTypeName,
+                        StoreType = storeType,
+                        UnderlyingStoreType = underlyingStoreType,
                         Ordinal = ordinal - 1,
                         IsNullable = nullable,
                         PrimaryKeyOrdinal = primaryKeyOrdinal,
@@ -450,18 +434,46 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                         ComputedValue = computedValue,
                         ValueGenerated = isIdentity
                             ? ValueGenerated.OnAdd
-                            : isComputed || dataTypeName == "timestamp"
+                            : isComputed || (underlyingStoreType ?? storeType) == "timestamp"
                                 ? ValueGenerated.OnAddOrUpdate
                                 : default(ValueGenerated?)
                     };
-
-                    column.SqlServer().IsIdentity = isIdentity;
-                    column.SqlServer().DataTypeSchemaName = dataTypeSchemaName;
 
                     table.Columns.Add(column);
                     _tableColumns.Add(ColumnKey(table, column.Name), column);
                 }
             }
+        }
+
+        private string GetStoreType(string dataTypeName, int? precision, int? scale, int? maxLength)
+        {
+            if ((dataTypeName == "nvarchar"
+                || dataTypeName == "nchar")
+                && maxLength != -1)
+            {
+                maxLength /= 2;
+            }
+
+            if (dataTypeName == "decimal"
+                || dataTypeName == "numeric")
+            {
+                return $"{dataTypeName}({precision}, {scale})";
+            }
+            else if (_dateTimePrecisionTypes.Contains(dataTypeName)
+                     && scale != null)
+            {
+                return $"{dataTypeName}({scale})";
+            }
+            else if (maxLength == -1)
+            {
+                return $"{dataTypeName}(max)";
+            }
+            else if (maxLength.HasValue)
+            {
+                return $"{dataTypeName}({maxLength.Value})";
+            }
+
+            return dataTypeName;
         }
 
         private void GetIndexes()

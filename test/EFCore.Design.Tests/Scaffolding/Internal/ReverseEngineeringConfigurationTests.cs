@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 new FakeScaffoldingModelFactory(new FakeDiagnosticsLogger<DbLoggerCategory.Scaffolding>()),
                 new CSharpScaffoldingGenerator(
                     new InMemoryFileService(),
-                    new CSharpDbContextGenerator(new FakeScaffoldingHelper(), new FakeAnnotationRenderer(), cSharpUtilities),
+                    new CSharpDbContextGenerator(new FakeScaffoldingCodeGenerator(), new FakeAnnotationCodeGenerator(), cSharpUtilities),
                     new CSharpEntityTypeGenerator(cSharpUtilities)),
                 cSharpUtilities);
 
@@ -50,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     .Message);
         }
 
-        public class FakeScaffoldingHelper : IScaffoldingHelper
+        public class FakeScaffoldingCodeGenerator : IScaffoldingProviderCodeGenerator
         {
-            public string GetProviderOptionsBuilder(string connectionString)
+            public string GenerateUseProvider(string connectionString)
             {
                 throw new NotImplementedException();
             }
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        public class FakeAnnotationRenderer : IAnnotationRenderer
+        public class FakeAnnotationCodeGenerator : IAnnotationCodeGenerator
         {
             public string GenerateFluentApi(IModel model, IAnnotation annotation)
             {

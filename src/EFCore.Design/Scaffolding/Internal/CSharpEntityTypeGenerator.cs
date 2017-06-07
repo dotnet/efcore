@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     return;
                 }
 
-                if (key.Relational().Name != new RelationalKeyAnnotations(key).GetDefaultName())
+                if (key.Relational().Name != ConstraintNamer.GetDefaultName(key))
                 {
                     return;
                 }

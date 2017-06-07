@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
-    public interface IAnnotationRenderer
+    public interface IAnnotationCodeGenerator
     {
         bool IsHandledByConvention([NotNull] IModel model, [NotNull] IAnnotation annotation);
         bool IsHandledByConvention([NotNull] IEntityType entityType, [NotNull] IAnnotation annotation);
