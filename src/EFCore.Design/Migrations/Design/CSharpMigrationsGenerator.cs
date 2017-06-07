@@ -151,13 +151,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     builder
                         .AppendLine("protected override void BuildTargetModel(ModelBuilder modelBuilder)")
-                        .AppendLine("{");
+                        .AppendLine("{")
+                        .DecrementIndent()
+                        .DecrementIndent()
+                        .AppendLine("#pragma warning disable 612, 618")
+                        .IncrementIndent()
+                        .IncrementIndent();
                     using (builder.Indent())
                     {
                         // TODO: Optimize. This is repeated below
                         CSharpDependencies.CSharpSnapshotGenerator.Generate("modelBuilder", targetModel, builder);
                     }
-                    builder.AppendLine("}");
+                    builder
+                        .DecrementIndent()
+                        .DecrementIndent()
+                        .AppendLine("#pragma warning restore 612, 618")
+                        .IncrementIndent()
+                        .IncrementIndent()
+                        .AppendLine("}");
                 }
                 builder.AppendLine("}");
             }
@@ -210,12 +221,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     builder
                         .AppendLine("protected override void BuildModel(ModelBuilder modelBuilder)")
-                        .AppendLine("{");
+                        .AppendLine("{")
+                        .DecrementIndent()
+                        .DecrementIndent()
+                        .AppendLine("#pragma warning disable 612, 618")
+                        .IncrementIndent()
+                        .IncrementIndent();
                     using (builder.Indent())
                     {
                         CSharpDependencies.CSharpSnapshotGenerator.Generate("modelBuilder", model, builder);
                     }
-                    builder.AppendLine("}");
+                    builder
+                        .DecrementIndent()
+                        .DecrementIndent()
+                        .AppendLine("#pragma warning restore 612, 618")
+                        .IncrementIndent()
+                        .IncrementIndent()
+                        .AppendLine("}");
                 }
                 builder.AppendLine("}");
             }
