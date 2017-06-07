@@ -310,8 +310,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var clrType = typeScaffoldingInfo.ClrType;
-            if (column.IsNullable)
+            var forceNullable = typeof(bool) == clrType && column.DefaultValue != null;
+            if (column.IsNullable || forceNullable)
             {
+                if (forceNullable)
+                {
+                    Logger.NonNullableBoooleanColumnHasDefaultConstraintWarning(
+                        column.DisplayName);
+                }
                 clrType = clrType.MakeNullable();
             }
 
@@ -361,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (!column.PrimaryKeyOrdinal.HasValue)
             {
-                property.IsRequired(!column.IsNullable);
+                property.IsRequired(!column.IsNullable && !forceNullable);
             }
 
             property.Metadata.Scaffolding().ColumnOrdinal = column.Ordinal;
