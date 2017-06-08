@@ -8,7 +8,8 @@ env:
 mono: none
 os:
   - linux
-  # - osx CoreCLR tests time out too frequently on OSX to be useful.
+  - osx
+osx_image: xcode8.1
 branches:
   only:
     - master
