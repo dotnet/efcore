@@ -16,11 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Design
         bool IsHandledByConvention([NotNull] IForeignKey foreignKey, [NotNull] IAnnotation annotation);
         bool IsHandledByConvention([NotNull] IIndex index, [NotNull] IAnnotation annotation);
 
-        string GenerateFluentApi([NotNull] IModel model, [NotNull] IAnnotation annotation);
-        string GenerateFluentApi([NotNull] IEntityType entityType, [NotNull] IAnnotation annotation);
-        string GenerateFluentApi([NotNull] IKey key, [NotNull] IAnnotation annotation);
-        string GenerateFluentApi([NotNull] IProperty property, [NotNull] IAnnotation annotation);
-        string GenerateFluentApi([NotNull] IForeignKey foreignKey, [NotNull] IAnnotation annotation);
-        string GenerateFluentApi([NotNull] IIndex index, [NotNull] IAnnotation annotation);
+        string GenerateFluentApi([NotNull] IModel model, [NotNull] IAnnotation annotation, [NotNull] string language);
+        string GenerateFluentApi([NotNull] IEntityType entityType, [NotNull] IAnnotation annotation, [NotNull] string language);
+        string GenerateFluentApi([NotNull] IKey key, [NotNull] IAnnotation annotation, [NotNull] string language);
+        string GenerateFluentApi([NotNull] IProperty property, [NotNull] IAnnotation annotation, [NotNull] string language);
+        string GenerateFluentApi([NotNull] IForeignKey foreignKey, [NotNull] IAnnotation annotation, [NotNull] string language);
+        string GenerateFluentApi([NotNull] IIndex index, [NotNull] IAnnotation annotation, [NotNull] string language);
     }
 }

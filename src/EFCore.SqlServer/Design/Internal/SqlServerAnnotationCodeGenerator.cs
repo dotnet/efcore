@@ -30,12 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return false;
         }
 
-        public override string GenerateFluentApi(IIndex index, IAnnotation annotation)
+        public override string GenerateFluentApi(IIndex index, IAnnotation annotation, string language)
         {
             Check.NotNull(index, nameof(index));
             Check.NotNull(annotation, nameof(annotation));
+            Check.NotNull(language, nameof(language));
 
-            return annotation.Name == SqlServerAnnotationNames.Clustered
+            return annotation.Name == SqlServerAnnotationNames.Clustered && language == "CSharp"
                 ? $".{nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered)}({((bool)annotation.Value == false ? "false" : "")})"
                 : null;
         }

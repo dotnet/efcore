@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         public class FakeScaffoldingCodeGenerator : IScaffoldingProviderCodeGenerator
         {
-            public string GenerateUseProvider(string connectionString)
+            public string GenerateUseProvider(string connectionString, string language)
             {
                 throw new NotImplementedException();
             }
@@ -64,32 +64,32 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         public class FakeAnnotationCodeGenerator : IAnnotationCodeGenerator
         {
-            public string GenerateFluentApi(IModel model, IAnnotation annotation)
+            public string GenerateFluentApi(IModel model, IAnnotation annotation, string language)
             {
                 throw new NotImplementedException();
             }
 
-            public string GenerateFluentApi(IEntityType entityType, IAnnotation annotation)
+            public string GenerateFluentApi(IEntityType entityType, IAnnotation annotation, string language)
             {
                 throw new NotImplementedException();
             }
 
-            public string GenerateFluentApi(IKey key, IAnnotation annotation)
+            public string GenerateFluentApi(IKey key, IAnnotation annotation, string language)
             {
                 throw new NotImplementedException();
             }
 
-            public string GenerateFluentApi(IProperty property, IAnnotation annotation)
+            public string GenerateFluentApi(IProperty property, IAnnotation annotation, string language)
             {
                 throw new NotImplementedException();
             }
 
-            public string GenerateFluentApi(IForeignKey foreignKey, IAnnotation annotation)
+            public string GenerateFluentApi(IForeignKey foreignKey, IAnnotation annotation, string language)
             {
                 throw new NotImplementedException();
             }
 
-            public string GenerateFluentApi(IIndex index, IAnnotation annotation)
+            public string GenerateFluentApi(IIndex index, IAnnotation annotation, string language)
             {
                 throw new NotImplementedException();
             }

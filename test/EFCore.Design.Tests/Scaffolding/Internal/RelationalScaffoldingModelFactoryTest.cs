@@ -1017,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore
 
     public class FakeScaffoldingCodeGenerator : IScaffoldingProviderCodeGenerator
     {
-        public string GenerateUseProvider(string connectionString)
+        public string GenerateUseProvider(string connectionString, string language)
         {
             throw new NotImplementedException();
         }

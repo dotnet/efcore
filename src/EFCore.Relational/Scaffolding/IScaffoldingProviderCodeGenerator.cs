@@ -7,6 +7,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     public interface IScaffoldingProviderCodeGenerator
     {
-        string GenerateUseProvider([NotNull] string connectionString);
+        string GenerateUseProvider([NotNull] string connectionString, [NotNull] string language);
     }
 }
