@@ -3164,5 +3164,15 @@
     "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
     "MemberId": "public static System.String GetDefaultIndexName(System.String tableName, System.Collections.Generic.IEnumerable<System.String> propertyNames)",
     "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.RelationalQueryModelVisitor : Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor",
+    "MemberId": "public virtual Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression TryGetQuery(Remotion.Linq.Clauses.IQuerySource querySource)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression : Microsoft.EntityFrameworkCore.Query.Expressions.TableExpressionBase",
+    "MemberId": "public virtual System.Boolean HandlesQuerySource(Remotion.Linq.Clauses.IQuerySource querySource)",
+    "Kind": "Removal"
   }
 ]

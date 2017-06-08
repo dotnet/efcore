@@ -245,7 +245,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         enumerator.Dispose();
 
-                        _includedCollections[includeId] = null;
+                        if (includeId != -1)
+                        {
+                            _includedCollections[includeId] = null;
+                        }
 
                         break;
                     }

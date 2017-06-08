@@ -1210,6 +1210,288 @@ WHERE (
 ) > 30");
         }
 
+        public override void Client_groupjoin_with_orderby_key_descending()
+        {
+            base.Client_groupjoin_with_orderby_key_descending();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Navigation_projection_on_groupjoin_qsre()
+        {
+            base.Navigation_projection_on_groupjoin_qsre();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] = N'ALFKI'
+ORDER BY [c].[CustomerID]",
+                //
+                @"@_outer_OrderID='10643'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10692'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10702'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10835'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10952'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='11011'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]");
+        }
+
+        public override void Navigation_projection_on_groupjoin_qsre_no_outer_in_final_result()
+        {
+            base.Navigation_projection_on_groupjoin_qsre_no_outer_in_final_result();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] = N'ALFKI'
+ORDER BY [c].[CustomerID]",
+                //
+                @"@_outer_OrderID='10643'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10692'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10702'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10835'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10952'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='11011'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]");
+        }
+
+        public override void Navigation_projection_on_groupjoin_qsre_with_empty_grouping()
+        {
+            base.Navigation_projection_on_groupjoin_qsre_with_empty_grouping();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [oo].[OrderID], [oo].[CustomerID], [oo].[EmployeeID], [oo].[OrderDate]
+    FROM [Orders] AS [oo]
+    WHERE [oo].[OrderID] NOT IN (10308, 10625, 10759, 10926)
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+ORDER BY [c].[CustomerID]",
+                //
+                @"@_outer_OrderID='10643'
+
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE @_outer_OrderID = [o].[OrderID]",
+                //
+                @"@_outer_OrderID='10692'
+
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE @_outer_OrderID = [o].[OrderID]",
+                //
+                @"@_outer_OrderID='10702'
+
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE @_outer_OrderID = [o].[OrderID]",
+                //
+                @"@_outer_OrderID='10835'
+
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE @_outer_OrderID = [o].[OrderID]",
+                //
+                @"@_outer_OrderID='10952'
+
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE @_outer_OrderID = [o].[OrderID]",
+                //
+                @"@_outer_OrderID='11011'
+
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE @_outer_OrderID = [o].[OrderID]",
+                //
+                @"@_outer_OrderID='10365'
+
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE @_outer_OrderID = [o].[OrderID]",
+                //
+                @"@_outer_OrderID='10507'
+
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE @_outer_OrderID = [o].[OrderID]");
+        }
+
+        public override void Include_on_inner_projecting_groupjoin()
+        {
+            base.Include_on_inner_projecting_groupjoin();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] = N'ALFKI'
+ORDER BY [c].[CustomerID]",
+                //
+                @"@_outer_OrderID='10643'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10692'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10702'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10835'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10952'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='11011'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+WHERE @_outer_OrderID = [o0].[OrderID]");
+        }
+
+        public override void Include_on_inner_projecting_groupjoin_complex()
+        {
+            base.Include_on_inner_projecting_groupjoin_complex();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] = N'ALFKI'
+ORDER BY [c].[CustomerID]",
+                //
+                @"@_outer_OrderID='10643'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[UnitPrice], [o.Product].[UnitsInStock]
+FROM [Order Details] AS [o0]
+INNER JOIN [Products] AS [o.Product] ON [o0].[ProductID] = [o.Product].[ProductID]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10692'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[UnitPrice], [o.Product].[UnitsInStock]
+FROM [Order Details] AS [o0]
+INNER JOIN [Products] AS [o.Product] ON [o0].[ProductID] = [o.Product].[ProductID]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10702'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[UnitPrice], [o.Product].[UnitsInStock]
+FROM [Order Details] AS [o0]
+INNER JOIN [Products] AS [o.Product] ON [o0].[ProductID] = [o.Product].[ProductID]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10835'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[UnitPrice], [o.Product].[UnitsInStock]
+FROM [Order Details] AS [o0]
+INNER JOIN [Products] AS [o.Product] ON [o0].[ProductID] = [o.Product].[ProductID]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='10952'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[UnitPrice], [o.Product].[UnitsInStock]
+FROM [Order Details] AS [o0]
+INNER JOIN [Products] AS [o.Product] ON [o0].[ProductID] = [o.Product].[ProductID]
+WHERE @_outer_OrderID = [o0].[OrderID]",
+                //
+                @"@_outer_OrderID='11011'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[UnitPrice], [o.Product].[UnitsInStock]
+FROM [Order Details] AS [o0]
+INNER JOIN [Products] AS [o.Product] ON [o0].[ProductID] = [o.Product].[ProductID]
+WHERE @_outer_OrderID = [o0].[OrderID]");
+        }
+
+        public override void Group_join_doesnt_get_bound_directly_to_group_join_qsre()
+        {
+            base.Group_join_doesnt_get_bound_directly_to_group_join_qsre();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+ORDER BY [c].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
