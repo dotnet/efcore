@@ -486,15 +486,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [Fact]
-        public void The_BindingList_returned_from_ObservableHasSet_is_cached()
-        {
-            var ols = new ObservableHashSet<string>();
-            var bindingList = ols.ToBindingList();
-
-            Assert.Same(bindingList, ols.ToBindingList());
-        }
-
-        [Fact]
         public void ToBindingList_returns_a_new_binding_list_each_time_when_called_on_non_DbLocalView_ObervableCollections()
         {
             var oc = new ObservableCollection<string>();
