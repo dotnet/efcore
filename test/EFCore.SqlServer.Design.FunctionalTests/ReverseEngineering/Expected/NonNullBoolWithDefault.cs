@@ -6,7 +6,7 @@ namespace E2ETest.Namespace
     public partial class NonNullBoolWithDefault
     {
         public int Id { get; set; }
-        public bool? TestWithDefault { get; set; }
-        public bool TestWithoutDefault { get; set; }
+        public bool? BoolWithDefaultValueSql { get; set; }
+        public bool BoolWithoutDefaultValueSql { get; set; }
     }
 }

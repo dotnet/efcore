@@ -311,13 +311,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var clrType = typeScaffoldingInfo.ClrType;
             var forceNullable = typeof(bool) == clrType && column.DefaultValue != null;
+            if (forceNullable)
+            {
+                Logger.NonNullableBoooleanColumnHasDefaultConstraintWarning(
+                    column.DisplayName);
+            }
             if (column.IsNullable || forceNullable)
             {
-                if (forceNullable)
-                {
-                    Logger.NonNullableBoooleanColumnHasDefaultConstraintWarning(
-                        column.DisplayName);
-                }
                 clrType = clrType.MakeNullable();
             }
 

@@ -192,8 +192,8 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
 CREATE TABLE NonNullBoolWithDefault
 (
      Id int NOT NULL PRIMARY KEY CLUSTERED,
-     TestWithDefault bit NOT NULL DEFAULT (CONVERT(""bit"", GETDATE())),
-     TestWithoutDefault bit NOT NULL
+     BoolWithDefaultValueSql bit NOT NULL DEFAULT (CONVERT(""bit"", GETDATE())),
+     BoolWithoutDefaultValueSql bit NOT NULL
 )");
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(),
@@ -229,7 +229,7 @@ CREATE TABLE NonNullBoolWithDefault
                 {
                     Warn =
                     {
-                        DesignStrings.LogNonNullableBoooleanColumnHasDefaultConstraint.GenerateMessage("dbo.NonNullBoolWithDefault.TestWithDefault")
+                        DesignStrings.LogNonNullableBoooleanColumnHasDefaultConstraint.GenerateMessage("dbo.NonNullBoolWithDefault.BoolWithDefaultValueSql")
                     }
                 });
 

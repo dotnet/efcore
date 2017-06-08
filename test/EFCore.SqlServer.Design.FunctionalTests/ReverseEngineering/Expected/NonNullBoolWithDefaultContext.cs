@@ -23,7 +23,7 @@ namespace E2ETest.Namespace
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.Property(e => e.TestWithDefault).HasDefaultValueSql("(CONVERT([bit],getdate()))");
+                entity.Property(e => e.BoolWithDefaultValueSql).HasDefaultValueSql("(CONVERT([bit],getdate()))");
             });
         }
     }
