@@ -6,10 +6,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class SqlServerScaffoldingCodeGenerator : IScaffoldingProviderCodeGenerator
     {
-        public virtual string GenerateUseProvider(string connectionString)
-        {
-            return $".{nameof(SqlServerDbContextOptionsExtensions.UseSqlServer)}({GenerateVerbatimStringLiteral(connectionString)})";
-        }
+        public virtual string GenerateUseProvider(string connectionString, string language)
+            => language == "CSharp"
+                ? $".{nameof(SqlServerDbContextOptionsExtensions.UseSqlServer)}({GenerateVerbatimStringLiteral(connectionString)})"
+                : null;
 
         private static string GenerateVerbatimStringLiteral(string value) => "@\"" + value.Replace("\"", "\"\"") + "\"";
     }

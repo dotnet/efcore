@@ -67,50 +67,56 @@ namespace Microsoft.EntityFrameworkCore.Design
             return false;
         }
 
-        public virtual string GenerateFluentApi(IModel model, IAnnotation annotation)
+        public virtual string GenerateFluentApi(IModel model, IAnnotation annotation, string language)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(annotation, nameof(annotation));
+            Check.NotNull(language, nameof(language));
 
             return null;
         }
 
-        public virtual string GenerateFluentApi(IEntityType entityType, IAnnotation annotation)
+        public virtual string GenerateFluentApi(IEntityType entityType, IAnnotation annotation, string language)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(annotation, nameof(annotation));
+            Check.NotNull(language, nameof(language));
 
             return null;
         }
 
-        public virtual string GenerateFluentApi(IKey key, IAnnotation annotation)
+        public virtual string GenerateFluentApi(IKey key, IAnnotation annotation, string language)
         {
             Check.NotNull(key, nameof(key));
             Check.NotNull(annotation, nameof(annotation));
+            Check.NotNull(language, nameof(language));
 
             return null;
         }
 
-        public virtual string GenerateFluentApi(IProperty property, IAnnotation annotation)
+        public virtual string GenerateFluentApi(IProperty property, IAnnotation annotation, string language)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(annotation, nameof(annotation));
+            Check.NotNull(language, nameof(language));
 
             return null;
         }
 
-        public virtual string GenerateFluentApi(IForeignKey foreignKey, IAnnotation annotation)
+        public virtual string GenerateFluentApi(IForeignKey foreignKey, IAnnotation annotation, string language)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(annotation, nameof(annotation));
+            Check.NotNull(language, nameof(language));
 
             return null;
         }
 
-        public virtual string GenerateFluentApi(IIndex index, IAnnotation annotation)
+        public virtual string GenerateFluentApi(IIndex index, IAnnotation annotation, string language)
         {
             Check.NotNull(index, nameof(index));
             Check.NotNull(annotation, nameof(annotation));
+            Check.NotNull(language, nameof(language));
 
             return null;
         }

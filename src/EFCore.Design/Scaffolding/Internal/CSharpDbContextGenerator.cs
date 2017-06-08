@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     public class CSharpDbContextGenerator : ICSharpDbContextGenerator
     {
         private const string EntityLambdaIdentifier = "entity";
+        private const string Language = "CSharp";
 
         private readonly ICSharpUtilities _cSharpUtilities;
         private readonly IScaffoldingProviderCodeGenerator _providerCodeGenerator;
@@ -137,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     _sb.AppendLine("#warning " + DesignStrings.SensitiveInformationWarning);
 
-                    _sb.AppendLine($"optionsBuilder{_providerCodeGenerator.GenerateUseProvider(connectionString)};");
+                    _sb.AppendLine($"optionsBuilder{_providerCodeGenerator.GenerateUseProvider(connectionString, Language)};");
                 }
 
                 _sb.AppendLine("}");
@@ -170,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    var line = _annotationCodeGenerator.GenerateFluentApi(model, annotation);
+                    var line = _annotationCodeGenerator.GenerateFluentApi(model, annotation, Language);
 
                     if (line != null)
                     {
@@ -262,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    var line = _annotationCodeGenerator.GenerateFluentApi(entityType, annotation);
+                    var line = _annotationCodeGenerator.GenerateFluentApi(entityType, annotation, Language);
 
                     if (line != null)
                     {
@@ -369,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    var line = _annotationCodeGenerator.GenerateFluentApi(key, annotation);
+                    var line = _annotationCodeGenerator.GenerateFluentApi(key, annotation, Language);
 
                     if (line != null)
                     {
@@ -446,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    var line = _annotationCodeGenerator.GenerateFluentApi(index, annotation);
+                    var line = _annotationCodeGenerator.GenerateFluentApi(index, annotation, Language);
 
                     if (line != null)
                     {
@@ -568,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    var line = _annotationCodeGenerator.GenerateFluentApi(property, annotation);
+                    var line = _annotationCodeGenerator.GenerateFluentApi(property, annotation, Language);
 
                     if (line != null)
                     {
@@ -647,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    var line = _annotationCodeGenerator.GenerateFluentApi(foreignKey, annotation);
+                    var line = _annotationCodeGenerator.GenerateFluentApi(foreignKey, annotation, Language);
 
                     if (line != null)
                     {
