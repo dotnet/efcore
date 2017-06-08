@@ -1038,12 +1038,12 @@ namespace Microsoft.EntityFrameworkCore
 
     public class FakeDatabaseModelFactory : IDatabaseModelFactory
     {
-        public virtual DatabaseModel Create(string connectionString, TableSelectionSet tableSelectionSet)
+        public virtual DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
         {
             throw new NotImplementedException();
         }
 
-        public virtual DatabaseModel Create(DbConnection connection, TableSelectionSet tableSelectionSet)
+        public virtual DatabaseModel Create(DbConnection connectio, IEnumerable<string> tables, IEnumerable<string> schemas)
         {
             throw new NotImplementedException();
         }

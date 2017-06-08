@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -84,14 +85,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual DatabaseModel Create(string connectionString, TableSelectionSet tableSelectionSet)
+        public virtual DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
-            Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
+            Check.NotNull(tables, nameof(tables));
+            Check.NotNull(schemas, nameof(schemas));
 
             using (var connection = new SqlConnection(connectionString))
             {
-                return Create(connection, tableSelectionSet);
+                return Create(connection, tables, schemas);
             }
         }
 
@@ -99,8 +101,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual DatabaseModel Create(DbConnection connection, TableSelectionSet tableSelectionSet)
+        public virtual DatabaseModel Create(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> schemas)
         {
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(tables, nameof(tables));
+            Check.NotNull(schemas, nameof(schemas));
+
             ResetState();
 
             _connection = connection;
@@ -112,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
             try
             {
-                _tableSelectionSet = tableSelectionSet;
+                _tableSelectionSet = new TableSelectionSet(tables, schemas);
 
                 _databaseModel.DatabaseName = _connection.Database;
 
@@ -127,6 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GetColumns();
                 GetIndexes();
                 GetForeignKeys();
+
+                CheckSelectionsMatched(_tableSelectionSet);
+
                 return _databaseModel;
             }
             finally
@@ -135,6 +144,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     _connection.Close();
                 }
+            }
+        }
+
+        private void CheckSelectionsMatched(TableSelectionSet tableSelectionSet)
+        {
+            foreach (var schemaSelection in tableSelectionSet.Schemas.Where(s => !s.IsMatched))
+            {
+                Logger.MissingSchemaWarning(schemaSelection.Text);
+            }
+
+            foreach (var tableSelection in tableSelectionSet.Tables.Where(t => !t.IsMatched))
+            {
+                Logger.MissingTableWarning(tableSelection.Text);
             }
         }
 

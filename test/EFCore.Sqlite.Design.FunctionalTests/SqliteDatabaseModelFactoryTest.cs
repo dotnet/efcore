@@ -178,18 +178,18 @@ CREATE TABLE [MountainsColumns] (
             var sql = @"CREATE TABLE [K2] ( Id int);
 CREATE TABLE [Kilimanjaro] ( Id int);";
 
-            var selectionSet = new TableSelectionSet(new List<string> { "K2" });
+            var selectionSet = new List<string> { "K2" };
 
             var dbModel = CreateModel(sql, selectionSet);
             var table = Assert.Single(dbModel.Tables);
             Assert.Equal("K2", table.Name);
         }
 
-        public DatabaseModel CreateModel(string createSql, TableSelectionSet selection = null)
+        public DatabaseModel CreateModel(string createSql, IEnumerable<string> tables = null)
         {
             _testStore.ExecuteNonQuery(createSql);
 
-            return _factory.Create(_testStore.ConnectionString, selection ?? TableSelectionSet.All);
+            return _factory.Create(_testStore.ConnectionString, tables ?? Enumerable.Empty<string>(), Enumerable.Empty<string>());
         }
 
         public void Dispose() => _testStore.Dispose();

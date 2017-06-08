@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -63,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             return generator.Generate(
                 connectionString,
-                new TableSelectionSet(tables, schemas),
+                tables,
+                schemas,
                 _projectDir,
                 outputDir,
                 _rootNamespace,

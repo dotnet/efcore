@@ -238,7 +238,7 @@
   </data>
   <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method Equals(object) for arguments of different types in expression '{expression}'. This comparison will always return 'false'.</value>
-    <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning object object</comment>
+    <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning object</comment>
   </data>
   <data name="StoredProcedureIncludeNotSupported" xml:space="preserve">
     <value>The Include operation is not supported when calling a stored procedure.</value>
@@ -420,6 +420,10 @@
     <value>Found a column on table {tableName} with an empty or null name. Skipping column.</value>
     <comment>Warning RelationalEventId.ColumnNotNamedWarning string</comment>
   </data>
+  <data name="LogMissingSchema" xml:space="preserve">
+    <value>Unable to find a schema in the database matching the selected schema {schema}.</value>
+    <comment>Warning RelationalEventId.MissingSchemaWarning string</comment>
+  </data>
   <data name="LogMissingTable" xml:space="preserve">
     <value>Unable to find a table in the database matching the selected table {table}.</value>
     <comment>Warning RelationalEventId.MissingTableWarning string</comment>
@@ -480,5 +484,5 @@
     <value>For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.</value>
     <comment>Warning RelationalEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
   </data>
-  
+
 </root>

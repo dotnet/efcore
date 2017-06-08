@@ -65,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             BoolWithDefaultWarning,
 
             // Scaffolding warning events
-            MissingTableWarning = CoreEventId.CoreDesignBaseId + 700,
+            MissingSchemaWarning = CoreEventId.CoreDesignBaseId + 700,
+            MissingTableWarning,
             SequenceNotNamedWarning,
             IndexColumnsNotMappedWarning,
             ForeignKeyReferencesMissingTableWarning,
@@ -462,6 +463,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
         private static EventId MakeScaffoldingId(Id id) => new EventId((int)id, _scaffoldingPrefix + id);
+
+        /// <summary>
+        ///     The database is missing a schema.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId MissingSchemaWarning = MakeScaffoldingId(Id.MissingSchemaWarning);
 
         /// <summary>
         ///     The database is missing a table.

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
             var sql = @"
 CREATE TABLE [dbo].[Everest] ( id int );
 CREATE TABLE [dbo].[Denali] ( id int );";
-            var dbModel = CreateModel(sql, new TableSelectionSet(new List<string> { "Everest", "Denali" }));
+            var dbModel = CreateModel(sql, new List<string> { "Everest", "Denali" });
 
             Assert.Collection(
                 dbModel.Tables.OrderBy(t => t.Name),
@@ -40,26 +39,12 @@ CREATE TABLE [dbo].[Denali] ( id int );";
         }
 
         [Fact]
-        public void It_filters_views()
-        {
-            _fixture.ExecuteNonQuery(@"CREATE TABLE [dbo].[Hills] (Id int PRIMARY KEY, Name nvarchar(100), Height int);");
-            _fixture.ExecuteNonQuery(@"CREATE VIEW [dbo].[ShortHills] WITH SCHEMABINDING AS SELECT Name FROM [dbo].[Hills] WHERE Height < 100;");
-            var sql = "CREATE UNIQUE CLUSTERED INDEX IX_ShortHills_Names ON ShortHills (Name);";
-
-            var selectionSet = new TableSelectionSet(new List<string> { "Hills", "ShortHills" });
-
-            var dbModel = CreateModel(sql, selectionSet);
-            Assert.Single(dbModel.Tables);
-            Assert.DoesNotContain(_fixture.TestDesignLoggerFactory.Logger.Statements, i => i.Contains("ShortHills"));
-        }
-
-        [Fact]
         public void It_reads_foreign_keys()
         {
             _fixture.ExecuteNonQuery("CREATE SCHEMA db2");
             var sql = "CREATE TABLE dbo.Ranges ( Id INT IDENTITY (1,1) PRIMARY KEY);" +
                       "CREATE TABLE db2.Mountains ( RangeId INT NOT NULL, FOREIGN KEY (RangeId) REFERENCES Ranges(Id) ON DELETE CASCADE)";
-            var dbModel = CreateModel(sql, new TableSelectionSet(new List<string> { "Ranges", "Mountains" }));
+            var dbModel = CreateModel(sql, new List<string> { "Ranges", "Mountains" });
 
             var fk = Assert.Single(dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
@@ -79,7 +64,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             _fixture.ExecuteNonQuery("CREATE SCHEMA db3");
             var sql = "CREATE TABLE dbo.Ranges1 ( Id INT IDENTITY (1,1), AltId INT, PRIMARY KEY(Id, AltId));" +
                       "CREATE TABLE db3.Mountains1 ( RangeId INT NOT NULL, RangeAltId INT NOT NULL, FOREIGN KEY (RangeId, RangeAltId) REFERENCES Ranges1(Id, AltId) ON DELETE NO ACTION)";
-            var dbModel = CreateModel(sql, new TableSelectionSet(new List<string> { "Ranges1", "Mountains1" }));
+            var dbModel = CreateModel(sql, new List<string> { "Ranges1", "Mountains1" });
 
             var fk = Assert.Single(dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
@@ -99,7 +84,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             var sql = "CREATE TABLE Place ( Id int PRIMARY KEY NONCLUSTERED, Name int UNIQUE, Location int);" +
                       "CREATE CLUSTERED INDEX IX_Location_Name ON Place (Location, Name);" +
                       "CREATE NONCLUSTERED INDEX IX_Location ON Place (Location);";
-            var dbModel = CreateModel(sql, new TableSelectionSet(new List<string> { "Place" }));
+            var dbModel = CreateModel(sql, new List<string> { "Place" });
 
             var indexes = dbModel.Tables.Single().Indexes;
 
@@ -155,7 +140,7 @@ CREATE TABLE [dbo].[MountainsColumns] (
     Modified rowversion,
     Primary Key (Name, Id)
 );";
-            var dbModel = CreateModel(sql, new TableSelectionSet(new List<string> { "MountainsColumns" }));
+            var dbModel = CreateModel(sql, new List<string> { "MountainsColumns" });
 
             var columns = dbModel.Tables.Single().Columns.OrderBy(c => c.Ordinal);
 
@@ -248,7 +233,7 @@ CREATE TABLE [dbo].[MountainsColumns] (
             var sql = @"IF OBJECT_ID('dbo.Strings', 'U') IS NOT NULL
     DROP TABLE [dbo].[Strings];" +
                       "CREATE TABLE [dbo].[Strings] ( CharColumn " + type + ");";
-            var db = CreateModel(sql, new TableSelectionSet(new List<string> { "Strings" }));
+            var db = CreateModel(sql, new List<string> { "Strings" });
 
             Assert.Equal(type, db.Tables.Single().Columns.Single().StoreType);
         }
@@ -262,7 +247,7 @@ CREATE TABLE [dbo].[MountainsColumns] (
                 @"IF OBJECT_ID('dbo.Identities', 'U') IS NOT NULL
     DROP TABLE [dbo].[Identities];
 CREATE TABLE [dbo].[Identities] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "") + ")",
-                new TableSelectionSet(new List<string> { "Identities" }));
+                new List<string> { "Identities" });
 
             var column = Assert.Single(dbModel.Tables.Single().Columns);
             // ReSharper disable once AssignNullToNotNullAttribute
@@ -275,7 +260,7 @@ CREATE TABLE [dbo].[Identities] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "")
             var sql = @"CREATE TABLE [dbo].[K2] ( Id int, A varchar, UNIQUE (A ) );
 CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B) REFERENCES K2 (A) );";
 
-            var selectionSet = new TableSelectionSet(new List<string> { "K2" });
+            var selectionSet = new List<string> { "K2" };
 
             var dbModel = CreateModel(sql, selectionSet);
             var table = Assert.Single(dbModel.Tables);
@@ -362,8 +347,8 @@ CREATE SEQUENCE [NumericSequence_defaults]
 
         private readonly SqlServerDatabaseModelFixture _fixture;
 
-        public DatabaseModel CreateModel(string createSql, TableSelectionSet selection = null)
-            => _fixture.CreateModel(createSql, selection);
+        public DatabaseModel CreateModel(string createSql, IEnumerable<string> tables = null)
+            => _fixture.CreateModel(createSql, tables);
 
         public SqlServerDatabaseModelFactoryTest(SqlServerDatabaseModelFixture fixture)
         {
