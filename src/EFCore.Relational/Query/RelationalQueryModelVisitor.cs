@@ -1969,19 +1969,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private ParameterExpression BindPropertyToOuterParameter(IQuerySource querySource, IProperty property, bool isMemberExpression)
         {
-            if (querySource != null && _canBindPropertyToOuterParameter)
+            if (querySource != null && _canBindPropertyToOuterParameter && ParentQueryModelVisitor != null)
             {
-                var outerQueryModelVisitor = ParentQueryModelVisitor;
-                var outerSelectExpression = outerQueryModelVisitor?.TryGetQuery(querySource);
+                var isBindable = CanBindToParentUsingOuterParameter(querySource);
 
-                while (outerSelectExpression == null
-                       && outerQueryModelVisitor != null)
+                // binding to grouping qsre - it's safe to do using outer parameter, even though it's client GroupJoin
+                if (!isBindable
+                    && querySource is MainFromClause mainFromClause
+                    && mainFromClause.FromExpression is QuerySourceReferenceExpression mainClauseQsre
+                    && mainClauseQsre.ReferencedQuerySource is GroupJoinClause groupJoinClause)
                 {
-                    outerQueryModelVisitor = outerQueryModelVisitor.ParentQueryModelVisitor;
-                    outerSelectExpression = outerQueryModelVisitor?.TryGetQuery(querySource);
+                    isBindable = CanBindToParentUsingOuterParameter(groupJoinClause);
                 }
 
-                if (outerSelectExpression != null)
+                if (isBindable)
                 {
                     var parameterName = OuterQueryParameterNamePrefix + property.Name;
                     var parameterWithSamePrefixCount
@@ -2018,6 +2019,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return null;
+        }
+
+        private bool CanBindToParentUsingOuterParameter(IQuerySource querySource)
+        {
+            var outerQueryModelVisitor = ParentQueryModelVisitor;
+            var result = outerQueryModelVisitor?.TryGetQuery(querySource) != null;
+            while (!result
+                   && outerQueryModelVisitor != null)
+            {
+                outerQueryModelVisitor = outerQueryModelVisitor.ParentQueryModelVisitor;
+                result = outerQueryModelVisitor?.TryGetQuery(querySource) != null;
+            }
+
+            return result;
         }
 
         private Expression CreateInjectParametersExpression(Expression expression, Dictionary<string, Expression> parameters)
