@@ -3,8 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -110,13 +108,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public abstract Task<ReverseEngineerFiles> WriteCodeAsync(
+        public abstract ReverseEngineerFiles WriteCode(
             [NotNull] IModel model,
             [NotNull] string outputPath,
             [NotNull] string @namespace,
             [NotNull] string contextName,
             [NotNull] string connectionString,
-            bool dataAnnotations,
-            CancellationToken cancellationToken = default(CancellationToken));
+            bool dataAnnotations);
     }
 }

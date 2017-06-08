@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Assert.Equal(
                 DesignStrings.ContextClassNotValidCSharpIdentifier(contextName),
                 Assert.Throws<ArgumentException>(
-                        () => reverseEngineer.GenerateAsync(
+                        () => reverseEngineer.Generate(
                                 connectionString: "connectionstring",
                                 tableSelectionSet: TableSelectionSet.All,
                                 projectPath: "FakeProjectPath",
@@ -45,8 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 rootNamespace: "FakeNamespace",
                                 contextName: contextName,
                                 useDataAnnotations: false,
-                                overwriteFiles: false)
-                            .Result)
+                                overwriteFiles: false))
                     .Message);
         }
 

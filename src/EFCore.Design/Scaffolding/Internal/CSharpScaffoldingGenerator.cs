@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -51,22 +49,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Task<ReverseEngineerFiles> WriteCodeAsync(
+        public override ReverseEngineerFiles WriteCode(
             IModel model,
             string outputPath,
             string @namespace,
             string contextName,
             string connectionString,
-            bool useDataAnnotations,
-            CancellationToken cancellationToken = default(CancellationToken))
+            bool useDataAnnotations)
         {
             Check.NotNull(model, nameof(model));
             Check.NotEmpty(outputPath, nameof(outputPath));
             Check.NotEmpty(@namespace, nameof(@namespace));
             Check.NotEmpty(contextName, nameof(contextName));
             Check.NotEmpty(connectionString, nameof(connectionString));
-
-            cancellationToken.ThrowIfCancellationRequested();
 
             var resultingFiles = new ReverseEngineerFiles();
 
@@ -89,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 resultingFiles.EntityTypeFiles.Add(entityTypeFileFullPath);
             }
 
-            return Task.FromResult(resultingFiles);
+            return resultingFiles;
         }
     }
 }

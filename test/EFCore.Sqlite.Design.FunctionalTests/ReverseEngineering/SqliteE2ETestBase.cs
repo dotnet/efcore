@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
         }
 
         [Fact]
-        public async Task One_to_one()
+        public void One_to_one()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("OneToOne" + DbSuffix))
             {
@@ -43,7 +42,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
 );
 ");
 
-                var results = await Generator.GenerateAsync(
+                var results = Generator.Generate(
                     testStore.ConnectionString,
                     TableSelectionSet.All,
                     TestProjectPath,
@@ -74,7 +73,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
         }
 
         [Fact]
-        public async Task One_to_many()
+        public void One_to_many()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("OneToMany" + DbSuffix))
             {
@@ -97,7 +96,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
 );
 ");
 
-                var results = await Generator.GenerateAsync(
+                var results = Generator.Generate(
                     testStore.ConnectionString,
                     TableSelectionSet.All,
                     TestProjectPath,
@@ -128,7 +127,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
         }
 
         [Fact]
-        public async Task Many_to_many()
+        public void Many_to_many()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("ManyToMany" + DbSuffix))
             {
@@ -145,7 +144,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
 );
 ");
 
-                var results = await Generator.GenerateAsync(
+                var results = Generator.Generate(
                     testStore.ConnectionString,
                     TableSelectionSet.All,
                     TestProjectPath,
@@ -154,7 +153,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     contextName: null,
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
-                
+
                 AssertLog(new LoggerMessages());
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "ManyToMany"))
@@ -177,7 +176,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
         }
 
         [Fact]
-        public async Task Self_referencing()
+        public void Self_referencing()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("SelfRef" + DbSuffix))
             {
@@ -187,7 +186,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
     FOREIGN KEY (SelfForeignKey) REFERENCES SelfRef (Id)
 );");
 
-                var results = await Generator.GenerateAsync(
+                var results = Generator.Generate(
                     testStore.ConnectionString,
                     TableSelectionSet.All,
                     TestProjectPath,
@@ -196,7 +195,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     contextName: null,
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
-                
+
                 AssertLog(new LoggerMessages());
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "SelfRef"))
@@ -217,13 +216,13 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
         }
 
         [Fact]
-        public async Task Missing_primary_key()
+        public void Missing_primary_key()
         {
             using (var testStore = SqliteTestStore.CreateScratch())
             {
                 testStore.ExecuteNonQuery("CREATE TABLE Alicia ( Keys TEXT );");
 
-                var results = await Generator.GenerateAsync(
+                var results = Generator.Generate(
                     testStore.ConnectionString,
                     TableSelectionSet.All,
                     TestProjectPath,
@@ -248,7 +247,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
         }
 
         [Fact]
-        public async Task Principal_missing_primary_key()
+        public void Principal_missing_primary_key()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("NoPrincipalPk" + DbSuffix))
             {
@@ -259,7 +258,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
 );
 CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
 
-                var results = await Generator.GenerateAsync(
+                var results = Generator.Generate(
                     testStore.ConnectionString,
                     TableSelectionSet.All,
                     TestProjectPath,
@@ -298,7 +297,7 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
         }
 
         [Fact]
-        public async Task It_handles_unsafe_names()
+        public void It_handles_unsafe_names()
         {
             using (var testStore = SqliteTestStore.CreateScratch())
             {
@@ -327,7 +326,7 @@ CREATE TABLE IF NOT EXISTS String (
 );
 ");
 
-                var results = await Generator.GenerateAsync(
+                var results = Generator.Generate(
                     testStore.ConnectionString,
                     TableSelectionSet.All,
                     TestProjectPath,
@@ -348,7 +347,7 @@ CREATE TABLE IF NOT EXISTS String (
         }
 
         [Fact]
-        public virtual async Task Foreign_key_to_unique_index()
+        public virtual void Foreign_key_to_unique_index()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("FkToAltKey" + DbSuffix))
             {
@@ -364,7 +363,7 @@ CREATE TABLE IF NOT EXISTS Comment (
     FOREIGN KEY (UserAltId) REFERENCES User (AltId)
 );");
 
-                var results = await Generator.GenerateAsync(
+                var results = Generator.Generate(
                     testStore.ConnectionString,
                     TableSelectionSet.All,
                     TestProjectPath,

@@ -5,8 +5,6 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -26,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private static readonly char[] _directorySeparatorChars = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
         private const string DbContextSuffix = "Context";
         private const string DefaultDbContextName = "Model" + DbContextSuffix;
-        
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -54,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Task<ReverseEngineerFiles> GenerateAsync(
+        public virtual ReverseEngineerFiles Generate(
             string connectionString,
             TableSelectionSet tableSelectionSet,
             string projectPath,
@@ -62,15 +60,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string rootNamespace,
             string contextName,
             bool useDataAnnotations,
-            bool overwriteFiles,
-            CancellationToken cancellationToken = default(CancellationToken))
+            bool overwriteFiles)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
             Check.NotEmpty(projectPath, nameof(projectPath));
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
-
-            cancellationToken.ThrowIfCancellationRequested();
 
             if (!string.IsNullOrWhiteSpace(contextName)
                 && (!_cSharpUtilities.IsValidIdentifier(contextName)
@@ -120,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             CheckOutputFiles(fullOutputPath, contextName, model, overwriteFiles);
 
-            return ScaffoldingCodeGenerator.WriteCodeAsync(model, fullOutputPath, @namespace, contextName, connectionString, useDataAnnotations, cancellationToken);
+            return ScaffoldingCodeGenerator.WriteCode(model, fullOutputPath, @namespace, contextName, connectionString, useDataAnnotations);
         }
 
         private void CheckOutputFiles(

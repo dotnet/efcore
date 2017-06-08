@@ -351,9 +351,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             Check.NotNull(schemaFilters, nameof(schemaFilters));
             Check.NotNull(tableFilters, nameof(tableFilters));
 
-            var files = _databaseOperations.Value.ScaffoldContextAsync(
+            var files = _databaseOperations.Value.ScaffoldContext(
                 provider, connectionString, outputDir, dbContextClassName,
-                schemaFilters, tableFilters, useDataAnnotations, overwriteFiles).Result;
+                schemaFilters, tableFilters, useDataAnnotations, overwriteFiles);
 
             // NOTE: First file will be opened in VS
             yield return files.ContextFile;

@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
         [UseCulture("en-US")]
         public void E2ETest_UseAttributesInsteadOfFluentApi()
         {
-            var filePaths = Generator.GenerateAsync(
+            var filePaths = Generator.Generate(
                     _connectionString,
                     Filter,
                     TestProjectDir + Path.DirectorySeparatorChar, // tests that ending DirectorySeparatorChar does not affect namespace
@@ -93,9 +93,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                     TestNamespace,
                     contextName: "AttributesContext",
                     useDataAnnotations: true,
-                    overwriteFiles: false)
-                .GetAwaiter()
-                .GetResult();
+                    overwriteFiles: false);
 
             var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(Path.Combine(TestProjectDir, TestSubDir)))
             {
@@ -136,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
         [UseCulture("en-US")]
         public void E2ETest_AllFluentApi()
         {
-            var filePaths = Generator.GenerateAsync(
+            var filePaths = Generator.Generate(
                     _connectionString,
                     Filter,
                     TestProjectDir,
@@ -144,9 +142,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                     rootNamespace: TestNamespace,
                     contextName: null,
                     useDataAnnotations: false,
-                    overwriteFiles: false)
-                .GetAwaiter()
-                .GetResult();
+                    overwriteFiles: false);
 
             var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
             {
@@ -228,7 +224,7 @@ CREATE SEQUENCE NumericSequence
                     Files = new List<string> { "SequenceContext.cs" }
                 };
 
-                var filePaths = Generator.GenerateAsync(
+                var filePaths = Generator.Generate(
                         scratch.ConnectionString,
                         TableSelectionSet.All,
                         TestProjectDir + Path.DirectorySeparatorChar,
@@ -236,9 +232,7 @@ CREATE SEQUENCE NumericSequence
                         rootNamespace: TestNamespace,
                         contextName: "SequenceContext",
                         useDataAnnotations: false,
-                        overwriteFiles: false)
-                    .GetAwaiter()
-                    .GetResult();
+                        overwriteFiles: false);
 
                 var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
                 {
@@ -288,7 +282,7 @@ CREATE TABLE PrimaryKeyWithSequence (
                     }
                 };
 
-                var filePaths = Generator.GenerateAsync(
+                var filePaths = Generator.Generate(
                         scratch.ConnectionString,
                         TableSelectionSet.All,
                         TestProjectDir + Path.DirectorySeparatorChar,
@@ -296,9 +290,7 @@ CREATE TABLE PrimaryKeyWithSequence (
                         rootNamespace: TestNamespace,
                         contextName: "PrimaryKeyWithSequenceContext",
                         useDataAnnotations: false,
-                        overwriteFiles: false)
-                    .GetAwaiter()
-                    .GetResult();
+                        overwriteFiles: false);
 
                 var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
                 {
@@ -338,7 +330,7 @@ CREATE INDEX Unicorn_Filtered_Index
                     }
                 };
 
-                var filePaths = Generator.GenerateAsync(
+                var filePaths = Generator.Generate(
                         scratch.ConnectionString,
                         TableSelectionSet.All,
                         TestProjectDir + Path.DirectorySeparatorChar,
@@ -346,9 +338,7 @@ CREATE INDEX Unicorn_Filtered_Index
                         rootNamespace: TestNamespace,
                         contextName: "FilteredIndexContext",
                         useDataAnnotations: false,
-                        overwriteFiles: false)
-                    .GetAwaiter()
-                    .GetResult();
+                        overwriteFiles: false);
 
                 var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
                 {
@@ -389,7 +379,7 @@ WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.History));
                     }
                 };
 
-                var filePaths = Generator.GenerateAsync(
+                var filePaths = Generator.Generate(
                         scratch.ConnectionString,
                         TableSelectionSet.All,
                         TestProjectDir + Path.DirectorySeparatorChar,
@@ -397,9 +387,7 @@ WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.History));
                         rootNamespace: TestNamespace,
                         contextName: "SystemVersionedContext",
                         useDataAnnotations: false,
-                        overwriteFiles: false)
-                    .GetAwaiter()
-                    .GetResult();
+                        overwriteFiles: false);
 
 
                 scratch.ExecuteNonQuery(@"
