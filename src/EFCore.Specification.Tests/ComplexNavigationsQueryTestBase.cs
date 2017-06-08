@@ -3505,6 +3505,15 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public virtual void Select_optional_navigation_property_string_concat()
+        {
+            AssertQuery<Level1>(
+                l1s => from l1 in l1s
+                       from l2 in l1.OneToMany_Optional.Where(l => l.Id > 5).OrderByDescending(l => l.Name).DefaultIfEmpty()
+                       select l1.Name + " " + (l2 != null ? l2.Name : "NULL"));
+        }
+
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
         {
             if (caller == null)

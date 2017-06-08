@@ -344,6 +344,10 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        public override void Select_optional_navigation_property_string_concat()
+        {
+        }
+
         protected override IQueryable<Level1> GetExpectedLevelOne()
             => ComplexNavigationsData.SplitLevelOnes.AsQueryable();
 
