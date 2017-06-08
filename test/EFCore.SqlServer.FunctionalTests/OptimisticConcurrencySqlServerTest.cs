@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var c = CreateF1Context())
             {
-                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(c, async context =>
                     {
                         using (var transaction = context.Database.BeginTransaction())
                         {
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
                                 }
                             }
                         }
-                    }, c);
+                    });
             }
         }
 

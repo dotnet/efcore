@@ -21,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Executes the specified operation and returns the result.
         /// </summary>
+        /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
         ///     A delegate representing an executable operation that returns the result of type <typeparamref name="TResult" />.
         /// </param>
         /// <param name="verifySucceeded"> A delegate that tests whether the operation succeeded even though an exception was thrown. </param>
-        /// <param name="state"> The state that will be passed to the operation. </param>
         /// <typeparam name="TState"> The type of the state. </typeparam>
         /// <typeparam name="TResult"> The return type of <paramref name="operation" />. </typeparam>
         /// <returns> The result from the operation. </returns>
@@ -33,13 +33,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Thrown if the operation has not succeeded after the configured number of retries.
         /// </exception>
         TResult Execute<TState, TResult>(
-            [NotNull] Func<TState, TResult> operation,
-            [CanBeNull] Func<TState, ExecutionResult<TResult>> verifySucceeded,
-            [CanBeNull] TState state);
+            [CanBeNull] TState state,
+            [NotNull] Func<DbContext, TState, TResult> operation,
+            [CanBeNull] Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded);
 
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
         /// </summary>
+        /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
         ///     A function that returns a started task of type <typeparamref name="TResult" />.
         /// </param>
@@ -48,7 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A cancellation token used to cancel the retry operation, but not operations that are already in flight
         ///     or that already completed successfully.
         /// </param>
-        /// <param name="state"> The state that will be passed to the operation. </param>
         /// <typeparam name="TState"> The type of the state. </typeparam>
         /// <typeparam name="TResult"> The result type of the <see cref="Task{T}" /> returned by <paramref name="operation" />. </typeparam>
         /// <returns>
@@ -60,9 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Thrown if the operation has not succeeded after the configured number of retries.
         /// </exception>
         Task<TResult> ExecuteAsync<TState, TResult>(
-            [NotNull] Func<TState, CancellationToken, Task<TResult>> operation,
-            [CanBeNull] Func<TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
             [CanBeNull] TState state,
+            [NotNull] Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
+            [CanBeNull] Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

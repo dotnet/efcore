@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var c = createContext())
             {
-                c.Database.CreateExecutionStrategy().Execute(context =>
+                c.Database.CreateExecutionStrategy().Execute(c, context =>
                     {
                         using (var transaction = context.Database.BeginTransaction())
                         {
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                                 }
                             }
                         }
-                    }, c);
+                    });
             }
         }
 
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var c = createContext())
             {
-                await c.Database.CreateExecutionStrategy().ExecuteAsync(async context =>
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(c, async context =>
                     {
                         using (var transaction = await context.Database.BeginTransactionAsync())
                         {
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                                 }
                             }
                         }
-                    }, c);
+                    });
             }
         }
     }

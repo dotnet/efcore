@@ -180,5 +180,20 @@
       "TypeId": "public static class Microsoft.Extensions.DependencyInjection.SqlServerServiceCollectionExtensions",
       "MemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlServer(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.SqlServerRetryingExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext context)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.SqlServerRetryingExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext context, System.Int32 maxRetryCount)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.SqlServerRetryingExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext context, System.Int32 maxRetryCount, System.TimeSpan maxRetryDelay, System.Collections.Generic.ICollection<System.Int32> errorNumbersToAdd)",
+      "Kind": "Removal"
     }
   ]

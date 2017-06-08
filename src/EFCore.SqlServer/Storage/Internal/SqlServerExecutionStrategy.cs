@@ -4,28 +4,30 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     public class SqlServerExecutionStrategy : IExecutionStrategy
     {
-        private SqlServerExecutionStrategy()
-        {
-        }
+        private ExecutionStrategyDependencies Dependencies { get; }
 
-        public static SqlServerExecutionStrategy Instance => new SqlServerExecutionStrategy();
+        public SqlServerExecutionStrategy([NotNull] ExecutionStrategyDependencies dependencies)
+        {
+            Dependencies = dependencies;
+        }
 
         public virtual bool RetriesOnFailure => false;
 
         public virtual TResult Execute<TState, TResult>(
-            Func<TState, TResult> operation,
-            Func<TState, ExecutionResult<TResult>> verifySucceeded,
-            TState state)
+            TState state,
+            Func<DbContext, TState, TResult> operation,
+            Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded)
         {
             try
             {
-                return operation(state);
+                return operation(Dependencies.CurrentDbContext.Context, state);
             }
             catch (Exception ex)
             {
@@ -39,14 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         }
 
         public virtual async Task<TResult> ExecuteAsync<TState, TResult>(
-            Func<TState, CancellationToken, Task<TResult>> operation,
-            Func<TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
             TState state,
+            Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
+            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
             CancellationToken cancellationToken)
         {
             try
             {
-                return await operation(state, cancellationToken);
+                return await operation(Dependencies.CurrentDbContext.Context, state, cancellationToken);
             }
             catch (Exception ex)
             {

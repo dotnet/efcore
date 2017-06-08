@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var c = CreateF1Context())
             {
-                c.Database.CreateExecutionStrategy().Execute(context =>
+                c.Database.CreateExecutionStrategy().Execute(c, context =>
                     {
                         using (context.Database.BeginTransaction())
                         {
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(RelationalStrings.UpdateConcurrencyException("1", "0"),
                                 Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges()).Message);
                         }
-                    }, c);
+                    });
             }
         }
 

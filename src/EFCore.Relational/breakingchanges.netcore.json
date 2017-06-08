@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
     "MemberId": "public .ctor(System.String storeType, System.Type clrType, System.Nullable<System.Data.DbType> dbType, System.Boolean unicode, System.Nullable<System.Int32> size, System.Boolean hasNonDefaultUnicode = False, System.Boolean hasNonDefaultSize = False)",
@@ -3214,5 +3214,10 @@
     "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch : Microsoft.EntityFrameworkCore.Update.ModificationCommandBatch",
     "MemberId": "protected abstract System.Void Consume(Microsoft.EntityFrameworkCore.Storage.RelationalDataReader reader)",
     "Kind": "Addition"
-  }
+  },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.RelationalOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+      "MemberId": "public virtual System.Func<Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext, Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy> get_ExecutionStrategyFactory()",
+      "Kind": "Removal"
+    }
 ]

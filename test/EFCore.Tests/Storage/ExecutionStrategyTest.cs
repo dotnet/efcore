@@ -14,15 +14,13 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
-    public class ExecutionStrategyTests
+    public class ExecutionStrategyTest
     {
         public class TestExecutionStrategy : ExecutionStrategy
         {
             public TestExecutionStrategy(DbContext context)
                 : base(
-                    new ExecutionStrategyContext(
-                        new ExecutionStrategyContextDependencies(
-                            new CurrentDbContext(context), null, null)),
+                    context,
                     DefaultMaxRetryCount,
                     DefaultMaxDelay)
             {
@@ -30,8 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             public TestExecutionStrategy(DbContext context, int retryCount)
                 : base(
-                    new ExecutionStrategyContext(
-                        new ExecutionStrategyContextDependencies(new CurrentDbContext(context), null, null)),
+                    context,
                     retryCount,
                     DefaultMaxDelay)
             {
@@ -393,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public Task ExecuteAsync_Func_throws_for_an_existing_transaction()
         {
-            return ExecuteAsync_throws_for_an_existing_transaction(e => e.ExecuteAsync((s, ct) => Task.FromResult(1), null, CancellationToken.None));
+            return ExecuteAsync_throws_for_an_existing_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
         }
 
         private async Task ExecuteAsync_throws_for_an_existing_transaction(Func<ExecutionStrategy, Task> executeAsync)
