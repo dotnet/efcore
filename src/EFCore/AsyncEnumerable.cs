@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     Represents an asynchronous sequence produced by executing a compiled query.
