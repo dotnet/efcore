@@ -40,9 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             IReadOnlyList<ModificationCommand> modificationCommands,
             int commandPosition)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(modificationCommands, nameof(modificationCommands));
-
             if (modificationCommands.Count == 1
                 && modificationCommands[0].ColumnModifications.All(o =>
                     !o.IsKey
@@ -140,7 +137,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         private const string InsertedTableBaseName = "@inserted";
-        private const string ToInsertTableBaseName = "@toInsert";
         private const string ToInsertTableAlias = "i";
         private const string PositionColumnName = "_Position";
         private const string PositionColumnDeclaration = "[" + PositionColumnName + "] [int]";
@@ -156,28 +152,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         {
             AppendDeclareTable(
                 commandStringBuilder,
-                ToInsertTableBaseName,
-                commandPosition,
-                writeOperations,
-                PositionColumnDeclaration);
-
-            commandStringBuilder.Append("INSERT INTO ").Append(ToInsertTableBaseName).Append(commandPosition);
-            AppendValuesHeader(commandStringBuilder, writeOperations);
-            AppendValues(commandStringBuilder, writeOperations, "0");
-            for (var i = 1; i < modificationCommands.Count; i++)
-            {
-                commandStringBuilder.Append(",").AppendLine();
-                AppendValues(
-                    commandStringBuilder,
-                    modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList(),
-                    i.ToString(CultureInfo.InvariantCulture));
-            }
-            commandStringBuilder
-                .AppendLine(SqlGenerationHelper.StatementTerminator)
-                .AppendLine();
-
-            AppendDeclareTable(
-                commandStringBuilder,
                 InsertedTableBaseName,
                 commandPosition,
                 keyOperations,
@@ -190,10 +164,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 commandStringBuilder,
                 name,
                 schema,
-                ToInsertTableBaseName,
-                commandPosition,
                 ToInsertTableAlias,
-                writeOperations);
+                modificationCommands,
+                writeOperations,
+                PositionColumnName);
             AppendOutputClause(
                 commandStringBuilder,
                 keyOperations,
@@ -239,39 +213,61 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
             [CanBeNull] string schema,
-            [NotNull] string toInsertTableName,
-            int toInsertTableIndex,
             [NotNull] string toInsertTableAlias,
-            [NotNull] IReadOnlyList<ColumnModification> operations)
+            [NotNull] IReadOnlyList<ModificationCommand> modificationCommands,
+            [NotNull] IReadOnlyList<ColumnModification> writeOperations,
+            string additionalColumns = null)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(operations, nameof(operations));
-
             commandStringBuilder.Append("MERGE ");
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
 
             commandStringBuilder
-                .Append(" USING ")
-                .Append(toInsertTableName)
-                .Append(toInsertTableIndex.ToString(CultureInfo.InvariantCulture))
-                .Append(" AS ").Append(toInsertTableAlias).AppendLine(" ON 1=0")
+                .Append(" USING (");
+
+            AppendValuesHeader(commandStringBuilder, writeOperations);
+            AppendValues(commandStringBuilder, writeOperations, "0");
+            for (var i = 1; i < modificationCommands.Count; i++)
+            {
+                commandStringBuilder.Append(",").AppendLine();
+                AppendValues(
+                    commandStringBuilder,
+                    modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList(),
+                    i.ToString(CultureInfo.InvariantCulture));
+            }
+
+            commandStringBuilder
+                .Append(") AS ").Append(toInsertTableAlias)
+                .Append(" (")
+                .AppendJoin(
+                    writeOperations,
+                    SqlGenerationHelper,
+                    (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName));
+            if (additionalColumns != null)
+            {
+                commandStringBuilder
+                    .Append(", ")
+                    .Append(additionalColumns);
+            }
+
+            commandStringBuilder
+                .Append(")")
+                .AppendLine(" ON 1=0")
                 .AppendLine("WHEN NOT MATCHED THEN");
 
             commandStringBuilder
                 .Append("INSERT ")
                 .Append("(")
                 .AppendJoin(
-                    operations,
+                    writeOperations,
                     SqlGenerationHelper,
-                    (sb, o, helper) => { helper.DelimitIdentifier(sb, o.ColumnName); })
+                    (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName))
                 .Append(")");
 
-            AppendValuesHeader(commandStringBuilder, operations);
+            AppendValuesHeader(commandStringBuilder, writeOperations);
             commandStringBuilder
                 .Append("(")
                 .AppendJoin(
-                    operations,
+                    writeOperations,
                     toInsertTableAlias,
                     SqlGenerationHelper,
                     (sb, o, alias, helper) =>
@@ -287,9 +283,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             IReadOnlyList<ColumnModification> operations,
             string additionalLiteral)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(operations, nameof(operations));
-
             if (operations.Count > 0)
             {
                 commandStringBuilder
@@ -370,16 +363,22 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             keyOrIndex: false,
                             size: null).StoreType;
                     }
-
-                    return typeName ?? _typeMapper.FindMapping(property.ClrType).StoreType;
+                    else
+                    {
+                        typeName = _typeMapper.FindMapping(property.ClrType).StoreType;
+                    }
                 }
             }
 
-            return property.ClrType == typeof(byte[])
-                   && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
-                       || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
-                ? (property.IsNullable ? "varbinary(8)" : "binary(8)")
-                : typeName;
+            if (property.ClrType == typeof(byte[])
+                && typeName != null
+                && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
+                    || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)))
+            {
+                return property.IsNullable ? "varbinary(8)" : "binary(8)";
+            }
+
+            return typeName;
         }
 
         // ReSharper disable once ParameterTypeCanBeEnumerable.Local
@@ -419,9 +418,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             IReadOnlyList<ColumnModification> readOperations,
             int commandPosition)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(command, nameof(command));
-
             var name = command.TableName;
             var schema = command.Schema;
             var operations = command.ColumnModifications;
@@ -455,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 .AppendJoin(
                     readOperations,
                     SqlGenerationHelper,
-                    (sb, o, helper) => { helper.DelimitIdentifier(sb, o.ColumnName, "t"); })
+                    (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName, "t"))
                 .Append(" FROM ");
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, tableName, schema);
             commandStringBuilder
@@ -495,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
+            commandStringBuilder
                 .Append("SELECT @@ROWCOUNT")
                 .Append(SqlGenerationHelper.StatementTerminator).AppendLine()
                 .AppendLine();
@@ -508,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override void AppendBatchHeader(StringBuilder commandStringBuilder)
-            => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
+            => commandStringBuilder
                 .Append("SET NOCOUNT ON")
                 .Append(SqlGenerationHelper.StatementTerminator).AppendLine();
 
@@ -518,9 +514,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(columnModification, nameof(columnModification));
-
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, columnModification.ColumnName);
             commandStringBuilder.Append(" = ");
 
@@ -532,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
-            => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
+            => commandStringBuilder
                 .Append("@@ROWCOUNT = ")
                 .Append(expectedRowsAffected.ToString(CultureInfo.InvariantCulture));
     }

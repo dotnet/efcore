@@ -138,6 +138,41 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [Fact]
+        public void Inserts_when_database_type_is_different()
+        {
+            using (var testStore = SqlServerTestStore.Create(DatabaseName + "_TypeMismatch"))
+            {
+                var options = new DbContextOptionsBuilder()
+                    .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkSqlServer()
+                            .BuildServiceProvider())
+                    .Options;
+
+                using (var context = new BloggingContext(options))
+                {
+                    context.Database.EnsureClean();
+                    testStore.ExecuteNonQuery(@"
+ALTER TABLE dbo.Owners
+    ALTER COLUMN Name nvarchar(MAX);");
+
+                    var owner1 = new Owner { Id = "0", Name = "Zero" };
+                    var owner2 = new Owner { Id = "A", Name = string.Join("", Enumerable.Repeat('A', 900)) };
+                    context.Owners.Add(owner1);
+                    context.Owners.Add(owner2);
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new BloggingContext(options))
+                {
+                    Assert.Equal(2, context.Owners.Count());
+                }
+            }
+        }
+
         private void AssertDatabaseState(bool clientOrder, List<Blog> expectedBlogs, DbContextOptions options)
         {
             expectedBlogs = clientOrder
@@ -171,7 +206,11 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Owner>().Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+                modelBuilder.Entity<Owner>(b =>
+                    {
+                        b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+                        b.Property(e => e.Name).HasColumnType("nvarchar(450)");
+                    });
                 modelBuilder.Entity<Blog>(b =>
                     {
                         b.Property(e => e.Id).HasDefaultValueSql("NEWID()");
@@ -187,14 +226,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             public Guid Id { get; set; }
             public int Order { get; set; }
-            public int? OwnerId { get; set; }
+            public string OwnerId { get; set; }
             public Owner Owner { get; set; }
             public byte[] Version { get; set; }
         }
 
         public class Owner
         {
-            public int Id { get; set; }
+            public string Id { get; set; }
             public string Name { get; set; }
             public byte[] Version { get; set; }
         }
