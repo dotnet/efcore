@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
 
                 for (var i = 0; i < NavigationPropertyPaths.Count; i++)
                 {
-                    _navigationPath[i] = entityType.FindNavigation(NavigationPropertyPaths[i]);
+                    _navigationPath[i] = FindNavigation(entityType, NavigationPropertyPaths[i]);
 
                     if (_navigationPath[i] == null)
                     {
@@ -153,6 +153,26 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             }
 
             return _navigationPath;
+        }
+
+        private INavigation FindNavigation(IEntityType entityType, string name)
+        {
+            var navigationPath = entityType.FindNavigation(name);
+            if (navigationPath != null)
+            {
+                return navigationPath;
+            }
+
+            foreach (var derived in entityType.GetDirectlyDerivedTypes())
+            {
+                navigationPath = FindNavigation(derived, name);
+                if (navigationPath != null)
+                {
+                    return navigationPath;
+                }
+            }
+
+            return navigationPath;
         }
 
         /// <summary>

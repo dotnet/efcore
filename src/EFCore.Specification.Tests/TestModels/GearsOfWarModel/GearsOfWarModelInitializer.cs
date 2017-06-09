@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             var marcusTag = new CogTag
             {
                 Id = Guid.NewGuid(),
-                Note = "Marcus's Tag"
+                Note = "Marcus' Tag"
             };
 
             var domsTag = new CogTag
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             var bairdsTag = new CogTag
             {
                 Id = Guid.NewGuid(),
-                Note = "Bairds's Tag"
+                Note = "Baird's Tag"
             };
 
             var paduksTag = new CogTag

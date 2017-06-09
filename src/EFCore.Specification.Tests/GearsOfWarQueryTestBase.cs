@@ -2806,7 +2806,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var prm = "Marcus's Tag";
+                var prm = "Marcus' Tag";
                 var query = context.Gears.Where(g => ClientEquals(g.Tag.Note, prm));
 
                 var result = query.ToList();
@@ -3677,7 +3677,7 @@ namespace Microsoft.EntityFrameworkCore
                 var result = query.ToList();
 
                 Assert.Equal(1, result.Count);
-                Assert.Equal("Marcus's Tag", result[0].Note);
+                Assert.Equal("Marcus' Tag", result[0].Note);
             }
         }
 
@@ -3769,6 +3769,157 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(1, result.Count(r => r.Id == 1 && r.Gears.Count == 3));
                 Assert.Equal(1, result.Count(r => r.Id == 2 && r.Gears.Count == 0));
             }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_reference_on_derived_type_using_string()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LocustLeaders.Include("DefeatedBy");
+                var result = query.ToList();
+
+                var included = result.OfType<LocustCommander>().Where(lc => lc.DefeatedBy != null).ToList();
+
+                Assert.Equal(6, result.Count);
+                Assert.Equal(1, included.Count);
+                Assert.Equal("Marcus", included[0].DefeatedBy.Nickname);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_reference_on_derived_type_using_lambda()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LocustLeaders.Include((LocustCommander ll) => ll.DefeatedBy);
+                var result = query.ToList();
+
+                var included = result.OfType<LocustCommander>().Where(lc => lc.DefeatedBy != null).ToList();
+
+                Assert.Equal(6, result.Count);
+                Assert.Equal(1, included.Count);
+                Assert.Equal("Queen Myrrah", included[0].Name);
+                Assert.Equal("Marcus", included[0].DefeatedBy.Nickname);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_reference_on_derived_type_using_lambda_with_tracking()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LocustLeaders.AsTracking().Include((LocustCommander ll) => ll.DefeatedBy);
+                var result = query.ToList();
+
+                var included = result.OfType<LocustCommander>().Where(lc => lc.DefeatedBy != null).ToList();
+
+                Assert.Equal(6, result.Count);
+                Assert.Equal(1, included.Count);
+                Assert.Equal("Queen Myrrah", included[0].Name);
+                Assert.Equal("Marcus", included[0].DefeatedBy.Nickname);
+                Assert.Equal(7, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_on_derived_type_using_string()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Include((Officer g) => g.Reports);
+                var result = query.ToList();
+
+                var included = result.OfType<Officer>().Where(lc => lc.Reports.Any()).OrderBy(g => g.Nickname).ToList();
+
+                Assert.Equal(5, result.Count);
+                Assert.Equal(2, included.Count);
+                Assert.Equal("Baird", included[0].Nickname);
+                Assert.Equal(1, included[0].Reports.Count);
+                Assert.Equal("Marcus", included[1].Nickname);
+                Assert.Equal(3, included[1].Reports.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_on_derived_type_using_lambda()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Include((Officer g) => g.Reports);
+                var result = query.ToList();
+
+                var included = result.OfType<Officer>().Where(lc => lc.Reports.Any()).OrderBy(g => g.Nickname).ToList();
+
+                Assert.Equal(5, result.Count);
+                Assert.Equal(2, included.Count);
+                Assert.Equal("Baird", included[0].Nickname);
+                Assert.Equal(1, included[0].Reports.Count);
+                Assert.Equal("Marcus", included[1].Nickname);
+                Assert.Equal(3, included[1].Reports.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_base_navigation_on_derived_entity()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears
+                    .Include((Officer g) => g.Tag)
+                    .Include((Officer g) => g.Weapons);
+
+                var result = query.ToList();
+
+                var included = result.OfType<Officer>().OrderBy(o => o.Nickname).ToList();
+
+                Assert.Equal(5, result.Count);
+                Assert.Equal(2, included.Count);
+                Assert.Equal("Baird's Tag", included[0].Tag.Note);
+                Assert.Equal(2, included[0].Weapons.Count);
+                Assert.Equal("Marcus' Tag", included[1].Tag.Note);
+                Assert.Equal(2, included[0].Weapons.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_derived_multi_level()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears
+                    .Include((Officer g) => g.Reports)
+                    .ThenInclude(g => g.Squad.Missions);
+
+                var result = query.ToList();
+                var included = result.OfType<Officer>().OrderBy(o => o.Nickname).ToList();
+
+                Assert.Equal(5, result.Count);
+                Assert.Equal(2, included.Count);
+                Assert.Equal(1, included[0].Reports.Count);
+                Assert.Equal("Paduk", included[0].Reports.First().Nickname);
+                Assert.Equal("Kilo", included[0].Reports.First().Squad.Name);
+                Assert.Equal(1, included[0].Reports.First().Squad.Missions.Count);
+                Assert.Equal(3, included[1].Reports.Count);
+                Assert.Equal("Delta", included[1].Reports.First().Squad.Name);
+                Assert.Equal(2, included[1].Reports.First().Squad.Missions.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_derived_using_as_operator_throws()
+        {
+
+            Assert.Throws<ArgumentException>(
+                () =>
+                    {
+                        using (var context = CreateContext())
+                        {
+                            var query = context.Gears
+                                .Include(g => (g as Officer).Reports)
+                                .ToList();
+                        }
+                    });
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
