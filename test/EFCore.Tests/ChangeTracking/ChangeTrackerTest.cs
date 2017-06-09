@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -71,6 +72,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
+        private static string NodeString(EntityEntryGraphNode node)
+            => EntryString(node.SourceEntry)
+               + " ---" + node.InboundNavigation?.Name + "--> "
+               + EntryString(node.Entry);
+
+        private static string EntryString(EntityEntry entry)
+            => entry == null
+                ? "<None>"
+                : entry.Metadata.DisplayName() + ":" + entry.Property("Id").CurrentValue;
+
         [Fact]
         public void Can_attach_parent_with_child_collection()
         {
@@ -87,7 +98,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     }
                 };
 
-                context.ChangeTracker.TrackGraph(category, e => e.Entry.State = EntityState.Modified);
+                var traversal = new List<string>();
+
+                context.ChangeTracker.TrackGraph(category, e =>
+                    {
+                        traversal.Add(NodeString(e));
+                        e.Entry.State = EntityState.Modified;
+                    });
+
+                Assert.Equal(
+                    new List<string>
+                    {
+                        "<None> -----> Category:1",
+                        "Category:1 ---Products--> Product:1",
+                        "Category:1 ---Products--> Product:2",
+                        "Category:1 ---Products--> Product:3"
+                    },
+                    traversal);
 
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
@@ -113,7 +140,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var product = new Product { Id = 1, Category = new Category { Id = 1 } };
 
-                context.ChangeTracker.TrackGraph(product, e => e.Entry.State = EntityState.Modified);
+                var traversal = new List<string>();
+
+                context.ChangeTracker.TrackGraph(product, e =>
+                    {
+                        traversal.Add(NodeString(e));
+                        e.Entry.State = EntityState.Modified;
+                    });
+
+                Assert.Equal(
+                    new List<string>
+                    {
+                        "<None> -----> Product:1",
+                        "Product:1 ---Category--> Category:1"
+                    },
+                    traversal);
 
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
@@ -132,7 +173,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var product = new Product { Id = 1, Details = new ProductDetails { Id = 1, Tag = new ProductDetailsTag { Id = 1 } } };
 
-                context.ChangeTracker.TrackGraph(product, e => e.Entry.State = EntityState.Unchanged);
+                var traversal = new List<string>();
+
+                context.ChangeTracker.TrackGraph(product, e =>
+                    {
+                        traversal.Add(NodeString(e));
+                        e.Entry.State = EntityState.Unchanged;
+                    });
+
+                Assert.Equal(
+                    new List<string>
+                    {
+                        "<None> -----> Product:1",
+                        "Product:1 ---Details--> ProductDetails:1",
+                        "ProductDetails:1 ---Tag--> ProductDetailsTag:1"
+                    },
+                    traversal);
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
 
@@ -152,7 +208,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var tag = new ProductDetailsTag { Id = 1, Details = new ProductDetails { Id = 1, Product = new Product { Id = 1 } } };
 
-                context.ChangeTracker.TrackGraph(tag, e => e.Entry.State = EntityState.Unchanged);
+                var traversal = new List<string>();
+
+                context.ChangeTracker.TrackGraph(tag, e =>
+                    {
+                        traversal.Add(NodeString(e));
+                        e.Entry.State = EntityState.Unchanged;
+                    });
+
+                Assert.Equal(
+                    new List<string>
+                    {
+                        "<None> -----> ProductDetailsTag:1",
+                        "ProductDetailsTag:1 ---Details--> ProductDetails:1",
+                        "ProductDetails:1 ---Product--> Product:1"
+                    },
+                    traversal);
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
 
@@ -172,7 +243,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var details = new ProductDetails { Id = 1, Product = new Product { Id = 1 }, Tag = new ProductDetailsTag { Id = 1 } };
 
-                context.ChangeTracker.TrackGraph(details, e => e.Entry.State = EntityState.Unchanged);
+                var traversal = new List<string>();
+
+                context.ChangeTracker.TrackGraph(details, e =>
+                    {
+                        traversal.Add(NodeString(e));
+                        e.Entry.State = EntityState.Unchanged;
+                    });
+
+                Assert.Equal(
+                    new List<string>
+                    {
+                        "<None> -----> ProductDetails:1",
+                        "ProductDetails:1 ---Product--> Product:1",
+                        "ProductDetails:1 ---Tag--> ProductDetailsTag:1"
+                    },
+                    traversal);
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
 
@@ -203,7 +289,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     }
                 };
 
-                context.ChangeTracker.TrackGraph(category, e => e.Entry.State = EntityState.Modified);
+                var traversal = new List<string>();
+
+                context.ChangeTracker.TrackGraph(category, e =>
+                    {
+                        traversal.Add(NodeString(e));
+                        e.Entry.State = EntityState.Modified;
+                    });
+
+                Assert.Equal(
+                    new List<string>
+                    {
+                        "<None> -----> Category:1",
+                        "Category:1 ---Products--> Product:1",
+                        "Category:1 ---Products--> Product:3"
+                    },
+                    traversal);
 
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
@@ -238,8 +339,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     }
                 };
 
+                var traversal = new List<string>();
+
                 context.ChangeTracker.TrackGraph(category, e =>
                     {
+                        traversal.Add(NodeString(e));
                         var product = e.Entry.Entity as Product;
                         if ((product == null)
                             || (product.Id != 2))
@@ -247,6 +351,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                             e.Entry.State = EntityState.Unchanged;
                         }
                     });
+
+                Assert.Equal(
+                    new List<string>
+                    {
+                        "<None> -----> Category:1",
+                        "Category:1 ---Products--> Product:1",
+                        "Product:1 ---Details--> ProductDetails:1",
+                        "Category:1 ---Products--> Product:2",
+                        "Category:1 ---Products--> Product:3",
+                        "Product:3 ---Details--> ProductDetails:3"
+                    },
+                    traversal);
 
                 Assert.Equal(5, context.ChangeTracker.Entries().Count(e => e.State != EntityState.Detached));
 
@@ -280,7 +396,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var details = new ProductDetails { Id = 1, Product = new Product { Id = 1 } };
                 details.Product.Details = details;
 
-                context.ChangeTracker.TrackGraph(details, e => { });
+                var traversal = new List<string>();
+
+                context.ChangeTracker.TrackGraph(details, e => traversal.Add(NodeString(e)));
+
+                Assert.Equal(
+                    new List<string>
+                    {
+                        "<None> -----> ProductDetails:1"
+                    },
+                    traversal);
 
                 Assert.Equal(0, context.ChangeTracker.Entries().Count(e => e.State != EntityState.Detached));
             }
@@ -291,13 +416,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             KeyValueAttachTest((category, changeTracker) =>
                 {
+                    var traversal = new List<string>();
+
                     changeTracker.TrackGraph(
                         category,
                         e =>
                             {
+                                traversal.Add(NodeString(e));
                                 var product = e.Entry.Entity as Product;
                                 e.Entry.State = (product != null) && (product.Id == 0) ? EntityState.Added : EntityState.Unchanged;
                             });
+
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "<None> -----> Category:77",
+                            "Category:77 ---Products--> Product:77",
+                            "Category:77 ---Products--> Product:0",
+                            "Category:77 ---Products--> Product:78"
+                        },
+                        traversal);
                 });
         }
 

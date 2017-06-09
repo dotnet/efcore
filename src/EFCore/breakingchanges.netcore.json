@@ -1,5 +1,10 @@
   [
     {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntryGraphNode : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry>",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry internalEntityEntry, Microsoft.EntityFrameworkCore.Metadata.INavigation inboundNavigation)",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public enum Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior",
       "Kind": "Removal"
     },
