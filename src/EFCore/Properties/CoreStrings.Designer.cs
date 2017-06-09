@@ -1751,7 +1751,67 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogPossibleUnintendedReferenceComparison")));
 
         /// <summary>
-        ///     The same entity is being tracked as different delegated identity entity types '{diet1}' and '{diet2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.
+        /// The Db Function '{dbFunction}' is generic.  Generic methods are not supported.
+        /// </summary>
+        public static string DbFunctionGenericMethodNotSupported([CanBeNull] MethodInfo dbFunction)
+             => string.Format(
+                GetString("DbFunctionGenericMethodNotSupported", nameof(dbFunction)),
+                $"{ dbFunction?.DeclaringType}.{dbFunction?.Name}");
+
+        /// <summary>
+        /// Db Function has no name set.
+        /// </summary>
+        public static string DbFunctionNameEmpty()
+           => GetString("DbFunctionNameEmpty");
+
+        /// <summary>
+        /// The Db Function '{dbFunction}' has an invalid return type '{returnType}'.
+        /// </summary>
+        public static string DbFunctionInvalidReturnType([CanBeNull] MethodInfo dbFunction, [CanBeNull] Type returnType)
+            => string.Format(
+                GetString("DbFunctionInvalidReturnType", nameof(returnType), nameof(dbFunction)),
+                returnType?.Name, $"{ dbFunction?.DeclaringType}.{dbFunction?.Name}");
+
+        /// <summary>
+        /// Db Function '{dbFunctionName}' has parameters with duplicate indexes.
+        /// </summary>
+        public static string DbFunctionDuplicateIndex([CanBeNull] object dbFunctionName)
+             => string.Format(
+                GetString("DbFunctionParametersDuplicateIndex", nameof(dbFunctionName)),
+                dbFunctionName);
+
+        /// <summary>
+        /// Db Function '{dbFunctionName}' has a non continuous parameter index.
+        /// </summary>
+        public static string DbFunctionNonContinuousIndex([CanBeNull] object dbFunctionName)
+             => string.Format(
+                GetString("DbFunctionNonContinuousIndex", nameof(dbFunctionName)),
+                dbFunctionName);
+
+        /// <summary>
+        /// The parameter '{dbParameter}' Db Function '{dbFunction}' has an invalid type.
+        /// </summary>
+        public static string DbFunctionInvalidParameterType([CanBeNull] MethodInfo dbFunction, [CanBeNull] object dbParameter, [CanBeNull] Type dbParamType)
+            => string.Format(
+                GetString("DbFunctionInvalidParameterType", nameof(dbParameter), nameof(dbFunction), nameof(dbParamType)),
+                dbParameter, $"{ dbFunction?.DeclaringType}.{dbFunction?.Name}", dbParamType?.Name);
+
+        /// <summary>
+        /// Db Function '{dbFunctionName}' must be a static method.
+        /// </summary>
+        public static string DbFunctionDbContextMethodMustBeStatic([CanBeNull] object dbFunctionName)
+            => string.Format(
+                GetString("DbFunctionDbContextMethodMustBeStatic", nameof(dbFunctionName)), dbFunctionName);
+
+        /// <summary>
+        /// Db Function '{dbFunctionName}' has no parameter '{dbParameterName}'.  Check the method signature for the correct parameter name.
+        /// </summary>
+        public static string DbFunctionParameterNotFound([CanBeNull] object dbFunctionName, [CanBeNull] object dbParameterName)
+            => string.Format(
+                GetString("DbFunctionParameterNotFound", nameof(dbFunctionName), nameof(dbParameterName)), dbFunctionName, dbParameterName);
+
+        /// <summary>
+        ///     The same entity is being tracked as different delegated identity entity types '{diet1}' and '{diet2}'. If a property value changes it will result in two store changes, which might not be the desired outcome. 
         /// </summary>
         public static readonly EventDefinition<string, string> LogDuplicateDietInstance
             = new EventDefinition<string, string>(

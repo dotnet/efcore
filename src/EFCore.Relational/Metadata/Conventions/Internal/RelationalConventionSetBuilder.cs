@@ -63,6 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.ModelBuiltConventions.Add(new RelationalTypeMappingConvention(Dependencies.TypeMapper));
 
+            conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention());
+
             return conventionSet;
         }
 

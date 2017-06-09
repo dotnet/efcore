@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -115,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IQueryTrackingListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IPropertyListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IResettableService), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
-                { typeof(ISingletonOptions), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) }
+                { typeof(ISingletonOptions), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
+                { typeof(IEvaluatableExpressionFilter), new ServiceCharacteristics(ServiceLifetime.Scoped) }
             };
 
         /// <summary>
@@ -239,7 +241,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IEntityStateListener, ILocalViewListener>(p => p.GetService<ILocalViewListener>());
             TryAdd<IResettableService, IStateManager>(p => p.GetService<IStateManager>());
             TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetService<IDbContextTransactionManager>());
-
+            TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>();
+            
             ServiceCollectionMap
                 .TryAddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name));
 

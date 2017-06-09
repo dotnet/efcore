@@ -1,8 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -639,6 +642,93 @@ namespace Microsoft.EntityFrameworkCore
                 .HasValue<Generic<string>>(3);
 
             Validate(modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_function_duplicate_parameter_index()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+
+            var methodAmi = typeof(DbFunctionMetadataTests.TestMethods).GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodA), new[] { typeof(string), typeof(int) });
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(methodAmi);
+
+            dbFuncBuilder.HasParameter("a").HasIndex(0);
+            dbFuncBuilder.HasParameter("b").HasIndex(0);
+
+            VerifyError(CoreStrings.DbFunctionDuplicateIndex($"{methodAmi.DeclaringType.Name}.{methodAmi.Name}"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_function_missing_parameter_index()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+
+            var methodAmi = typeof(DbFunctionMetadataTests.TestMethods).GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodA), new[] { typeof(string), typeof(int) });
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(methodAmi);
+
+            dbFuncBuilder.HasParameter("a").HasIndex(5);
+
+            VerifyError(CoreStrings.DbFunctionNonContinuousIndex($"{methodAmi.DeclaringType.Name}.{methodAmi.Name}"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_function_with_invalid_parameter_but_translate_callback_does_not_throw()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+          
+            var methodFmi = typeof(DbFunctionMetadataTests.TestMethods).GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodF), new [] { typeof(DbFunctionMetadataTests.MyBaseContext) });
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(methodFmi);
+
+            dbFuncBuilder.TranslateWith((parameters, dbFunc) => null);
+
+            Validate(modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_function_with_invalid_parameter_but_no_translate_callback_throws()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+
+            var methodFmi = typeof(DbFunctionMetadataTests.TestMethods).GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodF), new [] { typeof(DbFunctionMetadataTests.MyBaseContext) });
+
+            modelBuilder.HasDbFunction(methodFmi);
+
+            VerifyError(CoreStrings.DbFunctionInvalidParameterType(methodFmi, "context", typeof(DbFunctionMetadataTests.MyBaseContext)), modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Detects_method_invalid_parameter_type()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+
+            var methodFmi = typeof(DbFunctionMetadataTests.TestMethods).GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodF), new [] { typeof(DbFunctionMetadataTests.MyBaseContext) });
+            modelBuilder.HasDbFunction(methodFmi);
+            
+            VerifyError(CoreStrings.DbFunctionInvalidParameterType(methodFmi, "context", typeof(DbFunctionMetadataTests.MyBaseContext)), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_non_static_function_on_dbcontext()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+
+            modelBuilder.HasDbFunction(typeof(DbFunctionMetadataTests.MyDerivedContext).GetRuntimeMethod(nameof(DbFunctionMetadataTests.MyDerivedContext.NonStatic), new Type[] { }));
+
+            VerifyError(CoreStrings.DbFunctionDbContextMethodMustBeStatic("MyDerivedContext.NonStatic"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Detects_invalid_return_type_throws()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+
+            var methodDmi = typeof(DbFunctionMetadataTests.TestMethods).GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodD), new Type[] { });
+            var dbFuncBuilder = modelBuilder.HasDbFunction(methodDmi);
+            
+            VerifyError(CoreStrings.DbFunctionInvalidReturnType(methodDmi, dbFuncBuilder.Metadata.ReturnType), modelBuilder.Model);
         }
 
         protected override void SetBaseType(EntityType entityType, EntityType baseEntityType)

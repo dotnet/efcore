@@ -1,6 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -36,8 +40,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         // ReSharper disable once EmptyConstructor
-        public ModelCustomizerDependencies()
+        public ModelCustomizerDependencies([NotNull] IDbSetFinder setFinder)
         {
+            Check.NotNull(setFinder, nameof(setFinder));
+
+            SetFinder = setFinder;
         }
+
+        /// <summary>
+        ///     Gets the <see cref="IDbSetFinder" /> that will locate the <see cref="DbSet{TEntity}" /> properties
+        ///     on the derived context.
+        /// </summary>
+        public IDbSetFinder SetFinder { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="setFinder"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelCustomizerDependencies With([NotNull] IDbSetFinder setFinder)
+            => new ModelCustomizerDependencies(setFinder);
     }
 }

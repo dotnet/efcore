@@ -38,6 +38,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             = new List<IEntityTypeAnnotationChangedConvention>();
 
         /// <summary>
+        ///     Conventions to run when an annotation is set or removed on a model.
+        /// </summary>
+        public virtual IList<IModelAnnotationChangedConvention> ModelAnnotationChangedConventions { get; }
+            = new List<IModelAnnotationChangedConvention>();
+
+        /// <summary>
         ///     Conventions to run when a foreign key is added.
         /// </summary>
         public virtual IList<IForeignKeyAddedConvention> ForeignKeyAddedConventions { get; } = new List<IForeignKeyAddedConvention>();

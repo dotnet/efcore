@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
+using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -65,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ISqlTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IUpdateSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMemberTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IMethodCallTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ICompositeMethodCallTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IQuerySqlGeneratorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -77,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalConnection), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalDatabaseCreator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IHistoryRepository), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(INamedConnectionStringResolver), new ServiceCharacteristics(ServiceLifetime.Scoped) }
+                { typeof(INamedConnectionStringResolver), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             };
 
         /// <summary>
@@ -115,6 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();
             TryAdd<IKeyValueIndexFactorySource, KeyValueIndexFactorySource>();
             TryAdd<IModelSource, RelationalModelSource>();
+            TryAdd<IModelCustomizer, RelationalModelCustomizer>();
             TryAdd<IMigrationsAnnotationProvider, MigrationsAnnotationProvider>();
             TryAdd<IModelValidator, RelationalModelValidator>();
             TryAdd<IMigrator, Migrator>();
@@ -149,6 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IExpressionFragmentTranslator, RelationalCompositeExpressionFragmentTranslator>();
             TryAdd<ISqlTranslatingExpressionVisitorFactory, SqlTranslatingExpressionVisitorFactory>();
             TryAdd<INamedConnectionStringResolver, NamedConnectionStringResolver>();
+            TryAdd<IEvaluatableExpressionFilter, RelationalEvaluatableExpressionFilter>();
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalCompositeMemberTranslatorDependencies>()

@@ -78,7 +78,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IRelationalDatabaseCreator, SqliteDatabaseCreator>()
                 .TryAdd<IHistoryRepository, SqliteHistoryRepository>()
                 .TryAdd<IMemberTranslator, SqliteCompositeMemberTranslator>()
-                .TryAdd<IMethodCallTranslator, SqliteCompositeMethodCallTranslator>()
+                .TryAdd<ICompositeMethodCallTranslator, SqliteCompositeMethodCallTranslator>()
                 .TryAdd<IQuerySqlGeneratorFactory, SqliteQuerySqlGeneratorFactory>()
                 .TryAddProviderSpecificServices(b => b
                     .TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>());

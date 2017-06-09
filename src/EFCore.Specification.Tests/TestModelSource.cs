@@ -14,11 +14,13 @@ namespace Microsoft.EntityFrameworkCore
     public class TestModelSource : ModelSource
     {
         private readonly Action<ModelBuilder> _onModelCreating;
+        private readonly Action<ModelBuilder, DbContext> _customizeModel;
 
-        public TestModelSource(Action<ModelBuilder> onModelCreating, ModelSourceDependencies dependencies)
+        public TestModelSource(Action<ModelBuilder> onModelCreating, ModelSourceDependencies dependencies, Action<ModelBuilder, DbContext> customizeModel = null)
             : base(dependencies)
         {
             _onModelCreating = onModelCreating;
+            _customizeModel = customizeModel;
         }
 
         protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
@@ -29,10 +31,10 @@ namespace Microsoft.EntityFrameworkCore
             var model = (Model)modelBuilder.Model;
             model.SetProductVersion(ProductInfo.GetVersion());
 
-            FindSets(modelBuilder, context);
+            _customizeModel?.Invoke(modelBuilder, context);
 
             _onModelCreating(modelBuilder);
-
+            
             model.Validate();
 
             validator.Validate(model);
@@ -43,6 +45,13 @@ namespace Microsoft.EntityFrameworkCore
         public static Func<IServiceProvider, IModelSource> GetFactory(Action<ModelBuilder> onModelCreating)
             => p => new TestModelSource(
                 onModelCreating,
-                p.GetRequiredService<ModelSourceDependencies>());
+                p.GetRequiredService<ModelSourceDependencies>(),
+                (mb, dbc) =>
+                    {
+                        foreach (var setInfo in p.GetRequiredService<IDbSetFinder>().FindSets(dbc))
+                        {
+                            mb.Entity(setInfo.ClrType);
+                        }
+                    });
     }
 }
