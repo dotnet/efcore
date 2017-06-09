@@ -113,5 +113,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 foreignKeyName,
                 indexName,
                 nullablePropertyNames.Aggregate((a, b) => a + "," + b));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void NonNullableBoooleanColumnHasDefaultConstraintWarning(
+                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+                [CanBeNull] string columnName)
+            // No DiagnosticsSource events because these are purely design-time messages
+            => DesignStrings.LogNonNullableBoooleanColumnHasDefaultConstraint.Log(
+                diagnostics,
+                columnName);
     }
 }

@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             PrimaryKeyColumnsNotMappedWarning,
             ForeignKeyReferencesNotMappedTableWarning,
             ForeignKeyReferencesMissingPrincipalKeyWarning,
-            ForeignKeyPrincipalEndContainsNullableColumnsWarning
+            ForeignKeyPrincipalEndContainsNullableColumnsWarning,
+            NonNullableBoooleanColumnHasDefaultConstraintWarning
         }
 
         private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
@@ -84,5 +85,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
         public static readonly EventId ForeignKeyPrincipalEndContainsNullableColumnsWarning = MakeScaffoldingId(Id.ForeignKeyPrincipalEndContainsNullableColumnsWarning);
+
+        /// <summary>
+        ///     A column would be mapped to a bool type, is non-nullable and has a default constraint.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId NonNullableBoooleanColumnHasDefaultConstraintWarning = MakeScaffoldingId(Id.NonNullableBoooleanColumnHasDefaultConstraintWarning);
     }
 }

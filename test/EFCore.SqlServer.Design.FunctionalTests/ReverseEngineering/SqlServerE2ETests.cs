@@ -180,6 +180,61 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
             AssertCompile(actualFileSet);
         }
 
+        [Fact]
+        public void Non_null_boolean_columns_with_default_constraint_become_nullable_properties()
+        {
+            using (var scratch = SqlServerTestStore.Create("NonNullBooleanWithDefaultConstraint"))
+            {
+                scratch.ExecuteNonQuery(@"
+CREATE TABLE NonNullBoolWithDefault
+(
+     Id int NOT NULL PRIMARY KEY CLUSTERED,
+     BoolWithDefaultValueSql bit NOT NULL DEFAULT (CONVERT(""bit"", GETDATE())),
+     BoolWithoutDefaultValueSql bit NOT NULL
+)");
+
+                var expectedFileSet = new FileSet(new FileSystemFileService(),
+                    Path.Combine("ReverseEngineering", "Expected"),
+                    contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
+                {
+                    Files = new List<string>
+                    {
+                        "NonNullBoolWithDefaultContext.cs",
+                        "NonNullBoolWithDefault.cs",
+                    }
+                };
+
+                var filePaths = Generator.GenerateAsync(
+                        scratch.ConnectionString,
+                        TableSelectionSet.All,
+                        TestProjectDir + Path.DirectorySeparatorChar,
+                        outputPath: null, // not used for this test
+                        rootNamespace: TestNamespace,
+                        contextName: "NonNullBoolWithDefaultContext",
+                        useDataAnnotations: false,
+                        overwriteFiles: false)
+                    .GetAwaiter()
+                    .GetResult();
+
+
+                var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
+                {
+                    Files = new[] { filePaths.ContextFile }.Concat(filePaths.EntityTypeFiles).Select(Path.GetFileName).ToList()
+                };
+
+                AssertLog(new LoggerMessages
+                {
+                    Warn =
+                    {
+                        DesignStrings.LogNonNullableBoooleanColumnHasDefaultConstraint.GenerateMessage("dbo.NonNullBoolWithDefault.BoolWithDefaultValueSql")
+                    }
+                });
+
+                AssertEqualFileContents(expectedFileSet, actualFileSet);
+                AssertCompile(actualFileSet);
+            }
+        }
+
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public void Sequences()

@@ -572,6 +572,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     DesignEventId.ForeignKeyPrincipalEndContainsNullableColumnsWarning,
                     _resourceManager.GetString("LogForeignKeyPrincipalEndContainsNullableColumns")));
 
+        /// <summary>
+        ///     The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to false and invoking the default constraint.
+        /// </summary>
+        public static readonly EventDefinition<string> LogNonNullableBoooleanColumnHasDefaultConstraint
+            = new EventDefinition<string>(
+                DesignEventId.NonNullableBoooleanColumnHasDefaultConstraintWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    DesignEventId.NonNullableBoooleanColumnHasDefaultConstraintWarning,
+                    _resourceManager.GetString("LogNonNullableBoooleanColumnHasDefaultConstraint")));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
