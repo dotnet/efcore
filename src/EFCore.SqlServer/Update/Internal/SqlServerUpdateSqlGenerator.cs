@@ -58,8 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             var defaultValuesOnly = writeOperations.Count == 0;
             var nonIdentityOperations = modificationCommands[0].ColumnModifications
-                .Where(o => o.Property.SqlServer().ValueGenerationStrategy != SqlServerValueGenerationStrategy.IdentityColumn
-                            || !o.Property.IsKey())
+                .Where(o => o.Property.SqlServer().ValueGenerationStrategy != SqlServerValueGenerationStrategy.IdentityColumn)
                 .ToList();
 
             if (defaultValuesOnly)

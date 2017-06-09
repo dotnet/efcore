@@ -147,7 +147,10 @@
     <comment>Warning SqlServerEventId.ByteIdentityColumnWarning string string</comment>
   </data>
   <data name="NonKeyValueGeneration" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' is configured to use 'Identity' or 'SequenceHiLo' value generator, which are only intended for keys. If this was intentional configure an alternate key on the property, otherwise call `ValueGeneratedNever` or configure store generation for this property.</value>
+    <value>The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.</value>
+  </data>
+  <data name="MultipleIdentityColumns" xml:space="preserve">
+    <value>The properties {properties} are configured to use 'Identity' value generator and are mapped to the same table '{table}'. Only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' for properties that should not use 'Identity'.</value>
   </data>
   <data name="IncompatibleTableMemoryOptimizedMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.</value>

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -57,10 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
-                .Where(
-                    p =>
-                        ((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false) != null
-                        && !p.IsKey()))
+                .Where(p =>
+                    ((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false) == SqlServerValueGenerationStrategy.SequenceHiLo
+                    && !p.IsKey()))
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));
@@ -78,13 +78,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     throw new InvalidOperationException(
                         SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch(
-                        tableName, newEntityType.DisplayName(), otherMappedType.DisplayName(),
-                        isMemoryOptimized ? newEntityType.DisplayName() : otherMappedType.DisplayName(),
-                        !isMemoryOptimized ? newEntityType.DisplayName() : otherMappedType.DisplayName()));
+                            tableName, newEntityType.DisplayName(), otherMappedType.DisplayName(),
+                            isMemoryOptimized ? newEntityType.DisplayName() : otherMappedType.DisplayName(),
+                            !isMemoryOptimized ? newEntityType.DisplayName() : otherMappedType.DisplayName()));
                 }
             }
 
             base.ValidateSharedTableCompatibility(newEntityType, otherMappedTypes, tableName);
+        }
+
+        protected override void ValidateSharedColumnsCompatibility(IReadOnlyList<IEntityType> mappedTypes, string tableName)
+        {
+            base.ValidateSharedColumnsCompatibility(mappedTypes, tableName);
+
+            var identityColumns = mappedTypes.SelectMany(et => et.GetDeclaredProperties())
+                .Where(p => p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
+                .Distinct((p1, p2) => p1.Name == p2.Name)
+                .ToList();
+
+            if (identityColumns.Count > 1)
+            {
+                var sb = new StringBuilder();
+                sb.AppendJoin(identityColumns.Select(p => "'" + p.DeclaringEntityType.DisplayName() + "." + p.Name + "'"));
+                throw new InvalidOperationException(SqlServerStrings.MultipleIdentityColumns(sb, tableName));
+            }
         }
     }
 }

@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Dog>().Property<byte>("Bite").UseSqlServerIdentityColumn();
 
-            VerifyError(SqlServerStrings.NonKeyValueGeneration("Bite", nameof(Dog)), modelBuilder.Model);
+            VerifyWarning(SqlServerStrings.LogByteIdentityColumn.GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
 
         [Fact]
@@ -162,16 +162,26 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Dog>().Property<byte?>("Bite").UseSqlServerIdentityColumn();
 
-            VerifyError(SqlServerStrings.NonKeyValueGeneration("Bite", nameof(Dog)), modelBuilder.Model);
+            VerifyWarning(SqlServerStrings.LogByteIdentityColumn.GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
 
         [Fact]
-        public void Throws_for_non_key_identity()
+        public void Passes_for_non_key_identity()
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Dog>().Property(c => c.Type).UseSqlServerIdentityColumn();
 
-            VerifyError(SqlServerStrings.NonKeyValueGeneration(nameof(Dog.Type), nameof(Dog)), modelBuilder.Model);
+            Validate(modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Throws_for_multiple_identity_properties()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Dog>().Property(c => c.Type).UseSqlServerIdentityColumn();
+            modelBuilder.Entity<Dog>().Property<int?>("Tag").UseSqlServerIdentityColumn();
+
+            VerifyError(SqlServerStrings.MultipleIdentityColumns("'Dog.Tag', 'Dog.Type'", nameof(Dog)), modelBuilder.Model);
         }
 
         [Fact]
@@ -188,6 +198,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.ForSqlServerUseIdentityColumns();
+            modelBuilder.Entity<Dog>().Property(c => c.Id).ValueGeneratedNever();
             modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
 
             Validate(modelBuilder.Model);
