@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var rootEntry = StateManager.GetOrCreateEntry(rootEntity);
 
             GraphIterator.TraverseGraph(
-                new EntityEntryGraphNode(rootEntry, null),
+                new EntityEntryGraphNode(rootEntry, null, null),
                 n =>
                     {
                         if (n.Entry.State != EntityState.Detached)

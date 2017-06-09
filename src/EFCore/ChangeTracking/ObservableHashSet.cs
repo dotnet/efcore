@@ -8,7 +8,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -21,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         : ISet<T>, IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
     {
         private HashSet<T> _set;
-        private ObservableBackedBindingList<T> _bindingList;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ObservableHashSet{T}" /> class
@@ -460,13 +458,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="e"> Details of the change. </param>
         protected virtual void OnCollectionChanged([NotNull] NotifyCollectionChangedEventArgs e)
             => CollectionChanged?.Invoke(this, e);
-
-        /// <summary>
-        ///     Returns an <see cref="BindingList{T}" /> implementation that stays in sync with this collection.
-        /// </summary>
-        /// <returns> The binding list. </returns>
-        public virtual BindingList<T> ToBindingList()
-            => _bindingList ?? (_bindingList = new ObservableBackedBindingList<T>(this));
     }
 
     internal class ObservableHashSetSingletons

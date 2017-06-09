@@ -1087,7 +1087,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType, referencedProperty, referencedEntityType);
 
         /// <summary>
-        ///     Data binding directly to a store query is not supported. Instead populate a DbSet with data, for example by calling Load on the DbSet, and then bind to local data to avoid sending a query to the database each time the databound control iterates the data. For WPF bind to DbSet.Local. For WinForms bind to DbSet.Local.ToBindingList(). For ASP.NET WebForms bind to DbSet.ToList() or use Model Binding.
+        ///     Data binding directly to a store query is not supported. Instead populate a DbSet with data, for example by calling Load on the DbSet, and then bind to local data to avoid sending a query to the database each time the databound control iterates the data. For WPF bind to 'DbSet.Local.ToObservableCollection()'. For WinForms bind to 'DbSet.Local.ToBindingList()'. For ASP.NET WebForms bind to 'DbSet.ToList()' or use Model Binding.
         /// </summary>
         public static string DataBindingWithIListSource
             => GetString("DataBindingWithIListSource");

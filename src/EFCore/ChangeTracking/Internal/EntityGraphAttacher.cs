@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState)
             => _graphIterator.TraverseGraph(
-                new EntityEntryGraphNode(rootEntry, null)
+                new EntityEntryGraphNode(rootEntry, null, null)
                 {
                     NodeState = entityState
                 },
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityState entityState,
             CancellationToken cancellationToken = default(CancellationToken))
             => _graphIterator.TraverseGraphAsync(
-                new EntityEntryGraphNode(rootEntry, null)
+                new EntityEntryGraphNode(rootEntry, null, null)
                 {
                     NodeState = entityState
                 },
