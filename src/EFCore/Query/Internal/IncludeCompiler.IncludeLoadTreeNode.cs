@@ -178,12 +178,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     arguments.Add(cancellationTokenExpression);
                 }
 
-                return Expression.Call(
-                    Expression.Property(
-                        EntityQueryModelVisitor.QueryContextParameter,
-                        nameof(QueryContext.QueryBuffer)),
-                    includeCollectionMethodInfo,
-                    arguments);
+                var includeCollectionMethodCall =
+                    Expression.Call(
+                        Expression.Property(
+                            EntityQueryModelVisitor.QueryContextParameter,
+                            nameof(QueryContext.QueryBuffer)),
+                        includeCollectionMethodInfo,
+                        arguments);
+
+                return
+                    navigation.DeclaringEntityType.BaseType != null
+                    ? Expression.Condition(
+                            Expression.TypeIs(
+                                targetEntityExpression,
+                                navigation.DeclaringType.ClrType),
+                            includeCollectionMethodCall,
+                            Expression.Default(includeCollectionMethodInfo.ReturnType))
+                    : (Expression)includeCollectionMethodCall;
             }
 
             private Expression CompileReferenceInclude(
@@ -292,13 +303,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var blockType = blockExpressions.Last().Type;
 
+                Expression conditionTest
+                    = Expression.Not(
+                        Expression.Call(
+                            _referenceEqualsMethodInfo,
+                            relatedArrayAccessExpression,
+                            Expression.Constant(null, typeof(object))));
+
                 return
                     Expression.Condition(
-                        Expression.Not(
-                            Expression.Call(
-                                _referenceEqualsMethodInfo,
-                                relatedArrayAccessExpression,
-                                Expression.Constant(null, typeof(object)))),
+                        conditionTest,
                         Expression.Block(
                             blockType,
                             blockExpressions),

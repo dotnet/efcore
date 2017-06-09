@@ -1365,12 +1365,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 firstDependentToPrincipalNavigationSpecification, firstPrincipalToDependentNavigationSpecification, secondDependentToPrincipalNavigationSpecification, secondPrincipalToDependentNavigationSpecification, foreignKeyProperties);
 
         /// <summary>
-        ///     The property expression '{propertyAccessExpression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
+        ///     The property expression '{propertyAccessExpression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'.
         /// </summary>
         public static string InvalidComplexPropertyExpression([CanBeNull] object propertyAccessExpression)
             => string.Format(
                 GetString("InvalidComplexPropertyExpression", nameof(propertyAccessExpression)),
                 propertyAccessExpression);
+
+        /// <summary>
+        ///     Lambda expression '{includeLambdaExpression}' is not valid for Include/ThenInclude result operator. The expression should represent a property access: 't =&gt; t.MyProperty'. Specify lambda parameter explicitly to access navigations on derived types: '(Derived t) =&gt; t.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
+        /// </summary>
+        public static string InvalidIncludeLambdaExpression([CanBeNull] object includeLambdaExpression)
+            => string.Format(
+                GetString("InvalidIncludeLambdaExpression", nameof(includeLambdaExpression)),
+                includeLambdaExpression);
 
         /// <summary>
         ///     The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.
