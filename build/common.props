@@ -10,6 +10,7 @@
     <RepositoryUrl>https://github.com/aspnet/EntityFramework.git</RepositoryUrl>
     <SignAssembly>True</SignAssembly>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <NoWarn>NU1603;NU1605;$(NoWarn)</NoWarn>
     <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
     <DebugType Condition="'$(Configuration)' == 'Debug' AND '$(OS)' == 'Windows_NT'">full</DebugType>
   </PropertyGroup>
