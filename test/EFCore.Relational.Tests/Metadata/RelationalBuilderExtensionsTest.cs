@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -967,6 +968,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook", "Tasty");
 
             ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+
+        [Fact]
+        public void Can_create_dbFunction()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            var testMethod = typeof(TestDbFunctions).GetTypeInfo().GetDeclaredMethod(nameof(TestDbFunctions.MethodA));
+            modelBuilder.HasDbFunction(testMethod);
+
+            var dbFunc = modelBuilder.Model.Relational().FindDbFunction(testMethod);
+
+            Assert.NotNull(dbFunc);
+            Assert.Equal("MethodA", dbFunc.Name);
+            Assert.Null(dbFunc.Schema);
+            Assert.Equal(2, dbFunc.Parameters.Count);
+            Assert.Equal("a", dbFunc.Parameters[0].Name);
+            Assert.Equal(typeof(string), dbFunc.Parameters[0].ParameterType);
+            Assert.Equal(0, dbFunc.Parameters[0].Index);
+            Assert.Equal("b", dbFunc.Parameters[1].Name);
+            Assert.Equal(typeof(int), dbFunc.Parameters[1].ParameterType);
+            Assert.Equal(1, dbFunc.Parameters[1].Index);
         }
 
         [Fact]

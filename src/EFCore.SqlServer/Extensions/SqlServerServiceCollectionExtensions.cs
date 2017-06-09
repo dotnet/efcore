@@ -86,7 +86,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IExecutionStrategyFactory, SqlServerExecutionStrategyFactory>()
                 .TryAdd<IQueryCompilationContextFactory, SqlServerQueryCompilationContextFactory>()
                 .TryAdd<IMemberTranslator, SqlServerCompositeMemberTranslator>()
-                .TryAdd<IMethodCallTranslator, SqlServerCompositeMethodCallTranslator>()
+                .TryAdd<ICompositeMethodCallTranslator, SqlServerCompositeMethodCallTranslator>()
                 .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
                 .TryAdd<ISingletonOptions, ISqlServerOptions>(p => p.GetService<ISqlServerOptions>())
                 .TryAddProviderSpecificServices(b => b

@@ -1275,7 +1275,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </returns>
         public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
-            GenerateFunctionCall(sqlFunctionExpression.FunctionName, sqlFunctionExpression.Arguments);
+            GenerateFunctionCall(sqlFunctionExpression.FunctionName, sqlFunctionExpression.Arguments, sqlFunctionExpression.Schema);
 
             return sqlFunctionExpression;
         }
@@ -1285,11 +1285,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </summary>
         /// <param name="functionName">The function name</param>
         /// <param name="arguments">The function arguments</param>
+        /// <param name="schema">The function schema</param>
         protected virtual void GenerateFunctionCall(
-            [NotNull] string functionName, [NotNull] IReadOnlyList<Expression> arguments)
+            [NotNull] string functionName, [NotNull] IReadOnlyList<Expression> arguments,
+            [CanBeNull] string schema = null)
         {
             Check.NotEmpty(functionName, nameof(functionName));
             Check.NotNull(arguments, nameof(arguments));
+
+            if (!string.IsNullOrWhiteSpace(schema))
+            {
+                _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(schema))
+                    .Append(".");
+            }
+
+            var parentTypeMapping = _typeMapping;
+            _typeMapping = null;
 
             _relationalCommandBuilder.Append(functionName);
             _relationalCommandBuilder.Append("(");
@@ -1297,6 +1308,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             ProcessExpressionList(arguments);
 
             _relationalCommandBuilder.Append(")");
+
+            _typeMapping = parentTypeMapping;
         }
 
         /// <summary>

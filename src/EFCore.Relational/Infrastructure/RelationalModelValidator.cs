@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -56,6 +57,53 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateDataTypes(model);
             ValidateDefaultValuesOnKeys(model);
             ValidateBoolsWithDefaults(model);
+            ValidateDbFunctions(model);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void ValidateDbFunctions([NotNull] IModel model)
+        {
+            foreach (var dbFunction in model.Relational().DbFunctions)
+            {
+                if (string.IsNullOrEmpty(dbFunction.Name))
+                    throw new InvalidOperationException(CoreStrings.DbFunctionNameEmpty());
+
+                var paramIndexes = dbFunction.Parameters.Select(fp => fp.Index).ToArray();
+                var dbFuncName = $"{dbFunction.MethodInfo.DeclaringType?.Name}.{dbFunction.MethodInfo.Name}";
+
+                if (paramIndexes.Distinct().Count() != dbFunction.Parameters.Count)
+                    throw new InvalidOperationException(CoreStrings.DbFunctionDuplicateIndex(dbFuncName));
+
+                if (Enumerable.Range(0, paramIndexes.Length).Except(paramIndexes).Any())
+                    throw new InvalidOperationException(CoreStrings.DbFunctionNonContinuousIndex(dbFuncName));
+
+                if (dbFunction.MethodInfo.IsStatic == false 
+                    && dbFunction.MethodInfo.DeclaringType.GetTypeInfo().IsSubclassOf(typeof(DbContext)))
+                {
+                    throw new InvalidOperationException(CoreStrings.DbFunctionDbContextMethodMustBeStatic(dbFuncName));
+                }
+
+                if(dbFunction.TranslateCallback == null)
+                { 
+                    if (dbFunction.ReturnType == null || RelationalDependencies.TypeMapper.IsTypeMapped(dbFunction.ReturnType) == false)
+                        throw new InvalidOperationException(CoreStrings.DbFunctionInvalidReturnType(dbFunction.MethodInfo, dbFunction.ReturnType));
+
+                    foreach (var parameter in dbFunction.Parameters)
+                    {
+                        if (parameter.ParameterType == null || RelationalDependencies.TypeMapper.IsTypeMapped(parameter.ParameterType) == false)
+                        { 
+                            throw new InvalidOperationException(
+                                CoreStrings.DbFunctionInvalidParameterType(
+                                    dbFunction.MethodInfo, 
+                                    parameter.Name, 
+                                    dbFunction.ReturnType));
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
