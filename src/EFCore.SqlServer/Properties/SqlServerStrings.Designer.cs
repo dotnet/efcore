@@ -91,12 +91,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogByteIdentityColumn")));
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is configured to use 'Identity' or 'SequenceHiLo' value generator, which are only intended for keys. If this was intentional configure an alternate key on the property, otherwise call `ValueGeneratedNever` or configure store generation for this property.
+        ///     The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.
         /// </summary>
         public static string NonKeyValueGeneration([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
                 GetString("NonKeyValueGeneration", nameof(property), nameof(entityType)),
                 property, entityType);
+
+        /// <summary>
+        ///     The properties {properties} are configured to use 'Identity' value generator and are mapped to the same table '{table}'. Only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' for properties that should not use 'Identity'.
+        /// </summary>
+        public static string MultipleIdentityColumns([CanBeNull] object properties, [CanBeNull] object table)
+            => string.Format(
+                GetString("MultipleIdentityColumns", nameof(properties), nameof(table)),
+                properties, table);
 
         /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.
