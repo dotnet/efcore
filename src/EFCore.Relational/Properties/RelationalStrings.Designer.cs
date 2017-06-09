@@ -1031,6 +1031,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     RelationalEventId.ForeignKeyPrincipalColumnMissingWarning,
                     _resourceManager.GetString("LogPrincipalColumnNotFound")));
 
+        /// <summary>
+        ///     An error occurred using the connection to database '{database}' on server '{server}'.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogRelationalLoggerConnectionErrorAsDebug
+            = new EventDefinition<string, string>(
+                RelationalEventId.ConnectionError,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    RelationalEventId.ConnectionError,
+                    _resourceManager.GetString("LogRelationalLoggerConnectionErrorAsDebug")));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

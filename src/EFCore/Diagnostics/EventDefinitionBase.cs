@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual EventId EventId { [DebuggerStepThrough] get; }
 
         /// <summary>
-        ///     The <see cref="Microsoft.Extensions.Logging.LogLevel" /> at which the event will be logged.
+        ///     The <see cref="LogLevel" /> at which the event will be logged.
         /// </summary>
         public virtual LogLevel Level { [DebuggerStepThrough] get; }
 

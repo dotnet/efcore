@@ -44,12 +44,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Opens the connection to the database.
         /// </summary>
+        /// <param name="errorsExpected"> Indicate if the connection errors are expected and should be logged as debug message. </param>
         /// <returns> True if the underlying connection was actually opened; false otherwise. </returns>
-        bool Open();
+        bool Open(bool errorsExpected = false);
 
         /// <summary>
         ///     Asynchronously opens the connection to the database.
         /// </summary>
+        /// <param name="errorsExpected"> Indicate if the connection errors are expected and should be logged as debug message. </param>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
@@ -57,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous operation, with a value of true if the connection
         ///     was actually opened.
         /// </returns>
-        Task<bool> OpenAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<bool> OpenAsync(bool errorsExpected = false, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         ///     Closes the connection to the database.

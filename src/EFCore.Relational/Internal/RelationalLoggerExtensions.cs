@@ -403,9 +403,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Exception exception,
             DateTimeOffset startTime,
             TimeSpan duration,
-            bool async)
+            bool async,
+            bool logErrorAsDebug)
         {
-            var definition = RelationalStrings.LogRelationalLoggerConnectionError;
+            var definition = logErrorAsDebug
+                ? RelationalStrings.LogRelationalLoggerConnectionErrorAsDebug
+                : RelationalStrings.LogRelationalLoggerConnectionError;
 
             // Checking for enabled here to avoid string formatting if not needed.
             if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)

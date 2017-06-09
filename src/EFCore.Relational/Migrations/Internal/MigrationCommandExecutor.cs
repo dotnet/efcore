@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(migrationCommands, nameof(migrationCommands));
             Check.NotNull(connection, nameof(connection));
 
-            await connection.OpenAsync(cancellationToken);
+            await connection.OpenAsync(cancellationToken: cancellationToken);
 
             try
             {
