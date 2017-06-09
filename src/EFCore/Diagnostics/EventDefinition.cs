@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Creates an event definition instance.
         /// </summary>
         /// <param name="eventId"> The <see cref="EventId" />. </param>
-        /// <param name="level"> The <see cref="Microsoft.Extensions.Logging.LogLevel" /> at which the event will be logged. </param>
+        /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
         /// <param name="logAction"> A cached delegate for logging the event. </param>
         public EventDefinition(
             EventId eventId,

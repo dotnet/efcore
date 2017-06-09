@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw new InvalidOperationException(RelationalStrings.TransactionAlreadyStarted);
             }
 
-            await OpenAsync(cancellationToken);
+            await OpenAsync(cancellationToken: cancellationToken);
 
             return BeginTransactionWithNoPreconditions(isolationLevel);
         }
@@ -267,8 +267,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Opens the connection to the database.
         /// </summary>
+        /// /// <param name="errorsExpected"> Indicate if the connection errors are expected and should be logged as debug message. </param>
         /// <returns> True if the underlying connection was actually opened; false otherwise. </returns>
-        public virtual bool Open()
+        public virtual bool Open(bool errorsExpected = false)
         {
             CheckForAmbientTransactions();
 
@@ -308,7 +309,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         e,
                         startTime,
                         stopwatch.Elapsed,
-                        async: false);
+                        async: false,
+                        logErrorAsDebug: errorsExpected);
 
                     throw;
                 }
@@ -330,6 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Asynchronously opens the connection to the database.
         /// </summary>
+        /// <param name="errorsExpected"> Indicate if the connection errors are expected and should be logged as debug message. </param>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
@@ -337,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous operation, with a value of true if the connection
         ///     was actually opened.
         /// </returns>
-        public virtual async Task<bool> OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<bool> OpenAsync(bool errorsExpected = false, CancellationToken cancellationToken = default(CancellationToken))
         {
             CheckForAmbientTransactions();
 
@@ -377,7 +380,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         e,
                         startTime,
                         stopwatch.Elapsed,
-                        async: true);
+                        async: true,
+                        logErrorAsDebug: errorsExpected);
 
                     throw;
                 }
@@ -439,7 +443,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             e,
                             startTime,
                             stopwatch.Elapsed,
-                            async: false);
+                            async: false,
+                            logErrorAsDebug: false);
 
                         throw;
                     }

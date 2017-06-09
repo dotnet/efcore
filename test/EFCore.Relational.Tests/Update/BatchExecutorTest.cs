@@ -3,12 +3,8 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
@@ -62,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
-            mockRelationalConnection.Verify(rc => rc.OpenAsync(cancellationToken));
+            mockRelationalConnection.Verify(rc => rc.OpenAsync(/*errorsExpected:*/ false, cancellationToken));
             mockRelationalConnection.Verify(rc => rc.Close());
             mockRelationalConnection.Verify(rc => rc.BeginTransaction(), Times.Never);
             transactionMock.Verify(t => t.Commit(), Times.Never);

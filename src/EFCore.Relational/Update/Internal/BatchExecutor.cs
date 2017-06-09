@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 }
                 else
                 {
-                    await connection.OpenAsync(cancellationToken);
+                    await connection.OpenAsync(cancellationToken: cancellationToken);
                 }
 
                 foreach (var commandbatch in commandBatches)

@@ -55,18 +55,18 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         public virtual bool IsMultipleActiveResultSetsEnabled => _realConnection.IsMultipleActiveResultSetsEnabled;
 
-        public virtual bool Open()
+        public virtual bool Open(bool errorsExpected = false)
         {
             PreOpen();
 
-            return _realConnection.Open();
+            return _realConnection.Open(errorsExpected);
         }
 
-        public virtual Task<bool> OpenAsync(CancellationToken cancellationToken = new CancellationToken())
+        public virtual Task<bool> OpenAsync(bool errorsExpected = false, CancellationToken cancellationToken = new CancellationToken())
         {
             PreOpen();
 
-            return _realConnection.OpenAsync(cancellationToken);
+            return _realConnection.OpenAsync(errorsExpected, cancellationToken);
         }
 
         private void PreOpen()
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(
             IsolationLevel isolationLevel, CancellationToken cancellationToken = new CancellationToken())
         {
-            await OpenAsync(cancellationToken);
+            await OpenAsync(cancellationToken: cancellationToken);
             CurrentTransaction = new TestRelationalTransaction(this, await _realConnection.BeginTransactionAsync(isolationLevel, cancellationToken));
             return CurrentTransaction;
         }
