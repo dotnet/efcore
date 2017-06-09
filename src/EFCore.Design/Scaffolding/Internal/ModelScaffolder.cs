@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -54,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual ReverseEngineerFiles Generate(
             string connectionString,
-            TableSelectionSet tableSelectionSet,
+            IEnumerable<string> tables,
+            IEnumerable<string> schemas,
             string projectPath,
             string outputPath,
             string rootNamespace,
@@ -63,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             bool overwriteFiles)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
-            Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
+            Check.NotNull(tables, nameof(tables));
+            Check.NotNull(schemas, nameof(schemas));
             Check.NotEmpty(projectPath, nameof(projectPath));
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
 
@@ -75,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     DesignStrings.ContextClassNotValidCSharpIdentifier(contextName));
             }
 
-            var model = _factory.Create(connectionString, tableSelectionSet);
+            var model = _factory.Create(connectionString, tables, schemas);
 
             if (model == null)
             {

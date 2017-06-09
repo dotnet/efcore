@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -308,7 +307,7 @@ CREATE TABLE Gum ( A, B PRIMARY KEY,
         private IModel GetModel(string createSql)
         {
             _testStore.ExecuteNonQuery(createSql);
-            return _scaffoldingModelFactory.Create(_testStore.ConnectionString, TableSelectionSet.All);
+            return _scaffoldingModelFactory.Create(_testStore.ConnectionString, Enumerable.Empty<string>(), Enumerable.Empty<string>());
         }
 
         public void Dispose() => _testStore.Dispose();

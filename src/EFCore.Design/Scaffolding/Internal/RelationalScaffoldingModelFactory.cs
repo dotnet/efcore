@@ -69,30 +69,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _scaffoldingTypeMapper = scaffoldingTypeMapper;
         }
 
-        public virtual IModel Create(string connectionString, TableSelectionSet tableSelectionSet)
+        public virtual IModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
+            Check.NotNull(tables, nameof(tables));
+            Check.NotNull(schemas, nameof(schemas));
 
-            var databaseModel = _databaseModelFactory.Create(connectionString, tableSelectionSet ?? TableSelectionSet.All);
-            if (tableSelectionSet != null)
-            {
-                CheckSelectionsMatched(tableSelectionSet);
-            }
+            var databaseModel = _databaseModelFactory.Create(connectionString, tables, schemas);
 
             return CreateFromDatabaseModel(databaseModel);
-        }
-
-        public virtual void CheckSelectionsMatched([NotNull] TableSelectionSet tableSelectionSet)
-        {
-            foreach (var schemaSelection in tableSelectionSet.Schemas.Where(s => !s.IsMatched))
-            {
-                Logger.MissingSchemaWarning(schemaSelection.Text);
-            }
-
-            foreach (var tableSelection in tableSelectionSet.Tables.Where(t => !t.IsMatched))
-            {
-                Logger.MissingTableWarning(tableSelection.Text);
-            }
         }
 
         protected virtual IModel CreateFromDatabaseModel([NotNull] DatabaseModel databaseModel)

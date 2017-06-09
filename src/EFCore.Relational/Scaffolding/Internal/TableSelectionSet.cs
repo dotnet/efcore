@@ -6,7 +6,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Scaffolding
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class TableSelectionSet
     {

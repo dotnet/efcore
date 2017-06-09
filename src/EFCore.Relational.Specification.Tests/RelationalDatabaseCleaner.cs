@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
             else
             {
                 var databaseModelFactory = CreateDatabaseModelFactory(loggerFactory);
-                var databaseModel = databaseModelFactory.Create(connection.DbConnection, TableSelectionSet.All);
+                var databaseModel = databaseModelFactory.Create(connection.DbConnection, Enumerable.Empty<string>(), Enumerable.Empty<string>());
 
                 var operations = new List<MigrationOperation>();
 

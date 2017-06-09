@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -30,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
         public virtual string TestSubDir => "SubDir";
         public virtual string CustomizedTemplateDir => Path.Combine("E2ETest", "CustomizedTemplate", "Dir");
 
-        public static TableSelectionSet Filter
-            => new TableSelectionSet(new List<string>
+        public static IEnumerable<string> Tables
+            => new List<string>
             {
                 "AllDataTypes",
                 "PropertyConfiguration",
@@ -49,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                 "UnmappablePKColumn",
                 "TableWithUnmappablePrimaryKeyColumn",
                 "selfreferencing"
-            });
+            };
 
         public SqlServerE2ETests(SqlServerE2EFixture fixture, ITestOutputHelper output)
             : base(output)
@@ -87,7 +86,8 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
         {
             var filePaths = Generator.Generate(
                     _connectionString,
-                    Filter,
+                    Tables,
+                    Enumerable.Empty<string>(),
                     TestProjectDir + Path.DirectorySeparatorChar, // tests that ending DirectorySeparatorChar does not affect namespace
                     TestSubDir,
                     TestNamespace,
@@ -136,7 +136,8 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
         {
             var filePaths = Generator.Generate(
                     _connectionString,
-                    Filter,
+                    Tables,
+                    Enumerable.Empty<string>(),
                     TestProjectDir,
                     outputPath: null, // not used for this test
                     rootNamespace: TestNamespace,
@@ -226,7 +227,8 @@ CREATE SEQUENCE NumericSequence
 
                 var filePaths = Generator.Generate(
                         scratch.ConnectionString,
-                        TableSelectionSet.All,
+                        Enumerable.Empty<string>(),
+                        Enumerable.Empty<string>(),
                         TestProjectDir + Path.DirectorySeparatorChar,
                         outputPath: null, // not used for this test
                         rootNamespace: TestNamespace,
@@ -284,7 +286,8 @@ CREATE TABLE PrimaryKeyWithSequence (
 
                 var filePaths = Generator.Generate(
                         scratch.ConnectionString,
-                        TableSelectionSet.All,
+                        Enumerable.Empty<string>(),
+                        Enumerable.Empty<string>(),
                         TestProjectDir + Path.DirectorySeparatorChar,
                         outputPath: null, // not used for this test
                         rootNamespace: TestNamespace,
@@ -332,7 +335,8 @@ CREATE INDEX Unicorn_Filtered_Index
 
                 var filePaths = Generator.Generate(
                         scratch.ConnectionString,
-                        TableSelectionSet.All,
+                        Enumerable.Empty<string>(),
+                        Enumerable.Empty<string>(),
                         TestProjectDir + Path.DirectorySeparatorChar,
                         outputPath: null, // not used for this test
                         rootNamespace: TestNamespace,
@@ -381,7 +385,8 @@ WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.History));
 
                 var filePaths = Generator.Generate(
                         scratch.ConnectionString,
-                        TableSelectionSet.All,
+                        Enumerable.Empty<string>(),
+                        Enumerable.Empty<string>(),
                         TestProjectDir + Path.DirectorySeparatorChar,
                         outputPath: null, // not used for this test
                         rootNamespace: TestNamespace,

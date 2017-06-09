@@ -840,6 +840,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogColumnNameEmptyOnTable")));
 
         /// <summary>
+        ///     Unable to find a schema in the database matching the selected schema {schema}.
+        /// </summary>
+        public static readonly EventDefinition<string> LogMissingSchema
+            = new EventDefinition<string>(
+                RelationalEventId.MissingSchemaWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    RelationalEventId.MissingSchemaWarning,
+                    _resourceManager.GetString("LogMissingSchema")));
+
+        /// <summary>
         ///     Unable to find a table in the database matching the selected table {table}.
         /// </summary>
         public static readonly EventDefinition<string> LogMissingTable

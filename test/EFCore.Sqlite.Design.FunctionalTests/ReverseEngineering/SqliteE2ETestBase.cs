@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,7 +43,8 @@ CREATE TABLE IF NOT EXISTS Dependent (
 
                 var results = Generator.Generate(
                     testStore.ConnectionString,
-                    TableSelectionSet.All,
+                    Enumerable.Empty<string>(),
+                    Enumerable.Empty<string>(),
                     TestProjectPath,
                     outputPath: null,
                     rootNamespace: "E2E.Sqlite",
@@ -98,7 +98,8 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
 
                 var results = Generator.Generate(
                     testStore.ConnectionString,
-                    TableSelectionSet.All,
+                    Enumerable.Empty<string>(),
+                    Enumerable.Empty<string>(),
                     TestProjectPath,
                     outputPath: null,
                     rootNamespace: "E2E.Sqlite",
@@ -146,7 +147,8 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
 
                 var results = Generator.Generate(
                     testStore.ConnectionString,
-                    TableSelectionSet.All,
+                    Enumerable.Empty<string>(),
+                    Enumerable.Empty<string>(),
                     TestProjectPath,
                     outputPath: null,
                     rootNamespace: "E2E.Sqlite",
@@ -188,7 +190,8 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
 
                 var results = Generator.Generate(
                     testStore.ConnectionString,
-                    TableSelectionSet.All,
+                    Enumerable.Empty<string>(),
+                    Enumerable.Empty<string>(),
                     TestProjectPath,
                     outputPath: null,
                     rootNamespace: "E2E.Sqlite",
@@ -224,7 +227,8 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
 
                 var results = Generator.Generate(
                     testStore.ConnectionString,
-                    TableSelectionSet.All,
+                    Enumerable.Empty<string>(),
+                    Enumerable.Empty<string>(),
                     TestProjectPath,
                     outputPath: null,
                     rootNamespace: "E2E.Sqlite",
@@ -260,7 +264,8 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
 
                 var results = Generator.Generate(
                     testStore.ConnectionString,
-                    TableSelectionSet.All,
+                    Enumerable.Empty<string>(),
+                    Enumerable.Empty<string>(),
                     TestProjectPath,
                     outputPath: null,
                     rootNamespace: "E2E.Sqlite",
@@ -328,7 +333,8 @@ CREATE TABLE IF NOT EXISTS String (
 
                 var results = Generator.Generate(
                     testStore.ConnectionString,
-                    TableSelectionSet.All,
+                    Enumerable.Empty<string>(),
+                    Enumerable.Empty<string>(),
                     TestProjectPath,
                     outputPath: null,
                     rootNamespace: "E2E.Sqlite",
@@ -365,7 +371,8 @@ CREATE TABLE IF NOT EXISTS Comment (
 
                 var results = Generator.Generate(
                     testStore.ConnectionString,
-                    TableSelectionSet.All,
+                    Enumerable.Empty<string>(),
+                    Enumerable.Empty<string>(),
                     TestProjectPath,
                     outputPath: null,
                     rootNamespace: "E2E.Sqlite",

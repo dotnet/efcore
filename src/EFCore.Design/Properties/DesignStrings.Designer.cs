@@ -561,18 +561,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogBadSequenceType")));
 
         /// <summary>
-        ///     Unable to find a schema in the database matching the selected schema {schema}.
-        /// </summary>
-        public static readonly EventDefinition<string> LogMissingSchema
-            = new EventDefinition<string>(
-                DesignEventId.MissingSchemaWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    DesignEventId.MissingSchemaWarning,
-                    _resourceManager.GetString("LogMissingSchema")));
-
-        /// <summary>
         ///     The principal end of the foreign key '{foreignKeyName}' is supported by the unique index '{indexName}' and contains the following nullable columns '{columnNames}'. Entity Framework requires the properties representing those columns to be non-nullable.
         /// </summary>
         public static readonly EventDefinition<string, string, string> LogForeignKeyPrincipalEndContainsNullableColumns
