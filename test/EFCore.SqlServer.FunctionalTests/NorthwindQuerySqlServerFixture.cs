@@ -13,6 +13,17 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class NorthwindQuerySqlServerFixture : NorthwindQueryRelationalFixture, IDisposable
     {
+        private readonly Func<Action<ModelBuilder>, Func<IServiceProvider, IModelSource>> _modelSourceFactory;
+
+        public NorthwindQuerySqlServerFixture() : this(TestModelSource.GetFactory)
+        {
+        }
+
+        protected NorthwindQuerySqlServerFixture(Func<Action<ModelBuilder>, Func<IServiceProvider, IModelSource>> modelSourceFactory)
+        {
+            _modelSourceFactory = modelSourceFactory;
+        }
+
         private readonly SqlServerTestStore _testStore = SqlServerTestStore.GetNorthwindStore();
 
         public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
@@ -25,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
                         .UseInternalServiceProvider(
                             (additionalServices ?? new ServiceCollection())
                             .AddEntityFrameworkSqlServer()
-                            .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
+                            .AddSingleton(_modelSourceFactory(OnModelCreating))
                             .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                             .BuildServiceProvider()))
                 .UseSqlServer(

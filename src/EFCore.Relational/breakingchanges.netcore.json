@@ -8,6 +8,10 @@
     "Kind": "Removal"
   },
   {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMethodCallTranslator : Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslator",
+    "Kind": "Removal"
+  },
+  {
     "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseCreator : Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator, Microsoft.EntityFrameworkCore.Internal.IServiceInjectionSite",
     "Kind": "Removal"
   },
@@ -434,11 +438,6 @@
   {
     "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
     "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper)",
-    "Kind": "Removal"
-  },
-  {
-    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMethodCallTranslator : Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslator",
-    "MemberId": "protected .ctor(Microsoft.Extensions.Logging.ILogger logger)",
     "Kind": "Removal"
   },
   {
@@ -1490,6 +1489,16 @@
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
     "MemberId": "System.String get_DatabaseName()",
     "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
+    "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IDbFunction FindDbFunction(System.Reflection.MethodInfo method)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IRelationalModelAnnotations",
+    "MemberId": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IDbFunction> get_DbFunctions()",
+    "Kind": "Addition"
   },
   {
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ISqlTranslatingExpressionVisitorFactory",

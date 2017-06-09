@@ -9,8 +9,6 @@ namespace Microsoft.EntityFrameworkCore
 {
     public abstract class NorthwindQueryFixtureBase
     {
-        private DbContextOptions _options;
-
         public abstract DbContextOptions BuildOptions(IServiceCollection additionalServices = null);
 
         public virtual NorthwindContext CreateContext(
@@ -20,13 +18,14 @@ namespace Microsoft.EntityFrameworkCore
             EnableFilters = enableFilters;
 
             return new NorthwindContext(
-                _options
-                ?? (_options = new DbContextOptionsBuilder(BuildOptions())
+                Options
+                ?? (Options = new DbContextOptionsBuilder(BuildOptions())
                     .ConfigureWarnings(w => w.Log(CoreEventId.IncludeIgnoredWarning)).Options),
                 queryTrackingBehavior);
         }
 
-        private bool EnableFilters { get; set; }
+        protected bool EnableFilters { get; set; }
+        protected DbContextOptions Options { get; set; }
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {

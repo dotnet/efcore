@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -487,6 +488,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
+        public void Can_get_and_set_dbfunction()
+        {
+            var testMethod = typeof(TestDbFunctions).GetTypeInfo().GetDeclaredMethod(nameof(TestDbFunctions.MethodA));
+
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
+
+            Assert.Null(model.Relational().FindDbFunction(testMethod));
+
+            var dbFunc = model.Relational().GetOrAddDbFunction(testMethod, ConfigurationSource.Explicit, "MethodA");
+
+            Assert.NotNull(dbFunc);
+            Assert.Equal("MethodA", dbFunc.Name);
+            Assert.Null(dbFunc.Schema);
+            Assert.Equal(0, dbFunc.Parameters.Count);
+        }
+
+        [Fact]
         public void Can_get_and_set_sequence()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -497,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(model.Relational().FindSequence("Foo"));
 
             var sequence = extensions.GetOrAddSequence("Foo");
-
+            
             Assert.Equal("Foo", extensions.FindSequence("Foo").Name);
             Assert.Equal("Foo", model.Relational().FindSequence("Foo").Name);
 

@@ -48,6 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultSchema, nameof(RelationalModelBuilderExtensions.HasDefaultSchema), stringBuilder);
 
+                    IgnoreAnnotationTypes(annotations, RelationalAnnotationNames.DbFunction);
+
                     GenerateAnnotations(annotations, stringBuilder);
                 }
 
@@ -606,6 +608,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     annotations.Remove(annotation);
                 }
+            }
+        }
+
+        protected virtual void IgnoreAnnotationTypes(
+            [NotNull] IList<IAnnotation> annotations, [NotNull] params string[] annotationPrefixes)
+        {
+            Check.NotNull(annotations, nameof(annotations));
+            Check.NotNull(annotationPrefixes, nameof(annotationPrefixes));
+
+            foreach(var ignoreAnnotation in annotations.Where(a => annotationPrefixes.Any(pre => a.Name.StartsWith(pre, StringComparison.OrdinalIgnoreCase))).ToList())
+            { 
+                annotations.Remove(ignoreAnnotation);
             }
         }
 

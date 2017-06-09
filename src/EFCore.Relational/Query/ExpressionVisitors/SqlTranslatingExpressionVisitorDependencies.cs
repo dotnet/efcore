@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="relationalTypeMapper"> The relational type mapper. </param>
         public SqlTranslatingExpressionVisitorDependencies(
             [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
-            [NotNull] IMethodCallTranslator methodCallTranslator,
+            [NotNull] ICompositeMethodCallTranslator methodCallTranslator,
             [NotNull] IMemberTranslator memberTranslator,
             [NotNull] IRelationalTypeMapper relationalTypeMapper)
         {
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <summary>
         ///     The method call translator.
         /// </summary>
-        public IMethodCallTranslator MethodCallTranslator { get; }
+        public ICompositeMethodCallTranslator MethodCallTranslator { get; }
 
         /// <summary>
         ///     The member translator.
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// </summary>
         /// <param name="methodCallTranslator"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public SqlTranslatingExpressionVisitorDependencies With([NotNull] IMethodCallTranslator methodCallTranslator)
+        public SqlTranslatingExpressionVisitorDependencies With([NotNull] ICompositeMethodCallTranslator methodCallTranslator)
             => new SqlTranslatingExpressionVisitorDependencies(
                 CompositeExpressionFragmentTranslator,
                 methodCallTranslator,

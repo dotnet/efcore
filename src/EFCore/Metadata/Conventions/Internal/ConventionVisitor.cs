@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public virtual OnEntityTypeMemberIgnoredNode VisitOnEntityTypeMemberIgnored(OnEntityTypeMemberIgnoredNode node) => node;
             public virtual OnBaseEntityTypeSetNode VisitOnBaseEntityTypeSet(OnBaseEntityTypeSetNode node) => node;
             public virtual OnEntityTypeAnnotationSetNode VisitOnEntityTypeAnnotationSet(OnEntityTypeAnnotationSetNode node) => node;
+            public virtual OnModelAnnotationSetNode VisitOnModelAnnotationSet(OnModelAnnotationSetNode node) => node;
             public virtual OnForeignKeyAddedNode VisitOnForeignKeyAdded(OnForeignKeyAddedNode node) => node;
             public virtual OnForeignKeyRemovedNode VisitOnForeignKeyRemoved(OnForeignKeyRemovedNode node) => node;
             public virtual OnKeyAddedNode VisitOnKeyAdded(OnKeyAddedNode node) => node;
@@ -89,6 +90,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override OnEntityTypeAnnotationSetNode VisitOnEntityTypeAnnotationSet(OnEntityTypeAnnotationSetNode node)
             {
                 Dispatcher._immediateConventionScope.OnEntityTypeAnnotationSet(node.EntityTypeBuilder, node.Name, node.Annotation, node.OldAnnotation);
+                return null;
+            }
+
+            public override OnModelAnnotationSetNode VisitOnModelAnnotationSet(OnModelAnnotationSetNode node)
+            {
+                Dispatcher._immediateConventionScope.OnModelAnnotationSet(node.ModelBuilder, node.Name, node.Annotation, node.OldAnnotation);
                 return null;
             }
 

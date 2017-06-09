@@ -25,7 +25,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public ModelCustomizer([NotNull] ModelCustomizerDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="ModelCustomizer" />
+        /// </summary>
+        protected virtual ModelCustomizerDependencies Dependencies { get; }
 
         /// <summary>
         ///     Performs additional configuration of the model in addition to what is discovered by convention. This default implementation
@@ -38,6 +45,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="dbContext">
         ///     The context instance that the model is being created for.
         /// </param>
-        public virtual void Customize(ModelBuilder modelBuilder, DbContext dbContext) => dbContext.OnModelCreating(modelBuilder);
+        public virtual void Customize(ModelBuilder modelBuilder, DbContext dbContext)
+        {
+            FindSets(modelBuilder, dbContext);
+
+            dbContext.OnModelCreating(modelBuilder);
+        }
+
+        /// <summary>
+        ///     Adds the entity types found in <see cref="DbSet{TEntity}" /> properties on the context to the model.
+        /// </summary>
+        /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> being used to build the model. </param>
+        /// <param name="context"> The context to find <see cref="DbSet{TEntity}" /> properties on. </param>
+        protected virtual void FindSets([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context)
+        {
+            foreach (var setInfo in Dependencies.SetFinder.FindSets(context))
+            {
+                modelBuilder.Entity(setInfo.ClrType);
+            }
+        }
     }
 }

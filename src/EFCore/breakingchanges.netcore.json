@@ -793,5 +793,10 @@
       "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
       "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPropertyNullableConvention> get_PropertyNullableChangedConventions()",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+      "MemberId": "protected virtual System.Void FindSets(Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.DbContext context)",
+      "Kind": "Removal"
     }
   ]

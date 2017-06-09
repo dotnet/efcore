@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -45,27 +44,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         public ModelSourceDependencies(
-            [NotNull] IDbSetFinder setFinder,
             [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
             [NotNull] IModelCustomizer modelCustomizer,
             [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
         {
-            Check.NotNull(setFinder, nameof(setFinder));
+           
             Check.NotNull(coreConventionSetBuilder, nameof(coreConventionSetBuilder));
             Check.NotNull(modelCustomizer, nameof(modelCustomizer));
             Check.NotNull(modelCacheKeyFactory, nameof(modelCacheKeyFactory));
 
-            SetFinder = setFinder;
             CoreConventionSetBuilder = coreConventionSetBuilder;
             ModelCustomizer = modelCustomizer;
             ModelCacheKeyFactory = modelCacheKeyFactory;
         }
-
-        /// <summary>
-        ///     Gets the <see cref="IDbSetFinder" /> that will locate the <see cref="DbSet{TEntity}" /> properties
-        ///     on the derived context.
-        /// </summary>
-        public IDbSetFinder SetFinder { get; }
 
         /// <summary>
         ///     Gets the <see cref="ICoreConventionSetBuilder" /> that will build the conventions to be used
@@ -88,18 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="setFinder"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelSourceDependencies With([NotNull] IDbSetFinder setFinder)
-            => new ModelSourceDependencies(setFinder, CoreConventionSetBuilder, ModelCustomizer, ModelCacheKeyFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
         /// <param name="coreConventionSetBuilder"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ModelSourceDependencies With([NotNull] ICoreConventionSetBuilder coreConventionSetBuilder)
-            => new ModelSourceDependencies(SetFinder, coreConventionSetBuilder, ModelCustomizer, ModelCacheKeyFactory);
+            => new ModelSourceDependencies(coreConventionSetBuilder, ModelCustomizer, ModelCacheKeyFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -107,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="modelCustomizer"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ModelSourceDependencies With([NotNull] IModelCustomizer modelCustomizer)
-            => new ModelSourceDependencies(SetFinder, CoreConventionSetBuilder, modelCustomizer, ModelCacheKeyFactory);
+            => new ModelSourceDependencies(CoreConventionSetBuilder, modelCustomizer, ModelCacheKeyFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -115,6 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="modelCacheKeyFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ModelSourceDependencies With([NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
-            => new ModelSourceDependencies(SetFinder, CoreConventionSetBuilder, ModelCustomizer, modelCacheKeyFactory);
+            => new ModelSourceDependencies(CoreConventionSetBuilder, ModelCustomizer, modelCacheKeyFactory);
     }
 }

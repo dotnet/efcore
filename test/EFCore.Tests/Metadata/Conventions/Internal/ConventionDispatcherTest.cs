@@ -403,6 +403,96 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false, true)]
         [InlineData(true, true)]
         [Theory]
+        public void OnModelAnnotationSet_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
+        {
+            var conventions = new ConventionSet();
+
+            var convention1 = new ModelAnnotationChangedConvention(false);
+            var convention2 = new ModelAnnotationChangedConvention(true);
+            var convention3 = new ModelAnnotationChangedConvention(false);
+            conventions.ModelAnnotationChangedConventions.Add(convention1);
+            conventions.ModelAnnotationChangedConventions.Add(convention2);
+            conventions.ModelAnnotationChangedConventions.Add(convention3);
+
+            var builder = new InternalModelBuilder(new Model(conventions));
+
+            var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
+
+            if (useBuilder)
+            {
+                Assert.NotNull(builder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+            }
+            else
+            {
+                builder.Metadata["foo"] = "bar";
+            }
+
+            if (useScope)
+            {
+                Assert.Empty(convention1.Calls);
+                Assert.Empty(convention2.Calls);
+                scope.Dispose();
+            }
+
+            Assert.Equal(new[] { "bar" }, convention1.Calls);
+            Assert.Equal(new[] { "bar" }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            if (useBuilder)
+            {
+                Assert.NotNull(builder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+            }
+            else
+            {
+                builder.Metadata["foo"] = "bar";
+            }
+
+            Assert.Equal(new[] { "bar" }, convention1.Calls);
+            Assert.Equal(new[] { "bar" }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            if (useBuilder)
+            {
+                Assert.NotNull(builder.HasAnnotation("foo", null, ConfigurationSource.Convention));
+            }
+            else
+            {
+                builder.Metadata.RemoveAnnotation("foo");
+            }
+
+            Assert.Equal(new[] { "bar", null }, convention1.Calls);
+            Assert.Equal(new[] { "bar", null }, convention2.Calls);
+        }
+
+        private class ModelAnnotationChangedConvention : IModelAnnotationChangedConvention 
+        {
+            private readonly bool _terminate;
+            public readonly List<object> Calls = new List<object>();
+
+            public ModelAnnotationChangedConvention(bool terminate)
+            {
+                _terminate = terminate;
+            }
+
+            public Annotation Apply(
+                InternalModelBuilder propertyBuilder,
+                string name,
+                Annotation annotation,
+                Annotation oldAnnotation)
+            {
+                Assert.NotNull(propertyBuilder.Metadata.Builder);
+
+                Calls.Add(annotation?.Value);
+
+                return _terminate ? null : annotation;
+            }
+        }
+
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        [Theory]
         public void OnEntityTypeMemberIgnored_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
