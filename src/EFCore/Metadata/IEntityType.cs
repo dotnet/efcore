@@ -118,5 +118,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The properties defined on this entity. </returns>
         IEnumerable<IProperty> GetProperties();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the seed data defined on this entity.
+        ///     </para>
+        ///     <para>
+        ///         This API should only be called after model configuration is finished.
+        ///     </para>
+        /// </summary>
+        /// <returns> The seed data defined on this entity. </returns>
+        IEnumerable<IDictionary<string, object>> GetSeedData();
     }
 }

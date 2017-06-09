@@ -798,5 +798,15 @@
       "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
       "MemberId": "protected virtual System.Void FindSets(Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.DbContext context)",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
+      "MemberId": "System.Collections.Generic.IEnumerable<System.Collections.Generic.IDictionary<System.String, System.Object>> GetSeedData()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+      "MemberId": "System.Void AddSeedData(params System.Object[] data)",
+      "Kind": "Addition"
     }
   ]

@@ -36,6 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly SortedDictionary<IReadOnlyList<IProperty>, Key> _keys
             = new SortedDictionary<IReadOnlyList<IProperty>, Key>(PropertyListComparer.Instance);
 
+        private readonly HashSet<object> _seedData
+            = new HashSet<object>();
+
         private Key _primaryKey;
         private EntityType _baseType;
         private LambdaExpression _queryFilter;
@@ -1767,6 +1770,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         #endregion
 
+        #region SeedData
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<IDictionary<string, object>> GetSeedData()
+            => _seedData.Select(seed =>
+                GetProperties() // we'll ignore navigations and invalid properties on the seeds
+                    .Select(p => seed.GetType().GetRuntimeProperty(p.Name))
+                    .Where(p => p != null)
+                    .ToDictionary(p => p.Name, p => p.GetValue(seed)));
+
+        #endregion
+
         #region Explicit interface implementations
 
         IModel ITypeBase.Model => Model;
@@ -1838,6 +1856,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IProperty> IEntityType.GetProperties() => GetProperties();
         IEnumerable<IMutableProperty> IMutableEntityType.GetProperties() => GetProperties();
         IMutableProperty IMutableEntityType.RemoveProperty(string name) => RemoveProperty(name);
+
+        void IMutableEntityType.AddSeedData(params object[] data) => _seedData.UnionWith(data);
 
         #endregion
 

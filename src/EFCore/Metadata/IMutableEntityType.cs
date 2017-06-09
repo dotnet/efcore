@@ -204,5 +204,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the property to remove. </param>
         /// <returns> The property that was removed. </returns>
         IMutableProperty RemoveProperty([NotNull] string name);
+
+        /// <summary>
+        ///     <para>
+        ///         Adds objects as seeds on this entity.
+        ///     </para>
+        ///     <para>
+        ///         This API can take either typed or anonymous objects. This allows to pass values such as
+        ///         a foreign key that is defined in your model by convention.
+        ///     </para>
+        /// </summary>
+        /// <param name="data"> The data to seed to this entity. </param>
+        void AddSeedData([NotNull] params object[] data);
     }
 }

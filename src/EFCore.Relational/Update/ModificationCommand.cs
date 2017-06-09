@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
-    public class ModificationCommand
+    public class ModificationCommand : ModificationCommandBase
     {
         private readonly Func<string> _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
@@ -34,24 +34,23 @@ namespace Microsoft.EntityFrameworkCore.Update
             [NotNull] Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
             [CanBeNull] IComparer<IUpdateEntry> comparer)
+        : base(
+            Check.NotEmpty(name, nameof(name)),
+            schema,
+            null)
         {
-            Check.NotEmpty(name, nameof(name));
             Check.NotNull(generateParameterName, nameof(generateParameterName));
 
-            TableName = name;
-            Schema = schema;
             _generateParameterName = generateParameterName;
             _comparer = comparer;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         }
 
-        public virtual string TableName { get; }
-
-        public virtual string Schema { get; }
-
         public virtual IReadOnlyList<IUpdateEntry> Entries => _entries;
 
         public virtual EntityState EntityState => _entries.FirstOrDefault()?.EntityState ?? EntityState.Detached;
+
+        public override IReadOnlyList<ColumnModificationBase> ColumnModificationsBase => ColumnModifications;
 
         public virtual IReadOnlyList<ColumnModification> ColumnModifications
             => NonCapturingLazyInitializer.EnsureInitialized(ref _columnModifications, this, command => command.GenerateColumnModifications());
@@ -293,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var index = 0;
             foreach (var modification in ColumnModifications.Where(o => o.IsRead))
             {
-                modification.Value = valueBuffer[index++];
+                modification.SetValue(valueBuffer[index++]);
             }
         }
     }

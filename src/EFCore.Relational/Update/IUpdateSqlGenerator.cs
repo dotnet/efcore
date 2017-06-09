@@ -15,12 +15,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         void AppendBatchHeader([NotNull] StringBuilder commandStringBuilder);
 
         ResultSetMapping AppendDeleteOperation(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command, int commandPosition);
+            [NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommandBase command, int commandPosition);
 
         ResultSetMapping AppendInsertOperation(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command, int commandPosition);
+            [NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommandBase command, int commandPosition);
 
         ResultSetMapping AppendUpdateOperation(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command, int commandPosition);
+            [NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommandBase command, int commandPosition);
     }
 }

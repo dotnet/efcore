@@ -17,13 +17,16 @@ namespace Microsoft.EntityFrameworkCore.Update
             var batch = new SqlServerModificationCommandBatch(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    new SqlServerTypeMapper(new RelationalTypeMapperDependencies())),
+                    new SqlServerTypeMapper(
+                        new RelationalTypeMapperDependencies())),
                 new SqlServerSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies()),
                 new SqlServerUpdateSqlGenerator(
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
-                            new RelationalSqlGenerationHelperDependencies())),
+                            new RelationalSqlGenerationHelperDependencies()),
+                        new SqlServerTypeMapper(
+                            new RelationalTypeMapperDependencies())),
                     new SqlServerTypeMapper(
                         new RelationalTypeMapperDependencies())),
                 new UntypedRelationalValueBufferFactoryFactory(

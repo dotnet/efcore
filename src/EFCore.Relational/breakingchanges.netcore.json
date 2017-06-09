@@ -1624,5 +1624,125 @@
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
     "MemberId": "System.String get_Filter()",
     "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendDeleteOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.ModificationCommand command, System.Int32 commandPosition)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendInsertOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.ModificationCommand command, System.Int32 commandPosition)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendUpdateOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.ModificationCommand command, System.Int32 commandPosition)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected abstract System.Void AppendIdentityWhereCondition(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.ColumnModification columnModification)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendSelectAffectedCommand(System.Text.StringBuilder commandStringBuilder, System.String name, System.String schema, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> readOperations, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> conditionOperations, System.Int32 commandPosition)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected virtual System.Void AppendDeleteCommand(System.Text.StringBuilder commandStringBuilder, System.String name, System.String schema, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> conditionOperations)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected virtual System.Void AppendInsertCommand(System.Text.StringBuilder commandStringBuilder, System.String name, System.String schema, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> writeOperations)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected virtual System.Void AppendInsertCommandHeader(System.Text.StringBuilder commandStringBuilder, System.String name, System.String schema, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> operations)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected virtual System.Void AppendSelectCommandHeader(System.Text.StringBuilder commandStringBuilder, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> operations)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected virtual System.Void AppendUpdateCommand(System.Text.StringBuilder commandStringBuilder, System.String name, System.String schema, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> writeOperations, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> conditionOperations)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected virtual System.Void AppendUpdateCommandHeader(System.Text.StringBuilder commandStringBuilder, System.String name, System.String schema, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> operations)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected virtual System.Void AppendValues(System.Text.StringBuilder commandStringBuilder, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> operations)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected virtual System.Void AppendValuesHeader(System.Text.StringBuilder commandStringBuilder, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> operations)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected virtual System.Void AppendWhereAffectedClause(System.Text.StringBuilder commandStringBuilder, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> operations)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected virtual System.Void AppendWhereClause(System.Text.StringBuilder commandStringBuilder, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.ColumnModification> operations)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected virtual System.Void AppendWhereCondition(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.ColumnModification columnModification, System.Boolean useOriginalValue)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "public Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendDeleteOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.ModificationCommand command, System.Int32 commandPosition)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "public Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendInsertOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.ModificationCommand command, System.Int32 commandPosition)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "public Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendUpdateOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.ModificationCommand command, System.Int32 commandPosition)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Update.ColumnModification",
+    "MemberId": "public virtual System.Void set_Value(System.Object value)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendDeleteOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.ModificationCommandBase command, System.Int32 commandPosition)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendInsertOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.ModificationCommandBase command, System.Int32 commandPosition)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendUpdateOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.ModificationCommandBase command, System.Int32 commandPosition)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Update.UpdateSqlGenerator : Microsoft.EntityFrameworkCore.Update.IUpdateSqlGenerator",
+    "MemberId": "protected abstract System.Void AppendIdentityWhereCondition(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.ColumnModificationBase columnModificationBase)",
+    "Kind": "Addition"
   }
 ]

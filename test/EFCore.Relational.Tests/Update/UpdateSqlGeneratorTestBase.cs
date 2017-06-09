@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             Assert.Equal(
                 "DELETE FROM " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p0 AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p1 AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine + Environment.NewLine,
                 stringBuilder.ToString());
         }

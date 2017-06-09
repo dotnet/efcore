@@ -3,10 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
@@ -16,13 +20,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Action<ModelBuilder> buildSourceAction,
             Action<ModelBuilder> buildTargetAction,
             Action<IReadOnlyList<MigrationOperation>> assertAction)
-            => Execute(m => { }, buildSourceAction, buildTargetAction, assertAction);
+            => Execute(m => { }, buildSourceAction, buildTargetAction, assertAction, null);
 
         protected void Execute(
             Action<ModelBuilder> buildCommonAction,
             Action<ModelBuilder> buildSourceAction,
             Action<ModelBuilder> buildTargetAction,
             Action<IReadOnlyList<MigrationOperation>> assertAction)
+            => Execute(buildCommonAction, buildSourceAction, buildTargetAction, assertAction, null);
+
+        protected void Execute(
+            Action<ModelBuilder> buildCommonAction,
+            Action<ModelBuilder> buildSourceAction,
+            Action<ModelBuilder> buildTargetAction,
+            Action<IReadOnlyList<MigrationOperation>> assertActionUp,
+            Action<IReadOnlyList<MigrationOperation>> assertActionDown)
         {
             var sourceModelBuilder = CreateModelBuilder();
             buildCommonAction(sourceModelBuilder);
@@ -32,19 +44,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             buildCommonAction(targetModelBuilder);
             buildTargetAction(targetModelBuilder);
 
-            var modelDiffer = CreateModelDiffer();
+            var ctx = RelationalTestHelpers.Instance.CreateContext(targetModelBuilder.Model);
+            var modelDiffer = CreateModelDiffer(ctx);
 
-            var operations = modelDiffer.GetDifferences(sourceModelBuilder.Model, targetModelBuilder.Model);
+            var operationsUp = modelDiffer.GetDifferences(sourceModelBuilder.Model, targetModelBuilder.Model);
+            assertActionUp(operationsUp);
 
-            assertAction(operations);
+            if (assertActionDown != null)
+            {
+                ctx = RelationalTestHelpers.Instance.CreateContext(sourceModelBuilder.Model);
+                modelDiffer = CreateModelDiffer(ctx);
+
+                var operationsDown = modelDiffer.GetDifferences(targetModelBuilder.Model, sourceModelBuilder.Model);
+                assertActionDown(operationsDown);
+            }
         }
 
         protected abstract ModelBuilder CreateModelBuilder();
 
-        protected virtual MigrationsModelDiffer CreateModelDiffer()
+        protected virtual MigrationsModelDiffer CreateModelDiffer(DbContext ctx)
             => new MigrationsModelDiffer(
                 new ConcreteTypeMapper(new RelationalTypeMapperDependencies()),
-                new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()));
+                new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+                ctx.GetService<IStateManager>(),
+                ctx.GetService<ICommandBatchPreparer>());
 
         private class ConcreteTypeMapper : RelationalTypeMapper
         {

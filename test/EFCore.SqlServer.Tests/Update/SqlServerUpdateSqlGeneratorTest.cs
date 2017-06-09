@@ -16,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             => new SqlServerUpdateSqlGenerator(
                 new UpdateSqlGeneratorDependencies(
                     new SqlServerSqlGenerationHelper(
-                        new RelationalSqlGenerationHelperDependencies())),
+                        new RelationalSqlGenerationHelperDependencies()),
+                    new SqlServerTypeMapper(
+                        new RelationalTypeMapperDependencies())),
                 new SqlServerTypeMapper(
                     new RelationalTypeMapperDependencies()));
 

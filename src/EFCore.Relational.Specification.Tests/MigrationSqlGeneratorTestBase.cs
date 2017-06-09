@@ -642,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore
                     Values = new object[,]
                     {
                         { "Hodor" },
-                        { "Homeless Harry" }
+                        { "Harry" }
                     }
                 });
 

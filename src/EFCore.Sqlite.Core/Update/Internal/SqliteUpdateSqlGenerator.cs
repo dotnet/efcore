@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
+        protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModificationBase columnModification)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(columnModification, nameof(columnModification));

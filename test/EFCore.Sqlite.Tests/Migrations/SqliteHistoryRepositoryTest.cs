@@ -3,13 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.Update;
 using Moq;
 using Xunit;
 
@@ -111,13 +116,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             { typeof(SqliteOptionsExtension), new SqliteOptionsExtension() }
                         }),
                     new MigrationsModelDiffer(
-                        new SqliteTypeMapper(new RelationalTypeMapperDependencies()),
-                        new SqliteMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
+                        typeMapper,
+                        new SqliteMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+                        new FakeStateManager(),
+                        RelationalTestHelpers.Instance.CreateCommandBatchPreparer()),
                     new SqliteMigrationsSqlGenerator(
                         new MigrationsSqlGeneratorDependencies(
                             new RelationalCommandBuilderFactory(
                                 new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
                                 typeMapper),
+                            new FakeSqlGenerator(
+                                new UpdateSqlGeneratorDependencies(
+                                    new RelationalSqlGenerationHelper(
+                                        new RelationalSqlGenerationHelperDependencies()),
+                                    typeMapper)),
                             new SqliteSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                             typeMapper)),
                     sqlGenerator));

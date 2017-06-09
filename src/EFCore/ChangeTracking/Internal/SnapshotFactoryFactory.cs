@@ -105,23 +105,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             for (var i = 0; i < count; i++)
             {
                 var propertyBase = propertyBases[i];
-
-                var navigation = propertyBase as INavigation;
-
-                arguments[i] =
-                    navigation != null
-                    && navigation.IsCollection()
+                if (propertyBase.IsShadowProperty)
+                {
+                    arguments[i] = propertyBase is INavigation
+                        ? Expression.Constant(null)
+                        : CreateReadShadowValueExpression(parameter, propertyBase);
+                }
+                else
+                {
+                    var memberAccess = Expression.MakeMemberAccess(
+                        entityVariable,
+                        propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+                    arguments[i] = (propertyBase as INavigation)?.IsCollection() ?? false
                         ? Expression.Call(
                             null,
                             _snapshotCollectionMethod,
-                            Expression.MakeMemberAccess(
-                                entityVariable,
-                                propertyBase.GetMemberInfo(forConstruction: false, forSet: false)))
-                        : propertyBase.IsShadowProperty
-                            ? CreateReadShadowValueExpression(parameter, propertyBase)
-                            : Expression.MakeMemberAccess(
-                                entityVariable,
-                                propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+                            memberAccess)
+                        : (Expression)memberAccess;
+                }
             }
 
             var constructorExpression = Expression.Convert(

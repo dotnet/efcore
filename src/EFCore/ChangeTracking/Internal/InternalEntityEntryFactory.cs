@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (!entityType.HasClrType())
             {
+                // TODO use the entity parameter to populate the InternalShadowEntityEntry
                 return new InternalShadowEntityEntry(stateManager, entityType);
             }
 

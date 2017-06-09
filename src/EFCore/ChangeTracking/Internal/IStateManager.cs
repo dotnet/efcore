@@ -34,6 +34,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        InternalEntityEntry GetOrCreateEntry([NotNull] IDictionary<string, object> values, [NotNull] IEntityType entityType);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         InternalEntityEntry StartTrackingFromQuery(
             [NotNull] IEntityType baseEntityType,
             [NotNull] object entity,
@@ -166,6 +172,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(
             [NotNull] InternalEntityEntry principalEntry, [NotNull] IForeignKey foreignKey);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        IReadOnlyList<InternalEntityEntry> GetEntriesToSave();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

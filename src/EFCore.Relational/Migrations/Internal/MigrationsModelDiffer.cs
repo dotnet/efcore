@@ -6,12 +6,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -56,19 +58,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             typeof(CreateIndexOperation)
         };
 
+        private static readonly Type[] _modificationOperationTypes =
+        {
+            typeof(InsertDataOperation),
+            typeof(UpdateDataOperation),
+            typeof(DeleteDataOperation)
+        };
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public MigrationsModelDiffer(
             [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IMigrationsAnnotationProvider migrationsAnnotations)
+            [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,
+            [NotNull] IStateManager stateManager,
+            [NotNull] ICommandBatchPreparer batchPreparer)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(migrationsAnnotations, nameof(migrationsAnnotations));
+            Check.NotNull(stateManager, nameof(stateManager));
+            Check.NotNull(batchPreparer, nameof(batchPreparer));
 
             TypeMapper = typeMapper;
             MigrationsAnnotations = migrationsAnnotations;
+            StateManager = stateManager;
+            BatchPreparer = batchPreparer;
         }
 
         /// <summary>
@@ -82,6 +97,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IMigrationsAnnotationProvider MigrationsAnnotations { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IStateManager StateManager { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual ICommandBatchPreparer BatchPreparer { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -127,6 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var constraintOperations = new List<MigrationOperation>();
             var renameOperations = new List<MigrationOperation>();
             var renameTableOperations = new List<MigrationOperation>();
+            var modificationOperations = new List<MigrationOperation>();
             var leftovers = new List<MigrationOperation>();
 
             foreach (var operation in operations)
@@ -198,6 +226,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 else if (type == typeof(RenameTableOperation))
                 {
                     renameTableOperations.Add(operation);
+                }
+                else if (_modificationOperationTypes.Contains(type))
+                {
+                    modificationOperations.Add(operation);
                 }
                 else
                 {
@@ -280,6 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(restartSequenceOperations)
                 .Concat(createTableOperations)
                 .Concat(constraintOperations)
+                .Concat(modificationOperations)
                 .Concat(leftovers)
                 .ToList();
         }
@@ -294,7 +327,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [CanBeNull] IModel source,
             [CanBeNull] IModel target,
             [NotNull] DiffContext diffContext)
-            => source != null && target != null
+        {
+            // We have to clean up for diffing Down operations after Up
+            StateManager.ResetState();
+
+            var schemaOperations = source != null && target != null
                 ? DiffAnnotations(source, target)
                     .Concat(Diff(GetSchemas(source), GetSchemas(target)))
                     .Concat(Diff(diffContext.GetSourceTables(), diffContext.GetTargetTables(), diffContext))
@@ -308,6 +345,60 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     : source != null
                         ? Remove(source, diffContext)
                         : Enumerable.Empty<MigrationOperation>();
+            // ToList() ensures we have diffed the schema before calling GetModificationOperations
+            return schemaOperations.ToList().Concat(GetModificationOperations());
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IEnumerable<MigrationOperation> GetModificationOperations()
+        {
+            var entries = StateManager.GetEntriesToSave();
+            if (entries.Count > 0)
+            {
+                var batchCommands = BatchPreparer
+                    .BatchCommands(entries)
+                    .SelectMany(o => o.ModificationCommands);
+
+                foreach (var c in batchCommands)
+                {
+                    if (c.EntityState == EntityState.Added)
+                    {
+                        yield return new InsertDataOperation
+                        {
+                            Schema = c.Schema,
+                            Table = c.TableName,
+                            Columns = c.ColumnModificationsBase.Select(col => col.ColumnName).ToArray(),
+                            Values = ToMultidimensionalArray(c.ColumnModificationsBase.Select(col => col.Value).ToArray()),
+                        };
+                    }
+                    else if (c.EntityState == EntityState.Modified)
+                    {
+                        yield return new UpdateDataOperation
+                        {
+                            Schema = c.Schema,
+                            Table = c.TableName,
+                            KeyColumns = c.ColumnModificationsBase.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
+                            KeyValues = ToMultidimensionalArray(c.ColumnModificationsBase.Where(col => col.IsKey).Select(col => col.Value).ToArray()),
+                            Columns = c.ColumnModificationsBase.Where(col => !col.IsKey).Select(col => col.ColumnName).ToArray(),
+                            Values = ToMultidimensionalArray(c.ColumnModificationsBase.Where(col => !col.IsKey).Select(col => col.Value).ToArray()),
+                        };
+                    }
+                    else
+                    {
+                        yield return new DeleteDataOperation
+                        {
+                            Schema = c.Schema,
+                            Table = c.TableName,
+                            KeyColumns = c.ColumnModificationsBase.Select(col => col.ColumnName).ToArray(),
+                            KeyValues = ToMultidimensionalArray(c.ColumnModificationsBase.Select(col => col.Value).ToArray()),
+                        };
+                    }
+                }
+            }
+        }
 
         private IEnumerable<MigrationOperation> DiffAnnotations(
             IModel source,
@@ -476,6 +567,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 yield return operation;
             }
+
+            // We do this after running previous operations so we can use the DiffContext property mappings.
+            // It'll update the StateManager instead of returning operations. Check it at the end.
+            DiffSeedData(source, target, diffContext);
         }
 
         private IEnumerable<MigrationOperation> DiffAnnotations(
@@ -532,6 +627,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 yield return operation;
             }
+
+            // It'll update the StateManager instead of returning operations. Check it at the end.
+            AddSeedData(target);
         }
 
         /// <summary>
@@ -1153,6 +1251,76 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         #endregion
 
+        #region SeedData
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void DiffSeedData(
+            [NotNull] TableMapping source,
+            [NotNull] TableMapping target,
+            [NotNull] DiffContext diffContext)
+        {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(target, nameof(target));
+            Check.NotNull(diffContext, nameof(diffContext));
+
+            if (source.EntityTypes.Count != 1 || target.EntityTypes.Count != 1)
+            {
+                // We will ignore for now the case where there's table splitting
+                // and data motion at the same time.
+                // The workaround is to do them in two separate migrations.
+                return;
+            }
+
+            var sourceEntityType = source.EntityTypes[0];
+            var targetEntityType = target.EntityTypes[0];
+            var propertiesMapping = sourceEntityType.GetProperties().ToDictionary(p => p.Name, p => diffContext.FindTarget(p)?.Name ?? p.Name);
+            foreach (var sourceSeed in sourceEntityType.GetSeedData())
+            {
+                var mappedSourceSeed = sourceSeed.ToDictionary(kvp => propertiesMapping[kvp.Key], kvp => kvp.Value);
+                StateManager.GetOrCreateEntry(mappedSourceSeed, targetEntityType).SetEntityState(EntityState.Deleted);
+            }
+
+            var key = targetEntityType.FindPrimaryKey();
+            foreach (var targetSeed in targetEntityType.GetSeedData())
+            {
+                var keyValues = key.Properties.Select(p => targetSeed[p.Name]).ToArray();
+                var entry = StateManager.TryGetEntry(key, keyValues);
+                if (entry != null)
+                {
+                    entry.SetEntityState(EntityState.Unchanged);
+                    entry.ToEntityEntry().CurrentValues.SetValues(targetSeed);
+                }
+                else
+                {
+                    StateManager.GetOrCreateEntry(targetSeed, targetEntityType).SetEntityState(EntityState.Added);
+                }
+            }
+        }
+
+        protected virtual void AddSeedData([NotNull] TableMapping target)
+        {
+            Check.NotNull(target, nameof(target));
+
+            if (target.EntityTypes.Count != 1)
+            {
+                // We will ignore for now the case where there's table splitting
+                // and data motion at the same time.
+                // The workaround is to do them in two separate migrations.
+                return;
+            }
+
+            var targetEntityType = target.EntityTypes[0];
+            foreach (var targetSeed in targetEntityType.GetSeedData())
+            {
+                StateManager.GetOrCreateEntry(targetSeed, targetEntityType).SetEntityState(EntityState.Added);
+            }
+        }
+
+        #endregion
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -1260,6 +1428,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 : type.IsArray
                     ? Array.CreateInstance(type.GetElementType(), 0)
                     : type.UnwrapNullableType().GetDefaultValue();
+
+        private static object[,] ToMultidimensionalArray(object[] values, bool firstDimension = false)
+        {
+            var result = firstDimension
+                ? new object[values.Length, 1]
+                : new object[1, values.Length];
+            for (var i = 0; i < values.Length; i++)
+            {
+                if (firstDimension)
+                {
+                    result[i, 0] = values[i];
+                }
+                else
+                {
+                    result[0, i] = values[i];
+                }
+            }
+
+            return result;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

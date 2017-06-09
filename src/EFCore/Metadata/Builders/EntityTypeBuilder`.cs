@@ -357,6 +357,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual EntityTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
             => (EntityTypeBuilder<TEntity>)base.UsePropertyAccessMode(propertyAccessMode);
 
+        /// <summary>
+        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        /// </summary>
+        /// <param name="data">
+        ///     An array of seed data.
+        /// </param>
+        public virtual EntityTypeBuilder<TEntity> SeedData([NotNull] params TEntity[] data)
+            => (EntityTypeBuilder<TEntity>)base.SeedData(data);
+
         private InternalEntityTypeBuilder Builder => this.GetInfrastructure<InternalEntityTypeBuilder>();
     }
 }

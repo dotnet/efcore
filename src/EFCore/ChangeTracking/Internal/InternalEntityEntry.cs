@@ -660,9 +660,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             get
             {
-                return _storeGeneratedValues.TryGetValue(propertyBase, out object value)
-                    ? value
-                    : ReadPropertyValue(propertyBase);
+                var isShadowNavigation = propertyBase is INavigation && propertyBase.IsShadowProperty;
+                return isShadowNavigation
+                    ? null
+                    : _storeGeneratedValues.TryGetValue(propertyBase, out object value)
+                        ? value
+                        : ReadPropertyValue(propertyBase);
             }
             [param: CanBeNull] set { SetProperty(propertyBase, value); }
         }

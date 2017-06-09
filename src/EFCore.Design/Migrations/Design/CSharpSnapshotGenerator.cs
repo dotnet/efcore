@@ -124,6 +124,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     GenerateIndexes(entityType.GetDeclaredIndexes(), stringBuilder);
 
                     GenerateEntityTypeAnnotations(entityType, stringBuilder);
+
+                    GenerateSeedData(entityType.GetProperties(), entityType.GetSeedData(), stringBuilder);
                 }
 
                 stringBuilder
@@ -670,6 +672,73 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append(", ")
                 .Append(Code.UnknownLiteral(annotation.Value))
                 .Append(")");
+        }
+
+        protected virtual void GenerateSeedData(
+            [NotNull] IEnumerable<IProperty> properties,
+            [NotNull] IEnumerable<IDictionary<string, object>> data,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(properties, nameof(properties));
+            Check.NotNull(data, nameof(data));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
+
+            if (data.Count() == 0)
+            {
+                return;
+            }
+
+            stringBuilder
+                .AppendLine()
+                .AppendLine()
+                .AppendLine($"b.{nameof(EntityTypeBuilder.SeedData)}(new[]")
+                .AppendLine("{");
+
+            using (stringBuilder.Indent())
+            {
+                var firstDatum = true;
+                foreach (var o in data)
+                {
+                    if (!firstDatum)
+                    {
+                        stringBuilder.AppendLine(",");
+                    }
+                    else
+                    {
+                        firstDatum = false;
+                    }
+
+                    stringBuilder.Append("new { ");
+
+                    var firstProperty = true;
+                    foreach (var property in properties)
+                    {
+                        if (o.TryGetValue(property.Name, out var value) && value != null)
+                        {
+                            if (!firstProperty)
+                            {
+                                stringBuilder.Append(", ");
+                            }
+                            else
+                            {
+                                firstProperty = false;
+                            }
+
+                            // this won't work with nested objects
+                            stringBuilder
+                                .Append(Code.Identifier(property.Name))
+                                .Append(" = ")
+                                .Append(Code.UnknownLiteral(value));
+                        }
+                    }
+
+                    stringBuilder.Append(" }");
+                }
+            }
+
+            stringBuilder
+                .AppendLine()
+                .Append("});");
         }
     }
 }

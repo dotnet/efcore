@@ -159,6 +159,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual InternalEntityEntry GetOrCreateEntry(IDictionary<string, object> values, IEntityType entityType)
+        {
+            var entry = TryGetEntry(values);
+            if (entry == null)
+            {
+                object entity;
+                _trackingQueryMode = TrackingQueryMode.Multiple;
+
+                if (entityType.HasClrType())
+                {
+                    entity = Activator.CreateInstance(entityType.ClrType);
+                    entry = _factory.Create(this, entityType, entity);
+                }
+                else
+                {
+                    entry = new InternalShadowEntityEntry(this, entityType);
+                    entity = entry;
+                }
+
+                _entityReferenceMap[entity] = entry;
+            }
+
+            entry.ToEntityEntry().CurrentValues.SetValues(values);
+            return entry;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityEntry GetOrCreateEntry(object entity, IEntityType entityType)
         {
             var entry = TryGetEntry(entity, entityType);
@@ -503,6 +533,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void ResetState()
         {
             Unsubscribe();
+            ChangedCount = 0;
             _entityReferenceMap.Clear();
             _dietReferenceMap.Clear();
 
@@ -713,7 +744,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private List<InternalEntityEntry> GetEntriesToSave()
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyList<InternalEntityEntry> GetEntriesToSave()
         {
             foreach (var entry in Entries.Where(
                 e => (e.EntityState == EntityState.Modified

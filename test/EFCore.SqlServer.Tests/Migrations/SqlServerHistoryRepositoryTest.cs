@@ -3,12 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.Update;
 using Moq;
 using Xunit;
 
@@ -158,11 +164,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             }
                         }),
                     new MigrationsModelDiffer(
-                        new SqlServerTypeMapper(new RelationalTypeMapperDependencies()),
-                        new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
+                        typeMapper,
+                        new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+                        new FakeStateManager(),
+                        RelationalTestHelpers.Instance.CreateCommandBatchPreparer()),
                     new SqlServerMigrationsSqlGenerator(
                         new MigrationsSqlGeneratorDependencies(
                             commandBuilderFactory,
+                            new FakeSqlGenerator(
+                                new UpdateSqlGeneratorDependencies(
+                                    new RelationalSqlGenerationHelper(
+                                        new RelationalSqlGenerationHelperDependencies()),
+                                    typeMapper)),
                             new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                             typeMapper),
                         new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),

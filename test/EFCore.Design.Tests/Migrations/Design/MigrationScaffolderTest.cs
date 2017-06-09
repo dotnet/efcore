@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -56,7 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         idGenerator),
                     new MigrationsModelDiffer(
                         new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()),
-                        new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
+                        new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+                        new FakeStateManager(),
+                        RelationalTestHelpers.Instance.CreateCommandBatchPreparer()),
                     idGenerator,
                     new CSharpMigrationsGenerator(
                         new MigrationsCodeGeneratorDependencies(),

@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
@@ -1850,6 +1851,101 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Base
     });
 ",
                 o => { });
+        }
+
+        #endregion
+
+        #region SeedData
+
+        [Fact]
+        public virtual void SeedData_annotations_are_stored_in_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithOneProperty>()
+                        .Ignore(e => e.EntityWithTwoProperties)
+                        .SeedData(
+                            new EntityWithOneProperty { Id = 42 });
+                    builder.Ignore<EntityWithTwoProperties>();
+                },
+               GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithOneProperty"");
+
+        b.SeedData(new[]
+        {
+            new { Id = 42 }
+        });
+    });
+",
+                o => Assert.Collection(
+                    o.GetEntityTypes().Select(e => e.GetSeedData().Single()),
+                    seed => Assert.Equal(42, seed["Id"])));
+        }
+
+        [Fact]
+        public virtual void SeedData_for_multiple_entities_are_stored_in_model_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithOneProperty>()
+                        .Ignore(e => e.EntityWithTwoProperties)
+                        .SeedData(
+                            new EntityWithOneProperty { Id = 27 });
+                    builder.Entity<EntityWithTwoProperties>()
+                        .Ignore(e => e.EntityWithOneProperty)
+                        .SeedData(
+                            new EntityWithTwoProperties { Id = 42, AlternateId = 43 });
+                },
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithOneProperty"");
+
+        b.SeedData(new[]
+        {
+            new { Id = 27 }
+        });
+    });
+
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<int>(""AlternateId"");
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithTwoProperties"");
+
+        b.SeedData(new[]
+        {
+            new { Id = 42, AlternateId = 43 }
+        });
+    });
+",
+                o => Assert.Collection(
+                    o.GetEntityTypes().Select(e => e.GetSeedData().Single()),
+                    seed => Assert.Equal(27, seed["Id"]),
+                    seed =>
+                    {
+                        Assert.Equal(42, seed["Id"]);
+                        Assert.Equal(43, seed["AlternateId"]);
+                    }));
         }
 
         #endregion

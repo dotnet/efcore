@@ -2,11 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
@@ -147,6 +150,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Fox", operation.Name);
                         Assert.Equal("dbo", operation.Schema);
                     });
+        }
+
+        [Fact]
+        public void Drop_table_with_seed_data()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "Zebra",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
+                        x.SeedData(
+                            new { Id = 42, Name = "equal" });
+                    }),
+                _ => { },
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropTableOperation>(o);
+                        Assert.Null(operation.Schema);
+                        Assert.Equal("Zebra", operation.Name);
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<CreateTableOperation>(o);
+                        Assert.Null(operation.Schema);
+                        Assert.Equal("Zebra", operation.Name);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Null(m.Schema);
+                        Assert.Equal("Zebra", m.Table);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(42, v),
+                            v => Assert.Equal("equal", v));
+                    }));
         }
 
         [Fact]
@@ -456,6 +499,36 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void Rename_entity_type_with_seed_data()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithIdWrongName",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id").HasName("PK_EntityId");
+                        x.SeedData(
+                            new { Id = 42 },
+                            new { Id = 27 });
+                    }),
+                target => target.Entity(
+                    "EntityWithId",
+                    x =>
+                    {
+                        x.ToTable("EntityWithIdWrongName");
+                        x.Property<int>("Id");
+                        x.HasKey("Id").HasName("PK_EntityId");
+                        x.SeedData(
+                            new { Id = 42 },
+                            new { Id = 27 });
+                    }),
+                Assert.Empty,
+                Assert.Empty);
+        }
+
+        [Fact]
         public void Add_column()
         {
             Execute(
@@ -647,6 +720,72 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     });
         }
 
+        [Fact]
+        public void Add_column_with_seed_data()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "Firefly",
+                    x =>
+                    {
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.SeedData(
+                            new { Id = 42 });
+                    }),
+                target => target.Entity(
+                    "Firefly",
+                    x =>
+                    {
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
+                        x.SeedData(
+                            new { Id = 42, Name = "Firefly 1" },
+                            new { Id = 43, Name = "Firefly 2" });
+                    }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddColumnOperation>(o);
+                        Assert.Equal("dbo", operation.Schema);
+                        Assert.Equal("Firefly", operation.Table);
+                        Assert.Equal("Name", operation.Name);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal("Firefly 1", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(43, v),
+                            v => Assert.Equal("Firefly 2", v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropColumnOperation>(o);
+                        Assert.Equal("dbo", operation.Schema);
+                        Assert.Equal("Firefly", operation.Table);
+                        Assert.Equal("Name", operation.Name);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(43, v));
+                    }));
+        }
+
         private enum SomeEnum
         {
             Default
@@ -659,29 +798,95 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 source => source.Entity(
                     "Firefly",
                     x =>
-                        {
-                            x.ToTable("Firefly", "dbo");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                            x.Property<string>("Name").HasColumnType("nvarchar(30)");
-                        }),
+                    {
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
+                    }),
                 target => target.Entity(
                     "Firefly",
                     x =>
-                        {
-                            x.ToTable("Firefly", "dbo");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
-                operations =>
                     {
-                        Assert.Equal(1, operations.Count);
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
 
-                        var operation = Assert.IsType<DropColumnOperation>(operations[0]);
+                    var operation = Assert.IsType<DropColumnOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Firefly", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                });
+        }
+
+        [Fact]
+        public void Drop_column_with_seed_data()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "Firefly",
+                    x =>
+                    {
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
+                        x.SeedData(
+                            new { Id = 42, Name = "Firefly 1" },
+                            new { Id = 43, Name = "Firefly 2" });
+                    }),
+                target => target.Entity(
+                    "Firefly",
+                    x =>
+                    {
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.SeedData(
+                            new { Id = 42 });
+                    }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropColumnOperation>(o);
                         Assert.Equal("dbo", operation.Schema);
                         Assert.Equal("Firefly", operation.Table);
                         Assert.Equal("Name", operation.Name);
-                    });
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(43, v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddColumnOperation>(o);
+                        Assert.Equal("dbo", operation.Schema);
+                        Assert.Equal("Firefly", operation.Table);
+                        Assert.Equal("Name", operation.Name);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal("Firefly 1", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(43, v),
+                            v => Assert.Equal("Firefly 2", v));
+                    }));
         }
 
         [Fact]
@@ -719,27 +924,141 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void Rename_column_with_seed_data()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("IdBeforeRename");
+                        x.HasKey("IdBeforeRename");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.SeedData(
+                            new { IdBeforeRename = 42, Value1 = 32, Value2 = "equal" }, // modified
+                            new { IdBeforeRename = 24, Value1 = 72, Value2 = "not equal1" }); // modified
+                    }),
+                target => target.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.SeedData(
+                            new { Id = 42, Value1 = 27, Value2 = "equal" }, // modified
+                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
+                    }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<RenameColumnOperation>(o);
+                        Assert.Null(operation.Schema);
+                        Assert.Equal("EntityWithTwoProperties", operation.Table);
+                        Assert.Equal("IdBeforeRename", operation.Name);
+                        Assert.Equal("Id", operation.NewName);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(24, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(99, v),
+                            v => Assert.Equal("not equal2", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(27, v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<RenameColumnOperation>(o);
+                        Assert.Null(operation.Schema);
+                        Assert.Equal("EntityWithTwoProperties", operation.Table);
+                        Assert.Equal("Id", operation.Name);
+                        Assert.Equal("IdBeforeRename", operation.NewName);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(24, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(72, v),
+                            v => Assert.Equal("not equal1", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(32, v));
+                    }));
+        }
+
+        [Fact]
         public void Rename_property()
         {
             Execute(
                 source => source.Entity(
                     "Buffalo",
                     x =>
-                        {
-                            x.ToTable("Buffalo", "dbo");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                            x.Property<string>("BuffaloName").HasColumnType("nvarchar(30)");
-                        }),
+                    {
+                        x.ToTable("Buffalo", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<string>("BuffaloName").HasColumnType("nvarchar(30)");
+                    }),
                 target => target.Entity(
                     "Buffalo",
                     x =>
-                        {
-                            x.ToTable("Buffalo", "dbo");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                            x.Property<string>("Name").HasColumnName("BuffaloName").HasColumnType("nvarchar(30)");
-                        }),
+                    {
+                        x.ToTable("Buffalo", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<string>("Name").HasColumnName("BuffaloName").HasColumnType("nvarchar(30)");
+                    }),
+                Assert.Empty);
+        }
+
+        [Fact]
+        public void Rename_property_with_same_seed_data()
+        {
+            Execute(
+                _ => { },
+                target => target.Entity(
+                    "Zebra",
+                    x =>
+                    {
+                        x.ToTable("Zebra", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<string>("ZebraName").HasColumnType("nvarchar(30)");
+                        x.SeedData(
+                            new { Id = 42, ZebraName = "equal" }); // unchanged
+                    }),
+                source => source.Entity(
+                    "Zebra",
+                    x =>
+                    {
+                        x.ToTable("Zebra", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<string>("Name").HasColumnName("ZebraName").HasColumnType("nvarchar(30)");
+                        x.SeedData(
+                            new { Id = 42, Name = "equal" }); // unchanged
+                    }),
+                Assert.Empty,
                 Assert.Empty);
         }
 
@@ -3385,6 +3704,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void Create_table_with_seed_data()
+        {
+            Execute(
+                _ => { },
+                _ => { },
+                target => target.Entity(
+                    "Zebra",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
+                        x.SeedData(
+                            new { Id = 42, Name = "equal" });
+                    }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<CreateTableOperation>(o);
+                        Assert.Null(operation.Schema);
+                        Assert.Equal("Zebra", operation.Name);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Null(m.Schema);
+                        Assert.Equal("Zebra", m.Table);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(42, v),
+                            v => Assert.Equal("equal", v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropTableOperation>(o);
+                        Assert.Null(operation.Schema);
+                        Assert.Equal("Zebra", operation.Name);
+                    }));
+        }
+
+        [Fact]
         public void Add_property_on_subtype()
         {
             Execute(
@@ -5282,6 +5641,525 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.IsType<AddUniqueConstraintOperation>(operations[0]);
                         Assert.IsType<AddForeignKeyOperation>(operations[1]);
                     });
+        }
+
+        [Fact]
+        public void SeedData_add_on_existing_table()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                    }),
+                target => target.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.SeedData(new { Id = 42, Value1 = 32 });
+                    }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(42, v),
+                            v => Assert.Equal(32, v),
+                            v => Assert.Null(v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                    }));
+        }
+
+        [Fact]
+        public void SeedData_remove()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.SeedData(new { Id = 42, Value1 = 32 });
+                    }),
+                target => target.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                    }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(42, v),
+                            v => Assert.Equal(32, v),
+                            v => Assert.Null(v));
+                    }));
+        }
+
+        [Fact]
+        public void SeedData_update()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.SeedData(
+                            new { Id = 42, Value1 = 32, Value2 = "equal" }, // modified
+                            new { Id = 24, Value1 = 72, Value2 = "not equal1" }); // modified
+                    }),
+                target => target.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.SeedData(
+                            new { Id = 42, Value1 = 27, Value2 = "equal" }, // modified
+                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
+                    }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(24, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(99, v),
+                            v => Assert.Equal("not equal2", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(27, v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(24, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(72, v),
+                            v => Assert.Equal("not equal1", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(32, v));
+                    }));
+        }
+
+        [Fact]
+        public void SeedData_update_with_table_rename()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.ToTable("Cat", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id").HasName("PK_Cat");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.SeedData(
+                            new { Id = 42, Value1 = 32, Value2 = "equal" }, // modified
+                            new { Id = 24, Value1 = 72, Value2 = "not equal1" }); // modified
+                    }),
+                target => target.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.ToTable("Cats", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id").HasName("PK_Cat");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.SeedData(
+                            new { Id = 42, Value1 = 27, Value2 = "equal" }, // modified
+                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
+                    }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<RenameTableOperation>(o);
+                        Assert.Equal("Cat", operation.Name);
+                        Assert.Equal("dbo", operation.Schema);
+                        Assert.Equal("Cats", operation.NewName);
+                        Assert.Null(operation.NewSchema);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Cats", m.Table);
+                        Assert.Equal("dbo", m.Schema);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(24, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(99, v),
+                            v => Assert.Equal("not equal2", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Cats", m.Table);
+                        Assert.Equal("dbo", m.Schema);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(27, v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<RenameTableOperation>(o);
+                        Assert.Equal("Cats", operation.Name);
+                        Assert.Equal("dbo", operation.Schema);
+                        Assert.Equal("Cat", operation.NewName);
+                        Assert.Null(operation.NewSchema);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Cat", m.Table);
+                        Assert.Equal("dbo", m.Schema);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(24, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(72, v),
+                            v => Assert.Equal("not equal1", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Cat", m.Table);
+                        Assert.Equal("dbo", m.Schema);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(32, v));
+                    }));
+        }
+
+        [Fact]
+        public void SeedData_all_operations()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.SeedData(
+                            new { Id = 99999, Value1 = 0, Value2 = "" }, // deleted
+                            new { Id = 42, Value1 = 32, Value2 = "equal", InvalidProperty = "is ignored" }, // modified
+                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
+                            new { Id = 24, Value1 = 72, Value2 = "not equal1" }); // modified
+                    }),
+                target => target.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.SeedData(
+                            new { Id = 11111, Value1 = 0, Value2 = "" }, // added
+                            new { Id = 42, Value1 = 27, Value2 = "equal", InvalidProperty = "is ignored here too" }, // modified
+                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
+                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
+                    }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(99999, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(24, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(99, v),
+                            v => Assert.Equal("not equal2", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(27, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(11111, v),
+                            v => Assert.Equal(0, v),
+                            v => Assert.Equal("", v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(11111, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(24, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(72, v),
+                            v => Assert.Equal("not equal1", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(32, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(99999, v),
+                            v => Assert.Equal(0, v),
+                            v => Assert.Equal("", v));
+                    }));
+        }
+
+        [Fact]
+        public void SeedData_with_navigation_properties()
+        {
+            Execute(
+                _ => { },
+                source => {
+                    source.Entity(
+                        "Blog",
+                        x =>
+                        {
+                            x.Property<int>("BlogId");
+                            x.Property<string>("Url");
+                            x.SeedData(
+                                new { BlogId = 32, Url = "original.url" });
+                        });
+                    source.Entity(
+                        "Post",
+                        x =>
+                        {
+                            x.Property<int>("PostId");
+                            x.Property<string>("Title");
+                            x.HasOne("Blog", "Blog")
+                                .WithMany("Posts")
+                                .HasForeignKey("BlogId")
+                                .OnDelete(DeleteBehavior.Cascade);
+                            x.SeedData(
+                                new { PostId = 545, Title = "Original Title", BlogId = 32 },
+                                new { PostId = 416, Title = "Post To Non-existent BlogId", BlogId = 316 },
+                                new { PostId = 390, Title = "Post To Be Removed", BlogId = 32 });
+                        });
+                },
+                target => {
+                    target.Entity(
+                        "Blog",
+                        x =>
+                        {
+                            x.Property<int>("BlogId");
+                            x.Property<string>("Url");
+                            x.SeedData(
+                                new { BlogId = 32, Url = "updated.url" },
+                                new { BlogId = 38, Url = "newblog.url" },
+                                new { BlogId = 316, Url = "nowitexists.blog" });
+                        });
+                    target.Entity(
+                        "Post",
+                        x =>
+                        {
+                            x.Property<int>("PostId");
+                            x.Property<string>("Title");
+                            x.HasOne("Blog", "Blog")
+                                .WithMany("Posts")
+                                .HasForeignKey("BlogId")
+                                .OnDelete(DeleteBehavior.Cascade);
+                            x.SeedData(
+                                new { PostId = 416, Title = "Post To Non-existent BlogId", BlogId = 316 },
+                                new { PostId = 545, Title = "Updated Title", BlogId = 38 },
+                                new { PostId = 546, Title = "New Post", BlogId = 32 });
+                        });
+                },
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Blog", m.Table);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(32, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal("updated.url", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Blog", m.Table);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(38, v),
+                            v => Assert.Equal("newblog.url", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Blog", m.Table);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(316, v),
+                            v => Assert.Equal("nowitexists.blog", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Post", m.Table);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(390, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Post", m.Table);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(546, v),
+                            v => Assert.Equal(32, v),
+                            v => Assert.Equal("New Post", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Post", m.Table);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(545, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(38, v),
+                            v => Assert.Equal("Updated Title", v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Blog", m.Table);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(316, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Blog", m.Table);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(32, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal("original.url", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Post", m.Table);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(546, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Post", m.Table);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(545, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(32, v),
+                            v => Assert.Equal("Original Title", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Post", m.Table);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(390, v),
+                            v => Assert.Equal(32, v),
+                            v => Assert.Equal("Post To Be Removed", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Blog", m.Table);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(38, v));
+                    }));
+        }
+
+        private void AssertMultidimensionalArray<T>(T[,] values, params Action<T>[] assertions)
+        {
+            Assert.Collection(ToOnedimensionalArray(values), assertions);
+        }
+
+        private static T[] ToOnedimensionalArray<T>(T[,] values, bool firstDimension = false)
+        {
+            Debug.Assert(values.GetLength(firstDimension ? 1 : 0) == 1,
+                $"Length of dimension {(firstDimension ? 1 : 0)} is not 1.");
+
+            var result = new T[values.Length];
+            for (var i = 0; i < values.Length; i++)
+            {
+                result[i] = firstDimension
+                    ? values[i, 0]
+                    : values[0, i];
+            }
+
+            return result;
         }
 
         protected override ModelBuilder CreateModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();
