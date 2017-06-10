@@ -341,6 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                         (edges.Single() == edgeThree)).ToArray());
         }
 
+        [Fact]
         public void TopologicalSort_can_break_two_cycles()
         {
             var vertexOne = new Vertex { Id = 1 };

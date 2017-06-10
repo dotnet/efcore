@@ -7,8 +7,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
@@ -331,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(entityBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+                Assert.True(entityBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
             }
             else
             {
@@ -351,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(entityBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+                Assert.True(entityBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
             }
             else
             {
@@ -364,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(entityBuilder.HasAnnotation("foo", null, ConfigurationSource.Convention));
+                Assert.True(entityBuilder.HasAnnotation("foo", null, ConfigurationSource.Convention));
             }
             else
             {
@@ -373,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(new[] { "bar", null }, convention1.Calls);
             Assert.Equal(new[] { "bar", null }, convention2.Calls);
-            //Assert.Empty(convention3.Calls);
+            //Assert.Empty(convention3.Calls); //TODO: See issue#8811
         }
 
         private class EntityTypeAnnotationSetConvention : IEntityTypeAnnotationChangedConvention
@@ -420,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(builder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+                Assert.True(builder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
             }
             else
             {
@@ -440,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(builder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+                Assert.True(builder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
             }
             else
             {
@@ -453,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(builder.HasAnnotation("foo", null, ConfigurationSource.Convention));
+                Assert.True(builder.HasAnnotation("foo", null, ConfigurationSource.Convention));
             }
             else
             {
@@ -511,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(entityBuilder.Ignore("A", ConfigurationSource.Convention));
+                Assert.True(entityBuilder.Ignore("A", ConfigurationSource.Convention));
             }
             else
             {
@@ -531,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(entityBuilder.Ignore("A", ConfigurationSource.Convention));
+                Assert.True(entityBuilder.Ignore("A", ConfigurationSource.Convention));
             }
             else
             {
@@ -906,7 +904,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(propertyBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+                Assert.True(propertyBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
             }
             else
             {
@@ -926,7 +924,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(propertyBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+                Assert.True(propertyBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
             }
             else
             {
@@ -939,7 +937,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(propertyBuilder.HasAnnotation("foo", null, ConfigurationSource.Convention));
+                Assert.True(propertyBuilder.HasAnnotation("foo", null, ConfigurationSource.Convention));
             }
             else
             {
@@ -948,7 +946,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(new[] { "bar", null }, convention1.Calls);
             Assert.Equal(new[] { "bar", null }, convention2.Calls);
-            //Assert.Empty(convention3.Calls);
+            //Assert.Empty(convention3.Calls); //TODO: See issue#8811
         }
 
         private class PropertyAnnotationChangedConvention : IPropertyAnnotationChangedConvention
@@ -1062,7 +1060,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention3 = new KeyRemovedConvention(terminate: false);
             conventions.KeyRemovedConventions.Add(convention1);
             conventions.KeyRemovedConventions.Add(convention2);
-            //conventions.KeyRemovedConventions.Add(convention3);
+            conventions.KeyRemovedConventions.Add(convention3);
 
             var builder = new InternalModelBuilder(new Model(conventions));
 
@@ -1082,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(new[] { "OrderId" }, convention1.Calls);
             Assert.Equal(new[] { "OrderId" }, convention2.Calls);
-            Assert.Empty(convention3.Calls);
+            //Assert.Empty(convention3.Calls); //TODO: See issue#8811
         }
 
         private class KeyRemovedConvention : IKeyRemovedConvention
@@ -1280,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention3 = new IndexRemovedConvention(terminate: false);
             conventions.IndexRemovedConventions.Add(convention1);
             conventions.IndexRemovedConventions.Add(convention2);
-            //conventions.IndexRemovedConventions.Add(convention3);
+            conventions.IndexRemovedConventions.Add(convention3);
 
             var builder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1299,7 +1297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(new[] { "OrderId" }, convention1.Calls);
             Assert.Equal(new[] { "OrderId" }, convention2.Calls);
-            Assert.Empty(convention3.Calls);
+            //Assert.Empty(convention3.Calls); //TODO: See issue#8811
         }
 
         private class IndexRemovedConvention : IIndexRemovedConvention
@@ -1435,7 +1433,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(indexBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+                Assert.True(indexBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
             }
             else
             {
@@ -1455,7 +1453,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(indexBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+                Assert.True(indexBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
             }
             else
             {
@@ -1468,7 +1466,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(indexBuilder.HasAnnotation("foo", null, ConfigurationSource.Convention));
+                Assert.True(indexBuilder.HasAnnotation("foo", null, ConfigurationSource.Convention));
             }
             else
             {
@@ -1477,7 +1475,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(new[] { "bar", null }, convention1.Calls);
             Assert.Equal(new[] { "bar", null }, convention2.Calls);
-            //Assert.Empty(convention3.Calls);
+            //Assert.Empty(convention3.Calls); //TODO: See issue#8811
         }
 
         private class IndexAnnotationChangedConvention : IIndexAnnotationChangedConvention
@@ -1616,7 +1614,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(new[] { "FK" }, convention1.Calls);
             Assert.Equal(new[] { "FK" }, convention2.Calls);
-            //Assert.Empty(convention3.Calls);
+            //Assert.Empty(convention3.Calls); //TODO: See issue#8811
         }
 
         private class ForeignKeyRemovedConvention : IForeignKeyRemovedConvention
@@ -2002,7 +2000,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention3 = new PrincipalEndConvention(terminate: false);
             conventions.PrincipalEndChangedConventions.Add(convention1);
             conventions.PrincipalEndChangedConventions.Add(convention2);
-            //conventions.PrincipalEndSetConventions.Add(convention3);
+            //conventions.PrincipalEndChangedConventions.Add(convention3); //TODO: See issue#8811
 
             var builder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);

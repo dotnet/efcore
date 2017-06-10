@@ -2450,7 +2450,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotEqual(fk, conventionFk);
                 Assert.NotEqual(fk.Properties, entityType.FindPrimaryKey().Properties);
                 Assert.Equal(fk.PrincipalKey, entityType.FindPrimaryKey());
-                Assert.Equal(null, fk.PrincipalToDependent);
+                Assert.Null(fk.PrincipalToDependent);
                 Assert.Equal(nameof(SelfRef.SelfRef1), fk.DependentToPrincipal?.Name);
                 Assert.Equal(2, entityType.GetNavigations().Count());
                 Assert.Equal(fk.DeclaringEntityType.GetForeignKeys().Count(), fk.DeclaringEntityType.GetIndexes().Count());
@@ -2478,7 +2478,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotEqual(fk.Properties, entityType.FindPrimaryKey().Properties);
                 Assert.Equal(fk.PrincipalKey, entityType.FindPrimaryKey());
                 Assert.Equal(nameof(SelfRef.SelfRef1), fk.PrincipalToDependent?.Name);
-                Assert.Equal(null, fk.DependentToPrincipal);
+                Assert.Null(fk.DependentToPrincipal);
                 Assert.Equal(2, entityType.GetNavigations().Count());
                 Assert.Equal(fk.DeclaringEntityType.GetForeignKeys().Count(), fk.DeclaringEntityType.GetIndexes().Count());
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);

@@ -3429,7 +3429,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        public void AssertAllFixedUp(DbContext context)
+        private void AssertAllFixedUp(DbContext context)
         {
             foreach (var entry in context.ChangeTracker.Entries<Product>())
             {

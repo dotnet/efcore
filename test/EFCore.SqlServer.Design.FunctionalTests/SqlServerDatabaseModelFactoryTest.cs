@@ -290,9 +290,9 @@ CREATE SEQUENCE CustomSequence_read
                 dbModel.Sequences.Where(s => s.Name.EndsWith("_read", StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.Name),
                 c =>
                     {
-                        Assert.Equal(c.Name, "CustomSequence_read");
-                        Assert.Equal(c.SchemaName, "dbo");
-                        Assert.Equal(c.DataType, "numeric");
+                        Assert.Equal("CustomSequence_read", c.Name);
+                        Assert.Equal("dbo", c.SchemaName);
+                        Assert.Equal("numeric", c.DataType);
                         Assert.Equal(1, c.Start);
                         Assert.Equal(2, c.IncrementBy);
                         Assert.Equal(8, c.Max);
@@ -301,9 +301,9 @@ CREATE SEQUENCE CustomSequence_read
                     },
                 d =>
                     {
-                        Assert.Equal(d.Name, "DefaultValues_read");
-                        Assert.Equal(d.SchemaName, "dbo");
-                        Assert.Equal(d.DataType, "bigint");
+                        Assert.Equal("DefaultValues_read", d.Name);
+                        Assert.Equal("dbo", d.SchemaName);
+                        Assert.Equal("bigint", d.DataType);
                         Assert.Equal(1, d.IncrementBy);
                         Assert.False(d.IsCyclic);
                         Assert.Null(d.Max);

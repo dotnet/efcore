@@ -14,10 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Design
         public void Ctor_validates_arguments()
         {
             var ex = Assert.Throws<ArgumentNullException>(() => new OperationExecutor(null, null));
-            Assert.Equal(ex.ParamName, "reportHandler");
+            Assert.Equal("reportHandler", ex.ParamName);
 
             ex = Assert.Throws<ArgumentNullException>(() => new OperationExecutor(Mock.Of<IOperationReportHandler>(), null));
-            Assert.Equal(ex.ParamName, "args");
+            Assert.Equal("args", ex.ParamName);
         }
 
         public class OperationBaseTests

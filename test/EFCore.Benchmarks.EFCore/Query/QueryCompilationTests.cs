@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
 {
-    internal class QueryCompilationTests : IClassFixture<QueryCompilationTests.QueryCompilationFixture>
+    public class QueryCompilationTests : IClassFixture<QueryCompilationTests.QueryCompilationFixture>
     {
         private readonly QueryCompilationFixture _fixture;
 
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
             _fixture = fixture;
         }
 
-        [Benchmark]
+        [Benchmark(Skip = "See issue#8810")]
         [BenchmarkVariation("Default (10 queries)")]
         public void ToList(IMetricCollector collector)
         {
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
             }
         }
 
-        [Benchmark]
+        [Benchmark(Skip = "See issue#8810")]
         [BenchmarkVariation("Default (10 queries)")]
         public void FilterOrderProject(IMetricCollector collector)
         {

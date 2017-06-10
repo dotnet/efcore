@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("FirstParameter", parameter.ParameterName);
             Assert.Equal(17, parameter.Value);
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal(false, parameter.IsNullable);
+            Assert.False(parameter.IsNullable);
             Assert.Equal(DbType.Int32, parameter.DbType);
 
             parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[1];
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("SecondParameter", parameter.ParameterName);
             Assert.Equal(18L, parameter.Value);
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal(true, parameter.IsNullable);
+            Assert.True(parameter.IsNullable);
             Assert.Equal(DbType.Int64, parameter.DbType);
 
             parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[2];
@@ -583,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("SecondParameter", parameter.ParameterName);
             Assert.Equal(18L, parameter.Value);
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal(false, parameter.IsNullable);
+            Assert.False(parameter.IsNullable);
             Assert.Equal(mapping.DbType, parameter.DbType);
 
             parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[2];
@@ -640,7 +640,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("FirstParameter", parameter.ParameterName);
             Assert.Equal(17, parameter.Value);
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal(false, parameter.IsNullable);
+            Assert.False(parameter.IsNullable);
             Assert.Equal(DbType.Int32, parameter.DbType);
 
             parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[1];
@@ -648,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("SecondParameter", parameter.ParameterName);
             Assert.Equal(18L, parameter.Value);
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal(true, parameter.IsNullable);
+            Assert.True(parameter.IsNullable);
             Assert.Equal(DbType.Int64, parameter.DbType);
 
             parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[2];

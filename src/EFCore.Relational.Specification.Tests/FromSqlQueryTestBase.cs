@@ -803,6 +803,7 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
             }
         }
 
+        [Fact]
         public virtual void Include_closed_connection_opened_by_it_when_buffering()
         {
             using (var context = CreateContext())

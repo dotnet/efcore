@@ -1117,6 +1117,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Select(e => EF.Property<string>(e, "Title")));
         }
 
+        [ConditionalFact]
         public virtual void Where_simple_shadow_projection_mixed()
         {
             AssertQuery<Employee>(
@@ -2300,6 +2301,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
         public virtual void Select_nested_collection_multi_level2()
         {
             using (var context = CreateContext())
@@ -3879,7 +3881,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
+        [ConditionalFact(Skip = "Test does not pass. See issue#7160")]
         public virtual void GroupBy_anonymous_subquery()
         {
             AssertQuery<Customer>(cs =>
@@ -4309,8 +4311,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    false,
+                Assert.False(
                     context
                         .Set<Order>()
                         .Select(o => new ProjectedType
@@ -4328,8 +4329,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    false,
+                Assert.False(
                     context
                         .Set<Order>()
                         .Select(o => new ProjectedType
@@ -5426,6 +5426,7 @@ namespace Microsoft.EntityFrameworkCore
                 os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }));
         }
 
+        [ConditionalFact]
         public virtual void Where_math_round2()
         {
             AssertQuery<OrderDetail>(
@@ -7109,8 +7110,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var query = context.Customers.OrderBy(c => c.CustomerID).Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" }).ToList();
 
-                Assert.All(query.Take(2), t => Assert.Equal(true, t.Value));
-                Assert.All(query.Skip(2), t => Assert.Equal(false, t.Value));
+                Assert.All(query.Take(2), t => Assert.True(t.Value));
+                Assert.All(query.Skip(2), t => Assert.False(t.Value));
             }
         }
 
@@ -7122,8 +7123,8 @@ namespace Microsoft.EntityFrameworkCore
                 var query = context.Customers.OrderBy(c => c.CustomerID)
                     .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" | c.CustomerID == "ANTON" }).ToList();
 
-                Assert.All(query.Take(3), t => Assert.Equal(true, t.Value));
-                Assert.All(query.Skip(3), t => Assert.Equal(false, t.Value));
+                Assert.All(query.Take(3), t => Assert.True(t.Value));
+                Assert.All(query.Skip(3), t => Assert.False(t.Value));
             }
         }
 
@@ -7134,7 +7135,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var query = context.Customers.OrderBy(c => c.CustomerID).Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" }).ToList();
 
-                Assert.All(query, t => Assert.Equal(false, t.Value));
+                Assert.All(query, t => Assert.False(t.Value));
             }
         }
 
@@ -7146,7 +7147,7 @@ namespace Microsoft.EntityFrameworkCore
                 var query = context.Customers.OrderBy(c => c.CustomerID)
                     .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" | c.CustomerID == "ANTON" }).ToList();
 
-                Assert.All(query.Where(c => c.CustomerID != "ANTON"), t => Assert.Equal(false, t.Value));
+                Assert.All(query.Where(c => c.CustomerID != "ANTON"), t => Assert.False(t.Value));
             }
         }
 
@@ -7192,8 +7193,8 @@ namespace Microsoft.EntityFrameworkCore
                     Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON"
                 }).ToList();
 
-                Assert.All(query.Take(3), t => Assert.Equal(true, t.Value));
-                Assert.All(query.Skip(3), t => Assert.Equal(false, t.Value));
+                Assert.All(query.Take(3), t => Assert.True(t.Value));
+                Assert.All(query.Skip(3), t => Assert.False(t.Value));
             }
         }
 
@@ -7208,7 +7209,7 @@ namespace Microsoft.EntityFrameworkCore
                     Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"
                 }).ToList();
 
-                Assert.All(query, t => Assert.Equal(false, t.Value));
+                Assert.All(query, t => Assert.False(t.Value));
             }
         }
 

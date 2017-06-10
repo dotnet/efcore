@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit));
 
-            Assert.NotNull(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
+            Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
             Assert.Null(model.FindEntityType(typeof(Customer)));
         }
 
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
             Assert.NotNull(model.FindEntityType(typeof(Customer)));
 
-            Assert.NotNull(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
+            Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
             Assert.Null(model.FindEntityType(typeof(Customer)));
         }
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
             Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
 
-            Assert.NotNull(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.Explicit));
+            Assert.True(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.Explicit));
 
             Assert.Null(model.FindEntityType(typeof(Customer).FullName));
         }

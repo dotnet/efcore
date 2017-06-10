@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         public async Task Single_Predicate_Cancellation()
         {
             await Assert.ThrowsAsync<TaskCanceledException>(async () =>
-                await Single_Predicate_Cancellation(Fixture.TestSqlLoggerFactory.CancelQuery()));
+                await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
         }
     }
 }

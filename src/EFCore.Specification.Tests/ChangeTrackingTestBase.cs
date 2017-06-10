@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var customer = context.Customers.First();
 
-                Assert.NotEqual(customer.Phone, "425-882-8080");
+                Assert.NotEqual("425-882-8080", customer.Phone);
 
                 var firstTrackedEntity = context.ChangeTracker.Entries<Customer>().Single();
                 var originalPhoneNumber = customer.Phone;
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
                 var firstTrackedEntity = context.ChangeTracker.Entries<Customer>().Single();
 
                 Assert.Equal(EntityState.Unchanged, firstTrackedEntity.State);
-                Assert.NotEqual(customer.Phone, "425-882-8080");
+                Assert.NotEqual("425-882-8080", customer.Phone);
                 Assert.NotEqual("425-882-8080", firstTrackedEntity.Property(c => c.Phone).OriginalValue);
 
                 customer.Phone = "425-882-8080";
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
                 var firstTrackedEntity = context.ChangeTracker.Entries<Customer>().Single();
 
                 Assert.Equal(EntityState.Unchanged, firstTrackedEntity.State);
-                Assert.NotEqual(customer.Phone, "425-882-8080");
+                Assert.NotEqual("425-882-8080", customer.Phone);
                 Assert.NotEqual("425-882-8080", firstTrackedEntity.Property(c => c.Phone).OriginalValue);
 
                 customer.Phone = "425-882-8080";
@@ -137,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(EntityState.Unchanged, trackedEntity0.State);
                 Assert.Equal(EntityState.Unchanged, trackedEntity1.State);
-                Assert.NotEqual(customer0.Phone, "425-882-8080");
-                Assert.NotEqual(customer1.Phone, "425-882-8080");
+                Assert.NotEqual("425-882-8080", customer0.Phone);
+                Assert.NotEqual("425-882-8080", customer1.Phone);
                 Assert.NotEqual("425-882-8080", trackedEntity0.Property(c => c.Phone).OriginalValue);
                 Assert.NotEqual("425-882-8080", trackedEntity1.Property(c => c.Phone).OriginalValue);
 
@@ -177,8 +177,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(EntityState.Unchanged, trackedEntity0.State);
                 Assert.Equal(EntityState.Unchanged, trackedEntity1.State);
-                Assert.NotEqual(customer0.Phone, "425-882-8080");
-                Assert.NotEqual(customer1.Phone, "425-882-8080");
+                Assert.NotEqual("425-882-8080", customer0.Phone);
+                Assert.NotEqual("425-882-8080", customer1.Phone);
                 Assert.NotEqual("425-882-8080", trackedEntity0.Property(c => c.Phone).OriginalValue);
                 Assert.NotEqual("425-882-8080", trackedEntity1.Property(c => c.Phone).OriginalValue);
 

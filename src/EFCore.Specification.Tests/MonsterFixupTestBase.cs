@@ -1614,7 +1614,7 @@ namespace Microsoft.EntityFrameworkCore
                         OnModelCreating<ChangedOnlyMonsterContext.Message, ChangedOnlyMonsterContext.ProductPhoto, ChangedOnlyMonsterContext.ProductReview>(b);
                     });
 
-        public virtual void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
+        protected virtual void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
             where TMessage : class, IMessage
             where TProductPhoto : class, IProductPhoto
             where TProductReview : class, IProductReview

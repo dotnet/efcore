@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    internal class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
+    public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         #region Bug3595
 

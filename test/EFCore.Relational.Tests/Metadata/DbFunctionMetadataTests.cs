@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFunc = dbFuncBuilder.Metadata;
 
             Assert.Equal("MethodA", dbFunc.Name);
-            Assert.Equal(null, dbFunc.Schema);
+            Assert.Null(dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.ReturnType);
 
             Assert.Equal(2, dbFunc.Parameters.Count);
@@ -232,17 +232,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi);
             var parameter = dbFuncBuilder.HasParameter("a").Metadata;
 
-            Assert.Equal(parameter.Index, 0);
-            Assert.Equal(parameter.Name, "a");
-            Assert.Equal(parameter.ParameterType, typeof(string));
+            Assert.Equal(0, parameter.Index);
+            Assert.Equal("a", parameter.Name);
+            Assert.Equal(typeof(string), parameter.ParameterType);
 
             parameter.Index = 5;
             parameter.Name = "abc";
             parameter.ParameterType = typeof(int);
 
-            Assert.Equal(parameter.Index, 5);
-            Assert.Equal(parameter.Name, "abc");
-            Assert.Equal(parameter.ParameterType, typeof(int));
+            Assert.Equal(5, parameter.Index);
+            Assert.Equal("abc", parameter.Name);
+            Assert.Equal(typeof(int), parameter.ParameterType);
         }
 
         [Fact]
@@ -252,11 +252,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi);
 
-            Assert.Equal(dbFuncBuilder.Metadata.ReturnType, typeof(int));
+            Assert.Equal(typeof(int), dbFuncBuilder.Metadata.ReturnType);
 
             dbFuncBuilder.Metadata.ReturnType = typeof(string);
 
-            Assert.Equal(dbFuncBuilder.Metadata.ReturnType, typeof(string));
+            Assert.Equal(typeof(string), dbFuncBuilder.Metadata.ReturnType);
 
         }
 

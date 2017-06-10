@@ -40,11 +40,14 @@ namespace Microsoft.EntityFrameworkCore
 
         public void Dispose() => TestStore.Dispose();
 
+        [ConditionalFact]
         public virtual void Entity_equality_empty()
-            => AssertQuery<Level1>(
+        {
+            AssertQuery<Level1>(
                 l1s => l1s.Where(l => l.OneToOne_Optional_FK == new Level2()),
                 e => e.Id,
                 (e, a) => Assert.Equal(e.Id, a.Id));
+        }
 
         [ConditionalFact]
         public virtual void Key_equality_when_sentinel_ef_property()
@@ -263,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal("MLS1", result[0].Label.DefaultText);
                 Assert.Equal("MLS3", result[1].Label.DefaultText);
-                Assert.Equal(null, result[0].Placeholder);
+                Assert.Null(result[0].Placeholder);
                 Assert.Equal("MLS4", result[1].Placeholder.DefaultText);
 
                 var globalizations_0_label = result[0].Label.Globalizations.OrderBy(g => g.Text).ToList();

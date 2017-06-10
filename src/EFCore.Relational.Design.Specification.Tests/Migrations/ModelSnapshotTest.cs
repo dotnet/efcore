@@ -795,7 +795,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithStringProperty"");
     });
 ",
-                o => { Assert.Equal(false, o.GetEntityTypes().First().FindProperty("Name").IsNullable); });
+                o => { Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsNullable); });
         }
 
         [Fact]
@@ -928,7 +928,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithTwoProperties"");
     });
 ",
-                o => { Assert.Equal(true, o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken); });
+                o => { Assert.True(o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken); });
         }
 
         [Fact]
@@ -1272,7 +1272,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithTwoProperties"");
     });
 ",
-                o => { Assert.Equal(true, o.GetEntityTypes().First().GetIndexes().First().IsUnique); });
+                o => { Assert.True(o.GetEntityTypes().First().GetIndexes().First().IsUnique); });
         }
 
         [Fact]

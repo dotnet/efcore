@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
                             .Any(orderId => orderId == expected))));
         }
 
-        public virtual async Task Single_Predicate_Cancellation(CancellationToken cancellationToken)
+        protected virtual async Task Single_Predicate_Cancellation_test(CancellationToken cancellationToken)
         {
             await AssertQuery<Customer>(
                 cs => cs.SingleAsync(c => c.CustomerID == "ALFKI", cancellationToken));
@@ -748,6 +748,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Select(e => EF.Property<string>(e, "Title")));
         }
 
+        [ConditionalFact]
         public virtual async Task Where_simple_shadow_projection_mixed()
         {
             await AssertQuery<Employee>(
@@ -1600,7 +1601,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
-        // TODO: [ConditionalFact] See #153
+        [ConditionalFact]
         public virtual async Task Where_subquery_on_collection()
         {
             await AssertQuery<Product, OrderDetail>((pr, od) =>
@@ -3589,8 +3590,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var query = await context.Customers.OrderBy(c => c.CustomerID).Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" }).ToListAsync();
 
-                Assert.All(query.Take(2), t => Assert.Equal(true, t.Value));
-                Assert.All(query.Skip(2), t => Assert.Equal(false, t.Value));
+                Assert.All(query.Take(2), t => Assert.True(t.Value));
+                Assert.All(query.Skip(2), t => Assert.False(t.Value));
             }
         }
 
@@ -3602,8 +3603,8 @@ namespace Microsoft.EntityFrameworkCore
                 var query = await context.Customers.OrderBy(c => c.CustomerID)
                     .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" | c.CustomerID == "ANTON" }).ToListAsync();
 
-                Assert.All(query.Take(3), t => Assert.Equal(true, t.Value));
-                Assert.All(query.Skip(3), t => Assert.Equal(false, t.Value));
+                Assert.All(query.Take(3), t => Assert.True(t.Value));
+                Assert.All(query.Skip(3), t => Assert.False(t.Value));
             }
         }
 
@@ -3614,7 +3615,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var query = await context.Customers.OrderBy(c => c.CustomerID).Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" }).ToListAsync();
 
-                Assert.All(query, t => Assert.Equal(false, t.Value));
+                Assert.All(query, t => Assert.False(t.Value));
             }
         }
 
@@ -3626,7 +3627,7 @@ namespace Microsoft.EntityFrameworkCore
                 var query = await context.Customers.OrderBy(c => c.CustomerID)
                     .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" | c.CustomerID == "ANTON" }).ToListAsync();
 
-                Assert.All(query.Where(c => c.CustomerID != "ANTON"), t => Assert.Equal(false, t.Value));
+                Assert.All(query.Where(c => c.CustomerID != "ANTON"), t => Assert.False(t.Value));
             }
         }
 
@@ -3672,8 +3673,8 @@ namespace Microsoft.EntityFrameworkCore
                     Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON"
                 }).ToListAsync();
 
-                Assert.All(query.Take(3), t => Assert.Equal(true, t.Value));
-                Assert.All(query.Skip(3), t => Assert.Equal(false, t.Value));
+                Assert.All(query.Take(3), t => Assert.True(t.Value));
+                Assert.All(query.Skip(3), t => Assert.False(t.Value));
             }
         }
 
@@ -3688,7 +3689,7 @@ namespace Microsoft.EntityFrameworkCore
                     Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"
                 }).ToListAsync();
 
-                Assert.All(query, t => Assert.Equal(false, t.Value));
+                Assert.All(query, t => Assert.False(t.Value));
             }
         }
 

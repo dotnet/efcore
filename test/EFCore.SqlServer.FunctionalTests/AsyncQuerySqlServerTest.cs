@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             await Assert.ThrowsAsync<TaskCanceledException>(
                 async () =>
-                    await Single_Predicate_Cancellation(Fixture.TestSqlLoggerFactory.CancelQuery()));
+                    await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
         }
 
         [Fact]

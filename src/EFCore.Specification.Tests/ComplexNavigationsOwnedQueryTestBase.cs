@@ -5,6 +5,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
+
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ComplexNavigationsOwnedQueryTestBase<TTestStore, TFixture> : ComplexNavigationsQueryTestBase<TTestStore, TFixture>
@@ -14,6 +16,12 @@ namespace Microsoft.EntityFrameworkCore
         protected ComplexNavigationsOwnedQueryTestBase(TFixture fixture)
             : base(fixture)
         {
+        }
+
+        [ConditionalFact(Skip = "issue #8809")]
+        public override void Entity_equality_empty()
+        {
+            base.Entity_equality_empty();
         }
 
         [ConditionalFact(Skip = "issue #8248")]

@@ -4397,11 +4397,11 @@ namespace Microsoft.EntityFrameworkCore
 
         public virtual void Dispose() => TestStore.Dispose();
 
-        public virtual void ClearLog()
+        protected virtual void ClearLog()
         {
         }
 
-        public virtual void RecordLog()
+        protected virtual void RecordLog()
         {
         }
 

@@ -82,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.Equal(nownNum1.Id, context.NownNums.Single(e => e.TheWalrus == "Crying").Id);
                     Assert.Equal(nownNum2.Id, context.NownNums.Single(e => e.TheWalrus == "Walrus").Id);
-                    Assert.Equal(nownNum1.Id, 77.0m);
-                    Assert.Equal(nownNum2.Id, 78.0m);
+                    Assert.Equal(77.0m, nownNum1.Id);
+                    Assert.Equal(78.0m, nownNum2.Id);
 
                     Assert.Equal(numNum1.Id, context.NumNums.Single(e => e.TheWalrus == "I").Id);
                     Assert.Equal(numNum2.Id, context.NumNums.Single(e => e.TheWalrus == "Am").Id);
@@ -102,8 +102,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(byteNownNum1.Id, context.ByteNownNums.Single(e => e.Lucy == "Tangerine").Id);
                     Assert.Equal(byteNownNum2.Id, context.ByteNownNums.Single(e => e.Lucy == "Trees").Id);
-                    Assert.Equal(byteNownNum1.Id, 77);
-                    Assert.Equal(byteNownNum2.Id, 78);
+                    Assert.Equal(77, byteNownNum1.Id);
+                    Assert.Equal(78, byteNownNum2.Id);
 
                     Assert.Equal(byteNum1.Id, context.ByteNums.Single(e => e.Lucy == "Marmalade").Id);
                     Assert.Equal(byteNum2.Id, context.ByteNums.Single(e => e.Lucy == "Skies").Id);

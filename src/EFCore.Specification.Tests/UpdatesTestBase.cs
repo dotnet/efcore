@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
                         var product = context.Products.First(p => p.Id == productId);
 
                         Assert.Equal(1.99M, product.Price);
-                        Assert.Equal(null, product.DependentId);
+                        Assert.Null(product.DependentId);
                         Assert.Equal("Apple Cider", product.Name);
                     });
         }
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var product = context.Products.FirstOrDefault(f => f.Id == productId);
 
-                        Assert.Equal(null, product);
+                        Assert.Null(product);
                     });
         }
 

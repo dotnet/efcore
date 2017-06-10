@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+#pragma warning disable xUnit1010 // The value is not convertible to the method parameter type
+
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class GraphUpdatesTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable

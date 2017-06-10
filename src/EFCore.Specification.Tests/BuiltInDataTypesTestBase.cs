@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public virtual void Can_perform_query_with_ansi_strings(bool supportsAnsi)
+        protected virtual void Can_perform_query_with_ansi_strings_test(bool supportsAnsi)
         {
             var shortString = "Ϩky";
             var longString = new string('Ϩ', 9000);

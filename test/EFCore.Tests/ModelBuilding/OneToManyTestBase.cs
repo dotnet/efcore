@@ -2014,6 +2014,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 
+            [Fact]
             public virtual void Can_exclude_navigation_pointed_by_foreign_key_attribute_from_explicit_configuration()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2225,6 +2226,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("KappaId", modelBuilder.Model.FindEntityType(typeof(Omega)).FindNavigation(nameof(Omega.Kappa)).ForeignKey.Properties.Single().Name);
             }
 
+            [Fact]
             public virtual void RemoveKey_does_not_add_back_foreign_key_pointing_to_the_same_key()
             {
                 var modelBuilder = CreateModelBuilder();

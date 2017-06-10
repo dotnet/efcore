@@ -6,6 +6,7 @@
     <TargetFramework>net461</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Benchmarks.EF6</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks.EF6</RootNamespace>
+    <NoWarn>$(NoWarn);xUnit1005</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVersion)" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
     <PackageReference Include="EntityFramework" Version="$(EF6Version)" />
   </ItemGroup>
 

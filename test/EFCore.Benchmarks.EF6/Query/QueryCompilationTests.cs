@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.Query
 {
-    internal class QueryCompilationTests : IClassFixture<QueryCompilationTests.QueryCompilationFixture>
+    public class QueryCompilationTests : IClassFixture<QueryCompilationTests.QueryCompilationFixture>
     {
         private readonly QueryCompilationFixture _fixture;
 

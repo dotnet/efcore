@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Can_perform_query_with_ansi_strings()
         {
-            Can_perform_query_with_ansi_strings(supportsAnsi: false);
+            Can_perform_query_with_ansi_strings_test(supportsAnsi: false);
         }
     }
 }

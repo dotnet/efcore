@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public override void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
+        protected override void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
         {
             base.OnModelCreating<TMessage, TProductPhoto, TProductReview>(builder);
 

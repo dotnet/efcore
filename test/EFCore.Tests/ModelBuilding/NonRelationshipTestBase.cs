@@ -857,12 +857,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var entityType = model.FindEntityType(typeof(Quarks));
 
                 Assert.Null(entityType.FindProperty(Customer.IdProperty.Name).IsUnicode());
-                Assert.Equal(true, entityType.FindProperty("Up").IsUnicode());
-                Assert.Equal(false, entityType.FindProperty("Down").IsUnicode());
-                Assert.Equal(true, entityType.FindProperty("Charm").IsUnicode());
-                Assert.Equal(false, entityType.FindProperty("Strange").IsUnicode());
-                Assert.Equal(true, entityType.FindProperty("Top").IsUnicode());
-                Assert.Equal(false, entityType.FindProperty("Bottom").IsUnicode());
+                Assert.True(entityType.FindProperty("Up").IsUnicode());
+                Assert.False(entityType.FindProperty("Down").IsUnicode());
+                Assert.True(entityType.FindProperty("Charm").IsUnicode());
+                Assert.False(entityType.FindProperty("Strange").IsUnicode());
+                Assert.True(entityType.FindProperty("Top").IsUnicode());
+                Assert.False(entityType.FindProperty("Bottom").IsUnicode());
             }
 
             [Fact]

@@ -23,16 +23,16 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public async Task SaveChanges_logs_DatabaseErrorLogState_nonasync()
         {
-            await SaveChanges_logs_DatabaseErrorLogState(async: false);
+            await SaveChanges_logs_DatabaseErrorLogState_test(async: false);
         }
 
         [Fact]
         public async Task SaveChanges_logs_DatabaseErrorLogState_async()
         {
-            await SaveChanges_logs_DatabaseErrorLogState(async: true);
+            await SaveChanges_logs_DatabaseErrorLogState_test(async: true);
         }
 
-        public async Task SaveChanges_logs_DatabaseErrorLogState(bool async)
+        private async Task SaveChanges_logs_DatabaseErrorLogState_test(bool async)
         {
             var loggerFactory = new TestLoggerFactory();
             var serviceProvider = new ServiceCollection()
@@ -65,19 +65,19 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Query_logs_DatabaseErrorLogState_during_DbSet_enumeration()
         {
-            Query_logs_DatabaseErrorLogState(c => c.Blogs.ToList());
+            Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToList());
         }
 
         [Fact]
         public void Query_logs_DatabaseErrorLogState_during_DbSet_enumeration_async()
         {
-            Query_logs_DatabaseErrorLogState(c => c.Blogs.ToListAsync().Wait());
+            Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToListAsync().Wait());
         }
 
         [Fact]
         public void Query_logs_DatabaseErrorLogState_during_LINQ_enumeration()
         {
-            Query_logs_DatabaseErrorLogState(
+            Query_logs_DatabaseErrorLogState_test(
                 c =>
                     c.Blogs
                         .OrderBy(b => b.Name)
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Query_logs_DatabaseErrorLogState_during_LINQ_enumeration_async()
         {
-            Query_logs_DatabaseErrorLogState(
+            Query_logs_DatabaseErrorLogState_test(
                 c =>
                     c.Blogs
                         .OrderBy(b => b.Name)
@@ -100,16 +100,16 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Query_logs_DatabaseErrorLogState_during_single()
         {
-            Query_logs_DatabaseErrorLogState(c => c.Blogs.FirstOrDefault());
+            Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefault());
         }
 
         [Fact]
         public void Query_logs_DatabaseErrorLogState_during_single_async()
         {
-            Query_logs_DatabaseErrorLogState(c => c.Blogs.FirstOrDefaultAsync().Wait());
+            Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefaultAsync().Wait());
         }
 
-        public void Query_logs_DatabaseErrorLogState(Action<BloggingContext> test)
+        private void Query_logs_DatabaseErrorLogState_test(Action<BloggingContext> test)
         {
             var loggerFactory = new TestLoggerFactory();
             var serviceProvider = new ServiceCollection()
@@ -140,16 +140,16 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public async Task SaveChanges_logs_concurrent_access_nonasync()
         {
-            await SaveChanges_logs_concurrent_access(async: false);
+            await SaveChanges_logs_concurrent_access_test(async: false);
         }
 
         [Fact]
         public async Task SaveChanges_logs_concurrent_access_async()
         {
-            await SaveChanges_logs_concurrent_access(async: true);
+            await SaveChanges_logs_concurrent_access_test(async: true);
         }
 
-        public async Task SaveChanges_logs_concurrent_access(bool async)
+        private async Task SaveChanges_logs_concurrent_access_test(bool async)
         {
             var loggerFactory = new TestLoggerFactory();
             var serviceProvider = new ServiceCollection()

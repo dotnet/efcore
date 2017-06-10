@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Can_perform_query_with_ansi_strings()
         {
-            Can_perform_query_with_ansi_strings(supportsAnsi: true);
+            Can_perform_query_with_ansi_strings_test(supportsAnsi: true);
         }
 
         [Fact]
@@ -370,7 +370,7 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(78, entity.Bigint);
             Assert.Equal(79, entity.Smallint);
             Assert.Equal(80, entity.Tinyint);
-            Assert.Equal(true, entity.Bit);
+            Assert.True(entity.Bit);
             Assert.Equal(81.1m, entity.Money);
             Assert.Equal(82.2m, entity.Smallmoney);
             Assert.Equal(83.3, entity.Float);
@@ -489,7 +489,7 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(78, entity.Bigint);
             Assert.Equal(79, entity.Smallint.Value);
             Assert.Equal(80, entity.Tinyint.Value);
-            Assert.Equal(true, entity.Bit);
+            Assert.True(entity.Bit);
             Assert.Equal(81.1m, entity.Money);
             Assert.Equal(82.2m, entity.Smallmoney);
             Assert.Equal(83.3, entity.Float);
@@ -909,7 +909,7 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(78, entity.Bigint);
             Assert.Equal(79, entity.Smallint);
             Assert.Equal(80, entity.Tinyint);
-            Assert.Equal(true, entity.Bit);
+            Assert.True(entity.Bit);
             Assert.Equal(81.1m, entity.Money);
             Assert.Equal(82.2m, entity.Smallmoney);
             Assert.Equal(83.3, entity.Float);
@@ -1028,7 +1028,7 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(78, entity.Bigint);
             Assert.Equal(79, entity.Smallint.Value);
             Assert.Equal(80, entity.Tinyint.Value);
-            Assert.Equal(true, entity.Bit);
+            Assert.True(entity.Bit);
             Assert.Equal(81.1m, entity.Money);
             Assert.Equal(82.2m, entity.Smallmoney);
             Assert.Equal(83.3, entity.Float);

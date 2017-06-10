@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var result = query.ToList();
                 Assert.Equal(10, result.Count);
-                Assert.Equal(null, result[0].Owner?.CityOrBirthName);
+                Assert.Null(result[0].Owner?.CityOrBirthName);
                 Assert.Equal("Ephyra", result[1].Owner.CityOrBirthName);
                 Assert.Equal("Ephyra", result[2].Owner.CityOrBirthName);
                 Assert.Equal("Hanover", result[3].Owner.CityOrBirthName);
@@ -1248,14 +1248,14 @@ namespace Microsoft.EntityFrameworkCore
                 var result = query.ToList();
 
                 Assert.Equal(13, result.Count);
-                Assert.Equal(null, result[0].Nickname);
-                Assert.Equal(null, result[0].Condition);
+                Assert.Null(result[0].Nickname);
+                Assert.Null(result[0].Condition);
 
                 Assert.Equal("Baird", result[3].Nickname);
-                Assert.Equal(true, result[3].Condition);
+                Assert.True(result[3].Condition);
 
                 Assert.Equal("Marcus", result[9].Nickname);
-                Assert.Equal(false, result[9].Condition);
+                Assert.False(result[9].Condition);
             }
         }
 
@@ -1273,7 +1273,7 @@ namespace Microsoft.EntityFrameworkCore
                 var result = query.ToList();
 
                 Assert.Equal(13, result.Count);
-                Assert.Equal(null, result[0]);
+                Assert.Null(result[0]);
                 Assert.Equal("Baird", result[3].Item1);
                 Assert.Equal(5, result[3].Item2);
             }
@@ -1292,7 +1292,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var result = query.ToList();
                 Assert.Equal(13, result.Count);
-                Assert.Equal(null, result[0]);
+                Assert.Null(result[0]);
                 Assert.Equal("Baird", result[3].Nickname);
                 Assert.Equal(5, result[3].Five);
             }
@@ -1390,7 +1390,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.True(result[0].HasSoulPatch);
                 Assert.False(result[1].HasSoulPatch);
                 Assert.False(result[2].HasSoulPatch);
-                Assert.Equal(null, result[3]);
+                Assert.Null(result[3]);
                 Assert.False(result[4].HasSoulPatch);
             }
         }
@@ -3288,9 +3288,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(2, result.Count);
                 Assert.Equal("Locust", result[0].Name);
-                Assert.Equal(true, result[0].Eradicated);
+                Assert.True(result[0].Eradicated);
                 Assert.Equal("Swarm", result[1].Name);
-                Assert.Equal(false, result[1].Eradicated);
+                Assert.False(result[1].Eradicated);
             }
         }
 
@@ -3308,9 +3308,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(2, result.Count);
                 Assert.Equal("Locust", result[0].f.Name);
-                Assert.Equal(true, result[0].Eradicated);
+                Assert.True(result[0].Eradicated);
                 Assert.Equal("Swarm", result[1].f.Name);
-                Assert.Equal(false, result[1].Eradicated);
+                Assert.False(result[1].Eradicated);
             }
         }
 
@@ -3329,9 +3329,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(2, result.Count);
                 Assert.Equal("Locust", result[0].Name);
-                Assert.Equal(true, result[0].Eradicated);
+                Assert.True(result[0].Eradicated);
                 Assert.Equal("Swarm", result[1].Name);
-                Assert.Equal(false, result[1].Eradicated);
+                Assert.False(result[1].Eradicated);
             }
         }
 
@@ -3350,9 +3350,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(2, result.Count);
                 Assert.Equal("Locust", result[0].Name);
-                Assert.Equal(true, result[0].Eradicated);
+                Assert.True(result[0].Eradicated);
                 Assert.Equal("Swarm", result[1].Name);
-                Assert.Equal(false, result[1].Eradicated);
+                Assert.False(result[1].Eradicated);
             }
         }
 

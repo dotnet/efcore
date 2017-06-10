@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore
         public void Returns_same_name_when_null()
         {
             var pluralizer = new NullPluralizer();
-            Assert.Equal(null, pluralizer.Pluralize(null));
-            Assert.Equal(null, pluralizer.Singularize(null));
+            Assert.Null(pluralizer.Pluralize(null));
+            Assert.Null(pluralizer.Singularize(null));
         }
     }
 }

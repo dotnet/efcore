@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public virtual void Dispose() => _testStore?.Dispose();
 
-        public override void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
+        protected override void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
         {
             base.OnModelCreating<TMessage, TProductPhoto, TProductReview>(builder);
 

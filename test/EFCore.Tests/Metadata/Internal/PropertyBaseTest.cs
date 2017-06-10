@@ -542,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return navigation;
         }
 
-        public void MemberInfoTest(
+        private void MemberInfoTest(
             IMutableProperty property, PropertyAccessMode? accessMode, string forConstruction, string forSet, string forGet)
         {
             property.SetPropertyAccessMode(accessMode);
@@ -550,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTestCommon(property, accessMode, forConstruction, forSet, forGet);
         }
 
-        public void MemberInfoTest(
+        private void MemberInfoTest(
             IMutableNavigation navigation, PropertyAccessMode? accessMode, string forConstruction, string forSet, string forGet)
         {
             navigation.SetPropertyAccessMode(accessMode);
@@ -558,7 +558,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTestCommon(navigation, accessMode, forConstruction, forSet, forGet);
         }
 
-        public void MemberInfoTestCommon(
+        private void MemberInfoTestCommon(
             IPropertyBase propertyBase, PropertyAccessMode? accessMode, string forConstruction, string forSet, string forGet)
         {
             string failMessage = null;
@@ -682,13 +682,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var propertyInfo = typeof(FullProp).GetAnyProperty("Foo");
 
-            Properties_can_have_field_cleared(
+            Properties_can_have_field_cleared_test(
                 new Model().AddEntityType(typeof(FullProp)).AddProperty(propertyInfo), propertyInfo, "_foo");
         }
 
         [Fact]
         public virtual void Field_only_properties_can_have_field_cleared()
-            => Properties_can_have_field_cleared(
+            => Properties_can_have_field_cleared_test(
                 new Model().AddEntityType(typeof(FieldOnly)).AddProperty("Foo", typeof(int)), null, "_foo");
 
         [Fact]
@@ -701,11 +701,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var propertyInfo = typeof(FullProp).GetAnyProperty("Reference");
 
-            Properties_can_have_field_cleared(
+            Properties_can_have_field_cleared_test(
                 foreignKey.HasDependentToPrincipal(propertyInfo), propertyInfo, "_reference");
         }
 
-        public virtual void Properties_can_have_field_cleared(PropertyBase propertyBase, PropertyInfo propertyInfo, string fieldName)
+        private void Properties_can_have_field_cleared_test(PropertyBase propertyBase, PropertyInfo propertyInfo, string fieldName)
         {
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
