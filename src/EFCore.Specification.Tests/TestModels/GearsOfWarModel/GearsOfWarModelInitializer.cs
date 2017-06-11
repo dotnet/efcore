@@ -29,13 +29,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             var lightmassOffensive = new Mission
             {
                 CodeName = "Lightmass Offensive",
-                Timeline = new DateTimeOffset(2, 1, 2, 10, 0, 0, new TimeSpan())
+                Timeline = new DateTimeOffset(2, 1, 2, 10, 0, 0, new TimeSpan(1, 30, 0))
             };
 
             var hollowStorm = new Mission
             {
                 CodeName = "Lightmass Offensive",
-                Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan())
+                Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0))
             };
 
             var halvoBay = new Mission

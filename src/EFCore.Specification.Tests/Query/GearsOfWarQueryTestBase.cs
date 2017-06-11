@@ -2625,6 +2625,133 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void DateTimeOffset_DateAdd_AddYears()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            orderby m.Timeline
+                            select m.Timeline.AddYears(1);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal(new DateTimeOffset(3, 1, 2, 10, 0, 0, new TimeSpan(1, 30, 0)), result[0]);
+                Assert.Equal(new DateTimeOffset(3, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0)), result[1]);
+                Assert.Equal(new DateTimeOffset(11, 5, 3, 12, 0, 0, new TimeSpan()), result[2]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateTimeOffset_DateAdd_AddMonths()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            orderby m.Timeline
+                            select m.Timeline.AddMonths(1);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal(new DateTimeOffset(2, 2, 2, 10, 0, 0, new TimeSpan(1, 30, 0)), result[0]);
+                Assert.Equal(new DateTimeOffset(2, 4, 1, 8, 0, 0, new TimeSpan(-5, 0, 0)), result[1]);
+                Assert.Equal(new DateTimeOffset(10, 6, 3, 12, 0, 0, new TimeSpan()), result[2]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateTimeOffset_DateAdd_AddDays()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            orderby m.Timeline
+                            select m.Timeline.AddDays(1);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal(new DateTimeOffset(2, 1, 3, 10, 0, 0, new TimeSpan(1, 30, 0)), result[0]);
+                Assert.Equal(new DateTimeOffset(2, 3, 2, 8, 0, 0, new TimeSpan(-5, 0, 0)), result[1]);
+                Assert.Equal(new DateTimeOffset(10, 5, 4, 12, 0, 0, new TimeSpan()), result[2]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateTimeOffset_DateAdd_AddHours()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            orderby m.Timeline
+                            select m.Timeline.AddHours(1);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal(new DateTimeOffset(2, 1, 2, 11, 0, 0, new TimeSpan(1, 30, 0)), result[0]);
+                Assert.Equal(new DateTimeOffset(2, 3, 1, 9, 0, 0, new TimeSpan(-5, 0, 0)), result[1]);
+                Assert.Equal(new DateTimeOffset(10, 5, 3, 13, 0, 0, new TimeSpan()), result[2]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateTimeOffset_DateAdd_AddMinutes()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            orderby m.Timeline
+                            select m.Timeline.AddMinutes(1);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal(new DateTimeOffset(2, 1, 2, 10, 1, 0, new TimeSpan(1, 30, 0)), result[0]);
+                Assert.Equal(new DateTimeOffset(2, 3, 1, 8, 1, 0, new TimeSpan(-5, 0, 0)), result[1]);
+                Assert.Equal(new DateTimeOffset(10, 5, 3, 12, 1, 0, new TimeSpan()), result[2]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateTimeOffset_DateAdd_AddSeconds()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            orderby m.Timeline
+                            select m.Timeline.AddSeconds(1);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal(new DateTimeOffset(2, 1, 2, 10, 0, 1, new TimeSpan(1, 30, 0)), result[0]);
+                Assert.Equal(new DateTimeOffset(2, 3, 1, 8, 0, 1, new TimeSpan(-5, 0, 0)), result[1]);
+                Assert.Equal(new DateTimeOffset(10, 5, 3, 12, 0, 1, new TimeSpan()), result[2]);
+            }
+        }
+
+
+        [ConditionalFact]
+        public virtual void DateTimeOffset_DateAdd_AddMilliseconds()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from m in context.Missions
+                            orderby m.Timeline
+                            select m.Timeline.AddMilliseconds(300);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.Equal(new DateTimeOffset(2, 1, 2, 10, 0, 0, 300, new TimeSpan(1, 30, 0)), result[0]);
+                Assert.Equal(new DateTimeOffset(2, 3, 1, 8, 0, 0, 300, new TimeSpan(-5, 0, 0)), result[1]);
+                Assert.Equal(new DateTimeOffset(10, 5, 3, 12, 0, 0, 300, new TimeSpan()), result[2]);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Orderby_added_for_client_side_GroupJoin_composite_dependent_to_principal_LOJ_when_incomplete_key_is_used()
         {
             using (var ctx = CreateContext())
