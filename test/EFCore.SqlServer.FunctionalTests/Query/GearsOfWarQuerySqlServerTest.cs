@@ -2599,6 +2599,76 @@ FROM [Mission] AS [m]
 WHERE DATEPART(month, [m].[Timeline]) = 5");
         }
 
+        public override void DateTimeOffset_DateAdd_AddYears()
+        {
+            base.DateTimeOffset_DateAdd_AddYears();
+
+            AssertSql(
+                @"SELECT DATEADD(year, 1, [m].[Timeline])
+FROM [Mission] AS [m]
+ORDER BY [m].[Timeline]");
+        }
+
+        public override void DateTimeOffset_DateAdd_AddMonths()
+        {
+            base.DateTimeOffset_DateAdd_AddMonths();
+
+            AssertSql(
+                @"SELECT DATEADD(month, 1, [m].[Timeline])
+FROM [Mission] AS [m]
+ORDER BY [m].[Timeline]");
+        }
+
+        public override void DateTimeOffset_DateAdd_AddDays()
+        {
+            base.DateTimeOffset_DateAdd_AddDays();
+
+            AssertSql(
+                @"SELECT DATEADD(day, 1E0, [m].[Timeline])
+FROM [Mission] AS [m]
+ORDER BY [m].[Timeline]");
+        }
+
+        public override void DateTimeOffset_DateAdd_AddHours()
+        {
+            base.DateTimeOffset_DateAdd_AddHours();
+
+            AssertSql(
+                @"SELECT DATEADD(hour, 1E0, [m].[Timeline])
+FROM [Mission] AS [m]
+ORDER BY [m].[Timeline]");
+        }
+
+        public override void DateTimeOffset_DateAdd_AddMinutes()
+        {
+            base.DateTimeOffset_DateAdd_AddMinutes();
+
+            AssertSql(
+                @"SELECT DATEADD(minute, 1E0, [m].[Timeline])
+FROM [Mission] AS [m]
+ORDER BY [m].[Timeline]");
+        }
+
+        public override void DateTimeOffset_DateAdd_AddSeconds()
+        {
+            base.DateTimeOffset_DateAdd_AddSeconds();
+
+            AssertSql(
+                @"SELECT DATEADD(second, 1E0, [m].[Timeline])
+FROM [Mission] AS [m]
+ORDER BY [m].[Timeline]");
+        }
+
+        public override void DateTimeOffset_DateAdd_AddMilliseconds()
+        {
+            base.DateTimeOffset_DateAdd_AddMilliseconds();
+
+            AssertSql(
+                @"SELECT DATEADD(millisecond, 300E0, [m].[Timeline])
+FROM [Mission] AS [m]
+ORDER BY [m].[Timeline]");
+        }
+
         public override void Orderby_added_for_client_side_GroupJoin_composite_dependent_to_principal_LOJ_when_incomplete_key_is_used()
         {
             base.Orderby_added_for_client_side_GroupJoin_composite_dependent_to_principal_LOJ_when_incomplete_key_is_used();
