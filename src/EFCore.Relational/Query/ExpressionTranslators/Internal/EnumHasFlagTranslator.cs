@@ -35,8 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 var objectEnumType = methodCallExpression.Object.Type.UnwrapNullableType();
                 var argumentEnumType = argument.Type.UnwrapNullableType();
 
-                var constantExpression = argument as ConstantExpression;
-                if (constantExpression != null)
+                if (argument is ConstantExpression constantExpression)
                 {
                     if (constantExpression.Value == null)
                     {

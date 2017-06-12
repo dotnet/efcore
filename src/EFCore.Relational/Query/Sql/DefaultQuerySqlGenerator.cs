@@ -1420,6 +1420,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Check.NotNull(constantExpression, nameof(constantExpression));
 
             var value = constantExpression.Value;
+
+            if (constantExpression.Type.UnwrapNullableType().IsEnum)
+            {
+                var underlyingType = constantExpression.Type.UnwrapEnumType();
+                value = Convert.ChangeType(value, underlyingType);
+            }
+
             _relationalCommandBuilder.Append(
                 value == null
                     ? "NULL"
