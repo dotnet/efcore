@@ -1,11 +1,9 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -14,22 +12,22 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class CompositeRelationalParameter : RelationalParameterBase
+    public class RawRelationalParameter : RelationalParameterBase
     {
+        private readonly DbParameter _dbParameter;
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public CompositeRelationalParameter(
+        public RawRelationalParameter(
             [NotNull] string invariantName,
-            [NotNull] IReadOnlyList<IRelationalParameter> relationalParameters)
-
+            [NotNull] DbParameter dbParameter)
         {
-            Check.NotNull(invariantName, nameof(invariantName));
-            Check.NotNull(relationalParameters, nameof(relationalParameters));
+            Check.NotEmpty(invariantName, nameof(invariantName));
+            Check.NotNull(dbParameter, nameof(dbParameter));
 
             InvariantName = invariantName;
-            RelationalParameters = relationalParameters;
+            _dbParameter = dbParameter;
         }
 
         /// <summary>
@@ -42,7 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyList<IRelationalParameter> RelationalParameters { get; }
+        public override void AddDbParameter(DbCommand command, IReadOnlyDictionary<string, object> parameterValues)
+        {
+            AddDbParameter(command, _dbParameter);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -50,27 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public override void AddDbParameter(DbCommand command, object value)
         {
-            Check.NotNull(command, nameof(command));
-            Check.NotNull(value, nameof(value));
-
-            if (value is object[] innerValues)
-            {
-                if (innerValues.Length < RelationalParameters.Count)
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.MissingParameterValue(
-                            RelationalParameters[innerValues.Length].InvariantName));
-                }
-
-                for (var i = 0; i < RelationalParameters.Count; i++)
-                {
-                    RelationalParameters[i].AddDbParameter(command, innerValues[i]);
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException(RelationalStrings.ParameterNotObjectArray(InvariantName));
-            }
+            command.Parameters.Add(value);
         }
     }
 }

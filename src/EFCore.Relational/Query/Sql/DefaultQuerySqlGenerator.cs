@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Check.NotNull(arguments, nameof(arguments));
             Check.NotNull(parameters, nameof(parameters));
 
-            string [] substitutions = null;
+            string[] substitutions = null;
 
             // ReSharper disable once SwitchStatementMissingSomeCases
             switch (arguments.NodeType)
@@ -476,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     if (parameters.TryGetValue(parameterExpression.Name, out var parameterValue))
                     {
-                        var argumentValues = (object [])parameterValue;
+                        var argumentValues = (object[])parameterValue;
 
                         substitutions = new string[argumentValues.Length];
 
@@ -502,14 +502,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 case ExpressionType.Constant:
                 {
                     var constantExpression = (ConstantExpression)arguments;
-                    var argumentValues = (object [])constantExpression.Value;
+                    var argumentValues = (object[])constantExpression.Value;
 
                     substitutions = new string[argumentValues.Length];
 
                     for (var i = 0; i < argumentValues.Length; i++)
                     {
                         var value = argumentValues[i];
-                        substitutions[i] = GetTypeMapping(value).GenerateSqlLiteral(value);
+
+                        if (value is DbParameter dbParameter)
+                        {
+                            if (string.IsNullOrEmpty(dbParameter.ParameterName))
+                            {
+                                dbParameter.ParameterName = SqlGenerator.GenerateParameterName(_parameterNameGenerator.GenerateNext());
+                            }
+
+                            substitutions[i] = dbParameter.ParameterName;
+
+                            _relationalCommandBuilder.AddRawParameter(
+                                dbParameter.ParameterName,
+                                dbParameter);
+                        }
+                        else
+                        {
+                            substitutions[i] = GetTypeMapping(value).GenerateSqlLiteral(value);
+                        }
                     }
 
                     break;
@@ -570,8 +587,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private RelationalTypeMapping GetTypeMapping(object value)
         {
             return _typeMapping != null
-                    && (value == null
-                        || _typeMapping.ClrType.IsAssignableFrom(value.GetType()))
+                   && (value == null
+                       || _typeMapping.ClrType.IsAssignableFrom(value.GetType()))
                 ? _typeMapping
                 : Dependencies.RelationalTypeMapper.GetMappingForValue(value);
         }
@@ -846,7 +863,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             if (value is IEnumerable valuesEnumerable
                 && value.GetType() != typeof(string)
-                && value.GetType() != typeof(byte []))
+                && value.GetType() != typeof(byte[]))
             {
                 inConstants.AddRange(valuesEnumerable.Cast<object>().Select(Expression.Constant));
             }
@@ -1295,6 +1312,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (!string.IsNullOrWhiteSpace(schema))
             {
+                // ReSharper disable once AssignNullToNotNullAttribute
                 _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(schema))
                     .Append(".");
             }

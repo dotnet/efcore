@@ -64,6 +64,16 @@
     "Kind": "Removal"
   },
   {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalParameterBuilder",
+    "MemberId": "System.Void AddRawParameter(System.String invariantName, System.Data.Common.DbParameter dbParameter)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalParameter",
+    "MemberId": "System.Void AddDbParameter(System.Data.Common.DbCommand command, System.Collections.Generic.IReadOnlyDictionary<System.String, System.Object> parameterValues)",
+    "Kind": "Addition"
+  },
+  {
     "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.DbCommandLogData : System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<System.String, System.Object>>",
     "Kind": "Removal"
   },

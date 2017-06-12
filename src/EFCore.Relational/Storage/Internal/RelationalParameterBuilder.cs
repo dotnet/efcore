@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -132,6 +133,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     name,
                     GetParameterTypeMapping(TypeMapper.GetMapping(property)),
                     property));
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void AddRawParameter(string invariantName, DbParameter dbParameter)
+        {
+            Check.NotEmpty(invariantName, nameof(invariantName));
+            Check.NotNull(dbParameter, nameof(dbParameter));
+
+            _parameters.Add(new RawRelationalParameter(invariantName, dbParameter));
         }
 
         /// <summary>

@@ -3,6 +3,8 @@
 
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Linq;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -12,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
-            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.Clear();
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override void From_sql_queryable_simple()
@@ -511,6 +513,164 @@ INNER JOIN (
     ) AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
 ) AS [t] ON [o.OrderDetails].[OrderID] = [t].[OrderID]
 ORDER BY [t].[OrderID]");
+        }
+
+        [Fact]
+        public virtual void From_sql_in_subquery_with_dbParameter()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Orders.Where(
+                        o =>
+                            context.Customers
+                                .FromSql(
+                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = @city",
+                                    // ReSharper disable once FormatStringProblem
+                                    new SqlParameter("@city", "London"))
+                                .Select(c => c.CustomerID)
+                                .Contains(o.CustomerID))
+                    .ToArray();
+
+                Assert.Equal(46, actual.Length);
+
+                AssertSql(
+                    @"@city='London' (Nullable = false) (Size = 6)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] IN (
+    SELECT [c].[CustomerID]
+    FROM (
+        SELECT * FROM ""Customers"" WHERE ""City"" = @city
+    ) AS [c]
+)");
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_in_subquery_with_positional_dbParameter_without_name()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Orders.Where(
+                        o =>
+                            context.Customers
+                                .FromSql(
+                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
+                                    // ReSharper disable once FormatStringProblem
+                                    new SqlParameter { Value = "London"})
+                                .Select(c => c.CustomerID)
+                                .Contains(o.CustomerID))
+                    .ToArray();
+
+                Assert.Equal(46, actual.Length);
+
+                AssertSql(
+                    @"@p0='London' (Nullable = false) (Size = 6)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] IN (
+    SELECT [c].[CustomerID]
+    FROM (
+        SELECT * FROM ""Customers"" WHERE ""City"" = @p0
+    ) AS [c]
+)");
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_in_subquery_with_positional_dbParameter_with_name()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Orders.Where(
+                        o =>
+                            context.Customers
+                                .FromSql(
+                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
+                                    // ReSharper disable once FormatStringProblem
+                                    new SqlParameter("@city", "London"))
+                                .Select(c => c.CustomerID)
+                                .Contains(o.CustomerID))
+                    .ToArray();
+
+                Assert.Equal(46, actual.Length);
+
+                AssertSql(
+                    @"@city='London' (Nullable = false) (Size = 6)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] IN (
+    SELECT [c].[CustomerID]
+    FROM (
+        SELECT * FROM ""Customers"" WHERE ""City"" = @city
+    ) AS [c]
+)");
+            }
+        }
+
+
+        [Fact]
+        public virtual void From_sql_with_dbParameter_mixed_in_subquery()
+        {
+            using (var context = CreateContext())
+            {
+                const string city = "London";
+                const string title = "Sales Representative";
+
+                var actual = context.Orders.Where(
+                        o =>
+                            context.Customers
+                                .FromSql(
+                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = @title",
+                                    city,
+                                    // ReSharper disable once FormatStringProblem
+                                    new SqlParameter("@title", title))
+                                .Select(c => c.CustomerID)
+                                .Contains(o.CustomerID))
+                    .ToArray();
+
+                Assert.Equal(26, actual.Length);
+
+                actual = context.Orders.Where(
+                        o =>
+                            context.Customers
+                                .FromSql(
+                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}",
+                                    // ReSharper disable once FormatStringProblem
+                                    new SqlParameter("@city", city),
+                                    title)
+                                .Select(c => c.CustomerID)
+                                .Contains(o.CustomerID))
+                    .ToArray();
+
+                Assert.Equal(26, actual.Length);
+
+                AssertSql(
+                    @"@title='Sales Representative' (Nullable = false) (Size = 20)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] IN (
+    SELECT [c].[CustomerID]
+    FROM (
+        SELECT * FROM ""Customers"" WHERE ""City"" = N'London' AND ""ContactTitle"" = @title
+    ) AS [c]
+)",
+                    //
+                    @"@city='London' (Nullable = false) (Size = 6)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] IN (
+    SELECT [c].[CustomerID]
+    FROM (
+        SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = N'Sales Representative'
+    ) AS [c]
+)");
+            }
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)
