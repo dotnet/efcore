@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using JetBrains.Annotations;
 
@@ -36,22 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             foreach (var setInfo in _setFinder.FindSets(context).Where(p => p.Setter != null))
             {
-                setInfo.Setter.SetClrValue(context, _setSource.Create(context, setInfo.ClrType));
+                setInfo.Setter.SetClrValue(context, ((IDbSetCache)context).GetOrAddSet(_setSource, setInfo.ClrType));
             }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual DbSet<TEntity> CreateSet<TEntity>(DbContext context) where TEntity : class
-            => (DbSet<TEntity>)CreateSet(context, typeof(TEntity));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual object CreateSet(DbContext context, Type type)
-            => _setSource.Create(context, type);
     }
 }

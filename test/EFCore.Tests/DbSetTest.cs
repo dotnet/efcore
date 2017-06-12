@@ -16,6 +16,42 @@ namespace Microsoft.EntityFrameworkCore
     public class DbSetTest
     {
         [Fact]
+        public void DbSets_are_cached()
+        {
+            DbSet<Category> set;
+
+            using (var context = new EarlyLearningCenter())
+            {
+                set = context.Categories;
+                Assert.Same(set, context.Set<Category>());
+            }
+
+            using (var context = new EarlyLearningCenter())
+            {
+                Assert.NotSame(set, context.Categories);
+                Assert.NotSame(set, context.Set<Category>());
+            }
+        }
+
+        [Fact]
+        public void Use_of_LocalView_throws_if_context_is_disposed()
+        {
+            LocalView<Category> view;
+
+            using (var context = new EarlyLearningCenter())
+            {
+                view = context.Categories.Local;
+            }
+
+            Assert.Throws<ObjectDisposedException>(() => view.Add(new Category()));
+            Assert.Throws<ObjectDisposedException>(() => view.Remove(new Category()));
+            Assert.Throws<ObjectDisposedException>(() => view.Contains(new Category()));
+            Assert.Throws<ObjectDisposedException>(() => view.CopyTo(new Category[0], 0));
+            Assert.Throws<ObjectDisposedException>(() => view.Clear());
+            Assert.Throws<ObjectDisposedException>(() => view.GetEnumerator());
+        }
+
+        [Fact]
         public void Using_ignored_entity_that_has_DbSet_on_context_throws_appropriately()
         {
             using (var context = new IgnoredCntext())

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public DbContextDependencies(
             [NotNull] IChangeDetector changeDetector,
-            [NotNull] IDbSetInitializer dbSetInitializer,
+            [NotNull] IDbSetSource setSource,
             [NotNull] IEntityFinderSource entityFinderSource,
             [NotNull] IEntityGraphAttacher entityGraphAttacher,
             [NotNull] IModel model,
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IStateManager stateManager)
         {
             Check.NotNull(changeDetector, nameof(changeDetector));
-            Check.NotNull(dbSetInitializer, nameof(dbSetInitializer));
+            Check.NotNull(setSource, nameof(setSource));
             Check.NotNull(entityFinderSource, nameof(entityFinderSource));
             Check.NotNull(entityGraphAttacher, nameof(entityGraphAttacher));
             Check.NotNull(model, nameof(model));
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Check.NotNull(stateManager, nameof(stateManager));
 
             ChangeDetector = changeDetector;
-            DbSetInitializer = dbSetInitializer;
+            SetSource = setSource;
             EntityFinderSource = entityFinderSource;
             EntityGraphAttacher = entityGraphAttacher;
             Model = model;
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public IDbSetInitializer DbSetInitializer { get; }
+        public IDbSetSource SetSource { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

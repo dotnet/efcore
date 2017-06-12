@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var definingEntityType = entityType.DefiningEntityType;
             if (definingEntityType == null)
             {
-                return (IQueryable)context.GetService<IDbSetInitializer>().CreateSet(context, entityType.ClrType);
+                return (IQueryable)((IDbSetCache)context).GetOrAddSet(context.GetDependencies().SetSource, entityType.ClrType);
             }
 
             return BuildQueryRoot(context, definingEntityType)

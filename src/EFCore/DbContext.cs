@@ -48,8 +48,10 @@ namespace Microsoft.EntityFrameworkCore
         IDisposable,
         IInfrastructure<IServiceProvider>,
         IDbContextDependencies,
+        IDbSetCache,
         IDbContextPoolable
     {
+        private readonly IDictionary<Type, object> _sets = new Dictionary<Type, object>();
         private readonly DbContextOptions _options;
 
         private IDbContextServices _contextServices;
@@ -136,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IDbSetInitializer IDbContextDependencies.DbSetInitializer => DbContextDependencies.DbSetInitializer;
+        IDbSetSource IDbContextDependencies.SetSource => DbContextDependencies.SetSource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -169,16 +171,29 @@ namespace Microsoft.EntityFrameworkCore
         IEntityGraphAttacher IDbContextDependencies.EntityGraphAttacher => DbContextDependencies.EntityGraphAttacher;
 
         /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        object IDbSetCache.GetOrAddSet(IDbSetSource source, Type type)
+        {
+            CheckDisposed();
+
+            if (!_sets.TryGetValue(type, out var set))
+            {
+                set = source.Create(this, type);
+                _sets[type] = set;
+            }
+
+            return set;
+        }
+
+        /// <summary>
         ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>
-        public virtual DbSet<TEntity> Set<TEntity>() where TEntity : class
-        {
-            CheckDisposed();
-
-            return DbContextDependencies.DbSetInitializer.CreateSet<TEntity>(this);
-        }
+        public virtual DbSet<TEntity> Set<TEntity>() where TEntity : class 
+            => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
 
         private IEntityFinder Finder(Type type)
         {

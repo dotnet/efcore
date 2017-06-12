@@ -329,15 +329,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
             }
 
-            public DbSet<TEntity> CreateSet<TEntity>(DbContext context) where TEntity : class
-            {
-                throw new NotImplementedException();
-            }
+            public DbSet<TEntity> CreateSet<TEntity>(DbContext context) where TEntity : class => throw new NotImplementedException();
 
-            public object CreateSet(DbContext context, Type type)
-            {
-                throw new NotImplementedException();
-            }
+            public object CreateSet(DbContext context, Type type) => throw new NotImplementedException();
         }
 
         private class FakeEntityStateListener : IEntityStateListener
