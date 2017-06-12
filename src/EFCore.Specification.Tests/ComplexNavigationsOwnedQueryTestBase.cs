@@ -18,12 +18,6 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [ConditionalFact(Skip = "issue #8809")]
-        public override void Entity_equality_empty()
-        {
-            base.Entity_equality_empty();
-        }
-
         [ConditionalFact(Skip = "issue #8248")]
         public override void Required_navigation_on_a_subquery_with_First_in_projection()
         {
@@ -43,6 +37,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         // Naked instances not supported
+        public override void Entity_equality_empty()
+        {
+        }
+
         public override void Key_equality_two_conditions_on_same_navigation()
         {
         }
