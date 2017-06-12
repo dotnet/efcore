@@ -69,21 +69,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityTypeBuilder OnBaseEntityTypeSet(
+        public virtual InternalEntityTypeBuilder OnBaseEntityTypeChanged(
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
             [CanBeNull] EntityType previousBaseType)
-            => _scope.OnBaseEntityTypeSet(Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)), previousBaseType);
+            => _scope.OnBaseEntityTypeChanged(Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)), previousBaseType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Annotation OnEntityTypeAnnotationSet(
+        public virtual Annotation OnEntityTypeAnnotationChanged(
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
             [NotNull] string name,
             [CanBeNull] Annotation annotation,
             [CanBeNull] Annotation oldAnnotation)
-            => _scope.OnEntityTypeAnnotationSet(
+            => _scope.OnEntityTypeAnnotationChanged(
                 Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)),
                 Check.NotNull(name, nameof(name)),
                 annotation,
@@ -93,12 +93,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Annotation OnModelAnnotationSet(
+        public virtual Annotation OnModelAnnotationChanged(
             [NotNull] InternalModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] Annotation annotation,
             [CanBeNull] Annotation oldAnnotation)
-            => _scope.OnModelAnnotationSet(
+            => _scope.OnModelAnnotationChanged(
                 Check.NotNull(modelBuilder, nameof(modelBuilder)),
                 Check.NotNull(name, nameof(name)),
                 annotation,
@@ -138,9 +138,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void OnPrimaryKeySet(
+        public virtual void OnPrimaryKeyChanged(
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder, [CanBeNull] Key previousPrimaryKey)
-            => _scope.OnPrimaryKeySet(Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)), previousPrimaryKey);
+            => _scope.OnPrimaryKeyChanged(Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)), previousPrimaryKey);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -167,12 +167,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Annotation OnIndexAnnotationSet(
+        public virtual Annotation OnIndexAnnotationChanged(
             [NotNull] InternalIndexBuilder indexBuilder,
             [NotNull] string name,
             [CanBeNull] Annotation annotation,
             [CanBeNull] Annotation oldAnnotation)
-            => _scope.OnIndexAnnotationSet(
+            => _scope.OnIndexAnnotationChanged(
                 Check.NotNull(indexBuilder, nameof(indexBuilder)),
                 Check.NotNull(name, nameof(name)),
                 annotation,
@@ -221,8 +221,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalRelationshipBuilder OnPrincipalEndSet([NotNull] InternalRelationshipBuilder relationshipBuilder)
-            => _scope.OnPrincipalEndSet(Check.NotNull(relationshipBuilder, nameof(relationshipBuilder)));
+        public virtual InternalRelationshipBuilder OnPrincipalEndChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            => _scope.OnPrincipalEndChanged(Check.NotNull(relationshipBuilder, nameof(relationshipBuilder)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -250,12 +250,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Annotation OnPropertyAnnotationSet(
+        public virtual Annotation OnPropertyAnnotationChanged(
             [NotNull] InternalPropertyBuilder propertyBuilder,
             [NotNull] string name,
             [CanBeNull] Annotation annotation,
             [CanBeNull] Annotation oldAnnotation)
-            => _scope.OnPropertyAnnotationSet(
+            => _scope.OnPropertyAnnotationChanged(
                 Check.NotNull(propertyBuilder, nameof(propertyBuilder)),
                 Check.NotNull(name, nameof(name)),
                 annotation,

@@ -1021,7 +1021,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Metadata.UpdatePrincipalEndConfigurationSource(configurationSource);
 
-                    builder = ModelBuilder.Metadata.ConventionDispatcher.OnPrincipalEndSet(builder);
+                    builder = ModelBuilder.Metadata.ConventionDispatcher.OnPrincipalEndChanged(builder);
                 }
 
                 return builder;
@@ -1079,7 +1079,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Metadata.UpdatePrincipalEndConfigurationSource(configurationSource);
 
-                    builder = ModelBuilder.Metadata.ConventionDispatcher.OnPrincipalEndSet(builder);
+                    builder = ModelBuilder.Metadata.ConventionDispatcher.OnPrincipalEndChanged(builder);
                 }
 
                 return builder;
@@ -1165,7 +1165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         builder.Metadata.UpdatePrincipalEndConfigurationSource(principalEndConfigurationSource.Value);
 
-                        builder = ModelBuilder.Metadata.ConventionDispatcher.OnPrincipalEndSet(builder);
+                        builder = ModelBuilder.Metadata.ConventionDispatcher.OnPrincipalEndChanged(builder);
                     }
 
                     return builder;
@@ -1305,7 +1305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Metadata.UpdatePrincipalEndConfigurationSource(configurationSource.Value);
 
-                    builder = ModelBuilder.Metadata.ConventionDispatcher.OnPrincipalEndSet(builder);
+                    builder = ModelBuilder.Metadata.ConventionDispatcher.OnPrincipalEndChanged(builder);
                 }
 
                 return builder;
@@ -1462,7 +1462,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Metadata.UpdatePrincipalEndConfigurationSource(configurationSource);
 
-                    builder = ModelBuilder.Metadata.ConventionDispatcher.OnPrincipalEndSet(builder);
+                    builder = ModelBuilder.Metadata.ConventionDispatcher.OnPrincipalEndChanged(builder);
                 }
 
                 return builder;

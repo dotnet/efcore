@@ -93,31 +93,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
-            public virtual InternalEntityTypeBuilder OnBaseEntityTypeSet(
+            public virtual InternalEntityTypeBuilder OnBaseEntityTypeChanged(
                 [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
                 [CanBeNull] EntityType previousBaseType)
             {
-                Add(new OnBaseEntityTypeSetNode(entityTypeBuilder, previousBaseType));
+                Add(new OnBaseEntityTypeChangedNode(entityTypeBuilder, previousBaseType));
                 return entityTypeBuilder;
             }
 
-            public virtual Annotation OnEntityTypeAnnotationSet(
+            public virtual Annotation OnEntityTypeAnnotationChanged(
                 [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
                 [NotNull] string name,
                 [CanBeNull] Annotation annotation,
                 [CanBeNull] Annotation oldAnnotation)
             {
-                Add(new OnEntityTypeAnnotationSetNode(entityTypeBuilder, name, annotation, oldAnnotation));
+                Add(new OnEntityTypeAnnotationChangedNode(entityTypeBuilder, name, annotation, oldAnnotation));
                 return annotation;
             }
 
-            public virtual Annotation OnModelAnnotationSet(
+            public virtual Annotation OnModelAnnotationChanged(
                 [NotNull] InternalModelBuilder modelBuilder,
                 [NotNull] string name,
                 [CanBeNull] Annotation annotation,
                 [CanBeNull] Annotation oldAnnotation)
             {
-                Add(new OnModelAnnotationSetNode(modelBuilder, name, annotation, oldAnnotation));
+                Add(new OnModelAnnotationChangedNode(modelBuilder, name, annotation, oldAnnotation));
                 return annotation;
             }
 
@@ -139,9 +139,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public virtual void OnKeyRemoved([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] Key key)
                 => Add(new OnKeyRemovedNode(entityTypeBuilder, key));
 
-            public virtual void OnPrimaryKeySet(
+            public virtual void OnPrimaryKeyChanged(
                 [NotNull] InternalEntityTypeBuilder entityTypeBuilder, [CanBeNull] Key previousPrimaryKey)
-                => Add(new OnPrimaryKeySetNode(entityTypeBuilder, previousPrimaryKey));
+                => Add(new OnPrimaryKeyChangedNode(entityTypeBuilder, previousPrimaryKey));
 
             public virtual InternalIndexBuilder OnIndexAdded([NotNull] InternalIndexBuilder indexBuilder)
             {
@@ -158,13 +158,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return true;
             }
 
-            public virtual Annotation OnIndexAnnotationSet(
+            public virtual Annotation OnIndexAnnotationChanged(
                 [NotNull] InternalIndexBuilder indexBuilder,
                 [NotNull] string name,
                 [CanBeNull] Annotation annotation,
                 [CanBeNull] Annotation oldAnnotation)
             {
-                Add(new OnIndexAnnotationSetNode(indexBuilder, name, annotation, oldAnnotation));
+                Add(new OnIndexAnnotationChangedNode(indexBuilder, name, annotation, oldAnnotation));
                 return annotation;
             }
 
@@ -194,9 +194,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return relationshipBuilder;
             }
 
-            public virtual InternalRelationshipBuilder OnPrincipalEndSet([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            public virtual InternalRelationshipBuilder OnPrincipalEndChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
-                Add(new OnPrincipalEndSetNode(relationshipBuilder));
+                Add(new OnPrincipalEndChangedNode(relationshipBuilder));
                 return relationshipBuilder;
             }
 
@@ -219,13 +219,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return true;
             }
 
-            public virtual Annotation OnPropertyAnnotationSet(
+            public virtual Annotation OnPropertyAnnotationChanged(
                 [NotNull] InternalPropertyBuilder propertyBuilder,
                 [NotNull] string name,
                 [CanBeNull] Annotation annotation,
                 [CanBeNull] Annotation oldAnnotation)
             {
-                Add(new OnPropertyAnnotationSetNode(propertyBuilder, name, annotation, oldAnnotation));
+                Add(new OnPropertyAnnotationChangedNode(propertyBuilder, name, annotation, oldAnnotation));
                 return annotation;
             }
         }
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
-            public override InternalEntityTypeBuilder OnBaseEntityTypeSet(
+            public override InternalEntityTypeBuilder OnBaseEntityTypeChanged(
                 InternalEntityTypeBuilder entityTypeBuilder, EntityType previousBaseType)
             {
                 if (entityTypeBuilder.Metadata.Builder == null)
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
-            public override Annotation OnEntityTypeAnnotationSet(
+            public override Annotation OnEntityTypeAnnotationChanged(
                 InternalEntityTypeBuilder entityTypeBuilder,
                 string name,
                 Annotation annotation,
@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public override Annotation OnModelAnnotationSet(
+            public override Annotation OnModelAnnotationChanged(
                 InternalModelBuilder modelBuilder,
                 string name,
                 Annotation annotation,
@@ -424,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
-            public override void OnPrimaryKeySet(InternalEntityTypeBuilder entityTypeBuilder, Key previousPrimaryKey)
+            public override void OnPrimaryKeyChanged(InternalEntityTypeBuilder entityTypeBuilder, Key previousPrimaryKey)
             {
                 if (entityTypeBuilder.Metadata.Builder == null)
                 {
@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return true;
             }
 
-            public override Annotation OnIndexAnnotationSet(
+            public override Annotation OnIndexAnnotationChanged(
                 InternalIndexBuilder indexBuilder,
                 string name,
                 Annotation annotation,
@@ -591,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return relationshipBuilder;
             }
 
-            public override InternalRelationshipBuilder OnPrincipalEndSet(InternalRelationshipBuilder relationshipBuilder)
+            public override InternalRelationshipBuilder OnPrincipalEndChanged(InternalRelationshipBuilder relationshipBuilder)
             {
                 if (relationshipBuilder.Metadata.Builder == null)
                 {
@@ -669,7 +669,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return true;
             }
 
-            public override Annotation OnPropertyAnnotationSet(
+            public override Annotation OnPropertyAnnotationChanged(
                 InternalPropertyBuilder propertyBuilder,
                 string name,
                 Annotation annotation,
@@ -693,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public virtual InternalModelBuilder OnModelBuilt([NotNull] InternalModelBuilder modelBuilder)
+            public InternalModelBuilder OnModelBuilt([NotNull] InternalModelBuilder modelBuilder)
             {
                 foreach (var modelConvention in _conventionSet.ModelBuiltConventions)
                 {
@@ -707,7 +707,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return modelBuilder;
             }
 
-            public virtual InternalModelBuilder OnModelInitialized([NotNull] InternalModelBuilder modelBuilder)
+            public InternalModelBuilder OnModelInitialized([NotNull] InternalModelBuilder modelBuilder)
             {
                 foreach (var modelConvention in _conventionSet.ModelInitializedConventions)
                 {
@@ -764,9 +764,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnEntityTypeMemberIgnored(this);
         }
 
-        private class OnBaseEntityTypeSetNode : ConventionNode
+        private class OnBaseEntityTypeChangedNode : ConventionNode
         {
-            public OnBaseEntityTypeSetNode(InternalEntityTypeBuilder entityTypeBuilder, EntityType previousBaseType)
+            public OnBaseEntityTypeChangedNode(InternalEntityTypeBuilder entityTypeBuilder, EntityType previousBaseType)
             {
                 EntityTypeBuilder = entityTypeBuilder;
                 PreviousBaseType = previousBaseType;
@@ -775,12 +775,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public InternalEntityTypeBuilder EntityTypeBuilder { get; }
             public EntityType PreviousBaseType { get; }
 
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnBaseEntityTypeSet(this);
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnBaseEntityTypeChanged(this);
         }
 
-        private class OnEntityTypeAnnotationSetNode : ConventionNode
+        private class OnEntityTypeAnnotationChangedNode : ConventionNode
         {
-            public OnEntityTypeAnnotationSetNode(
+            public OnEntityTypeAnnotationChangedNode(
                 InternalEntityTypeBuilder entityTypeBuilder,
                 string name,
                 Annotation annotation,
@@ -797,12 +797,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public Annotation Annotation { get; }
             public Annotation OldAnnotation { get; }
 
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnEntityTypeAnnotationSet(this);
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnEntityTypeAnnotationChanged(this);
         }
 
-        private class OnModelAnnotationSetNode : ConventionNode
+        private class OnModelAnnotationChangedNode : ConventionNode
         {
-            public OnModelAnnotationSetNode(
+            public OnModelAnnotationChangedNode(
                 InternalModelBuilder modelBuilder,
                 string name,
                 Annotation annotation,
@@ -819,7 +819,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public Annotation Annotation { get; }
             public Annotation OldAnnotation { get; }
 
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnModelAnnotationSet(this);
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnModelAnnotationChanged(this);
         }
 
         private class OnForeignKeyAddedNode : ConventionNode
@@ -874,9 +874,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnKeyRemoved(this);
         }
 
-        private class OnPrimaryKeySetNode : ConventionNode
+        private class OnPrimaryKeyChangedNode : ConventionNode
         {
-            public OnPrimaryKeySetNode(InternalEntityTypeBuilder entityTypeBuilder, Key previousPrimaryKey)
+            public OnPrimaryKeyChangedNode(InternalEntityTypeBuilder entityTypeBuilder, Key previousPrimaryKey)
             {
                 EntityTypeBuilder = entityTypeBuilder;
                 PreviousPrimaryKey = previousPrimaryKey;
@@ -885,7 +885,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public InternalEntityTypeBuilder EntityTypeBuilder { get; }
             public Key PreviousPrimaryKey { get; }
 
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnPrimaryKeySet(this);
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnPrimaryKeyChanged(this);
         }
 
         private class OnIndexAddedNode : ConventionNode
@@ -926,9 +926,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnIndexUniquenessChanged(this);
         }
 
-        private class OnIndexAnnotationSetNode : ConventionNode
+        private class OnIndexAnnotationChangedNode : ConventionNode
         {
-            public OnIndexAnnotationSetNode(InternalIndexBuilder indexBuilder, string name, Annotation annotation, Annotation oldAnnotation)
+            public OnIndexAnnotationChangedNode(InternalIndexBuilder indexBuilder, string name, Annotation annotation, Annotation oldAnnotation)
             {
                 IndexBuilder = indexBuilder;
                 Name = name;
@@ -941,7 +941,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public Annotation Annotation { get; }
             public Annotation OldAnnotation { get; }
 
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnIndexAnnotationSet(this);
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnIndexAnnotationChanged(this);
         }
 
         private class OnNavigationAddedNode : ConventionNode
@@ -1004,16 +1004,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyOwnershipChanged(this);
         }
 
-        private class OnPrincipalEndSetNode : ConventionNode
+        private class OnPrincipalEndChangedNode : ConventionNode
         {
-            public OnPrincipalEndSetNode(InternalRelationshipBuilder relationshipBuilder)
+            public OnPrincipalEndChangedNode(InternalRelationshipBuilder relationshipBuilder)
             {
                 RelationshipBuilder = relationshipBuilder;
             }
 
             public InternalRelationshipBuilder RelationshipBuilder { get; }
 
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnPrincipalEndSet(this);
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnPrincipalEndChanged(this);
         }
 
         private class OnPropertyAddedNode : ConventionNode
@@ -1054,9 +1054,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnPropertyFieldChanged(this);
         }
 
-        private class OnPropertyAnnotationSetNode : ConventionNode
+        private class OnPropertyAnnotationChangedNode : ConventionNode
         {
-            public OnPropertyAnnotationSetNode(
+            public OnPropertyAnnotationChangedNode(
                 InternalPropertyBuilder propertyBuilder,
                 string name,
                 Annotation annotation,
@@ -1073,7 +1073,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public Annotation Annotation { get; }
             public Annotation OldAnnotation { get; }
 
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnPropertyAnnotationSet(this);
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnPropertyAnnotationChanged(this);
         }
     }
 }

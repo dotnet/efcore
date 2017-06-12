@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
         protected override Annotation OnAnnotationSet(string name, Annotation annotation, Annotation oldAnnotation)
-            => ConventionDispatcher.OnModelAnnotationSet(Builder, name, annotation, oldAnnotation);
+            => ConventionDispatcher.OnModelAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

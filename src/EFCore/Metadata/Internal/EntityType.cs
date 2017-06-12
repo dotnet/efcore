@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             UpdateBaseTypeConfigurationSource(configurationSource);
             entityType?.UpdateConfigurationSource(configurationSource);
 
-            Model.ConventionDispatcher.OnBaseEntityTypeSet(Builder, originalBaseType);
+            Model.ConventionDispatcher.OnBaseEntityTypeChanged(Builder, originalBaseType);
         }
 
         /// <summary>
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
         protected override Annotation OnAnnotationSet(string name, Annotation annotation, Annotation oldAnnotation)
-            => Model.ConventionDispatcher.OnEntityTypeAnnotationSet(Builder, name, annotation, oldAnnotation);
+            => Model.ConventionDispatcher.OnEntityTypeAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         #region Primary and Candidate Keys
 
@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             PropertyMetadataChanged();
-            Model.ConventionDispatcher.OnPrimaryKeySet(Builder, oldPrimaryKey);
+            Model.ConventionDispatcher.OnPrimaryKeyChanged(Builder, oldPrimaryKey);
 
             return _primaryKey;
         }

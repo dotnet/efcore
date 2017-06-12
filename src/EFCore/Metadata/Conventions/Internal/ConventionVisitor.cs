@@ -33,27 +33,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public virtual OnEntityTypeAddedNode VisitOnEntityTypeAdded(OnEntityTypeAddedNode node) => node;
             public virtual OnEntityTypeIgnoredNode VisitOnEntityTypeIgnored(OnEntityTypeIgnoredNode node) => node;
             public virtual OnEntityTypeMemberIgnoredNode VisitOnEntityTypeMemberIgnored(OnEntityTypeMemberIgnoredNode node) => node;
-            public virtual OnBaseEntityTypeSetNode VisitOnBaseEntityTypeSet(OnBaseEntityTypeSetNode node) => node;
-            public virtual OnEntityTypeAnnotationSetNode VisitOnEntityTypeAnnotationSet(OnEntityTypeAnnotationSetNode node) => node;
-            public virtual OnModelAnnotationSetNode VisitOnModelAnnotationSet(OnModelAnnotationSetNode node) => node;
+            public virtual OnBaseEntityTypeChangedNode VisitOnBaseEntityTypeChanged(OnBaseEntityTypeChangedNode node) => node;
+            public virtual OnEntityTypeAnnotationChangedNode VisitOnEntityTypeAnnotationChanged(OnEntityTypeAnnotationChangedNode node) => node;
+            public virtual OnModelAnnotationChangedNode VisitOnModelAnnotationChanged(OnModelAnnotationChangedNode node) => node;
             public virtual OnForeignKeyAddedNode VisitOnForeignKeyAdded(OnForeignKeyAddedNode node) => node;
             public virtual OnForeignKeyRemovedNode VisitOnForeignKeyRemoved(OnForeignKeyRemovedNode node) => node;
             public virtual OnKeyAddedNode VisitOnKeyAdded(OnKeyAddedNode node) => node;
             public virtual OnKeyRemovedNode VisitOnKeyRemoved(OnKeyRemovedNode node) => node;
-            public virtual OnPrimaryKeySetNode VisitOnPrimaryKeySet(OnPrimaryKeySetNode node) => node;
+            public virtual OnPrimaryKeyChangedNode VisitOnPrimaryKeyChanged(OnPrimaryKeyChangedNode node) => node;
             public virtual OnIndexAddedNode VisitOnIndexAdded(OnIndexAddedNode node) => node;
             public virtual OnIndexRemovedNode VisitOnIndexRemoved(OnIndexRemovedNode node) => node;
             public virtual OnIndexUniquenessChangedNode VisitOnIndexUniquenessChanged(OnIndexUniquenessChangedNode node) => node;
-            public virtual OnIndexAnnotationSetNode VisitOnIndexAnnotationSet(OnIndexAnnotationSetNode node) => node;
+            public virtual OnIndexAnnotationChangedNode VisitOnIndexAnnotationChanged(OnIndexAnnotationChangedNode node) => node;
             public virtual OnNavigationAddedNode VisitOnNavigationAdded(OnNavigationAddedNode node) => node;
             public virtual OnNavigationRemovedNode VisitOnNavigationRemoved(OnNavigationRemovedNode node) => node;
             public virtual OnForeignKeyUniquenessChangedNode VisitOnForeignKeyUniquenessChanged(OnForeignKeyUniquenessChangedNode node) => node;
             public virtual OnForeignKeyOwnershipChangedNode VisitOnForeignKeyOwnershipChanged(OnForeignKeyOwnershipChangedNode node) => node;
-            public virtual OnPrincipalEndSetNode VisitOnPrincipalEndSet(OnPrincipalEndSetNode node) => node;
+            public virtual OnPrincipalEndChangedNode VisitOnPrincipalEndChanged(OnPrincipalEndChangedNode node) => node;
             public virtual OnPropertyAddedNode VisitOnPropertyAdded(OnPropertyAddedNode node) => node;
             public virtual OnPropertyNullableChangedNode VisitOnPropertyNullableChanged(OnPropertyNullableChangedNode node) => node;
             public virtual OnPropertyFieldChangedNode VisitOnPropertyFieldChanged(OnPropertyFieldChangedNode node) => node;
-            public virtual OnPropertyAnnotationSetNode VisitOnPropertyAnnotationSet(OnPropertyAnnotationSetNode node) => node;
+            public virtual OnPropertyAnnotationChangedNode VisitOnPropertyAnnotationChanged(OnPropertyAnnotationChangedNode node) => node;
         }
 
         private class RunVisitor : ConventionVisitor
@@ -81,21 +81,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
-            public override OnBaseEntityTypeSetNode VisitOnBaseEntityTypeSet(OnBaseEntityTypeSetNode node)
+            public override OnBaseEntityTypeChangedNode VisitOnBaseEntityTypeChanged(OnBaseEntityTypeChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnBaseEntityTypeSet(node.EntityTypeBuilder, node.PreviousBaseType);
+                Dispatcher._immediateConventionScope.OnBaseEntityTypeChanged(node.EntityTypeBuilder, node.PreviousBaseType);
                 return null;
             }
 
-            public override OnEntityTypeAnnotationSetNode VisitOnEntityTypeAnnotationSet(OnEntityTypeAnnotationSetNode node)
+            public override OnEntityTypeAnnotationChangedNode VisitOnEntityTypeAnnotationChanged(OnEntityTypeAnnotationChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnEntityTypeAnnotationSet(node.EntityTypeBuilder, node.Name, node.Annotation, node.OldAnnotation);
+                Dispatcher._immediateConventionScope.OnEntityTypeAnnotationChanged(node.EntityTypeBuilder, node.Name, node.Annotation, node.OldAnnotation);
                 return null;
             }
 
-            public override OnModelAnnotationSetNode VisitOnModelAnnotationSet(OnModelAnnotationSetNode node)
+            public override OnModelAnnotationChangedNode VisitOnModelAnnotationChanged(OnModelAnnotationChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnModelAnnotationSet(node.ModelBuilder, node.Name, node.Annotation, node.OldAnnotation);
+                Dispatcher._immediateConventionScope.OnModelAnnotationChanged(node.ModelBuilder, node.Name, node.Annotation, node.OldAnnotation);
                 return null;
             }
 
@@ -123,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
-            public override OnPrimaryKeySetNode VisitOnPrimaryKeySet(OnPrimaryKeySetNode node)
+            public override OnPrimaryKeyChangedNode VisitOnPrimaryKeyChanged(OnPrimaryKeyChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnPrimaryKeySet(node.EntityTypeBuilder, node.PreviousPrimaryKey);
+                Dispatcher._immediateConventionScope.OnPrimaryKeyChanged(node.EntityTypeBuilder, node.PreviousPrimaryKey);
                 return null;
             }
 
@@ -147,9 +147,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
-            public override OnIndexAnnotationSetNode VisitOnIndexAnnotationSet(OnIndexAnnotationSetNode node)
+            public override OnIndexAnnotationChangedNode VisitOnIndexAnnotationChanged(OnIndexAnnotationChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnIndexAnnotationSet(node.IndexBuilder, node.Name, node.Annotation, node.OldAnnotation);
+                Dispatcher._immediateConventionScope.OnIndexAnnotationChanged(node.IndexBuilder, node.Name, node.Annotation, node.OldAnnotation);
                 return null;
             }
 
@@ -178,9 +178,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
-            public override OnPrincipalEndSetNode VisitOnPrincipalEndSet(OnPrincipalEndSetNode node)
+            public override OnPrincipalEndChangedNode VisitOnPrincipalEndChanged(OnPrincipalEndChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnPrincipalEndSet(node.RelationshipBuilder);
+                Dispatcher._immediateConventionScope.OnPrincipalEndChanged(node.RelationshipBuilder);
                 return null;
             }
 
@@ -202,9 +202,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
-            public override OnPropertyAnnotationSetNode VisitOnPropertyAnnotationSet(OnPropertyAnnotationSetNode node)
+            public override OnPropertyAnnotationChangedNode VisitOnPropertyAnnotationChanged(OnPropertyAnnotationChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnPropertyAnnotationSet(node.PropertyBuilder, node.Name, node.Annotation, node.OldAnnotation);
+                Dispatcher._immediateConventionScope.OnPropertyAnnotationChanged(node.PropertyBuilder, node.Name, node.Annotation, node.OldAnnotation);
                 return null;
             }
 

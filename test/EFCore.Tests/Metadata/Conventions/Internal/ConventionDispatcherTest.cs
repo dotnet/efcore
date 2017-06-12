@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new EntityTypeConvention(terminate: false, dependent: false);
-            var convention2 = new EntityTypeConvention(terminate: true, dependent: false);
-            var convention3 = new EntityTypeConvention(terminate: false, dependent: false);
+            var convention1 = new EntityTypeAddedConvention(terminate: false, dependent: false);
+            var convention2 = new EntityTypeAddedConvention(terminate: true, dependent: false);
+            var convention3 = new EntityTypeAddedConvention(terminate: false, dependent: false);
             conventions.EntityTypeAddedConventions.Add(convention1);
             conventions.EntityTypeAddedConventions.Add(convention2);
             conventions.EntityTypeAddedConventions.Add(convention3);
@@ -71,9 +71,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new EntityTypeConvention(terminate: false, dependent: true);
-            var convention2 = new EntityTypeConvention(terminate: true, dependent: true);
-            var convention3 = new EntityTypeConvention(terminate: false, dependent: true);
+            var convention1 = new EntityTypeAddedConvention(terminate: false, dependent: true);
+            var convention2 = new EntityTypeAddedConvention(terminate: true, dependent: true);
+            var convention3 = new EntityTypeAddedConvention(terminate: false, dependent: true);
             conventions.EntityTypeAddedConventions.Add(convention1);
             conventions.EntityTypeAddedConventions.Add(convention2);
             conventions.EntityTypeAddedConventions.Add(convention3);
@@ -112,13 +112,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(builder.Metadata.FindEntityType(typeof(Order)));
         }
 
-        private class EntityTypeConvention : IEntityTypeAddedConvention
+        private class EntityTypeAddedConvention : IEntityTypeAddedConvention
         {
             private readonly bool _terminate;
             private readonly bool _dependent;
             public int Calls;
 
-            public EntityTypeConvention(bool terminate, bool dependent)
+            public EntityTypeAddedConvention(bool terminate, bool dependent)
             {
                 _terminate = terminate;
                 _dependent = dependent;
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false, true)]
         [InlineData(true, true)]
         [Theory]
-        public void OnBaseEntityTypeSet_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
+        public void OnBaseTypeChanged_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
 
@@ -311,13 +311,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false, true)]
         [InlineData(true, true)]
         [Theory]
-        public void OnEntityTypeAnnotationSet_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
+        public void OnEntityTypeAnnotationChanged_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new EntityTypeAnnotationSetConvention(terminate: false);
-            var convention2 = new EntityTypeAnnotationSetConvention(terminate: true);
-            var convention3 = new EntityTypeAnnotationSetConvention(terminate: false);
+            var convention1 = new EntityTypeAnnotationChangedConvention(terminate: false);
+            var convention2 = new EntityTypeAnnotationChangedConvention(terminate: true);
+            var convention3 = new EntityTypeAnnotationChangedConvention(terminate: false);
             conventions.EntityTypeAnnotationChangedConventions.Add(convention1);
             conventions.EntityTypeAnnotationChangedConventions.Add(convention2);
             conventions.EntityTypeAnnotationChangedConventions.Add(convention3);
@@ -374,12 +374,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             //Assert.Empty(convention3.Calls); //TODO: See issue#8811
         }
 
-        private class EntityTypeAnnotationSetConvention : IEntityTypeAnnotationChangedConvention
+        private class EntityTypeAnnotationChangedConvention : IEntityTypeAnnotationChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
 
-            public EntityTypeAnnotationSetConvention(bool terminate)
+            public EntityTypeAnnotationChangedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false, true)]
         [InlineData(true, true)]
         [Theory]
-        public void OnModelAnnotationSet_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
+        public void OnModelAnnotationChanged_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
 
@@ -462,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(new[] { "bar", null }, convention2.Calls);
         }
 
-        private class ModelAnnotationChangedConvention : IModelAnnotationChangedConvention 
+        private class ModelAnnotationChangedConvention : IModelAnnotationChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
@@ -569,9 +569,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new PropertyConvention(terminate: false);
-            var convention2 = new PropertyConvention(terminate: true);
-            var convention3 = new PropertyConvention(terminate: false);
+            var convention1 = new PropertyAddedConvention(terminate: false);
+            var convention2 = new PropertyAddedConvention(terminate: true);
+            var convention3 = new PropertyAddedConvention(terminate: false);
             conventions.PropertyAddedConventions.Add(convention1);
             conventions.PropertyAddedConventions.Add(convention2);
             conventions.PropertyAddedConventions.Add(convention3);
@@ -635,12 +635,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
 
-        private class PropertyConvention : IPropertyAddedConvention
+        private class PropertyAddedConvention : IPropertyAddedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
 
-            public PropertyConvention(bool terminate)
+            public PropertyAddedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -755,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false, true)]
         [InlineData(true, true)]
         [Theory]
-        public void OnPropertyNullableChanged_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
+        public void OnPropertyNullabilityChanged_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
 
@@ -885,7 +885,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false, true)]
         [InlineData(true, true)]
         [Theory]
-        public void OnPropertyAnnotationSet_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
+        public void OnPropertyAnnotationChanged_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
 
@@ -982,9 +982,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new KeyConvention(terminate: false);
-            var convention2 = new KeyConvention(terminate: true);
-            var convention3 = new KeyConvention(terminate: false);
+            var convention1 = new KeyAddedConvention(terminate: false);
+            var convention2 = new KeyAddedConvention(terminate: true);
+            var convention3 = new KeyAddedConvention(terminate: false);
             conventions.KeyAddedConventions.Add(convention1);
             conventions.KeyAddedConventions.Add(convention2);
             conventions.KeyAddedConventions.Add(convention3);
@@ -1022,12 +1022,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class KeyConvention : IKeyAddedConvention
+        private class KeyAddedConvention : IKeyAddedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
 
-            public KeyConvention(bool terminate)
+            public KeyAddedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -1106,7 +1106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false, true)]
         [InlineData(true, true)]
         [Theory]
-        public void OnPrimaryKeySet_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
+        public void OnPrimaryKeyChanged_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
 
@@ -1203,9 +1203,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new IndexConvention(terminate: false);
-            var convention2 = new IndexConvention(terminate: true);
-            var convention3 = new IndexConvention(terminate: false);
+            var convention1 = new IndexAddedConvention(terminate: false);
+            var convention2 = new IndexAddedConvention(terminate: true);
+            var convention3 = new IndexAddedConvention(terminate: false);
             conventions.IndexAddedConventions.Add(convention1);
             conventions.IndexAddedConventions.Add(convention2);
             conventions.IndexAddedConventions.Add(convention3);
@@ -1241,12 +1241,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class IndexConvention : IIndexAddedConvention
+        private class IndexAddedConvention : IIndexAddedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
 
-            public IndexConvention(bool terminate)
+            public IndexAddedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -1327,9 +1327,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new IndexUniquenessConvention(terminate: false);
-            var convention2 = new IndexUniquenessConvention(terminate: true);
-            var convention3 = new IndexUniquenessConvention(terminate: false);
+            var convention1 = new IndexUniquenessChangedConvention(terminate: false);
+            var convention2 = new IndexUniquenessChangedConvention(terminate: true);
+            var convention3 = new IndexUniquenessChangedConvention(terminate: false);
             conventions.IndexUniquenessChangedConventions.Add(convention1);
             conventions.IndexUniquenessChangedConventions.Add(convention2);
             conventions.IndexUniquenessChangedConventions.Add(convention3);
@@ -1389,12 +1389,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(index, entityBuilder.Metadata.RemoveIndex(index.Properties));
         }
 
-        private class IndexUniquenessConvention : IIndexUniquenessChangedConvention
+        private class IndexUniquenessChangedConvention : IIndexUniquenessChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<bool> Calls = new List<bool>();
 
-            public IndexUniquenessConvention(bool terminate)
+            public IndexUniquenessChangedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -1414,7 +1414,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false, true)]
         [InlineData(true, true)]
         [Theory]
-        public void OnIndexAnnotationSet_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
+        public void OnIndexAnnotationChanged_calls_apply_on_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
 
@@ -1511,9 +1511,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new ForeignKeyConvention(terminate: false);
-            var convention2 = new ForeignKeyConvention(terminate: true);
-            var convention3 = new ForeignKeyConvention(terminate: false);
+            var convention1 = new ForeignKeyAddedConvention(terminate: false);
+            var convention2 = new ForeignKeyAddedConvention(terminate: true);
+            var convention3 = new ForeignKeyAddedConvention(terminate: false);
             conventions.ForeignKeyAddedConventions.Add(convention1);
             conventions.ForeignKeyAddedConventions.Add(convention2);
             conventions.ForeignKeyAddedConventions.Add(convention3);
@@ -1553,12 +1553,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class ForeignKeyConvention : IForeignKeyAddedConvention
+        private class ForeignKeyAddedConvention : IForeignKeyAddedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
 
-            public ForeignKeyConvention(bool terminate)
+            public ForeignKeyAddedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -1644,9 +1644,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new NavigationConvention(terminate: false);
-            var convention2 = new NavigationConvention(terminate: true);
-            var convention3 = new NavigationConvention(terminate: false);
+            var convention1 = new NavigationAddedConvention(terminate: false);
+            var convention2 = new NavigationAddedConvention(terminate: true);
+            var convention3 = new NavigationAddedConvention(terminate: false);
             conventions.NavigationAddedConventions.Add(convention1);
             conventions.NavigationAddedConventions.Add(convention2);
             conventions.NavigationAddedConventions.Add(convention3);
@@ -1689,12 +1689,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class NavigationConvention : INavigationAddedConvention
+        private class NavigationAddedConvention : INavigationAddedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
 
-            public NavigationConvention(bool terminate)
+            public NavigationAddedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -1904,9 +1904,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new ForeignKeyOwnershipConvention(terminate: false);
-            var convention2 = new ForeignKeyOwnershipConvention(terminate: true);
-            var convention3 = new ForeignKeyOwnershipConvention(terminate: false);
+            var convention1 = new ForeignKeyOwnershipChangedConvention(terminate: false);
+            var convention2 = new ForeignKeyOwnershipChangedConvention(terminate: true);
+            var convention3 = new ForeignKeyOwnershipChangedConvention(terminate: false);
             conventions.ForeignKeyOwnershipChangedConventions.Add(convention1);
             conventions.ForeignKeyOwnershipChangedConventions.Add(convention2);
             conventions.ForeignKeyOwnershipChangedConventions.Add(convention3);
@@ -1968,12 +1968,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 dependentEntityBuilder.Metadata.RemoveForeignKey(foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
         }
 
-        private class ForeignKeyOwnershipConvention : IForeignKeyOwnershipChangedConvention
+        private class ForeignKeyOwnershipChangedConvention : IForeignKeyOwnershipChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<bool> Calls = new List<bool>();
 
-            public ForeignKeyOwnershipConvention(bool terminate)
+            public ForeignKeyOwnershipChangedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -1991,13 +1991,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false)]
         [InlineData(true)]
         [Theory]
-        public void OnPrincipalEndSet_calls_apply_on_conventions_in_order(bool useScope)
+        public void OnPrincipalEndChanged_calls_apply_on_conventions_in_order(bool useScope)
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new PrincipalEndConvention(terminate: false);
-            var convention2 = new PrincipalEndConvention(terminate: true);
-            var convention3 = new PrincipalEndConvention(terminate: false);
+            var convention1 = new PrincipalEndChangedConvention(terminate: false);
+            var convention2 = new PrincipalEndChangedConvention(terminate: true);
+            var convention3 = new PrincipalEndChangedConvention(terminate: false);
             conventions.PrincipalEndChangedConventions.Add(convention1);
             conventions.PrincipalEndChangedConventions.Add(convention2);
             //conventions.PrincipalEndChangedConventions.Add(convention3); //TODO: See issue#8811
@@ -2089,12 +2089,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class PrincipalEndConvention : IPrincipalEndChangedConvention
+        private class PrincipalEndChangedConvention : IPrincipalEndChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();
 
-            public PrincipalEndConvention(bool terminate)
+            public PrincipalEndChangedConvention(bool terminate)
             {
                 _terminate = terminate;
             }
@@ -2112,7 +2112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false)]
         [InlineData(true)]
         [Theory]
-        public void InitializingModel_calls_apply_on_conventions_in_order(bool useBuilder)
+        public void OnModelInitializd_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -2160,7 +2160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false)]
         [InlineData(true)]
         [Theory]
-        public void ValidatingModel_calls_apply_on_conventions_in_order(bool useBuilder)
+        public void OnModelBuilt_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
