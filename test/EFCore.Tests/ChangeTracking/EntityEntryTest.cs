@@ -13,6 +13,122 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class EntityEntryTest
     {
         [Fact]
+        public void Non_store_generated_key_is_always_set()
+        {
+            using (var context = new KeySetContext())
+            {
+                Assert.True(context.Entry(new NotStoreGenerated()).IsKeySet);
+                Assert.True(context.Entry(new NotStoreGenerated { Id = 1 }).IsKeySet);
+            }
+        }
+
+        [Fact]
+        public void Non_store_generated_composite_key_is_always_set()
+        {
+            using (var context = new KeySetContext())
+            {
+                Assert.True(context.Entry(new CompositeNotStoreGenerated()).IsKeySet);
+                Assert.True(context.Entry(new CompositeNotStoreGenerated { Id1 = 1 }).IsKeySet);
+                Assert.True(context.Entry(new CompositeNotStoreGenerated { Id2 = true }).IsKeySet);
+                Assert.True(context.Entry(new CompositeNotStoreGenerated { Id1 = 1, Id2 = true }).IsKeySet);
+            }
+        }
+
+        [Fact]
+        public void Store_generated_key_is_set_only_if_non_default_value()
+        {
+            using (var context = new KeySetContext())
+            {
+                Assert.False(context.Entry(new StoreGenerated()).IsKeySet);
+                Assert.True(context.Entry(new StoreGenerated { Id = 1 }).IsKeySet);
+            }
+        }
+
+        [Fact]
+        public void Composite_store_generated_key_is_set_only_if_non_default_value_in_store_generated_part()
+        {
+            using (var context = new KeySetContext())
+            {
+                Assert.False(context.Entry(new CompositeStoreGenerated()).IsKeySet);
+                Assert.False(context.Entry(new CompositeStoreGenerated { Id1 = 1 }).IsKeySet);
+                Assert.True(context.Entry(new CompositeStoreGenerated { Id2 = true }).IsKeySet);
+                Assert.True(context.Entry(new CompositeStoreGenerated { Id1 = 1, Id2 = true }).IsKeySet);
+            }
+        }
+
+        [Fact]
+        public void Primary_key_that_is_also_foreign_key_is_set_only_if_non_default_value()
+        {
+            using (var context = new KeySetContext())
+            {
+                Assert.False(context.Entry(new Dependent()).IsKeySet);
+                Assert.True(context.Entry(new Dependent { Id = 1 }).IsKeySet);
+            }
+        }
+
+        private class StoreGenerated
+        {
+            public int Id { get; set; }
+
+            public Dependent Dependent { get; set; }
+        }
+
+        private class NotStoreGenerated
+        {
+            public int Id { get; set; }
+        }
+
+        private class CompositeStoreGenerated
+        {
+            public int Id1 { get; set; }
+            public bool Id2 { get; set; }
+        }
+
+        private class CompositeNotStoreGenerated
+        {
+            public int Id1 { get; set; }
+            public bool Id2 { get; set; }
+        }
+
+        private class Dependent
+        {
+            public int Id { get; set; }
+
+            public StoreGenerated Principal { get; set; }
+        }
+
+        private class KeySetContext : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(nameof(KeySetContext));
+
+            public DbSet<StoreGenerated> StoreGenerated { get; set; }
+            public DbSet<NotStoreGenerated> NotStoreGenerated { get; set; }
+            public DbSet<CompositeStoreGenerated> CompositeStoreGenerated { get; set; }
+            public DbSet<CompositeNotStoreGenerated> CompositeNotStoreGenerated { get; set; }
+            public DbSet<Dependent> Dependent { get; set; }
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<StoreGenerated>()
+                    .HasOne(e => e.Dependent)
+                    .WithOne(e => e.Principal)
+                    .HasForeignKey<Dependent>(e => e.Id);
+
+                modelBuilder.Entity<NotStoreGenerated>().Property(e => e.Id).ValueGeneratedNever();
+
+                modelBuilder.Entity<CompositeNotStoreGenerated>().HasKey(e => new { e.Id1, e.Id2 });
+
+                modelBuilder.Entity<CompositeStoreGenerated>(
+                    b =>
+                        {
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            b.Property(e => e.Id2).ValueGeneratedOnAdd();
+                        });
+            }
+        }
+
+        [Fact]
         public void Can_obtain_entity_instance()
         {
             using (var context = new FreezerContext())

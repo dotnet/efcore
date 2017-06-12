@@ -237,9 +237,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 .Select(navigation => new CollectionEntry(InternalEntry, navigation));
 
         /// <summary>
+        /// <para>
         ///     Gets a value indicating if the key values of this entity have been assigned a value.
-        ///     False if one or more of the key properties is assigned null or the CLR default,
-        ///     otherwise true.
+        /// </para>
+        /// <para>
+        ///     For keys with store-generated properties (e.g. mapping to Identity columns), the 
+        ///     return value will  be false if any of the store-generated properties have the
+        ///     CLR default value.
+        /// </para>
+        /// <para>
+        ///     For keys without any store-generated properties, the return value will always be
+        ///     true since any value is considered a valid key value.
+        /// </para>
         /// </summary>
         public virtual bool IsKeySet => InternalEntry.IsKeySet;
 
