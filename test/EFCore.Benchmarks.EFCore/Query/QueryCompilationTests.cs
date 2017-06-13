@@ -2,10 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.Orders;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.Orders;
+using Microsoft.Extensions.Primitives;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
             _fixture = fixture;
         }
 
-        [Benchmark(Skip = "See issue#8810")]
+        [Benchmark]
         [BenchmarkVariation("Default (10 queries)")]
         public void ToList(IMetricCollector collector)
         {
@@ -40,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
             }
         }
 
-        [Benchmark(Skip = "See issue#8810")]
+        [Benchmark]
         [BenchmarkVariation("Default (10 queries)")]
         public void FilterOrderProject(IMetricCollector collector)
         {
@@ -50,16 +52,17 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
                     .AsNoTracking()
                     .Where(p => p.Retail < 1000)
                     .OrderBy(p => p.Name).ThenBy(p => p.Retail)
-                    .Select(p => new
-                    {
-                        p.ProductId,
-                        p.Name,
-                        p.Description,
-                        p.ActualStockLevel,
-                        p.SKU,
-                        Savings = p.Retail - p.CurrentPrice,
-                        Surplus = p.ActualStockLevel - p.TargetStockLevel
-                    });
+                    .Select(
+                        p => new
+                        {
+                            p.ProductId,
+                            p.Name,
+                            p.Description,
+                            p.ActualStockLevel,
+                            p.SKU,
+                            Savings = p.Retail - p.CurrentPrice,
+                            Surplus = p.ActualStockLevel - p.TargetStockLevel
+                        });
 
                 using (collector.StartCollection())
                 {
@@ -86,9 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
                     .BuildServiceProvider();
             }
 
-            public override OrdersContext CreateContext() 
+            public override OrdersContext CreateContext()
                 => new OrdersContext(_noQueryCacheServiceProvider, ConnectionString);
 
+            // ReSharper disable once ClassNeverInstantiated.Local
             private class NonCachingMemoryCache : IMemoryCache
             {
                 public bool TryGetValue(object key, out object value)
@@ -97,7 +101,23 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
                     return false;
                 }
 
-                public ICacheEntry CreateEntry(object key) => null;
+                public ICacheEntry CreateEntry(object key) => new FakeEntry();
+
+                private class FakeEntry : ICacheEntry
+                {
+                    public void Dispose()
+                    {
+                    }
+
+                    public object Key { get; }
+                    public object Value { get; set; }
+                    public DateTimeOffset? AbsoluteExpiration { get; set; }
+                    public TimeSpan? AbsoluteExpirationRelativeToNow { get; set; }
+                    public TimeSpan? SlidingExpiration { get; set; }
+                    public IList<IChangeToken> ExpirationTokens { get; }
+                    public IList<PostEvictionCallbackRegistration> PostEvictionCallbacks { get; }
+                    public CacheItemPriority Priority { get; set; }
+                }
 
                 public void Remove(object key)
                 {
