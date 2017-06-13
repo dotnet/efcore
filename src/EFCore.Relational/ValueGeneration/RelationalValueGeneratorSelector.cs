@@ -45,6 +45,24 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 {
                     return new TemporaryDateTimeOffsetValueGenerator();
                 }
+
+                if (property.Relational().DefaultValueSql != null)
+                {
+                    if (propertyType == typeof(Guid))
+                    {
+                        return new TemporaryGuidValueGenerator();
+                    }
+
+                    if (propertyType == typeof(string))
+                    {
+                        return new StringValueGenerator(generateTemporaryValues: true);
+                    }
+
+                    if (propertyType == typeof(byte[]))
+                    {
+                        return new BinaryValueGenerator(generateTemporaryValues: true);
+                    }
+                }
             }
 
             return base.Create(property, entityType);

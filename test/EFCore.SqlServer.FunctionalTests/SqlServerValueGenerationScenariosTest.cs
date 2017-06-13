@@ -145,6 +145,61 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
+        public void Insert_with_default_string_value_from_sequence()
+        {
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            {
+                using (var context = new BlogContextStringDefaultValue(testStore.Name))
+                {
+                    context.Database.EnsureCreated();
+
+                    context.AddRange(new BlogWithStringKey { Name = "One Unicorn" }, new BlogWithStringKey { Name = "Two Unicorns" });
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new BlogContextStringDefaultValue(testStore.Name))
+                {
+                    var blogs = context.StringyBlogs.OrderBy(e => e.Id).ToList();
+
+                    Assert.Equal("i77", blogs[0].Id);
+                    Assert.Equal("i78", blogs[1].Id);
+                }
+            }
+        }
+
+        public class BlogContextStringDefaultValue : ContextBase
+        {
+            public BlogContextStringDefaultValue(string databaseName)
+                : base(databaseName)
+            {
+            }
+
+            public DbSet<BlogWithStringKey> StringyBlogs { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder
+                    .HasSequence("MyStrinySequence")
+                    .StartsAt(77);
+
+                modelBuilder
+                    .Entity<BlogWithStringKey>()
+                    .Property(e => e.Id)
+                    .HasDefaultValueSql("'i' + CAST((NEXT VALUE FOR MyStrinySequence) AS VARCHAR(20))");
+            }
+        }
+
+        public class BlogWithStringKey
+        {
+            public string Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_with_key_default_value_from_sequence()
         {
             using (var testStore = SqlServerTestStore.Create(DatabaseName))
@@ -453,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
                 {
                     context.Database.ExecuteSqlCommand
-                        (@"CREATE FUNCTION
+                    (@"CREATE FUNCTION
 [dbo].[GetFullName](@First NVARCHAR(MAX), @Second NVARCHAR(MAX))
 RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
 

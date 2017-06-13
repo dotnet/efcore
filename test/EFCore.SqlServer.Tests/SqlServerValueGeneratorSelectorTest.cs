@@ -53,6 +53,36 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void Returns_temp_string_generator_when_default_sql_set()
+        {
+            var model = BuildModel();
+            var entityType = model.FindEntityType(typeof(AnEntity));
+
+            entityType.FindProperty("String").SqlServer().DefaultValueSql = "Foo";
+
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
+
+            var generator = selector.Select(entityType.FindProperty("String"), entityType);
+            Assert.IsType<StringValueGenerator>(generator);
+            Assert.True(generator.GeneratesTemporaryValues);
+        }
+
+        [Fact]
+        public void Returns_temp_binary_generator_when_default_sql_set()
+        {
+            var model = BuildModel();
+            var entityType = model.FindEntityType(typeof(AnEntity));
+
+            entityType.FindProperty("Binary").SqlServer().DefaultValueSql = "Foo";
+
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
+
+            var generator = selector.Select(entityType.FindProperty("Binary"), entityType);
+            Assert.IsType<BinaryValueGenerator>(generator);
+            Assert.True(generator.GeneratesTemporaryValues);
+        }
+
+        [Fact]
         public void Returns_sequence_value_generators_when_configured_for_model()
         {
             var model = BuildModel();
