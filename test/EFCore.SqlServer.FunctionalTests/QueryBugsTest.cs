@@ -364,7 +364,7 @@ INNER JOIN (
     SELECT [c0].[FirstName], [c0].[LastName]
     FROM [Customer] AS [c0]
 ) AS [t] ON ([c.Orders].[CustomerFirstName] = [t].[FirstName]) AND ([c.Orders].[CustomerLastName] = [t].[LastName])
-ORDER BY [t].[FirstName], [t].[LastName]", 
+ORDER BY [t].[FirstName], [t].[LastName]",
                         Sql);
                 }
             }
@@ -1456,19 +1456,20 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         [Fact]
-        public virtual void Repro5456_include_group_join_is_per_query_context_async()
+        public virtual async Task Repro5456_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
             {
-                Parallel.For(0, 10, async i =>
-                    {
-                        using (var ctx = new MyContext5456(_options))
+                await Task.WhenAll(Enumerable.Range(0, 10)
+                    .Select(async i =>
                         {
-                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
+                            using (var ctx = new MyContext5456(_options))
+                            {
+                                var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
 
-                            Assert.Equal(198, result.Count);
-                        }
-                    });
+                                Assert.Equal(198, result.Count);
+                            }
+                        }));
             }
         }
 
@@ -1490,11 +1491,12 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         [Fact]
-        public virtual void Repro5456_multiple_include_group_join_is_per_query_context_async()
+        public virtual async Task Repro5456_multiple_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
             {
-                Parallel.For(0, 10, async i =>
+                await Task.WhenAll(Enumerable.Range(0, 10)
+                    .Select(async i =>
                     {
                         using (var ctx = new MyContext5456(_options))
                         {
@@ -1502,7 +1504,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                             Assert.Equal(198, result.Count);
                         }
-                    });
+                    }));
             }
         }
 
@@ -1524,11 +1526,12 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         [Fact]
-        public virtual void Repro5456_multi_level_include_group_join_is_per_query_context_async()
+        public virtual async Task Repro5456_multi_level_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
             {
-                Parallel.For(0, 10, async i =>
+                await Task.WhenAll(Enumerable.Range(0, 10)
+                    .Select(async i =>
                     {
                         using (var ctx = new MyContext5456(_options))
                         {
@@ -1536,7 +1539,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                             Assert.Equal(198, result.Count);
                         }
-                    });
+                    }));
             }
         }
 
@@ -1820,7 +1823,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         private const string FileLineEnding = @"
 ";
-        
+
         protected virtual void ClearLog() => _fixture.TestSqlLoggerFactory.Clear();
 
         private string Sql => _fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
