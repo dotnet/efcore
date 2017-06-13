@@ -12,6 +12,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
 {
+    [SqlServerRequired]
     public class QueryCompilationTests : IClassFixture<QueryCompilationTests.QueryCompilationFixture>
     {
         private readonly QueryCompilationFixture _fixture;
