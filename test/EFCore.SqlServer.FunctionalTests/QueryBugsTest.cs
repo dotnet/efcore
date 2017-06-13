@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
+// ReSharper disable InconsistentNaming
+
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
@@ -29,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             _fixture = fixture;
             _fixture.TestSqlLoggerFactory.Clear();
+            //_fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         #region Bug6901
@@ -38,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var testStore = SqlServerTestStore.GetOrCreateShared("QueryBugsTest", null))
             {
-                testStore.ExecuteNonQuery(@"
+                testStore.ExecuteNonQuery(
+                    @"
 CREATE TABLE [dbo].[Customers](
     [CustomerID] [int] NOT NULL PRIMARY KEY,
     [CustomerName] [varchar](120) NULL,
@@ -127,6 +131,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         #endregion
 
         #region Bug5481
+
         [Fact]
         public async Task Multiple_optional_navs_should_not_deadlock_bug_5481()
         {
@@ -139,8 +144,9 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
                     var count
                         = await context.Persons
-                            .Where(p => (p.AddressOne != null && p.AddressOne.Street.Contains("Low Street"))
-                                        || (p.AddressTwo != null && p.AddressTwo.Street.Contains("Low Street")))
+                            .Where(
+                                p => (p.AddressOne != null && p.AddressOne.Street.Contains("Low Street"))
+                                     || (p.AddressTwo != null && p.AddressTwo.Street.Contains("Low Street")))
                             .CountAsync();
 
                     Assert.Equal(0, count);
@@ -338,6 +344,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         #endregion
 
         #region Bugs925_926
+
         [Fact]
         public void Include_on_entity_with_composite_key_One_To_Many_bugs_925_926()
         {
@@ -352,19 +359,18 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                     Assert.Equal(2, result[0].Orders.Count);
                     Assert.Equal(3, result[1].Orders.Count);
 
-                    Assert.Equal(
+                    AssertSql(
                         @"SELECT [c].[FirstName], [c].[LastName]
 FROM [Customer] AS [c]
-ORDER BY [c].[FirstName], [c].[LastName]
-
-SELECT [c.Orders].[Id], [c.Orders].[CustomerFirstName], [c.Orders].[CustomerLastName], [c.Orders].[Name]
+ORDER BY [c].[FirstName], [c].[LastName]",
+                        //
+                        @"SELECT [c.Orders].[Id], [c.Orders].[CustomerFirstName], [c.Orders].[CustomerLastName], [c.Orders].[Name]
 FROM [Order] AS [c.Orders]
 INNER JOIN (
     SELECT [c0].[FirstName], [c0].[LastName]
     FROM [Customer] AS [c0]
 ) AS [t] ON ([c.Orders].[CustomerFirstName] = [t].[FirstName]) AND ([c.Orders].[CustomerLastName] = [t].[LastName])
-ORDER BY [t].[FirstName], [t].[LastName]",
-                        Sql);
+ORDER BY [t].[FirstName], [t].[LastName]");
                 }
             }
         }
@@ -391,13 +397,14 @@ ORDER BY [t].[FirstName], [t].[LastName]",
 FROM [Order] AS [o]
 LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].[FirstName]) AND ([o].[CustomerLastName] = [o.Customer].[LastName])";
 
-                    Assert.Equal(expectedSql, Sql);
+                    AssertSql(expectedSql);
                 }
             }
         }
 
         private SqlServerTestStore CreateDatabase925()
-            => CreateTestStore(() => new MyContext925(_options),
+            => CreateTestStore(
+                () => new MyContext925(_options),
                 context =>
                     {
                         var order11 = new Order { Name = "Order11" };
@@ -413,7 +420,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
                         context.Orders.AddRange(order11, order12, order21, order22, order23);
                         context.SaveChanges();
 
-                        _fixture.TestSqlLoggerFactory.Clear();
+                        ClearLog();
                     });
 
         public class Customer
@@ -442,12 +449,13 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer>(m =>
-                    {
-                        m.ToTable("Customer");
-                        m.HasKey(c => new { c.FirstName, c.LastName });
-                        m.HasMany(c => c.Orders).WithOne(o => o.Customer);
-                    });
+                modelBuilder.Entity<Customer>(
+                    m =>
+                        {
+                            m.ToTable("Customer");
+                            m.HasKey(c => new { c.FirstName, c.LastName });
+                            m.HasMany(c => c.Orders).WithOne(o => o.Customer);
+                        });
 
                 modelBuilder.Entity<Order>().ToTable("Order");
             }
@@ -523,7 +531,6 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
             public Guid Id { get; set; }
             public Guid UserId { get; set; }
             public string UserName { get; set; }
-
         }
 
         private class Context7293 : DbContext
@@ -539,7 +546,8 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
         }
 
         private SqlServerTestStore CreateDatabase7293()
-            => CreateTestStore(() => new Context7293(_options),
+            => CreateTestStore(
+                () => new Context7293(_options),
                 context =>
                     {
                         var projects = new[]
@@ -641,7 +649,8 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
         }
 
         private SqlServerTestStore CreateDatabase963()
-            => CreateTestStore(() => new MyContext963(_options),
+            => CreateTestStore(
+                () => new MyContext963(_options),
                 context =>
                     {
                         var drogon = new Dragon { Name = "Drogon" };
@@ -698,19 +707,22 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
 
             public DbSet<Targaryen> Targaryens { get; set; }
+
             // ReSharper disable once MemberHidesStaticFromOuterClass
             public DbSet<Details> Details { get; set; }
+
             public DbSet<Dragon> Dragons { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Targaryen>(m =>
-                    {
-                        m.ToTable("Targaryen");
-                        m.HasKey(t => t.Id);
-                        m.HasMany(t => t.Dragons).WithOne(d => d.Mother).HasForeignKey(d => d.MotherId);
-                        m.HasOne(t => t.Details).WithOne(d => d.Targaryen).HasForeignKey<Details>(d => d.TargaryenId);
-                    });
+                modelBuilder.Entity<Targaryen>(
+                    m =>
+                        {
+                            m.ToTable("Targaryen");
+                            m.HasKey(t => t.Id);
+                            m.HasMany(t => t.Dragons).WithOne(d => d.Mother).HasForeignKey(d => d.MotherId);
+                            m.HasOne(t => t.Details).WithOne(d => d.Targaryen).HasForeignKey<Details>(d => d.TargaryenId);
+                        });
 
                 modelBuilder.Entity<Dragon>().ToTable("Dragon");
             }
@@ -719,6 +731,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
         #endregion
 
         #region Bug1742
+
         [Fact]
         public void Compiler_generated_local_closure_produces_valid_parameter_name_1742()
             => Execute1742(new CustomerDetails_1742 { FirstName = "Foo", LastName = "Bar" });
@@ -741,7 +754,7 @@ SELECT [c].[FirstName], [c].[LastName]
 FROM [Customer] AS [c]
 WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_details_LastName_1)";
 
-                    Assert.Equal(expectedSql, Sql);
+                    AssertSql(expectedSql);
                 }
             }
         }
@@ -790,7 +803,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                     var query4 = ctx.Customers.Select(c => c.Orders4);
 
                     Assert.Equal(
-                        CoreStrings.NavigationCannotCreateType("Orders4", typeof(Customer3758).Name,
+                        CoreStrings.NavigationCannotCreateType(
+                            "Orders4", typeof(Customer3758).Name,
                             typeof(MyInvalidCollection3758<Order3758>).ShortDisplayName()),
                         Assert.Throws<InvalidOperationException>(() => query4.ToList()).Message);
                 }
@@ -809,15 +823,16 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer3758>(b =>
-                    {
-                        b.ToTable("Customer3758");
+                modelBuilder.Entity<Customer3758>(
+                    b =>
+                        {
+                            b.ToTable("Customer3758");
 
-                        b.HasMany(e => e.Orders1).WithOne();
-                        b.HasMany(e => e.Orders2).WithOne();
-                        b.HasMany(e => e.Orders3).WithOne();
-                        b.HasMany(e => e.Orders4).WithOne();
-                    });
+                            b.HasMany(e => e.Orders1).WithOne();
+                            b.HasMany(e => e.Orders2).WithOne();
+                            b.HasMany(e => e.Orders3).WithOne();
+                            b.HasMany(e => e.Orders4).WithOne();
+                        });
 
                 modelBuilder.Entity<Order3758>().ToTable("Order3758");
             }
@@ -856,7 +871,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase3758()
-            => CreateTestStore(() => new MyContext3758(_options),
+            => CreateTestStore(
+                () => new MyContext3758(_options),
                 context =>
                     {
                         var o111 = new Order3758 { Name = "O111" };
@@ -906,6 +922,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                         context.SaveChanges();
                     });
+
         #endregion
 
         #region Bug3409
@@ -930,11 +947,12 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 using (var context = new MyContext3409(_options))
                 {
                     var results = context.Children
-                        .Select(c => new
-                        {
-                            c.SelfReferenceBackNavigation,
-                            c.SelfReferenceBackNavigation.ParentBackNavigation
-                        })
+                        .Select(
+                            c => new
+                            {
+                                c.SelfReferenceBackNavigation,
+                                c.SelfReferenceBackNavigation.ParentBackNavigation
+                            })
                         .ToList();
 
                     Assert.Equal(3, results.Count);
@@ -945,15 +963,16 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 using (var context = new MyContext3409(_options))
                 {
                     var results = context.Children
-                        .Select(c => new
-                        {
-                            SelfReferenceBackNavigation
-                            = EF.Property<IChild3409>(c, "SelfReferenceBackNavigation"),
-                            ParentBackNavigationB
-                            = EF.Property<IParent3409>(
-                                EF.Property<IChild3409>(c, "SelfReferenceBackNavigation"),
-                                "ParentBackNavigation")
-                        })
+                        .Select(
+                            c => new
+                            {
+                                SelfReferenceBackNavigation
+                                = EF.Property<IChild3409>(c, "SelfReferenceBackNavigation"),
+                                ParentBackNavigationB
+                                = EF.Property<IParent3409>(
+                                    EF.Property<IChild3409>(c, "SelfReferenceBackNavigation"),
+                                    "ParentBackNavigation")
+                            })
                         .ToList();
 
                     Assert.Equal(3, results.Count);
@@ -1036,7 +1055,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase3409()
-            => CreateTestStore(() => new MyContext3409(_options),
+            => CreateTestStore(
+                () => new MyContext3409(_options),
                 context =>
                     {
                         var parent1 = new Parent3409();
@@ -1241,7 +1261,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase3101()
-            => CreateTestStore(() => new MyContext3101(_options),
+            => CreateTestStore(
+                () => new MyContext3101(_options),
                 context =>
                     {
                         var c11 = new Child3101 { Name = "c11" };
@@ -1354,45 +1375,46 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase6986()
-            => CreateTestStore(() => new ReproContext6986(_options),
+            => CreateTestStore(
+                () => new ReproContext6986(_options),
                 context =>
-                {
-                    context.ServiceOperators.Add(new ServiceOperator6986());
-                    context.Employers.AddRange(
-                        new Employer6986 { Name = "UWE" },
-                        new Employer6986 { Name = "Hewlett Packard" });
+                    {
+                        context.ServiceOperators.Add(new ServiceOperator6986());
+                        context.Employers.AddRange(
+                            new Employer6986 { Name = "UWE" },
+                            new Employer6986 { Name = "Hewlett Packard" });
 
-                    context.SaveChanges();
+                        context.SaveChanges();
 
-                    context.Contacts.AddRange(
-                        new ServiceOperatorContact6986
-                        {
-                            UserName = "service.operator@esoterix.co.uk",
-                            ServiceOperator6986 = context.ServiceOperators.First()
-                        },
-                        new EmployerContact6986
-                        {
-                            UserName = "uwe@esoterix.co.uk",
-                            Employer6986 = context.Employers.First(e => e.Name == "UWE")
-                        },
-                        new EmployerContact6986
-                        {
-                            UserName = "hp@esoterix.co.uk",
-                            Employer6986 = context.Employers.First(e => e.Name == "Hewlett Packard")
-                        },
-                        new Contact6986
-                        {
-                            UserName = "noroles@esoterix.co.uk",
-                        });
-                    context.SaveChanges();
-                });
+                        context.Contacts.AddRange(
+                            new ServiceOperatorContact6986
+                            {
+                                UserName = "service.operator@esoterix.co.uk",
+                                ServiceOperator6986 = context.ServiceOperators.First()
+                            },
+                            new EmployerContact6986
+                            {
+                                UserName = "uwe@esoterix.co.uk",
+                                Employer6986 = context.Employers.First(e => e.Name == "UWE")
+                            },
+                            new EmployerContact6986
+                            {
+                                UserName = "hp@esoterix.co.uk",
+                                Employer6986 = context.Employers.First(e => e.Name == "Hewlett Packard")
+                            },
+                            new Contact6986
+                            {
+                                UserName = "noroles@esoterix.co.uk"
+                            });
+                        context.SaveChanges();
+                    });
 
         public class ReproContext6986 : DbContext
         {
-
             public ReproContext6986(DbContextOptions options)
                 : base(options)
-            { }
+            {
+            }
 
             public DbSet<Contact6986> Contacts { get; set; }
             public DbSet<EmployerContact6986> EmployerContacts { get; set; }
@@ -1442,15 +1464,16 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         {
             using (CreateDatabase5456())
             {
-                Parallel.For(0, 10, i =>
-                    {
-                        using (var ctx = new MyContext5456(_options))
+                Parallel.For(
+                    0, 10, i =>
                         {
-                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToList();
+                            using (var ctx = new MyContext5456(_options))
+                            {
+                                var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToList();
 
-                            Assert.Equal(198, result.Count);
-                        }
-                    });
+                                Assert.Equal(198, result.Count);
+                            }
+                        });
             }
         }
 
@@ -1459,16 +1482,18 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         {
             using (CreateDatabase5456())
             {
-                await Task.WhenAll(Enumerable.Range(0, 10)
-                    .Select(async i =>
-                        {
-                            using (var ctx = new MyContext5456(_options))
-                            {
-                                var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
+                await Task.WhenAll(
+                    Enumerable.Range(0, 10)
+                        .Select(
+                            async i =>
+                                {
+                                    using (var ctx = new MyContext5456(_options))
+                                    {
+                                        var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
 
-                                Assert.Equal(198, result.Count);
-                            }
-                        }));
+                                        Assert.Equal(198, result.Count);
+                                    }
+                                }));
             }
         }
 
@@ -1477,15 +1502,16 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         {
             using (CreateDatabase5456())
             {
-                Parallel.For(0, 10, i =>
-                    {
-                        using (var ctx = new MyContext5456(_options))
+                Parallel.For(
+                    0, 10, i =>
                         {
-                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
+                            using (var ctx = new MyContext5456(_options))
+                            {
+                                var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
 
-                            Assert.Equal(198, result.Count);
-                        }
-                    });
+                                Assert.Equal(198, result.Count);
+                            }
+                        });
             }
         }
 
@@ -1494,16 +1520,18 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         {
             using (CreateDatabase5456())
             {
-                await Task.WhenAll(Enumerable.Range(0, 10)
-                    .Select(async i =>
-                    {
-                        using (var ctx = new MyContext5456(_options))
-                        {
-                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
+                await Task.WhenAll(
+                    Enumerable.Range(0, 10)
+                        .Select(
+                            async i =>
+                                {
+                                    using (var ctx = new MyContext5456(_options))
+                                    {
+                                        var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
 
-                            Assert.Equal(198, result.Count);
-                        }
-                    }));
+                                        Assert.Equal(198, result.Count);
+                                    }
+                                }));
             }
         }
 
@@ -1512,15 +1540,16 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         {
             using (CreateDatabase5456())
             {
-                Parallel.For(0, 10, i =>
-                    {
-                        using (var ctx = new MyContext5456(_options))
+                Parallel.For(
+                    0, 10, i =>
                         {
-                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
+                            using (var ctx = new MyContext5456(_options))
+                            {
+                                var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
 
-                            Assert.Equal(198, result.Count);
-                        }
-                    });
+                                Assert.Equal(198, result.Count);
+                            }
+                        });
             }
         }
 
@@ -1529,41 +1558,45 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         {
             using (CreateDatabase5456())
             {
-                await Task.WhenAll(Enumerable.Range(0, 10)
-                    .Select(async i =>
-                    {
-                        using (var ctx = new MyContext5456(_options))
-                        {
-                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
+                await Task.WhenAll(
+                    Enumerable.Range(0, 10)
+                        .Select(
+                            async i =>
+                                {
+                                    using (var ctx = new MyContext5456(_options))
+                                    {
+                                        var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
 
-                            Assert.Equal(198, result.Count);
-                        }
-                    }));
+                                        Assert.Equal(198, result.Count);
+                                    }
+                                }));
             }
         }
 
         private SqlServerTestStore CreateDatabase5456()
-            => CreateTestStore(() => new MyContext5456(_options),
+            => CreateTestStore(
+                () => new MyContext5456(_options),
                 context =>
                     {
                         for (var i = 0; i < 100; i++)
                         {
-                            context.Add(new Blog5456
-                            {
-                                Posts = new List<Post5456>
+                            context.Add(
+                                new Blog5456
                                 {
-                                    new Post5456
+                                    Posts = new List<Post5456>
                                     {
-                                        Comments = new List<Comment5456>
+                                        new Post5456
                                         {
-                                            new Comment5456(),
-                                            new Comment5456()
-                                        }
+                                            Comments = new List<Comment5456>
+                                            {
+                                                new Comment5456(),
+                                                new Comment5456()
+                                            }
+                                        },
+                                        new Post5456()
                                     },
-                                    new Post5456()
-                                },
-                                Author = new Author5456()
-                            });
+                                    Author = new Author5456()
+                                });
                         }
                         context.SaveChanges();
                     });
@@ -1663,7 +1696,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase7359()
-            => CreateTestStore(() => new MyContext7359(_options),
+            => CreateTestStore(
+                () => new MyContext7359(_options),
                 context =>
                     {
                         context.Add(new Product { Name = "Product1" });
@@ -1724,23 +1758,24 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase7312()
-            => CreateTestStore(() => new MyContext7312(_options),
+            => CreateTestStore(
+                () => new MyContext7312(_options),
                 context =>
-                {
-                    context.AddRange(
-                        new Proposal7312(),
-                        new ProposalCustom7312
-                        {
-                            Name = "CustomProposal",
-                        },
-                        new ProposalLeave7312
-                        {
-                            LeaveStart = DateTime.Now,
-                            LeaveType = new ProposalLeaveType7312()
-                        }
-                    );
-                    context.SaveChanges();
-                });
+                    {
+                        context.AddRange(
+                            new Proposal7312(),
+                            new ProposalCustom7312
+                            {
+                                Name = "CustomProposal"
+                            },
+                            new ProposalLeave7312
+                            {
+                                LeaveStart = DateTime.Now,
+                                LeaveType = new ProposalLeaveType7312()
+                            }
+                        );
+                        context.SaveChanges();
+                    });
 
         #endregion
 
@@ -1786,13 +1821,95 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase8282()
-            => CreateTestStore(() => new MyContext8282(_options),
+            => CreateTestStore(
+                () => new MyContext8282(_options),
                 context =>
                     {
                         context.AddRange(
                             new Entity8282()
                         );
                         context.SaveChanges();
+                    });
+
+        #endregion
+
+        #region Bug8538
+
+        [Fact]
+        public virtual void Enum_has_flag_applies_explicit_cast_for_long_constant()
+        {
+            using (CreateDatabase8538())
+            {
+                using (var context = new MyContext8538(_options))
+                {
+                    var query = context.Entity.Where(e => e.Permission.HasFlag(Permission.READ_WRITE)).ToList();
+
+                    Assert.Equal(1, query.Count);
+
+                    AssertSql(
+                        @"SELECT [e].[Id], [e].[Permission]
+FROM [Entity] AS [e]
+WHERE ([e].[Permission] & CAST(17179869184 AS bigint)) = 17179869184");
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Enum_has_flag_does_not_apply_explicit_cast_for_non_constant()
+        {
+            using (CreateDatabase8538())
+            {
+                using (var context = new MyContext8538(_options))
+                {
+                    var query = context.Entity.Where(e => e.Permission.HasFlag(e.Permission)).ToList();
+
+                    Assert.Equal(3, query.Count);
+
+                    AssertSql(
+                        @"SELECT [e].[Id], [e].[Permission]
+FROM [Entity] AS [e]
+WHERE ([e].[Permission] & [e].[Permission]) = [e].[Permission]");
+                }
+            }
+        }
+
+        public class Entity8538
+        {
+            public int Id { get; set; }
+            public Permission Permission { get; set; }
+        }
+
+        [Flags]
+        public enum Permission : long
+        {
+            NONE = 0x01,
+            READ_ONLY = 0x02,
+            READ_WRITE = 0x400000000 // 36 bits
+        }
+
+        private class MyContext8538 : DbContext
+        {
+            public MyContext8538(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Entity8538> Entity { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase8538()
+            => CreateTestStore(
+                () => new MyContext8538(_options),
+                context =>
+                    {
+                        context.AddRange(
+                            new Entity8538 { Permission = Permission.NONE },
+                            new Entity8538 { Permission = Permission.READ_ONLY },
+                            new Entity8538 { Permission = Permission.READ_WRITE }
+                        );
+                        context.SaveChanges();
+
+                        ClearLog();
                     });
 
         #endregion
@@ -1820,11 +1937,10 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             return testStore;
         }
 
-        private const string FileLineEnding = @"
-";
+        protected void ClearLog()
+            => _fixture.TestSqlLoggerFactory.Clear();
 
-        protected virtual void ClearLog() => _fixture.TestSqlLoggerFactory.Clear();
-
-        private string Sql => _fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private void AssertSql(params string[] expected)
+            => _fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }
