@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (_model.HasEntityTypeWithDefiningNavigation(entity.GetType()))
                     {
-                        throw new InvalidOperationException(CoreStrings.UntrackedDelegatedIdentityEntity(
+                        throw new InvalidOperationException(CoreStrings.UntrackedDependentEntity(
                             entity.GetType().ShortDisplayName(),
                             "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
                     }
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     foreach (var otherDiet in _model.GetEntityTypes(entityType.Name)
                         .Where(et => et != entityType && TryGetEntry(entity, et) != null))
                     {
-                        _updateLogger.DuplicateDietInstanceWarning(entityType, otherDiet);
+                        _updateLogger.DuplicateDependentEntityTypeInstanceWarning(entityType, otherDiet);
                     }
 
                     if (!_dietReferenceMap.TryGetValue(entityType, out var entries))
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (found)
                     {
-                        throw new InvalidOperationException(CoreStrings.AmbiguousDelegatedIdentityEntity(
+                        throw new InvalidOperationException(CoreStrings.AmbiguousDependentEntity(
                             entity.GetType().ShortDisplayName(),
                             "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
                     }

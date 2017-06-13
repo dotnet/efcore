@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         throw new InvalidOperationException(
                             CoreStrings.NoDefiningNavigation(
-                                entityType.DefiningNavigationName, entityType.DefiningEntityType.DisplayName(), entityType.DisplayName()));
+                                entityType.DefiningNavigationName, entityType.DisplayName(), entityType.DefiningEntityType.DisplayName()));
                     }
 
                     var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);

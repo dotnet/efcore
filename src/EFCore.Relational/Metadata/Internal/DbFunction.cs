@@ -9,9 +9,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource? _nameConfigurationSource;
         private ConfigurationSource? _returnTypeConfigurationSource;
 
-        private DbFunction([NotNull] MethodInfo dbFunctionMethodInfo, 
+        private DbFunction([NotNull] MethodInfo dbFunctionMethodInfo,
             [NotNull] IMutableModel model,
             [NotNull] string annotationPrefix,
             [CanBeNull] string name,
@@ -57,23 +57,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _schema = schema;
             _returnType = dbFunctionMethodInfo.ReturnType;
             MethodInfo = dbFunctionMethodInfo;
-           
+
             model[BuildAnnotationName(annotationPrefix, dbFunctionMethodInfo)] = this;
         }
 
         public static DbFunction GetOrAddDbFunction(
-           [NotNull] IMutableModel model,
-           [NotNull] MethodInfo methodInfo,
-           [NotNull] string annotationPrefix,
-           ConfigurationSource configurationSource,
-           [CanBeNull] string name = null,
-           [CanBeNull] string schema = null)
-           => FindDbFunction(model, annotationPrefix, methodInfo) 
-                ?? new DbFunction(methodInfo, model, annotationPrefix, name, schema, configurationSource);
+            [NotNull] IMutableModel model,
+            [NotNull] MethodInfo methodInfo,
+            [NotNull] string annotationPrefix,
+            ConfigurationSource configurationSource,
+            [CanBeNull] string name = null,
+            [CanBeNull] string schema = null)
+            => FindDbFunction(model, annotationPrefix, methodInfo)
+               ?? new DbFunction(methodInfo, model, annotationPrefix, name, schema, configurationSource);
 
         public static DbFunction FindDbFunction([NotNull] IModel model,
-           [NotNull] string annotationPrefix,
-           [NotNull] MethodInfo methodInfo)
+            [NotNull] string annotationPrefix,
+            [NotNull] MethodInfo methodInfo)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(annotationPrefix, nameof(annotationPrefix));
@@ -101,9 +101,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string Schema
         {
-            get =>_schema; 
-            
-            [param: CanBeNull] set => SetSchema(value, ConfigurationSource.Explicit);  
+            get => _schema;
+
+            [param: CanBeNull] set => SetSchema(value, ConfigurationSource.Explicit);
         }
 
         public virtual void SetSchema([CanBeNull] string schema, ConfigurationSource configurationSource)
@@ -122,9 +122,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string Name
         {
-            get => _name; 
+            get => _name;
 
-            [param: NotNull] set => SetName(value, ConfigurationSource.Explicit); 
+            [param: NotNull] set => SetName(value, ConfigurationSource.Explicit);
         }
 
         public virtual void SetName([NotNull] string name, ConfigurationSource configurationSource)
@@ -172,13 +172,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     The .Net method which maps to the function in the underlying datastore
         /// </summary>
         public virtual MethodInfo MethodInfo { get; }
-      
+
         /// <summary>
         ///     If set this callback is used to translate the .Net method call to a Linq Expression.
         /// </summary>
         public virtual Func<IReadOnlyCollection<Expression>, IDbFunction, SqlFunctionExpression> TranslateCallback { get; [param: CanBeNull] set; }
 
-        public virtual DbFunctionParameter AddParameter(string name) 
+        public virtual DbFunctionParameter AddParameter(string name)
             => AddParameter(name, ConfigurationSource.Explicit);
 
         public virtual DbFunctionParameter AddParameter([NotNull] string name, ConfigurationSource configurationSource)
@@ -198,12 +198,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             DbFunctionParameter parameter;
 
-            if(_parameters.TryGetValue(name, out parameter))
+            if (_parameters.TryGetValue(name, out parameter))
                 parameter.UpdateConfigurationSource(configurationSource);
 
             return parameter;
         }
-        
+
         Expression IMethodCallTranslator.Translate(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
@@ -211,14 +211,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var methodArgs = methodCallExpression.Method.GetParameters().Zip(methodCallExpression.Arguments, (p, a) => new { Parameter = p, Argument = a });
 
             var arguments = new ReadOnlyCollection<Expression>(
-                                    (from dbParam in Parameters
-                                    join methodArg in methodArgs on dbParam.Name equals methodArg.Parameter.Name into passParams
-                                    from passParam in passParams
-                                    orderby dbParam.Index
-                                    select passParam.Argument).ToList());
+                (from dbParam in Parameters
+                 join methodArg in methodArgs on dbParam.Name equals methodArg.Parameter.Name into passParams
+                 from passParam in passParams
+                 orderby dbParam.Index
+                 select passParam.Argument).ToList());
 
-            return TranslateCallback?.Invoke(arguments, this) 
-                ?? new SqlFunctionExpression(Name, ReturnType, Schema, arguments);
+            return TranslateCallback?.Invoke(arguments, this)
+                   ?? new SqlFunctionExpression(Name, ReturnType, Schema, arguments);
         }
     }
 }

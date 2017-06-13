@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 principal.Child1 = dependent;
                 principal.Child2 = dependent;
 
-                Assert.Equal(CoreStrings.UntrackedDelegatedIdentityEntity(
+                Assert.Equal(CoreStrings.UntrackedDependentEntity(
                     typeof(ChildPN).ShortDisplayName(),
                     "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)),
                     Assert.Throws<InvalidOperationException>(() => context.Entry(dependent)).Message);
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 var dependentEntry2 = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
 
-                Assert.Equal(CoreStrings.AmbiguousDelegatedIdentityEntity(
+                Assert.Equal(CoreStrings.AmbiguousDependentEntity(
                     typeof(ChildPN).ShortDisplayName(),
                     "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)),
                     Assert.Throws<InvalidOperationException>(() => context.Entry(dependent)).Message);
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Same(dependentEntry1.GetInfrastructure(), context.Entry(dependent).GetInfrastructure());
 
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(CoreEventId.DuplicateDietInstanceWarning.ToString(),
-                        CoreStrings.LogDuplicateDietInstance.GenerateMessage(
+                    CoreStrings.WarningAsErrorTemplate(CoreEventId.DuplicateDependentEntityTypeInstanceWarning.ToString(),
+                        CoreStrings.LogDuplicateDependentEntityTypeInstance.GenerateMessage(
                             typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + typeof(ChildPN).ShortDisplayName(),
                             typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + typeof(ChildPN).ShortDisplayName())),
                     Assert.Throws<InvalidOperationException>(() => context.Entry(principal).Reference(p => p.Child2).TargetEntry).Message);

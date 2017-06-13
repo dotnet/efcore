@@ -624,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (shouldThrow)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.ForeignKeySelfReferencingDelegatedIdentity(dependentEntityType.DisplayName()));
+                        CoreStrings.ForeignKeySelfReferencingDependentEntityType(dependentEntityType.DisplayName()));
                 }
                 return false;
             }

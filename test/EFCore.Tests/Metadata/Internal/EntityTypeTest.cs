@@ -3086,7 +3086,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Adding_delegated_inheritance_to_delegated_identity_definition_entity_types_throws()
+        public void Adding_inheritance_to_dependent_entity_types_throws()
         {
             IMutableModel model = new Model();
             var customerType = model.AddEntityType(typeof(Customer));
@@ -3094,10 +3094,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order), nameof(Customer.Orders), customerType);
             var derivedType = model.AddEntityType(typeof(SpecialOrder), nameof(Customer.Orders), customerType);
 
-            Assert.Equal(CoreStrings.DelegatedIdentityDerivedType(
+            Assert.Equal(CoreStrings.DependentDerivedType(
                 nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => orderType.BaseType = baseType).Message);
-            Assert.Equal(CoreStrings.DelegatedIdentityDerivedType(
+            Assert.Equal(CoreStrings.DependentDerivedType(
                 nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(SpecialOrder)),
                 Assert.Throws<InvalidOperationException>(() => derivedType.BaseType = orderType).Message);
         }
@@ -3111,10 +3111,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order), nameof(Customer.Orders), customerType);
             var derivedType = model.AddEntityType(typeof(SpecialOrder));
 
-            Assert.Equal(CoreStrings.DelegatedIdentityDerivedType(
+            Assert.Equal(CoreStrings.DependentDerivedType(
                 nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => orderType.BaseType = baseType).Message);
-            Assert.Equal(CoreStrings.DelegatedIdentityBaseType(
+            Assert.Equal(CoreStrings.DependentBaseType(
                 typeof(SpecialOrder).DisplayName(fullName: false), nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => derivedType.BaseType = orderType).Message);
         }

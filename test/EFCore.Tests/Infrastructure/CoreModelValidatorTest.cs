@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
-        public virtual void Pases_on_valid_delegated_identity_entity_types()
+        public virtual void Pases_on_valid_dependent_entity_types()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
@@ -312,8 +312,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             entityTypeBuilder.Metadata.RemoveNavigation(nameof(SampleEntity.ReferencedEntity));
 
             VerifyError(CoreStrings.NoDefiningNavigation(
-                nameof(SampleEntity.ReferencedEntity), nameof(SampleEntity),
-                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
+                nameof(SampleEntity.ReferencedEntity),
+                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity),
+                nameof(SampleEntity)),
                 modelBuilder.Metadata);
         }
 

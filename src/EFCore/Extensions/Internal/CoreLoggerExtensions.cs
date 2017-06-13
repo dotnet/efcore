@@ -63,12 +63,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static void DuplicateDietInstanceWarning(
+        public static void DuplicateDependentEntityTypeInstanceWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] IEntityType diet1,
             [NotNull] IEntityType diet2)
         {
-            var definition = CoreStrings.LogDuplicateDietInstance;
+            var definition = CoreStrings.LogDuplicateDependentEntityTypeInstance;
 
             definition.Log(diagnostics, diet1.DisplayName(), diet2.DisplayName());
 
@@ -78,13 +78,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     definition.EventId.Name,
                     new SharedDependentEntityEventData(
                         definition,
-                        DuplicateDietInstanceWarning,
+                        DuplicateDependentEntityTypeInstanceWarning,
                         diet1,
                         diet2));
             }
         }
 
-        private static string DuplicateDietInstanceWarning(EventDefinitionBase definition, EventData payload)
+        private static string DuplicateDependentEntityTypeInstanceWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (SharedDependentEntityEventData)payload;

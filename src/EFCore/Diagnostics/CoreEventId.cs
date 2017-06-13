@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             // Update events
             SaveChangesFailed = CoreBaseId,
-            DuplicateDietInstanceWarning,
+            DuplicateDependentEntityTypeInstanceWarning,
 
             // Query events
             QueryIterationFailed = CoreBaseId + 100,
@@ -87,10 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId SaveChangesFailed = MakeUpdateId(Id.SaveChangesFailed);
 
         /// <summary>
-        ///     The same entity is being tracked as a different delegated identity entity type.
+        ///     The same entity is being tracked as a different dependent entity type.
         ///     This event is in the <see cref="DbLoggerCategory.Update" /> category.
         /// </summary>
-        public static readonly EventId DuplicateDietInstanceWarning = MakeUpdateId(Id.DuplicateDietInstanceWarning);
+        public static readonly EventId DuplicateDependentEntityTypeInstanceWarning = MakeUpdateId(Id.DuplicateDependentEntityTypeInstanceWarning);
 
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
         private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);

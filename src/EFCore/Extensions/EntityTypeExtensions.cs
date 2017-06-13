@@ -100,9 +100,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets a value indicating whether this entity type has delegated identity.
+        ///     Gets a value indicating whether this entity type has a defining navigation.
         /// </summary>
-        /// <returns> True if this entity type has delegated identity. </returns>
+        /// <returns> True if this entity type has a defining navigation. </returns>
         [DebuggerStepThrough]
         public static bool HasDefiningNavigation([NotNull] this IEntityType entityType)
             => entityType.DefiningEntityType != null;

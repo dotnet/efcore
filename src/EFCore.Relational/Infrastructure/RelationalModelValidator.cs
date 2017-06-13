@@ -68,38 +68,40 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             foreach (var dbFunction in model.Relational().DbFunctions)
             {
-                if (string.IsNullOrEmpty(dbFunction.Name))
-                    throw new InvalidOperationException(CoreStrings.DbFunctionNameEmpty());
-
-                var paramIndexes = dbFunction.Parameters.Select(fp => fp.Index).ToArray();
                 var dbFuncName = $"{dbFunction.MethodInfo.DeclaringType?.Name}.{dbFunction.MethodInfo.Name}";
 
+                if (string.IsNullOrEmpty(dbFunction.Name))
+                    throw new InvalidOperationException(CoreStrings.DbFunctionNameEmpty(dbFuncName));
+
+                var paramIndexes = dbFunction.Parameters.Select(fp => fp.Index).ToArray();
                 if (paramIndexes.Distinct().Count() != dbFunction.Parameters.Count)
-                    throw new InvalidOperationException(CoreStrings.DbFunctionDuplicateIndex(dbFuncName));
+                    throw new InvalidOperationException(CoreStrings.DbFunctionParametersDuplicateIndex(dbFuncName));
 
                 if (Enumerable.Range(0, paramIndexes.Length).Except(paramIndexes).Any())
                     throw new InvalidOperationException(CoreStrings.DbFunctionNonContinuousIndex(dbFuncName));
 
-                if (dbFunction.MethodInfo.IsStatic == false 
+                if (dbFunction.MethodInfo.IsStatic == false
                     && dbFunction.MethodInfo.DeclaringType.GetTypeInfo().IsSubclassOf(typeof(DbContext)))
                 {
                     throw new InvalidOperationException(CoreStrings.DbFunctionDbContextMethodMustBeStatic(dbFuncName));
                 }
 
-                if(dbFunction.TranslateCallback == null)
-                { 
-                    if (dbFunction.ReturnType == null || RelationalDependencies.TypeMapper.IsTypeMapped(dbFunction.ReturnType) == false)
+                if (dbFunction.TranslateCallback == null)
+                {
+                    if (dbFunction.ReturnType == null
+                        || RelationalDependencies.TypeMapper.IsTypeMapped(dbFunction.ReturnType) == false)
                         throw new InvalidOperationException(CoreStrings.DbFunctionInvalidReturnType(dbFunction.MethodInfo, dbFunction.ReturnType));
 
                     foreach (var parameter in dbFunction.Parameters)
                     {
-                        if (parameter.ParameterType == null || RelationalDependencies.TypeMapper.IsTypeMapped(parameter.ParameterType) == false)
-                        { 
+                        if (parameter.ParameterType == null
+                            || RelationalDependencies.TypeMapper.IsTypeMapped(parameter.ParameterType) == false)
+                        {
                             throw new InvalidOperationException(
                                 CoreStrings.DbFunctionInvalidParameterType(
-                                    dbFunction.MethodInfo, 
-                                    parameter.Name, 
-                                    dbFunction.ReturnType));
+                                    dbFunction.MethodInfo,
+                                    parameter.Name,
+                                    parameter.ParameterType?.ShortDisplayName()));
                         }
                     }
                 }
@@ -151,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual void ValidateDefaultValuesOnKeys([NotNull] IModel model)
         {
             foreach (var property in model.GetEntityTypes().SelectMany(
-                    t => t.GetDeclaredKeys().SelectMany(k => k.Properties))
+                t => t.GetDeclaredKeys().SelectMany(k => k.Properties))
                 .Where(p => p.Relational().DefaultValue != null))
             {
                 Dependencies.Logger.ModelValidationKeyDefaultValueWarning(property);

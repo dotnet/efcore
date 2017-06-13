@@ -144,12 +144,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     Gets the name of the defining navigation for this entity type with delegated identity.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string DefiningNavigationName { get; }
 
         /// <summary>
-        ///     Gets the defining entity type for this entity type with delegated identity.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityType DefiningEntityType { get; }
 
@@ -170,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (this.HasDefiningNavigation())
             {
-                throw new InvalidOperationException(CoreStrings.DelegatedIdentityDerivedType(this.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.DependentDerivedType(this.DisplayName()));
             }
 
             var originalBaseType = _baseType;
@@ -192,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     if (entityType.HasDefiningNavigation())
                     {
-                        throw new InvalidOperationException(CoreStrings.DelegatedIdentityBaseType(this.DisplayName(), entityType.DisplayName()));
+                        throw new InvalidOperationException(CoreStrings.DependentBaseType(this.DisplayName(), entityType.DisplayName()));
                     }
                 }
 

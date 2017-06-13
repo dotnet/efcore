@@ -86,15 +86,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                     ? null
                                     : modelBuilder.Metadata.FindEntityType(targetType);
 
-                            var isDelegatedIdentityEntityType
+                            var isDependentEntityType
                                 = targetType != null
                                   && modelBuilder.Metadata.HasEntityTypeWithDefiningNavigation(targetType);
 
                             if (targetType != null
                                 && (targetEntityType != null
-                                    || isDelegatedIdentityEntityType))
+                                    || isDependentEntityType))
                             {
-                                if ((!isDelegatedIdentityEntityType
+                                if ((!isDependentEntityType
                                      || !targetType.GetTypeInfo().Equals(entityType.ClrType.GetTypeInfo()))
                                     && entityType.GetDerivedTypes().All(dt => dt.FindDeclaredNavigation(actualProperty.Name) == null)
                                     && !entityType.IsInDefinitionPath(targetType))

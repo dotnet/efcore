@@ -1593,11 +1593,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("PoolingOptionsModified");
 
         /// <summary>
-        ///     The foreign keys on entity type '{dependentType}' cannot target the same entity type because it has delegated identity.
+        ///     The foreign keys on entity type '{dependentType}' cannot target the same entity type because it is a dependent entity type.
         /// </summary>
-        public static string ForeignKeySelfReferencingDelegatedIdentity([CanBeNull] object dependentType)
+        public static string ForeignKeySelfReferencingDependentEntityType([CanBeNull] object dependentType)
             => string.Format(
-                GetString("ForeignKeySelfReferencingDelegatedIdentity", nameof(dependentType)),
+                GetString("ForeignKeySelfReferencingDependentEntityType", nameof(dependentType)),
                 dependentType);
 
         /// <summary>
@@ -1609,35 +1609,35 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, referencedEntityType, foreignKey);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot be added to the model because a delegated identity entity type with the same name already exists.
+        ///     The entity type '{entityType}' cannot be added to the model because a dependent entity type with the same name already exists.
         /// </summary>
-        public static string ClashingDelegatedIdentityEntityType([CanBeNull] object entityType)
+        public static string ClashingDependentEntityType([CanBeNull] object entityType)
             => string.Format(
-                GetString("ClashingDelegatedIdentityEntityType", nameof(entityType)),
+                GetString("ClashingDependentEntityType", nameof(entityType)),
                 entityType);
 
         /// <summary>
-        ///     The delegated identity entity type '{entityType}' cannot be added to the model because a entity type with the same name already exists.
+        ///     The dependent entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.
         /// </summary>
-        public static string ClashingNonDelegatedIdentityEntityType([CanBeNull] object entityType)
+        public static string ClashingNonDependentEntityType([CanBeNull] object entityType)
             => string.Format(
-                GetString("ClashingNonDelegatedIdentityEntityType", nameof(entityType)),
+                GetString("ClashingNonDependentEntityType", nameof(entityType)),
                 entityType);
 
         /// <summary>
-        ///     The type '{entityType}' cannot have delegated identity entity type '{baseType}' as the base type.
+        ///     The type '{entityType}' cannot have dependent entity type '{baseType}' as the base type.
         /// </summary>
-        public static string DelegatedIdentityBaseType([CanBeNull] object entityType, [CanBeNull] object baseType)
+        public static string DependentBaseType([CanBeNull] object entityType, [CanBeNull] object baseType)
             => string.Format(
-                GetString("DelegatedIdentityBaseType", nameof(entityType), nameof(baseType)),
+                GetString("DependentBaseType", nameof(entityType), nameof(baseType)),
                 entityType, baseType);
 
         /// <summary>
-        ///     The delegated identity entity type '{entityType}' cannot have a base type.
+        ///     The dependent entity type '{entityType}' cannot have a base type.
         /// </summary>
-        public static string DelegatedIdentityDerivedType([CanBeNull] object entityType)
+        public static string DependentDerivedType([CanBeNull] object entityType)
             => string.Format(
-                GetString("DelegatedIdentityDerivedType", nameof(entityType)),
+                GetString("DependentDerivedType", nameof(entityType)),
                 entityType);
 
         /// <summary>
@@ -1655,12 +1655,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("ConventionsInfiniteLoop");
 
         /// <summary>
-        ///     There is no navigation '{navigation}' on '{definingEntityType}' that was used to define the entity type with delegated identity '{entityType}'
+        ///     The navigation '{navigation}' used to define the entity type '{entityType}' is not present on '{definingEntityType}'.
         /// </summary>
-        public static string NoDefiningNavigation([CanBeNull] object navigation, [CanBeNull] object definingEntityType, [CanBeNull] object entityType)
+        public static string NoDefiningNavigation([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object definingEntityType)
             => string.Format(
-                GetString("NoDefiningNavigation", nameof(navigation), nameof(definingEntityType), nameof(entityType)),
-                navigation, definingEntityType, entityType);
+                GetString("NoDefiningNavigation", nameof(navigation), nameof(entityType), nameof(definingEntityType)),
+                navigation, entityType, definingEntityType);
 
         /// <summary>
         ///     The entity type '{entityType}' is the target of multiple ownership relationships.
@@ -1687,19 +1687,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ownedEntityType, nonOwnedEntityType);
 
         /// <summary>
-        ///     The entity type '{entityType}' has delegated identity and the given entity is currently referenced from several owner entities. To access the entry for a particular reference to this entity call '{targetEntryCall}' on the owner entry.
+        ///     The entity type '{entityType}' has a defining navigation and the supplied entity is currently referenced from several owner entities. To access the entry for a particular reference call '{targetEntryCall}' on the owner entry.
         /// </summary>
-        public static string AmbiguousDelegatedIdentityEntity([CanBeNull] object entityType, [CanBeNull] object targetEntryCall)
+        public static string AmbiguousDependentEntity([CanBeNull] object entityType, [CanBeNull] object targetEntryCall)
             => string.Format(
-                GetString("AmbiguousDelegatedIdentityEntity", nameof(entityType), nameof(targetEntryCall)),
+                GetString("AmbiguousDependentEntity", nameof(entityType), nameof(targetEntryCall)),
                 entityType, targetEntryCall);
 
         /// <summary>
-        ///     The entity type '{entityType}' has delegated identity and the given entity is currently not being tracked. To start tracking this entity call '{targetEntryCall}' on the owner entry.
+        ///     The entity type '{entityType}' has a defining navigation and the supplied entity is currently not being tracked. To start tracking this entity call '{targetEntryCall}' on the owner entry.
         /// </summary>
-        public static string UntrackedDelegatedIdentityEntity([CanBeNull] object entityType, [CanBeNull] object targetEntryCall)
+        public static string UntrackedDependentEntity([CanBeNull] object entityType, [CanBeNull] object targetEntryCall)
             => string.Format(
-                GetString("UntrackedDelegatedIdentityEntity", nameof(entityType), nameof(targetEntryCall)),
+                GetString("UntrackedDependentEntity", nameof(entityType), nameof(targetEntryCall)),
                 entityType, targetEntryCall);
 
         /// <summary>
@@ -1751,76 +1751,80 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogPossibleUnintendedReferenceComparison")));
 
         /// <summary>
-        /// The Db Function '{dbFunction}' is generic.  Generic methods are not supported.
+        ///     The same entity is being tracked as different dependent entity types '{diet1}' and '{diet2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.
         /// </summary>
-        public static string DbFunctionGenericMethodNotSupported([CanBeNull] MethodInfo dbFunction)
-             => string.Format(
-                GetString("DbFunctionGenericMethodNotSupported", nameof(dbFunction)),
-                $"{ dbFunction?.DeclaringType}.{dbFunction?.Name}");
+        public static readonly EventDefinition<string, string> LogDuplicateDependentEntityTypeInstance
+            = new EventDefinition<string, string>(
+                CoreEventId.DuplicateDependentEntityTypeInstanceWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    CoreEventId.DuplicateDependentEntityTypeInstanceWarning,
+                    _resourceManager.GetString("LogDuplicateDependentEntityTypeInstance")));
 
         /// <summary>
-        /// Db Function has no name set.
+        ///     The DB function '{dbFunction}' has an invalid return type '{returnType}'.
         /// </summary>
-        public static string DbFunctionNameEmpty()
-           => GetString("DbFunctionNameEmpty");
-
-        /// <summary>
-        /// The Db Function '{dbFunction}' has an invalid return type '{returnType}'.
-        /// </summary>
-        public static string DbFunctionInvalidReturnType([CanBeNull] MethodInfo dbFunction, [CanBeNull] Type returnType)
+        public static string DbFunctionInvalidReturnType([CanBeNull] object dbFunction, [CanBeNull] object returnType)
             => string.Format(
-                GetString("DbFunctionInvalidReturnType", nameof(returnType), nameof(dbFunction)),
-                returnType?.Name, $"{ dbFunction?.DeclaringType}.{dbFunction?.Name}");
+                GetString("DbFunctionInvalidReturnType", nameof(dbFunction), nameof(returnType)),
+                dbFunction, returnType);
 
         /// <summary>
-        /// Db Function '{dbFunctionName}' has parameters with duplicate indexes.
+        ///     The DB function '{methodName}' has no name set.
         /// </summary>
-        public static string DbFunctionDuplicateIndex([CanBeNull] object dbFunctionName)
-             => string.Format(
+        public static string DbFunctionNameEmpty([CanBeNull] object methodName)
+            => string.Format(
+                GetString("DbFunctionNameEmpty", nameof(methodName)),
+                methodName);
+
+        /// <summary>
+        ///     The DB function '{dbFunctionName}' has parameters with duplicate indexes.
+        /// </summary>
+        public static string DbFunctionParametersDuplicateIndex([CanBeNull] object dbFunctionName)
+            => string.Format(
                 GetString("DbFunctionParametersDuplicateIndex", nameof(dbFunctionName)),
                 dbFunctionName);
 
         /// <summary>
-        /// Db Function '{dbFunctionName}' has a non continuous parameter index.
+        ///     The DB function '{dbFunctionName}' has a non continuous parameter index.
         /// </summary>
         public static string DbFunctionNonContinuousIndex([CanBeNull] object dbFunctionName)
-             => string.Format(
+            => string.Format(
                 GetString("DbFunctionNonContinuousIndex", nameof(dbFunctionName)),
                 dbFunctionName);
 
         /// <summary>
-        /// The parameter '{dbParameter}' Db Function '{dbFunction}' has an invalid type.
+        ///     The parameter '{dbParameter}' for the DB function '{dbFunction}' has an invalid type '{dbParamType}'.
         /// </summary>
-        public static string DbFunctionInvalidParameterType([CanBeNull] MethodInfo dbFunction, [CanBeNull] object dbParameter, [CanBeNull] Type dbParamType)
+        public static string DbFunctionInvalidParameterType([CanBeNull] object dbParameter, [CanBeNull] object dbFunction, [CanBeNull] object dbParamType)
             => string.Format(
                 GetString("DbFunctionInvalidParameterType", nameof(dbParameter), nameof(dbFunction), nameof(dbParamType)),
-                dbParameter, $"{ dbFunction?.DeclaringType}.{dbFunction?.Name}", dbParamType?.Name);
+                dbParameter, dbFunction, dbParamType);
 
         /// <summary>
-        /// Db Function '{dbFunctionName}' must be a static method.
-        /// </summary>
-        public static string DbFunctionDbContextMethodMustBeStatic([CanBeNull] object dbFunctionName)
-            => string.Format(
-                GetString("DbFunctionDbContextMethodMustBeStatic", nameof(dbFunctionName)), dbFunctionName);
-
-        /// <summary>
-        /// Db Function '{dbFunctionName}' has no parameter '{dbParameterName}'.  Check the method signature for the correct parameter name.
+        ///     The DB function '{dbFunctionName}' has no parameter '{dbParameterName}'. Check the method signature for the correct parameter name.
         /// </summary>
         public static string DbFunctionParameterNotFound([CanBeNull] object dbFunctionName, [CanBeNull] object dbParameterName)
             => string.Format(
-                GetString("DbFunctionParameterNotFound", nameof(dbFunctionName), nameof(dbParameterName)), dbFunctionName, dbParameterName);
+                GetString("DbFunctionParameterNotFound", nameof(dbFunctionName), nameof(dbParameterName)),
+                dbFunctionName, dbParameterName);
 
         /// <summary>
-        ///     The same entity is being tracked as different delegated identity entity types '{diet1}' and '{diet2}'. If a property value changes it will result in two store changes, which might not be the desired outcome. 
+        ///     The DB function '{dbFunctionName}' must be a static method.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogDuplicateDietInstance
-            = new EventDefinition<string, string>(
-                CoreEventId.DuplicateDietInstanceWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.DuplicateDietInstanceWarning,
-                    _resourceManager.GetString("LogDuplicateDietInstance")));
+        public static string DbFunctionDbContextMethodMustBeStatic([CanBeNull] object dbFunctionName)
+            => string.Format(
+                GetString("DbFunctionDbContextMethodMustBeStatic", nameof(dbFunctionName)),
+                dbFunctionName);
+
+        /// <summary>
+        ///     The DB function '{dbFunction}' is generic. Generic methods are not supported.
+        /// </summary>
+        public static string DbFunctionGenericMethodNotSupported([CanBeNull] object dbFunction)
+            => string.Format(
+                GetString("DbFunctionGenericMethodNotSupported", nameof(dbFunction)),
+                dbFunction);
 
         private static string GetString(string name, params string[] formatterNames)
         {

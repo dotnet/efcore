@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (_entityTypes.ContainsKey(entityTypeName))
                 {
-                    throw new InvalidOperationException(CoreStrings.ClashingNonDelegatedIdentityEntityType(entityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.ClashingNonDependentEntityType(entityType.DisplayName()));
                 }
 
                 if (!_entityTypesWithDefiningNavigation.TryGetValue(entityTypeName, out SortedSet<EntityType> entityTypesWithSameType))
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (_entityTypesWithDefiningNavigation.ContainsKey(entityTypeName))
                 {
-                    throw new InvalidOperationException(CoreStrings.ClashingDelegatedIdentityEntityType(entityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.ClashingDependentEntityType(entityType.DisplayName()));
                 }
 
                 var previousLength = _entityTypes.Count;

@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false, true)]
         [InlineData(true, true)]
         [Theory]
-        public void OnEntityTypeAdded_calls_apply_on_conventions_in_order_for_delegated_identity(bool useBuilder, bool useScope)
+        public void OnEntityTypeAdded_calls_apply_on_conventions_in_order_for_dependent_entity_types(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
 
