@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //Fixture.TestSqlLoggerFactory.EnableLog();
         }
 
         public override void Can_use_of_type_animal()

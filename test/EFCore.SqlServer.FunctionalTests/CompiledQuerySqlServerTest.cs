@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
         public CompiledQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void DbSet_query()

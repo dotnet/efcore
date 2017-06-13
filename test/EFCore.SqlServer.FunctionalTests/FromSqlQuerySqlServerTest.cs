@@ -12,8 +12,9 @@ namespace Microsoft.EntityFrameworkCore
         public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
-            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //Fixture.TestSqlLoggerFactory.EnableLog();
         }
 
         public override void From_sql_queryable_simple()

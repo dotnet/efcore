@@ -15,7 +15,9 @@ namespace Microsoft.EntityFrameworkCore
         public RowNumberPagingTest(NorthwindRowNumberPagingQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //Fixture.TestSqlLoggerFactory.EnableLog();
         }
 
         public void Dispose()

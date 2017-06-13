@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //Fixture.TestSqlLoggerFactory.EnableLog();
         }
 
         public override void Lifting_when_subquery_nested_order_by_anonymous()

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
         public WarningsSqlServerTest(WarningsSqlServerFixture fixture)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void Does_not_throw_for_top_level_single()

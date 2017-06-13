@@ -12,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore
             NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //Fixture.TestSqlLoggerFactory.EnableLog();
         }
 
         public override void Join_with_nav_projected_in_subquery_when_client_eval()

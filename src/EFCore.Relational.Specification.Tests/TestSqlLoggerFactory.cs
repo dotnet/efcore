@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -21,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore
     {
         private const string FileLineEnding = @"
 ";
+
+        private ITestOutputHelper _testOutputHelper;
+        private bool _enableLog;
 
         private static readonly string _newLine = Environment.NewLine;
 
@@ -46,6 +48,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Assert.Contains(expectedFragment, sqlStatements);
                     }
+                }
+
+                if (_enableLog)
+                {
+                    _testOutputHelper?.WriteLine(_logger.TestConsoleOutput);
                 }
             }
             catch
@@ -79,8 +86,10 @@ namespace Microsoft.EntityFrameworkCore
                     newBaseLine += "Output truncated.";
                 }
 
-                _logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
-                _logger.TestOutputHelper?.WriteLine(newBaseLine);
+                _testOutputHelper?.WriteLine(_logger.TestConsoleOutput);
+
+                _testOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
+                _testOutputHelper?.WriteLine(newBaseLine);
 
                 var contents = testInfo + newBaseLine + FileLineEnding + FileLineEnding;
 
@@ -112,7 +121,12 @@ namespace Microsoft.EntityFrameworkCore
 
         public void SetTestOutputHelper(ITestOutputHelper testOutputHelper)
         {
-            _logger.TestOutputHelper = testOutputHelper;
+            _testOutputHelper = testOutputHelper;
+        }
+
+        public void EnableLog()
+        {
+            _enableLog = true;
         }
 
         ILogger ILoggerFactory.CreateLogger(string categoryName) => _logger;
@@ -128,10 +142,9 @@ namespace Microsoft.EntityFrameworkCore
             public IndentedStringBuilder LogBuilder { get; } = new IndentedStringBuilder();
             public List<string> SqlStatements { get; } = new List<string>();
             public List<string> Parameters { get; } = new List<string>();
+            public string TestConsoleOutput { get; private set; }
 
             private CancellationTokenSource _cancellationTokenSource;
-
-            public ITestOutputHelper TestOutputHelper { get; set; }
 
             private readonly object _sync = new object();
 
@@ -193,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore
                             LogBuilder.AppendLine(format);
                         }
 
-                        TestOutputHelper?.WriteLine(format + Environment.NewLine);
+                        TestConsoleOutput += (format + Environment.NewLine + Environment.NewLine);
                     }
                 }
             }

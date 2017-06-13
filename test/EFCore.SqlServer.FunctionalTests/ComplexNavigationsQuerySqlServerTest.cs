@@ -15,7 +15,9 @@ namespace Microsoft.EntityFrameworkCore
             ComplexNavigationsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //Fixture.TestSqlLoggerFactory.EnableLog();
         }
 
         private bool SupportsOffset => TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;

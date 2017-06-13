@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
         public LoadSqlServerTest(LoadSqlServerFixture fixture)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override async Task Load_collection(EntityState state, bool async)

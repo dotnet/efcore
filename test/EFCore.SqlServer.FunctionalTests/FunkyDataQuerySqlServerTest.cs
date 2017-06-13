@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
         public FunkyDataQuerySqlServerTest(FunkyDataQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void String_ends_with_equals_nullable_column()

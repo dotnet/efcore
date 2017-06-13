@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
         public QuerySqliteTest(NorthwindQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void Take_Skip()
