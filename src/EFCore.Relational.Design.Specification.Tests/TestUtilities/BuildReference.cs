@@ -3,13 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+
 using Microsoft.CodeAnalysis;
 #if NETCOREAPP2_0
 using Microsoft.Extensions.DependencyModel;
 using System.Linq;
 using IOPath = System.IO.Path;
 #elif NET461
+using System.Reflection;
 #else
 #error target frameworks need to be updated.
 #endif

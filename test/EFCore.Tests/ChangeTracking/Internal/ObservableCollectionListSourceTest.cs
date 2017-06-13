@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal

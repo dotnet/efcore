@@ -3,7 +3,6 @@
 
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 

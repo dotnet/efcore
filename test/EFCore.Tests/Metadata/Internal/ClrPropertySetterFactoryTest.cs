@@ -3,8 +3,6 @@
 
 using System;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Moq;
 using Xunit;
 

@@ -4,7 +4,6 @@
 using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Benchmarks;
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
