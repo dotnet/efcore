@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
         public PropertyEntrySqliteTest(F1SqliteFixture fixture)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void Property_entry_original_value_is_set()

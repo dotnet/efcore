@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         public BuiltInDataTypesSqlServerTest(BuiltInDataTypesSqlServerFixture fixture)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         [Fact]

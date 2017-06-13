@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         public DataAnnotationSqlServerTest(DataAnnotationSqlServerFixture fixture)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

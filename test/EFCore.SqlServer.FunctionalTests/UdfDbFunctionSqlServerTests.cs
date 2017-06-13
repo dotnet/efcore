@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -17,11 +18,13 @@ namespace Microsoft.EntityFrameworkCore
 
     public class UdfDbFunctionSqlServerTests : IClassFixture<NorthwindDbFunctionSqlServerFixture>
     {
-        public UdfDbFunctionSqlServerTests(NorthwindDbFunctionSqlServerFixture fixture)
+        public UdfDbFunctionSqlServerTests(NorthwindDbFunctionSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         {
             Fixture = fixture;
 
             Fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //Fixture.TestSqlLoggerFactory.EnableLog();
         }
 
         protected NorthwindDbFunctionSqlServerFixture Fixture { get; }

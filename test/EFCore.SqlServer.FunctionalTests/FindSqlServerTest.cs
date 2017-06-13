@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         protected FindSqlServerTest(FindSqlServerFixture fixture)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public class FindSqlServerTestSet : FindSqlServerTest

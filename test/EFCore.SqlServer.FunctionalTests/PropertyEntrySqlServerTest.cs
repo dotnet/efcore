@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
         public PropertyEntrySqlServerTest(F1SqlServerFixture fixture)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void Property_entry_original_value_is_set()
