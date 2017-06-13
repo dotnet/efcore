@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             protected virtual TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(InMemoryTestHelpers.Instance.CreateConventionBuilder());
+                => CreateTestModelBuilder(InMemoryTestHelpers.Instance);
 
             protected TestModelBuilder HobNobBuilder()
             {
@@ -106,18 +106,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return builder;
             }
 
-            protected abstract TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder);
+            protected abstract TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers);
         }
 
         public abstract class TestModelBuilder
         {
-            protected TestModelBuilder(ModelBuilder modelBuilder)
+            protected TestModelBuilder(TestHelpers testHelpers)
             {
-                ModelBuilder = modelBuilder;
+                ModelBuilder = testHelpers.CreateConventionBuilder();
+                ModelValidator = testHelpers.CreateModelValidator();
             }
 
             public virtual IMutableModel Model => ModelBuilder.Model;
             protected ModelBuilder ModelBuilder { get; }
+            protected IModelValidator ModelValidator { get; }
+
+            public TestModelBuilder HasAnnotation(string annotation, object value)
+            {
+                ModelBuilder.HasAnnotation(annotation, value);
+                return this;
+            }
 
             public abstract TestEntityTypeBuilder<TEntity> Entity<TEntity>()
                 where TEntity : class;
@@ -131,13 +139,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual TestModelBuilder Validate()
             {
                 var modelBuilder = ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate();
-                new ModelValidator(
-                        new ModelValidatorDependencies(
-                            new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                                new LoggerFactory(),
-                                new LoggingOptions(),
-                                new DiagnosticListener("Fake"))))
-                    .Validate(modelBuilder.Metadata);
+                ModelValidator.Validate(modelBuilder.Metadata);
 
                 return this;
             }

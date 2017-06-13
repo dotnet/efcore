@@ -360,6 +360,9 @@ namespace Microsoft.EntityFrameworkCore
             return new ModelBuilder(conventionSet);
         }
 
+        public IModelValidator CreateModelValidator()
+            => CreateContextServices().GetRequiredService<IModelValidator>();
+
         public InternalEntityEntry CreateInternalEntry<TEntity>(
             IModel model, EntityState entityState = EntityState.Detached, TEntity entity = null)
             where TEntity : class, new()

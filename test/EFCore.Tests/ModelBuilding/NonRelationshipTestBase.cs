@@ -17,6 +17,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public abstract class NonRelationshipTestBase : ModelBuilderTestBase
         {
             [Fact]
+            public void Can_set_model_annotation()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder = modelBuilder.HasAnnotation("Fus", "Ro");
+
+                Assert.NotNull(modelBuilder);
+                Assert.Equal("Ro", model.FindAnnotation("Fus").Value);
+            }
+
+            [Fact]
             public virtual void Can_get_entity_builder_for_clr_type()
             {
                 var modelBuilder = CreateModelBuilder();

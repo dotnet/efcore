@@ -712,6 +712,45 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(baseEntity2, derivedEntity2.BaseType);
                 Assert.NotNull(baseEntity2.FindPrimaryKey());
             }
+
+            [Fact] // #7049
+            public void Base_type_can_be_discovered_after_creating_foreign_keys_on_derived()
+            {
+                var mb = CreateModelBuilder();
+                mb.Entity<AL>();
+                mb.Entity<L>();
+
+                Assert.Equal(ValueGenerated.OnAdd, mb.Model.FindEntityType(typeof(Q)).FindProperty(nameof(Q.ID)).ValueGenerated);
+            }
+
+            public class L
+            {
+                public int Id { get; set; }
+                public IList<T> Ts { get; set; }
+            }
+
+            public class T : P
+            {
+                public Q D { get; set; }
+                public P P { get; set; }
+                public Q F { get; set; }
+            }
+
+            public class P : PBase { }
+
+            public class Q : PBase { }
+
+            public abstract class PBase
+            {
+                public int ID { get; set; }
+                public string Stuff { get; set; }
+            }
+
+            public class AL
+            {
+                public int Id { get; set; }
+                public PBase L { get; set; }
+            }
         }
     }
 }

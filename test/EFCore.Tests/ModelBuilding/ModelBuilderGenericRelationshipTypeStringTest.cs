@@ -12,14 +12,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class GenericOneToOneTypeString : GenericOneToOneType
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new GenericTypeTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new GenericTypeTestModelBuilder(testHelpers);
         }
 
         private class GenericTypeTestModelBuilder : TestModelBuilder
         {
-            public GenericTypeTestModelBuilder(ModelBuilder modelBuilder)
-                : base(modelBuilder)
+            public GenericTypeTestModelBuilder(TestHelpers testHelpers)
+                : base(testHelpers)
             {
             }
 
@@ -27,11 +27,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new GenericTypeTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity<TEntity>());
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
-                => new GenericTypeTestModelBuilder(ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
-                    buildAction(new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder))));
+            {
+                ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
+                    buildAction(new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+                return this;
+            }
 
             public override TestModelBuilder Ignore<TEntity>()
-                => new GenericTypeTestModelBuilder(ModelBuilder.Ignore<TEntity>());
+            {
+                ModelBuilder.Ignore<TEntity>();
+                return this;
+            }
         }
 
         private class GenericTypeTestEntityTypeBuilder<TEntity> : GenericTestEntityTypeBuilder<TEntity>

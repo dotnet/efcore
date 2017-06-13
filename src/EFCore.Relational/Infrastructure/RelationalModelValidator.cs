@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -172,11 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var annotations = entityType.Relational();
                 var tableName = Format(annotations.Schema, annotations.TableName);
 
-                if (tables.TryGetValue(tableName, out var mappedTypes))
-                {
-                    ValidateSharedTableCompatibility(entityType, mappedTypes, tableName);
-                }
-                else
+                if (!tables.TryGetValue(tableName, out var mappedTypes))
                 {
                     mappedTypes = new List<IEntityType>();
                     tables[tableName] = mappedTypes;
@@ -187,10 +184,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var tableMapping in tables)
             {
-                ValidateSharedColumnsCompatibility(tableMapping.Value, tableMapping.Key);
-                ValidateSharedKeysCompatibility(tableMapping.Value, tableMapping.Key);
-                ValidateSharedForeignKeysCompatibility(tableMapping.Value, tableMapping.Key);
-                ValidateSharedIndexesCompatibility(tableMapping.Value, tableMapping.Key);
+                var mappedTypes = tableMapping.Value;
+                var tableName = tableMapping.Key;
+                ValidateSharedTableCompatibility(mappedTypes, tableName);
+                ValidateSharedColumnsCompatibility(mappedTypes, tableName);
+                ValidateSharedKeysCompatibility(mappedTypes, tableName);
+                ValidateSharedForeignKeysCompatibility(mappedTypes, tableName);
+                ValidateSharedIndexesCompatibility(mappedTypes, tableName);
             }
         }
 
@@ -199,47 +199,75 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void ValidateSharedTableCompatibility(
-            [NotNull] IEntityType newEntityType, [NotNull] List<IEntityType> otherMappedTypes, [NotNull] string tableName)
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName)
         {
-            var key = newEntityType.FindPrimaryKey();
-            var identifyingForeignKeys = newEntityType.FindForeignKeys(key.Properties).ToList();
-            var relationshipFound = false;
-            foreach (var otherMappedType in otherMappedTypes)
+            if (mappedTypes.Count == 1)
             {
-                var otherKey = otherMappedType.FindPrimaryKey();
+                return;
+            }
+
+            var firstValidatedType = mappedTypes[0];
+            var validatedTypes = new List<IEntityType> { firstValidatedType };
+            var unvalidatedTypes = new Queue<IEntityType>(mappedTypes.Skip(1));
+            while (unvalidatedTypes.Count > 0)
+            {
+                var entityType = unvalidatedTypes.Dequeue();
+                var key = entityType.FindPrimaryKey();
+                var otherKey = firstValidatedType.FindPrimaryKey();
                 if (key.Relational().Name != otherKey.Relational().Name)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.IncompatibleTableKeyNameMismatch(
                             tableName,
-                            newEntityType.DisplayName(),
-                            otherMappedType.DisplayName(),
+                            entityType.DisplayName(),
+                            firstValidatedType.DisplayName(),
                             key.Relational().Name,
                             Property.Format(key.Properties),
                             otherKey.Relational().Name,
                             Property.Format(otherKey.Properties)));
                 }
 
-                if (!relationshipFound
-                    && (newEntityType.RootType() == otherMappedType.RootType()
-                        || identifyingForeignKeys.Any(fk => fk.PrincipalEntityType == otherMappedType && fk.PrincipalKey == otherKey)
-                        || otherMappedType.FindForeignKeys(otherKey.Properties)
-                            .Any(fk => fk.PrincipalEntityType == newEntityType && fk.PrincipalKey == key)))
+                var relationshipFound = validatedTypes.Any(validatedType =>
+                    entityType.RootType() == validatedType.RootType()
+                    || IsIdentifyingPrincipal(entityType, validatedType)
+                    || IsIdentifyingPrincipal(validatedType, entityType));
+                if (!relationshipFound)
                 {
-                    relationshipFound = true;
+                    throw new InvalidOperationException(
+                        RelationalStrings.IncompatibleTableNoRelationship(
+                            tableName,
+                            entityType.DisplayName(),
+                            firstValidatedType.DisplayName(),
+                            Property.Format(key.Properties),
+                            Property.Format(otherKey.Properties)));
+                }
+
+                validatedTypes.Add(entityType);
+            }
+        }
+
+        private static bool IsIdentifyingPrincipal(IEntityType dependEntityType, IEntityType principalEntityType)
+        {
+            var identifyingForeignKeys = new Queue<IForeignKey>(
+                dependEntityType.FindForeignKeys(dependEntityType.FindPrimaryKey().Properties));
+            while (identifyingForeignKeys.Count > 0)
+            {
+                var fk = identifyingForeignKeys.Dequeue();
+                if (fk.PrincipalKey.IsPrimaryKey())
+                {
+                    if (fk.PrincipalEntityType == principalEntityType)
+                    {
+                        return true;
+                    }
+
+                    foreach (var principalFk in fk.PrincipalEntityType.FindForeignKeys(fk.PrincipalEntityType.FindPrimaryKey().Properties))
+                    {
+                        identifyingForeignKeys.Enqueue(principalFk);
+                    }
                 }
             }
 
-            if (!relationshipFound)
-            {
-                throw new InvalidOperationException(
-                    RelationalStrings.IncompatibleTableNoRelationship(
-                        tableName,
-                        newEntityType.DisplayName(),
-                        otherMappedTypes[0].DisplayName(),
-                        Property.Format(key.Properties),
-                        Property.Format(otherMappedTypes[0].FindPrimaryKey().Properties)));
-            }
+            return false;
         }
 
         /// <summary>

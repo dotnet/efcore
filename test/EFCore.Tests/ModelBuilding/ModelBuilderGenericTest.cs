@@ -70,44 +70,44 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(1, modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Count());
             }
 
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new GenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new GenericTestModelBuilder(testHelpers);
         }
 
         public class GenericInheritance : InheritanceTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new GenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new GenericTestModelBuilder(testHelpers);
         }
 
         public class GenericOwnedTypes : OwnedTypesTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new GenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new GenericTestModelBuilder(testHelpers);
         }
 
         public class GenericOneToMany : OneToManyTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new GenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new GenericTestModelBuilder(testHelpers);
         }
 
         public class GenericManyToOne : ManyToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new GenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new GenericTestModelBuilder(testHelpers);
         }
 
         public class GenericOneToOne : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new GenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new GenericTestModelBuilder(testHelpers);
         }
 
         protected class GenericTestModelBuilder : TestModelBuilder
         {
-            public GenericTestModelBuilder(ModelBuilder modelBuilder)
-                : base(modelBuilder)
+            public GenericTestModelBuilder(TestHelpers testHelpers)
+                : base(testHelpers)
             {
             }
 
@@ -115,11 +115,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new GenericTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity<TEntity>());
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
-                => new GenericTestModelBuilder(ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
-                    buildAction(new GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder))));
+            {
+                ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
+                    buildAction(new GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+                return this;
+            }
 
             public override TestModelBuilder Ignore<TEntity>()
-                => new GenericTestModelBuilder(ModelBuilder.Ignore<TEntity>());
+            {
+                ModelBuilder.Ignore<TEntity>();
+                return this;
+            }
         }
 
         protected class GenericTestEntityTypeBuilder<TEntity> : TestEntityTypeBuilder<TEntity>

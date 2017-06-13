@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<A>().ToTable("Table").ForSqlServerIsMemoryOptimized();
             modelBuilder.Entity<B>().ToTable("Table");
 
-            VerifyError(SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch("Table", nameof(B), nameof(A), nameof(A), nameof(B)),
+            VerifyError(SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch("Table", nameof(A), nameof(B), nameof(A), nameof(B)),
                 modelBuilder.Model);
         }
 

@@ -14,23 +14,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class GenericOneToManyString : OneToManyTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new GenericStringTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new GenericStringTestModelBuilder(testHelpers);
         }
 
         public class GenericManyToOneString : ManyToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new GenericStringTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new GenericStringTestModelBuilder(testHelpers);
         }
 
         public class GenericOneToOneString : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new GenericStringTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new GenericStringTestModelBuilder(testHelpers);
         }
 
         private class GenericStringTestModelBuilder : TestModelBuilder
         {
-            public GenericStringTestModelBuilder(ModelBuilder modelBuilder)
-                : base(modelBuilder)
+            public GenericStringTestModelBuilder(TestHelpers testHelpers)
+                : base(testHelpers)
             {
             }
 
@@ -38,11 +41,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new GenericStringTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity<TEntity>());
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
-                => new GenericStringTestModelBuilder(ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
-                    buildAction(new GenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder))));
+            {
+                ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
+                    buildAction(new GenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+                return this;
+            }
 
             public override TestModelBuilder Ignore<TEntity>()
-                => new GenericStringTestModelBuilder(ModelBuilder.Ignore<TEntity>());
+            {
+                ModelBuilder.Ignore<TEntity>();
+                return this;
+            }
 
             public override string GetDisplayName(Type entityType) => entityType.FullName;
         }

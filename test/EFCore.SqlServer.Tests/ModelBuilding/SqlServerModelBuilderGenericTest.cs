@@ -72,70 +72,67 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance.CreateConventionBuilder());
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }
 
         public class SqlServerGenericInheritance : GenericInheritance
         {
-            [Fact] // #7049
-            public void Base_type_can_be_discovered_after_creating_foreign_keys_on_derived()
+            [Fact] // #7240
+            public void Can_use_shadow_FK_that_collides_with_convention_shadow_FK_on_other_derived_type()
             {
-                var mb = CreateModelBuilder();
-                mb.Entity<AL>();
-                mb.Entity<L>();
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Child>();
+                modelBuilder.Entity<Parent>()
+                    .HasOne(p => p.A)
+                    .WithOne()
+                    .HasForeignKey<DisjointChildSubclass1>("ParentId");
 
-                Assert.Equal(ValueGenerated.OnAdd, mb.Model.FindEntityType(typeof(Q)).FindProperty(nameof(Q.ID)).ValueGenerated);
+                modelBuilder.Validate();
+
+                var property1 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass1)).FindProperty("ParentId");
+                Assert.True(property1.IsForeignKey());
+                Assert.Equal("ParentId", property1.SqlServer().ColumnName);
+                var property2 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass2)).FindProperty("ParentId");
+                Assert.True(property2.IsForeignKey());
+                Assert.Equal("ParentId1", property2.SqlServer().ColumnName);
             }
 
-            public class L
-            {
-                public int Id { get; set; }
-                public IList<T> Ts { get; set; }
-            }
-
-            public class T : P
-            {
-                public Q D { get; set; }
-                public P P { get; set; }
-                public Q F { get; set; }
-            }
-
-            public class P : PBase { }
-
-            public class Q : PBase { }
-
-            public abstract class PBase
-            {
-                public int ID { get; set; }
-                public string Stuff { get; set; }
-            }
-
-            public class AL
+            public class Parent
             {
                 public int Id { get; set; }
-                public PBase L { get; set; }
+                public DisjointChildSubclass1 A { get; set; }
+                public IList<DisjointChildSubclass2> B { get; set; }
             }
+
+            public abstract class Child
+            {
+                public int Id { get; set; }
+            }
+
+            public class DisjointChildSubclass1 : Child { }
+
+            public class DisjointChildSubclass2 : Child { }
 
             protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance.CreateConventionBuilder());
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }
 
         public class SqlServerGenericOneToMany : GenericOneToMany
         {
             protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance.CreateConventionBuilder());
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }
 
         public class SqlServerGenericManyToOne : GenericManyToOne
         {
             protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance.CreateConventionBuilder());
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }
 
         public class SqlServerGenericOneToOne : GenericOneToOne
         {
             protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance.CreateConventionBuilder());
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }
 
         public class SqlServerGenericOwnedTypes : GenericOwnedTypes
@@ -213,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance.CreateConventionBuilder());
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }
     }
 }

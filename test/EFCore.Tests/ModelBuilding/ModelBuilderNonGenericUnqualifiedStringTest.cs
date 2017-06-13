@@ -14,23 +14,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class NonGenericStringOneToManyType : OneToManyTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericStringTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericStringTestModelBuilder(testHelpers);
         }
 
         public class NonGenericStringManyToOneType : ManyToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericStringTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericStringTestModelBuilder(testHelpers);
         }
 
         public class NonGenericStringOneToOneType : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericStringTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericStringTestModelBuilder(testHelpers);
         }
 
         private class NonGenericStringTestModelBuilder : TestModelBuilder
         {
-            public NonGenericStringTestModelBuilder(ModelBuilder modelBuilder)
-                : base(modelBuilder)
+            public NonGenericStringTestModelBuilder(TestHelpers testHelpers)
+                : base(testHelpers)
             {
             }
 
@@ -38,11 +41,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new NonGenericStringTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity(typeof(TEntity)));
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
-                => new NonGenericStringTestModelBuilder(ModelBuilder.Entity(typeof(TEntity), entityTypeBuilder =>
-                    buildAction(new NonGenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder))));
+            {
+                ModelBuilder.Entity(typeof(TEntity), entityTypeBuilder =>
+                    buildAction(new NonGenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+                return this;
+            }
 
             public override TestModelBuilder Ignore<TEntity>()
-                => new NonGenericStringTestModelBuilder(ModelBuilder.Ignore(typeof(TEntity)));
+            {
+                ModelBuilder.Ignore(typeof(TEntity));
+                return this;
+            }
         }
 
         private class NonGenericStringTestEntityTypeBuilder<TEntity> : NonGenericTestEntityTypeBuilder<TEntity>

@@ -56,7 +56,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne(typeof(Customer), "CustomerNavigation")).Message);
             }
 
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericStringTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericStringTestModelBuilder(testHelpers);
         }
 
         public class NonGenericStringManyToOneType : ManyToOneTestBase
@@ -101,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => customerEntityType.HasMany(typeof(Order), "OrdersNavigation")).Message);
             }
 
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericStringTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericStringTestModelBuilder(testHelpers);
         }
 
         public class NonGenericStringOneToOneType : OneToOneTestBase
@@ -147,13 +149,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne(typeof(OrderDetails), "OrderDetailsNavigation")).Message);
             }
 
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericStringTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericStringTestModelBuilder(testHelpers);
         }
 
         private class NonGenericStringTestModelBuilder : TestModelBuilder
         {
-            public NonGenericStringTestModelBuilder(ModelBuilder modelBuilder)
-                : base(modelBuilder)
+            public NonGenericStringTestModelBuilder(TestHelpers testHelpers)
+                : base(testHelpers)
             {
             }
 
@@ -161,8 +164,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new NonGenericStringTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity(typeof(TEntity)));
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
-                => new NonGenericStringTestModelBuilder(ModelBuilder.Entity(typeof(TEntity),
-                    e => buildAction(new NonGenericStringTestEntityTypeBuilder<TEntity>(e))));
+            {
+                ModelBuilder.Entity(typeof(TEntity),
+                    e => buildAction(new NonGenericStringTestEntityTypeBuilder<TEntity>(e)));
+                return this;
+            }
 
             public NonGenericStringTestEntityTypeBuilder Entity(Type type)
                 => new NonGenericStringTestEntityTypeBuilder(ModelBuilder.Entity(type));
@@ -171,7 +177,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new NonGenericStringTestEntityTypeBuilder(ModelBuilder.Entity(name));
 
             public override TestModelBuilder Ignore<TEntity>()
-                => new NonGenericStringTestModelBuilder(ModelBuilder.Ignore(typeof(TEntity)));
+            {
+                ModelBuilder.Ignore(typeof(TEntity));
+                return this;
+            }
 
             public override string GetDisplayName(Type entityType) => entityType.FullName;
         }

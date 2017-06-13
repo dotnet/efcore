@@ -18,70 +18,62 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class NonGenericNonRelationship : NonRelationshipTestBase
         {
-            [Fact]
-            public void Can_set_model_annotation()
-            {
-                var modelBuilder = (NonGenericTestModelBuilder)CreateModelBuilder();
-                var model = modelBuilder.Model;
-
-                modelBuilder = modelBuilder.HasAnnotation("Fus", "Ro");
-
-                Assert.NotNull(modelBuilder);
-                Assert.Equal("Ro", model.GetAnnotation("Fus").Value);
-            }
-
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericTestModelBuilder(testHelpers);
         }
 
         public class NonGenericInheritance : InheritanceTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new NonGenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericTestModelBuilder(testHelpers);
         }
 
         public class NonGenericOwnedTypes : OwnedTypesTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new NonGenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericTestModelBuilder(testHelpers);
         }
 
         public class NonGenericOneToMany : OneToManyTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new NonGenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericTestModelBuilder(testHelpers);
         }
 
         public class NonGenericManyToOne : ManyToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new NonGenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericTestModelBuilder(testHelpers);
         }
 
         public class NonGenericOneToOne : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-                => new NonGenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericTestModelBuilder(testHelpers);
         }
 
         private class NonGenericTestModelBuilder : TestModelBuilder
         {
-            public NonGenericTestModelBuilder(ModelBuilder modelBuilder)
-                : base(modelBuilder)
+            public NonGenericTestModelBuilder(TestHelpers testHelpers)
+                : base(testHelpers)
             {
             }
-
-            public NonGenericTestModelBuilder HasAnnotation(string annotation, object value)
-                => new NonGenericTestModelBuilder(ModelBuilder.HasAnnotation(annotation, value));
 
             public override TestEntityTypeBuilder<TEntity> Entity<TEntity>()
                 => new NonGenericTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity(typeof(TEntity)));
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
-                => new NonGenericTestModelBuilder(ModelBuilder.Entity(typeof(TEntity), entityTypeBuilder =>
-                    buildAction(new NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder))));
+            {
+                ModelBuilder.Entity(typeof(TEntity), entityTypeBuilder =>
+                    buildAction(new NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+                return this;
+            }
 
             public override TestModelBuilder Ignore<TEntity>()
-                => new NonGenericTestModelBuilder(ModelBuilder.Ignore(typeof(TEntity)));
+            {
+                ModelBuilder.Ignore(typeof(TEntity));
+                return this;
+            }
         }
 
         protected class NonGenericTestEntityTypeBuilder<TEntity> : TestEntityTypeBuilder<TEntity>
