@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(ColumnList(operation.Columns))
                 .Append(")");
 
-            if (operation.Filter != null)
+            if (!string.IsNullOrEmpty(operation.Filter))
             {
                 builder
                     .Append(" WHERE ")

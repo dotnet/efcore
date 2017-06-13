@@ -37,10 +37,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
         /// <param name="sql"> The filter expression for the index. </param>
         /// <returns>A builder to further configure the index. </returns>
-        public static IndexBuilder HasFilter([NotNull] this IndexBuilder indexBuilder, [NotNull] string sql)
+        public static IndexBuilder HasFilter([NotNull] this IndexBuilder indexBuilder, [CanBeNull] string sql)
         {
-            Check.NotEmpty(sql, nameof(sql));
-
             indexBuilder.Metadata.Relational().Filter = sql;
 
             return indexBuilder;

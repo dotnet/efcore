@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => Wrap(EntityTypeBuilder.UsePropertyAccessMode(propertyAccessMode));
         }
 
-        protected class NonGenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>
+        protected class NonGenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder>
         {
             public NonGenericTestPropertyBuilder(PropertyBuilder propertyBuilder)
             {
@@ -223,6 +223,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.UsePropertyAccessMode(propertyAccessMode));
+
+            PropertyBuilder IInfrastructure<PropertyBuilder>.Instance => PropertyBuilder;
         }
 
         protected class NonGenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>
@@ -340,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         protected class NonGenericTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>
-            : TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>
+            : TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>, IInfrastructure<ReferenceOwnershipBuilder>
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -439,6 +441,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> UsePropertyAccessMode(
                 PropertyAccessMode propertyAccessMode)
                 => Wrap<TEntity, TRelatedEntity>(ReferenceOwnershipBuilder.UsePropertyAccessMode(propertyAccessMode));
+
+            ReferenceOwnershipBuilder IInfrastructure<ReferenceOwnershipBuilder>.Instance => ReferenceOwnershipBuilder;
         }
     }
 }

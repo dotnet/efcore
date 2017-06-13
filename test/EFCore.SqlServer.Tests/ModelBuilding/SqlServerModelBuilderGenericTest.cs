@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.ModelBuilderTest;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
@@ -62,6 +61,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 entityTypeBuilder.Property(e => e.Name).HasColumnName(null);
 
                 Assert.Equal("[Name] IS NOT NULL", index.SqlServer().Filter);
+
+                indexBuilder.HasFilter("Foo");
+
+                Assert.Equal("Foo", index.SqlServer().Filter);
+
+                indexBuilder.HasFilter(null);
+
+                Assert.Null(index.SqlServer().Filter);
             }
 
             protected override TestModelBuilder CreateModelBuilder()
