@@ -1,0 +1,4184 @@
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
+
+// ReSharper disable InconsistentNaming
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable StringCompareIsCultureSpecific.1
+// ReSharper disable StringEndsWithIsCultureSpecific
+
+// ReSharper disable ReplaceWithSingleCallToCount
+// ReSharper disable StringStartsWithIsCultureSpecific
+// ReSharper disable AccessToModifiedClosure
+namespace Microsoft.EntityFrameworkCore.Query
+{
+    public abstract partial class QueryTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : NorthwindQueryFixtureBase, new()
+    {
+        [ConditionalFact]
+        public virtual void Lifting_when_subquery_nested_order_by_simple()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = (from c1_Orders in context.Orders
+                       join _c1 in
+                       (from c1 in
+                           (from c in context.Customers
+                            orderby c.CustomerID
+                            select c)
+                           .Take(2)
+                        from c2 in context.Customers
+                        select EF.Property<string>(c1, "CustomerID"))
+                       .Distinct()
+                       on EF.Property<string>(c1_Orders, "CustomerID") equals _c1
+                       orderby _c1
+                       select c1_Orders).ToList();
+
+                Assert.Equal(10, results.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Lifting_when_subquery_nested_order_by_anonymous()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = (from c1_Orders in context.Orders
+                       join _c1 in
+                       (from c1 in
+                           (from c in context.Customers
+                            orderby c.CustomerID
+                            select c)
+                           .Take(2)
+                        from c2 in context.Customers
+                        select new { CustomerID = EF.Property<string>(c1, "CustomerID") })
+                       .Distinct()
+                       on EF.Property<string>(c1_Orders, "CustomerID") equals _c1.CustomerID
+                       orderby _c1.CustomerID
+                       select c1_Orders).ToList();
+
+                Assert.Equal(10, results.Count);
+            }
+        }
+
+        private class Context
+        {
+            public readonly Dictionary<string, object> Arguments = new Dictionary<string, object>();
+        }
+
+        [ConditionalFact]
+        public virtual void Local_array()
+        {
+            var context = new Context();
+            context.Arguments.Add("customerId", "ALFKI");
+
+            AssertQuery<Customer>(cs =>
+                    cs.Single(c => c.CustomerID == (string)context.Arguments["customerId"]));
+        }
+
+        [ConditionalFact]
+        public virtual void Method_with_constant_queryable_arg()
+        {
+            using (var context = CreateContext())
+            {
+                var count = QueryableArgQuery(context, new[] { "ALFKI" }.AsQueryable()).Count();
+
+                Assert.Equal(1, count);
+
+                count = QueryableArgQuery(context, new[] { "FOO" }.AsQueryable()).Count();
+
+                Assert.Equal(0, count);
+            }
+        }
+
+        private static IQueryable<Customer> QueryableArgQuery(NorthwindContext context, IQueryable<string> ids)
+            => context.Customers.Where(c => ids.Contains(c.CustomerID));
+
+        [ConditionalFact]
+        public void Query_composition_against_ienumerable_set()
+        {
+            using (var context = CreateContext())
+            {
+                IEnumerable<Order> orders = context.Orders;
+
+                var results
+                    = orders
+                        .Where(x => x.OrderDate < new DateTime(1996, 7, 12) && x.OrderDate > new DateTime(1996, 7, 4))
+                        .OrderBy(x => x.ShippedDate)
+                        .GroupBy(x => x.ShipName)
+                        .ToList();
+
+                Assert.Equal(1, results.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Entity_equality_self()
+        {
+            AssertQuery<Customer>(cs =>
+                from c in cs
+                    // ReSharper disable once EqualExpressionComparison
+                    // ReSharper disable once PossibleUnintendedReferenceComparison
+#pragma warning disable CS1718 // Comparison made to same variable
+                where c == c
+#pragma warning restore CS1718 // Comparison made to same variable
+                select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Entity_equality_local()
+        {
+            var local = new Customer { CustomerID = "ANATR" };
+
+            AssertQuery<Customer>(cs =>
+                from c in cs
+                    // ReSharper disable once PossibleUnintendedReferenceComparison
+                where c == local
+                select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Entity_equality_local_inline()
+        {
+            AssertQuery<Customer>(cs =>
+                from c in cs
+                    // ReSharper disable once PossibleUnintendedReferenceComparison
+                where c == new Customer { CustomerID = "ANATR" }
+                select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Entity_equality_null()
+        {
+            AssertQuery<Customer>(cs =>
+                from c in cs
+                where c == null
+                select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Entity_equality_not_null()
+        {
+            AssertQuery<Customer>(cs =>
+                from c in cs
+                where c != null
+                select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Null_conditional_simple()
+        {
+            var c = Expression.Parameter(typeof(Customer));
+
+            var predicate
+                = Expression.Lambda<Func<Customer, bool>>(
+                    Expression.Equal(
+                        new NullConditionalExpression(c, Expression.Property(c, "CustomerID")),
+                        Expression.Constant("ALFKI")),
+                    c);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(predicate),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Null_conditional_deep()
+        {
+            var c = Expression.Parameter(typeof(Customer));
+
+            var nullConditionalExpression
+                = new NullConditionalExpression(c, Expression.Property(c, "CustomerID"));
+
+            nullConditionalExpression
+                = new NullConditionalExpression(
+                    nullConditionalExpression,
+                    Expression.Property(nullConditionalExpression, "Length"));
+
+            var predicate
+                = Expression.Lambda<Func<Customer, bool>>(
+                    Expression.Equal(
+                        nullConditionalExpression,
+                        Expression.Constant(5, typeof(int?))),
+                    c);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(predicate),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void Queryable_simple()
+        {
+            AssertQuery<Customer>(
+                cs => cs,
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void Queryable_simple_anonymous()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c }),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void Queryable_simple_anonymous_projection_subquery()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Take(91).Select(c => new { c }).Select(a => a.c.City));
+        }
+
+        [ConditionalFact]
+        public virtual void Queryable_simple_anonymous_subquery()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c }).Take(91).Select(a => a.c));
+        }
+
+        [ConditionalFact]
+        public virtual void Queryable_reprojection()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.IsLondon)
+                    .Select(c => new Customer
+                    {
+                        CustomerID = "Foo",
+                        City = c.City
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Queryable_nested_simple()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                        from c1 in (from c2 in (from c3 in cs select c3) select c2) select c1,
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void Take_simple()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Take(10),
+                assertOrder: true,
+                entryCount: 10);
+        }
+
+        [ConditionalFact]
+        public virtual void Take_simple_parameterized()
+        {
+            var take = 10;
+
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Take(take),
+                assertOrder: true,
+                entryCount: 10);
+        }
+
+        [ConditionalFact]
+        public virtual void Take_simple_projection()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Select(c => c.City).Take(10),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Take_subquery_projection()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.City),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Skip()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Skip(5),
+                cs => cs.OrderBy(c => c.CustomerID, StringComparer.Ordinal).Skip(5),
+                assertOrder: true,
+                entryCount: 86);
+        }
+
+        [ConditionalFact]
+        public virtual void Skip_no_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Skip(5),
+                entryCount: 86,
+                asserter: (_, __) =>
+                    {
+                        /* non-deterministic */
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void Take_Skip()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Take(10).Skip(5),
+                assertOrder: true,
+                entryCount: 5);
+        }
+
+        [ConditionalFact]
+        public virtual void Distinct_Skip()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Distinct().OrderBy(c => c.CustomerID).Skip(5),
+                cs => cs.Distinct().OrderBy(c => c.CustomerID, StringComparer.Ordinal).Skip(5),
+                assertOrder: true,
+                entryCount: 86);
+        }
+
+        [ConditionalFact]
+        public virtual void Skip_Take()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10),
+                assertOrder: true,
+                entryCount: 10);
+        }
+
+        [ConditionalFact]
+        public virtual void Join_Customers_Orders_Skip_Take()
+        {
+            AssertQuery<Customer, Order>((cs, os) => (
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID
+                orderby o.OrderID
+                select new { c.ContactName, o.OrderID }).Skip(10).Take(5));
+        }
+
+        [ConditionalFact]
+        public virtual void Join_Customers_Orders_Projection_With_String_Concat_Skip_Take()
+        {
+            AssertQuery<Customer, Order>((cs, os) => (
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID
+                orderby o.OrderID
+                select new { Contact = c.ContactName + " " + c.ContactTitle, o.OrderID }).Skip(10).Take(5));
+        }
+
+        [ConditionalFact]
+        public virtual void Join_Customers_Orders_Orders_Skip_Take_Same_Properties()
+        {
+            AssertQuery<Customer, Order>((cs, os) => (
+                from o in os
+                join ca in cs on o.CustomerID equals ca.CustomerID
+                join cb in cs on o.CustomerID equals cb.CustomerID
+                orderby o.OrderID
+                select new
+                {
+                    o.OrderID,
+                    CustomerIDA = ca.CustomerID,
+                    CustomerIDB = cb.CustomerID,
+                    ContactNameA = ca.ContactName,
+                    ContactNameB = cb.ContactName
+                }).Skip(10).Take(5));
+        }
+
+        [ConditionalFact]
+        public virtual void Distinct_Skip_Take()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Distinct().OrderBy(c => c.ContactName).Skip(5).Take(10),
+                assertOrder: true,
+                entryCount: 10);
+        }
+
+        [ConditionalFact]
+        public virtual void Skip_Distinct()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Skip(5).Distinct(),
+                entryCount: 86);
+        }
+
+        [ConditionalFact]
+        public virtual void Skip_Take_Distinct()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10).Distinct(),
+                entryCount: 10);
+        }
+
+        [ConditionalFact]
+        public virtual void Skip_Take_Any()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10).Any());
+        }
+
+        [ConditionalFact]
+        public virtual void Skip_Take_All()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10).All(p => p.CustomerID.Length == 5));
+        }
+
+        [ConditionalFact]
+        public virtual void Take_Skip_Distinct()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Take(10).Skip(5).Distinct(),
+                entryCount: 5);
+        }
+
+        [ConditionalFact]
+        public virtual void Take_Skip_Distinct_Caching()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Take(10).Skip(5).Distinct(),
+                entryCount: 5);
+
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Take(15).Skip(10).Distinct(),
+                entryCount: 5);
+        }
+
+        [ConditionalFact]
+        public virtual void Take_Distinct()
+        {
+            AssertQuery<Order>(
+                os => os.OrderBy(o => o.OrderID).Take(5).Distinct(),
+                entryCount: 5);
+        }
+
+        [ConditionalFact]
+        public virtual void Distinct_Take()
+        {
+            AssertQuery<Order>(
+                os => os.Distinct().OrderBy(o => o.OrderID).Take(5),
+                assertOrder: true,
+                entryCount: 5);
+        }
+
+        [ConditionalFact]
+        public virtual void Distinct_Take_Count()
+        {
+            AssertQuery<Order>(os => os.Distinct().Take(5).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Take_Distinct_Count()
+        {
+            AssertQuery<Order>(os => os.Take(5).Distinct().Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Take_Where_Distinct_Count()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.CustomerID == "FRANK").Take(5).Distinct().Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Any_simple()
+        {
+            AssertQuery<Customer>(cs => cs.Any());
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Take_Count()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Take(5).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Take_OrderBy_Count()
+        {
+            AssertQuery<Order>(os => os.Take(5).OrderBy(o => o.OrderID).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Any_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Any(c => c.ContactName.StartsWith("A")));
+        }
+
+        [ConditionalFact]
+        public virtual void Any_nested_negated()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => cs.Where(c => !os.Any(o => o.CustomerID.StartsWith("A"))));
+        }
+
+        [ConditionalFact]
+        public virtual void Any_nested_negated2()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => cs.Where(c => c.City != "London"
+                                          && !os.Any(o => o.CustomerID.StartsWith("A"))));
+        }
+
+        [ConditionalFact]
+        public virtual void Any_nested_negated3()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => cs.Where(c => !os.Any(o => o.CustomerID.StartsWith("A"))
+                                          && c.City != "London"));
+        }
+
+        [ConditionalFact]
+        public virtual void Any_nested()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => cs.Where(c => os.Any(o => o.CustomerID.StartsWith("A"))));
+        }
+
+        [ConditionalFact]
+        public virtual void Any_nested2()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => cs.Where(c => c.City != "London"
+                                          && os.Any(o => o.CustomerID.StartsWith("A"))));
+        }
+
+        [ConditionalFact]
+        public virtual void Any_nested3()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => cs.Where(c => os.Any(o => o.CustomerID.StartsWith("A"))
+                                          && c.City != "London"));
+        }
+
+        [ConditionalFact]
+        public virtual void Any_with_multiple_conditions_still_uses_exists()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers
+                    .Where(c => c.City == "London" && c.Orders.Any(o => o.EmployeeID == 1))
+                    .ToList();
+
+                Assert.Equal(4, query.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void All_top_level()
+        {
+            AssertQuery<Customer>(
+                cs => cs.All(c => c.ContactName.StartsWith("A")));
+        }
+
+        [ConditionalFact]
+        public virtual void All_top_level_column()
+        {
+            AssertQuery<Customer>(
+                cs => cs.All(c => c.ContactName.StartsWith(c.ContactName)));
+        }
+
+        [ConditionalFact]
+        public virtual void All_top_level_subquery()
+        {
+            AssertQuery<Customer>(
+                cs => cs.All(c1 => cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))));
+        }
+
+        [ConditionalFact]
+        public virtual void All_top_level_subquery_ef_property()
+        {
+            AssertQuery<Customer>(
+                cs => cs.All(c1 => cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
+        }
+
+        [ConditionalFact]
+        public virtual void All_client()
+        {
+            AssertQuery<Customer>(
+                cs => cs.All(c => c.IsLondon));
+        }
+
+        [ConditionalFact]
+        public virtual void All_client_and_server_top_level()
+        {
+            AssertQuery<Customer>(
+                cs => cs.All(c => c.CustomerID != "Foo" && c.IsLondon));
+        }
+
+        [ConditionalFact]
+        public virtual void All_client_or_server_top_level()
+        {
+            AssertQuery<Customer>(
+                cs => cs.All(c => c.CustomerID != "Foo" || c.IsLondon));
+        }
+
+        //        [ConditionalFact]
+        //        public virtual void Projection_when_arithmetic_expressions()
+        //        {
+        //            AssertQuery<Order>(
+        //                os => os.Select(o => new
+        //                {
+        //                    o.OrderID,
+        //                    Double = o.OrderID * 2,
+        //                    Add = o.OrderID + 23,
+        //                    Sub = 100000 - o.OrderID,
+        //                    Divide = o.OrderID / (o.OrderID / 2),
+        //                    Literal = 42,
+        //                    o
+        //                }),
+        //                entryCount: 830);
+        //        }
+        //
+        //        [ConditionalFact]
+        //        public virtual void Projection_when_arithmetic_mixed()
+        //        {
+        //            AssertQuery<Order, Employee>((os, es) =>
+        //                from o in os
+        //                from e in es
+        //                select new
+        //                {
+        //                    Add = e.EmployeeID + o.OrderID,
+        //                    o.OrderID,
+        //                    o,
+        //                    Literal = 42,
+        //                    e.EmployeeID,
+        //                    e
+        //                });
+        //        }
+        //
+        //        [ConditionalFact]
+        //        public virtual void Projection_when_arithmetic_mixed_subqueries()
+        //        {
+        //            AssertQuery<Order, Employee>((os, es) =>
+        //                from o in os.Select(o2 => new { o2, Mod = o2.OrderID % 2 })
+        //                from e in es.Select(e2 => new { e2, Square = e2.EmployeeID ^ 2 })
+        //                select new
+        //                {
+        //                    Add = e.e2.EmployeeID + o.o2.OrderID,
+        //                    e.Square,
+        //                    e.e2,
+        //                    Literal = 42,
+        //                    o.o2,
+        //                    o.Mod
+        //                });
+        //        }
+
+        [ConditionalFact]
+        public virtual void Take_with_single()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Take(1).Single());
+        }
+
+        [ConditionalFact]
+        public virtual void Take_with_single_select_many()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 from o in os
+                 orderby c.CustomerID, o.OrderID
+                 select new { c, o })
+                    .Take(1)
+                    .Cast<object>()
+                    .Single());
+        }
+
+        [ConditionalFact]
+        public virtual void Cast_results_to_object()
+        {
+            AssertQuery<Customer>(cs => from c in cs.Cast<object>() select c, entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void First_client_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).First(c => c.IsLondon));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_select_many_or()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City == "London"
+                      || e.City == "London"
+                select new { c, e });
+        }
+
+        [ConditionalFact]
+        public virtual void Where_select_many_or2()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City == "London"
+                      || c.City == "Berlin"
+                select new { c, e });
+        }
+
+        [ConditionalFact]
+        public virtual void Where_select_many_or3()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City == "London"
+                      || c.City == "Berlin"
+                      || c.City == "Seattle"
+                select new { c, e });
+        }
+
+        [ConditionalFact]
+        public virtual void Where_select_many_or4()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City == "London"
+                      || c.City == "Berlin"
+                      || c.City == "Seattle"
+                      || c.City == "Lisboa"
+                select new { c, e });
+        }
+
+        [ConditionalFact]
+        public virtual void Where_select_many_or_with_parameter()
+        {
+            var london = "London";
+            var lisboa = "Lisboa";
+
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City == london
+                      || c.City == "Berlin"
+                      || c.City == "Seattle"
+                      || c.City == lisboa
+                select new { c, e });
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_anon()
+        {
+            AssertQuery<Employee, Order>((es, os) =>
+                from e in es.Take(3).Select(e => new { e })
+                from o in os.Take(5).Select(o => new { o })
+                where e.e.EmployeeID == o.o.EmployeeID
+                select new { e, o });
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_anon_nested()
+        {
+            AssertQuery<Employee, Order, Customer>(
+                (es, os, cs) =>
+                    from t in (
+                        from e in es.Take(3).Select(e => new { e }).Where(e => e.e.City == "London")
+                        from o in os.Take(5).Select(o => new { o })
+                        select new { e, o })
+                    from c in cs.Take(2).Select(c => new { c })
+                    select new { t.e, t.o, c });
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_expression()
+        {
+            AssertQuery<Order, Order>((o1, o2) =>
+                {
+                    var firstOrder = o1.First();
+                    Expression<Func<Order, bool>> expr = z => z.OrderID == firstOrder.OrderID;
+                    return o1.Where(x => o2.Where(expr).Any());
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_expression_same_parametername()
+        {
+            AssertQuery<Order, Order>((o1, o2) =>
+                {
+                    var firstOrder = o1.First();
+                    Expression<Func<Order, bool>> expr = x => x.OrderID == firstOrder.OrderID;
+                    return o1.Where(x => o2.Where(expr).Where(o => o.CustomerID == x.CustomerID).Any());
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Select_DTO_distinct_translated_to_server()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.OrderID < 10300)
+                    .Select(o => new OrderCountDTO())
+                    .Distinct());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_DTO_constructor_distinct_translated_to_server()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.OrderID < 10300)
+                    .Select(o => new OrderCountDTO(o.CustomerID))
+                    .Distinct());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_DTO_with_member_init_distinct_translated_to_server()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.OrderID < 10300)
+                    .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                    .Distinct());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_DTO_with_member_init_distinct_in_subquery_translated_to_server()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from o in os.Where(o => o.OrderID < 10300)
+                                .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                                .Distinct()
+                            from c in cs.Where(c => c.CustomerID == o.Id)
+                            select c);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs.Where(c => c.CustomerID.StartsWith("A"))
+                            from o in os.Where(o => o.OrderID < 10300)
+                                        .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                                        .Distinct()
+                            select new { c, o }
+                            );
+        }
+
+        private class OrderCountDTO
+        {
+            public string Id { get; set; }
+            public int Count { get; set; }
+
+            public OrderCountDTO() { }
+
+            public OrderCountDTO(string id)
+            {
+                Id = id;
+                Count = 0;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj))
+                {
+                    return false;
+                }
+
+                if (ReferenceEquals(this, obj))
+                {
+                    return true;
+                }
+
+                return obj.GetType() == GetType() && Equals((OrderCountDTO)obj);
+            }
+
+            private bool Equals(OrderCountDTO other)
+            {
+                return string.Equals(Id, other.Id) && Count == other.Count;
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return ((Id?.GetHashCode() ?? 0) * 397) ^ Count;
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_correlated_subquery_projection()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                    from c in cs.Take(3)
+                    orderby c.CustomerID
+                    select os
+                        .Where(o => o.CustomerID == c.CustomerID),
+                asserter:
+                (l2oResults, efResults) =>
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
+
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
+
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void Select_correlated_subquery_filtered()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                    from c in cs
+                    select os.Where(o => o.CustomerID == c.CustomerID),
+                asserter:
+                (l2oResults, efResults) =>
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
+
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
+
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void Select_correlated_subquery_ordered()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                    from c in cs.Take(3)
+                    select os.OrderBy(o => c.CustomerID).Skip(100).Take(2),
+                asserter:
+                (l2oResults, efResults) =>
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
+
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
+
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
+        }
+
+        // TODO: Re-linq parser
+        // [ConditionalFact]
+        // public virtual void Select_nested_ordered_enumerable_collection()
+        // {
+        //     AssertQuery<Customer>(cs =>
+        //         cs.Select(c => cs.AsEnumerable().OrderBy(c2 => c2.CustomerID)),
+        //         assertOrder: true);
+        // }
+
+        [ConditionalFact]
+        public virtual void Select_nested_collection_in_anonymous_type()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                    from c in cs
+                    where c.CustomerID == "ALFKI"
+                    select new
+                    {
+                        CustomerId = c.CustomerID,
+                        OrderIds
+                        = os.Where(o => o.CustomerID == c.CustomerID
+                                        && o.OrderDate.Value.Year == 1997)
+                            .Select(o => o.OrderID)
+                            .OrderBy(o => o),
+                        Customer = c
+                    },
+                asserter:
+                (l2oResults, efResults) =>
+                    {
+                        dynamic l2oResult = l2oResults.Single();
+                        dynamic efResult = efResults.Single();
+
+                        Assert.Equal(l2oResult.CustomerId, efResult.CustomerId);
+                        Assert.Equal((IEnumerable<int>)l2oResult.OrderIds, (IEnumerable<int>)efResult.OrderIds);
+                        Assert.Equal(l2oResult.Customer, efResult.Customer);
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_recursive_trivial()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    select (from e2 in es
+                            select (from e3 in es
+                                    orderby e3.EmployeeID
+                                    select e3)),
+                asserter:
+                (l2oResults, efResults) =>
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<object>)q1)
+                                    .SelectMany(q2 => (IEnumerable<object>)q2));
+
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<object>)q1)
+                                    .SelectMany(q2 => (IEnumerable<object>)q2));
+
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_on_bool()
+        {
+            AssertQuery<Product, Product>((pr, pr2) =>
+                from p in pr
+                where pr2.Select(p2 => p2.ProductName).Contains("Chai")
+                select p);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_on_collection()
+        {
+            AssertQuery<Product, OrderDetail>((pr, od) =>
+                pr.Where(
+                    p => od
+                        .Where(o => o.ProductID == p.ProductID)
+                        .Select(odd => odd.Quantity).Contains<short>(5)));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where e1.FirstName == es.OrderBy(e => e.EmployeeID).FirstOrDefault().FirstName
+                    select e1,
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_is_null()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es.Take(3)
+                    where es.SingleOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == null
+                    select e1,
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_is_not_null()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es.Skip(4).Take(3)
+                    where es.SingleOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) != null
+                    select e1,
+                entryCount: 3);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_one_element_SingleOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es.Take(3)
+                    where es.SingleOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_one_element_FirstOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_no_elements_SingleOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es.Take(3)
+                    where es.SingleOrDefault(e2 => e2.EmployeeID == 42) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_no_elements_Single()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from e1 in ctx.Set<Employee>().Take(5)
+                            where ctx.Set<Employee>().Single(e2 => e2.EmployeeID == 42) == new Employee()
+                            select e1;
+
+                Assert.Throws<InvalidOperationException>(() => query.ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_no_elements_FirstOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID == 42) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_multiple_elements_SingleOrDefault()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from e1 in ctx.Set<Employee>()
+                            where ctx.Set<Employee>().SingleOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
+                            select e1;
+
+                Assert.Throws<InvalidOperationException>(() => query.ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_multiple_elements_FirstOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition2()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es.Take(3)
+                    where e1.FirstName ==
+                          (from e2 in es.OrderBy(e => e.EmployeeID)
+                           select new { Foo = e2 })
+                              .First().Foo.FirstName
+                    select e1,
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition2_FirstOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es.Take(3)
+                    where e1.FirstName ==
+                          (from e2 in es.OrderBy(e => e.EmployeeID)
+                           select e2)
+                          .FirstOrDefault().FirstName
+                    select e1,
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition2_FirstOrDefault_with_anonymous()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es.Take(3)
+                    where e1.FirstName ==
+                          (from e2 in es.OrderBy(e => e.EmployeeID)
+                           select new { Foo = e2 })
+                          .FirstOrDefault().Foo.FirstName
+                    select e1,
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition3()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c1 in cs
+                    where c1.City == cs.OrderBy(c => c.CustomerID).First(c => c.IsLondon).City
+                    select c1,
+                entryCount: 6);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition4()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c1 in cs.OrderBy(c => c.CustomerID).Take(2)
+                    where c1.City == (from c2 in cs.OrderBy(c => c.CustomerID)
+                                      from c3 in cs.OrderBy(c => c.IsLondon).ThenBy(c => c.CustomerID)
+                                      select new { c3 }).First().c3.City
+                    select c1,
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition5()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c1 in cs
+                    where c1.IsLondon == cs.OrderBy(c => c.CustomerID).First().IsLondon
+                    select c1,
+                entryCount: 85);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition6()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c1 in cs
+                    where c1.IsLondon ==
+                          cs.OrderBy(c => c.CustomerID)
+                              .Select(c => new { Foo = c })
+                              .First().Foo.IsLondon
+                    select c1,
+                entryCount: 85);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_recursive_trivial()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where (from e2 in es
+                           where (from e3 in es
+                                  orderby e3.EmployeeID
+                                  select e3).Any()
+                           select e2).Any()
+                    orderby e1.EmployeeID
+                    select e1,
+                assertOrder: true,
+                entryCount: 9);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_scalar_primitive()
+        {
+            AssertQuery<Employee>(
+                es =>
+                        es.Select(e => e.EmployeeID).OrderBy(i => i),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_mixed()
+        {
+            AssertQuery<Employee, Customer>(
+                (es, cs) => from e1 in es.OrderBy(e => e.EmployeeID).Take(2)
+                            from s in new[] { "a", "b" }
+                            from c in cs.OrderBy(c => c.CustomerID).Take(2)
+                            select new { e1, s, c });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_simple1()
+        {
+            AssertQuery<Employee, Customer>(
+                (es, cs) => from e in es
+                            from c in cs
+                            select new { c, e });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_simple_subquery()
+        {
+            AssertQuery<Employee, Customer>(
+                (es, cs) => from e in es.Take(9)
+                            from c in cs
+                            select new { c, e });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_simple2()
+        {
+            AssertQuery<Employee, Customer>(
+                (es, cs) => from e1 in es
+                            from c in cs
+                            from e2 in es
+                            select new { e1, c, e2.FirstName });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_entity_deep()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    from e2 in es
+                    from e3 in es
+                    from e4 in es
+                    select new { e2, e3, e1, e4 },
+                entryCount: 9);
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_projection1()
+        {
+            AssertQuery<Employee>(
+                es => from e1 in es
+                      from e2 in es
+                      select new { e1.City, e2.Country });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_projection2()
+        {
+            AssertQuery<Employee>(
+                es => from e1 in es
+                      from e2 in es
+                      from e3 in es
+                      select new { e1.City, e2.Country, e3.FirstName });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_nested_simple()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c in cs
+                    from c1 in
+                    (from c2 in (from c3 in cs select c3) select c2)
+                    orderby c1.CustomerID
+                    select c1,
+                cs => cs.SelectMany(
+                        c => (from c2 in (from c3 in cs select c3) select c2),
+                        (c, c1) => new { c, c1 }).OrderBy(t => t.c1.CustomerID, StringComparer.Ordinal)
+                    .Select(t => t.c1),
+                assertOrder: true,
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_correlated_simple()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                    from c in cs
+                    from e in es
+                    where c.City == e.City
+                    orderby c.CustomerID, e.EmployeeID
+                    select new { c, e },
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_correlated_subquery_simple()
+        {
+            AssertQuery<Customer, Employee>(
+                (cs, es) =>
+                    from c in cs
+                    from e in es.Where(e => e.City == c.City)
+                    orderby c.CustomerID, e.EmployeeID
+                    select new { c, e },
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_correlated_subquery_hard()
+        {
+            AssertQuery<Customer, Employee>(
+                (cs, es) =>
+                    from c1 in
+                    (from c2 in cs.Take(91) select c2.City).Distinct()
+                    from e1 in
+                    (from e2 in es where c1 == e2.City select new { e2.City, c1 }).Take(9)
+                    from e2 in
+                    (from e3 in es where e1.City == e3.City select c1).Take(9)
+                    select new { c1, e1 });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_cartesian_product_with_ordering()
+        {
+            AssertQuery<Customer, Employee>(
+                (cs, es) =>
+                    from c in cs
+                    from e in es
+                    where c.City == e.City
+                    orderby e.City ascending, c.CustomerID descending
+                    select new { c, e.City },
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_primitive()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    from i in es.Select(e2 => e2.EmployeeID)
+                    select i);
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_primitive_select_subquery()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    from i in es.Select(e2 => e2.EmployeeID)
+                    select es.Any());
+        }
+
+        [ConditionalFact]
+        public virtual void Join_Where_Count()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 join o in os on c.CustomerID equals o.CustomerID
+                 where c.CustomerID == "ALFKI"
+                 select c).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Multiple_joins_Where_Order_Any()
+        {
+            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
+                cs.Join(os, c => c.CustomerID, o => o.CustomerID, (cr, or) => new { cr, or })
+                    .Join(ods, e => e.or.OrderID, od => od.OrderID, (e, od) => new { e.cr, e.or, od })
+                    .Where(r => r.cr.City == "London").OrderBy(r => r.cr.CustomerID)
+                    .Any());
+        }
+
+        [ConditionalFact]
+        public virtual void Join_OrderBy_Count()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 join o in os on c.CustomerID equals o.CustomerID
+                 orderby c.CustomerID
+                 select c).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Where_join_select()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 where c.CustomerID == "ALFKI"
+                 join o in os on c.CustomerID equals o.CustomerID
+                 select c));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_orderby_join_select()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 where c.CustomerID != "ALFKI"
+                 orderby c.CustomerID
+                 join o in os on c.CustomerID equals o.CustomerID
+                 select c));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_join_orderby_join_select()
+        {
+            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
+                (from c in cs
+                 where c.CustomerID != "ALFKI"
+                 join o in os on c.CustomerID equals o.CustomerID
+                 orderby c.CustomerID
+                 join od in ods on o.OrderID equals od.OrderID
+                 select c));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_select_many()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 where c.CustomerID == "ALFKI"
+                 from o in os
+                 select c));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_orderby_select_many()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 where c.CustomerID == "ALFKI"
+                 orderby c.CustomerID
+                 from o in os
+                 select c));
+        }
+
+        private class Foo
+        {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
+            public string Bar { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Default_if_empty_top_level()
+        {
+            AssertQuery<Employee>(es =>
+                from e in es.Where(c => c.EmployeeID == -1).DefaultIfEmpty()
+                select e);
+        }
+
+        [ConditionalFact]
+        public virtual void Default_if_empty_top_level_arg()
+        {
+            AssertQuery<Employee>(es =>
+                    from e in es.Where(c => c.EmployeeID == -1).DefaultIfEmpty(new Employee())
+                    select e,
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Default_if_empty_top_level_positive()
+        {
+            AssertQuery<Employee>(es =>
+                    from e in es.Where(c => c.EmployeeID > 0).DefaultIfEmpty()
+                    select e,
+                entryCount: 9);
+        }
+
+        [ConditionalFact]
+        public virtual void Default_if_empty_top_level_projection()
+        {
+            AssertQuery<Employee>(es =>
+                from e in es.Where(e => e.EmployeeID == -1).Select(e => e.EmployeeID).DefaultIfEmpty()
+                select e);
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_customer_orders()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                from o in os
+                where c.CustomerID == o.CustomerID
+                select new { c.ContactName, o.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_Count()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 from o in os
+                 select c.CustomerID).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_LongCount()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 from o in os
+                 select c.CustomerID).LongCount());
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_OrderBy_ThenBy_Any()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 from o in os
+                 orderby c.CustomerID, c.City
+                 select c).Any());
+        }
+
+        // TODO: Composite keys, slow..
+
+        //        [ConditionalFact]
+        //        public virtual void Multiple_joins_with_join_conditions_in_where()
+        //        {
+        //            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
+        //                from c in cs
+        //                from o in os.OrderBy(o1 => o1.OrderID).Take(10)
+        //                from od in ods
+        //                where o.CustomerID == c.CustomerID
+        //                    && o.OrderID == od.OrderID
+        //                where c.CustomerID == "ALFKI"
+        //                select od.ProductID,
+        //                assertOrder: true);
+        //        }
+        //        [ConditionalFact]
+        //
+        //        public virtual void TestMultipleJoinsWithMissingJoinCondition()
+        //        {
+        //            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
+        //                from c in cs
+        //                from o in os
+        //                from od in ods
+        //                where o.CustomerID == c.CustomerID
+        //                where c.CustomerID == "ALFKI"
+        //                select od.ProductID
+        //                );
+        //        }
+
+        [ConditionalFact]
+        public virtual void OrderBy()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID),
+                cs => cs.OrderBy(c => c.CustomerID, StringComparer.Ordinal),
+                assertOrder: true,
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_true()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => true),
+                assertOrder: false,
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_integer()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => 3),
+                assertOrder: false,
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_parameter()
+        {
+            var param = 5;
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => param),
+                assertOrder: false,
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_anon()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.CustomerID }).OrderBy(a => a.CustomerID),
+                cs => cs.Select(c => new { c.CustomerID }).OrderBy(a => a.CustomerID, StringComparer.Ordinal),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_anon2()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c }).OrderBy(a => a.c.CustomerID),
+                cs => cs.Select(c => new { c }).OrderBy(a => a.c.CustomerID, StringComparer.Ordinal),
+                assertOrder: true,
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_client_mixed()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.IsLondon).ThenBy(c => c.CompanyName),
+                assertOrder: true,
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_multiple_queries()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on new Foo { Bar = c.CustomerID } equals new Foo { Bar = o.CustomerID }
+                orderby c.IsLondon, o.OrderDate
+                select new { c, o });
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_shadow()
+        {
+            AssertQuery<Employee>(
+                es => es.OrderBy(e => EF.Property<string>(e, "Title")).ThenBy(e => e.EmployeeID),
+                assertOrder: true,
+                entryCount: 9);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_ThenBy_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == "London")
+                    .OrderBy(c => c.City)
+                    .ThenBy(c => c.CustomerID),
+                assertOrder: true,
+                entryCount: 6);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_correlated_subquery1()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.CustomerID.StartsWith("A")
+                      orderby cs.Any(c2 => c2.CustomerID == c.CustomerID)
+                      select c,
+                entryCount: 4);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_correlated_subquery2()
+        {
+            AssertQuery<Order, Customer>(
+                (os, cs) => os.Where(
+                    o => o.OrderID <= 10250
+                    && cs.OrderBy(
+                        c => cs.Any(
+                            c2 => c2.CustomerID == "ALFKI"))
+                        .FirstOrDefault().City != "Nowhere"));
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Select()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID)
+                    .Select(c => c.ContactName),
+                cs => cs.OrderBy(c => c.CustomerID, StringComparer.Ordinal)
+                    .Select(c => c.ContactName),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_multiple()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    cs.OrderBy(c => c.CustomerID)
+                        // ReSharper disable once MultipleOrderBy
+                        .OrderBy(c => c.Country)
+                        .Select(c => c.City),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_ThenBy()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID)
+                    .ThenBy(c => c.Country)
+                    .Select(c => c.City),
+                cs => cs.OrderBy(c => c.CustomerID, StringComparer.Ordinal)
+                    .ThenBy(c => c.Country, StringComparer.Ordinal)
+                    .Select(c => c.City),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderByDescending()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderByDescending(c => c.CustomerID).Select(c => c.City),
+                cs => cs.OrderByDescending(c => c.CustomerID, StringComparer.Ordinal).Select(c => c.City),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderByDescending_ThenBy()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderByDescending(c => c.CustomerID)
+                    .ThenBy(c => c.Country)
+                    .Select(c => c.City),
+                cs => cs.OrderByDescending(c => c.CustomerID, StringComparer.Ordinal)
+                    .ThenBy(c => c.Country, StringComparer.Ordinal)
+                    .Select(c => c.City),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderByDescending_ThenByDescending()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderByDescending(c => c.CustomerID)
+                    .ThenByDescending(c => c.Country)
+                    .Select(c => c.City),
+                cs => cs.OrderByDescending(c => c.CustomerID, StringComparer.Ordinal)
+                    .ThenByDescending(c => c.Country, StringComparer.Ordinal)
+                    .Select(c => c.City),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_ThenBy_Any()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).ThenBy(c => c.ContactName).Any());
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Join()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs.OrderBy(c => c.CustomerID)
+                join o in os.OrderBy(o => o.OrderID) on c.CustomerID equals o.CustomerID
+                select new { c.CustomerID, o.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_SelectMany()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) =>
+                    from c in cs.OrderBy(c => c.CustomerID)
+                    from o in os.OrderBy(o => o.OrderID).Take(3)
+                    where c.CustomerID == o.CustomerID
+                    select new { c.ContactName, o.OrderID },
+                (cs, os) =>
+                    cs.OrderBy(c => c.CustomerID, StringComparer.Ordinal)
+                        .SelectMany(
+                            c => os.OrderBy(o => o.OrderID).Take(3),
+                            (c, o) => new { c, o }).Where(t => t.c.CustomerID == t.o.CustomerID)
+                        .Select(t => new { t.c.ContactName, t.o.OrderID }),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Let_any_subquery_anonymous()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                let hasOrders = os.Any(o => o.CustomerID == c.CustomerID)
+                where c.CustomerID.StartsWith("A")
+                orderby c.CustomerID
+                select new { c, hasOrders });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_anonymous()
+        {
+            AssertQuery<Customer>(cs =>
+                    cs.Select(c => new { c.City, c.CustomerID })
+                        .GroupBy(a => a.City),
+                asserter: (l2oResults, efResults) =>
+                    {
+                        var efGroupings = efResults.Cast<IGrouping<string, dynamic>>().ToList();
+
+                        foreach (IGrouping<string, dynamic> l2oGrouping in l2oResults)
+                        {
+                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                            Assert.Equal(l2oGrouping.OrderBy(o => o.CustomerID), efGrouping.OrderBy(o => o.CustomerID));
+                        }
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_anonymous_with_where()
+        {
+            var countries = new[] { "Argentina", "Austria", "Brazil", "France", "Germany", "USA" };
+            AssertQuery<Customer>(cs =>
+                    cs.Where(c => countries.Contains(c.Country))
+                        .Select(c => new { c.City, c.CustomerID })
+                        .GroupBy(a => a.City),
+                asserter: (l2oResults, efResults) =>
+                    {
+                        var efGroupings = efResults.Cast<IGrouping<string, dynamic>>().ToList();
+
+                        foreach (IGrouping<string, dynamic> l2oGrouping in l2oResults)
+                        {
+                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                            Assert.Equal(l2oGrouping.OrderBy(o => o.CustomerID), efGrouping.OrderBy(o => o.CustomerID));
+                        }
+                    });
+        }
+
+        [ConditionalFact(Skip = "Test does not pass. See issue#7160")]
+        public virtual void GroupBy_anonymous_subquery()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Select(c => new { c.City, c.CustomerID })
+                    .GroupBy(a => from c2 in cs select c2),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_nested_order_by_enumerable()
+        {
+            AssertQuery<Customer>(cs =>
+                    cs.Select(c => new { c.Country, c.CustomerID })
+                        .OrderBy(a => a.Country)
+                        .GroupBy(a => a.Country)
+                        .Select(g => g.OrderBy(a => a.CustomerID)),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_join_default_if_empty_anonymous()
+        {
+            AssertQuery<Order, OrderDetail>((os, ods) =>
+                    (from order in os
+                     join orderDetail in ods on order.OrderID equals orderDetail.OrderID into orderJoin
+                     from orderDetail in orderJoin.DefaultIfEmpty()
+                     group new
+                     {
+                         orderDetail.ProductID,
+                         orderDetail.Quantity,
+                         orderDetail.UnitPrice
+                     } by new
+                     {
+                         order.OrderID,
+                         order.OrderDate
+                     })
+                        .Where(x => x.Key.OrderID == 10248),
+                asserter: (l2oResults, efResults) =>
+                    {
+                        var l2oGroup = l2oResults.Cast<IGrouping<dynamic, dynamic>>().Single();
+                        var efGroup = efResults.Cast<IGrouping<dynamic, dynamic>>().Single();
+
+                        Assert.Equal(l2oGroup.Key, efGroup.Key);
+
+                        Assert.Equal(
+                            l2oGroup.OrderBy(element => element.ProductID),
+                            efGroup.OrderBy(element => element.ProductID));
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_SelectMany()
+        {
+            AssertQuery<Customer>(
+                cs => cs.GroupBy(c => c.City).SelectMany(g => g),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_simple()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID),
+                entryCount: 830,
+                asserter: (l2oResults, efResults) =>
+                    {
+                        var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
+
+                        foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
+                        {
+                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                            Assert.Equal(l2oGrouping.OrderBy(o => o.OrderID), efGrouping.OrderBy(o => o.OrderID));
+                        }
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_simple2()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID).Select(g => g),
+                entryCount: 830,
+                asserter: (l2oResults, efResults) =>
+                    {
+                        var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
+
+                        foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
+                        {
+                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                            Assert.Equal(l2oGrouping.OrderBy(o => o.OrderID), efGrouping.OrderBy(o => o.OrderID));
+                        }
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_first()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.CustomerID == "ALFKI").GroupBy(o => o.CustomerID).Cast<object>().First(),
+                asserter: (l2oResult, efResult) =>
+                    {
+                        var l2oGrouping = (IGrouping<string, Order>)l2oResult;
+                        var efGrouping = (IGrouping<string, Order>)efResult;
+
+                        Assert.Equal(l2oGrouping.Key, efGrouping.Key);
+                        Assert.Equal(l2oGrouping.OrderBy(o => o.OrderID), efGrouping.OrderBy(o => o.OrderID));
+                    },
+                entryCount: 6);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Sum()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Count()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID).Select(g => g.Count()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_LongCount()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID).Select(g => g.LongCount()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Shadow()
+        {
+            AssertQuery<Employee>(es =>
+                es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"
+                              && e.EmployeeID == 1)
+                    .GroupBy(e => EF.Property<string>(e, "Title"))
+                    .Select(g => EF.Property<string>(g.First(), "Title")));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Shadow2()
+        {
+            AssertQuery<Employee>(es =>
+                es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"
+                              && e.EmployeeID == 1)
+                    .GroupBy(e => EF.Property<string>(e, "Title"))
+                    .Select(g => g.First()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Shadow3()
+        {
+            AssertQuery<Employee>(es =>
+                es.Where(e => e.EmployeeID == 1)
+                    .GroupBy(e => e.EmployeeID)
+                    .Select(g => EF.Property<string>(g.First(), "Title")));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Sum_Min_Max_Avg()
+        {
+            AssertQuery<Order>(os =>
+                os.GroupBy(o => o.CustomerID).Select(g =>
+                    new
+                    {
+                        Sum = g.Sum(o => o.OrderID),
+                        Min = g.Min(o => o.OrderID),
+                        Max = g.Max(o => o.OrderID),
+                        Avg = g.Average(o => o.OrderID)
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_result_selector()
+        {
+            AssertQuery<Order>(os =>
+                os.GroupBy(o => o.CustomerID, (k, g) =>
+                    new
+                    {
+                        Sum = g.Sum(o => o.OrderID),
+                        Min = g.Min(o => o.OrderID),
+                        Max = g.Max(o => o.OrderID),
+                        Avg = g.Average(o => o.OrderID)
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_element_selector_sum()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Sum()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_element_selector()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID)
+                        .OrderBy(g => g.Key)
+                        .Select(g => g.OrderBy(o => o)),
+                asserter:
+                (l2oResults, efResults) =>
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<int>)q1));
+
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<int>)q1));
+
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_element_selector2()
+        {
+            AssertQuery<Order>(os =>
+                    os.GroupBy(o => o.CustomerID)
+                        .OrderBy(g => g.Key)
+                        .Select(g => g.OrderBy(o => o.OrderID)),
+                asserter:
+                (l2oResults, efResults) =>
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1));
+
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1));
+
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_element_selector3()
+        {
+            AssertQuery<Employee>(es =>
+                    es.GroupBy(e => e.EmployeeID)
+                        .OrderBy(g => g.Key)
+                        .Select(g => g.Select(e => new { Title = EF.Property<string>(e, "Title"), e }).ToList()),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_element_selector_sum_max()
+        {
+            AssertQuery<Order>(os =>
+                os.GroupBy(o => o.CustomerID, o => o.OrderID)
+                    .Select(g => new { Sum = g.Sum(), Max = g.Max() }));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_anonymous_element()
+        {
+            AssertQuery<Order>(os =>
+                os.GroupBy(o => o.CustomerID, o => new { o.OrderID })
+                    .Select(g => g.Sum(x => x.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_two_part_key()
+        {
+            AssertQuery<Order>(os =>
+                os.GroupBy(o => new { o.CustomerID, o.OrderDate })
+                    .Select(g => g.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_DateTimeOffset_Property()
+        {
+            AssertQuery<Order>(os =>
+                    os.Where(o => o.OrderDate.HasValue)
+                        .GroupBy(o => o.OrderDate.Value.Month),
+                asserter: (l2oResults, efResults) =>
+                    {
+                        var efGroupings = efResults.Cast<IGrouping<int, Order>>().ToList();
+
+                        foreach (IGrouping<int, Order> l2oGrouping in l2oResults)
+                        {
+                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                            Assert.Equal(l2oGrouping.OrderBy(o => o.OrderID), efGrouping.OrderBy(o => o.OrderID));
+                        }
+                    },
+                entryCount: 830);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_GroupBy()
+        {
+            AssertQuery<Order>(os =>
+                os.OrderBy(o => o.OrderID)
+                    .GroupBy(o => o.CustomerID)
+                    .Select(g => g.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_GroupBy_SelectMany()
+        {
+            AssertQuery<Order>(os =>
+                    os.OrderBy(o => o.OrderID)
+                        .GroupBy(o => o.CustomerID)
+                        .SelectMany(g => g),
+                entryCount: 830);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_GroupBy_SelectMany_shadow()
+        {
+            AssertQuery<Employee>(es =>
+                es.OrderBy(e => e.EmployeeID)
+                    .GroupBy(e => e.EmployeeID)
+                    .SelectMany(g => g)
+                    .Select(g => EF.Property<string>(g, "Title")));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_orderby()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key),
+                asserter:
+                (l2oResults, efResults) =>
+                    {
+                        var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
+
+                        foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
+                        {
+                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                            Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
+                        }
+                    },
+                entryCount: 830);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_orderby_and_anonymous_projection()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Select(g => new { Foo = "Foo", Group = g }),
+                asserter:
+                (l2oResults, efResults) =>
+                    {
+                        Assert.Equal(l2oResults.Count, efResults.Count);
+                        for (var i = 0; i < l2oResults.Count; i++)
+                        {
+                            dynamic l2oResult = l2oResults[i];
+                            dynamic efResult = efResults[i];
+
+                            Assert.Equal(l2oResult.Foo, l2oResult.Foo);
+                            IGrouping<string, Order> l2oGrouping = l2oResult.Group;
+                            IGrouping<string, Order> efGrouping = efResult.Group;
+                            Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
+                        }
+                    },
+                entryCount: 830);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_with_orderby_take_skip_distinct()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Take(5).Skip(3).Distinct(),
+                asserter:
+                (l2oResults, efResults) =>
+                    {
+                        var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
+
+                        foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
+                        {
+                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                            Assert.Equal(l2oGrouping.OrderBy(p => p.OrderID), efGrouping.OrderBy(p => p.OrderID));
+                        }
+                    },
+                entryCount: 31);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_arithmetic()
+        {
+            AssertQuery<Employee>(
+                es => es.OrderBy(e => e.EmployeeID - e.EmployeeID),
+                entryCount: 9);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_condition_comparison()
+        {
+            AssertQuery<Product>(
+                ps => ps.OrderBy(p => p.UnitsInStock > 0).ThenBy(p => p.ProductID),
+                assertOrder: true,
+                entryCount: 77);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_ternary_conditions()
+        {
+            AssertQuery<Product>(
+                ps => ps.OrderBy(p => p.UnitsInStock > 10 ? p.ProductID > 40 : p.ProductID <= 40).ThenBy(p => p.ProductID),
+                assertOrder: true,
+                entryCount: 77);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_any()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(p => p.Orders.Any(o => o.OrderID > 11000)).ThenBy(p => p.CustomerID).ToList();
+
+                Assert.Equal(91, query.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_Joined()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                from o in os.Where(o => o.CustomerID == c.CustomerID)
+                select new { c.ContactName, o.OrderDate });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_Joined_DefaultIfEmpty()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                select new { c.ContactName, o });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_Joined_Take()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                from o in os.Where(o => o.CustomerID == c.CustomerID).Take(1000)
+                select new { c.ContactName, o });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_Joined_DefaultIfEmpty2()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                select o);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_many_cross_join_same_collection()
+        {
+            AssertQuery<Customer, Customer>((cs1, cs2) =>
+                    cs1.SelectMany(c => cs2));
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_null_coalesce_operator()
+        {
+            AssertQuery<Customer>(customer => customer
+                    .OrderBy(c => c.Region ?? "ZZ"),
+                entryCount: 91);
+        }
+
+        [ConditionalFact] //Issue 1798
+        public virtual void Select_null_coalesce_operator()
+        {
+            AssertQuery<Customer>(customer => customer
+                .Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(o => o.Region));
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_conditional_operator()
+        {
+            AssertQuery<Customer>(customer => customer
+                    // ReSharper disable once ConvertConditionalTernaryToNullCoalescing
+                    .OrderBy(c => c.Region == null ? "ZZ" : c.Region),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_conditional_operator_where_condition_null()
+        {
+            var fakeCustomer = new Customer();
+            AssertQuery<Customer>(customer => customer
+                    .OrderBy(c => fakeCustomer.City == "London" ? "ZZ" : c.City),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_comparison_operator()
+        {
+            AssertQuery<Customer>(customer => customer
+                    // ReSharper disable once ConvertConditionalTernaryToNullCoalescing
+                    .OrderBy(c => c.Region == "ASK"),
+                entryCount: 91);
+        }
+
+        [ConditionalFact] //Issue 1798
+        public virtual void Projection_null_coalesce_operator()
+        {
+            AssertQuery<Customer>(customer => customer
+                .Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }));
+        }
+
+        [ConditionalFact]
+        public virtual void Filter_coalesce_operator()
+        {
+            AssertQuery<Customer>(customer => customer
+                    .Where(c => (c.CompanyName ?? c.ContactName) == "The Big Cheese"),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Take_skip_null_coalesce_operator()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.Region ?? "ZZ").Take(10).Skip(5).Distinct(),
+                entryCount: 5);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_null_coalesce_operator()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(5));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_skip_null_coalesce_operator()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(10).Skip(5));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_skip_null_coalesce_operator2()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.CustomerID, c.CompanyName, c.Region }).OrderBy(c => c.Region ?? "ZZ").Take(10).Skip(5));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_skip_null_coalesce_operator3()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.Region ?? "ZZ").Take(10).Skip(5),
+                entryCount: 5);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_Property_when_non_shadow()
+        {
+            AssertQuery<Order>(os =>
+                from o in os
+                select EF.Property<int>(o, "OrderID"));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_Property_when_non_shadow()
+        {
+            AssertQuery<Order>(os =>
+                    from o in os
+                    where EF.Property<int>(o, "OrderID") == 10248
+                    select o,
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_Property_when_shadow()
+        {
+            AssertQuery<Employee>(es =>
+                from e in es
+                select EF.Property<string>(e, "Title"));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_Property_when_shadow()
+        {
+            AssertQuery<Employee>(es =>
+                    from e in es
+                    where EF.Property<string>(e, "Title") == "Sales Representative"
+                    select e,
+                entryCount: 6);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_Property_when_shaow_unconstrained_generic_method()
+        {
+            AssertQuery<Employee>(es =>
+                    ShadowPropertySelect<Employee, string>(es, "Title"));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_Property_when_shaow_unconstrained_generic_method()
+        {
+            AssertQuery<Employee>(es =>
+                        ShadowPropertyWhere(es, "Title", "Sales Representative"),
+                entryCount: 6);
+        }
+
+        protected IQueryable<TOut> ShadowPropertySelect<TIn, TOut>(IQueryable<TIn> source, object column)
+            => source.Select(e => EF.Property<TOut>(e, (string)column));
+
+        protected IQueryable<T> ShadowPropertyWhere<T>(IQueryable<T> source, object column, string value)
+            => source.Where(e => EF.Property<string>(e, (string)column) == value);
+
+        [ConditionalFact]
+        public virtual void Where_Property_shadow_closure()
+        {
+            var propertyName = "Title";
+            var value = "Sales Representative";
+
+            AssertQuery<Employee>(
+                es => es.Where(e => EF.Property<string>(e, propertyName) == value),
+                entryCount: 6);
+
+            propertyName = "FirstName";
+            value = "Steven";
+
+            AssertQuery<Employee>(
+                es => es.Where(e => EF.Property<string>(e, propertyName) == value),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Selected_column_can_coalesce()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = (from c in context.Set<Customer>()
+                                 orderby c.Region ?? "ZZ"
+                                 select c)
+                    .ToList();
+
+                Assert.Equal(91, customers.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_cast_CreateQuery_result_to_IQueryable_T_bug_1730()
+        {
+            using (var context = CreateContext())
+            {
+                IQueryable<Product> products = context.Products;
+
+                // ReSharper disable once RedundantAssignment
+                products = (IQueryable<Product>)products.Provider.CreateQuery(products.Expression);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_execute_non_generic()
+        {
+            using (var context = CreateContext())
+            {
+                IQueryable<Product> products = context.Products;
+
+                Assert.NotNull(products.Provider.Execute(
+                    Expression.Call(
+                        new LinqOperatorProvider().First.MakeGenericMethod(typeof(Product)),
+                        products.Expression)));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_Subquery_Single()
+        {
+            using (var context = CreateContext())
+            {
+                var orderDetails
+                    = (from od in context.Set<OrderDetail>()
+                       orderby od.ProductID, od.OrderID
+                       select (from o in context.Set<Order>()
+                               where od.OrderID == o.OrderID
+                               orderby o.OrderID
+                               select o).First())
+                        .Take(2)
+                        .ToList();
+
+                Assert.Equal(2, orderDetails.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_Where_Subquery_Deep_Single()
+        {
+            using (var context = CreateContext())
+            {
+                var orderDetails
+                    = (from od in context.Set<OrderDetail>().Where(od => od.OrderID == 10344)
+                       where (
+                                     from o in context.Set<Order>()
+                                     where od.OrderID == o.OrderID
+                                     select (
+                                         from c in context.Set<Customer>()
+                                         where o.CustomerID == c.CustomerID
+                                         select c
+                                     ).Single()
+                                 ).Single()
+                                 .City == "Seattle"
+                       select od)
+                        .Take(2)
+                        .ToList();
+
+                Assert.Equal(2, orderDetails.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_Where_Subquery_Deep_First()
+        {
+            using (var context = CreateContext())
+            {
+                var orderDetails
+                    = (from od in context.Set<OrderDetail>()
+                       where (
+                                     from o in context.Set<Order>()
+                                     where od.OrderID == o.OrderID
+                                     select (
+                                         from c in context.Set<Customer>()
+                                         where o.CustomerID == c.CustomerID
+                                         select c
+                                     ).FirstOrDefault()
+                                 ).FirstOrDefault()
+                                 .City == "Seattle"
+                       select od)
+                        .Take(2)
+                        .ToList();
+
+                Assert.Equal(2, orderDetails.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_Where_Subquery_Equality()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = (from o in context.Orders.Take(1)
+                           // ReSharper disable once UseMethodAny.0
+                       where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
+                              where (from c in context.Set<Customer>()
+                                     where c.CustomerID == o.CustomerID
+                                     orderby c.CustomerID
+                                     select c).First().Country
+                                    == (from o2 in context.Set<Order>()
+                                        join c in context.Set<Customer>() on o2.CustomerID equals c.CustomerID
+                                        where o2.OrderID == od.OrderID
+                                        orderby o2.OrderID, c.CustomerID
+                                        select c).First().Country
+                              orderby od.ProductID, od.OrderID
+                              select od).Count() > 0
+                       orderby o.OrderID
+                       select o).ToList();
+
+                Assert.Equal(1, orders.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Throws_on_concurrent_query_list()
+        {
+            using (var context = CreateContext())
+            {
+                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+
+                Assert.Equal(
+                    CoreStrings.ConcurrentMethodInvocation,
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.Customers.ToList()).Message);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Throws_on_concurrent_query_first()
+        {
+            using (var context = CreateContext())
+            {
+                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+
+                Assert.Equal(
+                    CoreStrings.ConcurrentMethodInvocation,
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.Customers.First()).Message);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Does_not_change_ordering_of_projection_with_complex_projections()
+        {
+            using (var context = CreateContext())
+            {
+                var q = from c in context.Customers.Include(e => e.Orders).Where(c => c.ContactTitle == "Owner").OrderBy(c => c.CustomerID)
+                        select new
+                        {
+                            Id = c.CustomerID,
+                            TotalOrders = c.Orders.Count
+                        };
+
+                var result = q.Where(e => e.TotalOrders > 2).ToList();
+
+                Assert.Equal(15, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateTime_parse_is_parameterized()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderDate > DateTime.Parse("1/1/1998 12:00:00 PM")),
+                entryCount: 267);
+        }
+
+        [ConditionalFact]
+        public virtual void Random_next_is_not_funcletized_1()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders
+                    .Where(o => o.OrderID > new Random().Next())
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Random_next_is_not_funcletized_2()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders
+                    .Where(o => o.OrderID > new Random().Next(5))
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Random_next_is_not_funcletized_3()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders
+                    .Where(o => o.OrderID > new Random().Next(0, 10))
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Random_next_is_not_funcletized_4()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders
+                    .Where(o => o.OrderID > new Random(15).Next())
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Random_next_is_not_funcletized_5()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders
+                    .Where(o => o.OrderID > new Random(15).Next(5))
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Random_next_is_not_funcletized_6()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders
+                    .Where(o => o.OrderID > new Random(15).Next(0, 10))
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Environment_newline_is_funcletized()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID.Contains(Environment.NewLine)));
+        }
+
+        [ConditionalFact]
+        public virtual void String_concat_with_navigation1()
+        {
+            AssertQuery<Order>(
+                os => os.Select(o => o.CustomerID + " " + o.Customer.City));
+        }
+
+        [ConditionalFact]
+        public virtual void String_concat_with_navigation2()
+        {
+            AssertQuery<Order>(
+                os => os.Select(o => o.Customer.City + " " + o.Customer.City));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_or()
+        {
+            AssertQuery<Customer>(cs =>
+                        cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR"),
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_and()
+        {
+            AssertQuery<Customer>(cs =>
+                    cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_bitwise_or()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(c => c.CustomerID).Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" }).ToList();
+
+                Assert.All(query.Take(2), t => Assert.True(t.Value));
+                Assert.All(query.Skip(2), t => Assert.False(t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_bitwise_or_multiple()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" | c.CustomerID == "ANTON" }).ToList();
+
+                Assert.All(query.Take(3), t => Assert.True(t.Value));
+                Assert.All(query.Skip(3), t => Assert.False(t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_bitwise_and()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(c => c.CustomerID).Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" }).ToList();
+
+                Assert.All(query, t => Assert.False(t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_bitwise_and_or()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" | c.CustomerID == "ANTON" }).ToList();
+
+                Assert.All(query.Where(c => c.CustomerID != "ANTON"), t => Assert.False(t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_or_with_logical_or()
+        {
+            AssertQuery<Customer>(cs =>
+                        cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON"),
+                entryCount: 3);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_and_with_logical_and()
+        {
+            AssertQuery<Customer>(cs =>
+                    cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_or_with_logical_and()
+        {
+            AssertQuery<Customer>(cs =>
+                        cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" && c.Country == "Germany"),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_and_with_logical_or()
+        {
+            AssertQuery<Customer>(cs =>
+                    cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" || c.CustomerID == "ANTON"),
+                    entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_bitwise_or_with_logical_or()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(c => c.CustomerID).Select(c => new
+                {
+                    c.CustomerID,
+                    Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON"
+                }).ToList();
+
+                Assert.All(query.Take(3), t => Assert.True(t.Value));
+                Assert.All(query.Skip(3), t => Assert.False(t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_bitwise_and_with_logical_and()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(c => c.CustomerID).Select(c => new
+                {
+                    c.CustomerID,
+                    Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"
+                }).ToList();
+
+                Assert.All(query, t => Assert.False(t.Value));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Handle_materialization_properly_when_more_than_two_query_sources_are_involved()
+        {
+            AssertQuery<Customer, Order, Employee>((cs, os, es) =>
+                (from c in cs.OrderBy(c => c.CustomerID)
+                 from o in os
+                 from e in es
+                 select new { c }).FirstOrDefault());
+        }
+
+        [ConditionalFact]
+        public virtual void Parameter_extraction_short_circuits_1()
+        {
+            DateTime? dateFilter = new DateTime(1996, 7, 15);
+
+            AssertQuery<Order>(os =>
+                    os.Where(o => (o.OrderID < 10400)
+                                  && ((dateFilter == null)
+                                      || (o.OrderDate.HasValue
+                                          && o.OrderDate.Value.Month == dateFilter.Value.Month
+                                          && o.OrderDate.Value.Year == dateFilter.Value.Year))),
+                entryCount: 22);
+
+            dateFilter = null;
+
+            AssertQuery<Order>(os =>
+                    os.Where(o => (o.OrderID < 10400)
+                                  && ((dateFilter == null)
+                                      || (o.OrderDate.HasValue
+                                          && o.OrderDate.Value.Month == dateFilter.Value.Month
+                                          && o.OrderDate.Value.Year == dateFilter.Value.Year))),
+                entryCount: 152);
+        }
+
+        [ConditionalFact]
+        public virtual void Parameter_extraction_short_circuits_2()
+        {
+            DateTime? dateFilter = new DateTime(1996, 7, 15);
+
+            AssertQuery<Order>(os =>
+                    os.Where(o => (o.OrderID < 10400)
+                                  && (dateFilter.HasValue)
+                                  && (o.OrderDate.HasValue
+                                      && o.OrderDate.Value.Month == dateFilter.Value.Month
+                                      && o.OrderDate.Value.Year == dateFilter.Value.Year)),
+                entryCount: 22);
+
+            dateFilter = null;
+
+            AssertQuery<Order>(os =>
+                os.Where(o => (o.OrderID < 10400)
+                              && (dateFilter.HasValue)
+                              && (o.OrderDate.HasValue
+                                  && o.OrderDate.Value.Month == dateFilter.Value.Month
+                                  && o.OrderDate.Value.Year == dateFilter.Value.Year)));
+        }
+
+        [ConditionalFact]
+        public virtual void Parameter_extraction_short_circuits_3()
+        {
+            DateTime? dateFilter = new DateTime(1996, 7, 15);
+
+            AssertQuery<Order>(os =>
+                    os.Where(o => (o.OrderID < 10400)
+                                  || (dateFilter == null)
+                                  || (o.OrderDate.HasValue
+                                      && o.OrderDate.Value.Month == dateFilter.Value.Month
+                                      && o.OrderDate.Value.Year == dateFilter.Value.Year)),
+                entryCount: 152);
+
+            dateFilter = null;
+
+            AssertQuery<Order>(os =>
+                    os.Where(o => (o.OrderID < 10400)
+                                  || (dateFilter == null)
+                                  || (o.OrderDate.HasValue
+                                      && o.OrderDate.Value.Month == dateFilter.Value.Month
+                                      && o.OrderDate.Value.Year == dateFilter.Value.Year)),
+                entryCount: 830);
+        }
+
+        [ConditionalFact]
+        public virtual void Parameter_extraction_can_throw_exception_from_user_code()
+        {
+            using (var context = CreateContext())
+            {
+                var customer = new Customer();
+
+                Assert.Throws<InvalidOperationException>(() =>
+                        context.Customers.Where(c => Equals(c.Orders.First(), customer.Orders.First())).ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_member_pushdown_does_not_change_original_subquery_model()
+        {
+            AssertQuery<Order, Customer>((os, cs) =>
+                os.OrderBy(o => o.OrderID)
+                .Take(3)
+                .Select(o => new
+                {
+                    OrderId = o.OrderID,
+                    City = cs.SingleOrDefault(c => c.CustomerID == o.CustomerID).City
+                })
+                .OrderBy(o => o.City));
+        }
+
+        [ConditionalFact]
+        public virtual void Query_expression_with_to_string_and_contains()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null && o.EmployeeID.Value.ToString().Contains("10"))
+                    .Select(o => new Order
+                    {
+                        CustomerID = o.CustomerID
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_other_to_string()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        ShipName = o.OrderDate.Value.ToString()
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_long_to_string()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        ShipName = ((long)o.OrderID).ToString()
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_int_to_string()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        ShipName = o.OrderID.ToString()
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void ToString_with_formatter_is_evaluated_on_the_client()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        ShipName = o.OrderID.ToString("X")
+                    }));
+
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        ShipName = o.OrderID.ToString(new CultureInfo("en-US"))
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_date_add_year()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        OrderDate = o.OrderDate.Value.AddYears(1)
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_date_add_milliseconds_above_the_range()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        OrderDate = o.OrderDate.Value.AddMilliseconds(1000000000000)
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_date_add_milliseconds_below_the_range()
+        {
+            AssertQuery<Order>(
+                 os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        OrderDate = o.OrderDate.Value.AddMilliseconds(-1000000000000)
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_date_add_milliseconds_large_number_divided()
+        {
+            var millisecondsPerDay = 86400000L;
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderDate != null)
+                    .Select(o => new Order
+                    {
+                        OrderDate = o.OrderDate.Value
+                            .AddDays(o.OrderDate.Value.Millisecond / millisecondsPerDay)
+                            .AddMilliseconds(o.OrderDate.Value.Millisecond % millisecondsPerDay)
+                    }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_references_are_updated_correctly_with_subquery()
+        {
+            var nextYear = 2017;
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderDate != null)
+                    .Select(o => o.OrderDate.Value.Year)
+                    .Distinct()
+                    .Where(x => x < nextYear));
+        }
+
+        [ConditionalFact]
+        public virtual void DefaultIfEmpty_without_group_join()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers
+                    .Where(c => c.City == "London")
+                    .DefaultIfEmpty()
+                    .Where(d => d != null)
+                    .Select(d => d.CustomerID)
+                    .ToList();
+
+                Assert.Equal(6, query.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DefaultIfEmpty_in_subquery()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                 where o != null
+                 select new { c.CustomerID, o.OrderID }));
+        }
+
+        [ConditionalFact]
+        public virtual void DefaultIfEmpty_in_subquery_nested()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs.Where(c => c.City == "Seattle")
+                 from o1 in os.Where(o => o.OrderID > 11000).DefaultIfEmpty()
+                 from o2 in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                 where o1 != null && o2 != null
+                 select new { c.CustomerID, o1.OrderID, o2.OrderDate }));
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_skip_take()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactTitle)
+                    .ThenBy(c => c.ContactName)
+                    .Skip(5)
+                    .Take(8),
+                assertOrder: true,
+                entryCount: 8);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_skip_take_take()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactTitle)
+                    .ThenBy(c => c.ContactName)
+                    .Skip(5)
+                    .Take(8)
+                    .Take(3),
+                assertOrder: true,
+                entryCount: 3);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_skip_take_take_take_take()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactTitle)
+                    .ThenBy(c => c.ContactName)
+                    .Skip(5)
+                    .Take(15)
+                    .Take(10)
+                    .Take(8)
+                    .Take(5),
+                assertOrder: true,
+                entryCount: 5);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_skip_take_skip_take_skip()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactTitle)
+                    .ThenBy(c => c.ContactName)
+                    .Skip(5)
+                    .Take(15)
+                    .Skip(2)
+                    .Take(8)
+                    .Skip(5),
+                assertOrder: true,
+                entryCount: 3);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_skip_take_distinct()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactTitle)
+                    .ThenBy(c => c.ContactName)
+                    .Skip(5)
+                    .Take(15)
+                    .Distinct(),
+                assertOrder: false,
+                entryCount: 15);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_coalesce_take_distinct()
+        {
+            AssertQuery<Product>(
+                ps => ps.OrderBy(p => p.UnitPrice ?? 0)
+                    .Take(15)
+                    .Distinct(),
+                assertOrder: false,
+                entryCount: 15);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_coalesce_skip_take_distinct()
+        {
+            AssertQuery<Product>(
+                ps => ps.OrderBy(p => p.UnitPrice ?? 0)
+                    .Skip(5)
+                    .Take(15)
+                    .Distinct(),
+                assertOrder: false,
+                entryCount: 15);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_coalesce_skip_take_distinct_take()
+        {
+            AssertQuery<Product>(
+                ps => ps.OrderBy(p => p.UnitPrice ?? 0)
+                    .Skip(5)
+                    .Take(15)
+                    .Distinct()
+                    .Take(5),
+                assertOrder: false,
+                entryCount: 5);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_skip_take_distinct_orderby_take()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactTitle)
+                    .ThenBy(c => c.ContactName)
+                    .Skip(5)
+                    .Take(15)
+                    .Distinct()
+                    .OrderBy(c => c.ContactTitle)
+                    .Take(8),
+                assertOrder: false,
+                entryCount: 8);
+        }
+        
+        [ConditionalFact]
+        public virtual void No_orderby_added_for_fully_translated_manually_constructed_LOJ()
+        {
+            AssertQuery<Employee>(
+                es => from e1 in es
+                      join e2 in es on e1.EmployeeID equals e2.ReportsTo into grouping
+                      from e2 in grouping.DefaultIfEmpty()
+                      select new { City1 = e1.City, City2 = e2 != null ? e2.City : null });
+        }
+
+        [ConditionalFact]
+        public virtual void No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from o in os
+                            join c in cs on o.CustomerID equals c.CustomerID into grouping
+                            from c in ClientDefaultIfEmpty(grouping)
+                            select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null });
+        }
+
+        [ConditionalFact]
+        public virtual void No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from o in os
+                            join c in cs on new { o.CustomerID, o.OrderID } equals new { c.CustomerID, OrderID = 10000 } into grouping
+                            from c in ClientDefaultIfEmpty(grouping)
+                            select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null });
+        }
+
+        [ConditionalFact]
+        public virtual void No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from o in os
+                            join c in cs on new { o.OrderID, o.CustomerID } equals new { OrderID = 10000, c.CustomerID, } into grouping
+                            from c in ClientDefaultIfEmpty(grouping)
+                            select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null });
+        }
+
+        [ConditionalFact]
+        public virtual void Orderby_added_for_client_side_GroupJoin_principal_to_dependent_LOJ()
+        {
+            AssertQuery<Employee>(
+                es => from e1 in es
+                      join e2 in es on e1.EmployeeID equals e2.ReportsTo into grouping
+                      from e2 in ClientDefaultIfEmpty(grouping)
+                      select new { City1 = e1.City, City2 = e2 != null ? e2.City : null });
+        }
+
+        [ConditionalFact]
+        public virtual void Contains_with_DateTime_Date()
+        {
+            var dates = new[] { new DateTime(1996, 07, 04), new DateTime(1996, 07, 16) };
+
+            AssertQuery<Order>(es =>
+                es.Where(e => dates.Contains(e.OrderDate.Value.Date)), entryCount: 2);
+
+            dates = new[] { new DateTime(1996, 07, 04) };
+
+            AssertQuery<Order>(es =>
+                es.Where(e => dates.Contains(e.OrderDate.Value.Date)), entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Contains_with_subquery_involving_join_binds_to_correct_table()
+        {
+            AssertQuery<Order, OrderDetail>(
+                (os, ods) =>
+                    os.Where(o => o.OrderID > 11000
+                        && ods.Where(od => od.Product.ProductName == "Chai")
+                            .Select(od => od.OrderID)
+                            .Contains(o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual void Anonymous_member_distinct_where()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.CustomerID }).Distinct().Where(n => n.CustomerID == "ALFKI"));
+        }
+
+        [ConditionalFact]
+        public virtual void Anonymous_member_distinct_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.CustomerID }).Distinct().OrderBy(n => n.CustomerID));
+        }
+
+        [ConditionalFact]
+        public virtual void Anonymous_member_distinct_result()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.CustomerID }).Distinct().Count(n => n.CustomerID.StartsWith("A")));
+        }
+
+        [ConditionalFact]
+        public virtual void Anonymous_complex_distinct_where()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { A = c.CustomerID + c.City }).Distinct().Where(n => n.A == "ALFKIBerlin"));
+        }
+
+        [ConditionalFact]
+        public virtual void Anonymous_complex_distinct_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { A = c.CustomerID + c.City }).Distinct().OrderBy(n => n.A));
+        }
+
+        [ConditionalFact]
+        public virtual void Anonymous_complex_distinct_result()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { A = c.CustomerID + c.City }).Distinct().Count(n => n.A.StartsWith("A")));
+        }
+
+        [ConditionalFact]
+        public virtual void Anonymous_complex_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { A = c.CustomerID + c.City }).OrderBy(n => n.A));
+        }
+
+        [ConditionalFact]
+        public virtual void Anonymous_subquery_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.Orders.Count > 1).Select(c => new
+                {
+                    A = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate
+                }).OrderBy(n => n.A));
+        }
+
+        private class DTO<T>
+        {
+            public T Property { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj))
+                {
+                    return false;
+                }
+
+                if (ReferenceEquals(this, obj))
+                {
+                    return true;
+                }
+
+                return obj.GetType() == GetType() && Equals((DTO<T>)obj);
+            }
+
+            private bool Equals(DTO<T> other) => EqualityComparer<T>.Default.Equals(Property, other.Property);
+
+            public override int GetHashCode() => Property.GetHashCode();
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_member_distinct_where()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID }).Distinct().Where(n => n.Property == "ALFKI"));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_member_distinct_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID }).Distinct().OrderBy(n => n.Property));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_member_distinct_result()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID }).Distinct().Count(n => n.Property.StartsWith("A")));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_complex_distinct_where()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID + c.City }).Distinct().Where(n => n.Property == "ALFKIBerlin"));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_complex_distinct_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID + c.City }).Distinct().OrderBy(n => n.Property));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_complex_distinct_result()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID + c.City }).Distinct().Count(n => n.Property.StartsWith("A")));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_complex_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new DTO<string> { Property = c.CustomerID + c.City }).OrderBy(n => n.Property));
+        }
+
+        [ConditionalFact]
+        public virtual void DTO_subquery_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.Orders.Count > 1).Select(c => new DTO<DateTime?>
+                {
+                    Property = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate
+                }).OrderBy(n => n.Property));
+        }
+
+        [ConditionalFact]
+        public virtual void Include_with_orderby_skip_preserves_ordering()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Include(c => c.Orders).Where(c => c.CustomerID != "VAFFE").OrderBy(c => c.City).Skip(40).Take(5),
+                entryCount: 53,
+                assertOrder: true);
+        }
+
+        private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
+        {
+            return source?.Count() == 0 ? new[] { default(TElement) } : source;
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_query_with_repeated_query_model_compiles_correctly()
+        {
+            AssertQuery<Customer>(cs => cs
+                .Where(outer => outer.CustomerID == "ALFKI")
+                .Where(outer =>
+                    (from c in cs
+                     let customers = cs.Select(cc => cc.CustomerID)
+                     where customers.Any()
+                     select customers).Any()),
+                     entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_query_with_repeated_nested_query_model_compiles_correctly()
+        {
+            AssertQuery<Customer>(cs => cs
+                .Where(outer => outer.CustomerID == "ALFKI")
+                .Where(outer =>
+                    (from c in cs
+                     let customers = cs.Where(cc => cs.OrderBy(inner => inner.CustomerID).Take(10).Distinct().Any()).Select(cc => cc.CustomerID)
+                     where customers.Any()
+                     select customers).Any()),
+                     entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_join_anonymous()
+        {
+            AssertQuery<Order, OrderDetail>((os, ods) =>
+                (from order in os
+                 join orderDetail in ods on order.OrderID equals orderDetail.OrderID into orderJoin
+                 from orderDetail in orderJoin
+                 group new
+                 {
+                     orderDetail.ProductID,
+                     orderDetail.Quantity,
+                     orderDetail.UnitPrice
+                 } by new
+                 {
+                     order.OrderID,
+                     order.OrderDate
+                 })
+                    .Where(x => x.Key.OrderID == 10248),
+                asserter: (l2oResults, efResults) =>
+                {
+                    var l2oGroup = l2oResults.Cast<IGrouping<dynamic, dynamic>>().Single();
+                    var efGroup = efResults.Cast<IGrouping<dynamic, dynamic>>().Single();
+
+                    Assert.Equal(l2oGroup.Key, efGroup.Key);
+
+                    Assert.Equal(
+                        l2oGroup.OrderBy(element => element.ProductID),
+                        efGroup.OrderBy(element => element.ProductID));
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Int16_parameter_can_be_used_for_int_column()
+        {
+            const ushort parameter = 10300;
+            AssertQuery<Order>(os => os.Where(o => o.OrderID == parameter), entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_is_null_translated_correctly()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c in cs
+                    let lastOrder = c.Orders.OrderByDescending(o => o.OrderID)
+                        .Select(o => o.CustomerID)
+                        .FirstOrDefault()
+                    where lastOrder == null
+                    select c,
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_is_not_null_translated_correctly()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c in cs
+                    let lastOrder = c.Orders.OrderByDescending(o => o.OrderID)
+                        .Select(o => o.CustomerID)
+                        .FirstOrDefault()
+                    where lastOrder != null
+                    select c,
+                entryCount: 89);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_average()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Take(10).Average());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_count()
+        {
+            AssertQuery<Customer>(cs => cs.Take(7).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_orderBy_take_count()
+        {
+            AssertQuery<Customer>(cs => cs.OrderBy(c => c.Country).Take(7).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_long_count()
+        {
+            AssertQuery<Customer>(cs => cs.Take(7).LongCount());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_orderBy_take_long_count()
+        {
+            AssertQuery<Customer>(cs => cs.OrderBy(c => c.Country).Take(7).LongCount());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_max()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Take(10).Max());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_min()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Take(10).Min());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_sum()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Take(10).Sum());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_skip_average()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Skip(10).Average());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_skip_count()
+        {
+            AssertQuery<Customer>(cs => cs.Skip(7).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_orderBy_skip_count()
+        {
+            AssertQuery<Customer>(cs => cs.OrderBy(c => c.Country).Skip(7).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_skip_long_count()
+        {
+            AssertQuery<Customer>(cs => cs.Skip(7).LongCount());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_orderBy_skip_long_count()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.Country).Skip(7).LongCount());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_skip_max()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Skip(10).Max());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_skip_min()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Skip(10).Min());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_skip_sum()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Select(o => o.OrderID).Skip(10).Sum());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_distinct_average()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID).Distinct().Average());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_distinct_count()
+        {
+            AssertQuery<Customer>(cs => cs.Distinct().Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_distinct_long_count()
+        {
+            AssertQuery<Customer>(cs => cs.Distinct().LongCount());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_distinct_max()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID).Distinct().Max());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_distinct_min()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID).Distinct().Min());
+        }
+
+        [ConditionalFact]
+        public virtual void Select_distinct_sum()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID).Distinct().Sum());
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_entities_using_Equals()
+        {
+            AssertQuery<Customer, Customer>(
+                (cs1, cs2) => from c1 in cs1
+                              from c2 in cs2
+                              where c1.CustomerID.StartsWith("ALFKI")
+                              where c1.Equals(c2)
+                              orderby c1.CustomerID
+                              select new { Id1 = c1.CustomerID, Id2 = c2.CustomerID });
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_different_entity_types_using_Equals()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            from o in os
+                            where c.CustomerID == " ALFKI" && o.CustomerID == "ALFKI"
+                            where c.Equals(o)
+                            select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_entity_to_null_using_Equals()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.CustomerID.StartsWith("A")
+                      where !Equals(null, c)
+                      orderby c.CustomerID
+                      select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_navigations_using_Equals()
+        {
+            AssertQuery<Order, Order>(
+                (os1, os2) => from o1 in os1
+                              from o2 in os2
+                              where o1.CustomerID.StartsWith("A")
+                              where o1.Customer.Equals(o2.Customer)
+                              orderby o1.OrderID, o2.OrderID
+                              select new { Id1 = o1.OrderID, Id2 = o2.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_navigations_using_static_Equals()
+        {
+            AssertQuery<Order, Order>(
+                (os1, os2) => from o1 in os1
+                              from o2 in os2
+                              where o1.CustomerID.StartsWith("A")
+                              where Equals(o1.Customer, o2.Customer)
+                              orderby o1.OrderID, o2.OrderID
+                              select new { Id1 = o1.OrderID, Id2 = o2.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_non_matching_entities_using_Equals()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            from o in os
+                            where c.CustomerID == "ALFKI"
+                            where Equals(c, o)
+                            select new { Id1 = c.CustomerID, Id2 = o.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_non_matching_collection_navigations_using_Equals()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            from o in os
+                            where c.CustomerID == "ALFKI"
+                            where c.Orders.Equals(o.OrderDetails)
+                            select new { Id1 = c.CustomerID, Id2 = o.OrderID });
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_collection_navigation_to_null()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.Orders == null).Select(c => c.CustomerID));
+        }
+
+        [ConditionalFact]
+        public virtual void Comparing_collection_navigation_to_null_complex()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods
+                    .Where(od => od.OrderID < 10250)
+                    .Where(od => od.Order.Customer.Orders != null)
+                    .OrderBy(od => od.OrderID)
+                    .ThenBy(od => od.ProductID)
+                    .Select(od => new { od.ProductID, od.OrderID }));
+        }
+
+        [ConditionalFact]
+        public virtual void Compare_collection_navigation_with_itself()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.CustomerID.StartsWith("A")
+                      where c.Orders == c.Orders
+                      select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Compare_two_collection_navigations_with_different_query_sources()
+        {
+            AssertQuery<Customer, Customer>(
+                (cs1, cs2) => from c1 in cs1
+                              from c2 in cs2
+                              where c1.CustomerID == "ALFKI" && c2.CustomerID == "ALFKI"
+                              where c1.Orders == c2.Orders
+                              select new { Id1 = c1.CustomerID, Id2 = c2.CustomerID });
+        }
+
+        [ConditionalFact(Skip = "issue #8366")]
+        public virtual void Compare_two_collection_navigations_using_equals()
+        {
+            AssertQuery<Customer, Customer>(
+                (cs1, cs2) => from c1 in cs1
+                              from c2 in cs2
+                              where c1.CustomerID == "ALFKI" && c2.CustomerID == "ALFKI"
+                              where Equals(c1.Orders, c2.Orders)
+                              select new { Id1 = c1.CustomerID, Id2 = c2.CustomerID });
+        }
+
+        [ConditionalFact]
+        public virtual void Compare_two_collection_navigations_with_different_property_chains()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            from o in os
+                            where c.CustomerID == "ALFKI"
+                            where c.Orders == o.Customer.Orders
+                            orderby c.CustomerID, o.OrderID
+                            select new { Id1 = c.CustomerID, Id2 = o.OrderID });
+        }
+
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+
+        protected QueryTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+        }
+
+        protected TFixture Fixture { get; }
+
+        private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, int> query,
+            bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { query(NorthwindData.Set<TItem>()) },
+                    new[] { query(context.Set<TItem>()) },
+                    assertOrder);
+            }
+        }
+
+        private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, bool> query,
+            bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { query(NorthwindData.Set<TItem>()) },
+                    new[] { query(context.Set<TItem>()) },
+                    assertOrder);
+            }
+        }
+
+        private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, TItem> query,
+            bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { query(NorthwindData.Set<TItem>()) },
+                    new[] { query(context.Set<TItem>()) },
+                    assertOrder);
+            }
+        }
+
+        private void AssertQuery<TItem1, TItem2>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, object> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            where TItem2 : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()) },
+                    new[] { query(context.Set<TItem1>(), context.Set<TItem2>()) },
+                    assertOrder);
+            }
+        }
+
+        private void AssertQuery<TItem1, TItem2, TItem3>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, object> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            where TItem2 : class
+            where TItem3 : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>(), NorthwindData.Set<TItem3>()) },
+                    new[] { query(context.Set<TItem1>(), context.Set<TItem2>(), context.Set<TItem3>()) },
+                    assertOrder);
+            }
+        }
+
+        private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<IQueryable<object>>> query,
+            bool assertOrder = false,
+            Action<IList<IQueryable<object>>, IList<IQueryable<object>>> asserter = null)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    query(context.Set<TItem>()).ToArray(),
+                    assertOrder,
+                    asserter);
+            }
+        }
+
+        protected void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<object>> query,
+            bool assertOrder = false,
+            int entryCount = 0,
+            Action<IList<object>, IList<object>> asserter = null)
+            where TItem : class
+        => AssertQuery(query, query, assertOrder, entryCount, asserter);
+
+        protected void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, object> query,
+            bool assertOrder = false,
+            int entryCount = 0,
+            Action<object, object> asserter = null)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { query(NorthwindData.Set<TItem>()) },
+                    new[] { query(context.Set<TItem>()) },
+                    assertOrder,
+                    asserter != null ? ((l2os, efs) => asserter(l2os.Single(), efs.Single())) : (Action<IList<object>, IList<object>>)null);
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        private void AssertQuery<TItem1, TItem2>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
+            bool assertOrder = false,
+            int? entryCount = null,
+            Action<IList<object>, IList<object>> asserter = null)
+            where TItem1 : class
+            where TItem2 : class
+        => AssertQuery(query, query, assertOrder, entryCount, asserter);
+
+        private void AssertQuery<TItem1, TItem2>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> efQuery,
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> l2oQuery,
+            bool assertOrder = false,
+            int? entryCount = null,
+            Action<IList<object>, IList<object>> asserter = null)
+            where TItem1 : class
+            where TItem2 : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    l2oQuery(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()).ToArray(),
+                    efQuery(context.Set<TItem1>(), context.Set<TItem2>()).ToArray(),
+                    assertOrder,
+                    asserter);
+
+                if (entryCount != null)
+                {
+                    Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+                }
+            }
+        }
+
+        private void AssertQuery<TItem1, TItem2, TItem3>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            where TItem2 : class
+            where TItem3 : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>(), NorthwindData.Set<TItem3>()).ToArray(),
+                    query(context.Set<TItem1>(), context.Set<TItem2>(), context.Set<TItem3>()).ToArray(),
+                    assertOrder);
+            }
+        }
+
+        private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<int>> query,
+            bool assertOrder = false,
+            int entryCount = 0)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    query(context.Set<TItem>()).ToArray(),
+                    assertOrder);
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<long>> query, bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    query(context.Set<TItem>()).ToArray(),
+                    assertOrder);
+            }
+        }
+
+        protected void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<object>> efQuery,
+            Func<IQueryable<TItem>, IQueryable<object>> l2oQuery,
+            bool assertOrder = false,
+            int entryCount = 0,
+            Action<IList<object>, IList<object>> asserter = null)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                var expected = l2oQuery(NorthwindData.Set<TItem>()).ToArray();
+                var actual = efQuery(context.Set<TItem>()).ToArray();
+
+                TestHelpers.AssertResults(
+                    expected,
+                    actual,
+                    assertOrder,
+                    asserter);
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        private void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<bool>> query, bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    query(NorthwindData.Set<TItem>()).ToArray(),
+                    query(context.Set<TItem>()).ToArray(),
+                    assertOrder);
+            }
+        }
+
+        protected virtual void ClearLog()
+        {
+        }
+    }
+}
