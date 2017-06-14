@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -476,6 +477,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         Assert.Equal(l2oObjects, efObjects);
                     });
+        }
+
+        [ConditionalFact]
+        public virtual void New_date_time_in_anonymous_type_works()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.CustomerID.StartsWith("A")
+                      select new { A = new DateTime() });
         }
     }
 }

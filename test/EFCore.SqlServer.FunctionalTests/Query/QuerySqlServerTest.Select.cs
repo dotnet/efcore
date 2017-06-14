@@ -428,5 +428,15 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
         }
+
+        public override void New_date_time_in_anonymous_type_works()
+        {
+            base.New_date_time_in_anonymous_type_works();
+
+            AssertSql(
+                @"SELECT 1
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
+        }
     }
 }

@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         var newExpression = (NewExpression)obj;
 
-                        hashCode += (hashCode * 397) ^ newExpression.Constructor.GetHashCode();
+                        hashCode += (hashCode * 397) ^ (newExpression.Constructor?.GetHashCode() ?? 0);
 
                         if (newExpression.Members != null)
                         {
