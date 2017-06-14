@@ -11,9 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     {
         public virtual string DatabaseName { get; [param: CanBeNull] set; }
 
-        public virtual string DefaultSchemaName { get; [param: CanBeNull] set; }
+        public virtual string DefaultSchema { get; [param: CanBeNull] set; }
 
-        public virtual ICollection<TableModel> Tables { get; } = new List<TableModel>();
-        public virtual ICollection<SequenceModel> Sequences { get; } = new List<SequenceModel>();
+        public virtual IList<DatabaseTable> Tables { get; } = new List<DatabaseTable>();
+        public virtual IList<DatabaseSequence> Sequences { get; } = new List<DatabaseSequence>();
     }
 }

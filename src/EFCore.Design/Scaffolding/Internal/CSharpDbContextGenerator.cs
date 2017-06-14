@@ -420,7 +420,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var annotations = index.GetAnnotations().ToList();
 
-            if (!string.IsNullOrEmpty(index.Relational().Name))
+            if (!string.IsNullOrEmpty(index.Relational().Name)
+                && index.Relational().Name != ConstraintNamer.GetDefaultName(index))
             {
                 lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasName)}({_cSharpUtilities.DelimitString(index.Relational().Name)})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);

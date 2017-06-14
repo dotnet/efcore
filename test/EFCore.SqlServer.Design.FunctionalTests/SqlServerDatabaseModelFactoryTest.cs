@@ -28,12 +28,12 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                 dbModel.Tables.OrderBy(t => t.Name),
                 d =>
                     {
-                        Assert.Equal("dbo", d.SchemaName);
+                        Assert.Equal("dbo", d.Schema);
                         Assert.Equal("Denali", d.Name);
                     },
                 e =>
                     {
-                        Assert.Equal("dbo", e.SchemaName);
+                        Assert.Equal("dbo", e.Schema);
                         Assert.Equal("Everest", e.Name);
                     });
         }
@@ -49,12 +49,12 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             var fk = Assert.Single(dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
             // ReSharper disable once PossibleNullReferenceException
-            Assert.Equal("db2", fk.Table.SchemaName);
+            Assert.Equal("db2", fk.Table.Schema);
             Assert.Equal("Mountains", fk.Table.Name);
-            Assert.Equal("dbo", fk.PrincipalTable.SchemaName);
+            Assert.Equal("dbo", fk.PrincipalTable.Schema);
             Assert.Equal("Ranges", fk.PrincipalTable.Name);
-            Assert.Equal("RangeId", fk.Columns.Single().Column.Name);
-            Assert.Equal("Id", fk.Columns.Single().PrincipalColumn.Name);
+            Assert.Equal("RangeId", fk.Columns.Single().Name);
+            Assert.Equal("Id", fk.PrincipalColumns.Single().Name);
             Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
         }
 
@@ -69,13 +69,55 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             var fk = Assert.Single(dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
             // ReSharper disable once PossibleNullReferenceException
-            Assert.Equal("db3", fk.Table.SchemaName);
+            Assert.Equal("db3", fk.Table.Schema);
             Assert.Equal("Mountains1", fk.Table.Name);
-            Assert.Equal("dbo", fk.PrincipalTable.SchemaName);
+            Assert.Equal("dbo", fk.PrincipalTable.Schema);
             Assert.Equal("Ranges1", fk.PrincipalTable.Name);
-            Assert.Equal(new[] { "RangeId", "RangeAltId" }, fk.Columns.Select(c => c.Column.Name).ToArray());
-            Assert.Equal(new[] { "Id", "AltId" }, fk.Columns.Select(c => c.PrincipalColumn.Name).ToArray());
+            Assert.Equal(new[] { "RangeId", "RangeAltId" }, fk.Columns.Select(c => c.Name).ToArray());
+            Assert.Equal(new[] { "Id", "AltId" }, fk.PrincipalColumns.Select(c => c.Name).ToArray());
             Assert.Equal(ReferentialAction.NoAction, fk.OnDelete);
+        }
+
+        [Fact]
+        public void It_reads_primary_keys()
+        {
+            var sql = "CREATE TABLE Place1 ( Id int PRIMARY KEY NONCLUSTERED, Name int UNIQUE, Location int);" +
+                      "CREATE CLUSTERED INDEX IX_Location_Name ON Place1 (Location, Name);" +
+                      "CREATE NONCLUSTERED INDEX IX_Location ON Place1 (Location);";
+            var dbModel = CreateModel(sql, new List<string> { "Place1" });
+
+            var pkIndex = dbModel.Tables.Single().PrimaryKey;
+
+            Assert.Equal("dbo", pkIndex.Table.Schema);
+            Assert.Equal("Place1", pkIndex.Table.Name);
+            Assert.StartsWith("PK__Place1", pkIndex.Name);
+            //Assert.False(pkIndex.SqlServer().IsClustered);
+            Assert.Equal(new List<string> { "Id" }, pkIndex.Columns.Select(ic => ic.Name).ToList());
+        }
+
+        [Fact]
+        public void It_reads_unique_constraints()
+        {
+            var sql = "CREATE TABLE Place2 ( Id int PRIMARY KEY NONCLUSTERED, Name int UNIQUE, Location int);" +
+                      "CREATE CLUSTERED INDEX IX_Location_Name ON Place2 (Location, Name);" +
+                      "CREATE NONCLUSTERED INDEX IX_Location ON Place2 (Location);";
+            var dbModel = CreateModel(sql, new List<string> { "Place2" });
+
+            var indexes = dbModel.Tables.Single().UniqueConstraints;
+
+            Assert.All(
+                indexes, c =>
+                {
+                    Assert.Equal("dbo", c.Table.Schema);
+                    Assert.Equal("Place2", c.Table.Name);
+                });
+
+            Assert.Collection(
+                indexes,
+                unique =>
+                {
+                    Assert.Equal("Name", unique.Columns.Single().Name);
+                });
         }
 
         [Fact]
@@ -90,39 +132,26 @@ CREATE TABLE [dbo].[Denali] ( id int );";
 
             Assert.All(
                 indexes, c =>
-                    {
-                        Assert.Equal("dbo", c.Table.SchemaName);
-                        Assert.Equal("Place", c.Table.Name);
-                    });
+                {
+                    Assert.Equal("dbo", c.Table.Schema);
+                    Assert.Equal("Place", c.Table.Name);
+                });
 
             Assert.Collection(
                 indexes.OrderBy(i => i.Name),
                 nonClustered =>
-                    {
-                        Assert.Equal("IX_Location", nonClustered.Name);
-                        //Assert.False(nonClustered.GetAnnotations().SingleOrDefault(a => a.Name == SqlServerAnnotationNames.Clustered)?.Value);
-                        Assert.Equal("Location", nonClustered.IndexColumns.Select(ic => ic.Column.Name).Single());
-                    },
+                {
+                    Assert.Equal("IX_Location", nonClustered.Name);
+                    //Assert.False(nonClustered.GetAnnotations().SingleOrDefault(a => a.Name == SqlServerAnnotationNames.Clustered)?.Value);
+                    Assert.Equal("Location", nonClustered.Columns.Select(ic => ic.Name).Single());
+                },
                 clusteredIndex =>
-                    {
-                        Assert.Equal("IX_Location_Name", clusteredIndex.Name);
-                        Assert.False(clusteredIndex.IsUnique);
-                        //Assert.True(clusteredIndex.SqlServer().IsClustered);
-                        Assert.Equal(new List<string> { "Location", "Name" }, clusteredIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
-                        Assert.Equal(new List<int> { 1, 2 }, clusteredIndex.IndexColumns.Select(ic => ic.Ordinal).ToList());
-                    },
-                pkIndex =>
-                    {
-                        Assert.StartsWith("PK__Place", pkIndex.Name);
-                        Assert.True(pkIndex.IsUnique);
-                        //Assert.False(pkIndex.SqlServer().IsClustered);
-                        Assert.Equal(new List<string> { "Id" }, pkIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
-                    },
-                unique =>
-                    {
-                        Assert.True(unique.IsUnique);
-                        Assert.Equal("Name", unique.IndexColumns.Single().Column.Name);
-                    });
+                {
+                    Assert.Equal("IX_Location_Name", clusteredIndex.Name);
+                    Assert.False(clusteredIndex.IsUnique);
+                    //Assert.True(clusteredIndex.SqlServer().IsClustered);
+                    Assert.Equal(new List<string> { "Location", "Name" }, clusteredIndex.Columns.Select(ic => ic.Name).ToList());
+                });
         }
 
         [Fact]
@@ -142,12 +171,12 @@ CREATE TABLE [dbo].[MountainsColumns] (
 );";
             var dbModel = CreateModel(sql, new List<string> { "MountainsColumns" });
 
-            var columns = dbModel.Tables.Single().Columns.OrderBy(c => c.Ordinal);
+            var columns = dbModel.Tables.Single().Columns;
 
             Assert.All(
                 columns, c =>
                     {
-                        Assert.Equal("dbo", c.Table.SchemaName);
+                        Assert.Equal("dbo", c.Table.Schema);
                         Assert.Equal("MountainsColumns", c.Table.Name);
                     });
 
@@ -157,57 +186,45 @@ CREATE TABLE [dbo].[MountainsColumns] (
                     {
                         Assert.Equal("Id", id.Name);
                         Assert.Equal("int", id.StoreType);
-                        Assert.Equal(2, id.PrimaryKeyOrdinal);
                         Assert.False(id.IsNullable);
-                        Assert.Equal(0, id.Ordinal);
-                        Assert.Null(id.DefaultValue);
+                        Assert.Null(id.DefaultValueSql);
                     },
                 name =>
                     {
                         Assert.Equal("Name", name.Name);
                         Assert.Equal("nvarchar(100)", name.StoreType);
-                        Assert.Equal(1, name.PrimaryKeyOrdinal);
                         Assert.False(name.IsNullable);
-                        Assert.Equal(1, name.Ordinal);
-                        Assert.Null(name.DefaultValue);
+                        Assert.Null(name.DefaultValueSql);
                     },
                 lat =>
                     {
                         Assert.Equal("Latitude", lat.Name);
                         Assert.Equal("decimal(5, 2)", lat.StoreType);
-                        Assert.Null(lat.PrimaryKeyOrdinal);
                         Assert.True(lat.IsNullable);
-                        Assert.Equal(2, lat.Ordinal);
-                        Assert.Equal("((0.0))", lat.DefaultValue);
+                        Assert.Equal("((0.0))", lat.DefaultValueSql);
                     },
                 created =>
                     {
                         Assert.Equal("Created", created.Name);
                         Assert.Equal("datetime2(6)", created.StoreType);
-                        Assert.Null(created.PrimaryKeyOrdinal);
                         Assert.True(created.IsNullable);
-                        Assert.Equal(3, created.Ordinal);
-                        Assert.Equal("('October 20, 2015 11am')", created.DefaultValue);
+                        Assert.Equal("('October 20, 2015 11am')", created.DefaultValueSql);
                     },
                 discovered =>
                     {
                         Assert.Equal("DiscoveredDate", discovered.Name);
                         Assert.Equal("datetime2", discovered.StoreType);
-                        Assert.Null(discovered.PrimaryKeyOrdinal);
                         Assert.True(discovered.IsNullable);
-                        Assert.Equal(4, discovered.Ordinal);
-                        Assert.Null(discovered.DefaultValue);
+                        Assert.Null(discovered.DefaultValueSql);
 
                     },
                 current =>
                     {
                         Assert.Equal("CurrentDate", current.Name);
                         Assert.Equal("datetime", current.StoreType);
-                        Assert.Null(current.PrimaryKeyOrdinal);
                         Assert.False(current.IsNullable);
-                        Assert.Equal(5, current.Ordinal);
-                        Assert.Null(current.DefaultValue);
-                        Assert.Equal("(getdate())", current.ComputedValue);
+                        Assert.Null(current.DefaultValueSql);
+                        Assert.Equal("(getdate())", current.ComputedColumnSql);
                     },
                 sum =>
                     {
@@ -267,7 +284,7 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B
             // ReSharper disable once PossibleNullReferenceException
             Assert.Equal("K2", table.Name);
             Assert.Equal(2, table.Columns.Count);
-            Assert.Equal(1, table.Indexes.Count);
+            Assert.Equal(1, table.UniqueConstraints.Count);
             Assert.Empty(table.ForeignKeys);
         }
 
@@ -291,24 +308,24 @@ CREATE SEQUENCE CustomSequence_read
                 c =>
                     {
                         Assert.Equal("CustomSequence_read", c.Name);
-                        Assert.Equal("dbo", c.SchemaName);
-                        Assert.Equal("numeric", c.DataType);
-                        Assert.Equal(1, c.Start);
+                        Assert.Equal("dbo", c.Schema);
+                        Assert.Equal("numeric", c.StoreType);
+                        Assert.Equal(1, c.StartValue);
                         Assert.Equal(2, c.IncrementBy);
-                        Assert.Equal(8, c.Max);
-                        Assert.Equal(-3, c.Min);
+                        Assert.Equal(8, c.MaxValue);
+                        Assert.Equal(-3, c.MinValue);
                         Assert.True(c.IsCyclic);
                     },
                 d =>
                     {
                         Assert.Equal("DefaultValues_read", d.Name);
-                        Assert.Equal("dbo", d.SchemaName);
-                        Assert.Equal("bigint", d.DataType);
+                        Assert.Equal("dbo", d.Schema);
+                        Assert.Equal("bigint", d.StoreType);
                         Assert.Equal(1, d.IncrementBy);
                         Assert.False(d.IsCyclic);
-                        Assert.Null(d.Max);
-                        Assert.Null(d.Min);
-                        Assert.Null(d.Start);
+                        Assert.Null(d.MaxValue);
+                        Assert.Null(d.MinValue);
+                        Assert.Null(d.StartValue);
                     });
         }
 
@@ -318,7 +335,7 @@ CREATE SEQUENCE CustomSequence_read
             var defaultSchema = await _fixture.TestStore.ExecuteScalarAsync<string>("SELECT SCHEMA_NAME()");
 
             var model = _fixture.CreateModel("SELECT 1");
-            Assert.Equal(defaultSchema, model.DefaultSchemaName);
+            Assert.Equal(defaultSchema, model.DefaultSchema);
         }
 
         [ConditionalFact]
@@ -339,9 +356,9 @@ CREATE SEQUENCE [NumericSequence_defaults]
             Assert.All(
                 dbModel.Sequences.Where(s => s.Name.EndsWith("_defaults", StringComparison.OrdinalIgnoreCase)), s =>
                     {
-                        Assert.Null(s.Start);
-                        Assert.Null(s.Min);
-                        Assert.Null(s.Max);
+                        Assert.Null(s.StartValue);
+                        Assert.Null(s.MinValue);
+                        Assert.Null(s.MaxValue);
                     });
         }
 

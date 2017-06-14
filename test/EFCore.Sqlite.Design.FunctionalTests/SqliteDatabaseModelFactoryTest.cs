@@ -61,9 +61,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal("Mountains", fk.Table.Name);
             Assert.Equal("Ranges", fk.PrincipalTable.Name);
-            Assert.Equal(0, fk.Columns.Single().Ordinal);
-            Assert.Equal("RangeId", fk.Columns.Single().Column.Name);
-            Assert.Equal("Id", fk.Columns.Single().PrincipalColumn.Name);
+            Assert.Equal("RangeId", fk.Columns.Single().Name);
+            Assert.Equal("Id", fk.PrincipalColumns.Single().Name);
             Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
         }
 
@@ -79,10 +78,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal("Mountains", fk.Table.Name);
             Assert.Equal("Ranges", fk.PrincipalTable.Name);
-            Assert.Equal(0, fk.Columns.First().Ordinal);
-            Assert.Equal(1, fk.Columns.Last().Ordinal);
-            Assert.Equal(new[] { "RangeId", "RangeAltId" }, fk.Columns.Select(c => c.Column.Name).ToArray());
-            Assert.Equal(new[] { "Id", "AltId" }, fk.Columns.Select(c => c.PrincipalColumn.Name).ToArray());
+            Assert.Equal(new[] { "RangeId", "RangeAltId" }, fk.Columns.Select(c => c.Name).ToArray());
+            Assert.Equal(new[] { "Id", "AltId" }, fk.PrincipalColumns.Select(c => c.Name).ToArray());
             Assert.Equal(ReferentialAction.NoAction, fk.OnDelete);
         }
 
@@ -99,24 +96,47 @@ namespace Microsoft.EntityFrameworkCore
             Assert.All(indexes, c => { Assert.Equal("Place", c.Table.Name); });
 
             Assert.Collection(
-                indexes.OrderBy(i => i.Name),
+                indexes,
                 index =>
                     {
                         Assert.Equal("IX_Location_Name", index.Name);
                         Assert.False(index.IsUnique);
-                        Assert.Equal(new List<string> { "Location", "Name" }, index.IndexColumns.Select(ic => ic.Column.Name).ToList());
-                        Assert.Equal(new List<int> { 0, 1 }, index.IndexColumns.Select(ic => ic.Ordinal).ToList());
-                    },
-                pkIndex =>
-                    {
-                        Assert.True(pkIndex.IsUnique);
-                        Assert.Equal(new List<string> { "Id" }, pkIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
-                    },
-                unique =>
-                    {
-                        Assert.True(unique.IsUnique);
-                        Assert.Equal("Name", unique.IndexColumns.Single().Column.Name);
+                        Assert.Equal(new List<string> { "Location", "Name" }, index.Columns.Select(ic => ic.Name).ToList());
                     });
+        }
+
+        [Fact]
+        public void It_reads_primary_key()
+        {
+            var sql = "CREATE TABLE Place ( Id int PRIMARY KEY, Name int UNIQUE, Location int);" +
+                      "CREATE INDEX IX_Location_Name ON Place (Location, Name);";
+
+            var dbModel = CreateModel(sql);
+
+            var pkIndex = dbModel.Tables.Single().PrimaryKey;
+
+            Assert.Equal("Place", pkIndex.Table.Name);
+            Assert.Equal(new List<string> { "Id" }, pkIndex.Columns.Select(ic => ic.Name).ToList());
+        }
+
+        [Fact]
+        public void It_reads_unique_constraints()
+        {
+            var sql = "CREATE TABLE Place ( Id int PRIMARY KEY, Name int UNIQUE, Location int);" +
+                      "CREATE INDEX IX_Location_Name ON Place (Location, Name);";
+
+            var dbModel = CreateModel(sql);
+
+            var indexes = dbModel.Tables.Single().UniqueConstraints;
+
+            Assert.All(indexes, c => { Assert.Equal("Place", c.Table.Name); });
+
+            Assert.Collection(
+                indexes,
+                unique =>
+                {
+                    Assert.Equal("Name", unique.Columns.Single().Name);
+                });
         }
 
         [Fact]
@@ -131,7 +151,7 @@ CREATE TABLE [MountainsColumns] (
 );";
             var dbModel = CreateModel(sql);
 
-            var columns = dbModel.Tables.Single().Columns.OrderBy(c => c.Ordinal);
+            var columns = dbModel.Tables.Single().Columns;
 
             Assert.All(columns, c => { Assert.Equal("MountainsColumns", c.Table.Name); });
 
@@ -141,34 +161,28 @@ CREATE TABLE [MountainsColumns] (
                     {
                         Assert.Equal("Id", id.Name);
                         Assert.Equal("integer", id.StoreType);
-                        Assert.Equal(1, id.PrimaryKeyOrdinal);
                         Assert.False(id.IsNullable);
-                        Assert.Equal(0, id.Ordinal);
-                        Assert.Null(id.DefaultValue);
+                        Assert.Null(id.DefaultValueSql);
                     },
                 name =>
                     {
                         Assert.Equal("Name", name.Name);
                         Assert.Equal("string", name.StoreType);
-                        Assert.Null(name.PrimaryKeyOrdinal);
                         Assert.False(name.IsNullable);
-                        Assert.Equal(1, name.Ordinal);
-                        Assert.Null(name.DefaultValue);
+                        Assert.Null(name.DefaultValueSql);
                     },
                 lat =>
                     {
                         Assert.Equal("Latitude", lat.Name);
                         Assert.Equal("numeric", lat.StoreType);
-                        Assert.Null(lat.PrimaryKeyOrdinal);
                         Assert.True(lat.IsNullable);
-                        Assert.Equal(2, lat.Ordinal);
-                        Assert.Equal("0.0", lat.DefaultValue);
+                        Assert.Equal("0.0", lat.DefaultValueSql);
                     },
                 created =>
                     {
                         Assert.Equal("Created", created.Name);
                         Assert.Equal("datetime", created.StoreType);
-                        Assert.Equal("'October 20, 2015 11am'", created.DefaultValue);
+                        Assert.Equal("'October 20, 2015 11am'", created.DefaultValueSql);
                     });
         }
 

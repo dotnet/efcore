@@ -34,7 +34,6 @@ namespace E2E.Sqlite
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(e => e.AltId)
-                    .HasName("sqlite_autoindex_User_1")
                     .IsUnique();
 
                 entity.Property(e => e.Id).ValueGeneratedNever();

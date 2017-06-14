@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 throw new NotImplementedException();
             }
 
-            public TypeScaffoldingInfo GetTypeScaffoldingInfo(ColumnModel columnModel)
+            public TypeScaffoldingInfo GetTypeScaffoldingInfo(DatabaseColumn column)
             {
                 throw new NotImplementedException();
             }

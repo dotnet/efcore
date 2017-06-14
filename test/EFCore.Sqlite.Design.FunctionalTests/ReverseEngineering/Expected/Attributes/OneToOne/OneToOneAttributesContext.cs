@@ -23,7 +23,6 @@ namespace E2E.Sqlite
             modelBuilder.Entity<Dependent>(entity =>
             {
                 entity.HasIndex(e => e.PrincipalId)
-                    .HasName("sqlite_autoindex_Dependent_1")
                     .IsUnique();
 
                 entity.Property(e => e.Id).ValueGeneratedNever();

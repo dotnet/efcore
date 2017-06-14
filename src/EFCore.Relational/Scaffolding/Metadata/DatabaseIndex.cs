@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
-    public class IndexModel : Annotatable
+    public class DatabaseIndex : Annotatable
     {
-        public virtual TableModel Table { get; [param: CanBeNull] set; }
+        public virtual DatabaseTable Table { get; [param: CanBeNull] set; }
 
         public virtual string Name { get; [param: NotNull] set; }
-        public virtual ICollection<IndexColumnModel> IndexColumns { get; [param: NotNull] set; } = new List<IndexColumnModel>();
+        public virtual IList<DatabaseColumn> Columns { get; } = new List<DatabaseColumn>();
         public virtual bool IsUnique { get; [param: NotNull] set; }
         public virtual string Filter { get; [param: CanBeNull] set; }
     }

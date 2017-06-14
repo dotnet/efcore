@@ -22,14 +22,12 @@ namespace E2E.Sqlite
         {
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyDependentId1, e.OneToManyDependentId2 })
-                    .HasName("sqlite_autoindex_OneToManyDependent_1");
+                entity.HasKey(e => new { e.OneToManyDependentId1, e.OneToManyDependentId2 });
             });
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyPrincipalId1, e.OneToManyPrincipalId2 })
-                    .HasName("sqlite_autoindex_OneToManyPrincipal_1");
+                entity.HasKey(e => new { e.OneToManyPrincipalId1, e.OneToManyPrincipalId2 });
             });
         }
     }

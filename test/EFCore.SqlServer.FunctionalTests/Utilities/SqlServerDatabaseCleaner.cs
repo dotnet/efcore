@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                     new LoggingOptions(),
                     new DiagnosticListener("Fake")));
 
-        protected override bool AcceptIndex(IndexModel index)
+        protected override bool AcceptIndex(DatabaseIndex index)
             => false;
 
         protected override string BuildCustomSql(DatabaseModel databaseModel)
@@ -30,18 +30,18 @@ DECLARE @name VARCHAR(MAX) = '__dummy__', @SQL VARCHAR(MAX);
 
 WHILE @name IS NOT NULL
 BEGIN
-	SELECT @name =
-	(SELECT TOP 1 QUOTENAME(s.[name]) + '.' + QUOTENAME(o.[name])
-	 FROM sysobjects o
-	 INNER JOIN sys.views v ON o.id = v.object_id
-	 INNER JOIN sys.schemas s ON s.schema_id = v.schema_id
-	 WHERE (s.name = 'dbo' OR s.principal_id <> s.schema_id) AND o.[type] = 'V' AND o.category = 0 AND o.[name] NOT IN
-	 (
-		SELECT referenced_entity_name
-		FROM sys.sql_expression_dependencies AS sed
-		INNER JOIN sys.objects AS o ON sed.referencing_id = o.object_id
-	 )
-	 ORDER BY v.[name])
+    SELECT @name =
+    (SELECT TOP 1 QUOTENAME(s.[name]) + '.' + QUOTENAME(o.[name])
+     FROM sysobjects o
+     INNER JOIN sys.views v ON o.id = v.object_id
+     INNER JOIN sys.schemas s ON s.schema_id = v.schema_id
+     WHERE (s.name = 'dbo' OR s.principal_id <> s.schema_id) AND o.[type] = 'V' AND o.category = 0 AND o.[name] NOT IN
+     (
+        SELECT referenced_entity_name
+        FROM sys.sql_expression_dependencies AS sed
+        INNER JOIN sys.objects AS o ON sed.referencing_id = o.object_id
+     )
+     ORDER BY v.[name])
 
     SELECT @SQL = 'DROP VIEW ' + @name
     EXEC (@SQL)
@@ -71,16 +71,16 @@ SET @SQL ='';
 SELECT @SQL = @SQL + 'DROP SCHEMA ' + QUOTENAME(name) + ';' FROM sys.schemas WHERE principal_id <> schema_id;
 EXEC (@SQL);";
 
-        protected override DropTableOperation Drop(TableModel table)
+        protected override DropTableOperation Drop(DatabaseTable table)
             => AddMemoryOptimizedAnnotation(base.Drop(table), table);
 
-        protected override DropForeignKeyOperation Drop(ForeignKeyModel foreignKey)
+        protected override DropForeignKeyOperation Drop(DatabaseForeignKey foreignKey)
             => AddMemoryOptimizedAnnotation(base.Drop(foreignKey), foreignKey.Table);
 
-        protected override DropIndexOperation Drop(IndexModel index)
+        protected override DropIndexOperation Drop(DatabaseIndex index)
             => AddMemoryOptimizedAnnotation(base.Drop(index), index.Table);
 
-        private static TOperation AddMemoryOptimizedAnnotation<TOperation>(TOperation operation, TableModel table)
+        private static TOperation AddMemoryOptimizedAnnotation<TOperation>(TOperation operation, DatabaseTable table)
             where TOperation : MigrationOperation
         {
             operation[SqlServerAnnotationNames.MemoryOptimized]

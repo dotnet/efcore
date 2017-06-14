@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private Version _serverVersion;
         private TableSelectionSet _tableSelectionSet;
         private DatabaseModel _databaseModel;
-        private Dictionary<string, TableModel> _tables;
-        private Dictionary<string, ColumnModel> _tableColumns;
+        private Dictionary<string, DatabaseTable> _tables;
+        private Dictionary<string, DatabaseColumn> _tableColumns;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public static string SchemaQualifiedKey([NotNull] string name, [CanBeNull] string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
 
-        private static string TableKey(TableModel table) => SchemaQualifiedKey(table.Name, table.SchemaName);
-        private static string ColumnKey(TableModel table, string columnName) => TableKey(table) + ".[" + columnName + "]";
+        private static string TableKey(DatabaseTable table) => SchemaQualifiedKey(table.Name, table.Schema);
+        private static string ColumnKey(DatabaseTable table, string columnName) => TableKey(table) + ".[" + columnName + "]";
 
         private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string> { "datetimeoffset", "datetime2", "time" };
 
@@ -77,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _serverVersion = null;
             _tableSelectionSet = null;
             _databaseModel = new DatabaseModel();
-            _tables = new Dictionary<string, TableModel>();
-            _tableColumns = new Dictionary<string, ColumnModel>(StringComparer.OrdinalIgnoreCase);
+            _tables = new Dictionary<string, DatabaseTable>();
+            _tableColumns = new Dictionary<string, DatabaseColumn>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -131,6 +131,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GetDefaultSchema();
                 GetTables();
                 GetColumns();
+                GetPrimaryKeys();
+                GetUniqueConstraints();
                 GetIndexes();
                 GetForeignKeys();
 
@@ -181,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (command.ExecuteScalar() is string schema)
             {
                 Logger.DefaultSchemaFound(schema);
-                _databaseModel.DefaultSchemaName = schema;
+                _databaseModel.DefaultSchema = schema;
             }
         }
 
@@ -244,22 +246,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 while (reader.Read())
                 {
-                    var sequence = new SequenceModel
+                    var sequence = new DatabaseSequence
                     {
                         Database = _databaseModel,
-                        SchemaName = reader.GetValueOrDefault<string>("schema_name"),
+                        Schema = reader.GetValueOrDefault<string>("schema_name"),
                         Name = reader.GetValueOrDefault<string>("name"),
-                        DataType = reader.GetValueOrDefault<string>("type_name"),
+                        StoreType = reader.GetValueOrDefault<string>("type_name"),
                         IsCyclic = reader.GetValueOrDefault<bool?>("is_cycling"),
                         IncrementBy = reader.GetValueOrDefault<int?>("increment"),
-                        Start = reader.GetValueOrDefault<long?>("start_value"),
-                        Min = reader.GetValueOrDefault<long?>("minimum_value"),
-                        Max = reader.GetValueOrDefault<long?>("maximum_value")
+                        StartValue = reader.GetValueOrDefault<long?>("start_value"),
+                        MinValue = reader.GetValueOrDefault<long?>("minimum_value"),
+                        MaxValue = reader.GetValueOrDefault<long?>("maximum_value")
                     };
 
                     Logger.SequenceFound(
-                        sequence.DisplayName, sequence.DataType, sequence.IsCyclic,
-                        sequence.IncrementBy, sequence.Start, sequence.Min, sequence.Max);
+                        DisplayName(sequence.Schema, sequence.Name), sequence.StoreType, sequence.IsCyclic,
+                        sequence.IncrementBy, sequence.StartValue, sequence.MinValue, sequence.MaxValue);
 
                     if (string.IsNullOrEmpty(sequence.Name))
                     {
@@ -267,14 +269,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         continue;
                     }
 
-                    if (_defaultSequenceMinMax.ContainsKey(sequence.DataType))
+                    if (_defaultSequenceMinMax.ContainsKey(sequence.StoreType))
                     {
-                        var defaultMin = _defaultSequenceMinMax[sequence.DataType][0];
-                        sequence.Min = sequence.Min == defaultMin ? null : sequence.Min;
-                        sequence.Start = sequence.Start == defaultMin ? null : sequence.Start;
+                        var defaultMin = _defaultSequenceMinMax[sequence.StoreType][0];
+                        sequence.MinValue = sequence.MinValue == defaultMin ? null : sequence.MinValue;
+                        sequence.StartValue = sequence.StartValue == defaultMin ? null : sequence.StartValue;
 
-                        var defaultMax = _defaultSequenceMinMax[sequence.DataType][1];
-                        sequence.Max = sequence.Max == defaultMax ? null : sequence.Max;
+                        var defaultMax = _defaultSequenceMinMax[sequence.StoreType][1];
+                        sequence.MaxValue = sequence.MaxValue == defaultMax ? null : sequence.MaxValue;
                     }
 
                     _databaseModel.Sequences.Add(sequence);
@@ -304,10 +306,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 while (reader.Read())
                 {
-                    var table = new TableModel
+                    var table = new DatabaseTable
                     {
                         Database = _databaseModel,
-                        SchemaName = reader.GetValueOrDefault<string>("schema"),
+                        Schema = reader.GetValueOrDefault<string>("schema"),
                         Name = reader.GetValueOrDefault<string>("name")
                     };
 
@@ -321,16 +323,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         }
                     }
 
-                    Logger.TableFound(table.DisplayName);
+                    Logger.TableFound(DisplayName(table.Schema, table.Name));
 
-                    if (_tableSelectionSet.Allows(table.SchemaName, table.Name))
+                    if (_tableSelectionSet.Allows(table.Schema, table.Name))
                     {
                         _databaseModel.Tables.Add(table);
                         _tables[TableKey(table)] = table;
                     }
                     else
                     {
-                        Logger.TableSkipped(table.DisplayName);
+                        Logger.TableSkipped(DisplayName(table.Schema, table.Name));
                     }
                 }
             }
@@ -374,7 +376,8 @@ FROM sys.index_columns ic
     JOIN sys.tables AS t ON t.object_id = c.object_id
 WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                                   TemporalTableWhereClause +
-                                  IsHiddenColumnWhereClause;
+                                  IsHiddenColumnWhereClause + @"
+ORDER BY schema_name(t.schema_id), t.name, c.column_id";
 
             using (var reader = command.ExecuteReader())
             {
@@ -443,23 +446,21 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                         computedValue = null;
                     }
 
-                    var column = new ColumnModel
+                    var column = new DatabaseColumn
                     {
                         Table = table,
                         Name = columnName,
                         StoreType = storeType,
-                        UnderlyingStoreType = underlyingStoreType,
-                        Ordinal = ordinal - 1,
                         IsNullable = nullable,
-                        PrimaryKeyOrdinal = primaryKeyOrdinal,
-                        DefaultValue = defaultValue,
-                        ComputedValue = computedValue,
+                        DefaultValueSql = defaultValue,
+                        ComputedColumnSql = computedValue,
                         ValueGenerated = isIdentity
                             ? ValueGenerated.OnAdd
                             : isComputed || (underlyingStoreType ?? storeType) == "timestamp"
                                 ? ValueGenerated.OnAddOrUpdate
                                 : default(ValueGenerated?)
                     };
+                    column.SetUnderlyingStoreType(underlyingStoreType);
 
                     table.Columns.Add(column);
                     _tableColumns.Add(ColumnKey(table, column.Name), column);
@@ -498,6 +499,191 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
             return dataTypeName;
         }
 
+        private void GetPrimaryKeys()
+        {
+            var command = _connection.CreateCommand();
+            command.CommandText = @"SELECT
+    object_schema_name(i.object_id) AS [schema_name],
+    object_name(i.object_id) AS [table_name],
+    i.name AS [index_name],
+    c.name AS [column_name],
+    i.type_desc,
+    ic.key_ordinal
+FROM sys.indexes i
+    INNER JOIN sys.index_columns ic  ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+    INNER JOIN sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
+    INNER JOIN sys.tables t ON t.object_id = i.object_id
+WHERE object_schema_name(i.object_id) <> 'sys'
+    AND i.is_hypothetical = 0
+    AND i.is_primary_key = 1
+    AND object_name(i.object_id) <> '" + HistoryRepository.DefaultTableName + @"'" +
+                                  TemporalTableWhereClause + @"
+ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.key_ordinal";
+
+            using (var reader = command.ExecuteReader())
+            {
+                DatabasePrimaryKey primaryKey = null;
+                while (reader.Read())
+                {
+                    var schemaName = reader.GetValueOrDefault<string>("schema_name");
+                    var tableName = reader.GetValueOrDefault<string>("table_name");
+                    var indexName = reader.GetValueOrDefault<string>("index_name");
+                    var typeDesc = reader.GetValueOrDefault<string>("type_desc");
+                    var columnName = reader.GetValueOrDefault<string>("column_name");
+                    var indexOrdinal = reader.GetValueOrDefault<byte>("key_ordinal");
+
+                    Logger.IndexColumnFound(
+                        DisplayName(schemaName, tableName), indexName, true, columnName, indexOrdinal);
+
+                    if (!_tableSelectionSet.Allows(schemaName, tableName))
+                    {
+                        Logger.IndexColumnSkipped(columnName, indexName, DisplayName(schemaName, tableName));
+                        continue;
+                    }
+
+                    if (string.IsNullOrEmpty(indexName))
+                    {
+                        Logger.IndexNotNamedWarning(DisplayName(schemaName, tableName));
+                        continue;
+                    }
+
+                    Debug.Assert(primaryKey == null || primaryKey.Table != null);
+                    if (primaryKey == null
+                        || primaryKey.Name != indexName
+                        || primaryKey.Table.Name != tableName
+                        || primaryKey.Table.Schema != schemaName)
+                    {
+                        DatabaseTable table;
+                        if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out table))
+                        {
+                            Logger.IndexTableMissingWarning(indexName, DisplayName(schemaName, tableName));
+                            continue;
+                        }
+
+                        primaryKey = new DatabasePrimaryKey
+                        {
+                            Table = table,
+                            Name = indexName
+                        };
+
+                        if (typeDesc == "CLUSTERED")
+                        {
+                            primaryKey[SqlServerAnnotationNames.Clustered] = true;
+                        }
+
+                        Debug.Assert(table.PrimaryKey == null);
+                        table.PrimaryKey = primaryKey;
+                    }
+
+                    DatabaseColumn column;
+                    if (string.IsNullOrEmpty(columnName))
+                    {
+                        Logger.IndexColumnNotNamedWarning(indexName, DisplayName(schemaName, tableName));
+                    }
+                    else if (!_tableColumns.TryGetValue(ColumnKey(primaryKey.Table, columnName), out column))
+                    {
+                        Logger.IndexColumnsNotMappedWarning(indexName, new[] { columnName });
+                    }
+                    else
+                    {
+                        primaryKey.Columns.Add(column);
+                    }
+                }
+            }
+        }
+
+        private void GetUniqueConstraints()
+        {
+            var command = _connection.CreateCommand();
+            command.CommandText = @"SELECT
+    object_schema_name(i.object_id) AS [schema_name],
+    object_name(i.object_id) AS [table_name],
+    i.name AS [index_name],
+    c.name AS [column_name],
+    i.type_desc,
+    ic.key_ordinal
+FROM sys.indexes i
+    INNER JOIN sys.index_columns ic  ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+    INNER JOIN sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
+    INNER JOIN sys.tables t ON t.object_id = i.object_id
+WHERE object_schema_name(i.object_id) <> 'sys'
+    AND i.is_hypothetical = 0
+    AND i.is_unique_constraint = 1
+    AND object_name(i.object_id) <> '" + HistoryRepository.DefaultTableName + @"'" +
+                                  TemporalTableWhereClause + @"
+ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.key_ordinal";
+
+            using (var reader = command.ExecuteReader())
+            {
+                DatabaseUniqueConstraint uniqueConstraint = null;
+                while (reader.Read())
+                {
+                    var schemaName = reader.GetValueOrDefault<string>("schema_name");
+                    var tableName = reader.GetValueOrDefault<string>("table_name");
+                    var indexName = reader.GetValueOrDefault<string>("index_name");
+                    var typeDesc = reader.GetValueOrDefault<string>("type_desc");
+                    var columnName = reader.GetValueOrDefault<string>("column_name");
+                    var indexOrdinal = reader.GetValueOrDefault<byte>("key_ordinal");
+
+                    Logger.IndexColumnFound(
+                        DisplayName(schemaName, tableName), indexName, true, columnName, indexOrdinal);
+
+                    if (!_tableSelectionSet.Allows(schemaName, tableName))
+                    {
+                        Logger.IndexColumnSkipped(columnName, indexName, DisplayName(schemaName, tableName));
+                        continue;
+                    }
+
+                    if (string.IsNullOrEmpty(indexName))
+                    {
+                        Logger.IndexNotNamedWarning(DisplayName(schemaName, tableName));
+                        continue;
+                    }
+
+                    Debug.Assert(uniqueConstraint == null || uniqueConstraint.Table != null);
+                    if (uniqueConstraint == null
+                        || uniqueConstraint.Name != indexName
+                        || uniqueConstraint.Table.Name != tableName
+                        || uniqueConstraint.Table.Schema != schemaName)
+                    {
+                        DatabaseTable table;
+                        if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out table))
+                        {
+                            Logger.IndexTableMissingWarning(indexName, DisplayName(schemaName, tableName));
+                            continue;
+                        }
+
+                        uniqueConstraint = new DatabaseUniqueConstraint
+                        {
+                            Table = table,
+                            Name = indexName,
+                        };
+
+                        if (typeDesc == "CLUSTERED")
+                        {
+                            uniqueConstraint[SqlServerAnnotationNames.Clustered] = true;
+                        }
+
+                        table.UniqueConstraints.Add(uniqueConstraint);
+                    }
+
+                    DatabaseColumn column;
+                    if (string.IsNullOrEmpty(columnName))
+                    {
+                        Logger.IndexColumnNotNamedWarning(indexName, DisplayName(schemaName, tableName));
+                    }
+                    else if (!_tableColumns.TryGetValue(ColumnKey(uniqueConstraint.Table, columnName), out column))
+                    {
+                        Logger.IndexColumnsNotMappedWarning(indexName, new[] { columnName });
+                    }
+                    else
+                    {
+                        uniqueConstraint.Columns.Add(column);
+                    }
+                }
+            }
+        }
+
         private void GetIndexes()
         {
             var command = _connection.CreateCommand();
@@ -517,13 +703,15 @@ FROM sys.indexes i
     INNER JOIN sys.tables t ON t.object_id = i.object_id
 WHERE object_schema_name(i.object_id) <> 'sys'
     AND i.is_hypothetical = 0
+    AND i.is_primary_key <> 1
+    AND i.is_unique_constraint <> 1
     AND object_name(i.object_id) <> '" + HistoryRepository.DefaultTableName + @"'" +
                                   TemporalTableWhereClause + @"
 ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.key_ordinal";
 
             using (var reader = command.ExecuteReader())
             {
-                IndexModel index = null;
+                DatabaseIndex index = null;
                 while (reader.Read())
                 {
                     var schemaName = reader.GetValueOrDefault<string>("schema_name");
@@ -555,16 +743,16 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     if (index == null
                         || index.Name != indexName
                         || index.Table.Name != tableName
-                        || index.Table.SchemaName != schemaName)
+                        || index.Table.Schema != schemaName)
                     {
-                        TableModel table;
+                        DatabaseTable table;
                         if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out table))
                         {
                             Logger.IndexTableMissingWarning(indexName, DisplayName(schemaName, tableName));
                             continue;
                         }
 
-                        index = new IndexModel
+                        index = new DatabaseIndex
                         {
                             Table = table,
                             Name = indexName,
@@ -580,7 +768,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         table.Indexes.Add(index);
                     }
 
-                    ColumnModel column;
+                    DatabaseColumn column;
                     if (string.IsNullOrEmpty(columnName))
                     {
                         Logger.IndexColumnNotNamedWarning(indexName, DisplayName(schemaName, tableName));
@@ -591,14 +779,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     }
                     else
                     {
-                        var indexColumn = new IndexColumnModel
-                        {
-                            Index = index,
-                            Column = column,
-                            Ordinal = indexOrdinal
-                        };
-
-                        index.IndexColumns.Add(indexColumn);
+                        index.Columns.Add(column);
                     }
                 }
             }
@@ -621,13 +802,13 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
     fc.constraint_column_id
 FROM sys.foreign_keys AS f
     INNER JOIN sys.foreign_key_columns AS fc ON f.object_id = fc.constraint_object_id
-ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
+ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.constraint_column_id";
             using (var reader = command.ExecuteReader())
             {
                 var lastFkName = string.Empty;
                 var lastFkSchemaName = string.Empty;
                 var lastFkTableName = string.Empty;
-                ForeignKeyModel fkInfo = null;
+                DatabaseForeignKey foreignKey = null;
                 while (reader.Read())
                 {
                     var schemaName = reader.GetValueOrDefault<string>("schema_name");
@@ -657,7 +838,7 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
                         continue;
                     }
 
-                    if (fkInfo == null
+                    if (foreignKey == null
                         || lastFkSchemaName != schemaName
                         || lastFkTableName != tableName
                         || lastFkName != fkName)
@@ -667,7 +848,7 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
                         lastFkTableName = tableName;
                         var table = _tables[SchemaQualifiedKey(tableName, schemaName)];
 
-                        TableModel principalTable = null;
+                        DatabaseTable principalTable = null;
                         if (!string.IsNullOrEmpty(principalTableSchemaName)
                             && !string.IsNullOrEmpty(principalTableName))
                         {
@@ -680,7 +861,7 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
                                 fkName, DisplayName(schemaName, tableName), DisplayName(principalTableSchemaName, principalTableName));
                         }
 
-                        fkInfo = new ForeignKeyModel
+                        foreignKey = new DatabaseForeignKey
                         {
                             Name = fkName,
                             Table = table,
@@ -688,30 +869,23 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
                             OnDelete = ConvertToReferentialAction(deleteAction)
                         };
 
-                        table.ForeignKeys.Add(fkInfo);
+                        table.ForeignKeys.Add(foreignKey);
                     }
 
-                    var fkColumn = new ForeignKeyColumnModel
+                    DatabaseColumn fromColumn;
+                    if ((fromColumn = FindColumnForForeignKey(fromColumnName, foreignKey.Table, fkName)) != null)
                     {
-                        Ordinal = ordinal
-                    };
-
-                    ColumnModel fromColumn;
-                    if ((fromColumn = FindColumnForForeignKey(fromColumnName, fkInfo.Table, fkName)) != null)
-                    {
-                        fkColumn.Column = fromColumn;
+                        foreignKey.Columns.Add(fromColumn);
                     }
 
-                    if (fkInfo.PrincipalTable != null)
+                    if (foreignKey.PrincipalTable != null)
                     {
-                        ColumnModel toColumn;
-                        if ((toColumn = FindColumnForForeignKey(toColumnName, fkInfo.PrincipalTable, fkName)) != null)
+                        DatabaseColumn toColumn;
+                        if ((toColumn = FindColumnForForeignKey(toColumnName, foreignKey.PrincipalTable, fkName)) != null)
                         {
-                            fkColumn.PrincipalColumn = toColumn;
+                            foreignKey.PrincipalColumns.Add(toColumn);
                         }
                     }
-
-                    fkInfo.Columns.Add(fkColumn);
                 }
             }
         }
@@ -719,13 +893,13 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
         private static string DisplayName(string schema, string name)
             => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
 
-        private ColumnModel FindColumnForForeignKey(
-            string columnName, TableModel table, string fkName)
+        private DatabaseColumn FindColumnForForeignKey(
+            string columnName, DatabaseTable table, string fkName)
         {
-            ColumnModel column;
+            DatabaseColumn column;
             if (string.IsNullOrEmpty(columnName))
             {
-                Logger.ForeignKeyColumnNotNamedWarning(fkName, DisplayName(table.SchemaName, table.Name));
+                Logger.ForeignKeyColumnNotNamedWarning(fkName, DisplayName(table.Schema, table.Name));
                 return null;
             }
 

@@ -34,7 +34,6 @@ namespace E2E.Sqlite
             modelBuilder.Entity<UsersGroups>(entity =>
             {
                 entity.HasIndex(e => new { e.UserId, e.GroupId })
-                    .HasName("sqlite_autoindex_Users_Groups_2")
                     .IsUnique();
 
                 entity.Property(e => e.Id).ValueGeneratedNever();

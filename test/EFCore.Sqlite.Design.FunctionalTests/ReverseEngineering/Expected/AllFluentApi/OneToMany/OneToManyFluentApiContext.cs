@@ -22,8 +22,7 @@ namespace E2E.Sqlite
         {
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyDependentId1, e.OneToManyDependentId2 })
-                    .HasName("sqlite_autoindex_OneToManyDependent_1");
+                entity.HasKey(e => new { e.OneToManyDependentId1, e.OneToManyDependentId2 });
 
                 entity.Property(e => e.OneToManyDependentId1)
                     .HasColumnName("OneToManyDependentID1")
@@ -52,8 +51,7 @@ namespace E2E.Sqlite
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyPrincipalId1, e.OneToManyPrincipalId2 })
-                    .HasName("sqlite_autoindex_OneToManyPrincipal_1");
+                entity.HasKey(e => new { e.OneToManyPrincipalId1, e.OneToManyPrincipalId2 });
 
                 entity.Property(e => e.OneToManyPrincipalId1)
                     .HasColumnName("OneToManyPrincipalID1")

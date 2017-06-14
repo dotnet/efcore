@@ -17,13 +17,13 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected abstract IDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory);
 
-        protected virtual bool AcceptTable(TableModel table) => true;
+        protected virtual bool AcceptTable(DatabaseTable table) => true;
 
-        protected virtual bool AcceptForeignKey(ForeignKeyModel foreignKey) => true;
+        protected virtual bool AcceptForeignKey(DatabaseForeignKey foreignKey) => true;
 
-        protected virtual bool AcceptIndex(IndexModel index) => true;
+        protected virtual bool AcceptIndex(DatabaseIndex index) => true;
 
-        protected virtual bool AcceptSequence(SequenceModel sequence) => true;
+        protected virtual bool AcceptSequence(DatabaseSequence sequence) => true;
 
         protected virtual string BuildCustomSql(DatabaseModel databaseModel) => null;
 
@@ -102,34 +102,34 @@ namespace Microsoft.EntityFrameworkCore
             creator.CreateTables();
         }
 
-        protected virtual DropSequenceOperation Drop(SequenceModel sequence)
+        protected virtual DropSequenceOperation Drop(DatabaseSequence sequence)
             => new DropSequenceOperation
             {
                 Name = sequence.Name,
-                Schema = sequence.SchemaName
+                Schema = sequence.Schema
             };
 
-        protected virtual DropTableOperation Drop(TableModel table)
+        protected virtual DropTableOperation Drop(DatabaseTable table)
             => new DropTableOperation
             {
                 Name = table.Name,
-                Schema = table.SchemaName
+                Schema = table.Schema
             };
 
-        protected virtual DropForeignKeyOperation Drop(ForeignKeyModel foreignKey)
+        protected virtual DropForeignKeyOperation Drop(DatabaseForeignKey foreignKey)
             => new DropForeignKeyOperation
             {
                 Name = foreignKey.Name,
                 Table = foreignKey.Table.Name,
-                Schema = foreignKey.Table.SchemaName
+                Schema = foreignKey.Table.Schema
             };
 
-        protected virtual DropIndexOperation Drop(IndexModel index)
+        protected virtual DropIndexOperation Drop(DatabaseIndex index)
             => new DropIndexOperation
             {
                 Name = index.Name,
                 Table = index.Table.Name,
-                Schema = index.Table.SchemaName
+                Schema = index.Table.Schema
             };
     }
 }

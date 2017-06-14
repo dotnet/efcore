@@ -1,13 +1,14 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Globalization;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -24,6 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     /// </summary>
     public class SqliteDatabaseModelFactory : IDatabaseModelFactory
     {
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -32,31 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(logger, nameof(logger));
 
-            Logger = logger;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual IDiagnosticsLogger<DbLoggerCategory.Scaffolding> Logger { get; }
-
-        private DbConnection _connection;
-        private TableSelectionSet _tableSelectionSet;
-        private DatabaseModel _databaseModel;
-        private Dictionary<string, TableModel> _tables;
-        private Dictionary<string, ColumnModel> _tableColumns;
-
-        private static string ColumnKey(TableModel table, string columnName)
-            => "[" + table.Name + "].[" + columnName + "]";
-
-        private void ResetState()
-        {
-            _connection = null;
-            _tableSelectionSet = null;
-            _databaseModel = new DatabaseModel();
-            _tables = new Dictionary<string, TableModel>(StringComparer.OrdinalIgnoreCase);
-            _tableColumns = new Dictionary<string, ColumnModel>(StringComparer.OrdinalIgnoreCase);
+            _logger = logger;
         }
 
         /// <summary>
@@ -65,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
         {
-            Check.NotEmpty(connectionString, nameof(connectionString));
+            Check.NotNull(connectionString, nameof(connectionString));
             Check.NotNull(tables, nameof(tables));
             Check.NotNull(schemas, nameof(schemas));
 
@@ -85,295 +64,487 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(tables, nameof(tables));
             Check.NotNull(schemas, nameof(schemas));
 
-            ResetState();
+            if (schemas.Any())
+            {
+                _logger.SchemasNotSupportedWarning();
+            }
 
-            _connection = connection;
+            var databaseModel = new DatabaseModel();
 
-            var connectionStartedOpen = _connection.State == ConnectionState.Open;
+            var connectionStartedOpen = connection.State == ConnectionState.Open;
             if (!connectionStartedOpen)
             {
-                _connection.Open();
+                connection.Open();
             }
             try
             {
-                _tableSelectionSet = new TableSelectionSet(tables, schemas);
-                if (_tableSelectionSet.Schemas.Any())
-                {
-                    Logger.SchemasNotSupportedWarning();
+                databaseModel.DatabaseName = GetDatabaseName(connection);
 
-                    // we've logged a general warning above that sqlite ignores all
-                    // schema selections so mark all of them as matched so that we don't
-                    // also log warnings about not matching each individual selection
-                    _tableSelectionSet.Schemas.ToList().ForEach(s => s.IsMatched = true);
+                foreach (var table in GetTables(connection, tables))
+                {
+                    table.Database = databaseModel;
+                    databaseModel.Tables.Add(table);
                 }
 
-                string databaseName = null;
-                try
+                foreach (var table in databaseModel.Tables)
                 {
-                    databaseName = Path.GetFileNameWithoutExtension(_connection.DataSource);
+                    foreach (var foreignKey in GetForeignKeys(connection, table, databaseModel.Tables))
+                    {
+                        foreignKey.Table = table;
+                        table.ForeignKeys.Add(foreignKey);
+                    }
                 }
-                catch (ArgumentException)
+
+                var nullableKeyColumns = Enumerable
+                    .Concat(
+                        databaseModel.Tables.Where(t => t.PrimaryKey != null).SelectMany(t => t.PrimaryKey.Columns),
+                        databaseModel.Tables.SelectMany(t => t.ForeignKeys).SelectMany(fk => fk.PrincipalColumns))
+                    .Where(c => c.IsNullable)
+                    .Distinct();
+                foreach (var column in nullableKeyColumns)
                 {
-                    // graceful fallback
+                    // TODO: Consider warning
+                    column.IsNullable = false;
                 }
-
-                _databaseModel.DatabaseName = !string.IsNullOrEmpty(databaseName)
-                    ? databaseName
-                    : _connection.DataSource;
-
-                GetTables();
-                GetColumns();
-                GetIndexes();
-                GetForeignKeys();
-
-                CheckSelectionsMatched(_tableSelectionSet);
-
-                return _databaseModel;
             }
             finally
             {
                 if (!connectionStartedOpen)
                 {
-                    _connection.Close();
+                    connection.Close();
                 }
             }
+
+            return databaseModel;
         }
 
-        private void CheckSelectionsMatched(TableSelectionSet tableSelectionSet)
+        private static string GetDatabaseName(DbConnection connection)
         {
-            foreach (var schemaSelection in tableSelectionSet.Schemas.Where(s => !s.IsMatched))
+            var name = Path.GetFileNameWithoutExtension(connection.DataSource);
+            if (string.IsNullOrEmpty(name))
             {
-                Logger.MissingSchemaWarning(schemaSelection.Text);
+                name = "Main";
+            }
+
+            return name;
+        }
+
+        private IEnumerable<DatabaseTable> GetTables(DbConnection connection, IEnumerable<string> tables)
+        {
+            var tableSelectionSet = new TableSelectionSet(tables);
+
+            var command = connection.CreateCommand();
+            command.CommandText = new StringBuilder()
+                .AppendLine("SELECT \"name\"")
+                .AppendLine("FROM \"sqlite_master\"")
+                .Append("WHERE \"type\" = 'table' AND instr(\"name\", 'sqlite_') <> 1 AND \"name\" <> '")
+                .Append(HistoryRepository.DefaultTableName)
+                .AppendLine("';")
+                .ToString();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var name = reader.GetString(0);
+
+                    _logger.TableFound(name);
+
+                    if (tableSelectionSet.Allows(name))
+                    {
+                        var table = new DatabaseTable { Name = name };
+
+                        foreach (var column in GetColumns(connection, name))
+                        {
+                            column.Table = table;
+                            table.Columns.Add(column);
+                        }
+
+                        var primaryKey = GetPrimaryKey(connection, name, table.Columns);
+                        if (primaryKey != null)
+                        {
+                            primaryKey.Table = table;
+                            table.PrimaryKey = primaryKey;
+                        }
+
+                        foreach (var uniqueConstraints in GetUniqueConstraints(connection, name, table.Columns))
+                        {
+                            uniqueConstraints.Table = table;
+                            table.UniqueConstraints.Add(uniqueConstraints);
+                        }
+
+                        foreach (var index in GetIndexes(connection, name, table.Columns))
+                        {
+                            index.Table = table;
+                            table.Indexes.Add(index);
+                        }
+
+                        yield return table;
+                    }
+                    else
+                    {
+                        _logger.TableSkipped(name);
+                    }
+                }
             }
 
             foreach (var tableSelection in tableSelectionSet.Tables.Where(t => !t.IsMatched))
             {
-                Logger.MissingTableWarning(tableSelection.Text);
+                _logger.MissingTableWarning(tableSelection.Text);
             }
         }
 
-        private void GetTables()
+        private IEnumerable<DatabaseColumn> GetColumns(DbConnection connection, string table)
         {
-            using (var command = _connection.CreateCommand())
+            var command = connection.CreateCommand();
+            command.CommandText = new StringBuilder()
+                .AppendLine("SELECT \"name\", \"type\", \"notnull\", \"dflt_value\"")
+                .AppendLine("FROM pragma_table_info(@table)")
+                .AppendLine("ORDER BY \"cid\";")
+                .ToString();
+
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "@table";
+            parameter.Value = table;
+            command.Parameters.Add(parameter);
+
+            using (var reader = command.ExecuteReader())
             {
-                command.CommandText =
-                    "SELECT name FROM sqlite_master" +
-                    " WHERE type = 'table'" +
-                    " AND name <> 'sqlite_sequence'" +
-                    $" AND name <> '{HistoryRepository.DefaultTableName}'"; // Interpolation okay; strings
-
-                using (var reader = command.ExecuteReader())
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    var columnName = reader.GetString(0);
+                    var dataType = reader.GetString(1);
+                    var notNull = reader.GetBoolean(2);
+                    var defaultValue = !reader.IsDBNull(3)
+                        ? reader.GetString(3)
+                        : null;
+
+                    _logger.ColumnFound(table, columnName, dataType, notNull, defaultValue);
+
+                    yield return new DatabaseColumn
                     {
-                        var name = reader.GetValueOrDefault<string>("name");
+                        Name = columnName,
+                        StoreType = dataType,
+                        IsNullable = !notNull,
+                        DefaultValueSql = defaultValue
+                    };
+                }
+            }
+        }
 
-                        Logger.TableFound(name);
+        private DatabasePrimaryKey GetPrimaryKey(DbConnection connection, string table, IList<DatabaseColumn> columns)
+        {
+            var primaryKey = new DatabasePrimaryKey();
 
-                        if (_tableSelectionSet.Allows(name))
+            var command = connection.CreateCommand();
+            command.CommandText = new StringBuilder()
+                .AppendLine("SELECT \"name\"")
+                .AppendLine("FROM pragma_index_list(@table)")
+                .AppendLine("WHERE \"origin\" = 'pk'")
+                .AppendLine("ORDER BY \"seq\";")
+                .ToString();
+
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "@table";
+            parameter.Value = table;
+            command.Parameters.Add(parameter);
+
+            var name = (string)command.ExecuteScalar();
+            if (name == null)
+            {
+                return GetRowidPrimaryKey(connection, table, columns);
+            }
+            else if (!name.StartsWith("sqlite_"))
+            {
+                primaryKey.Name = name;
+            }
+
+            _logger.IndexFound(name, table, unique: true);
+
+            command.CommandText = new StringBuilder()
+                .AppendLine("SELECT \"name\"")
+                .AppendLine("FROM pragma_index_info(@index)")
+                .AppendLine("ORDER BY \"seqno\";")
+                .ToString();
+
+            parameter.ParameterName = "@index";
+            parameter.Value = name;
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var columnName = reader.GetString(0);
+                    var column = columns.FirstOrDefault(c => c.Name == columnName)
+                        ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                    Debug.Assert(column != null, "column is null.");
+
+                    _logger.IndexColumnFound(table, name, true, columnName, null);
+
+                    primaryKey.Columns.Add(column);
+                }
+            }
+
+            return primaryKey;
+        }
+
+        private static DatabasePrimaryKey GetRowidPrimaryKey(
+            DbConnection connection,
+            string table,
+            IList<DatabaseColumn> columns)
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = new StringBuilder()
+                .AppendLine("SELECT \"name\"")
+                .AppendLine("FROM pragma_table_info(@table)")
+                .AppendLine("WHERE \"pk\" = 1;")
+                .ToString();
+
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "@table";
+            parameter.Value = table;
+            command.Parameters.Add(parameter);
+
+            using (var reader = command.ExecuteReader())
+            {
+                if (!reader.Read())
+                {
+                    return null;
+                }
+
+                var columnName = reader.GetString(0);
+                var column = columns.FirstOrDefault(c => c.Name == columnName)
+                    ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                Debug.Assert(column != null, "column is null.");
+
+                Debug.Assert(!reader.Read(), "Unexpected composite primary key.");
+
+                return new DatabasePrimaryKey { Columns = { column } };
+            }
+        }
+
+        private IEnumerable<DatabaseUniqueConstraint> GetUniqueConstraints(
+            DbConnection connection,
+            string table,
+            IList<DatabaseColumn> columns)
+        {
+            var command1 = connection.CreateCommand();
+            command1.CommandText = new StringBuilder()
+                .AppendLine("SELECT \"name\"")
+                .AppendLine("FROM pragma_index_list(@table)")
+                .AppendLine("WHERE \"origin\" = 'u'")
+                .AppendLine("ORDER BY \"seq\";")
+                .ToString();
+
+            var parameter1 = command1.CreateParameter();
+            parameter1.ParameterName = "@table";
+            parameter1.Value = table;
+            command1.Parameters.Add(parameter1);
+
+            using (var reader1 = command1.ExecuteReader())
+            {
+                while (reader1.Read())
+                {
+                    var uniqueConstraint = new DatabaseUniqueConstraint();
+                    var name = reader1.GetString(0);
+                    if (!name.StartsWith("sqlite_"))
+                    {
+                        uniqueConstraint.Name = name;
+                    }
+
+                    _logger.IndexFound(name, table, unique: true);
+
+                    var command2 = connection.CreateCommand();
+                    command2.CommandText = new StringBuilder()
+                        .AppendLine("SELECT \"name\"")
+                        .AppendLine("FROM pragma_index_info(@index)")
+                        .AppendLine("ORDER BY \"seqno\";")
+                        .ToString();
+
+                    var parameter2 = command2.CreateParameter();
+                    parameter2.ParameterName = "@index";
+                    parameter2.Value = name;
+                    command2.Parameters.Add(parameter2);
+
+                    using (var reader2 = command2.ExecuteReader())
+                    {
+                        while (reader2.Read())
                         {
-                            var table = new TableModel
+                            var columnName = reader2.GetString(0);
+                            var column = columns.FirstOrDefault(c => c.Name == columnName)
+                                ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                            Debug.Assert(column != null, "column is null.");
+
+                            _logger.IndexColumnFound(table, name, true, columnName, null);
+
+                            uniqueConstraint.Columns.Add(column);
+                        }
+                    }
+
+                    yield return uniqueConstraint;
+                }
+            }
+        }
+
+        private IEnumerable<DatabaseIndex> GetIndexes(
+            DbConnection connection,
+            string table,
+            IList<DatabaseColumn> columns)
+        {
+            var command1 = connection.CreateCommand();
+            command1.CommandText = new StringBuilder()
+                .AppendLine("SELECT \"name\", \"unique\"")
+                .AppendLine("FROM pragma_index_list(@table)")
+                .AppendLine("WHERE \"origin\" = 'c' AND instr(\"name\", 'sqlite_') <> 1")
+                .AppendLine("ORDER BY \"seq\";")
+                .ToString();
+
+            var parameter1 = command1.CreateParameter();
+            parameter1.ParameterName = "@table";
+            parameter1.Value = table;
+            command1.Parameters.Add(parameter1);
+
+            using (var reader1 = command1.ExecuteReader())
+            {
+                while (reader1.Read())
+                {
+                    var index = new DatabaseIndex
+                    {
+                        Name = reader1.GetString(0),
+                        IsUnique = reader1.GetBoolean(1)
+                    };
+
+                    _logger.IndexFound(index.Name, table, index.IsUnique);
+
+                    var command2 = connection.CreateCommand();
+                    command2.CommandText = new StringBuilder()
+                        .AppendLine("SELECT \"name\"")
+                        .AppendLine("FROM pragma_index_info(@index)")
+                        .AppendLine("ORDER BY \"seqno\";")
+                        .ToString();
+
+                    var parameter2 = command2.CreateParameter();
+                    parameter2.ParameterName = "@index";
+                    parameter2.Value = index.Name;
+                    command2.Parameters.Add(parameter2);
+
+                    using (var reader2 = command2.ExecuteReader())
+                    {
+                        while (reader2.Read())
+                        {
+                            var name = reader2.GetString(0);
+                            var column = columns.FirstOrDefault(c => c.Name == name)
+                                ?? columns.FirstOrDefault(c => c.Name.Equals(name, StringComparison.Ordinal));
+                            Debug.Assert(column != null, "column is null.");
+
+                            _logger.IndexColumnFound(table, index.Name, index.IsUnique, name, null);
+
+                            index.Columns.Add(column);
+                        }
+                    }
+
+                    yield return index;
+                }
+            }
+        }
+
+        private IEnumerable<DatabaseForeignKey> GetForeignKeys(DbConnection connection, DatabaseTable table, IList<DatabaseTable> tables)
+        {
+            var command1 = connection.CreateCommand();
+            command1.CommandText = new StringBuilder()
+                .AppendLine("SELECT DISTINCT \"id\", \"table\", \"on_delete\"")
+                .AppendLine("FROM pragma_foreign_key_list(@table)")
+                .AppendLine("ORDER BY \"id\";")
+                .ToString();
+
+            var parameter1 = command1.CreateParameter();
+            parameter1.ParameterName = "@table";
+            parameter1.Value = table.Name;
+            command1.Parameters.Add(parameter1);
+
+            using (var reader1 = command1.ExecuteReader())
+            {
+                while (reader1.Read())
+                {
+                    var id = reader1.GetInt64(0);
+                    var principalTableName = reader1.GetString(1);
+                    var foreignKey = new DatabaseForeignKey
+                    {
+                        PrincipalTable = tables.FirstOrDefault(t => t.Name == principalTableName)
+                            ?? tables.FirstOrDefault(t => t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase)),
+                        OnDelete = ConvertToReferentialAction(reader1.GetString(2))
+                    };
+
+                    if (foreignKey.PrincipalTable == null)
+                    {
+                        _logger.ForeignKeyReferencesMissingTableWarning(id.ToString());
+                        continue;
+                    }
+
+                    var command2 = connection.CreateCommand();
+                    command2.CommandText = new StringBuilder()
+                        .AppendLine("SELECT \"from\", \"to\"")
+                        .AppendLine("FROM pragma_foreign_key_list(@table)")
+                        .AppendLine("WHERE \"id\" = @id")
+                        .AppendLine("ORDER BY \"seq\";")
+                        .ToString();
+
+                    var parameter2 = command2.CreateParameter();
+                    parameter2.ParameterName = "@table";
+                    parameter2.Value = table.Name;
+                    command2.Parameters.Add(parameter2);
+
+                    var parameter3 = command2.CreateParameter();
+                    parameter3.ParameterName = "@id";
+                    parameter3.Value = id;
+                    command2.Parameters.Add(parameter3);
+
+                    var invalid = false;
+
+                    using (var reader2 = command2.ExecuteReader())
+                    {
+                        while (reader2.Read())
+                        {
+                            var columnName = reader2.GetString(0);
+                            var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
+                                ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                            Debug.Assert(column != null, "column is null.");
+
+                            var principalColumnName = reader2.GetString(1);
+                            var principalColumn = foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
+                                ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                            if (principalColumn == null)
                             {
-                                Database = _databaseModel,
-                                Name = name
-                            };
+                                invalid = true;
+                                _logger.ForeignKeyPrincipalColumnMissingWarning(
+                                    id.ToString(), table.Name, principalColumnName, principalTableName);
+                                break;
+                            }
 
-                            _databaseModel.Tables.Add(table);
-                            _tables.Add(name, table);
+                            _logger.ForeignKeyColumnFound(
+                                table.Name,
+                                id,
+                                principalTableName,
+                                columnName,
+                                principalColumnName,
+                                foreignKey.OnDelete?.ToString());
+
+                            foreignKey.Columns.Add(column);
+                            foreignKey.PrincipalColumns.Add(principalColumn);
                         }
-                        else
-                        {
-                            Logger.TableSkipped(name);
-                        }
+                    }
+
+                    if (!invalid)
+                    {
+                        yield return foreignKey;
                     }
                 }
             }
         }
 
-        private void GetColumns()
+        private static ReferentialAction? ConvertToReferentialAction(string value)
         {
-            foreach (var table in _databaseModel.Tables)
-            {
-                using (var command = _connection.CreateCommand())
-                {
-                    command.CommandText = $"PRAGMA table_info(\"{table.Name.Replace("\"", "\"\"")}\");"; // Interpolation okay; strings
-
-                    using (var reader = command.ExecuteReader())
-                    {
-                        var ordinal = 0;
-                        while (reader.Read())
-                        {
-                            var columnName = reader.GetValueOrDefault<string>("name");
-                            var dataType = reader.GetValueOrDefault<string>("type");
-                            var primaryKeyOrdinal = reader.GetValueOrDefault<int>("pk");
-                            var notNull = reader.GetValueOrDefault<bool>("notnull");
-                            var defaultValue = reader.GetValueOrDefault<string>("dflt_value");
-
-                            Logger.ColumnFound(
-                                    table.Name, columnName, dataType, ordinal,
-                                    notNull, primaryKeyOrdinal, defaultValue);
-
-                            var isPk = primaryKeyOrdinal != 0;
-                            var column = new ColumnModel
-                            {
-                                Table = table,
-                                Name = columnName,
-                                StoreType = dataType,
-                                Ordinal = ordinal++,
-                                IsNullable = !notNull && !isPk,
-                                PrimaryKeyOrdinal = isPk ? primaryKeyOrdinal : default(int?),
-                                DefaultValue = defaultValue
-                            };
-
-                            table.Columns.Add(column);
-                            _tableColumns[ColumnKey(table, column.Name)] = column;
-                        }
-                    }
-                }
-            }
-        }
-
-        private void GetIndexes()
-        {
-            foreach (var table in _databaseModel.Tables)
-            {
-                using (var indexInfo = _connection.CreateCommand())
-                {
-                    indexInfo.CommandText = $"PRAGMA index_list(\"{table.Name.Replace("\"", "\"\"")}\");"; // Interpolation okay; strings
-
-                    using (var reader = indexInfo.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var index = new IndexModel
-                            {
-                                Name = reader.GetValueOrDefault<string>("name"),
-                                Table = table,
-                                IsUnique = reader.GetValueOrDefault<bool>("unique")
-                            };
-
-                            Logger.IndexFound(index.Name, table.Name, index.IsUnique);
-
-                            table.Indexes.Add(index);
-                        }
-                    }
-
-                    foreach (var index in table.Indexes)
-                    {
-                        var indexColumns = _connection.CreateCommand();
-                        indexColumns.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");"; // Interpolation okay; strings
-
-                        index.IndexColumns = new List<IndexColumnModel>();
-                        using (var reader = indexColumns.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                var columnName = reader.GetValueOrDefault<string>("name");
-                                var indexOrdinal = reader.GetValueOrDefault<int>("seqno");
-
-                                Logger.IndexColumnFound(
-                                        table.Name, index.Name, index.IsUnique, columnName, indexOrdinal);
-
-                                if (string.IsNullOrEmpty(columnName))
-                                {
-                                    Logger.IndexColumnNotNamedWarning(index.Name, table.Name);
-                                    continue;
-                                }
-
-                                var column = _tableColumns[ColumnKey(index.Table, columnName)];
-
-                                var indexColumn = new IndexColumnModel
-                                {
-                                    Ordinal = indexOrdinal,
-                                    Column = column
-                                };
-
-                                index.IndexColumns.Add(indexColumn);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private void GetForeignKeys()
-        {
-            foreach (var dependentTable in _databaseModel.Tables)
-            {
-                using (var fkList = _connection.CreateCommand())
-                {
-                    fkList.CommandText = $"PRAGMA foreign_key_list(\"{dependentTable.Name.Replace("\"", "\"\"")}\");"; // Interpolation okay; strings
-
-                    var tableForeignKeys = new Dictionary<int, ForeignKeyModel>();
-
-                    using (var reader = fkList.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var id = reader.GetValueOrDefault<int>("id");
-                            var principalTableName = reader.GetValueOrDefault<string>("table");
-                            var fromColumnName = reader.GetValueOrDefault<string>("from");
-                            var toColumnName = reader.GetValueOrDefault<string>("to");
-                            var deleteAction = reader.GetValueOrDefault<string>("on_delete");
-                            var fkOrdinal = reader.GetValueOrDefault<int>("seq");
-
-                            Logger.ForeignKeyColumnFound(
-                                    dependentTable.Name, id, principalTableName, fromColumnName,
-                                    toColumnName, deleteAction, fkOrdinal);
-
-                            ForeignKeyModel foreignKey;
-                            if (!tableForeignKeys.TryGetValue(id, out foreignKey))
-                            {
-                                TableModel principalTable;
-                                if (!_tables.TryGetValue(principalTableName, out principalTable))
-                                {
-                                    Logger.ForeignKeyReferencesMissingTableWarning(id.ToString(CultureInfo.InvariantCulture));
-                                    continue;
-                                }
-
-                                foreignKey = new ForeignKeyModel
-                                {
-                                    Table = dependentTable,
-                                    PrincipalTable = principalTable,
-                                    OnDelete = ConvertToReferentialAction(deleteAction)
-                                };
-                            }
-
-                            var fkColumn = new ForeignKeyColumnModel
-                            {
-                                Ordinal = fkOrdinal,
-                                Column = _tableColumns[ColumnKey(dependentTable, fromColumnName)]
-                            };
-
-                            ColumnModel toColumn;
-                            if (!_tableColumns.TryGetValue(ColumnKey(foreignKey.PrincipalTable, toColumnName), out toColumn))
-                            {
-                                Logger.ForeignKeyPrincipalColumnMissingWarning(
-                                        id.ToString(), dependentTable.Name, toColumnName, principalTableName);
-                                continue;
-                            }
-                            fkColumn.PrincipalColumn = toColumn;
-
-                            foreignKey.Columns.Add(fkColumn);
-
-                            if (!tableForeignKeys.ContainsKey(id))
-                            {
-                                tableForeignKeys.Add(id, foreignKey);
-                            }
-                        }
-                    }
-
-                    foreach (var foreignKey in tableForeignKeys)
-                    {
-                        dependentTable.ForeignKeys.Add(foreignKey.Value);
-                    }
-                }
-            }
-        }
-
-        private static ReferentialAction? ConvertToReferentialAction(string onDeleteAction)
-        {
-            switch (onDeleteAction.ToUpperInvariant())
+            switch (value)
             {
                 case "RESTRICT":
                     return ReferentialAction.Restrict;
@@ -391,6 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     return ReferentialAction.NoAction;
 
                 default:
+                    Debug.Assert(value == "NONE", "Unexpected value: " + value);
                     return null;
             }
         }

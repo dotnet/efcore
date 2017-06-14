@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogUsingSchemaSelectionsWarning")));
 
         /// <summary>
-        ///     Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, not nullable: {isNotNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}.
+        ///     Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, not nullable: {isNotNullable}, default value: {defaultValue}.
         /// </summary>
         public static readonly FallbackEventDefinition LogFoundColumn
             = new FallbackEventDefinition(
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 _resourceManager.GetString("LogFoundColumn"));
 
         /// <summary>
-        ///     Found foreign key column on table: {tableName}, id: {id}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, delete action: {deleteAction}, ordinal: {ordinal}.
+        ///     Found foreign key column on table: {tableName}, id: {id}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, delete action: {deleteAction}.
         /// </summary>
         public static readonly FallbackEventDefinition LogFoundForeignKeyColumn
             = new FallbackEventDefinition(

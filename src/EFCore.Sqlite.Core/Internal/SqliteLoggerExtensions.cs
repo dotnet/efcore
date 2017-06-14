@@ -89,9 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string tableName,
             [CanBeNull] string columnName,
             [CanBeNull] string dataTypeName,
-            int? ordinal,
-            bool? notNull,
-            int? primaryKeyOrdinal,
+            bool notNull,
             [CanBeNull] string defaultValue)
         {
             // No DiagnosticsSource events because these are purely design-time messages
@@ -111,9 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         tableName,
                         columnName,
                         dataTypeName,
-                        ordinal,
                         notNull,
-                        primaryKeyOrdinal,
                         defaultValue));
             }
         }
@@ -125,12 +121,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ForeignKeyColumnFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName,
-            int id,
+            long id,
             [CanBeNull] string principalTableName,
             [CanBeNull] string columnName,
             [CanBeNull] string principalColumnName,
-            [CanBeNull] string deleteAction,
-            int? ordinal)
+            [CanBeNull] string deleteAction)
         {
             // No DiagnosticsSource events because these are purely design-time messages
 
@@ -151,8 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         principalTableName,
                         columnName,
                         principalColumnName,
-                        deleteAction,
-                        ordinal));
+                        deleteAction));
             }
         }
 

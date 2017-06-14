@@ -139,11 +139,11 @@
     <comment>Warning SqliteEventId.SchemasNotSupportedWarning</comment>
   </data>
   <data name="LogFoundColumn" xml:space="preserve">
-    <value>Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, not nullable: {isNotNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}.</value>
-    <comment>Debug SqliteEventId.ColumnFound string string string int? bool? int? string</comment>
+    <value>Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, not nullable: {isNotNullable}, default value: {defaultValue}.</value>
+    <comment>Debug SqliteEventId.ColumnFound string string string bool string</comment>
   </data>
   <data name="LogFoundForeignKeyColumn" xml:space="preserve">
-    <value>Found foreign key column on table: {tableName}, id: {id}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, delete action: {deleteAction}, ordinal: {ordinal}.</value>
-    <comment>Debug SqliteEventId.ForeignKeyColumnFound string int string string string string int?</comment>
+    <value>Found foreign key column on table: {tableName}, id: {id}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, delete action: {deleteAction}.</value>
+    <comment>Debug SqliteEventId.ForeignKeyColumnFound string long string string string string</comment>
   </data>
 </root>

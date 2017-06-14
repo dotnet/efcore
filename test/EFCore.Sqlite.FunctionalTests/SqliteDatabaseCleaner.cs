@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore
                     new LoggingOptions(),
                     new DiagnosticListener("Fake")));
 
-        protected override bool AcceptForeignKey(ForeignKeyModel foreignKey) => false;
+        protected override bool AcceptForeignKey(DatabaseForeignKey foreignKey) => false;
 
-        protected override bool AcceptIndex(IndexModel index) => false;
+        protected override bool AcceptIndex(DatabaseIndex index) => false;
 
         protected override string BuildCustomSql(DatabaseModel databaseModel) => "PRAGMA foreign_keys=OFF;";
     }
