@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SingleResultToSequence(queryModel);
 
                 TrackEntitiesInResults<TResult>(queryModel);
-                
+
                 InterceptExceptions();
 
                 return CreateExecutorLambda<IEnumerable<TResult>>();

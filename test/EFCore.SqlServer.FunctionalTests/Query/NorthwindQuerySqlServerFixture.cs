@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private readonly SqlServerTestStore _testStore = SqlServerTestStore.GetNorthwindStore();
 
-        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+        public TestSqlLoggerFactory TestSqlLoggerFactory { [DebuggerStepThrough] get; } = new TestSqlLoggerFactory();
 
         public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
             => ConfigureOptions(

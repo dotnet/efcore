@@ -138,23 +138,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 public T Current => _innerEnumerator.Current;
 
-                public async Task<bool> MoveNext(CancellationToken cancellationToken)
-                {
-                    using (await _exceptionInterceptor._queryContext.ConcurrencyDetector
-                        .EnterCriticalSectionAsync(cancellationToken))
-                    {
-                        try
+                public Task<bool> MoveNext(CancellationToken cancellationToken)
+                    => _exceptionInterceptor._queryContext.ConcurrencyDetector.ExecuteInCriticalSectionAsync(this, async (i, ct) =>
                         {
-                            return await _innerEnumerator.MoveNext(cancellationToken);
-                        }
-                        catch (Exception exception)
-                        {
-                            _exceptionInterceptor._logger.QueryIterationFailed(_exceptionInterceptor._contextType, exception);
+                            try
+                            {
+                                return await i._innerEnumerator.MoveNext(ct);
+                            }
+                            catch (Exception exception)
+                            {
+                                i._exceptionInterceptor._logger.QueryIterationFailed(i._exceptionInterceptor._contextType, exception);
 
-                            throw;
-                        }
-                    }
-                }
+                                throw;
+                            }
+                        }, cancellationToken);
 
                 public void Dispose()
                 {

@@ -312,12 +312,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private class FakeConcurrencyDetector : IConcurrencyDetector
         {
-            public IDisposable EnterCriticalSection()
+            public TResult ExecuteInCriticalSection<TState, TResult>(TState state, Func<TState, TResult> operation)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<IDisposable> EnterCriticalSectionAsync(CancellationToken cancellationToken)
+            public Task<TResult> ExecuteInCriticalSectionAsync<TState, TResult>(TState state, Func<TState, CancellationToken, Task<TResult>> operation, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

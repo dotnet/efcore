@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -17,12 +18,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IDisposable EnterCriticalSection();
+        TResult ExecuteInCriticalSection<TState, TResult>([CanBeNull] TState state, [NotNull] Func<TState, TResult> operation);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        Task<IDisposable> EnterCriticalSectionAsync(CancellationToken cancellationToken);
+        Task<TResult> ExecuteInCriticalSectionAsync<TState, TResult>(
+            [CanBeNull] TState state, [NotNull] Func<TState, CancellationToken, Task<TResult>> operation, CancellationToken cancellationToken);
     }
 }

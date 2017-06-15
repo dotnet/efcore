@@ -4175,7 +4175,7 @@ ORDER BY [Id1], [Id2]");
         private void AssertContainsSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
-        protected override void ClearLog() 
+        protected override void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();
     }
 }

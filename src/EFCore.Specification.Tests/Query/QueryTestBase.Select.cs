@@ -241,6 +241,33 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Select_nested_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        Customer = c,
+                        CustomerAgain = Get(context, c.CustomerID)
+                    })
+                    .ToList();
+
+                Assert.Equal(4, customers.Count);
+                foreach (var customer in customers)
+                {
+                    // Issue #8864
+                    //Assert.Same(customer.Customer, customer.CustomerAgain);
+                    Assert.Equal(customer.Customer.CustomerID, customer.CustomerAgain.CustomerID);
+                }
+            }
+        }
+
+        private Customer Get(NorthwindContext context, string id)
+            => context.Customers.Single(c => c.CustomerID == id);
+
+        [ConditionalFact]
         public virtual void Select_nested_collection()
         {
             AssertQuery<Customer, Order>((cs, os) =>

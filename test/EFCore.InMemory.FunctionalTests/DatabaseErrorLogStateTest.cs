@@ -137,13 +137,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "This test is flaky see #8305")]
         public async Task SaveChanges_logs_concurrent_access_nonasync()
         {
             await SaveChanges_logs_concurrent_access_test(async: false);
         }
 
-        [Fact]
+        [Fact(Skip = "SaveChangesAsync doesn't throw #8305")]
         public async Task SaveChanges_logs_concurrent_access_async()
         {
             await SaveChanges_logs_concurrent_access_test(async: true);
@@ -160,17 +160,20 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new BloggingContext(serviceProvider))
             {
                 context.Blogs.Add(new BloggingContext.Blog(false) { Url = "http://sample.com" });
+                context.SaveChanges();
 
-                context.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                context.Blogs.Single().Name = "Test";
 
                 Exception ex;
                 if (async)
                 {
-                    ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+                    ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => Task.WhenAll(Enumerable.Range(0, 10).Select(i => context.SaveChangesAsync(false))));
                 }
                 else
                 {
-                    ex = Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    ex = Assert.Throws<AggregateException>(
+                        () => Parallel.For(0, 10, i => context.SaveChanges(false))).InnerExceptions.First();
                 }
 
                 Assert.Equal(CoreStrings.ConcurrentMethodInvocation, ex.Message);

@@ -182,6 +182,16 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = N'London'");
         }
 
+        public override void Select_nested_projection()
+        {
+            base.Select_nested_projection();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
+        }
+
         public override void Select_nested_collection()
         {
             base.Select_nested_collection();

@@ -3,6 +3,8 @@
 
 using System;
 using System.Data.Common;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -51,12 +53,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                context.Database.EnsureCreated();
 
                 Assert.Equal(
                     CoreStrings.ConcurrentMethodInvocation,
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Database.ExecuteSqlCommand(@"SELECT * FROM ""Customers""")).Message);
+                    Assert.Throws<AggregateException>(
+                        () => Parallel.For(0, 10, i =>
+                            {
+                                context.Database.ExecuteSqlCommand(@"SELECT * FROM ""Customers""");
+                            })).InnerExceptions.First().Message);
             }
         }
 
@@ -126,12 +131,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                context.Database.EnsureCreated();
+
+                var task = Task.WhenAll(Enumerable.Range(0, 10)
+                    .Select(i => context.Database.ExecuteSqlCommandAsync(@"SELECT * FROM ""Customers""")));
 
                 Assert.Equal(
                     CoreStrings.ConcurrentMethodInvocation,
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        async () => await context.Database.ExecuteSqlCommandAsync(@"SELECT * FROM ""Customers"""))).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.Database.ExecuteSqlCommand(@"SELECT * FROM ""Customers""")).Message);
+
+                await task;
             }
         }
 

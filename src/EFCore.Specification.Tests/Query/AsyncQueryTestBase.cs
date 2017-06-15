@@ -1441,6 +1441,33 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual async Task Select_nested_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = await context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new
+                    {
+                        Customer = c,
+                        CustomerAgain = Get(context, c.CustomerID)
+                    })
+                    .ToListAsync();
+
+                Assert.Equal(4, customers.Count);
+                foreach (var customer in customers)
+                {
+                    // Issue #8864
+                    //Assert.Same(customer.Customer, customer.CustomerAgain);
+                    Assert.Equal(customer.Customer.CustomerID, customer.CustomerAgain.CustomerID);
+                }
+            }
+        }
+
+        private Customer Get(NorthwindContext context, string id)
+            => context.Customers.Single(c => c.CustomerID == id);
+
+        [ConditionalFact]
         public virtual async Task Select_nested_collection()
         {
             await AssertQuery<Customer, Order>((cs, os) =>
@@ -2255,7 +2282,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        // TODO: Need to figure out how to do this 
+        // TODO: Need to figure out how to do this
         //        [ConditionalFact]
         //        public virtual async Task GroupBy_anonymous()
         //        {
@@ -3349,12 +3376,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                context.Database.EnsureCreated();
 
-                Assert.Equal(
-                    CoreStrings.ConcurrentMethodInvocation,
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        async () => await context.Customers.ToListAsync())).Message);
+                var synchronizationEvent = new ManualResetEventSlim(false);
+                var blockingSemaphore = new SemaphoreSlim(0);
+                var blockingTask = Task.Run(() =>
+                    context.Customers.Select(c => Process(c, synchronizationEvent, blockingSemaphore)).ToListAsync());
+
+                var throwingTask = Task.Run(() =>
+                    {
+                        synchronizationEvent.Wait();
+                        Assert.Equal(
+                            CoreStrings.ConcurrentMethodInvocation,
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Customers.ToList()).Message);
+                    });
+
+                await throwingTask;
+                blockingSemaphore.Release(1);
+                await blockingTask;
+                synchronizationEvent.Dispose();
+                blockingSemaphore.Dispose();
             }
         }
 
@@ -3363,13 +3405,36 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                context.Database.EnsureCreated();
 
-                Assert.Equal(
-                    CoreStrings.ConcurrentMethodInvocation,
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        async () => await context.Customers.FirstAsync())).Message);
+                var synchronizationEvent = new ManualResetEventSlim(false);
+                var blockingSemaphore = new SemaphoreSlim(0);
+                var blockingTask = Task.Run(() =>
+                    context.Customers.Select(c => Process(c, synchronizationEvent, blockingSemaphore)).ToListAsync());
+
+                var throwingTask = Task.Run(() =>
+                    {
+                        synchronizationEvent.Wait();
+                        Assert.Equal(
+                            CoreStrings.ConcurrentMethodInvocation,
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Customers.First()).Message);
+                    });
+
+                await throwingTask;
+                blockingSemaphore.Release(1);
+                await blockingTask;
+                synchronizationEvent.Dispose();
+                blockingSemaphore.Dispose();
             }
+        }
+
+        private Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
+        {
+            e.Set();
+            s.Wait();
+            s.Release(1);
+            return c;
         }
 
         // Set Operations

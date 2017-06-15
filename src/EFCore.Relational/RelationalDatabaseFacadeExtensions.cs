@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
             RawSqlString sql,
             [NotNull] params object[] parameters)
             => ExecuteSqlCommand(databaseFacade, sql, (IEnumerable<object>)parameters);
-        
+
         // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
         public static int ExecuteSqlCommand(
             [NotNull] this DatabaseFacade databaseFacade,
@@ -120,26 +120,22 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
             [NotNull] IEnumerable<object> parameters)
-        {
-            Check.NotNull(databaseFacade, nameof(databaseFacade));
-            Check.NotNull(sql, nameof(sql));
-            Check.NotNull(parameters, nameof(parameters));
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IConcurrencyDetector>().ExecuteInCriticalSection(
+                (DatabaseFacade: databaseFacade,
+                 Sql: Check.NotNull(sql, nameof(sql)),
+                 Parameters: Check.NotNull(parameters, nameof(parameters))),
+                s =>
+                    {
+                        var rawSqlCommand = s.DatabaseFacade
+                            .GetRelationalService<IRawSqlCommandBuilder>()
+                            .Build(s.Sql.Format, s.Parameters);
 
-            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
-
-            using (concurrencyDetector.EnterCriticalSection())
-            {
-                var rawSqlCommand = databaseFacade
-                    .GetRelationalService<IRawSqlCommandBuilder>()
-                    .Build(sql.Format, parameters);
-
-                return rawSqlCommand
-                    .RelationalCommand
-                    .ExecuteNonQuery(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues);
-            }
-        }
+                        return rawSqlCommand
+                            .RelationalCommand
+                            .ExecuteNonQuery(
+                                s.DatabaseFacade.GetRelationalService<IRelationalConnection>(),
+                                rawSqlCommand.ParameterValues);
+                    });
 
         // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
         public static Task<int> ExecuteSqlCommandAsync(
@@ -163,32 +159,28 @@ namespace Microsoft.EntityFrameworkCore
             => ExecuteSqlCommandAsync(databaseFacade, sql, (IEnumerable<object>)parameters);
 
         // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
-        public static async Task<int> ExecuteSqlCommandAsync(
+        public static Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
             [NotNull] IEnumerable<object> parameters,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(databaseFacade, nameof(databaseFacade));
-            Check.NotNull(sql, nameof(sql));
-            Check.NotNull(parameters, nameof(parameters));
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IConcurrencyDetector>().ExecuteInCriticalSectionAsync(
+                (DatabaseFacade: databaseFacade,
+                 Sql: Check.NotNull(sql, nameof(sql)),
+                 Parameters: Check.NotNull(parameters, nameof(parameters))),
+                async (s, ct) =>
+                    {
+                        var rawSqlCommand = s.DatabaseFacade
+                            .GetRelationalService<IRawSqlCommandBuilder>()
+                            .Build(s.Sql.Format, s.Parameters);
 
-            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
-
-            using (await concurrencyDetector.EnterCriticalSectionAsync(cancellationToken))
-            {
-                var rawSqlCommand = databaseFacade
-                    .GetRelationalService<IRawSqlCommandBuilder>()
-                    .Build(sql.Format, parameters);
-
-                return await rawSqlCommand
-                    .RelationalCommand
-                    .ExecuteNonQueryAsync(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        cancellationToken);
-            }
-        }
+                        return await rawSqlCommand
+                            .RelationalCommand
+                            .ExecuteNonQueryAsync(
+                                s.DatabaseFacade.GetRelationalService<IRelationalConnection>(),
+                                rawSqlCommand.ParameterValues,
+                                ct);
+                    }, cancellationToken);
 
         public static DbConnection GetDbConnection([NotNull] this DatabaseFacade databaseFacade)
             => databaseFacade.GetRelationalService<IRelationalConnection>().DbConnection;

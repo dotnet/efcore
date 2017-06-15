@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 private readonly ExceptionInterceptor<T> _exceptionInterceptor;
                 private readonly IEnumerator<T> _innerEnumerator;
-                
+
                 public EnumeratorExceptionInterceptor(ExceptionInterceptor<T> exceptionInterceptor)
                 {
                     _exceptionInterceptor = exceptionInterceptor;
@@ -123,21 +123,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 object IEnumerator.Current => _innerEnumerator.Current;
 
                 public bool MoveNext()
-                {
-                    using (_exceptionInterceptor._queryContext.ConcurrencyDetector.EnterCriticalSection())
-                    {
-                        try
+                    => _exceptionInterceptor._queryContext.ConcurrencyDetector.ExecuteInCriticalSection(this, i =>
                         {
-                            return _innerEnumerator.MoveNext();
-                        }
-                        catch (Exception exception)
-                        {
-                            _exceptionInterceptor._logger.QueryIterationFailed(_exceptionInterceptor._contextType, exception);
+                            try
+                            {
+                                return i._innerEnumerator.MoveNext();
+                            }
+                            catch (Exception exception)
+                            {
+                                i._exceptionInterceptor._logger.QueryIterationFailed(i._exceptionInterceptor._contextType, exception);
 
-                            throw;
-                        }
-                    }
-                }
+                                throw;
+                            }
+                        });
 
                 public void Reset() => _innerEnumerator?.Reset();
 

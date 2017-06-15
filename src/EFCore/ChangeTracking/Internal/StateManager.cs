@@ -781,26 +781,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual int SaveChanges(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave)
-        {
-            using (_concurrencyDetector.EnterCriticalSection())
-            {
-                return _database.SaveChanges(entriesToSave);
-            }
-        }
+            => _concurrencyDetector.ExecuteInCriticalSection((Database: _database, EntriesToSave: entriesToSave),
+                s => s.Database.SaveChanges(s.EntriesToSave));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual async Task<int> SaveChangesAsync(
+        protected virtual Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (_concurrencyDetector.EnterCriticalSection())
-            {
-                return await _database.SaveChangesAsync(entriesToSave, cancellationToken);
-            }
-        }
+            => _concurrencyDetector.ExecuteInCriticalSectionAsync((Database: _database, EntriesToSave: entriesToSave),
+                (s, ct) => s.Database.SaveChangesAsync(s.EntriesToSave, ct),
+                cancellationToken);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

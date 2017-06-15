@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
@@ -2695,27 +2698,67 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                context.Database.EnsureCreated();
 
-                Assert.Equal(
-                    CoreStrings.ConcurrentMethodInvocation,
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.ToList()).Message);
+                var synchronizationEvent = new ManualResetEventSlim(false);
+                var blockingSemaphore = new SemaphoreSlim(0);
+                var blockingTask = Task.Run(() =>
+                    {
+                        context.Customers.Select(c => Process(c, synchronizationEvent, blockingSemaphore)).ToList();
+                    });
+
+                var throwingTask = Task.Run(() =>
+                    {
+                        synchronizationEvent.Wait();
+                        Assert.Equal(
+                            CoreStrings.ConcurrentMethodInvocation,
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Customers.ToList()).Message);
+                    });
+
+                throwingTask.Wait();
+                blockingSemaphore.Release(1);
+                blockingTask.Wait();
+                synchronizationEvent.Dispose();
+                blockingSemaphore.Dispose();
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "This test is flaky see #8305")]
         public virtual void Throws_on_concurrent_query_first()
         {
             using (var context = CreateContext())
             {
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                context.Database.EnsureCreated();
 
-                Assert.Equal(
-                    CoreStrings.ConcurrentMethodInvocation,
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.First()).Message);
+                var synchronizationEvent = new ManualResetEventSlim(false);
+                var blockingSemaphore = new SemaphoreSlim(0);
+                var blockingTask = Task.Run(() =>
+                    context.Customers.Select(c => Process(c, synchronizationEvent, blockingSemaphore)).First());
+
+                var throwingTask = Task.Run(() =>
+                {
+                    synchronizationEvent.Wait();
+                    Assert.Equal(
+                            CoreStrings.ConcurrentMethodInvocation,
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Customers.First()).Message);
+                    });
+
+                throwingTask.Wait();
+                blockingSemaphore.Release(1);
+                blockingTask.Wait();
+                synchronizationEvent.Dispose();
+                blockingSemaphore.Dispose();
             }
+        }
+
+        private Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
+        {
+            e.Set();
+            s.Wait();
+            s.Release(1);
+            return c;
         }
 
         [ConditionalFact]
@@ -3338,7 +3381,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: false,
                 entryCount: 8);
         }
-        
+
         [ConditionalFact]
         public virtual void No_orderby_added_for_fully_translated_manually_constructed_LOJ()
         {
@@ -3944,7 +3987,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Fixture = fixture;
         }
 
-        protected TFixture Fixture { get; }
+        protected TFixture Fixture { [DebuggerStepThrough] get; }
 
         private void AssertQuery<TItem>(
             Func<IQueryable<TItem>, int> query,
