@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
@@ -25,31 +26,33 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
         protected override int Execute()
         {
-            var filesCreated = CreateExecutor().ScaffoldContext(
-                    _provider.Value,
-                    _connection.Value,
-                    _outputDir.Value(),
-                    _context.Value(),
-                    _schemas.Values,
-                    _tables.Values,
-                    _dataAnnotations.HasValue(),
-                    _force.HasValue())
-                .ToList();
+            var result = CreateExecutor().ScaffoldContext(
+                _provider.Value,
+                _connection.Value,
+                _outputDir.Value(),
+                _context.Value(),
+                _schemas.Values,
+                _tables.Values,
+                _dataAnnotations.HasValue(),
+                _force.HasValue());
             if (_json.HasValue())
             {
-                ReportJsonResults(filesCreated);
+                ReportJsonResults(result);
             }
 
             return base.Execute();
         }
 
-        private void ReportJsonResults(IReadOnlyList<string> files)
+        private void ReportJsonResults(IDictionary result)
         {
-            Reporter.WriteData("[");
+            Reporter.WriteData("{");
+            Reporter.WriteData("  \"contextFile\": \"" + Json.Escape(result["ContextFile"] as string) + "\",");
+            Reporter.WriteData("  \"entityTypeFiles\": [");
 
+            var files = (IReadOnlyList<string>)result["EntityTypeFiles"];
             for (var i = 0; i < files.Count; i++)
             {
-                var line = "  \"" + Json.Escape(files[i]) + "\"";
+                var line = "    \"" + Json.Escape(files[i]) + "\"";
                 if (i != files.Count - 1)
                 {
                     line += ",";
@@ -58,7 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 Reporter.WriteData(line);
             }
 
-            Reporter.WriteData("]");
+            Reporter.WriteData("  ]");
+            Reporter.WriteData("}");
+
         }
     }
 }

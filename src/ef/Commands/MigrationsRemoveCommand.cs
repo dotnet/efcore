@@ -1,8 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
@@ -10,31 +9,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute()
         {
-            var deletedFiles = CreateExecutor().RemoveMigration(Context.Value(), _force.HasValue()).ToList();
+            var result = CreateExecutor().RemoveMigration(Context.Value(), _force.HasValue());
             if (_json.HasValue())
             {
-                ReportJsonResults(deletedFiles);
+                ReportJsonResults(result);
             }
 
             return base.Execute();
         }
 
-        private void ReportJsonResults(IReadOnlyList<string> files)
+        private void ReportJsonResults(IDictionary result)
         {
-            Reporter.WriteData("[");
-
-            for (var i = 0; i < files.Count; i++)
-            {
-                var line = "  \"" + Json.Escape(files[i]) + "\"";
-                if (i != files.Count - 1)
-                {
-                    line += ",";
-                }
-
-                Reporter.WriteData(line);
-            }
-
-            Reporter.WriteData("]");
+            Reporter.WriteData("{");
+            Reporter.WriteData("  \"migrationFile\": \"" + Json.Escape(result["MigrationFile"] as string) + "\",");
+            Reporter.WriteData("  \"metadataFile\": \"" + Json.Escape(result["MetadataFile"] as string) + "\",");
+            Reporter.WriteData("  \"snapshotFile\": \"" + Json.Escape(result["SnapshotFile"] as string) + "\"");
+            Reporter.WriteData("}");
         }
     }
 }

@@ -213,7 +213,8 @@ function Remove-Migration
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
 
-    $result | %{
+    $files = $result.migrationFile, $result.metadataFile, $result.snapshotFile
+    $files | %{
         $projectItem = GetProjectItem $dteProject $_
         if ($projectItem)
         {
@@ -327,8 +328,9 @@ function Scaffold-DbContext
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
 
-    $result | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
-    $DTE.ItemOperations.OpenFile($result[0]) | Out-Null
+    $files = $result.entityTypeFiles + $result.contextFile
+    $files | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
+    $DTE.ItemOperations.OpenFile($result.contextFile) | Out-Null
     ShowConsole
 }
 

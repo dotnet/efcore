@@ -230,25 +230,17 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
         }
 
-        private IEnumerable<string> RemoveMigrationImpl([CanBeNull] string contextType, bool force)
+        private IDictionary RemoveMigrationImpl([CanBeNull] string contextType, bool force)
         {
             var files = _migrationsOperations.Value
                 .RemoveMigration(contextType, force);
 
-            if (files.MigrationFile != null)
+            return new Hashtable
             {
-                yield return files.MigrationFile;
-            }
-
-            if (files.MetadataFile != null)
-            {
-                yield return files.MetadataFile;
-            }
-
-            if (files.SnapshotFile != null)
-            {
-                yield return files.SnapshotFile;
-            }
+                ["MigrationFile"] = files.MigrationFile,
+                ["MetadataFile"] = files.MetadataFile,
+                ["SnapshotFile"] = files.SnapshotFile,
+            };
         }
 
         public class GetContextTypes : OperationBase
@@ -336,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
         }
 
-        private IEnumerable<string> ScaffoldContextImpl(
+        private IDictionary ScaffoldContextImpl(
             [NotNull] string provider,
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
@@ -355,13 +347,11 @@ namespace Microsoft.EntityFrameworkCore.Design
                 provider, connectionString, outputDir, dbContextClassName,
                 schemaFilters, tableFilters, useDataAnnotations, overwriteFiles);
 
-            // NOTE: First file will be opened in VS
-            yield return files.ContextFile;
-
-            foreach (var file in files.EntityTypeFiles)
+            return new Hashtable
             {
-                yield return file;
-            }
+                ["ContextFile"] = files.ContextFile,
+                ["EntityTypeFiles"] = files.EntityTypeFiles.ToArray()
+            };
         }
 
         public class DropDatabase : OperationBase

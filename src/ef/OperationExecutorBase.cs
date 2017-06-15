@@ -92,8 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["contextType"] = contextType
                 });
 
-        public IEnumerable<string> RemoveMigration(string contextType, bool force)
-            => InvokeOperation<IEnumerable<string>>("RemoveMigration",
+        public IDictionary RemoveMigration(string contextType, bool force)
+            => InvokeOperation<IDictionary>("RemoveMigration",
                 new Dictionary<string, object>
                 {
                     ["contextType"] = contextType,
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public IEnumerable<IDictionary> GetContextTypes()
             => InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
 
-        public IEnumerable<string> ScaffoldContext(string provider,
+        public IDictionary ScaffoldContext(string provider,
             string connectionString,
             string outputDir,
             string dbContextClassName,
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             IEnumerable<string> tableFilters,
             bool useDataAnnotations,
             bool overwriteFiles)
-            => InvokeOperation<IEnumerable<string>>("ScaffoldContext",
+            => InvokeOperation<IDictionary>("ScaffoldContext",
                 new Dictionary<string, object>
                 {
                     ["provider"] = provider,
