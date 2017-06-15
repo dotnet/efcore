@@ -1064,5 +1064,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(19, query.Count);
             }
         }
+
+        [ConditionalFact]
+        public virtual void Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.CustomerID.StartsWith("A"))
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => (long)o.OrderID).Average());
+        }
     }
 }

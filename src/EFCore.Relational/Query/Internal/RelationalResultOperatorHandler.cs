@@ -233,6 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         outputType = inputType.IsNullableType() ? typeof(double?) : typeof(double);
                     }
 
+                    expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
                     expression = new ExplicitCastExpression(expression, outputType);
                     Expression averageExpression = new SqlFunctionExpression("AVG", outputType, new [] { expression });
 
@@ -621,6 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
+                    expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
                     var minExpression = new SqlFunctionExpression("MIN", handlerContext.QueryModel.SelectClause.Selector.Type, new [] { expression });
 
                     handlerContext.SelectExpression.SetProjectionExpression(minExpression);
@@ -644,6 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
+                    expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
                     var maxExpression = new SqlFunctionExpression("MAX", handlerContext.QueryModel.SelectClause.Selector.Type, new [] { expression });
 
                     handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
@@ -702,6 +705,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     var inputType = handlerContext.QueryModel.SelectClause.Selector.Type;
 
+                    expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
                     Expression sumExpression = new SqlFunctionExpression("SUM", inputType, new [] { expression });
                     if (inputType.UnwrapNullableType() == typeof(float))
                     {

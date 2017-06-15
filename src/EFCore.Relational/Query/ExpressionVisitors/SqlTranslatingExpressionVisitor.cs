@@ -52,6 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly bool _inProjection;
         private readonly NullCheckRemovalTestingVisitor _nullCheckRemovalTestingVisitor;
 
+        private bool _isTopLevelProjection;
+
         /// <summary>
         ///     Creates a new instance of <see cref="SqlTranslatingExpressionVisitor" />.
         /// </summary>
@@ -79,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             _topLevelPredicate = topLevelPredicate;
             _inProjection = inProjection;
             _nullCheckRemovalTestingVisitor = new NullCheckRemovalTestingVisitor(_queryModelVisitor);
+            _isTopLevelProjection = inProjection;
         }
 
         /// <summary>
@@ -107,7 +110,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return Visit(translatedExpression);
             }
 
-            return base.Visit(expression);
+            if (expression != null
+                && (expression.NodeType == ExpressionType.Convert
+                    || expression.NodeType == ExpressionType.Negate
+                    || expression.NodeType == ExpressionType.New))
+            {
+                return base.Visit(expression);
+            }
+
+            var isTopLevelProjection = _isTopLevelProjection;
+            _isTopLevelProjection = false;
+
+            try
+            {
+                return base.Visit(expression);
+            }
+            finally
+            {
+                _isTopLevelProjection = isTopLevelProjection;
+            }
         }
 
         /// <summary>
@@ -129,9 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var left = Visit(expression.Left);
                     var right = Visit(expression.Right);
 
-                    return left != null 
-                            && right != null 
-                            && left.Type != typeof(Expression[]) 
+                    return left != null
+                            && right != null
+                            && left.Type != typeof(Expression[])
                             && right.Type != typeof(Expression[])
                         ? expression.Update(left, expression.Conversion, right)
                         : null;
@@ -303,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
 
             public bool CanRemoveNullCheck(
-                Expression testExpression, 
+                Expression testExpression,
                 Expression resultExpression)
             {
                 AnalyzeTestExpression(testExpression);
@@ -449,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 return extensionExpression;
             }
-        }   
+        }
 
         private static Expression UnfoldStructuralComparison(ExpressionType expressionType, Expression expression)
         {
@@ -639,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
         private bool IsNonTranslatableSubquery(Expression expression)
             => expression is SubQueryExpression subQueryExpression
-            && !(subQueryExpression.QueryModel.GetOutputDataInfo() is StreamedScalarValueInfo 
+            && !(subQueryExpression.QueryModel.GetOutputDataInfo() is StreamedScalarValueInfo
                 || subQueryExpression.QueryModel.GetOutputDataInfo() is StreamedSingleValueInfo streamedSingleValueInfo
                     && IsStreamedSingleValueSupportedType(streamedSingleValueInfo));
 
@@ -754,6 +775,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             switch (expression.NodeType)
             {
+                case ExpressionType.Negate:
+                {
+                    var operand = Visit(expression.Operand);
+                    if (operand != null)
+                    {
+                        return Expression.Negate(operand);
+                    }
+
+                    break;
+                }
                 case ExpressionType.Not:
                 {
                     var operand = Visit(expression.Operand);
@@ -766,10 +797,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
                 case ExpressionType.Convert:
                 {
+                    var isTopLevelProjection = _isTopLevelProjection;
+                    _isTopLevelProjection = false;
                     var operand = Visit(expression.Operand);
+                    _isTopLevelProjection = isTopLevelProjection;
+
                     if (operand != null)
                     {
-                        return Expression.Convert(operand, expression.Type);
+                        return _isTopLevelProjection
+                            && operand.Type.IsValueType
+                            && expression.Type.IsValueType
+                            && expression.Type.UnwrapNullableType() != operand.Type.UnwrapNullableType()
+                            && expression.Type.UnwrapEnumType() != operand.Type.UnwrapEnumType()
+                            ? (Expression)new ExplicitCastExpression(operand, expression.Type)
+                            : Expression.Convert(operand, expression.Type);
                     }
 
                     break;

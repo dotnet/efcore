@@ -438,5 +438,126 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
         }
+
+        public override void Select_non_matching_value_types_int_to_long_introduces_explicit_cast()
+        {
+            base.Select_non_matching_value_types_int_to_long_introduces_explicit_cast();
+
+            AssertSql(
+                @"SELECT CAST([o].[OrderID] AS bigint)
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[OrderID]");
+        }
+
+        public override void Select_non_matching_value_types_nullable_int_to_long_introduces_explicit_cast()
+        {
+            base.Select_non_matching_value_types_nullable_int_to_long_introduces_explicit_cast();
+
+            AssertSql(
+                @"SELECT CAST([o].[EmployeeID] AS bigint)
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[OrderID]");
+        }
+
+        public override void Select_non_matching_value_types_nullable_int_to_int_doesnt_introduces_explicit_cast()
+        {
+            base.Select_non_matching_value_types_nullable_int_to_int_doesnt_introduces_explicit_cast();
+
+            AssertSql(
+                @"SELECT [o].[EmployeeID]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[OrderID]");
+        }
+
+        public override void Select_non_matching_value_types_int_to_nullable_int_doesnt_introduce_explicit_cast()
+        {
+            base.Select_non_matching_value_types_int_to_nullable_int_doesnt_introduce_explicit_cast();
+
+            AssertSql(
+                @"SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[OrderID]");
+        }
+
+        public override void Select_non_matching_value_types_from_binary_expression_introduces_explicit_cast()
+        {
+            base.Select_non_matching_value_types_from_binary_expression_introduces_explicit_cast();
+
+            AssertSql(
+                @"SELECT CAST([o].[OrderID] + [o].[OrderID] AS bigint)
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[OrderID]");
+        }
+
+        public override void Select_non_matching_value_types_from_binary_expression_nested_introduces_top_level_explicit_cast()
+        {
+            base.Select_non_matching_value_types_from_binary_expression_nested_introduces_top_level_explicit_cast();
+
+            AssertSql(
+                @"SELECT CAST([o].[OrderID] + [o].[OrderID] AS smallint)
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[OrderID]");
+        }
+
+        public override void Select_non_matching_value_types_from_unary_expression_introduces_explicit_cast1()
+        {
+            base.Select_non_matching_value_types_from_unary_expression_introduces_explicit_cast1();
+
+            AssertSql(
+                @"SELECT CAST(-[o].[OrderID] AS bigint)
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[OrderID]");
+        }
+
+        public override void Select_non_matching_value_types_from_unary_expression_introduces_explicit_cast2()
+        {
+            base.Select_non_matching_value_types_from_unary_expression_introduces_explicit_cast2();
+
+            AssertSql(
+                @"SELECT -CAST([o].[OrderID] AS bigint)
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[OrderID]");
+        }
+
+        public override void Select_non_matching_value_types_from_length_introduces_explicit_cast()
+        {
+            base.Select_non_matching_value_types_from_length_introduces_explicit_cast();
+
+            AssertSql(
+                @"SELECT CAST(CAST(LEN([o].[CustomerID]) AS int) AS bigint)
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[OrderID]");
+        }
+
+        public override void Select_non_matching_value_types_from_method_call_introduces_explicit_cast()
+        {
+            base.Select_non_matching_value_types_from_method_call_introduces_explicit_cast();
+
+            AssertSql(
+                @"SELECT CAST(ABS([o].[OrderID]) AS bigint)
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[OrderID]");
+        }
+
+        public override void Select_non_matching_value_types_from_anonymous_type_introduces_explicit_cast()
+        {
+            base.Select_non_matching_value_types_from_anonymous_type_introduces_explicit_cast();
+
+            AssertSql(
+                @"SELECT CAST([o].[OrderID] AS bigint) AS [LongOrder], CAST([o].[OrderID] AS smallint) AS [ShortOrder], [o].[OrderID] AS [Order]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [Order]");
+        }
     }
 }

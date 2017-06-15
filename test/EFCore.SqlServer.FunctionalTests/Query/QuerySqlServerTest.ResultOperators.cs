@@ -914,5 +914,15 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 ORDER BY [o].[OrderID]");
         }
+
+        public override void Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast()
+        {
+            base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast();
+
+            AssertSql(
+                @"SELECT AVG(CAST([o].[OrderID] AS float))
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A')");
+        }
     }
 }

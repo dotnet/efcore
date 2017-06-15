@@ -487,5 +487,127 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where c.CustomerID.StartsWith("A")
                       select new { A = new DateTime() });
         }
+
+        [ConditionalFact]
+        public virtual void Select_non_matching_value_types_int_to_long_introduces_explicit_cast()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.CustomerID == "ALFKI")
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => (long)o.OrderID),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_non_matching_value_types_nullable_int_to_long_introduces_explicit_cast()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.CustomerID == "ALFKI")
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => (long)o.EmployeeID),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_non_matching_value_types_nullable_int_to_int_doesnt_introduces_explicit_cast()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.CustomerID == "ALFKI")
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => (int)o.EmployeeID),
+            assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_non_matching_value_types_int_to_nullable_int_doesnt_introduce_explicit_cast()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.CustomerID == "ALFKI")
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => (int?)o.OrderID), 
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_non_matching_value_types_from_binary_expression_introduces_explicit_cast()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.CustomerID == "ALFKI")
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => (long)(o.OrderID + o.OrderID)),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_non_matching_value_types_from_binary_expression_nested_introduces_top_level_explicit_cast()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.CustomerID == "ALFKI")
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => (short)((long)o.OrderID + (long)o.OrderID)),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_non_matching_value_types_from_unary_expression_introduces_explicit_cast1()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.CustomerID == "ALFKI")
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => (long)-o.OrderID),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_non_matching_value_types_from_unary_expression_introduces_explicit_cast2()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.CustomerID == "ALFKI")
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => -((long)o.OrderID)),
+                assertOrder: true);
+        }
+
+
+        [ConditionalFact]
+        public virtual void Select_non_matching_value_types_from_length_introduces_explicit_cast()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.CustomerID == "ALFKI")
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => (long)o.CustomerID.Length),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_non_matching_value_types_from_method_call_introduces_explicit_cast()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.CustomerID == "ALFKI")
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => (long)Math.Abs(o.OrderID)),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_non_matching_value_types_from_anonymous_type_introduces_explicit_cast()
+        {
+            AssertQuery<Order>(
+                os => os
+                    .Where(o => o.CustomerID == "ALFKI")
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => new { LongOrder = (long)o.OrderID, ShortOrder = (short)o.OrderID, Order = o.OrderID }),
+                assertOrder: true);
+        }
     }
 }
