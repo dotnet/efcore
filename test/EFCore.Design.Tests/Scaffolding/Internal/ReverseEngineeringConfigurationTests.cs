@@ -47,7 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 rootNamespace: "FakeNamespace",
                                 contextName: contextName,
                                 useDataAnnotations: false,
-                                overwriteFiles: false))
+                                overwriteFiles: false,
+                                useDatabaseNames: false))
                     .Message);
         }
 

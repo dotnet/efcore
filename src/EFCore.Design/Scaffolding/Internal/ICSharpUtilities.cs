@@ -12,8 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         string DelimitString([NotNull] string value);
         string EscapeString([NotNull] string str);
         string EscapeVerbatimString([NotNull] string str);
-        string GenerateCSharpIdentifier([NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers);
-        string GenerateCSharpIdentifier([NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers, [NotNull] Func<string, ICollection<string>, string> uniquifier);
+        string GenerateCSharpIdentifier([NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers, [CanBeNull] Func<string, string> singularizePluralizer);
+        string GenerateCSharpIdentifier([NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers, [CanBeNull] Func<string, string> singularizePluralizer, [NotNull] Func<string, ICollection<string>, string> uniquifier);
         string GenerateLiteral(bool value);
         string GenerateLiteral([NotNull] byte[] value);
         string GenerateLiteral(DateTime value);

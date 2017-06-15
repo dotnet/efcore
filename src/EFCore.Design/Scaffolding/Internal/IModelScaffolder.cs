@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                [NotNull] string rootNamespace,
                [CanBeNull] string contextName,
                bool useDataAnnotations,
-               bool overwriteFiles);
+               bool overwriteFiles,
+               bool useDatabaseNames);
     }
 }

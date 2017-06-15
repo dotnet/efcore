@@ -294,6 +294,9 @@
   <data name="WritingFile" xml:space="preserve">
     <value>Writing '{file}'...</value>
   </data>
+  <data name="UseDatabaseNamesDescription" xml:space="preserve">
+    <value>Use table and column names directly from the database.</value>
+  </data>
   <data name="UsingWorkingDirectory" xml:space="preserve">
     <value>Using working directory '{workingDirectory}'.</value>
   </data>

@@ -50,7 +50,8 @@ CREATE TABLE IF NOT EXISTS Dependent (
                     rootNamespace: "E2E.Sqlite",
                     contextName: null,
                     useDataAnnotations: UseDataAnnotations,
-                    overwriteFiles: false);
+                    overwriteFiles: false,
+                    useDatabaseNames: false);
 
                 Assert.Empty(_reporter.Messages.Where(m => m.StartsWith("warn: ")));
 
@@ -105,7 +106,8 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                     rootNamespace: "E2E.Sqlite",
                     contextName: null,
                     useDataAnnotations: UseDataAnnotations,
-                    overwriteFiles: false);
+                    overwriteFiles: false,
+                    useDatabaseNames: false);
 
                 Assert.Empty(_reporter.Messages.Where(m => m.StartsWith("warn: ")));
 
@@ -154,7 +156,8 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     rootNamespace: "E2E.Sqlite",
                     contextName: null,
                     useDataAnnotations: UseDataAnnotations,
-                    overwriteFiles: false);
+                    overwriteFiles: false,
+                    useDatabaseNames: false);
 
                 Assert.Empty(_reporter.Messages.Where(m => m.StartsWith("warn: ")));
 
@@ -197,7 +200,8 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     rootNamespace: "E2E.Sqlite",
                     contextName: null,
                     useDataAnnotations: UseDataAnnotations,
-                    overwriteFiles: false);
+                    overwriteFiles: false,
+                    useDatabaseNames: false);
 
                 Assert.Empty(_reporter.Messages.Where(m => m.StartsWith("warn: ")));
 
@@ -234,7 +238,8 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     rootNamespace: "E2E.Sqlite",
                     contextName: null,
                     useDataAnnotations: UseDataAnnotations,
-                    overwriteFiles: false);
+                    overwriteFiles: false,
+                    useDatabaseNames: false);
 
                 var errorMessage = DesignStrings.UnableToGenerateEntityType("Alicia");
                 Assert.Contains("warn: " + DesignStrings.MissingPrimaryKey("Alicia"), _reporter.Messages);
@@ -264,7 +269,8 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
                     rootNamespace: "E2E.Sqlite",
                     contextName: null,
                     useDataAnnotations: UseDataAnnotations,
-                    overwriteFiles: false);
+                    overwriteFiles: false,
+                    useDatabaseNames: false);
 
                 Assert.Contains("warn: " + DesignStrings.MissingPrimaryKey("Principal"), _reporter.Messages);
                 Assert.Contains("warn: " + DesignStrings.UnableToGenerateEntityType("Principal"), _reporter.Messages);
@@ -326,7 +332,8 @@ CREATE TABLE IF NOT EXISTS String (
                     rootNamespace: "E2E.Sqlite",
                     contextName: null,
                     useDataAnnotations: UseDataAnnotations,
-                    overwriteFiles: false);
+                    overwriteFiles: false,
+                    useDatabaseNames: false);
 
                 Assert.Empty(_reporter.Messages.Where(m => m.StartsWith("warn: ")));
 
@@ -364,7 +371,8 @@ CREATE TABLE IF NOT EXISTS Comment (
                     rootNamespace: "E2E.Sqlite",
                     contextName: "FkToAltKeyContext",
                     useDataAnnotations: UseDataAnnotations,
-                    overwriteFiles: false);
+                    overwriteFiles: false,
+                    useDatabaseNames: false);
 
                 Assert.Empty(_reporter.Messages.Where(m => m.StartsWith("warn: ")));
 

@@ -93,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                     TestNamespace,
                     contextName: "AttributesContext",
                     useDataAnnotations: true,
-                    overwriteFiles: false);
+                    overwriteFiles: false,
+                    useDatabaseNames: false);
 
             var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(Path.Combine(TestProjectDir, TestSubDir)))
             {
@@ -135,7 +136,8 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                     rootNamespace: TestNamespace,
                     contextName: null,
                     useDataAnnotations: false,
-                    overwriteFiles: false);
+                    overwriteFiles: false,
+                    useDatabaseNames: false);
 
             var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
             {
@@ -197,7 +199,8 @@ CREATE TABLE NonNullBoolWithDefault
                         rootNamespace: TestNamespace,
                         contextName: "NonNullBoolWithDefaultContext",
                         useDataAnnotations: false,
-                        overwriteFiles: false);
+                        overwriteFiles: false,
+                        useDatabaseNames: false);
 
 
                 var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
@@ -267,7 +270,8 @@ CREATE SEQUENCE NumericSequence
                         rootNamespace: TestNamespace,
                         contextName: "SequenceContext",
                         useDataAnnotations: false,
-                        overwriteFiles: false);
+                        overwriteFiles: false,
+                        useDatabaseNames: false);
 
                 var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
                 {
@@ -321,7 +325,8 @@ CREATE TABLE PrimaryKeyWithSequence (
                         rootNamespace: TestNamespace,
                         contextName: "PrimaryKeyWithSequenceContext",
                         useDataAnnotations: false,
-                        overwriteFiles: false);
+                        overwriteFiles: false,
+                        useDatabaseNames: false);
 
                 var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
                 {
@@ -370,7 +375,8 @@ CREATE INDEX Unicorn_Filtered_Index
                         rootNamespace: TestNamespace,
                         contextName: "FilteredIndexContext",
                         useDataAnnotations: false,
-                        overwriteFiles: false);
+                        overwriteFiles: false,
+                        useDatabaseNames: false);
 
                 var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
                 {
@@ -420,7 +426,8 @@ WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.History));
                         rootNamespace: TestNamespace,
                         contextName: "SystemVersionedContext",
                         useDataAnnotations: false,
-                        overwriteFiles: false);
+                        overwriteFiles: false,
+                        useDatabaseNames: false);
 
 
                 scratch.ExecuteNonQuery(@"

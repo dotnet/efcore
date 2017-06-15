@@ -62,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string rootNamespace,
             string contextName,
             bool useDataAnnotations,
-            bool overwriteFiles)
+            bool overwriteFiles,
+            bool useDatabaseNames)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tables, nameof(tables));
@@ -78,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     DesignStrings.ContextClassNotValidCSharpIdentifier(contextName));
             }
 
-            var model = _factory.Create(connectionString, tables, schemas);
+            var model = _factory.Create(connectionString, tables, schemas, useDatabaseNames);
 
             if (model == null)
             {
@@ -102,7 +103,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 @namespace += "." + string.Join(
                                   ".", relativeOutputPath
                                       .Split(_directorySeparatorChars, StringSplitOptions.RemoveEmptyEntries)
-                                      .Select(p => _cSharpUtilities.GenerateCSharpIdentifier(p, existingIdentifiers: null)));
+                                      .Select(p => _cSharpUtilities.GenerateCSharpIdentifier(
+                                          p,
+                                          existingIdentifiers: null,
+                                          singularizePluralizer: null)));
             }
 
             if (string.IsNullOrEmpty(contextName))
@@ -112,7 +116,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 var annotatedName = model.Scaffolding().DatabaseName;
                 if (!string.IsNullOrEmpty(annotatedName))
                 {
-                    contextName = _cSharpUtilities.GenerateCSharpIdentifier(annotatedName + DbContextSuffix, existingIdentifiers: null);
+                    contextName = _cSharpUtilities.GenerateCSharpIdentifier(
+                        annotatedName + DbContextSuffix,
+                        existingIdentifiers: null,
+                        singularizePluralizer: null);
                 }
             }
 

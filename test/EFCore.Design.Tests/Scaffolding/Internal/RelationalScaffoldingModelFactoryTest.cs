@@ -907,6 +907,24 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal("Posts", entity.Scaffolding().DbSetName);
                     }
             );
+
+            model = factory.Create(info, true);
+
+            Assert.Collection(
+                model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+                entity =>
+                {
+                    Assert.Equal("Blog", entity.Relational().TableName);
+                    Assert.Equal("Blog", entity.Name);
+                    Assert.Equal("Blog", entity.Scaffolding().DbSetName);
+                },
+                entity =>
+                {
+                    Assert.Equal("Posts", entity.Relational().TableName);
+                    Assert.Equal("Posts", entity.Name);
+                    Assert.Equal("Posts", entity.Scaffolding().DbSetName);
+                }
+            );
         }
 
         [Fact]
@@ -963,7 +981,7 @@ namespace Microsoft.EntityFrameworkCore
 
     public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {
-        public IModel Create(DatabaseModel databaseModel)
+        public IModel Create(DatabaseModel databaseModel, bool useDatabaseNames = false)
         {
             foreach (var sequence in databaseModel.Sequences)
             {
@@ -1000,7 +1018,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            return CreateFromDatabaseModel(databaseModel);
+            return CreateFromDatabaseModel(databaseModel, useDatabaseNames);
         }
 
         public FakeScaffoldingModelFactory(

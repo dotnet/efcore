@@ -336,6 +336,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 startupProject, targetFramework);
 
         /// <summary>
+        ///     Use table and column names directly from the database.
+        /// </summary>
+        public static string UseDatabaseNamesDescription
+            => GetString("UseDatabaseNamesDescription");
+
+        /// <summary>
         ///     Using project '{project}'.
         /// </summary>
         public static string UsingProject([CanBeNull] object project)

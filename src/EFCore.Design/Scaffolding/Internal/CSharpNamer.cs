@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     {
         private readonly Func<T, string> _nameGetter;
         private readonly ICSharpUtilities _cSharpUtilities;
+        private readonly Func<string, string> _singularizePluralizer;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -27,13 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public CSharpNamer([NotNull] Func<T, string> nameGetter, [NotNull] ICSharpUtilities cSharpUtilities)
+        public CSharpNamer([NotNull] Func<T, string> nameGetter,
+            [NotNull] ICSharpUtilities cSharpUtilities,
+            [CanBeNull] Func<string, string> singularizePluralizer)
         {
             Check.NotNull(nameGetter, nameof(nameGetter));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
 
             _nameGetter = nameGetter;
             _cSharpUtilities = cSharpUtilities;
+            _singularizePluralizer = singularizePluralizer;
         }
 
         /// <summary>
@@ -49,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return NameCache[item];
             }
 
-            var name = _cSharpUtilities.GenerateCSharpIdentifier(_nameGetter(item), null);
+            var name = _cSharpUtilities.GenerateCSharpIdentifier(
+                _nameGetter(item), existingIdentifiers: null, singularizePluralizer: _singularizePluralizer);
             NameCache.Add(item, name);
             return name;
         }

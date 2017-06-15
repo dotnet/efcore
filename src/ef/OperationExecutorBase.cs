@@ -139,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             IEnumerable<string> schemaFilters,
             IEnumerable<string> tableFilters,
             bool useDataAnnotations,
-            bool overwriteFiles)
+            bool overwriteFiles,
+            bool useDatabaseNames)
             => InvokeOperation<IDictionary>("ScaffoldContext",
                 new Dictionary<string, object>
                 {
@@ -150,7 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["schemaFilters"] = schemaFilters,
                     ["tableFilters"] = tableFilters,
                     ["useDataAnnotations"] = useDataAnnotations,
-                    ["overwriteFiles"] = overwriteFiles
+                    ["overwriteFiles"] = overwriteFiles,
+                    ["useDatabaseNames"] = useDatabaseNames
                 });
 
         public string ScriptMigration(

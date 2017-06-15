@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
+
         protected virtual IOperationReporter Reporter { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
         protected virtual ICandidateNamingService CandidateNamingService { get; }
@@ -35,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>> _columnNamers;
         private readonly DatabaseTable _nullTable = new DatabaseTable();
         private CSharpUniqueNamer<DatabaseTable> _tableNamer;
+        private CSharpUniqueNamer<DatabaseTable> _dbSetNamer;
         private readonly IDatabaseModelFactory _databaseModelFactory;
         private readonly HashSet<DatabaseColumn> _unmappedColumns = new HashSet<DatabaseColumn>();
         private readonly IPluralizer _pluralizer;
@@ -71,7 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _scaffoldingTypeMapper = scaffoldingTypeMapper;
         }
 
-        public virtual IModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public virtual IModel Create(
+            string connectionString,
+            IEnumerable<string> tables,
+            IEnumerable<string> schemas,
+            bool useDatabaseNames)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tables, nameof(tables));
@@ -79,18 +85,31 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var databaseModel = _databaseModelFactory.Create(connectionString, tables, schemas);
 
-            return CreateFromDatabaseModel(databaseModel);
+            return CreateFromDatabaseModel(databaseModel, useDatabaseNames);
         }
 
-        protected virtual IModel CreateFromDatabaseModel([NotNull] DatabaseModel databaseModel)
+        protected virtual IModel CreateFromDatabaseModel([NotNull] DatabaseModel databaseModel, bool useDatabaseNames)
         {
             Check.NotNull(databaseModel, nameof(databaseModel));
 
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
             _tableNamer = new CSharpUniqueNamer<DatabaseTable>(
-                t => CandidateNamingService.GenerateCandidateIdentifier(t.Name),
-                _cSharpUtilities);
+                useDatabaseNames
+                    ? (Func<DatabaseTable, string>)(t => t.Name)
+                    : t => CandidateNamingService.GenerateCandidateIdentifier(t.Name),
+                _cSharpUtilities,
+                useDatabaseNames
+                    ? (Func<string, string>)null
+                    : _pluralizer.Singularize);
+            _dbSetNamer = new CSharpUniqueNamer<DatabaseTable>(
+                useDatabaseNames
+                    ? (Func<DatabaseTable, string>)(t => t.Name)
+                    : t => CandidateNamingService.GenerateCandidateIdentifier(t.Name),
+                _cSharpUtilities,
+                useDatabaseNames
+                    ? (Func<string, string>)null
+                    : _pluralizer.Pluralize);
             _columnNamers = new Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>>();
 
             VisitDatabaseModel(modelBuilder, databaseModel);
@@ -99,10 +118,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         protected virtual string GetEntityTypeName([NotNull] DatabaseTable table)
-            => _pluralizer.Singularize(_tableNamer.GetName(Check.NotNull(table, nameof(table))));
+            => _tableNamer.GetName(Check.NotNull(table, nameof(table)));
 
         protected virtual string GetDbSetName([NotNull] DatabaseTable table)
-            => _pluralizer.Pluralize(_tableNamer.GetName(Check.NotNull(table, nameof(table))));
+            => _dbSetNamer.GetName(Check.NotNull(table, nameof(table)));
 
         protected virtual string GetPropertyName([NotNull] DatabaseColumn column)
         {
@@ -113,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             // TODO - need to clean up the way CSharpNamer & CSharpUniqueNamer work (see issue #1671)
             if (column.Table != null)
             {
-                usedNames.Add(_tableNamer.GetName(table));
+                usedNames.Add(GetEntityTypeName(table));
             }
 
             if (!_columnNamers.ContainsKey(table))
@@ -121,7 +140,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 _columnNamers.Add(
                     table,
                     new CSharpUniqueNamer<DatabaseColumn>(
-                        c => CandidateNamingService.GenerateCandidateIdentifier(c.Name), usedNames, _cSharpUtilities));
+                        c => CandidateNamingService.GenerateCandidateIdentifier(c.Name),
+                        usedNames,
+                        _cSharpUtilities,
+                        null));
             }
 
             return _columnNamers[table].GetName(column);
@@ -672,6 +694,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 _cSharpUtilities.GenerateCSharpIdentifier(
                     dependentEndNavigationPropertyCandidateName,
                     dependentEndExistingIdentifiers,
+                    null,
                     NavigationUniquifier);
 
             foreignKey.HasDependentToPrincipal(dependentEndNavigationPropertyName);
@@ -695,6 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 _cSharpUtilities.GenerateCSharpIdentifier(
                     principalEndNavigationPropertyCandidateName,
                     principalEndExistingIdentifiers,
+                    null,
                     NavigationUniquifier);
 
             foreignKey.HasPrincipalToDependent(principalEndNavigationPropertyName);
