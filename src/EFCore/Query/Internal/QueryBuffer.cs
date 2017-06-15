@@ -456,9 +456,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         void IDisposable.Dispose()
         {
-            for (var i = _includedCollections.Count - 1; i >= 0; i--)
+            foreach (var kv in _includedCollections)
             {
-                _includedCollections[i]?.Dispose();
+                kv.Value?.Dispose();
             }
         }
     }
