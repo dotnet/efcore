@@ -8,6 +8,8 @@
     <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <NoWarn>$(NoWarn);xUnit1013</NoWarn>
+    <!-- Workaround https://github.com/Microsoft/vstest/issues/792. -->
+    <HasRuntimeOutput>true</HasRuntimeOutput>
   </PropertyGroup>
 
   <ItemGroup>
