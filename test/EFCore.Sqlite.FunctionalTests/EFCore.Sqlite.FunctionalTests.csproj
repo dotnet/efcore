@@ -7,6 +7,8 @@
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT' OR '$(CoreOnly)' == 'True'">netcoreapp2.0</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <!-- Workaround https://github.com/Microsoft/vstest/issues/792. -->
+    <HasRuntimeOutput>true</HasRuntimeOutput>
   </PropertyGroup>
 
   <ItemGroup>
