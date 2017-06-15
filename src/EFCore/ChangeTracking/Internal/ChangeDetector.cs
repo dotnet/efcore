@@ -125,6 +125,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             foreach (var property in entityType.GetProperties())
             {
                 if (property.GetOriginalValueIndex() >= 0
+                    && !entry.IsConceptualNull(property)
                     && !Equals(entry[property], entry.GetOriginalValue(property)))
                 {
                     entry.SetPropertyModified(property);
