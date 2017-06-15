@@ -10,8 +10,9 @@ using Xunit;
 // ReSharper disable StringEndsWithIsCultureSpecific
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : InheritanceFixtureBase, new()
+    public abstract class InheritanceTestBase<TTestStore, TFixture> : IClassFixture<TFixture>
+        where TTestStore : TestStore
+        where TFixture : InheritanceFixtureBase<TTestStore>, new()
     {
         [Fact]
         public virtual void Can_query_when_shared_column()

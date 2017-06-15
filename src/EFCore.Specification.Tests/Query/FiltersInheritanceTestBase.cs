@@ -12,8 +12,9 @@ using Xunit;
 // ReSharper disable ConvertMethodToExpressionBody
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class FiltersInheritanceTestBase<TFixture> : IClassFixture<TFixture>, IDisposable
-        where TFixture : InheritanceFixtureBase, new()
+    public abstract class FiltersInheritanceTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
+        where TTestStore : TestStore
+        where TFixture : InheritanceFixtureBase<TTestStore>, new()
     {
         [Fact]
         public virtual void Can_use_of_type_animal()
@@ -116,8 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected FiltersInheritanceTestBase(TFixture fixture)
         {
             Fixture = fixture;
-
-            _context = fixture.CreateContext(enableFilters: true);
+            _context = fixture.CreateContext();
         }
 
         public void Dispose() => _context.Dispose();

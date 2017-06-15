@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class InheritanceInMemoryTest : InheritanceTestBase<InheritanceInMemoryFixture>
+    public class InheritanceInMemoryTest : InheritanceTestBase<InMemoryTestStore, InheritanceInMemoryFixture>
     {
         public override void Discriminator_used_when_projection_over_derived_type2()
         {
@@ -23,11 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CoreStrings.PropertyNotFound("Discriminator", "Animal"),
                 Assert.Throws<InvalidOperationException>(() =>
                         base.Discriminator_with_cast_in_shadow_property()).Message);
-        }
-
-        public override void Can_use_of_type_animal()
-        {
-            base.Can_use_of_type_animal();
         }
 
         public InheritanceInMemoryTest(InheritanceInMemoryFixture fixture)

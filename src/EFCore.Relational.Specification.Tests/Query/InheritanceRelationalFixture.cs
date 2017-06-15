@@ -5,39 +5,9 @@ using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceRelationalFixture : InheritanceFixtureBase
+    public abstract class InheritanceRelationalFixture<TTestStore> : InheritanceFixtureBase<TTestStore>
+        where TTestStore : TestStore
     {
-        private static readonly object _sync = new object();
-        private static bool _seeded;
-
-        public override InheritanceContext CreateContext(bool enableFilters = false)
-        {
-            EnableFilters = enableFilters;
-
-            if (!_seeded)
-            {
-                lock (_sync)
-                {
-                    if (!_seeded)
-                    {
-                        using (var context = CreateContextCore())
-                        {
-                            if (context.Database.EnsureCreated())
-                            {
-                                SeedData(context);
-                            }
-                        }
-
-                        ClearLog();
-
-                        _seeded = true;
-                    }
-                }
-            }
-
-            return CreateContextCore();
-        }
-
         public override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -52,7 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<Animal>().Property(e => e.Species).HasMaxLength(100);
 
             modelBuilder.Entity<Coke>().Property(e => e.Carbination).HasColumnName("CokeCO2");
+            modelBuilder.Entity<Coke>().Property(e => e.SugarGrams).HasColumnName("SugarGrams");
+            modelBuilder.Entity<Coke>().Property(e => e.CaffeineGrams).HasColumnName("CaffeineGrams");
             modelBuilder.Entity<Lilt>().Property(e => e.Carbination).HasColumnName("LiltCO2");
+            modelBuilder.Entity<Lilt>().Property(e => e.SugarGrams).HasColumnName("SugarGrams");
+            modelBuilder.Entity<Tea>().Property(e => e.CaffeineGrams).HasColumnName("CaffeineGrams");
         }
     }
 }

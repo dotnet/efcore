@@ -7,30 +7,36 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class InheritanceSqlServerFixture : InheritanceRelationalFixture
+    public class InheritanceSqlServerFixture : InheritanceRelationalFixture<SqlServerTestStore>
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+        private const string DatabaseName = "InheritanceSqlServerTest";
 
         protected override void ClearLog()
-        {
-            TestSqlLoggerFactory.Clear();
-        }
+            => TestSqlLoggerFactory.Clear();
+
+        public override SqlServerTestStore CreateTestStore()
+            => SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
+                {
+                    using (var context = CreateContext())
+                    {
+                        context.Database.EnsureCreated();
+                        SeedData(context);
+                    }
+                });
 
         public override DbContextOptions BuildOptions()
-        {
-            return
-                new DbContextOptionsBuilder()
-                    .EnableSensitiveDataLogging()
-                    .UseSqlServer(
-                        SqlServerTestStore.CreateConnectionString("InheritanceSqlServerTest"),
-                        b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(
-                        new ServiceCollection()
-                            .AddEntityFrameworkSqlServer()
-                            .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                            .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                            .BuildServiceProvider())
-                    .Options;
-        }
+            => new DbContextOptionsBuilder()
+                .EnableSensitiveDataLogging()
+                .UseSqlServer(
+                    SqlServerTestStore.CreateConnectionString(DatabaseName),
+                    b => b.ApplyConfiguration())
+                .UseInternalServiceProvider(
+                    new ServiceCollection()
+                        .AddEntityFrameworkSqlServer()
+                        .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
+                        .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
+                        .BuildServiceProvider())
+                .Options;
     }
 }

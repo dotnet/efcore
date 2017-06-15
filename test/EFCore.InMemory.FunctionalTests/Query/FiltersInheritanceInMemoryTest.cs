@@ -3,9 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FiltersInheritanceInMemoryTest : FiltersInheritanceTestBase<InheritanceInMemoryFixture>
+    public class FiltersInheritanceInMemoryTest : FiltersInheritanceTestBase<InMemoryTestStore, FiltersInheritanceInMemoryFixture>
     {
-        public FiltersInheritanceInMemoryTest(InheritanceInMemoryFixture fixture)
+        public FiltersInheritanceInMemoryTest(FiltersInheritanceInMemoryFixture fixture)
             : base(fixture)
         {
         }

@@ -1,28 +1,34 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceFixtureBase
+    public abstract class InheritanceFixtureBase<TTestStore> : IDisposable
+        where TTestStore : TestStore
     {
         private DbContextOptions _options;
+        protected TTestStore TestStore { get; }
+
+        protected InheritanceFixtureBase()
+        {
+            TestStore = CreateTestStore();
+        }
 
         public abstract DbContextOptions BuildOptions();
 
-        public abstract InheritanceContext CreateContext(bool enableFilters = false);
-        
+        public abstract TTestStore CreateTestStore();
+
+        public virtual InheritanceContext CreateContext()
+            => new InheritanceContext(_options ?? (_options = BuildOptions()));
+
         protected virtual void ClearLog()
         {
         }
 
-        protected bool EnableFilters { get; set; }
-
-        protected InheritanceContext CreateContextCore()
-        {
-            return new InheritanceContext(_options ?? (_options = BuildOptions()));
-        }
+        protected virtual bool EnableFilters => false;
 
         public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -99,6 +105,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new Coke { SugarGrams = 6, CaffeineGrams = 4, Carbination = 5 });
 
             context.SaveChanges();
+
+            ClearLog();
         }
+
+        public void Dispose() => TestStore.Dispose();
     }
 }

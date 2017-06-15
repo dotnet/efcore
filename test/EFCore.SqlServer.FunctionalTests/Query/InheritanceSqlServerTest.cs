@@ -2,12 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class InheritanceSqlServerTest : InheritanceTestBase<InheritanceSqlServerFixture>
+    public class InheritanceSqlServerTest : InheritanceTestBase<SqlServerTestStore, InheritanceSqlServerFixture>
     {
         public InheritanceSqlServerTest(InheritanceSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

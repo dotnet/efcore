@@ -89,12 +89,12 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(numNum2.Id, context.NumNums.Single(e => e.TheWalrus == "Am").Id);
                     Assert.NotEqual(numNum1.Id, preSaveValues[0]);
                     Assert.NotEqual(numNum2.Id, preSaveValues[1]);
-                    
+
                     Assert.Equal(anNum1.Id, context.AnNums.Single(e => e.TheWalrus == "Goo goo").Id);
                     Assert.Equal(anNum2.Id, context.AnNums.Single(e => e.TheWalrus == "g'joob").Id);
                     Assert.NotEqual(adNum1.Id, preSaveValues[2]);
                     Assert.NotEqual(adNum2.Id, preSaveValues[3]);
-                    
+
                     Assert.Equal(adNum1.Id, context.AdNums.Single(e => e.TheWalrus == "Eggman").Id);
                     Assert.Equal(adNum2.Id, context.AdNums.Single(e => e.TheWalrus == "Eggmen").Id);
                     Assert.NotEqual(anNum1.Id, preSaveValues[4]);
