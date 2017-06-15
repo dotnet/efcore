@@ -398,6 +398,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 file);
 
         /// <summary>
+        ///     Use table and column names directly from the database.
+        /// </summary>
+        public static string UseDatabaseNamesDescription
+            => GetString("UseDatabaseNamesDescription");
+
+        /// <summary>
         ///     Using working directory '{workingDirectory}'.
         /// </summary>
         public static string UsingWorkingDirectory([CanBeNull] object workingDirectory)

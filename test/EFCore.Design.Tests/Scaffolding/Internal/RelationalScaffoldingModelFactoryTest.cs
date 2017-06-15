@@ -890,6 +890,7 @@ namespace Microsoft.EntityFrameworkCore
                 new TestOperationReporter(),
                 new FakePluralizer());
 
+            // Note: factory.UseDatabaseNames == false;
             var model = factory.Create(info);
 
             Assert.Collection(
@@ -906,6 +907,25 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal("Post", entity.Name);
                         Assert.Equal("Posts", entity.Scaffolding().DbSetName);
                     }
+            );
+
+            factory.UseDatabaseNames = true;
+            model = factory.Create(info);
+
+            Assert.Collection(
+                model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+                entity =>
+                {
+                    Assert.Equal("Blog", entity.Relational().TableName);
+                    Assert.Equal("Blog", entity.Name);
+                    Assert.Equal("Blog", entity.Scaffolding().DbSetName);
+                },
+                entity =>
+                {
+                    Assert.Equal("Posts", entity.Relational().TableName);
+                    Assert.Equal("Posts", entity.Name);
+                    Assert.Equal("Posts", entity.Scaffolding().DbSetName);
+                }
             );
         }
 

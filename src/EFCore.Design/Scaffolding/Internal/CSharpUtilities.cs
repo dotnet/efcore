@@ -272,15 +272,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string GenerateCSharpIdentifier(
-            string identifier, [CanBeNull] ICollection<string> existingIdentifiers)
-            => GenerateCSharpIdentifier(identifier, existingIdentifiers, Uniquifier);
+            string identifier,
+            [CanBeNull] ICollection<string> existingIdentifiers,
+            [CanBeNull] Func<string, string> singularizePluralizer)
+            => GenerateCSharpIdentifier(identifier, existingIdentifiers, singularizePluralizer, Uniquifier);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string GenerateCSharpIdentifier(
-            string identifier, [CanBeNull] ICollection<string> existingIdentifiers,
+            string identifier,
+            [CanBeNull] ICollection<string> existingIdentifiers,
+            [CanBeNull] Func<string, string> singularizePluralizer,
             Func<string, ICollection<string>, string> uniquifier)
         {
             Check.NotNull(identifier, nameof(identifier));
@@ -305,6 +309,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             else if (IsCSharpKeyword(proposedIdentifier))
             {
                 proposedIdentifier = "_" + proposedIdentifier;
+            }
+
+            if (singularizePluralizer != null)
+            {
+                proposedIdentifier = singularizePluralizer(proposedIdentifier);
             }
 
             return uniquifier(proposedIdentifier, existingIdentifiers);

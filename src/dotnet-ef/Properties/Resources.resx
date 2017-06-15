@@ -273,6 +273,9 @@
   <data name="UnsupportedFramework" xml:space="preserve">
     <value>Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command Line Tools don't support this framework.</value>
   </data>
+  <data name="UseDatabaseNamesDescription" xml:space="preserve">
+    <value>Use table and column names directly from the database.</value>
+  </data>
   <data name="UsingProject" xml:space="preserve">
     <value>Using project '{project}'.</value>
   </data>

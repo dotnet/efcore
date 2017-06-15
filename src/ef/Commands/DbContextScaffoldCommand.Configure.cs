@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandOption _outputDir;
         private CommandOption _schemas;
         private CommandOption _tables;
+        private CommandOption _useDatabaseNames;
         private CommandOption _json;
 
         public override void Configure(CommandLineApplication command)
@@ -31,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _outputDir = command.Option("-o|--output-dir <PATH>", Resources.OutputDirDescription);
             _schemas = command.Option("--schema <SCHEMA_NAME>...", Resources.SchemasDescription);
             _tables = command.Option("-t|--table <TABLE_NAME>...", Resources.TablesDescription);
+            _useDatabaseNames = command.Option("--use-database-names", Resources.UseDatabaseNamesDescription);
             _json = Json.ConfigureOption(command);
 
             base.Configure(command);
