@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <AppInsightsVersion>2.4.0-beta3</AppInsightsVersion>
+    <AppInsightsVersion>2.4.0-beta5</AppInsightsVersion>
     <AspNetCoreVersion>2.0.0-preview2-*</AspNetCoreVersion>
     <CoreFxVersion>4.4.0-*</CoreFxVersion>
     <DependencyModelVersion>2.0.0-preview1-*</DependencyModelVersion>
