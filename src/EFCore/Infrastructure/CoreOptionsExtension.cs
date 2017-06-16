@@ -101,7 +101,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var clone = Clone();
 
             clone._applicationServiceProvider = applicationServiceProvider;
-            _serviceProviderHash = null;
 
             return clone;
         }
@@ -132,7 +131,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var clone = Clone();
 
             clone._memoryCache = memoryCache;
-            _serviceProviderHash = null;
 
             return clone;
         }
@@ -148,7 +146,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var clone = Clone();
 
             clone._loggerFactory = loggerFactory;
-            _serviceProviderHash = null;
 
             return clone;
         }
@@ -164,7 +161,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var clone = Clone();
 
             clone._sensitiveDataLoggingEnabled = sensitiveDataLoggingEnabled;
-            _serviceProviderHash = null;
 
             return clone;
         }
@@ -231,7 +227,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var clone = Clone();
 
             clone._warningsConfiguration = warningsConfiguration;
-            _serviceProviderHash = null;
 
             return clone;
         }

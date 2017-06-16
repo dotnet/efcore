@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
     /// </summary>
     public class SqlServerOptionsExtension : RelationalOptionsExtension
     {
+        private long? _serviceProviderHash;
         private bool? _rowNumberPaging;
 
         /// <summary>
@@ -59,6 +60,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
             clone._rowNumberPaging = rowNumberPaging;
 
             return clone;
+        }
+
+        public override long GetServiceProviderHashCode()
+        {
+            if (_serviceProviderHash == null)
+            {
+                _serviceProviderHash = (base.GetServiceProviderHashCode() * 397) ^ _rowNumberPaging.GetHashCode();
+            }
+
+            return _serviceProviderHash.Value;
         }
 
         /// <summary>
