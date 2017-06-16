@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         {
             if (_serviceProviderHash == null)
             {
-                _serviceProviderHash = (base.GetServiceProviderHashCode() * 397) ^ _rowNumberPaging.GetHashCode();
+                _serviceProviderHash = (base.GetServiceProviderHashCode() * 397) ^ (_rowNumberPaging?.GetHashCode() ?? 0L);
             }
 
             return _serviceProviderHash.Value;

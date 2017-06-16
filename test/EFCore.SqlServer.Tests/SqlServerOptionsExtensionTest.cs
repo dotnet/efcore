@@ -98,6 +98,4 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
     }
-
-
 }
