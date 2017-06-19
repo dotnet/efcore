@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
             base.Property_entry_original_value_is_set();
 
             Assert.Contains(
-                @"SELECT TOP(1) [e].[Id], [e].[EngineSupplierId], [e].[Name]
+                @"SELECT TOP(1) [e].[Id], [e].[EngineSupplierId], [e].[Name], [e].[Id], [e].[StorageLocation_Latitude], [e].[StorageLocation_Longitude]
 FROM [Engines] AS [e]",
                 Sql);
 

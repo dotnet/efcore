@@ -27,8 +27,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Simple_owned_level1();
 
             AssertSql(
-                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[OneToOne_Required_PK_Level1_Optional_Id], [l1].[OneToOne_Required_PK_Level1_Required_Id], [l1].[OneToOne_Required_PK_Name], [l1].[OneToOne_Required_PK_OneToOne_Optional_PK_InverseId]
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[OneToOne_Required_PK_Level1_Optional_Id], [l1].[OneToOne_Required_PK_Level1_Required_Id], [l1].[OneToOne_Required_PK_Name], [l1].[OneToOne_Required_PK_OneToOne_Optional_PK_InverseId], [l1].[Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_Level2_Optional_Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_Level2_Required_Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_Name], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Optional_PK_InverseId], [l1].[Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Required_PK_Level3_Optional_Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Required_PK_Level3_Required_Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Required_PK_Name], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Optional_PK_InverseId]
 FROM [Level1] AS [l1]");
+        }
+        
+        [Fact]
+        public override void Simple_owned_level1_convention()
+        {
+            base.Simple_owned_level1_convention();
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[Id], [l].[OneToOne_Required_PK_Date], [l].[OneToOne_Required_PK_Level1_Optional_Id], [l].[OneToOne_Required_PK_Level1_Required_Id], [l].[OneToOne_Required_PK_Name], [l].[OneToOne_Required_PK_OneToOne_Optional_PK_InverseId], [l].[Id], [l].[OneToOne_Required_PK_OneToOne_Required_PK_Level2_Optional_Id], [l].[OneToOne_Required_PK_OneToOne_Required_PK_Level2_Required_Id], [l].[OneToOne_Required_PK_OneToOne_Required_PK_Name], [l].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Optional_PK_InverseId], [l].[Id], [l].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Required_PK_Level3_Optional_Id], [l].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Required_PK_Level3_Required_Id], [l].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Required_PK_Name], [l].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Optional_PK_InverseId]
+FROM [Level1] AS [l]");
         }
 
         [Fact]
@@ -37,7 +47,7 @@ FROM [Level1] AS [l1]");
             base.Simple_owned_level1_level2();
 
             AssertSql(
-                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[OneToOne_Required_PK_Level1_Optional_Id], [l1].[OneToOne_Required_PK_Level1_Required_Id], [l1].[OneToOne_Required_PK_Name], [l1].[OneToOne_Required_PK_OneToOne_Optional_PK_InverseId], [l1].[Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_Level2_Optional_Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_Level2_Required_Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_Name], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Optional_PK_InverseId]
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[OneToOne_Required_PK_Level1_Optional_Id], [l1].[OneToOne_Required_PK_Level1_Required_Id], [l1].[OneToOne_Required_PK_Name], [l1].[OneToOne_Required_PK_OneToOne_Optional_PK_InverseId], [l1].[Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_Level2_Optional_Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_Level2_Required_Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_Name], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Optional_PK_InverseId], [l1].[Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Required_PK_Level3_Optional_Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Required_PK_Level3_Required_Id], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Required_PK_Name], [l1].[OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Required_PK_OneToOne_Optional_PK_InverseId]
 FROM [Level1] AS [l1]");
         }
 

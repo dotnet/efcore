@@ -364,12 +364,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _isUnique = unique;
             UpdateIsUniqueConfigurationSource(configurationSource);
 
-            if (isChanging)
-            {
-                return DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder)?.Metadata;
-            }
-
-            return this;
+            return isChanging 
+                ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder)?.Metadata 
+                : this;
         }
 
         private static bool DefaultIsUnique => false;
@@ -394,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool IsRequired
         {
             get { return !Properties.Any(p => p.IsNullable); }
-            set { SetIsRequired(value, ConfigurationSource.Explicit); }
+            set => SetIsRequired(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -454,8 +451,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DeleteBehavior DeleteBehavior
         {
-            get { return _deleteBehavior ?? DefaultDeleteBehavior; }
-            set { SetDeleteBehavior(value, ConfigurationSource.Explicit); }
+            get => _deleteBehavior ?? DefaultDeleteBehavior;
+            set => SetDeleteBehavior(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -489,8 +486,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsOwnership
         {
-            get { return _isOwnership ?? DefaultIsOwnership; }
-            set { SetIsOwnership(value, ConfigurationSource.Explicit); }
+            get => _isOwnership ?? DefaultIsOwnership;
+            set => SetIsOwnership(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>

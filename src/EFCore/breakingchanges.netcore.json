@@ -798,5 +798,20 @@
       "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
       "MemberId": "protected virtual System.Void FindSets(Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.DbContext context)",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableNavigation : Microsoft.EntityFrameworkCore.Metadata.INavigation, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+      "MemberId": "System.Boolean get_IsEager()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableNavigation : Microsoft.EntityFrameworkCore.Metadata.INavigation, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+      "MemberId": "System.Void set_IsEager(System.Boolean value)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.INavigation : Microsoft.EntityFrameworkCore.Metadata.IPropertyBase",
+      "MemberId": "System.Boolean get_IsEager()",
+      "Kind": "Addition"
     }
   ]

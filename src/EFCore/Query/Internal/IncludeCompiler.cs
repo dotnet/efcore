@@ -74,8 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return;
             }
 
-            foreach (var includeLoadTree
-                in CreateIncludeLoadTrees(queryModel.SelectClause.Selector))
+            foreach (var includeLoadTree in CreateIncludeLoadTrees(queryModel.SelectClause.Selector))
             {
                 includeLoadTree.Compile(
                     _queryCompilationContext,
