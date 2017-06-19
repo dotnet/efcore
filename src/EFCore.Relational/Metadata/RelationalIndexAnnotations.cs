@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual string Name
         {
-            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.Name)
+            get => (string)Annotations.Metadata[RelationalAnnotationNames.Name]
                    ?? ConstraintNamer.GetDefaultName(Index);
 
             [param: CanBeNull] set => SetName(value);
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual string Filter
         {
-            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.Filter);
+            get => (string)Annotations.Metadata[RelationalAnnotationNames.Filter];
             [param: CanBeNull] set => SetFilter(value);
         }
 

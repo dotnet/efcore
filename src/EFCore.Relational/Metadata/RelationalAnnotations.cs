@@ -18,9 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual IAnnotatable Metadata { get; }
 
-        public virtual object GetAnnotation([NotNull] string annotationName)
-            => Metadata[annotationName];
-
         public virtual bool SetAnnotation(
             [NotNull] string annotationName,
             [CanBeNull] object value)

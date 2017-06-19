@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual string DefaultSchema
         {
-            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.DefaultSchema);
+            get => (string)Annotations.Metadata[RelationalAnnotationNames.DefaultSchema];
             [param: CanBeNull] set => SetDefaultSchema(value);
         }
 

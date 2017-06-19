@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual bool IsMemoryOptimized
         {
-            get => Annotations.GetAnnotation(SqlServerAnnotationNames.MemoryOptimized) as bool? ?? false;
+            get => Annotations.Metadata[SqlServerAnnotationNames.MemoryOptimized] as bool? ?? false;
             set => SetIsMemoryOptimized(value);
         }
 

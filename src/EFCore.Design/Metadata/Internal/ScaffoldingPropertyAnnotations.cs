@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual int ColumnOrdinal
         {
-            get => (int)Annotations.GetAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal);
+            get => (int)Annotations.Metadata[ScaffoldingAnnotationNames.ColumnOrdinal];
             set => Annotations.SetAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal, value);
         }
     }

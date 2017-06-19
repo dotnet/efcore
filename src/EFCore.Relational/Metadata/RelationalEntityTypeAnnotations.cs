@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             get => EntityType.BaseType != null
                 ? GetAnnotations(EntityType.RootType()).TableName
-                : ((string)Annotations.GetAnnotation(RelationalAnnotationNames.TableName)
+                : ((string)Annotations.Metadata[RelationalAnnotationNames.TableName]
                    ?? GetDefaultTableName());
 
             [param: CanBeNull] set => SetTableName(value);
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             get => EntityType.BaseType != null
                 ? GetAnnotations(EntityType.RootType()).Schema
-                : ((string)Annotations.GetAnnotation(RelationalAnnotationNames.Schema)
+                : ((string)Annotations.Metadata[RelationalAnnotationNames.Schema]
                    ?? GetDefaultSchema());
 
             [param: CanBeNull] set => SetSchema(value);
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     return GetAnnotations(EntityType.RootType()).DiscriminatorProperty;
                 }
 
-                var propertyName = (string)Annotations.GetAnnotation(RelationalAnnotationNames.DiscriminatorProperty);
+                var propertyName = (string)Annotations.Metadata[RelationalAnnotationNames.DiscriminatorProperty];
 
                 return propertyName == null ? null : EntityType.FindProperty(propertyName);
             }
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         protected virtual IProperty GetNonRootDiscriminatorProperty()
         {
-            var propertyName = (string)Annotations.GetAnnotation(RelationalAnnotationNames.DiscriminatorProperty);
+            var propertyName = (string)Annotations.Metadata[RelationalAnnotationNames.DiscriminatorProperty];
 
             return propertyName == null ? null : EntityType.FindProperty(propertyName);
         }
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual object DiscriminatorValue
         {
-            get => Annotations.GetAnnotation(RelationalAnnotationNames.DiscriminatorValue);
+            get => Annotations.Metadata[RelationalAnnotationNames.DiscriminatorValue];
             [param: CanBeNull] set => SetDiscriminatorValue(value);
         }
 

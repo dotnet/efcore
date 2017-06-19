@@ -18,8 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             get
             {
-                var dictionary = (IDictionary<string, string>)Annotations.GetAnnotation(
-                    ScaffoldingAnnotationNames.EntityTypeErrors);
+                var dictionary = (IDictionary<string, string>)Annotations.Metadata[ScaffoldingAnnotationNames.EntityTypeErrors];
 
                 if (dictionary == null)
                 {
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual string DatabaseName
         {
-            get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.DatabaseName); }
+            get { return (string)Annotations.Metadata[ScaffoldingAnnotationNames.DatabaseName]; }
             [param: CanBeNull]
             set
             {

@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual string ColumnName
         {
-            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.ColumnName)
+            get => (string)Annotations.Metadata[RelationalAnnotationNames.ColumnName]
                    ?? GetDefaultColumnName();
 
             [param: CanBeNull] set => SetColumnName(value);
@@ -127,8 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual string ColumnType
         {
-            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.ColumnType)
-                ?? ((RelationalTypeMapping)Annotations.GetAnnotation(RelationalAnnotationNames.TypeMapping))?.StoreType;
+            get => (string)Annotations.Metadata[RelationalAnnotationNames.ColumnType]
+                ?? ((RelationalTypeMapping)Annotations.Metadata[RelationalAnnotationNames.TypeMapping])?.StoreType;
             [param: CanBeNull] set => SetColumnType(value);
         }
 
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                && (GetDefaultValue(false) != null
                    || GetComputedColumnSql(false) != null)
                 ? null
-                : (string)Annotations.GetAnnotation(RelationalAnnotationNames.DefaultValueSql);
+                : (string)Annotations.Metadata[RelationalAnnotationNames.DefaultValueSql];
 
         protected virtual bool SetDefaultValueSql([CanBeNull] string value)
         {
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                && (GetDefaultValue(false) != null
                    || GetDefaultValueSql(false) != null)
                 ? null
-                : (string)Annotations.GetAnnotation(RelationalAnnotationNames.ComputedColumnSql);
+                : (string)Annotations.Metadata[RelationalAnnotationNames.ComputedColumnSql];
 
         protected virtual bool SetComputedColumnSql([CanBeNull] string value)
         {
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                && (GetDefaultValueSql(false) != null
                    || GetComputedColumnSql(false) != null)
                 ? null
-                : Annotations.GetAnnotation(RelationalAnnotationNames.DefaultValue);
+                : Annotations.Metadata[RelationalAnnotationNames.DefaultValue];
 
         protected virtual bool SetDefaultValue([CanBeNull] object value)
         {

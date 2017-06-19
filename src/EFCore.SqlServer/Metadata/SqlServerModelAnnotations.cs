@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual string HiLoSequenceName
         {
-            get => (string)Annotations.GetAnnotation(SqlServerAnnotationNames.HiLoSequenceName);
+            get => (string)Annotations.Metadata[SqlServerAnnotationNames.HiLoSequenceName];
             [param: CanBeNull] set => SetHiLoSequenceName(value);
         }
 
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual string HiLoSequenceSchema
         {
-            get => (string)Annotations.GetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema);
+            get => (string)Annotations.Metadata[SqlServerAnnotationNames.HiLoSequenceSchema];
             [param: CanBeNull] set => SetHiLoSequenceSchema(value);
         }
 
@@ -45,8 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
         {
-            get => (SqlServerValueGenerationStrategy?)Annotations.GetAnnotation(
-                SqlServerAnnotationNames.ValueGenerationStrategy);
+            get => (SqlServerValueGenerationStrategy?)Annotations.Metadata[SqlServerAnnotationNames.ValueGenerationStrategy];
 
             set => SetValueGenerationStrategy(value);
         }

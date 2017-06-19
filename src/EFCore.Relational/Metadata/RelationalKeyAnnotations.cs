@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual string Name
         {
-            get => (string)Annotations.GetAnnotation(RelationalAnnotationNames.Name)
+            get => (string)Annotations.Metadata[RelationalAnnotationNames.Name]
                    ?? ConstraintNamer.GetDefaultName(Key);
 
             [param: CanBeNull] set => SetName(value);
