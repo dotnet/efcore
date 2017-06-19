@@ -4169,6 +4169,28 @@ WHERE ([c].[CustomerID] = N'ALFKI') AND ([c].[CustomerID] = [o].[CustomerID])
 ORDER BY [Id1], [Id2]");
         }
 
+        public override void OrderBy_ThenBy_same_column_different_direction()
+        {
+            base.OrderBy_ThenBy_same_column_different_direction();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override void OrderBy_OrderBy_same_column_different_direction()
+        {
+            base.OrderBy_OrderBy_same_column_different_direction();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+ORDER BY [c].[CustomerID] DESC");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

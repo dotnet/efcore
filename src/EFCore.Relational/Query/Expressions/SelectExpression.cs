@@ -813,11 +813,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 = _orderBy.Find(
                     o =>
                         {
-                            if (o.OrderingDirection != ordering.OrderingDirection)
-                            {
-                                return false;
-                            }
-
                             if (_expressionEqualityComparer.Equals(o.Expression, ordering.Expression))
                             {
                                 return true;
@@ -857,9 +852,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var oldOrderBy = _orderBy.ToList();
 
             _orderBy.Clear();
-            _orderBy.AddRange(orderings);
 
-            foreach (var ordering in oldOrderBy)
+            foreach (var ordering in orderings.Concat(oldOrderBy))
             {
                 AddToOrderBy(ordering);
             }

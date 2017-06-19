@@ -3937,6 +3937,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select new { Id1 = c.CustomerID, Id2 = o.OrderID });
         }
 
+        [ConditionalFact]
+        public virtual void OrderBy_ThenBy_same_column_different_direction()
+        {
+            AssertQuery<Customer>(
+                cs => cs
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .OrderBy(c => c.CustomerID)
+                    .ThenByDescending(c => c.CustomerID)
+                    .Select(c => c.CustomerID),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_OrderBy_same_column_different_direction()
+        {
+            AssertQuery<Customer>(
+                cs => cs
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .OrderBy(c => c.CustomerID)
+                    .OrderByDescending(c => c.CustomerID)
+                    .Select(c => c.CustomerID),
+                assertOrder: true);
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected QueryTestBase(TFixture fixture)

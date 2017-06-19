@@ -639,5 +639,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                             from o in lo.Where(x => x.OrderID > 5).OrderBy(x => x.OrderDate).DefaultIfEmpty()
                             select new { c.ContactName, o });
         }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_with_order_by_key_descending1()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            join o in os on c.CustomerID equals o.CustomerID into grouping
+                            where c.CustomerID.StartsWith("A")
+                            orderby c.CustomerID descending
+                            select grouping.Count(),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_with_order_by_key_descending2()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => from c in cs
+                            orderby c.CustomerID descending
+                            join o in os on c.CustomerID equals o.CustomerID into grouping
+                            where c.CustomerID.StartsWith("A")
+                            select grouping.Count(),
+                assertOrder: true);
+        }
     }
 }
