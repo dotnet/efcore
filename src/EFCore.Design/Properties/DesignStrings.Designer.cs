@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name);
 
         /// <summary>
-        ///     No parameterless constructor was found on '{contextType}'. Either add a parameterless constructor to '{contextType}' or add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' in the same assembly as '{contextType}'.
+        ///     Unable to create an object of type '{contextType}'. Add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' to the project, or see https://go.microsoft.com/fwlink/?linkid=851728 for additional patterns supported at design time.
         /// </summary>
         public static string NoParameterlessConstructor([CanBeNull] object contextType)
             => string.Format(
