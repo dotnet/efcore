@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = null,
             bool unicode = false)
-            : this(storeType, dbType, unicode: false, size: null)
+            : this(storeType, dbType, unicode, size: null)
         {
         }
 

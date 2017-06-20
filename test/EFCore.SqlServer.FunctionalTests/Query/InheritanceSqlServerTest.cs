@@ -338,11 +338,11 @@ WHERE [k].[Discriminator] = N'Kiwi'");
 FROM [Country] AS [c]
 WHERE [c].[Id] = 1",
                 //
-                @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
+                @"@p0='Apteryx owenii' (Nullable = false) (Size = 4000)
 @p1='1'
 @p2='Kiwi' (Nullable = false) (Size = 4000)
 @p3='Little spotted kiwi' (Size = 4000)
-@p4='' (Size = 100) (DbType = String)
+@p4='' (Size = 4000) (DbType = String)
 @p5='True'
 @p6='North'
 
@@ -354,8 +354,8 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);",
 FROM [Animal] AS [k]
 WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')",
                 //
-                @"@p1='Apteryx owenii' (Nullable = false) (Size = 100)
-@p0='Aquila chrysaetos canadensis' (Size = 100)
+                @"@p1='Apteryx owenii' (Nullable = false) (Size = 4000)
+@p0='Aquila chrysaetos canadensis' (Size = 4000)
 
 SET NOCOUNT ON;
 UPDATE [Animal] SET [EagleId] = @p0
@@ -366,7 +366,7 @@ SELECT @@ROWCOUNT;",
 FROM [Animal] AS [k]
 WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')",
                 //
-                @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
+                @"@p0='Apteryx owenii' (Nullable = false) (Size = 4000)
 
 SET NOCOUNT ON;
 DELETE FROM [Animal]

@@ -43,6 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         RelationalTypeMapping FindMapping([NotNull] string storeType);
 
         /// <summary>
+        ///     Gets the mapping to be used for a command parameter
+        /// </summary>
+        /// <param name="typeMapping"> Original mapping. </param>
+        /// <returns> The type mapping to be used. </returns>
+        RelationalTypeMapping GetParameterTypeMapping([NotNull] RelationalTypeMapping typeMapping);
+
+        /// <summary>
         ///     Ensures that the given type name is a valid type for the relational database.
         ///     An exception is thrown if it is not a valid type.
         /// </summary>

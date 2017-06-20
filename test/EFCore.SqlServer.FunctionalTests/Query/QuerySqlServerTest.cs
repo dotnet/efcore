@@ -103,7 +103,7 @@ FROM [Orders] AS [c1_Orders]");
             base.Local_array();
 
             AssertSql(
-                @"@__get_Item_0='ALFKI' (Size = 450)
+                @"@__get_Item_0='ALFKI' (Size = 4000)
 
 SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -125,7 +125,7 @@ WHERE [c].[CustomerID] = [c].[CustomerID]");
             base.Entity_equality_local();
 
             AssertSql(
-                @"@__local_0_CustomerID='ANATR' (Nullable = false) (Size = 450)
+                @"@__local_0_CustomerID='ANATR' (Nullable = false) (Size = 4000)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -513,7 +513,7 @@ SELECT TOP(2) [o0].[CustomerID]
 FROM [Orders] AS [o0]
 WHERE @_outer_OrderID = [o0].[OrderID]",
                 //
-                @"@_outer_CustomerID1='WHITC' (Size = 450)
+                @"@_outer_CustomerID1='WHITC' (Size = 4000)
 
 SELECT TOP(2) [c2].[City]
 FROM [Customers] AS [c2]
@@ -525,7 +525,7 @@ SELECT TOP(2) [o0].[CustomerID]
 FROM [Orders] AS [o0]
 WHERE @_outer_OrderID = [o0].[OrderID]",
                 //
-                @"@_outer_CustomerID1='WHITC' (Size = 450)
+                @"@_outer_CustomerID1='WHITC' (Size = 4000)
 
 SELECT TOP(2) [c2].[City]
 FROM [Customers] AS [c2]
@@ -573,7 +573,7 @@ FROM (
     ORDER BY [od0].[OrderID]
 ) AS [t1]",
                 //
-                @"@_outer_CustomerID2='VINET' (Size = 450)
+                @"@_outer_CustomerID2='VINET' (Size = 4000)
 
 SELECT TOP(1) [c3].[Country]
 FROM [Customers] AS [c3]
@@ -588,7 +588,7 @@ INNER JOIN [Customers] AS [c4] ON [o20].[CustomerID] = [c4].[CustomerID]
 WHERE [o20].[OrderID] = @_outer_OrderID1
 ORDER BY [o20].[OrderID], [c4].[CustomerID]",
                 //
-                @"@_outer_CustomerID2='VINET' (Size = 450)
+                @"@_outer_CustomerID2='VINET' (Size = 4000)
 
 SELECT TOP(1) [c3].[Country]
 FROM [Customers] AS [c3]
@@ -671,7 +671,7 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
 ORDER BY [c].[CustomerID]",
                 //
-                @"@_outer_CustomerID='ALFKI' (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 4000)
 
 SELECT CASE
     WHEN EXISTS (
@@ -681,7 +681,7 @@ SELECT CASE
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 //
-                @"@_outer_CustomerID='ANATR' (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 4000)
 
 SELECT CASE
     WHEN EXISTS (
@@ -691,7 +691,7 @@ SELECT CASE
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 //
-                @"@_outer_CustomerID='ANTON' (Size = 450)
+                @"@_outer_CustomerID='ANTON' (Size = 4000)
 
 SELECT CASE
     WHEN EXISTS (
@@ -701,7 +701,7 @@ SELECT CASE
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 //
-                @"@_outer_CustomerID='AROUT' (Size = 450)
+                @"@_outer_CustomerID='AROUT' (Size = 4000)
 
 SELECT CASE
     WHEN EXISTS (
@@ -2209,19 +2209,19 @@ FROM (
 ) AS [t]
 ORDER BY [t].[CustomerID]",
                 //
-                @"@_outer_CustomerID='ALFKI' (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = @_outer_CustomerID",
                 //
-                @"@_outer_CustomerID='ANATR' (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = @_outer_CustomerID",
                 //
-                @"@_outer_CustomerID='ANTON' (Size = 450)
+                @"@_outer_CustomerID='ANTON' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -2862,37 +2862,37 @@ FROM (
     ORDER BY [o].[OrderID]
 ) AS [t]",
                 //
-                @"@_outer_CustomerID='VINET' (Size = 450)
+                @"@_outer_CustomerID='VINET' (Size = 4000)
 
 SELECT TOP(2) [c0].[City]
 FROM [Customers] AS [c0]
 WHERE [c0].[CustomerID] = @_outer_CustomerID",
                 //
-                @"@_outer_CustomerID='TOMSP' (Size = 450)
+                @"@_outer_CustomerID='TOMSP' (Size = 4000)
 
 SELECT TOP(2) [c0].[City]
 FROM [Customers] AS [c0]
 WHERE [c0].[CustomerID] = @_outer_CustomerID",
                 //
-                @"@_outer_CustomerID='HANAR' (Size = 450)
+                @"@_outer_CustomerID='HANAR' (Size = 4000)
 
 SELECT TOP(2) [c0].[City]
 FROM [Customers] AS [c0]
 WHERE [c0].[CustomerID] = @_outer_CustomerID",
                 //
-                @"@_outer_CustomerID1='TOMSP' (Size = 450)
+                @"@_outer_CustomerID1='TOMSP' (Size = 4000)
 
 SELECT TOP(2) [c2].[City]
 FROM [Customers] AS [c2]
 WHERE [c2].[CustomerID] = @_outer_CustomerID1",
                 //
-                @"@_outer_CustomerID1='VINET' (Size = 450)
+                @"@_outer_CustomerID1='VINET' (Size = 4000)
 
 SELECT TOP(2) [c2].[City]
 FROM [Customers] AS [c2]
 WHERE [c2].[CustomerID] = @_outer_CustomerID1",
                 //
-                @"@_outer_CustomerID1='HANAR' (Size = 450)
+                @"@_outer_CustomerID1='HANAR' (Size = 4000)
 
 SELECT TOP(2) [c2].[City]
 FROM [Customers] AS [c2]
@@ -4023,6 +4023,19 @@ FROM (
     FROM [Orders] AS [o]
 ) AS [t]");
         }
+
+        public override void Comparing_to_fixed_string_parameter()
+        {
+            base.Comparing_to_fixed_string_parameter();
+
+            AssertSql(
+                @"@__prefix_0='A' (Size = 4000)
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE ([c].[CustomerID] LIKE @__prefix_0 + N'%' AND (LEFT([c].[CustomerID], LEN(@__prefix_0)) = @__prefix_0)) OR (@__prefix_0 = N'')");
+        }
+
         public override void Comparing_entities_using_Equals()
         {
             base.Comparing_entities_using_Equals();
@@ -4197,7 +4210,7 @@ ORDER BY [c].[CustomerID] DESC");
         private void AssertContainsSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
-        protected override void ClearLog() 
+        protected override void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();
     }
 }

@@ -3338,7 +3338,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: false,
                 entryCount: 8);
         }
-        
+
         [ConditionalFact]
         public virtual void No_orderby_added_for_fully_translated_manually_constructed_LOJ()
         {
@@ -3794,6 +3794,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Distinct().Sum());
         }
+
+        [ConditionalFact]
+        public virtual void Comparing_to_fixed_string_parameter()
+        {
+            AssertQuery<Customer>(cs => FindLike(cs, "A"));
+        }
+
+        private static IQueryable<string> FindLike(IQueryable<Customer> cs, string prefix)
+            => from c in cs
+               where c.CustomerID.StartsWith(prefix)
+               select c.CustomerID;
 
         [ConditionalFact]
         public virtual void Comparing_entities_using_Equals()

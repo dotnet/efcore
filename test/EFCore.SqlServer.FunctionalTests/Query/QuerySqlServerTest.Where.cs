@@ -299,7 +299,7 @@ WHERE [e].[ReportsTo] = @__reportsTo_0");
             base.Where_subquery_closure_via_query_cache();
 
             AssertSql(
-                @"@__customerID_0='ALFKI' (Size = 450)
+                @"@__customerID_0='ALFKI' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -308,7 +308,7 @@ WHERE EXISTS (
     FROM [Orders] AS [o]
     WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))",
                 //
-                @"@__customerID_0='ANATR' (Size = 450)
+                @"@__customerID_0='ANATR' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -388,31 +388,31 @@ FROM (
 ) AS [t]
 ORDER BY [t].[CustomerID]",
                 //
-                @"@_outer_CustomerID='ALFKI' (Size = 450)
+                @"@_outer_CustomerID='ALFKI' (Size = 4000)
 
 SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
 FROM [Customers] AS [c2]
 WHERE @_outer_CustomerID = [c2].[CustomerID]",
                 //
-                @"@_outer_CustomerID='ANATR' (Size = 450)
+                @"@_outer_CustomerID='ANATR' (Size = 4000)
 
 SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
 FROM [Customers] AS [c2]
 WHERE @_outer_CustomerID = [c2].[CustomerID]",
                 //
-                @"@_outer_CustomerID='ANTON' (Size = 450)
+                @"@_outer_CustomerID='ANTON' (Size = 4000)
 
 SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
 FROM [Customers] AS [c2]
 WHERE @_outer_CustomerID = [c2].[CustomerID]",
                 //
-                @"@_outer_CustomerID='AROUT' (Size = 450)
+                @"@_outer_CustomerID='AROUT' (Size = 4000)
 
 SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
 FROM [Customers] AS [c2]
 WHERE @_outer_CustomerID = [c2].[CustomerID]",
                 //
-                @"@_outer_CustomerID='BERGS' (Size = 450)
+                @"@_outer_CustomerID='BERGS' (Size = 4000)
 
 SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
 FROM [Customers] AS [c2]

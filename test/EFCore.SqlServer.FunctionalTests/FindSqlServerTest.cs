@@ -108,7 +108,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
             base.Find_string_key_from_store();
 
             Assert.Equal(
-                @"@__get_Item_0='Cat' (Size = 450)
+                @"@__get_Item_0='Cat' (Size = 4000)
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [StringKey] AS [e]
@@ -121,7 +121,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
             base.Returns_null_for_string_key_not_in_store();
 
             Assert.Equal(
-                @"@__get_Item_0='Fox' (Size = 450)
+                @"@__get_Item_0='Fox' (Size = 4000)
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [StringKey] AS [e]
@@ -143,7 +143,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
 
             Assert.Equal(
                 @"@__get_Item_0='77'
-@__get_Item_1='Dog' (Size = 450)
+@__get_Item_1='Dog' (Size = 4000)
 
 SELECT TOP(1) [e].[Id1], [e].[Id2], [e].[Foo]
 FROM [CompositeKey] AS [e]
@@ -157,7 +157,7 @@ WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql);
 
             Assert.Equal(
                 @"@__get_Item_0='77'
-@__get_Item_1='Fox' (Size = 450)
+@__get_Item_1='Fox' (Size = 4000)
 
 SELECT TOP(1) [e].[Id1], [e].[Id2], [e].[Foo]
 FROM [CompositeKey] AS [e]

@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 executeMethod,
                 commandId,
                 connection.ConnectionId,
-                async: false, 
+                async: false,
                 startTime: startTime);
 
             object result;
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 executeMethod,
                 commandId,
                 connection.ConnectionId,
-                async: true, 
+                async: true,
                 startTime: startTime);
 
             object result;

@@ -314,9 +314,10 @@ WHERE [e].[Time] = @__timeSpan_0",
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types()
         {
+            var entity = CreateMappedDataTypes(77);
             using (var context = CreateContext())
             {
-                context.Set<MappedDataTypes>().Add(CreateMappedDataTypes(77));
+                context.Set<MappedDataTypes>().Add(entity);
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -343,7 +344,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p17='anyone!' (Nullable = false) (Size = 4000)
 @p18='Gumball Rules OK!' (Nullable = false) (Size = 4000)
 @p19='103.3'
-@p20='don't' (Nullable = false) (Size = 4000)
+@p20='" + entity.NvarcharMax + @"' (Nullable = false) (Size = -1)
 @p21='84.4'
 @p22='01/02/2018 13:11:12' (DbType = DateTime)
 @p23='79'
@@ -352,7 +353,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p26='11:15:12'
 @p27='80' (Size = 1)
 @p28='0x595A5B5C' (Nullable = false) (Size = 8000)
-@p29='C' (Nullable = false) (Size = 8000) (DbType = AnsiString)",
+@p29='" + entity.VarcharMax + "' (Nullable = false) (Size = -1) (DbType = AnsiString)",
                 parameters);
 
             using (var context = CreateContext())
@@ -366,6 +367,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 
         private static void AssertMappedDataTypes(MappedDataTypes entity, int id)
         {
+            var expected = CreateMappedDataTypes(id);
             Assert.Equal(id, entity.Int);
             Assert.Equal(78, entity.Bigint);
             Assert.Equal(79, entity.Smallint);
@@ -382,10 +384,10 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.Smalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.Datetime);
             Assert.Equal(new TimeSpan(11, 15, 12), entity.Time);
-            Assert.Equal("C", entity.VarcharMax);
+            Assert.Equal(expected.VarcharMax, entity.VarcharMax);
             Assert.Equal("Your", entity.Char_varyingMax);
             Assert.Equal("strong", entity.Character_varyingMax);
-            Assert.Equal("don't", entity.NvarcharMax);
+            Assert.Equal(expected.NvarcharMax, entity.NvarcharMax);
             Assert.Equal("help", entity.National_char_varyingMax);
             Assert.Equal("anyone!", entity.National_character_varyingMax);
             Assert.Equal("Gumball Rules!", entity.Text);
@@ -417,10 +419,10 @@ WHERE [e].[Time] = @__timeSpan_0",
                 Smalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
                 Datetime = new DateTime(2019, 1, 2, 14, 11, 12),
                 Time = new TimeSpan(11, 15, 12),
-                VarcharMax = "C",
+                VarcharMax = string.Concat(Enumerable.Repeat("C", 8001)),
                 Char_varyingMax = "Your",
                 Character_varyingMax = "strong",
-                NvarcharMax = "don't",
+                NvarcharMax = string.Concat(Enumerable.Repeat("D", 4001)),
                 National_char_varyingMax = "help",
                 National_character_varyingMax = "anyone!",
                 Text = "Gumball Rules!",
@@ -651,17 +653,17 @@ WHERE [e].[Time] = @__timeSpan_0",
                 @"@p0='77'
 @p1='0x0A0B0C' (Size = 3)
 @p2='0x0C0D0E' (Size = 3)
-@p3='Wor' (Size = 3) (DbType = AnsiStringFixedLength)
-@p4='Thr' (Size = 3) (DbType = AnsiString)
-@p5='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
-@p6='Let' (Size = 3) (DbType = AnsiString)
-@p7='The' (Size = 3)
-@p8='Squ' (Size = 3) (DbType = StringFixedLength)
-@p9='Col' (Size = 3)
-@p10='Won' (Size = 3) (DbType = StringFixedLength)
-@p11='Int' (Size = 3)
+@p3='Wor' (Size = 8000) (DbType = AnsiString)
+@p4='Thr' (Size = 8000) (DbType = AnsiString)
+@p5='Lon' (Size = 8000) (DbType = AnsiString)
+@p6='Let' (Size = 8000) (DbType = AnsiString)
+@p7='The' (Size = 4000)
+@p8='Squ' (Size = 4000)
+@p9='Col' (Size = 4000)
+@p10='Won' (Size = 4000)
+@p11='Int' (Size = 4000)
 @p12='0x0B0C0D' (Size = 3)
-@p13='Tha' (Size = 3) (DbType = AnsiString)",
+@p13='Tha' (Size = 8000) (DbType = AnsiString)",
                 parameters);
 
             using (var context = CreateContext())
@@ -722,17 +724,17 @@ WHERE [e].[Time] = @__timeSpan_0",
                 @"@p0='78'
 @p1='' (Size = 3) (DbType = Binary)
 @p2='' (Size = 3) (DbType = Binary)
-@p3='' (Size = 3) (DbType = AnsiStringFixedLength)
-@p4='' (Size = 3)
-@p5='' (Size = 3) (DbType = AnsiStringFixedLength)
-@p6='' (Size = 3)
-@p7='' (Size = 3) (DbType = String)
-@p8='' (Size = 3) (DbType = StringFixedLength)
-@p9='' (Size = 3) (DbType = String)
-@p10='' (Size = 3) (DbType = StringFixedLength)
-@p11='' (Size = 3) (DbType = String)
+@p3='' (Size = 8000)
+@p4='' (Size = 8000)
+@p5='' (Size = 8000)
+@p6='' (Size = 8000)
+@p7='' (Size = 4000) (DbType = String)
+@p8='' (Size = 4000) (DbType = String)
+@p9='' (Size = 4000) (DbType = String)
+@p10='' (Size = 4000) (DbType = String)
+@p11='' (Size = 4000) (DbType = String)
 @p12='' (Size = 3) (DbType = Binary)
-@p13='' (Size = 3)",
+@p13='' (Size = 8000)",
                 parameters);
 
             using (var context = CreateContext())
@@ -1190,18 +1192,18 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(
                 @"@p0='0x0A0B0C' (Size = 3)
 @p1='0x0C0D0E' (Size = 3)
-@p2='Wor' (Size = 3) (DbType = AnsiStringFixedLength)
-@p3='Thr' (Size = 3) (DbType = AnsiString)
-@p4='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
-@p5='Let' (Size = 3) (DbType = AnsiString)
+@p2='Wor' (Size = 8000) (DbType = AnsiString)
+@p3='Thr' (Size = 8000) (DbType = AnsiString)
+@p4='Lon' (Size = 8000) (DbType = AnsiString)
+@p5='Let' (Size = 8000) (DbType = AnsiString)
 @p6='77'
-@p7='The' (Size = 3)
-@p8='Squ' (Size = 3) (DbType = StringFixedLength)
-@p9='Col' (Size = 3)
-@p10='Won' (Size = 3) (DbType = StringFixedLength)
-@p11='Int' (Size = 3)
+@p7='The' (Size = 4000)
+@p8='Squ' (Size = 4000)
+@p9='Col' (Size = 4000)
+@p10='Won' (Size = 4000)
+@p11='Int' (Size = 4000)
 @p12='0x0B0C0D' (Size = 3)
-@p13='Tha' (Size = 3) (DbType = AnsiString)",
+@p13='Tha' (Size = 8000) (DbType = AnsiString)",
                 parameters);
 
             using (var context = CreateContext())
@@ -1261,18 +1263,18 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(
                 @"@p0='' (Size = 3) (DbType = Binary)
 @p1='' (Size = 3) (DbType = Binary)
-@p2='' (Size = 3) (DbType = AnsiStringFixedLength)
-@p3='' (Size = 3)
-@p4='' (Size = 3) (DbType = AnsiStringFixedLength)
-@p5='' (Size = 3)
+@p2='' (Size = 8000)
+@p3='' (Size = 8000)
+@p4='' (Size = 8000)
+@p5='' (Size = 8000)
 @p6='78'
-@p7='' (Size = 3) (DbType = String)
-@p8='' (Size = 3) (DbType = StringFixedLength)
-@p9='' (Size = 3) (DbType = String)
-@p10='' (Size = 3) (DbType = StringFixedLength)
-@p11='' (Size = 3) (DbType = String)
+@p7='' (Size = 4000) (DbType = String)
+@p8='' (Size = 4000) (DbType = String)
+@p9='' (Size = 4000) (DbType = String)
+@p10='' (Size = 4000) (DbType = String)
+@p11='' (Size = 4000) (DbType = String)
 @p12='' (Size = 3) (DbType = Binary)
-@p13='' (Size = 3)",
+@p13='' (Size = 8000)",
                 parameters);
 
             using (var context = CreateContext())

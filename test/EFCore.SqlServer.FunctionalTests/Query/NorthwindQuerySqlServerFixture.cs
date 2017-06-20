@@ -60,6 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Customer>()
+                .Property(c => c.CustomerID)
+                .HasColumnType("nchar(5)");
+
             modelBuilder.Entity<OrderDetail>()
                 .Property(od => od.UnitPrice)
                 .HasColumnType("money");
