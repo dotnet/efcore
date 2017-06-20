@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         private CommandOption _startupProject;
         private CommandOption _framework;
         private CommandOption _configuration;
+        private CommandOption _runtime;
         private CommandOption _msbuildprojectextensionspath;
         private CommandOption _help;
         private IList<string> _args;
@@ -39,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             _startupProject = options.StartupProject;
             _framework = options.Framework;
             _configuration = options.Configuration;
+            _runtime = options.Runtime;
             _msbuildprojectextensionspath = options.MSBuildProjectExtensionsPath;
 
             command.VersionOption("--version", GetVersion);
@@ -76,7 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 starupProjectFile,
                 _msbuildprojectextensionspath.Value(),
                 _framework.Value(),
-                _configuration.Value());
+                _configuration.Value(),
+                _runtime.Value());
 
             startupProject.Build();
 

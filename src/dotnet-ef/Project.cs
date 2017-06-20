@@ -15,14 +15,16 @@ namespace Microsoft.EntityFrameworkCore.Tools
         private readonly string _file;
         private readonly string _framework;
         private readonly string _configuration;
+        private readonly string _runtime;
 
-        public Project(string file, string framework, string configuration)
+        public Project(string file, string framework, string configuration, string runtime)
         {
             Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
             _file = file;
             _framework = framework;
             _configuration = configuration;
+            _runtime = runtime;
             ProjectName = Path.GetFileName(file);
         }
 
@@ -42,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string file,
             string buildExtensionsDir,
             string framework = null,
-            string configuration = null)
+            string configuration = null,
+            string runtime = null)
         {
             Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
@@ -75,6 +78,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 if (configuration != null)
                 {
                     propertyArg += ";Configuration=" + configuration;
+                }
+                if (runtime != null)
+                {
+                    propertyArg += ";RuntimeIdentifier=" + runtime;
                 }
 
                 var args = new List<string>
@@ -111,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 platformTarget = metadata["Platform"];
             }
 
-            return new Project(file, framework, configuration)
+            return new Project(file, framework, configuration, runtime)
             {
                 AssemblyName = metadata["AssemblyName"],
                 OutputPath = metadata["OutputPath"],
@@ -147,6 +154,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
             {
                 args.Add("--configuration");
                 args.Add(_configuration);
+            }
+
+            if (_runtime != null)
+            {
+                args.Add("--runtime");
+                args.Add(_runtime);
             }
 
             args.Add("/verbosity:quiet");

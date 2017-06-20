@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         private CommandOption _startupProject;
         private CommandOption _framework;
         private CommandOption _configuration;
+        private CommandOption _runtime;
         private CommandOption _msbuildprojectextensionspath;
 
         public CommandOption Project
@@ -26,6 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public CommandOption Configuration
             => _configuration;
 
+        public CommandOption Runtime
+            => _runtime;
+
         public CommandOption MSBuildProjectExtensionsPath
             => _msbuildprojectextensionspath;
 
@@ -35,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             _startupProject = command.Option("-s|--startup-project <PROJECT>", Resources.StartupProjectDescription);
             _framework = command.Option("--framework <FRAMEWORK>", Resources.FrameworkDescription);
             _configuration = command.Option("--configuration <CONFIGURATION>", Resources.ConfigurationDescription);
+            _runtime = command.Option("--runtime <RUNTIME_IDENTIFIER>", Resources.RuntimeDescription);
             _msbuildprojectextensionspath = command.Option("--msbuildprojectextensionspath <PATH>", Resources.ProjectExtensionsDescription);
         }
     }

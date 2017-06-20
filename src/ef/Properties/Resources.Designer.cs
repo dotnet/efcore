@@ -150,12 +150,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("EFFullName");
 
         /// <summary>
-        ///     The environment to use. Defaults to "Development".
-        /// </summary>
-        public static string EnvironmentDescription
-            => GetString("EnvironmentDescription");
-
-        /// <summary>
         ///     Generate a script that can be used on a database at any migration.
         /// </summary>
         public static string IdempotentDescription

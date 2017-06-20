@@ -124,12 +124,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("EFFullName");
 
         /// <summary>
-        ///     The environment to use. Defaults to "Development".
-        /// </summary>
-        public static string EnvironmentDescription
-            => GetString("EnvironmentDescription");
-
-        /// <summary>
         ///     The target framework.
         /// </summary>
         public static string FrameworkDescription
@@ -308,6 +302,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string ProviderDescription
             => GetString("ProviderDescription");
+
+        /// <summary>
+        ///     The runtime to use.
+        /// </summary>
+        public static string RuntimeDescription
+            => GetString("RuntimeDescription");
 
         /// <summary>
         ///     The schemas of tables to generate entity types for.
