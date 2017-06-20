@@ -94,12 +94,12 @@ WHERE [e].[Time] = @__timeSpan_0",
                         Float = 83.3,
                         Real = 84.4f,
                         Double_precision = 85.5,
-                        Date = new DateTime(2015, 1, 2, 10, 11, 12),
+                        Date = new DateTime(1605, 1, 2, 10, 11, 12),
                         Datetimeoffset = new DateTimeOffset(new DateTime(), TimeSpan.Zero),
                         Datetime2 = new DateTime(),
                         Smalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
                         Datetime = new DateTime(2019, 1, 2, 14, 11, 12),
-                        Time = new TimeSpan(11, 15, 12),
+                        Time = new TimeSpan(0, 11, 15, 12, 2),
                         VarcharMax = "C",
                         Char_varyingMax = "Your",
                         Character_varyingMax = "strong",
@@ -150,7 +150,7 @@ WHERE [e].[Time] = @__timeSpan_0",
                 double? param7c = 85.5;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.Double_precision == param7c));
 
-                DateTime? param8 = new DateTime(2015, 1, 2);
+                DateTime? param8 = new DateTime(1605, 1, 2);
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.Date == param8));
 
                 DateTimeOffset? param9 = new DateTimeOffset(new DateTime(), TimeSpan.Zero);
@@ -165,7 +165,7 @@ WHERE [e].[Time] = @__timeSpan_0",
                 DateTime? param12 = new DateTime(2018, 1, 2, 13, 11, 0);
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.Smalldatetime == param12));
 
-                TimeSpan? param13 = new TimeSpan(11, 15, 12);
+                TimeSpan? param13 = new TimeSpan(0, 11, 15, 12, 2);
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.Time == param13));
 
                 var param19 = "C";
@@ -330,7 +330,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p3='True'
 @p4='Your' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p5='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p6='01/02/2015 10:11:12' (DbType = DateTime)
+@p6='01/02/2015 10:11:12' (DbType = Date)
 @p7='01/02/2019 14:11:12' (DbType = DateTime)
 @p8='01/02/2017 12:11:12'
 @p9='01/02/2016 11:11:12 +00:00'
@@ -453,7 +453,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p3='True' (Nullable = true)
 @p4='Your' (Size = 8000) (DbType = AnsiString)
 @p5='strong' (Size = 8000) (DbType = AnsiString)
-@p6='01/02/2015 10:11:12' (Nullable = true) (DbType = DateTime)
+@p6='01/02/2015 10:11:12' (Nullable = true) (DbType = Date)
 @p7='01/02/2019 14:11:12' (Nullable = true) (DbType = DateTime)
 @p8='01/02/2017 12:11:12' (Nullable = true)
 @p9='01/02/2016 11:11:12 +00:00' (Nullable = true)
@@ -572,7 +572,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p3='' (DbType = String)
 @p4='' (Size = 8000)
 @p5='' (Size = 8000)
-@p6='' (DbType = DateTime)
+@p6='' (DbType = Date)
 @p7='' (DbType = DateTime)
 @p8='' (DbType = DateTime2)
 @p9='' (DbType = DateTimeOffset)
@@ -872,7 +872,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p2='True'
 @p3='Your' (Size = 8000) (DbType = AnsiString)
 @p4='strong' (Size = 8000) (DbType = AnsiString)
-@p5='01/02/2015 10:11:12' (DbType = DateTime)
+@p5='01/02/2015 10:11:12' (DbType = Date)
 @p6='01/02/2019 14:11:12' (DbType = DateTime)
 @p7='01/02/2017 12:11:12'
 @p8='01/02/2016 11:11:12 +00:00'
@@ -991,7 +991,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p2='True' (Nullable = true)
 @p3='Your' (Size = 8000) (DbType = AnsiString)
 @p4='strong' (Size = 8000) (DbType = AnsiString)
-@p5='01/02/2015 10:11:12' (Nullable = true) (DbType = DateTime)
+@p5='01/02/2015 10:11:12' (Nullable = true) (DbType = Date)
 @p6='01/02/2019 14:11:12' (Nullable = true) (DbType = DateTime)
 @p7='01/02/2017 12:11:12' (Nullable = true)
 @p8='01/02/2016 11:11:12 +00:00' (Nullable = true)
@@ -1110,7 +1110,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p2='' (DbType = String)
 @p3='' (Size = 8000)
 @p4='' (Size = 8000)
-@p5='' (DbType = DateTime)
+@p5='' (DbType = Date)
 @p6='' (DbType = DateTime)
 @p7='' (DbType = DateTime2)
 @p8='' (DbType = DateTimeOffset)

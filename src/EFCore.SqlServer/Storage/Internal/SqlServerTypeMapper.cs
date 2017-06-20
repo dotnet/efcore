@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly DecimalTypeMapping _decimal = new DecimalTypeMapping("decimal(18, 2)");
 
-        private readonly TimeSpanTypeMapping _time = new TimeSpanTypeMapping("time");
+        private readonly TimeSpanTypeMapping _time = new SqlServerTimeSpanTypeMapping("time");
 
         private readonly SqlServerStringTypeMapping _xml = new SqlServerStringTypeMapping("xml", dbType: null, unicode: true);
 
