@@ -45,6 +45,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Query_ending_with_include()
+        {
+            var query = EF.CompileQuery(
+                (NorthwindContext context)
+                    => context.Customers.Include(c => c.Orders));
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(91, query(context).ToList().Count);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(91, query(context).ToList().Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Untyped_context()
         {
             var query = EF.CompileQuery((DbContext context) => context.Set<Customer>());
@@ -77,7 +95,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal("ANATR", query(context, "ANATR").First().CustomerID);
             }
         }
+        
+        [ConditionalFact]
+        public virtual void Query_with_single_parameter_with_include()
+        {
+            var query = EF.CompileQuery(
+                (NorthwindContext context, string customerID)
+                    => context.Customers.Where(c => c.CustomerID == customerID).Include(c => c.Orders));
 
+            using (var context = CreateContext())
+            {
+                Assert.Equal("ALFKI", query(context, "ALFKI").First().CustomerID);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("ANATR", query(context, "ANATR").First().CustomerID);
+            }
+        }
+        
         [ConditionalFact]
         public virtual void First_query_with_single_parameter()
         {
