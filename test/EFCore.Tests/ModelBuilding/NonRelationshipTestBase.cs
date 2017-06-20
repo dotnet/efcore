@@ -191,6 +191,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().HasKey(b => b.Name);
 
+                modelBuilder.Validate();
+
                 Assert.Same(key, entity.GetKeys().Single());
 
                 var nameProperty = entity.FindPrimaryKey().Properties.Single();
@@ -688,7 +690,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Properties_can_be_set_to_generate_values_on_Add()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 modelBuilder.Entity<Quarks>(b =>
                     {
@@ -701,8 +702,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<string>("Bottom").ValueGeneratedOnUpdate();
                     });
 
-                var entityType = model.FindEntityType(typeof(Quarks));
-
+                var entityType = modelBuilder.Model.FindEntityType(typeof(Quarks));
                 Assert.Equal(ValueGenerated.OnAdd, entityType.FindProperty(Customer.IdProperty.Name).ValueGenerated);
                 Assert.Equal(ValueGenerated.OnAddOrUpdate, entityType.FindProperty("Up").ValueGenerated);
                 Assert.Equal(ValueGenerated.Never, entityType.FindProperty("Down").ValueGenerated);
@@ -725,6 +725,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property(e => e.Down).ValueGeneratedNever();
                         b.Property<int>("Charm").IsRowVersion();
                     });
+
+                modelBuilder.Validate();
 
                 var entityType = model.FindEntityType(typeof(Quarks));
 
@@ -779,6 +781,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<int>("Top").HasValueGenerator(typeof(CustomValueGenerator));
                         b.Property<string>("Bottom").HasValueGenerator((_, __) => new CustomValueGenerator());
                     });
+
+                modelBuilder.Validate();
 
                 var entityType = model.FindEntityType(typeof(Quarks));
 

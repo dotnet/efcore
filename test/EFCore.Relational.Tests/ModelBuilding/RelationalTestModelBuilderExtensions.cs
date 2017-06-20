@@ -24,6 +24,54 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             return builder;
         }
 
+        public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
+            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder, string sql)
+        {
+            var genericBuilder = (builder as IInfrastructure<PropertyBuilder<TProperty>>)?.Instance;
+            if (genericBuilder != null)
+            {
+                genericBuilder.HasDefaultValueSql(sql);
+            }
+            else
+            {
+                (builder as IInfrastructure<PropertyBuilder>).Instance.HasDefaultValueSql(sql);
+            }
+
+            return builder;
+        }
+
+        public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
+            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder, string sql)
+        {
+            var genericBuilder = (builder as IInfrastructure<PropertyBuilder<TProperty>>)?.Instance;
+            if (genericBuilder != null)
+            {
+                genericBuilder.HasComputedColumnSql(sql);
+            }
+            else
+            {
+                (builder as IInfrastructure<PropertyBuilder>).Instance.HasComputedColumnSql(sql);
+            }
+
+            return builder;
+        }
+
+        public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasDefaultValue<TProperty>(
+            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder, object value)
+        {
+            var genericBuilder = (builder as IInfrastructure<PropertyBuilder<TProperty>>)?.Instance;
+            if (genericBuilder != null)
+            {
+                genericBuilder.HasDefaultValue(value);
+            }
+            else
+            {
+                (builder as IInfrastructure<PropertyBuilder>).Instance.HasDefaultValue(value);
+            }
+
+            return builder;
+        }
+
         public static ModelBuilderTest.TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
             this ModelBuilderTest.TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> builder, string name)
             where TEntity : class

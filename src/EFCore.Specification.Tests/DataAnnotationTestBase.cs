@@ -798,8 +798,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(ValueGenerated.OnAddOrUpdate, version.ValueGenerated);
             Assert.True(version.RequiresValueGenerator());
 
-            Validate(modelBuilder);
-
             return modelBuilder;
         }
 

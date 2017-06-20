@@ -859,6 +859,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 referencingEntityTypeOrNavigation, referencedEntityTypeOrNavigation, foreignKeyPropertiesWithTypes, primaryKeyPropertiesWithTypes);
 
         /// <summary>
+        ///     The property '{keyProperty}' cannot be configured as 'ValueGeneratedOnUpdate' or 'ValueGeneratedOnAddOrUpdate' because the key value cannot be changed after the entity has been added to the store.
+        /// </summary>
+        public static string MutableKeyProperty([CanBeNull] object keyProperty)
+            => string.Format(
+                GetString("MutableKeyProperty", nameof(keyProperty)),
+                keyProperty);
+
+        /// <summary>
         ///     An exception was thrown while attempting to evaluate a LINQ query parameter expression. To show additional information call EnableSensitiveDataLogging() when overriding DbContext.OnConfiguring.
         /// </summary>
         public static string ExpressionParameterizationException

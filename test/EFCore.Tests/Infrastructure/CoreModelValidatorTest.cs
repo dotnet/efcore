@@ -135,6 +135,28 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
+        public virtual void Detects_key_property_with_value_generated_on_update()
+        {
+            var model = new Model();
+            var entityTypeA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityTypeA);
+            entityTypeA.FindPrimaryKey().Properties.Single().ValueGenerated = ValueGenerated.OnUpdate;
+
+            VerifyError(CoreStrings.MutableKeyProperty(nameof(A.Id)), model);
+        }
+
+        [Fact]
+        public virtual void Detects_key_property_with_value_generated_on_add_or_update()
+        {
+            var model = new Model();
+            var entityTypeA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityTypeA);
+            entityTypeA.FindPrimaryKey().Properties.Single().ValueGenerated = ValueGenerated.OnAddOrUpdate;
+
+            VerifyError(CoreStrings.MutableKeyProperty(nameof(A.Id)), model);
+        }
+
+        [Fact]
         public virtual void Passes_on_escapable_foreign_key_cycles()
         {
             var model = new Model();

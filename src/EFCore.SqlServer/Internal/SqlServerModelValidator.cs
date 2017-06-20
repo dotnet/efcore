@@ -99,8 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (identityColumns.Count > 1)
             {
-                var sb = new StringBuilder();
-                sb.AppendJoin(identityColumns.Select(p => "'" + p.DeclaringEntityType.DisplayName() + "." + p.Name + "'"));
+                var sb = new StringBuilder()
+                    .AppendJoin(identityColumns.Select(p => "'" + p.DeclaringEntityType.DisplayName() + "." + p.Name + "'"));
                 throw new InvalidOperationException(SqlServerStrings.MultipleIdentityColumns(sb, tableName));
             }
         }

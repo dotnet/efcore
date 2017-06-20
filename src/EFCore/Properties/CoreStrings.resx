@@ -434,6 +434,9 @@
   <data name="ReferencedShadowKey" xml:space="preserve">
     <value>The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' with foreign key properties {foreignKeyPropertiesWithTypes} cannot target the primary key {primaryKeyPropertiesWithTypes} because it is not compatible. Configure a principal key or a set of compatible foreign key properties for this relationship.</value>
   </data>
+  <data name="MutableKeyProperty" xml:space="preserve">
+    <value>The property '{keyProperty}' cannot be configured as 'ValueGeneratedOnUpdate' or 'ValueGeneratedOnAddOrUpdate' because the key value cannot be changed after the entity has been added to the store.</value>
+  </data>
   <data name="ExpressionParameterizationException" xml:space="preserve">
     <value>An exception was thrown while attempting to evaluate a LINQ query parameter expression. To show additional information call EnableSensitiveDataLogging() when overriding DbContext.OnConfiguring.</value>
   </data>
