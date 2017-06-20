@@ -13,7 +13,7 @@ Include a complete code listing (or project/solution) that we can run to reprodu
 Partial code listings, or multiple fragments of code, will slow down our response or cause us to push the issue back to you to provide code to reproduce the issue.
 
 ```c#
-<code listing>
+Console.WriteLine("Hello World!");
 ```
 
 ### Further technical details
