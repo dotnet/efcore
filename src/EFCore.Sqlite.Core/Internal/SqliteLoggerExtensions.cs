@@ -1,12 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -91,64 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string dataTypeName,
             bool notNull,
             [CanBeNull] string defaultValue)
-        {
             // No DiagnosticsSource events because these are purely design-time messages
-
-            var definition = SqliteStrings.LogFoundColumn;
-
-            Debug.Assert(LogLevel.Debug == definition.Level);
-
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    l => l.LogDebug(
-                        definition.EventId,
-                        null,
-                        definition.MessageFormat,
-                        tableName,
-                        columnName,
-                        dataTypeName,
-                        notNull,
-                        defaultValue));
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void ForeignKeyColumnFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string tableName,
-            long id,
-            [CanBeNull] string principalTableName,
-            [CanBeNull] string columnName,
-            [CanBeNull] string principalColumnName,
-            [CanBeNull] string deleteAction)
-        {
-            // No DiagnosticsSource events because these are purely design-time messages
-
-            var definition = SqliteStrings.LogFoundForeignKeyColumn;
-
-            Debug.Assert(LogLevel.Debug == definition.Level);
-
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    l => l.LogDebug(
-                        definition.EventId,
-                        null,
-                        definition.MessageFormat,
-                        tableName,
-                        id,
-                        principalTableName,
-                        columnName,
-                        principalColumnName,
-                        deleteAction));
-            }
-        }
+            => SqliteStrings.LogFoundColumn.Log(diagnostics, tableName, columnName, dataTypeName, notNull, defaultValue);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -158,5 +100,95 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqliteStrings.LogUsingSchemaSelectionsWarning.Log(diagnostics);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ForeignKeyReferencesMissingTableWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string foreignKeyName)
+            // No DiagnosticsSource events because these are purely design-time messages
+            => SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.Log(diagnostics, foreignKeyName);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void TableFound(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName)
+            // No DiagnosticsSource events because these are purely design-time messages
+            => SqliteStrings.LogFoundTable.Log(diagnostics, tableName);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void MissingTableWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName)
+            // No DiagnosticsSource events because these are purely design-time messages
+            => SqliteStrings.LogMissingTable.Log(diagnostics, tableName);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ForeignKeyPrincipalColumnMissingWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string foreignKeyName,
+            [CanBeNull] string tableName,
+            [CanBeNull] string principalColumnName,
+            [CanBeNull] string principalTableName)
+            // No DiagnosticsSource events because these are purely design-time messages
+            => SqliteStrings.LogPrincipalColumnNotFound.Log(diagnostics, foreignKeyName, tableName, principalColumnName, principalTableName);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void IndexFound(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string indexName,
+            [CanBeNull] string tableName,
+            bool? unique)
+            // No DiagnosticsSource events because these are purely design-time messages
+            => SqliteStrings.LogFoundIndex.Log(diagnostics, indexName, tableName, unique);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ForeignKeyFound(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName,
+            long id,
+            [CanBeNull] string principalTableName,
+            [CanBeNull] string deleteAction)
+            // No DiagnosticsSource events because these are purely design-time messages
+            => SqliteStrings.LogFoundForeignKey.Log(diagnostics, tableName, id, principalTableName, deleteAction);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void PrimaryKeyFound(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string primaryKeyName,
+            [CanBeNull] string tableName)
+            // No DiagnosticsSource events because these are purely design-time messages
+            => SqliteStrings.LogFoundPrimaryKey.Log(diagnostics, primaryKeyName, tableName);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void UniqueConstraintFound(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string uniqueConstraintName,
+            [CanBeNull] string tableName)
+            // No DiagnosticsSource events because these are purely design-time messages
+            => SqliteStrings.LogFoundUniqueConstraint.Log(diagnostics, uniqueConstraintName, tableName);
     }
 }

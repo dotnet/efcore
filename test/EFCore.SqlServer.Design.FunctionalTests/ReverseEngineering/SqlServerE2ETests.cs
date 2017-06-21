@@ -108,24 +108,15 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 
-            var indexWarn = _reporter.Messages.Warn.Single(m => m.Contains("PK__Filtered__"));
-
-            AssertLog(new LoggerMessages
-            {
-                Warn =
-                {
-                    indexWarn,
-                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geographyColumn", "geography"),
-                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geometryColumn", "geometry"),
-                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
-                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
-                    RelationalStrings.LogUnableToScaffoldIndexMissingProperty.GenerateMessage("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"),
-                    //SqlServerDesignStrings.LogDataTypeDoesNotAllowSqlServerIdentityStrategy.GenerateMessage("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
-                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
-                    DesignStrings.LogPrimaryKeyErrorPropertyNotFound.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"),
-                    DesignStrings.LogUnableToGenerateEntityType.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn")
-                }
-            });
+            Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.sql_variantColumn", "sql_variant"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.UnableToScaffoldIndexMissingProperty("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn"), _reporter.Messages);
+            Assert.Equal(8, _reporter.Messages.Count);
             AssertEqualFileContents(expectedFileSet, actualFileSet);
             AssertCompile(actualFileSet);
         }
@@ -158,24 +149,15 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 
-            var indexWarn = _reporter.Messages.Warn.Single(m => m.Contains("PK__Filtered__"));
-
-            AssertLog(new LoggerMessages
-            {
-                Warn =
-                {
-                    indexWarn,
-                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geographyColumn", "geography"),
-                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.geometryColumn", "geometry"),
-                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
-                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
-                    RelationalStrings.LogUnableToScaffoldIndexMissingProperty.GenerateMessage("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"),
-                    //SqlServerDesignStrings.LogDataTypeDoesNotAllowSqlServerIdentityStrategy.GenerateMessage("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
-                    DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
-                    DesignStrings.LogPrimaryKeyErrorPropertyNotFound.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"),
-                    DesignStrings.LogUnableToGenerateEntityType.GenerateMessage("dbo.TableWithUnmappablePrimaryKeyColumn")
-                }
-            });
+            Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.sql_variantColumn", "sql_variant"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.UnableToScaffoldIndexMissingProperty("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"), _reporter.Messages);
+            Assert.Contains("warn: " + DesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn"), _reporter.Messages);
+            Assert.Equal(8, _reporter.Messages.Count);
             AssertEqualFileContents(expectedFileSet, actualFileSet);
             AssertCompile(actualFileSet);
         }
@@ -221,13 +203,8 @@ CREATE TABLE NonNullBoolWithDefault
                     Files = new[] { filePaths.ContextFile }.Concat(filePaths.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
 
-                AssertLog(new LoggerMessages
-                {
-                    Warn =
-                    {
-                        DesignStrings.LogNonNullableBoooleanColumnHasDefaultConstraint.GenerateMessage("dbo.NonNullBoolWithDefault.BoolWithDefaultValueSql")
-                    }
-                });
+                Assert.Contains("warn: " + DesignStrings.NonNullableBoooleanColumnHasDefaultConstraint("dbo.NonNullBoolWithDefault.BoolWithDefaultValueSql"), _reporter.Messages);
+                Assert.Equal(1, _reporter.Messages.Count);
 
                 AssertEqualFileContents(expectedFileSet, actualFileSet);
                 AssertCompile(actualFileSet);
@@ -295,14 +272,9 @@ CREATE SEQUENCE NumericSequence
                     Files = new[] { filePaths.ContextFile }.Concat(filePaths.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
 
-                AssertLog(new LoggerMessages
-                {
-                    Warn =
-                    {
-                        DesignStrings.LogBadSequenceType.GenerateMessage("DecimalSequence", "decimal"),
-                        DesignStrings.LogBadSequenceType.GenerateMessage("NumericSequence", "numeric")
-                    }
-                });
+                Assert.Contains("warn: " + DesignStrings.BadSequenceType("DecimalSequence", "decimal"), _reporter.Messages);
+                Assert.Contains("warn: " + DesignStrings.BadSequenceType("NumericSequence", "numeric"), _reporter.Messages);
+                Assert.Equal(2, _reporter.Messages.Count);
 
                 AssertEqualFileContents(expectedFileSet, actualFileSet);
                 AssertCompile(actualFileSet);

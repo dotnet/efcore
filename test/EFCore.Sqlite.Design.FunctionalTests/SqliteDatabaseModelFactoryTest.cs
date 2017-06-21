@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var serviceCollection = new ServiceCollection().AddScaffolding()
                 .AddLogging()
-                .AddSingleton<ILoggerFactory>(new TestDesignLoggerFactory());
+                .AddSingleton<ILoggerFactory>(new TestDesignLoggerFactory())
+                .AddSingleton<IOperationReporter, TestOperationReporter>();
             new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();

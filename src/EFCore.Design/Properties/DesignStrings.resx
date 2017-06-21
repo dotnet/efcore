@@ -144,9 +144,6 @@
   <data name="DatabaseDropped" xml:space="preserve">
     <value>Successfully dropped database '{name}'.</value>
   </data>
-  <data name="Cancelled" xml:space="preserve">
-    <value>Cancelled.</value>
-  </data>
   <data name="ManuallyDeleted" xml:space="preserve">
     <value>A manual migration deletion was detected.</value>
   </data>
@@ -185,9 +182,6 @@
   </data>
   <data name="DestructiveOperation" xml:space="preserve">
     <value>An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.</value>
-  </data>
-  <data name="ReusingDirectory" xml:space="preserve">
-    <value>Reusing directory of file '{file}'.</value>
   </data>
   <data name="WritingMigration" xml:space="preserve">
     <value>Writing migration to '{file}'.</value>
@@ -239,9 +233,6 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="NotExistDatabase" xml:space="preserve">
     <value>Database '{name}' did not exist, no action was taken.</value>
-  </data>
-  <data name="CouldNotSerialize" xml:space="preserve">
-    <value>Could not serialize {obj} [{name}]</value>
   </data>
   <data name="UsingEnvironment" xml:space="preserve">
     <value>Using environment '{environment}'.</value>
@@ -303,40 +294,43 @@ Change your target project to the migrations project by using the Package Manage
   <data name="ExistingFiles" xml:space="preserve">
     <value>The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.</value>
   </data>
-  <data name="LogCannotFindTypeMappingForColumn" xml:space="preserve">
+  <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
     <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
-    <comment>Warning DesignEventId.ColumnTypeNotMappedWarning string string</comment>
   </data>
-  <data name="LogForeignKeyScaffoldErrorPrincipalKeyNotFound" xml:space="preserve">
+  <data name="ForeignKeyScaffoldErrorPrincipalKeyNotFound" xml:space="preserve">
     <value>Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.</value>
-    <comment>Warning DesignEventId.ForeignKeyReferencesMissingPrincipalKeyWarning string string string</comment>
   </data>
-  <data name="LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError" xml:space="preserve">
+  <data name="ForeignKeyScaffoldErrorPrincipalTableScaffoldingError" xml:space="preserve">
     <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principaltableName}' could not be scaffolded.</value>
-    <comment>Warning DesignEventId.ForeignKeyReferencesNotMappedTableWarning string string</comment>
   </data>
-  <data name="LogPrimaryKeyErrorPropertyNotFound" xml:space="preserve">
+  <data name="PrimaryKeyErrorPropertyNotFound" xml:space="preserve">
     <value>Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.</value>
-    <comment>Warning DesignEventId.PrimaryKeyColumnsNotMappedWarning string string</comment>
   </data>
-  <data name="LogMissingPrimaryKey" xml:space="preserve">
+  <data name="MissingPrimaryKey" xml:space="preserve">
     <value>Unable to identify the primary key for table '{tableName}'.</value>
-    <comment>Warning DesignEventId.MissingPrimaryKeyWarning string</comment>
   </data>
-  <data name="LogUnableToGenerateEntityType" xml:space="preserve">
+  <data name="UnableToGenerateEntityType" xml:space="preserve">
     <value>Unable to generate entity type for table '{tableName}'.</value>
-    <comment>Warning DesignEventId.UnableToGenerateEntityTypeWarning string</comment>
   </data>
-  <data name="LogBadSequenceType" xml:space="preserve">
+  <data name="BadSequenceType" xml:space="preserve">
     <value>For sequence '{sequenceName}'. Unable to scaffold because it uses an unsupported type: '{typeName}'.</value>
-    <comment>Warning DesignEventId.SequenceTypeNotSupportedWarning string string</comment>
   </data>
-  <data name="LogForeignKeyPrincipalEndContainsNullableColumns" xml:space="preserve">
+  <data name="ForeignKeyPrincipalEndContainsNullableColumns" xml:space="preserve">
     <value>The principal end of the foreign key '{foreignKeyName}' is supported by the unique index '{indexName}' and contains the following nullable columns '{columnNames}'. Entity Framework requires the properties representing those columns to be non-nullable.</value>
-    <comment>Warning DesignEventId.ForeignKeyPrincipalEndContainsNullableColumnsWarning string string string</comment>
   </data>
-  <data name="LogNonNullableBoooleanColumnHasDefaultConstraint" xml:space="preserve">
+  <data name="NonNullableBoooleanColumnHasDefaultConstraint" xml:space="preserve">
     <value>The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to false and invoking the default constraint. See https://go.microsoft.com/fwlink/?linkid=851278 for details.</value>
-    <comment>Warning DesignEventId.NonNullableBoooleanColumnHasDefaultConstraintWarning string</comment>
+  </data>
+  <data name="ForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.</value>
+  </data>
+  <data name="ForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.</value>
+  </data>
+  <data name="UnableToScaffoldIndexMissingProperty" xml:space="preserve">
+    <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
+  </data>
+  <data name="SequencesRequireName" xml:space="preserve">
+    <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
   </data>
 </root>

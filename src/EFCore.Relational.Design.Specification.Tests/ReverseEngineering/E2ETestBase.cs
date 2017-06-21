@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
     public abstract class E2ETestBase
     {
         private readonly ITestOutputHelper _output;
-        protected InMemoryOperationReporter _reporter;
+        protected TestOperationReporter _reporter;
         protected InMemoryFileService InMemoryFiles;
         protected readonly IModelScaffolder Generator;
         protected readonly IScaffoldingModelFactory ScaffoldingModelFactory;
@@ -27,7 +26,10 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
         {
             _output = output;
 
+            _reporter = new TestOperationReporter();
+
             var serviceBuilder = new ServiceCollection()
+                .AddSingleton<IOperationReporter>(_reporter)
                 .AddScaffolding()
                 .AddLogging();
 
@@ -36,10 +38,6 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
             var serviceProvider = serviceBuilder
                 .AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService())
                 .BuildServiceProvider();
-
-            _reporter = new InMemoryOperationReporter(_output);
-            var factory = serviceProvider.GetService<ILoggerFactory>();
-            factory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, _reporter)));
 
             Generator = serviceProvider.GetRequiredService<IModelScaffolder>();
             ScaffoldingModelFactory = serviceProvider.GetRequiredService<IScaffoldingModelFactory>();
@@ -74,38 +72,6 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
 
                     throw new XunitException($"Files did not match: '{expected.Files[i]}' and '{actual.Files[i]}'" + Environment.NewLine + $"{e.Message}");
                 }
-            }
-        }
-
-        protected virtual void AssertLog(LoggerMessages expected)
-        {
-            AssertLoggerMessages(expected.Error, _reporter.Messages.Error, "ERROR");
-            AssertLoggerMessages(expected.Warn, _reporter.Messages.Warn, "WARNING");
-            AssertLoggerMessages(expected.Info, _reporter.Messages.Info, "INFO");
-            AssertLoggerMessages(expected.Debug, _reporter.Messages.Info, "DEBUG");
-        }
-
-        protected virtual void AssertLoggerMessages(
-            List<string> expected, List<string> actual, string category)
-        {
-            try
-            {
-                foreach (var message in expected)
-                {
-                    Assert.Contains(message, actual);
-                }
-
-                Assert.Equal(expected.Count, actual.Count);
-            }
-            catch (Exception)
-            {
-                var sep = new string('=', 60);
-                _output.WriteLine($"Contents of {category} logger messages:");
-                _output.WriteLine(sep);
-                _output.WriteLine(string.Join(Environment.NewLine, actual));
-                _output.WriteLine(sep);
-
-                throw;
             }
         }
 

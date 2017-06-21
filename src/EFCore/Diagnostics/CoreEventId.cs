@@ -24,11 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public const int CoreBaseId = 100000;
 
         /// <summary>
-        ///     The lower-bound for event IDs used by any Entity Framework or provider code design-time and tooling.
-        /// </summary>
-        public const int CoreDesignBaseId = 150000;
-
-        /// <summary>
         ///     The lower-bound for event IDs used by any relational database provider.
         /// </summary>
         public const int RelationalBaseId = 200000;

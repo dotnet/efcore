@@ -4,12 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -20,7 +18,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -28,20 +25,15 @@ namespace Microsoft.EntityFrameworkCore
     public class RelationalDatabaseModelFactoryTest
     {
         private readonly FakeScaffoldingModelFactory _factory;
-        private readonly TestDesignLoggerFactory.DesignLogger _logger;
+        private readonly TestOperationReporter _reporter;
         private static DatabaseColumn IdColumn => new DatabaseColumn { Name = "Id", StoreType = "long" };
         private static DatabasePrimaryKey IdPrimaryKey = new DatabasePrimaryKey { Columns = { IdColumn } };
 
         public RelationalDatabaseModelFactoryTest()
         {
-            ILoggerFactory loggerFactory = new TestDesignLoggerFactory();
-            _logger = (TestDesignLoggerFactory.DesignLogger)loggerFactory.CreateLogger(DbLoggerCategory.Scaffolding.Name);
+            _reporter = new TestOperationReporter();
 
-            _factory = new FakeScaffoldingModelFactory(
-                new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
-                    loggerFactory,
-                    new LoggingOptions(),
-                    new DiagnosticListener("Fake")));
+            _factory = new FakeScaffoldingModelFactory(_reporter);
         }
 
         [Fact]
@@ -285,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
             Assert.Single(_factory.Create(info).FindEntityType("E").GetProperties());
-            Assert.Single(_logger.Statements, t => t.Contains(DesignStrings.LogCannotFindTypeMappingForColumn.GenerateMessage("E.Coli", StoreType)));
+            Assert.Single(_reporter.Messages, t => t.Contains(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType)));
         }
 
         [Theory]
@@ -606,9 +598,9 @@ namespace Microsoft.EntityFrameworkCore
             _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
             Assert.Single(
-                _logger.Statements, t => t.Contains(
-                    "Warning: " +
-                    DesignStrings.LogForeignKeyScaffoldErrorPrincipalKeyNotFound.GenerateMessage(
+                _reporter.Messages, t => t.Contains(
+                    "warn: " +
+                    DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
                         childrenTable.ForeignKeys.ElementAt(0).DisplayName(), "NotPkId", "Parent")));
         }
 
@@ -695,9 +687,9 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(alternateKey, fk.PrincipalKey);
 
             Assert.Single(
-                _logger.Statements, t => t.Contains(
-                    "Warning: " +
-                    DesignStrings.LogForeignKeyPrincipalEndContainsNullableColumns.GenerateMessage(
+                _reporter.Messages, t => t.Contains(
+                    "warn: " +
+                    DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
                         table.ForeignKeys.ElementAt(0).DisplayName(), "FriendsNameUniqueIndex", "Friends.BuddyId")));
         }
 
@@ -895,10 +887,7 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             var factory = new FakeScaffoldingModelFactory(
-                new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
-                    new TestDesignLoggerFactory(),
-                    new LoggingOptions(),
-                    new DiagnosticListener("Fake")),
+                new TestOperationReporter(),
                 new FakePluralizer());
 
             var model = factory.Create(info);
@@ -951,10 +940,7 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             var factory = new FakeScaffoldingModelFactory(
-                new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
-                    new TestDesignLoggerFactory(),
-                    new LoggingOptions(),
-                    new DiagnosticListener("Fake")),
+                new TestOperationReporter(),
                 new FakePluralizer());
 
             var model = factory.Create(info);
@@ -1018,16 +1004,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public FakeScaffoldingModelFactory(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger)
-            : this(logger, new NullPluralizer())
+            [NotNull] IOperationReporter reporter)
+            : this(reporter, new NullPluralizer())
         {
         }
 
         public FakeScaffoldingModelFactory(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
+            [NotNull] IOperationReporter reporter,
             [NotNull] IPluralizer pluralizer)
             : base(
-                logger,
+                reporter,
                 new TestTypeMapper(new RelationalTypeMapperDependencies()),
                 new FakeDatabaseModelFactory(),
                 new CandidateNamingService(),

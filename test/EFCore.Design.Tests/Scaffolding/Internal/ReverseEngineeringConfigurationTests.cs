@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var cSharpUtilities = new CSharpUtilities();
             var reverseEngineer = new ModelScaffolder(
-                new FakeScaffoldingModelFactory(new FakeDiagnosticsLogger<DbLoggerCategory.Scaffolding>()),
+                new FakeScaffoldingModelFactory(new TestOperationReporter()),
                 new CSharpScaffoldingGenerator(
                     new InMemoryFileService(),
                     new CSharpDbContextGenerator(new FakeScaffoldingCodeGenerator(), new FakeAnnotationCodeGenerator(), cSharpUtilities),
