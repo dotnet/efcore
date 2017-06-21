@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore
 
             await Task.WhenAll(tasks);
 
-            Assert.InRange(PooledContext.InstanceCount, 30, 50);
+            Assert.InRange(PooledContext.InstanceCount, 30, 500);
         }
 
         private readonly TimeSpan _duration = TimeSpan.FromSeconds(10);
