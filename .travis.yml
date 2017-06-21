@@ -8,7 +8,7 @@ env:
 mono: none
 os:
   - linux
-  - osx
+#  - osx
 osx_image: xcode8.1
 branches:
   only:
