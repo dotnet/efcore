@@ -136,7 +136,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 using (_sb.Indent())
                 {
-                    _sb.AppendLine("#warning " + DesignStrings.SensitiveInformationWarning);
+                    _sb.DecrementIndent()
+                        .DecrementIndent()
+                        .DecrementIndent()
+                        .DecrementIndent()
+                        .AppendLine("#warning " + DesignStrings.SensitiveInformationWarning)
+                        .IncrementIndent()
+                        .IncrementIndent()
+                        .IncrementIndent()
+                        .IncrementIndent();
 
                     _sb.AppendLine($"optionsBuilder{_providerCodeGenerator.GenerateUseProvider(connectionString, Language)};");
                 }
