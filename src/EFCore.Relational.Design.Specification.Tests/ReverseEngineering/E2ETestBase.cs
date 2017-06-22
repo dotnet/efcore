@@ -39,9 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
 
             _reporter = new InMemoryOperationReporter(_output);
             var factory = serviceProvider.GetService<ILoggerFactory>();
-#pragma warning disable CS0618 // Type or member is obsolete
             factory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, _reporter)));
-#pragma warning restore CS0618 // Type or member is obsolete
 
             Generator = serviceProvider.GetRequiredService<IModelScaffolder>();
             ScaffoldingModelFactory = serviceProvider.GetRequiredService<IScaffoldingModelFactory>();

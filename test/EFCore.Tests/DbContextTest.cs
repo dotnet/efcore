@@ -4734,9 +4734,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public void AddProvider(ILoggerProvider provider)
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 _loggerFactory.AddProvider(provider);
-#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
