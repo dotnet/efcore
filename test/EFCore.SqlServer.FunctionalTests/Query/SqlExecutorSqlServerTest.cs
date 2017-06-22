@@ -10,11 +10,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class SqlExecutorSqlServerTest : SqlExecutorTestBase<NorthwindQuerySqlServerFixture>
     {
+        // ReSharper disable once UnusedParameter.Local
         public SqlExecutorSqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
-            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.Clear();
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override void Executes_stored_procedure()
@@ -53,6 +54,52 @@ namespace Microsoft.EntityFrameworkCore.Query
 @p1='Sales Representative' (Size = 4000)
 
 SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
+        }
+
+        public override void Query_with_dbParameter_with_name()
+        {
+            base.Query_with_dbParameter_with_name();
+
+            AssertSql(
+                @"@city='London' (Nullable = false) (Size = 6)
+
+SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city");
+        }
+
+        public override void Query_with_positional_dbParameter_with_name()
+        {
+            base.Query_with_positional_dbParameter_with_name();
+
+            AssertSql(
+                @"@city='London' (Nullable = false) (Size = 6)
+
+SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city");
+        }
+
+        public override void Query_with_positional_dbParameter_without_name()
+        {
+            base.Query_with_positional_dbParameter_without_name();
+
+            AssertSql(
+                @"@p0='London' (Nullable = false) (Size = 6)
+
+SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0");
+        }
+
+        public override void Query_with_dbParameters_mixed()
+        {
+            base.Query_with_dbParameters_mixed();
+
+            AssertSql(
+                @"@p0='London' (Size = 4000)
+@contactTitle='Sales Representative' (Nullable = false) (Size = 20)
+
+SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @contactTitle",
+                //
+                @"@city='London' (Nullable = false) (Size = 6)
+@p0='Sales Representative' (Size = 4000)
+
+SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p0");
         }
 
         public override void Query_with_parameters_interpolated()

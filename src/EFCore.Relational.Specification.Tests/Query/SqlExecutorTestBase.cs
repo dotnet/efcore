@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToConstant.Local
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -71,6 +72,76 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var actual = context.Database
                     .ExecuteSqlCommand(
                         @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = {1}", city, contactTitle);
+
+                Assert.Equal(-1, actual);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_with_dbParameter_with_name()
+        {
+            var city = CreateDbParameter("@city", "London");
+
+            using (var context = CreateContext())
+            {
+                var actual = context.Database
+                    .ExecuteSqlCommand(
+                        @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city", city);
+
+                Assert.Equal(-1, actual);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_with_positional_dbParameter_with_name()
+        {
+            var city = CreateDbParameter("@city", "London");
+
+            using (var context = CreateContext())
+            {
+                var actual = context.Database
+                    .ExecuteSqlCommand(
+                        @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0}", city);
+
+                Assert.Equal(-1, actual);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_with_positional_dbParameter_without_name()
+        {
+            var city = CreateDbParameter(name: null, value: "London");
+
+            using (var context = CreateContext())
+            {
+                var actual = context.Database
+                    .ExecuteSqlCommand(
+                        @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0}", city);
+
+                Assert.Equal(-1, actual);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_with_dbParameters_mixed()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+
+            var cityParameter = CreateDbParameter("@city", city);
+            var contactTitleParameter = CreateDbParameter("@contactTitle", contactTitle);
+
+            using (var context = CreateContext())
+            {
+                var actual = context.Database
+                    .ExecuteSqlCommand(
+                        @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = @contactTitle", city, contactTitleParameter);
+
+                Assert.Equal(-1, actual);
+
+                actual = context.Database
+                    .ExecuteSqlCommand(
+                        @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}", cityParameter, contactTitle);
 
                 Assert.Equal(-1, actual);
             }

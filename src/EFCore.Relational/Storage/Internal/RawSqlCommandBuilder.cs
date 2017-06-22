@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -64,12 +65,25 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             foreach (var parameter in parameters)
             {
-                var parameterName = parameterNameGenerator.GenerateNext();
-                var substitutedName = _sqlGenerationHelper.GenerateParameterName(parameterName);
+                if (parameter is DbParameter dbParameter)
+                {
+                    if (string.IsNullOrEmpty(dbParameter.ParameterName))
+                    {
+                        dbParameter.ParameterName = _sqlGenerationHelper.GenerateParameterName(parameterNameGenerator.GenerateNext());
+                    }
 
-                substitutions.Add(substitutedName);
-                relationalCommandBuilder.AddParameter(parameterName, substitutedName);
-                parameterValues.Add(parameterName, parameter);
+                    substitutions.Add(dbParameter.ParameterName);
+                    relationalCommandBuilder.AddRawParameter(dbParameter.ParameterName, dbParameter);
+                }
+                else
+                {
+                    var parameterName = parameterNameGenerator.GenerateNext();
+                    var substitutedName = _sqlGenerationHelper.GenerateParameterName(parameterName);
+
+                    substitutions.Add(substitutedName);
+                    relationalCommandBuilder.AddParameter(parameterName, substitutedName);
+                    parameterValues.Add(parameterName, parameter);
+                }
             }
 
             // ReSharper disable once CoVariantArrayConversion
