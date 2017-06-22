@@ -30,6 +30,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return false;
         }
 
+        public override string GenerateFluentApi(IKey key, IAnnotation annotation, string language)
+        {
+            Check.NotNull(key, nameof(key));
+            Check.NotNull(annotation, nameof(annotation));
+            Check.NotNull(language, nameof(language));
+
+            return annotation.Name == SqlServerAnnotationNames.Clustered && language == "CSharp"
+                ? $".{nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered)}({((bool)annotation.Value == false ? "false" : "")})"
+                : null;
+        }
+
         public override string GenerateFluentApi(IIndex index, IAnnotation annotation, string language)
         {
             Check.NotNull(index, nameof(index));

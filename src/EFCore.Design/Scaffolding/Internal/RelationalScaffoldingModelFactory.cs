@@ -371,13 +371,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(table, nameof(table));
 
-            if (table.PrimaryKey == null)
+            var primaryKey = table.PrimaryKey;
+            if (primaryKey == null)
             {
                 Logger.MissingPrimaryKeyWarning(table.DisplayName());
                 return null;
             }
 
-            var unmappedColumns = table.PrimaryKey.Columns
+            var unmappedColumns = primaryKey.Columns
                 .Where(c => _unmappedColumns.Contains(c))
                 .Select(c => c.Name)
                 .ToList();
@@ -387,13 +388,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return null;
             }
 
-            var keyBuilder = builder.HasKey(table.PrimaryKey.Columns.Select(GetPropertyName).ToArray());
+            var keyBuilder = builder.HasKey(primaryKey.Columns.Select(GetPropertyName).ToArray());
 
-            if (table.PrimaryKey.Columns.Count == 1
-                && table.PrimaryKey.Columns[0].ValueGenerated == null
-                && table.PrimaryKey.Columns[0].DefaultValueSql == null)
+            if (primaryKey.Columns.Count == 1
+                && primaryKey.Columns[0].ValueGenerated == null
+                && primaryKey.Columns[0].DefaultValueSql == null)
             {
-                var property = builder.Metadata.FindProperty(GetPropertyName(table.PrimaryKey.Columns[0]))?.AsProperty();
+                var property = builder.Metadata.FindProperty(GetPropertyName(primaryKey.Columns[0]))?.AsProperty();
                 if (property != null)
                 {
                     var conventionalValueGenerated = new RelationalValueGeneratorConvention().GetValueGenerated(property);
@@ -403,6 +404,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     }
                 }
             }
+
+            keyBuilder.Metadata.AddAnnotations(primaryKey.GetAnnotations());
 
             return keyBuilder;
         }

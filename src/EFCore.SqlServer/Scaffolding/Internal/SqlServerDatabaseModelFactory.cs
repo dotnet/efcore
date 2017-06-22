@@ -566,9 +566,9 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                             Name = indexName
                         };
 
-                        if (typeDesc == "CLUSTERED")
+                        if (typeDesc == "NONCLUSTERED")
                         {
-                            primaryKey[SqlServerAnnotationNames.Clustered] = true;
+                            primaryKey[SqlServerAnnotationNames.Clustered] = false;
                         }
 
                         Debug.Assert(table.PrimaryKey == null);
@@ -662,6 +662,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         if (typeDesc == "CLUSTERED")
                         {
                             uniqueConstraint[SqlServerAnnotationNames.Clustered] = true;
+                            table.PrimaryKey?.RemoveAnnotation(SqlServerAnnotationNames.Clustered);
                         }
 
                         table.UniqueConstraints.Add(uniqueConstraint);
