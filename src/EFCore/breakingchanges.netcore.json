@@ -1,64 +1,5 @@
   [
     {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntryGraphNode : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry>",
-      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry internalEntityEntry, Microsoft.EntityFrameworkCore.Metadata.INavigation inboundNavigation)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public enum Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IForeignKey : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
-      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior get_DeleteBehavior()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
-      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior get_DeleteBehavior()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
-      "MemberId": "System.Void set_DeleteBehavior(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior value)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior deleteBehavior)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1> : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder where T0 : class where T1 : class",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1> OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior deleteBehavior)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior deleteBehavior)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1> : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder where T0 : class where T1 : class",
-      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1> OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior deleteBehavior)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IForeignKey : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
-      "MemberId": "Microsoft.EntityFrameworkCore.DeleteBehavior get_DeleteBehavior()",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
-      "MemberId": "Microsoft.EntityFrameworkCore.DeleteBehavior get_DeleteBehavior()",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
-      "MemberId": "System.Void set_DeleteBehavior(Microsoft.EntityFrameworkCore.DeleteBehavior value)",
-      "Kind": "Addition"
-    },
-    {
       "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.DatabaseProviderServices : Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
       "Kind": "Removal"
     },
@@ -83,7 +24,23 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public enum Microsoft.EntityFrameworkCore.Infrastructure.CoreEventId",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public enum Microsoft.EntityFrameworkCore.Metadata.ChangeTrackingStrategy",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public enum Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public enum Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode",
       "Kind": "Removal"
     },
     {
@@ -108,6 +65,21 @@
     },
     {
       "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Infrastructure.DesignTimeProviderServicesAttribute : System.Attribute",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IForeignKey : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior get_DeleteBehavior()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior get_DeleteBehavior()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "System.Void set_DeleteBehavior(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior value)",
       "Kind": "Removal"
     },
     {
@@ -198,6 +170,11 @@
     {
       "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
       "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.IModel CreateModel(Microsoft.EntityFrameworkCore.DbContext context, Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IConventionSetBuilder conventionSetBuilder, Microsoft.EntityFrameworkCore.Internal.IModelValidator validator)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+      "MemberId": "protected virtual System.Void FindSets(Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.DbContext context)",
       "Kind": "Removal"
     },
     {
@@ -336,8 +313,53 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext context, System.Int32 maxRetryCount, System.TimeSpan maxRetryDelay)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.DbContext get_Context()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "protected virtual Microsoft.Extensions.Logging.ILogger<Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy> get_Logger()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "public System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>>> verifySucceeded, T0 state, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "public T1 Execute<T0, T1>(System.Func<T0, T1> operation, System.Func<T0, Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>> verifySucceeded, T0 state)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "public virtual System.Threading.Tasks.Task<T1> ExecuteInTransactionAsync<T0, T1>(System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<System.Boolean>> verifySucceeded, T0 state, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "public virtual T1 ExecuteInTransaction<T0, T1>(System.Func<T0, T1> operation, System.Func<T0, System.Boolean> verifySucceeded, T0 state)",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0> : Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder where T0 : class",
       "MemberId": "protected override Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder New(Microsoft.EntityFrameworkCore.Metadata.Internal.InternalEntityTypeBuilder builder)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0> : Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder where T0 : class",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0> HasChangeTrackingStrategy(Microsoft.EntityFrameworkCore.Metadata.ChangeTrackingStrategy changeTrackingStrategy)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0> : Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder where T0 : class",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0> UsePropertyAccessMode(Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode propertyAccessMode)",
       "Kind": "Removal"
     },
     {
@@ -381,8 +403,13 @@
       "Kind": "Removal"
     },
     {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
-      "MemberId": "protected virtual Microsoft.Extensions.Logging.ILogger<Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy> get_Logger()",
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalEntityTypeBuilder>",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder HasChangeTrackingStrategy(Microsoft.EntityFrameworkCore.Metadata.ChangeTrackingStrategy changeTrackingStrategy)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalEntityTypeBuilder>",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder UsePropertyAccessMode(Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode propertyAccessMode)",
       "Kind": "Removal"
     },
     {
@@ -401,98 +428,9 @@
       "Kind": "Removal"
     },
     {
-      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
-      "MemberId": "public static System.Threading.Tasks.Task<T1> ExecuteInTransactionAsync<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<System.Boolean>> verifySucceeded, T0 state, Microsoft.EntityFrameworkCore.DbContext context, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+      "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntryGraphNode : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry>",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry internalEntityEntry, Microsoft.EntityFrameworkCore.Metadata.INavigation inboundNavigation)",
       "Kind": "Removal"
-    },
-    {
-      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
-      "MemberId": "public static T1 ExecuteInTransaction<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, T1> operation, System.Func<T0, System.Boolean> verifySucceeded, T0 state, Microsoft.EntityFrameworkCore.DbContext context)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
-      "MemberId": "public virtual System.Threading.Tasks.Task<T1> ExecuteInTransactionAsync<T0, T1>(System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<System.Boolean>> verifySucceeded, T0 state, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
-      "MemberId": "public virtual T1 ExecuteInTransaction<T0, T1>(System.Func<T0, T1> operation, System.Func<T0, System.Boolean> verifySucceeded, T0 state)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
-      "MemberId": "protected .ctor(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyContext context, System.Int32 maxRetryCount, System.TimeSpan maxRetryDelay)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
-      "MemberId": "protected virtual Microsoft.EntityFrameworkCore.DbContext get_Context()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
-      "MemberId": "public System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>>> verifySucceeded, T0 state, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy : Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
-      "MemberId": "public T1 Execute<T0, T1>(System.Func<T0, T1> operation, System.Func<T0, Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>> verifySucceeded, T0 state)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
-      "MemberId": "public static System.Threading.Tasks.Task ExecuteAsync<T0>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task> operation, T0 state, System.Threading.CancellationToken cancellationToken)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
-      "MemberId": "public static System.Threading.Tasks.Task ExecuteAsync<T0>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.Tasks.Task> operation, T0 state)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
-      "MemberId": "public static System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, T0 state, System.Threading.CancellationToken cancellationToken)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
-      "MemberId": "public static System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.Tasks.Task<T1>> operation, T0 state)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
-      "MemberId": "public static System.Void Execute<T0>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Action<T0> operation, T0 state)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
-      "MemberId": "public static T1 Execute<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, T1> operation, T0 state)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
-      "MemberId": "System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>>> verifySucceeded, T0 state, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
-      "MemberId": "T1 Execute<T0, T1>(System.Func<T0, T1> operation, System.Func<T0, Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>> verifySucceeded, T0 state)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
-      "MemberId": "System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(T0 state, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>>> verifySucceeded, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
-      "MemberId": "T1 Execute<T0, T1>(T0 state, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, T1> operation, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>> verifySucceeded)",
-      "Kind": "Addition"
     },
     {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGenerator : Microsoft.EntityFrameworkCore.Query.ICompiledQueryCacheKeyGenerator",
@@ -522,6 +460,11 @@
     {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
       "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder HasPrincipalKey<T0>(params System.String[] keyPropertyNames) where T0 : class",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior deleteBehavior)",
       "Kind": "Removal"
     },
     {
@@ -555,6 +498,86 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.EntityTypeExtensions",
+      "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.ChangeTrackingStrategy GetChangeTrackingStrategy(this Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ModelExtensions",
+      "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.ChangeTrackingStrategy GetChangeTrackingStrategy(this Microsoft.EntityFrameworkCore.Metadata.IModel model)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ModelExtensions",
+      "MemberId": "public static System.Nullable<Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode> GetPropertyAccessMode(this Microsoft.EntityFrameworkCore.Metadata.IModel model)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.PropertyBaseExtensions",
+      "MemberId": "public static System.Nullable<Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode> GetPropertyAccessMode(this Microsoft.EntityFrameworkCore.Metadata.IPropertyBase propertyBase)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.TypeBaseExtensions",
+      "MemberId": "public static System.Nullable<Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode> GetPropertyAccessMode(this Microsoft.EntityFrameworkCore.Metadata.ITypeBase typeBase)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static System.Threading.Tasks.Task ExecuteAsync<T0>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task> operation, T0 state, System.Threading.CancellationToken cancellationToken)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static System.Threading.Tasks.Task ExecuteAsync<T0>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.Tasks.Task> operation, T0 state)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, T0 state, System.Threading.CancellationToken cancellationToken)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.Tasks.Task<T1>> operation, T0 state)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static System.Threading.Tasks.Task<T1> ExecuteInTransactionAsync<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<System.Boolean>> verifySucceeded, T0 state, Microsoft.EntityFrameworkCore.DbContext context, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static System.Void Execute<T0>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Action<T0> operation, T0 state)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static T1 Execute<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, T1> operation, T0 state)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions",
+      "MemberId": "public static T1 ExecuteInTransaction<T0, T1>(this Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy strategy, System.Func<T0, T1> operation, System.Func<T0, System.Boolean> verifySucceeded, T0 state, Microsoft.EntityFrameworkCore.DbContext context)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.MutableEntityTypeExtensions",
+      "MemberId": "public static System.Void SetPropertyAccessMode(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, System.Nullable<Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode> propertyAccessMode)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.MutableModelExtensions",
+      "MemberId": "public static System.Void SetPropertyAccessMode(this Microsoft.EntityFrameworkCore.Metadata.IMutableModel model, System.Nullable<Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode> propertyAccessMode)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.MutablePropertyBaseExtensions",
+      "MemberId": "public static System.Void SetPropertyAccessMode(this Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase property, System.Nullable<Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode> propertyAccessMode)",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public class Microsoft.EntityFrameworkCore.DbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsBuilderInfrastructure",
       "MemberId": "public virtual Microsoft.EntityFrameworkCore.DbContextOptionsBuilder ConfigureWarnings(System.Action<Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder> warningsConfigurationBuilderAction)",
       "Kind": "Removal"
@@ -575,6 +598,116 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalPropertyBuilder>",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder UsePropertyAccessMode(Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode propertyAccessMode)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> : Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> UsePropertyAccessMode(Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode propertyAccessMode)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior deleteBehavior)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1> : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder where T0 : class where T1 : class",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1> OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior deleteBehavior)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1> : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder where T0 : class where T1 : class",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1> OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior deleteBehavior)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.ModelBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalModelBuilder>",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.ModelBuilder HasChangeTrackingStrategy(Microsoft.EntityFrameworkCore.Metadata.ChangeTrackingStrategy changeTrackingStrategy)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.ModelBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalModelBuilder>",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.ModelBuilder UsePropertyAccessMode(Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode propertyAccessMode)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IBaseTypeConvention> get_BaseEntityTypeSetConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IEntityTypeAnnotationSetConvention> get_EntityTypeAnnotationSetConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IEntityTypeConvention> get_EntityTypeAddedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IForeignKeyConvention> get_ForeignKeyAddedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IForeignKeyUniquenessConvention> get_ForeignKeyUniquenessConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IIndexConvention> get_IndexAddedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IIndexUniquenessConvention> get_IndexUniquenessConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IKeyConvention> get_KeyAddedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IModelConvention> get_ModelBuiltConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IModelConvention> get_ModelInitializedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.INavigationConvention> get_NavigationAddedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPrimaryKeyConvention> get_PrimaryKeySetConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPrincipalEndConvention> get_PrincipalEndSetConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPropertyConvention> get_PropertyAddedConventions()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPropertyNullableConvention> get_PropertyNullableChangedConventions()",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
       "MemberId": "System.Boolean get_RequiresValueGenerator()",
       "Kind": "Removal"
@@ -590,9 +723,49 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>>> verifySucceeded, T0 state, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "T1 Execute<T0, T1>(System.Func<T0, T1> operation, System.Func<T0, Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>> verifySucceeded, T0 state)",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
       "MemberId": "System.Void ApplyServices(Microsoft.Extensions.DependencyInjection.IServiceCollection services)",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IForeignKey : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.DeleteBehavior get_DeleteBehavior()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IForeignKey : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+      "MemberId": "System.Boolean get_IsOwnership()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.DeleteBehavior get_DeleteBehavior()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "System.Boolean get_IsOwnership()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "System.Void set_DeleteBehavior(Microsoft.EntityFrameworkCore.DeleteBehavior value)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "System.Void set_IsOwnership(System.Boolean value)",
+      "Kind": "Addition"
     },
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IModel : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
@@ -685,18 +858,18 @@
       "Kind": "Addition"
     },
     {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IForeignKey : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
-      "MemberId": "System.Boolean get_IsOwnership()",
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableNavigation : Microsoft.EntityFrameworkCore.Metadata.INavigation, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+      "MemberId": "System.Boolean get_IsEagerLoaded()",
       "Kind": "Addition"
     },
     {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
-      "MemberId": "System.Boolean get_IsOwnership()",
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableNavigation : Microsoft.EntityFrameworkCore.Metadata.INavigation, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+      "MemberId": "System.Void set_IsEagerLoaded(System.Boolean value)",
       "Kind": "Addition"
     },
     {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
-      "MemberId": "System.Void set_IsOwnership(System.Boolean value)",
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.INavigation : Microsoft.EntityFrameworkCore.Metadata.IPropertyBase",
+      "MemberId": "System.Boolean get_IsEagerLoaded()",
       "Kind": "Addition"
     },
     {
@@ -720,98 +893,13 @@
       "Kind": "Addition"
     },
     {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IBaseTypeConvention> get_BaseEntityTypeSetConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IEntityTypeAnnotationSetConvention> get_EntityTypeAnnotationSetConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IEntityTypeConvention> get_EntityTypeAddedConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IForeignKeyConvention> get_ForeignKeyAddedConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IForeignKeyUniquenessConvention> get_ForeignKeyUniquenessConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IIndexConvention> get_IndexAddedConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IIndexUniquenessConvention> get_IndexUniquenessConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IKeyConvention> get_KeyAddedConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IModelConvention> get_ModelBuiltConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IModelConvention> get_ModelInitializedConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.INavigationConvention> get_NavigationAddedConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPrimaryKeyConvention> get_PrimaryKeySetConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPrincipalEndConvention> get_PrincipalEndSetConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPropertyConvention> get_PropertyAddedConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
-      "MemberId": "public virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IPropertyNullableConvention> get_PropertyNullableChangedConventions()",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
-      "MemberId": "protected virtual System.Void FindSets(Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.DbContext context)",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableNavigation : Microsoft.EntityFrameworkCore.Metadata.INavigation, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
-      "MemberId": "System.Boolean get_IsEager()",
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "System.Threading.Tasks.Task<T1> ExecuteAsync<T0, T1>(T0 state, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<T1>> operation, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, System.Threading.CancellationToken, System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>>> verifySucceeded, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))",
       "Kind": "Addition"
     },
     {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableNavigation : Microsoft.EntityFrameworkCore.Metadata.INavigation, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
-      "MemberId": "System.Void set_IsEager(System.Boolean value)",
-      "Kind": "Addition"
-    },
-    {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.INavigation : Microsoft.EntityFrameworkCore.Metadata.IPropertyBase",
-      "MemberId": "System.Boolean get_IsEager()",
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
+      "MemberId": "T1 Execute<T0, T1>(T0 state, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, T1> operation, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>> verifySucceeded)",
       "Kind": "Addition"
     }
   ]

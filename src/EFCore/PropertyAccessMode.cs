@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     <para>

@@ -27,6 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Determines whether this navigation should be eager loaded by default.
         /// </summary>
-        new bool IsEager { get; set; }
+        new bool IsEagerLoaded { get; set; }
     }
 }

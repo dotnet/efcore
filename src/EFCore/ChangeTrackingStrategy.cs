@@ -4,7 +4,7 @@
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     Indicates how the context detects changes to properties for an instance of the entity type.

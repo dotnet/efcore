@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var outboundNavigations
                     = entityType.GetNavigations()
                         .Concat(entityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredNavigations()))
-                        .Where(n => n.IsEager)
+                        .Where(n => n.IsEagerLoaded)
                         .ToList();
 
                 if (outboundNavigations.Count == 0
