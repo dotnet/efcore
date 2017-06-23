@@ -156,8 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 90);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => -1 == string.Compare(c.CustomerID, "ALFKI")),
-                entryCount: 0);
+                cs => cs.Where(c => -1 == string.Compare(c.CustomerID, "ALFKI")));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") < 1),
@@ -192,8 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 90);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => -1 == string.Compare(c.CustomerID, customer.CustomerID)),
-                entryCount: 0);
+                cs => cs.Where(c => -1 == string.Compare(c.CustomerID, customer.CustomerID)));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => string.Compare(c.CustomerID, customer.CustomerID) < 1),
@@ -216,12 +214,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void String_Compare_simple_client()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") == 42),
-                entryCount: 0);
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") == 42));
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") > 42),
-                entryCount: 0);
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") > 42));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => 42 > string.Compare(c.CustomerID, "ALFKI")),
@@ -232,24 +228,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void String_Compare_nested()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => string.Compare(c.CustomerID, "M" + c.CustomerID) == 0),
-                entryCount: 0);
+                cs => cs.Where(c => string.Compare(c.CustomerID, "M" + c.CustomerID) == 0));
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => 0 != string.Compare(c.CustomerID, c.CustomerID.ToUpper())),
-                entryCount: 0);
+                cs => cs.Where(c => 0 != string.Compare(c.CustomerID, c.CustomerID.ToUpper())));
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) > 0),
-                entryCount: 0);
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) > 0));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => 0 >= string.Compare(c.CustomerID, "M" + c.CustomerID)),
                 entryCount: 51);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => 1 == string.Compare(c.CustomerID, c.CustomerID.ToUpper())),
-                entryCount: 0);
+                cs => cs.Where(c => 1 == string.Compare(c.CustomerID, c.CustomerID.ToUpper())));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) == -1),
@@ -304,8 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 90);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => -1 == c.CustomerID.CompareTo("ALFKI")),
-                entryCount: 0);
+                cs => cs.Where(c => -1 == c.CustomerID.CompareTo("ALFKI")));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") < 1),
@@ -340,8 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 90);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => -1 == c.CustomerID.CompareTo(customer.CustomerID)),
-                entryCount: 0);
+                cs => cs.Where(c => -1 == c.CustomerID.CompareTo(customer.CustomerID)));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.CustomerID.CompareTo(customer.CustomerID) < 1),
@@ -364,12 +354,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void String_Compare_to_simple_client()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") == 42),
-                entryCount: 0);
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") == 42));
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") > 42),
-                entryCount: 0);
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") > 42));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => 42 > c.CustomerID.CompareTo("ALFKI")),
@@ -380,24 +368,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void String_Compare_to_nested()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.CustomerID.CompareTo("M" + c.CustomerID) == 0),
-                entryCount: 0);
+                cs => cs.Where(c => c.CustomerID.CompareTo("M" + c.CustomerID) == 0));
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => 0 != c.CustomerID.CompareTo(c.CustomerID.ToUpper())),
-                entryCount: 0);
+                cs => cs.Where(c => 0 != c.CustomerID.CompareTo(c.CustomerID.ToUpper())));
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) > 0),
-                entryCount: 0);
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) > 0));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => 0 >= c.CustomerID.CompareTo("M" + c.CustomerID)),
                 entryCount: 51);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => 1 == c.CustomerID.CompareTo(c.CustomerID.ToUpper())),
-                entryCount: 0);
+                cs => cs.Where(c => 1 == c.CustomerID.CompareTo(c.CustomerID.ToUpper())));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) == -1),
@@ -502,14 +486,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Select_math_round_int()
         {
             AssertQuery<Order>(
-                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Round((double)o.OrderID) }));
+                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Round((double)o.OrderID) }),
+                e => e.A);
         }
 
         [ConditionalFact]
         public virtual void Select_math_truncate_int()
         {
             AssertQuery<Order>(
-                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }));
+                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }),
+                e => e.A);
         }
 
         [ConditionalFact]
