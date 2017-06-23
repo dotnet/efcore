@@ -249,8 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            QueryCompilationContext.QueryAnnotations
-                = _queryAnnotationExtractor.ExtractQueryAnnotations(queryModel);
+            QueryCompilationContext.AddAnnotations(_queryAnnotationExtractor.ExtractQueryAnnotations(queryModel));
         }
 
         /// <summary>

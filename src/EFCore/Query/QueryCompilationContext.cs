@@ -33,9 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly IRequiresMaterializationExpressionVisitorFactory _requiresMaterializationExpressionVisitorFactory;
         private readonly IEntityQueryModelVisitorFactory _entityQueryModelVisitorFactory;
+        
         private readonly Dictionary<IQuerySource, IEntityType> _querySourceEntityTypeMapping = new Dictionary<IQuerySource, IEntityType>();
-
-        private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
+        private readonly List<IQueryAnnotation> _queryAnnotations = new List<IQueryAnnotation>();
+        
         private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
@@ -176,17 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The query annotations.
         /// </value>
-        public virtual IReadOnlyCollection<IQueryAnnotation> QueryAnnotations
-        {
-            get { return _queryAnnotations; }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, nameof(value));
-
-                _queryAnnotations = value;
-            }
-        }
+        public virtual IReadOnlyCollection<IQueryAnnotation> QueryAnnotations => _queryAnnotations;
 
         /// <summary>
         ///     Adds query annotations to the exisiting list.
@@ -196,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(annotations, nameof(annotations));
 
-            _queryAnnotations = new ReadOnlyCollection<IQueryAnnotation>(_queryAnnotations.ToList().Concat(annotations).ToList());
+            _queryAnnotations.AddRange(annotations);
         }
 
         /// <summary>
@@ -211,27 +202,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(querySourceMapping, nameof(querySourceMapping));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var clonedAnnotations = new List<IQueryAnnotation>();
-
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var annotation
-                in QueryAnnotations.OfType<ICloneableQueryAnnotation>())
+            foreach (var annotation in QueryAnnotations.OfType<ICloneableQueryAnnotation>().ToList())
             {
                 if (querySourceMapping.ContainsMapping(annotation.QuerySource)
                     && querySourceMapping.GetExpression(annotation.QuerySource)
                         is QuerySourceReferenceExpression querySourceReferenceExpression)
                 {
-                    clonedAnnotations.Add(
+                    _queryAnnotations.Add(
                         annotation.Clone(
                             querySourceReferenceExpression.ReferencedQuerySource, queryModel));
                 }
             }
-
-            var newAnnotations = QueryAnnotations.ToList();
-
-            newAnnotations.AddRange(clonedAnnotations);
-
-            QueryAnnotations = newAnnotations;
         }
 
         /// <summary>

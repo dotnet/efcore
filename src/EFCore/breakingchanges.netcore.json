@@ -901,5 +901,10 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
       "MemberId": "T1 Execute<T0, T1>(T0 state, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, T1> operation, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>> verifySucceeded)",
       "Kind": "Addition"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryCompilationContext",
+      "MemberId": "public virtual System.Void set_QueryAnnotations(System.Collections.Generic.IReadOnlyCollection<Microsoft.EntityFrameworkCore.Query.ResultOperators.IQueryAnnotation> value)",
+      "Kind": "Removal"
     }
   ]
