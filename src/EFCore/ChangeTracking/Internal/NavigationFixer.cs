@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         {
                             if (principalToDependent.IsCollection())
                             {
-                                var dependents = ((IEnumerable)navigationValue).Cast<object>();
+                                var dependents = ((IEnumerable)navigationValue).Cast<object>().ToList();
                                 foreach (var dependentEntity in dependents)
                                 {
                                     var dependentEntry = stateManager.TryGetEntry(dependentEntity);

@@ -14,6 +14,56 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     public class NavigationFixerTest
     {
         [Fact]
+        public void Does_not_throw_if_Add_during_fixup()
+        {
+            using (var context = new FixupContext())
+            {
+                var blog1 = new Blog { Id = 1 };
+                var blog2 = new Blog { Id = 2 };
+
+                var post1 = context.Add(new Post { BlogId = 2 }).Entity;
+
+                blog1.Posts.Add(post1);
+                blog1.Posts.Add(new Post { BlogId = 2 });
+                
+                context.Add(blog2);
+                context.Add(blog1);
+            }
+        }
+
+        private class FixupContext : DbContext
+        {
+            public DbSet<Blog> Blogs { get; set; }
+            public DbSet<Post> Posts { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(typeof(FixupContext).FullName);
+        }
+
+        private class Blog
+        {
+            public int Id { get; set; }
+            public HashSet<Post> Posts { get; } = new HashSet<Post>();
+        }
+
+        private class Post
+        {
+            private Blog _blog;
+            public int Id { get; set; }
+            public int BlogId { get; set; }
+
+            public Blog Blog
+            {
+                get => _blog;
+                set
+                {
+                    _blog = value;
+                    _blog.Posts.Add(new Post());
+                }
+            }
+        }
+
+        [Fact]
         public void Does_fixup_of_related_principals()
         {
             var contextServices = CreateContextServices();
