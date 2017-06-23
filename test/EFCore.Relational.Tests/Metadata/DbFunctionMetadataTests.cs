@@ -7,6 +7,7 @@ using Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -42,14 +43,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public class TestMethods
         {
+            public static int Foo => 1;
+
             public static int MethodA(string a, int b)
             {
                 throw new NotImplementedException();
             }
 
-            [DbFunction(Schema = "bar", Name = "MethodFoo")]
-            public int MethodB([DbFunctionParameter(ParameterIndex = 1)] string c,
-                [DbFunctionParameter(ParameterIndex = 0)] int d)
+            [DbFunction(Schema = "bar", FunctionName = "MethodFoo")]
+            public int MethodB(string c, int d)
             {
                 throw new NotImplementedException();
             }
@@ -82,19 +84,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi);
             var dbFunc = dbFuncBuilder.Metadata;
 
-            Assert.Equal("MethodA", dbFunc.Name);
+            Assert.Equal("MethodA", dbFunc.FunctionName);
             Assert.Null(dbFunc.Schema);
-            Assert.Equal(typeof(int), dbFunc.ReturnType);
+            Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
+        }
 
-            Assert.Equal(2, dbFunc.Parameters.Count);
+        [Fact]
+        public void Adding_method_fluent_only_convention_defaults_fluent_methodInfo()
+        {
+            var modelBuilder = GetModelBuilder();
 
-            Assert.Equal("a", dbFunc.Parameters[0].Name);
-            Assert.Equal(0, dbFunc.Parameters[0].Index);
-            Assert.Equal(typeof(string), dbFunc.Parameters[0].ParameterType);
+            var dbFuncBuilder = modelBuilder.HasDbFunction(() => TestMethods.MethodA(null, default(int)));
+            var dbFunc = dbFuncBuilder.Metadata;
 
-            Assert.Equal("b", dbFunc.Parameters[1].Name);
-            Assert.Equal(1, dbFunc.Parameters[1].Index);
-            Assert.Equal(typeof(int), dbFunc.Parameters[1].ParameterType);
+            Assert.Equal("MethodA", dbFunc.FunctionName);
+            Assert.Null(dbFunc.Schema);
+            Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
+        }
+
+        [Fact]
+        public void Adding_method_fluent_only_convention_defaults_non_method_call_throws()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var expectedMessage = CoreStrings.DbFunctionExpressionIsNotMethodCall();
+
+            Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(() => 1)).Message);
+        }
+
+        [Fact]
+        public void Adding_method_fluent_only_convention_defaults_property_call_throws()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var expectedMessage = CoreStrings.DbFunctionExpressionIsNotMethodCall();
+
+            Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(() => TestMethods.Foo)).Message);
         }
 
         [Fact]
@@ -102,22 +127,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi, "foo", "bar");
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi)
+                                    .HasName("foo")
+                                    .HasSchema("bar");
+
             var dbFunc = dbFuncBuilder.Metadata;
 
-            Assert.Equal("foo", dbFunc.Name);
+            Assert.Equal("foo", dbFunc.FunctionName);
             Assert.Equal("bar", dbFunc.Schema);
-            Assert.Equal(typeof(int), dbFunc.ReturnType);
-
-            Assert.Equal(2, dbFunc.Parameters.Count);
-
-            Assert.Equal("a", dbFunc.Parameters[0].Name);
-            Assert.Equal(0, dbFunc.Parameters[0].Index);
-            Assert.Equal(typeof(string), dbFunc.Parameters[0].ParameterType);
-
-            Assert.Equal("b", dbFunc.Parameters[1].Name);
-            Assert.Equal(1, dbFunc.Parameters[1].Index);
-            Assert.Equal(typeof(int), dbFunc.Parameters[1].ParameterType);
+            Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
         [Fact]
@@ -132,19 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFunc = modelBuilder.HasDbFunction(MethodAmi).Metadata;
 
-            Assert.Equal("foo", dbFunc.Name);
+            Assert.Equal("foo", dbFunc.FunctionName);
             Assert.Equal("bar", dbFunc.Schema);
-            Assert.Equal(typeof(int), dbFunc.ReturnType);
-
-            Assert.Equal(2, dbFunc.Parameters.Count);
-
-            Assert.Equal("a", dbFunc.Parameters[0].Name);
-            Assert.Equal(0, dbFunc.Parameters[0].Index);
-            Assert.Equal(typeof(string), dbFunc.Parameters[0].ParameterType);
-
-            Assert.Equal("b", dbFunc.Parameters[1].Name);
-            Assert.Equal(1, dbFunc.Parameters[1].Index);
-            Assert.Equal(typeof(int), dbFunc.Parameters[1].ParameterType);
+            Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
         [Fact]
@@ -155,19 +163,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
             var dbFunc = dbFuncBuilder.Metadata;
 
-            Assert.Equal("MethodFoo", dbFunc.Name);
+            Assert.Equal("MethodFoo", dbFunc.FunctionName);
             Assert.Equal("bar", dbFunc.Schema);
-            Assert.Equal(typeof(int), dbFunc.ReturnType);
-
-            Assert.Equal(2, dbFunc.Parameters.Count);
-
-            Assert.Equal("c", dbFunc.Parameters[0].Name);
-            Assert.Equal(1, dbFunc.Parameters[0].Index);
-            Assert.Equal(typeof(string), dbFunc.Parameters[0].ParameterType);
-
-            Assert.Equal("d", dbFunc.Parameters[1].Name);
-            Assert.Equal(0, dbFunc.Parameters[1].Index);
-            Assert.Equal(typeof(int), dbFunc.Parameters[1].ParameterType);
+            Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
         [Fact]
@@ -175,22 +173,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi, "foo", "bar");
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi)
+                                    .HasName("foo")
+                                    .HasSchema("bar");
+
             var dbFunc = dbFuncBuilder.Metadata;
 
-            Assert.Equal("foo", dbFunc.Name);
+            Assert.Equal("foo", dbFunc.FunctionName);
             Assert.Equal("bar", dbFunc.Schema);
-            Assert.Equal(typeof(int), dbFunc.ReturnType);
-
-            Assert.Equal(2, dbFunc.Parameters.Count);
-
-            Assert.Equal("c", dbFunc.Parameters[0].Name);
-            Assert.Equal(1, dbFunc.Parameters[0].Index);
-            Assert.Equal(typeof(string), dbFunc.Parameters[0].ParameterType);
-
-            Assert.Equal("d", dbFunc.Parameters[1].Name);
-            Assert.Equal(0, dbFunc.Parameters[1].Index);
-            Assert.Equal(typeof(int), dbFunc.Parameters[1].ParameterType);
+            Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
         [Fact]
@@ -201,65 +192,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder.HasDbFunction(MethodBmi, funcBuilder =>
             {
                 funcBuilder.HasName("foo").HasSchema("bar");
-                funcBuilder.HasParameter("c").HasIndex(0);
-                funcBuilder.HasParameter("d").HasIndex(1);
             });
 
-            var dbFunc = modelBuilder.HasDbFunction(MethodBmi).Metadata;
+            var dbFunc = modelBuilder.HasDbFunction(MethodBmi).Metadata ;
             
-            Assert.Equal("foo", dbFunc.Name);
+            Assert.Equal("foo", dbFunc.FunctionName);
             Assert.Equal("bar", dbFunc.Schema);
-            Assert.Equal(typeof(int), dbFunc.ReturnType);
-
-            Assert.Equal(2, dbFunc.Parameters.Count);
-
-            Assert.Equal("c", dbFunc.Parameters[0].Name);
-            Assert.Equal(0, dbFunc.Parameters[0].Index);
-            Assert.Equal(typeof(string), dbFunc.Parameters[0].ParameterType);
-
-            Assert.Equal("d", dbFunc.Parameters[1].Name);
-            Assert.Equal(1, dbFunc.Parameters[1].Index);
-            Assert.Equal(typeof(int), dbFunc.Parameters[1].ParameterType);
+            Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
         [Fact]
-        public void Adding_method_with_parameter_fluent_overrides()
-        {
-            var modelBuilder = GetModelBuilder();
-
-            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi);
-            var parameter = dbFuncBuilder.HasParameter("a").Metadata;
-
-            Assert.Equal(0, parameter.Index);
-            Assert.Equal("a", parameter.Name);
-            Assert.Equal(typeof(string), parameter.ParameterType);
-
-            parameter.Index = 5;
-            parameter.Name = "abc";
-            parameter.ParameterType = typeof(int);
-
-            Assert.Equal(5, parameter.Index);
-            Assert.Equal("abc", parameter.Name);
-            Assert.Equal(typeof(int), parameter.ParameterType);
-        }
-
-        [Fact]
-        public void DbFunctionReturnType()
-        {
-            var modelBuilder = GetModelBuilder();
-
-            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi);
-
-            Assert.Equal(typeof(int), dbFuncBuilder.Metadata.ReturnType);
-
-            dbFuncBuilder.Metadata.ReturnType = typeof(string);
-
-            Assert.Equal(typeof(string), dbFuncBuilder.Metadata.ReturnType);
-
-        }
-
-        [Fact]
-        public void Adding_method_with_relational_scema()
+        public void Adding_method_with_relational_schema()
         {
             var modelBuilder = GetModelBuilder();
 
@@ -271,19 +214,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
-        public void Adding_method_with_relational_scema_fluent_overrides()
+        public void Adding_method_with_relational_schema_fluent_overrides()
         {
             var modelBuilder = GetModelBuilder();
 
             modelBuilder.HasDefaultSchema("dbo");
 
-            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi, schema:"bar");
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi).HasSchema("bar");
 
             Assert.Equal("bar", dbFuncBuilder.Metadata.Schema);
         }
 
         [Fact]
-        public void Adding_method_with_relational_scema_attribute_overrides()
+        public void Adding_method_with_relational_schema_attribute_overrides()
         {
             var modelBuilder = GetModelBuilder();
 
@@ -292,16 +235,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
 
             Assert.Equal("bar", dbFuncBuilder.Metadata.Schema);
-        }
-
-        [Fact]
-        public void Adding_method_with_void_return_does_not_throw()
-        {
-            var modelBuilder = GetModelBuilder();
-
-            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodCmi);
-
-            Assert.Equal(typeof(void), dbFuncBuilder.Metadata.ReturnType);
         }
 
         [Fact]
@@ -314,7 +247,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodHmi)).Message);
         }
 
-
         [Fact]
         public virtual void Set_empty_function_name_throws()
         {
@@ -322,17 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var expectedMessage = CoreStrings.ArgumentIsEmpty("name");
 
-            Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi, name: "")).Message);
-        }
-
-        [Fact]
-        public virtual void Set_empty_function_schema_throws()
-        {
-            var modelBuilder = GetModelBuilder();
-
-            var expectedMessage = CoreStrings.ArgumentIsEmpty("schema");
-
-            Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi, schema: "")).Message);
+            Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
         }
 
         private ModelBuilder GetModelBuilder()

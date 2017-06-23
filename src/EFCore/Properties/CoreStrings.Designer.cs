@@ -1787,36 +1787,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 methodName);
 
         /// <summary>
-        ///     The DB function '{dbFunctionName}' has parameters with duplicate indexes.
-        /// </summary>
-        public static string DbFunctionParametersDuplicateIndex([CanBeNull] object dbFunctionName)
-            => string.Format(
-                GetString("DbFunctionParametersDuplicateIndex", nameof(dbFunctionName)),
-                dbFunctionName);
-
-        /// <summary>
-        ///     The DB function '{dbFunctionName}' has a non continuous parameter index.
-        /// </summary>
-        public static string DbFunctionNonContinuousIndex([CanBeNull] object dbFunctionName)
-            => string.Format(
-                GetString("DbFunctionNonContinuousIndex", nameof(dbFunctionName)),
-                dbFunctionName);
-
-        /// <summary>
         ///     The parameter '{dbParameter}' for the DB function '{dbFunction}' has an invalid type '{dbParamType}'.
         /// </summary>
         public static string DbFunctionInvalidParameterType([CanBeNull] object dbParameter, [CanBeNull] object dbFunction, [CanBeNull] object dbParamType)
             => string.Format(
                 GetString("DbFunctionInvalidParameterType", nameof(dbParameter), nameof(dbFunction), nameof(dbParamType)),
                 dbParameter, dbFunction, dbParamType);
-
-        /// <summary>
-        ///     The DB function '{dbFunctionName}' has no parameter '{dbParameterName}'. Check the method signature for the correct parameter name.
-        /// </summary>
-        public static string DbFunctionParameterNotFound([CanBeNull] object dbFunctionName, [CanBeNull] object dbParameterName)
-            => string.Format(
-                GetString("DbFunctionParameterNotFound", nameof(dbFunctionName), nameof(dbParameterName)),
-                dbFunctionName, dbParameterName);
 
         /// <summary>
         ///     The DB function '{dbFunctionName}' must be a static method.
@@ -1833,6 +1809,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("DbFunctionGenericMethodNotSupported", nameof(dbFunction)),
                 dbFunction);
+
+        /// <summary>
+        ///     The provided expression is not a method call.
+        /// </summary>
+        public static string DbFunctionExpressionIsNotMethodCall()
+            => string.Format(GetString("DbFunctionExpressionIsNotMethodCall"));
 
         private static string GetString(string name, params string[] formatterNames)
         {

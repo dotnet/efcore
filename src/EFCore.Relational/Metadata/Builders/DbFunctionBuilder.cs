@@ -6,10 +6,9 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
     ///     <para>
@@ -55,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual DbFunctionBuilder HasName([NotNull] string name)
         {
-            Check.NotNull(name, nameof(name));
+            Check.NotEmpty(name, nameof(name));
 
             _builder.HasName(name, ConfigurationSource.Explicit);
 
@@ -66,35 +65,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual DbFunctionParameterBuilder HasParameter([NotNull] string name)
-        {
-            Check.NotNull(name, nameof(name));
-
-            return new DbFunctionParameterBuilder(_builder.HasParameter(name, ConfigurationSource.Explicit));
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual DbFunctionBuilder HasReturnType([NotNull] Type returnType)
-        {
-            Check.NotNull(returnType, nameof(returnType));
-
-            _builder.HasReturnType(returnType, ConfigurationSource.Explicit);
-
-            return this;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual DbFunctionBuilder TranslateWith([NotNull] Func<IReadOnlyCollection<Expression>, IDbFunction, SqlFunctionExpression> translateCallback)
+        public virtual DbFunctionBuilder HasTranslation([NotNull] Func<IReadOnlyCollection<Expression>, Expression> translateCallback)
         {
             Check.NotNull(translateCallback, nameof(translateCallback));
 
-            _builder.TranslateWith(translateCallback);
+            _builder.HasTranslation(translateCallback);
 
             return this;
         }

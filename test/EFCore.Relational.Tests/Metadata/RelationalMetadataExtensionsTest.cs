@@ -496,12 +496,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Null(model.Relational().FindDbFunction(testMethod));
 
-            var dbFunc = model.Relational().GetOrAddDbFunction(testMethod, ConfigurationSource.Explicit, "MethodA");
+            var dbFunc = model.Relational().GetOrAddDbFunction(testMethod);
 
             Assert.NotNull(dbFunc);
-            Assert.Equal("MethodA", dbFunc.Name);
+            Assert.Null(dbFunc.FunctionName);
             Assert.Null(dbFunc.Schema);
-            Assert.Equal(0, dbFunc.Parameters.Count);
         }
 
         [Fact]

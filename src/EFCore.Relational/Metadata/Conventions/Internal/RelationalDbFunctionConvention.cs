@@ -27,26 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 var dbFuncAttribute = dbFuncMethodInfo.GetCustomAttributes<DbFunctionAttribute>().SingleOrDefault();
 
-                dbFunctionBuilder.HasName(dbFuncAttribute?.Name ?? dbFuncMethodInfo.Name, ConfigurationSource.Convention);
+                dbFunctionBuilder.HasName(dbFuncAttribute?.FunctionName ?? dbFuncMethodInfo.Name, ConfigurationSource.Convention);
                 dbFunctionBuilder.HasSchema(dbFuncAttribute?.Schema ?? modelBuilder.Metadata.Relational().DefaultSchema, ConfigurationSource.Convention); 
-
-                var parameters = dbFuncMethodInfo.GetParameters()
-                                    .Where(p => p.ParameterType != typeof(DbFunctions))
-                                    .Select((pi, i) => new
-                                    {
-                                        ParameterIndex = i,
-                                        ParameterInfo = pi,
-                                        DbFuncParamAttr = pi.GetCustomAttributes<DbFunctionParameterAttribute>().SingleOrDefault(),
-                                        pi.ParameterType
-                                    });
-
-                foreach (var p in parameters)
-                {
-                    var paramBuilder = dbFunctionBuilder.HasParameter(p.ParameterInfo.Name, ConfigurationSource.Convention);
-
-                    paramBuilder.HasIndex(p.DbFuncParamAttr?.ParameterIndex ?? p.ParameterIndex, ConfigurationSource.Convention);
-                    paramBuilder.HasType(p.ParameterType, ConfigurationSource.Convention);
-                }
             }
 
             return annotation;
