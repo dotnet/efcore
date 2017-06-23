@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -46,9 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalDbFunctionBuilder HasName([NotNull] string name, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(_dbFunction.GetNameConfigurationSource())
-                || _dbFunction.Name == name)
+                || _dbFunction.FunctionName == name)
             {
-                _dbFunction.SetName(name, configurationSource);
+                _dbFunction.SetFunctionName(name, configurationSource);
             }
 
             return this;
@@ -58,38 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalDbFunctionBuilder HasReturnType([NotNull] Type returnType, ConfigurationSource configurationSource)
+        public virtual InternalDbFunctionBuilder HasTranslation([NotNull] Func<IReadOnlyCollection<Expression>, Expression> translation)
         {
-            if (configurationSource.Overrides(_dbFunction.GetReturnTypeConfigurationSource())
-                || _dbFunction.ReturnType == returnType)
-            {
-                _dbFunction.SetReturnType(returnType, configurationSource);
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual InternalDbFunctionParameterBuilder HasParameter([NotNull] string name, ConfigurationSource configurationSource)
-        {
-            return new InternalDbFunctionParameterBuilder(GetOrCreateParameter(name, configurationSource));
-        }
-
-        private DbFunctionParameter GetOrCreateParameter(string name, ConfigurationSource configurationSource)
-        {
-            return _dbFunction.FindParameter(name, configurationSource) ?? _dbFunction.AddParameter(name, configurationSource);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual InternalDbFunctionBuilder TranslateWith([NotNull] Func<IReadOnlyCollection<Expression>, IDbFunction, SqlFunctionExpression> translateCallback)
-        {
-            _dbFunction.TranslateCallback = translateCallback;
+            Check.NotNull(translation, nameof(translation));
+            _dbFunction.Translation = translation;
 
             return this;
         }

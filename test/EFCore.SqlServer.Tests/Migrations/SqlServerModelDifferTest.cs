@@ -851,7 +851,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             Execute(
                  _ => { },
-                modelBuilder => modelBuilder.HasDbFunction(mi, null, "dbo"),
+                modelBuilder => modelBuilder.HasDbFunction(mi),
                 operations =>
                 {
                     Assert.Equal(0, operations.Count);

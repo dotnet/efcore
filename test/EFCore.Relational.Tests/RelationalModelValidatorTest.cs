@@ -644,36 +644,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Detects_function_duplicate_parameter_index()
-        {
-            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
-
-            var methodAmi = typeof(DbFunctionMetadataTests.TestMethods).GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodA), new[] { typeof(string), typeof(int) });
-
-            var dbFuncBuilder = modelBuilder.HasDbFunction(methodAmi);
-
-            dbFuncBuilder.HasParameter("a").HasIndex(0);
-            dbFuncBuilder.HasParameter("b").HasIndex(0);
-
-            VerifyError(CoreStrings.DbFunctionParametersDuplicateIndex($"{methodAmi.DeclaringType.Name}.{methodAmi.Name}"), modelBuilder.Model);
-        }
-
-        [Fact]
-        public virtual void Detects_function_missing_parameter_index()
-        {
-            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
-
-            var methodAmi = typeof(DbFunctionMetadataTests.TestMethods).GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodA), new[] { typeof(string), typeof(int) });
-
-            var dbFuncBuilder = modelBuilder.HasDbFunction(methodAmi);
-
-            dbFuncBuilder.HasParameter("a").HasIndex(5);
-
-            VerifyError(CoreStrings.DbFunctionNonContinuousIndex($"{methodAmi.DeclaringType.Name}.{methodAmi.Name}"), modelBuilder.Model);
-        }
-
-        [Fact]
-        public virtual void Detects_function_with_invalid_parameter_but_translate_callback_does_not_throw()
+        public virtual void Detects_function_with_invalid_parameter_type_but_translate_callback_does_not_throw()
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
 
@@ -681,13 +652,13 @@ namespace Microsoft.EntityFrameworkCore
 
             var dbFuncBuilder = modelBuilder.HasDbFunction(methodFmi);
 
-            dbFuncBuilder.TranslateWith((parameters, dbFunc) => null);
+            dbFuncBuilder.HasTranslation((parameters) => null);
 
             Validate(modelBuilder.Model);
         }
 
         [Fact]
-        public virtual void Detects_function_with_invalid_parameter_but_no_translate_callback_throws()
+        public virtual void Detects_function_with_invalid_parameter_type_but_no_translate_callback_throws()
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
 
@@ -727,8 +698,20 @@ namespace Microsoft.EntityFrameworkCore
             var methodDmi = typeof(DbFunctionMetadataTests.TestMethods).GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodD), new Type[] { });
             var dbFuncBuilder = modelBuilder.HasDbFunction(methodDmi);
 
-            VerifyError(CoreStrings.DbFunctionInvalidReturnType(methodDmi, dbFuncBuilder.Metadata.ReturnType), modelBuilder.Model);
+            VerifyError(CoreStrings.DbFunctionInvalidReturnType(methodDmi, dbFuncBuilder.Metadata.MethodInfo.ReturnType), modelBuilder.Model);
         }
+
+        [Fact]
+        public void Detects_void_return_throws()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+
+            var methodCmi = typeof(DbFunctionMetadataTests.TestMethods).GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodC), new Type[] { });
+            var dbFuncBuilder = modelBuilder.HasDbFunction(methodCmi);
+
+            VerifyError(CoreStrings.DbFunctionInvalidReturnType(methodCmi, dbFuncBuilder.Metadata.MethodInfo.ReturnType), modelBuilder.Model);
+        }
+
 
         protected override void SetBaseType(EntityType entityType, EntityType baseEntityType)
         {

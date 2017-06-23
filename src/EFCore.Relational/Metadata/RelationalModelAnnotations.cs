@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual IDbFunction FindDbFunction(MethodInfo methodInfo)
             => DbFunction.FindDbFunction(Model, RelationalAnnotationNames.DbFunction, methodInfo);
 
-        public virtual DbFunction GetOrAddDbFunction([NotNull] MethodInfo methodInfo, ConfigurationSource configurationSource, [CanBeNull] string name = null, [CanBeNull] string schema = null)
-           => DbFunction.GetOrAddDbFunction((IMutableModel)Model, methodInfo, RelationalAnnotationNames.DbFunction, configurationSource, name, schema);
+        public virtual DbFunction GetOrAddDbFunction([NotNull] MethodInfo methodInfo)
+           => DbFunction.GetOrAddDbFunction((IMutableModel)Model, methodInfo, RelationalAnnotationNames.DbFunction);
 
         public virtual string DefaultSchema
         {

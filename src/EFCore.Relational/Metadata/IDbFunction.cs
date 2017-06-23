@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -16,33 +14,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IDbFunction
     {
         /// <summary>
-        ///     The schema where the function lives in the underlying datastore.
+        ///     The schema where the function lives in the underlying database.
         /// </summary>
         string Schema { get; }
 
         /// <summary>
-        ///     The name of the function in the underlying datastore.
+        ///     The name of the function in the underlying database.
         /// </summary>
-        string Name { get; }
+        string FunctionName { get; }
 
         /// <summary>
-        ///     The list of parameters which are passed to the underlying datastores function.
-        /// </summary>
-        IReadOnlyList<DbFunctionParameter> Parameters { get; }
-
-        /// <summary>
-        ///     The .Net method which maps to the function in the underlying datastore
+        ///     The method which maps to the function in the underlying database.
         /// </summary>
         MethodInfo MethodInfo { get; }
 
         /// <summary>
-        ///     The return type of the mapped .Net method
+        ///    A method for converting a method call into sql.
         /// </summary>
-        Type ReturnType { get; }
-
-        /// <summary>
-        ///    A translate callback for converting a method call into a sql function
-        /// </summary>
-        Func<IReadOnlyCollection<Expression>, IDbFunction, SqlFunctionExpression> TranslateCallback { get; }
+        Func<IReadOnlyCollection<Expression>, Expression> Translation { get; }
     }
 }

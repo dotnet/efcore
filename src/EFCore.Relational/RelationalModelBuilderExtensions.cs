@@ -2,10 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -207,21 +210,15 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="methodInfo"> The methodInfo this dbFunction uses. </param>
-        /// <param name="name"> The name of the dbFunction. </param>
-        /// <param name="schema">The schema of the dbFunction. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static DbFunctionBuilder HasDbFunction(
             [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] MethodInfo methodInfo,
-            [CanBeNull] string name = null,
-            [CanBeNull] string schema = null)
+            [NotNull] MethodInfo methodInfo)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(methodInfo, nameof(methodInfo));
-            Check.NullButNotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
 
-            var dbFunction = modelBuilder.Model.Relational().GetOrAddDbFunction(methodInfo, ConfigurationSource.Explicit, name, schema);
+            var dbFunction = modelBuilder.Model.Relational().GetOrAddDbFunction(methodInfo);
 
             return new DbFunctionBuilder(dbFunction);
         }
@@ -230,27 +227,23 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures a database function when targeting a relational database.
         /// </summary>
         /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="methodInfo"> The methodInfo this dbFunction uses. </param>
-        /// <param name="name"> The name of the dbFunction. </param>
-        /// <param name="schema">The schema of the dbFunction. </param>
-        /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
+        /// <param name="expression"> The method this dbFunction uses. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static ModelBuilder HasDbFunction(
+        public static DbFunctionBuilder HasDbFunction<TResult>(
             [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] MethodInfo methodInfo,
-            [NotNull] string name,
-            [NotNull] string schema,
-            [NotNull] Action<DbFunctionBuilder> builderAction)
+            [NotNull] Expression<Func<TResult>> expression)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotNull(methodInfo, nameof(methodInfo));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotEmpty(schema, nameof(schema));
-            Check.NotNull(builderAction, nameof(builderAction));
+            Check.NotNull(expression, nameof(expression));
 
-            builderAction(HasDbFunction(modelBuilder, methodInfo, name, schema));
+            var methodInfo = (expression.Body as MethodCallExpression)?.Method;
 
-            return modelBuilder;
+            if (methodInfo == null)
+                throw new ArgumentException(CoreStrings.DbFunctionExpressionIsNotMethodCall());
+
+            var dbFunction = modelBuilder.Model.Relational().GetOrAddDbFunction(methodInfo);
+
+            return new DbFunctionBuilder(dbFunction);
         }
 
         /// <summary>
@@ -273,7 +266,6 @@ namespace Microsoft.EntityFrameworkCore
 
             return modelBuilder;
         }
-        
 
         /// <summary>
         ///     Configures the default schema that database objects should be created in, if no schema
