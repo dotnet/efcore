@@ -8,10 +8,19 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
+
 // ReSharper disable InconsistentNaming
+// ReSharper disable StringStartsWithIsCultureSpecific
+// ReSharper disable StringEndsWithIsCultureSpecific
+// ReSharper disable StringCompareIsCultureSpecific.1
+// ReSharper disable StringCompareToIsCultureSpecific
+// ReSharper disable CompareOfFloatsByEqualityOperator
+// ReSharper disable ConditionIsAlwaysTrueOrFalse
+// ReSharper disable SpecifyACultureInStringConversionExplicitly
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    // ReSharper disable once UnusedTypeParameter
     public abstract partial class QueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
@@ -901,7 +910,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void TrimStart_in_predicate()
+        public virtual void TrimStart_without_arguments_in_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactTitle.TrimStart() == "Owner"),
@@ -909,7 +918,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void TrimStart_with_arguments_in_predicate()
+        public virtual void TrimStart_with_char_argument_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.TrimStart('O') == "wner"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void TrimStart_with_char_array_argument_in_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactTitle.TrimStart('O', 'w') == "ner"),
@@ -917,7 +934,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void TrimEnd_in_predicate()
+        public virtual void TrimEnd_without_arguments_in_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactTitle.TrimEnd() == "Owner"),
@@ -925,7 +942,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void TrimEnd_with_arguments_in_predicate()
+        public virtual void TrimEnd_with_char_argument_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.TrimEnd('r') == "Owne"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void TrimEnd_with_char_array_argument_in_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactTitle.TrimEnd('e', 'r') == "Own"),
@@ -933,7 +958,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Trim_in_predicate()
+        public virtual void Trim_without_argument_in_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactTitle.Trim() == "Owner"),
@@ -941,7 +966,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Trim_with_arguments_in_predicate()
+        public virtual void Trim_with_char_argument_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.Trim('O') == "wner"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void Trim_with_char_array_argument_in_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactTitle.Trim('O', 'r') == "wne"),

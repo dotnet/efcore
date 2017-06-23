@@ -14,8 +14,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqlServerStringTrimTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _methodInfo
+        // Method defined in netstandard2.0
+        private static readonly MethodInfo _methodInfoWithoutArgs
             = typeof(string).GetRuntimeMethod(nameof(string.Trim), new Type[] { });
+
+        // Method defined in netstandard2.0
+        private static readonly MethodInfo _methodInfoWithCharArrayArg
+            = typeof(string).GetRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -23,9 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            if (_methodInfo.Equals(methodCallExpression.Method))
+            if (_methodInfoWithoutArgs.Equals(methodCallExpression.Method)
+                || _methodInfoWithCharArrayArg.Equals(methodCallExpression.Method)
+                // SqlServer LTRIM/RTRIM does not take arguments
+                && ((methodCallExpression.Arguments[0] as ConstantExpression)?.Value as Array)?.Length == 0)
             {
                 var sqlArguments = new[] { methodCallExpression.Object };
+
                 return new SqlFunctionExpression(
                     "LTRIM",
                     methodCallExpression.Type,

@@ -1038,102 +1038,85 @@ FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) <> N'10')");
         }
 
-
-
-
-
-
-
-
-
-
-
-        /*
-
-
-
-
-
-                public override void Substring_with_constant()
-                {
-                    base.Substring_with_constant();
-
-                    AssertSql(
-                        @"SELECT TOP(1) SUBSTRING([c].[ContactName], 2, 3)
-        FROM [Customers] AS [c]
-        ORDER BY [c].[CustomerID]");
-                }
-
-                public override void Substring_with_closure()
-                {
-                    base.Substring_with_closure();
-
-                    AssertSql(
-                        @"@__start_0='2'
-
-        SELECT TOP(1) SUBSTRING([c].[ContactName], @__start_0 + 1, 3)
-        FROM [Customers] AS [c]
-        ORDER BY [c].[CustomerID]");
-                }
-
-                public override void Substring_with_client_eval()
-                {
-                    base.Substring_with_client_eval();
-
-                    AssertSql(
-                        @"SELECT TOP(1) [c].[ContactName]
-        FROM [Customers] AS [c]
-        ORDER BY [c].[CustomerID]");
-                }
-
-                public override void IsNullOrEmpty_in_predicate()
-                {
-                    base.IsNullOrEmpty_in_predicate();
-
-                    AssertSql(
-                        @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-        FROM [Customers] AS [c]
-        WHERE [c].[Region] IS NULL OR ([c].[Region] = N'')");
-                }
-
-                public override void IsNullOrEmpty_in_projection()
-                {
-                    base.IsNullOrEmpty_in_projection();
-
-                    AssertSql(
-                        @"SELECT [c].[CustomerID] AS [Id], CASE
-            WHEN [c].[Region] IS NULL OR ([c].[Region] = N'')
-            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-        END AS [Value]
-        FROM [Customers] AS [c]");
-                }
-
-                public override void IsNullOrEmpty_negated_in_projection()
-                {
-                    base.IsNullOrEmpty_negated_in_projection();
-
-                    AssertSql(
-                        @"SELECT [c].[CustomerID] AS [Id], CASE
-            WHEN [c].[Region] IS NOT NULL AND ([c].[Region] <> N'')
-            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-        END AS [Value]
-        FROM [Customers] AS [c]");
-                }
-
-                public override void IsNullOrWhiteSpace_in_predicate()
-                {
-                    base.IsNullOrWhiteSpace_in_predicate();
-
-                    AssertSql(
-                        @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-        FROM [Customers] AS [c]
-        WHERE [c].[Region] IS NULL OR (LTRIM(RTRIM([c].[Region])) = N'')");
-                }
-
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
-        public override void TrimStart_in_predicate()
+        public override void Substring_with_constant()
         {
-            base.TrimStart_in_predicate();
+            base.Substring_with_constant();
+
+            AssertSql(
+                @"SELECT TOP(1) SUBSTRING([c].[ContactName], 2, 3)
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override void Substring_with_closure()
+        {
+            base.Substring_with_closure();
+
+            AssertSql(
+                @"@__start_0='2'
+
+SELECT TOP(1) SUBSTRING([c].[ContactName], @__start_0 + 1, 3)
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override void Substring_with_client_eval()
+        {
+            base.Substring_with_client_eval();
+
+            AssertSql(
+                @"SELECT TOP(1) [c].[ContactName]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override void IsNullOrEmpty_in_predicate()
+        {
+            base.IsNullOrEmpty_in_predicate();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[Region] IS NULL OR ([c].[Region] = N'')");
+        }
+
+        public override void IsNullOrEmpty_in_projection()
+        {
+            base.IsNullOrEmpty_in_projection();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] AS [Id], CASE
+    WHEN [c].[Region] IS NULL OR ([c].[Region] = N'')
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END AS [Value]
+FROM [Customers] AS [c]");
+        }
+
+        public override void IsNullOrEmpty_negated_in_projection()
+        {
+            base.IsNullOrEmpty_negated_in_projection();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] AS [Id], CASE
+    WHEN [c].[Region] IS NOT NULL AND ([c].[Region] <> N'')
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END AS [Value]
+FROM [Customers] AS [c]");
+        }
+
+        public override void IsNullOrWhiteSpace_in_predicate()
+        {
+            base.IsNullOrWhiteSpace_in_predicate();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[Region] IS NULL OR (LTRIM(RTRIM([c].[Region])) = N'')");
+        }
+
+        public override void TrimStart_without_arguments_in_predicate()
+        {
+            base.TrimStart_without_arguments_in_predicate();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1141,19 +1124,27 @@ FROM [Customers] AS [c]
 WHERE LTRIM([c].[ContactTitle]) = N'Owner'");
         }
 
-        public override void TrimStart_with_arguments_in_predicate()
+        public override void TrimStart_with_char_argument_in_predicate()
         {
-            base.TrimStart_with_arguments_in_predicate();
+            base.TrimStart_with_char_argument_in_predicate();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
-        public override void TrimEnd_in_predicate()
+        public override void TrimStart_with_char_array_argument_in_predicate()
         {
-            base.TrimEnd_in_predicate();
+            base.TrimStart_with_char_array_argument_in_predicate();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+        }
+
+        public override void TrimEnd_without_arguments_in_predicate()
+        {
+            base.TrimEnd_without_arguments_in_predicate();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1161,18 +1152,27 @@ FROM [Customers] AS [c]
 WHERE RTRIM([c].[ContactTitle]) = N'Owner'");
         }
 
-        public override void TrimEnd_with_arguments_in_predicate()
+        public override void TrimEnd_with_char_argument_in_predicate()
         {
-            base.TrimEnd_with_arguments_in_predicate();
+            base.TrimEnd_with_char_argument_in_predicate();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Trim_in_predicate()
+        public override void TrimEnd_with_char_array_argument_in_predicate()
         {
-            base.Trim_in_predicate();
+            base.TrimEnd_with_char_array_argument_in_predicate();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+        }
+
+        public override void Trim_without_argument_in_predicate()
+        {
+            base.Trim_without_argument_in_predicate();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1180,29 +1180,22 @@ FROM [Customers] AS [c]
 WHERE LTRIM(RTRIM([c].[ContactTitle])) = N'Owner'");
         }
 
-        public override void Trim_with_arguments_in_predicate()
+        public override void Trim_with_char_argument_in_predicate()
         {
-            base.Trim_with_arguments_in_predicate();
+            base.Trim_with_char_argument_in_predicate();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
+        public override void Trim_with_char_array_argument_in_predicate()
+        {
+            base.Trim_with_char_array_argument_in_predicate();
 
-
-
-
-
-
-
-
-
-
-
-
-            */
-
-
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+        }
     }
 }

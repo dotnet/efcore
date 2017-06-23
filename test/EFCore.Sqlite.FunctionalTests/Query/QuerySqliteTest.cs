@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QuerySqliteTest : QueryTestBase<NorthwindQuerySqliteFixture>
     {
+        // ReSharper disable once UnusedParameter.Local
         public QuerySqliteTest(NorthwindQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
@@ -44,10 +44,9 @@ WHERE ""c"".""Region"" IS NULL OR (trim(""c"".""Region"") = '')",
                 Sql);
         }
 
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
-        public override void TrimStart_in_predicate()
+        public override void TrimStart_without_arguments_in_predicate()
         {
-            base.TrimStart_in_predicate();
+            base.TrimStart_without_arguments_in_predicate();
 
             Assert.Contains(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
@@ -56,9 +55,20 @@ WHERE ltrim(""c"".""ContactTitle"") = 'Owner'",
                 Sql);
         }
 
-        public override void TrimStart_with_arguments_in_predicate()
+        public override void TrimStart_with_char_argument_in_predicate()
         {
-            base.TrimStart_with_arguments_in_predicate();
+            base.TrimStart_with_char_argument_in_predicate();
+
+            Assert.Contains(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ltrim(""c"".""ContactTitle"", 'O') = 'wner'",
+                Sql);
+        }
+
+        public override void TrimStart_with_char_array_argument_in_predicate()
+        {
+            base.TrimStart_with_char_array_argument_in_predicate();
 
             Assert.Contains(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
@@ -67,10 +77,9 @@ WHERE ltrim(""c"".""ContactTitle"", 'Ow') = 'ner'",
                 Sql);
         }
 
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
-        public override void TrimEnd_in_predicate()
+        public override void TrimEnd_without_arguments_in_predicate()
         {
-            base.TrimEnd_in_predicate();
+            base.TrimEnd_without_arguments_in_predicate();
 
             Assert.Contains(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
@@ -79,9 +88,20 @@ WHERE rtrim(""c"".""ContactTitle"") = 'Owner'",
                 Sql);
         }
 
-        public override void TrimEnd_with_arguments_in_predicate()
+        public override void TrimEnd_with_char_argument_in_predicate()
         {
-            base.TrimEnd_with_arguments_in_predicate();
+            base.TrimEnd_with_char_argument_in_predicate();
+
+            Assert.Contains(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE rtrim(""c"".""ContactTitle"", 'r') = 'Owne'",
+                Sql);
+        }
+
+        public override void TrimEnd_with_char_array_argument_in_predicate()
+        {
+            base.TrimEnd_with_char_array_argument_in_predicate();
 
             Assert.Contains(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
@@ -90,9 +110,9 @@ WHERE rtrim(""c"".""ContactTitle"", 'er') = 'Own'",
                 Sql);
         }
 
-        public override void Trim_in_predicate()
+        public override void Trim_without_argument_in_predicate()
         {
-            base.Trim_in_predicate();
+            base.Trim_without_argument_in_predicate();
 
             Assert.Contains(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
@@ -101,9 +121,20 @@ WHERE trim(""c"".""ContactTitle"") = 'Owner'",
                 Sql);
         }
 
-        public override void Trim_with_arguments_in_predicate()
+        public override void Trim_with_char_argument_in_predicate()
         {
-            base.Trim_with_arguments_in_predicate();
+            base.Trim_with_char_argument_in_predicate();
+
+            Assert.Contains(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE trim(""c"".""ContactTitle"", 'O') = 'wner'",
+                Sql);
+        }
+
+        public override void Trim_with_char_array_argument_in_predicate()
+        {
+            base.Trim_with_char_array_argument_in_predicate();
 
             Assert.Contains(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
