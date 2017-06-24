@@ -58,23 +58,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
                 else
                 {
-                    var fromClauseBase = expression.ReferencedQuerySource as FromClauseBase;
-
-                    if (fromClauseBase != null)
+                    if (expression.ReferencedQuerySource is FromClauseBase fromClauseBase)
                     {
                         Visit(fromClauseBase.FromExpression);
                     }
-
-                    var joinClause = expression.ReferencedQuerySource as JoinClause;
-
-                    if (joinClause != null)
+                    
+                    if (expression.ReferencedQuerySource is JoinClause joinClause)
                     {
                         Visit(joinClause.InnerSequence);
                     }
 
-                    var groupJoinClause = expression.ReferencedQuerySource as GroupJoinClause;
-
-                    if (groupJoinClause != null)
+                    if (expression.ReferencedQuerySource is GroupJoinClause groupJoinClause)
                     {
                         if (groupJoinClause.JoinClause.Equals(_targetQuerySource))
                         {
