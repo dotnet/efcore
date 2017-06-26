@@ -1,21 +1,19 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         Performs database/schema creation, and other related operations.
+    ///         Performs schema creation.
     ///     </para>
     ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         This type is typically used by schema providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
     /// </summary>
@@ -38,24 +36,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual RelationalSchemaCreatorDependencies Dependencies { get; }
 
         /// <summary>
-        ///     Determines whether the physical database exists. No attempt is made to determine if the database
-        ///     contains the schema for the current model.
+        ///     Determines whether the schema exists.
         /// </summary>
         /// <returns>
-        ///     True if the database exists; otherwise false.
+        ///     True if the schema exists; otherwise false.
         /// </returns>
         public abstract bool Exists();
 
         /// <summary>
-        ///     Asynchronously determines whether the physical database exists. No attempt is made to determine if
-        ///     the database contains the schema for the current model.
+        ///     Asynchronously determines whether the physical schema exists.
         /// </summary>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
-        ///     true if the database exists; otherwise false.
+        ///     true if the schema exists; otherwise false.
         /// </returns>
         public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -65,12 +61,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Creates the physical database. Does not attempt to populate it with any schema.
+        ///     Creates the physical schema. Does not attempt to populate it with any schema.
         /// </summary>
         public abstract void Create();
 
         /// <summary>
-        ///     Asynchronously creates the physical database. Does not attempt to populate it with any schema.
+        ///     Asynchronously creates the schema.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
@@ -86,12 +82,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Deletes the physical database.
+        ///     Deletes the schema.
         /// </summary>
         public abstract void Delete();
 
         /// <summary>
-        ///     Asynchronously deletes the physical database.
+        ///     Asynchronously deletes the schema.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
@@ -105,44 +101,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return Task.FromResult(0);
         }
-
-        /// <summary>
-        ///     Creates all tables for the current model in the database. No attempt is made
-        ///     to incrementally update the schema. It is assumed that none of the tables exist in the database.
-        /// </summary>
-        public virtual void CreateTables()
-            => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(GetCreateTablesCommands(), Dependencies.Connection);
-
-        /// <summary>
-        ///     Asynchronously creates all tables for the current model in the database. No attempt is made
-        ///     to incrementally update the schema. It is assumed that none of the tables exist in the database.
-        /// </summary>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation.
-        /// </returns>
-        public virtual async Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => await Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(GetCreateTablesCommands(), Dependencies.Connection, cancellationToken);
-
-        /// <summary>
-        ///     Gets the commands that will create all tables from the model.
-        /// </summary>
-        /// <returns> The generated commands. </returns>
-        protected virtual IReadOnlyList<MigrationCommand> GetCreateTablesCommands()
-            => Dependencies.MigrationsSqlGenerator.Generate(Dependencies.ModelDiffer.GetDifferences(null, Dependencies.Model), Dependencies.Model);
-		
+        
         /// <summary>
         ///     <para>
-        ///         Ensures that the database for the context does not exist. If it does not exist, no action is taken. If it does
-        ///         exist then the database is deleted.
-        ///     </para>
-        ///     <para>
-        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by
-        ///         the model for this context.
+        ///         Ensures that the schema for the context does not exist. If it does not exist, no action is taken. If it does
+        ///         exist then the schema is deleted.
         ///     </para>
         /// </summary>
         /// <returns>
-        ///     True if the database is deleted, false if it did not exist.
+        ///     True if the schema is deleted, false if it did not exist.
         /// </returns>
         public virtual bool EnsureDeleted()
         {
@@ -156,17 +123,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         /// <summary>
         ///     <para>
-        ///         Asynchronously ensures that the database for the context does not exist. If it does not exist, no action is taken. If it does
-        ///         exist then the database is deleted.
-        ///     </para>
-        ///     <para>
-        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by
-        ///         the model for this context.
+        ///         Asynchronously ensures that the schema for the context does not exist. If it does not exist, no action is taken. If it does
+        ///         exist then the schema is deleted.
         ///     </para>
         /// </summary>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains true if the database is deleted,
+        ///     A task that represents the asynchronous save operation. The task result contains true if the schema is deleted,
         ///     false if it did not exist.
         /// </returns>
         public virtual async Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -181,57 +144,41 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Ensures that the database for the context exists. If it exists, no action is taken. If it does not
-        ///     exist then the database and all its schema are created. If the database exists, then no effort is made
+        ///     Ensures that the schema for the context exists. If it exists, no action is taken. If it does not
+        ///     exist then the schema is created. If the schema exists, then no effort is made
         ///     to ensure it is compatible with the model for this context.
         /// </summary>
         /// <returns>
-        ///     True if the database is created, false if it already existed.
+        ///     True if the schema is created, false if it already existed.
         /// </returns>
         public virtual bool EnsureCreated()
         {
-            //if (!Exists())
-            //{
-            //    Create();
-            //    CreateTables();
-            //    return true;
-            //}
-
-            //if (!HasTables())
-            //{
-            //    CreateTables();
-            //    return true;
-            //}
-
+            if (!Exists())
+            {
+                Create();
+                return true;
+            }
+            
             return false;
         }
 
         /// <summary>
-        ///     Asynchronously ensures that the database for the context exists. If it exists, no action is taken. If it does not
-        ///     exist then the database and all its schema are created. If the database exists, then no effort is made
+        ///     Asynchronously ensures that the schema for the context exists. If it exists, no action is taken. If it does not
+        ///     exist then the schema is created. If the schema exists, then no effort is made
         ///     to ensure it is compatible with the model for this context.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains true if the database is created,
+        ///     A task that represents the asynchronous save operation. The task result contains true if the schema is created,
         ///     false if it already existed.
         /// </returns>
         public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            //if (!await ExistsAsync(cancellationToken))
-            //{
-            //    await CreateAsync(cancellationToken);
-            //    await CreateTablesAsync(cancellationToken);
-
-            //    return true;
-            //}
-
-            //if (!await HasTablesAsync(cancellationToken))
-            //{
-            //    await CreateTablesAsync(cancellationToken);
-
-            //    return true;
-            //}
+            if (!await ExistsAsync(cancellationToken))
+            {
+                await CreateAsync(cancellationToken);
+                return true;
+            }
 
             return false;
         }
