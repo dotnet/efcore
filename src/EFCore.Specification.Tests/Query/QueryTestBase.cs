@@ -29,6 +29,57 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [ConditionalFact]
+        public virtual void Query_when_evaluatable_queryable_method_call_with_repository()
+        {
+            using (var context = CreateContext())
+            {
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+                
+                var customerRepository = new Repository<Customer>(context);
+                var orderRepository = new Repository<Order>(context);
+
+                var results
+                    = customerRepository.Find()
+                        .Where(c => orderRepository.Find().Any(o => o.CustomerID == c.CustomerID))
+                        .ToList();
+                
+                Assert.Equal(89, results.Count);
+                
+                results
+                    = (from c in customerRepository.Find()
+                       where orderRepository.Find().Any(o => o.CustomerID == c.CustomerID)
+                       select c)
+                    .ToList();
+                
+                Assert.Equal(89, results.Count);
+
+                var orderQuery = orderRepository.Find();
+
+                results = customerRepository.Find()
+                    .Where(c => orderQuery.Any(o => o.CustomerID == c.CustomerID))
+                    .ToList();
+                
+                Assert.Equal(89, results.Count);
+            }
+        }
+
+        private class Repository<T>
+            where T : class
+        {
+            private readonly NorthwindContext _context;
+
+            public Repository(NorthwindContext bloggingContext)
+            {
+                _context = bloggingContext;
+            }
+
+            public IQueryable<T> Find()
+            {
+                return _context.Set<T>().AsQueryable();
+            }
+        }
+        
+        [ConditionalFact]
         public virtual void Lifting_when_subquery_nested_order_by_simple()
         {
             using (var context = CreateContext())
