@@ -3,9 +3,7 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -19,6 +17,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        }
+
+        public override void Shaper_command_caching_when_parameter_names_different()
+        {
+            base.Shaper_command_caching_when_parameter_names_different();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [e]
+WHERE [e].[CustomerID] = N'ALFKI'",
+                //
+                @"SELECT COUNT(*)
+FROM [Customers] AS [e]
+WHERE [e].[CustomerID] = N'ALFKI'");            
         }
 
         public override void Lifting_when_subquery_nested_order_by_anonymous()

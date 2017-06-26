@@ -180,6 +180,30 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Shaper_command_caching_when_parameter_names_different()
+        {
+            using (var context = CreateContext())
+            {
+                var inmemcheck = new InMemoryCheck();
+                var variableName = "test";
+                var differentVariableName = "test";
+
+                context.Set<Customer>().Where(e => e.CustomerID == "ALFKI")
+                    .Where(e2 => inmemcheck.Check(variableName, e2.CustomerID) || true).Count();
+
+                context.Set<Customer>().Where(e => e.CustomerID == "ALFKI")
+                    .Where(e2 => inmemcheck.Check(differentVariableName, e2.CustomerID) || true).Count();
+            }
+        }
+        
+        private class InMemoryCheck
+        {
+            private Dictionary<string, string> _data = new Dictionary<string, string>();
+            public bool Check(string input1, string input2)
+                => false;
+        }
+        
+        [ConditionalFact]
         public virtual void Entity_equality_self()
         {
             AssertQuery<Customer>(cs =>
