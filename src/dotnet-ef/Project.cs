@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             do
             {
                 metadataFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            } while (!File.Exists(metadataFile)) ;
+            } while (File.Exists(metadataFile)) ;
 
             File.Create(metadataFile);
 
