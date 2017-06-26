@@ -77,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalResultOperatorHandler), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalConnection), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalDatabaseCreator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IRelationalSchemaCreator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IHistoryRepository), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INamedConnectionStringResolver), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             };
@@ -134,6 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ITypeMapper>(p => p.GetService<IRelationalTypeMapper>());
             TryAdd<IRelationalValueBufferFactoryFactory, TypedRelationalValueBufferFactoryFactory>();
             TryAdd<IDatabaseCreator>(p => p.GetService<IRelationalDatabaseCreator>());
+            TryAdd<ISchemaCreator>(p => p.GetService<IRelationalSchemaCreator>());
             TryAdd<IDbContextTransactionManager>(p => p.GetService<IRelationalConnection>());
             TryAdd<IMaterializerFactory, MaterializerFactory>();
             TryAdd<IShaperCommandContextFactory, ShaperCommandContextFactory>();
@@ -171,6 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<RelationalProjectionExpressionVisitorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<RelationalDatabaseCreatorDependencies>()
+                .AddDependencyScoped<RelationalSchemaCreatorDependencies>()
                 .AddDependencyScoped<HistoryRepositoryDependencies>()
                 .AddDependencyScoped<RelationalCompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<RelationalQueryModelVisitorDependencies>()
