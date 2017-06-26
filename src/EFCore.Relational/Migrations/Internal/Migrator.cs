@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly IMigrationsAssembly _migrationsAssembly;
         private readonly IHistoryRepository _historyRepository;
         private readonly IRelationalDatabaseCreator _databaseCreator;
+        private readonly IRelationalSchemaCreator _schemaCreator;
         private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
         private readonly IMigrationCommandExecutor _migrationCommandExecutor;
@@ -40,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IMigrationsAssembly migrationsAssembly,
             [NotNull] IHistoryRepository historyRepository,
             [NotNull] IDatabaseCreator databaseCreator,
+            [NotNull] ISchemaCreator schemaCreator,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
             [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
@@ -62,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _migrationsAssembly = migrationsAssembly;
             _historyRepository = historyRepository;
             _databaseCreator = (IRelationalDatabaseCreator)databaseCreator;
+            _schemaCreator = (IRelationalSchemaCreator)schemaCreator;
             _migrationsSqlGenerator = migrationsSqlGenerator;
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
             _migrationCommandExecutor = migrationCommandExecutor;
@@ -84,6 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 if (!_databaseCreator.Exists())
                 {
                     _databaseCreator.Create();
+                }
+                if (!_schemaCreator.Exists())
+                {
+                    _schemaCreator.Create();
                 }
 
                 var command = _rawSqlCommandBuilder.Build(_historyRepository.GetCreateScript());
@@ -113,6 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 if (!await _databaseCreator.ExistsAsync(cancellationToken))
                 {
                     await _databaseCreator.CreateAsync(cancellationToken);
+                }
+                if (!await _schemaCreator.ExistsAsync(cancellationToken))
+                {
+                    await _schemaCreator.CreateAsync(cancellationToken);
                 }
 
                 var command = _rawSqlCommandBuilder.Build(_historyRepository.GetCreateScript());

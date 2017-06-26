@@ -106,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IDbContextOptions), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDatabase), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDatabaseCreator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(ISchemaCreator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDbContextTransactionManager), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQueryContextFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IEntityQueryableExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -242,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IResettableService, IStateManager>(p => p.GetService<IStateManager>());
             TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetService<IDbContextTransactionManager>());
             TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>();
-            
+
             ServiceCollectionMap
                 .TryAddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name));
 
