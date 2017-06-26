@@ -428,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var command = commandBatches.First().ModificationCommands.Single();
             Assert.Equal(EntityState.Added, command.EntityState);
-            Assert.Equal(3, command.ColumnModifications.Count);
+            Assert.Equal(4, command.ColumnModifications.Count);
 
             var columnMod = command.ColumnModifications[0];
 
@@ -676,28 +676,106 @@ namespace Microsoft.EntityFrameworkCore.Update
         [InlineData(EntityState.Deleted, true)]
         [InlineData(EntityState.Deleted, false)]
         [Theory]
-        public void BatchCommands_throws_on_incomplete_updates_for_shared_table(EntityState state, bool sensitiveLogging)
+        public void BatchCommands_throws_on_incomplete_updates_for_shared_table_no_principal(EntityState state, bool sensitiveLogging)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;
 
-            var first = new FakeEntity { Id = 42, Value = "Test" };
+            var first = new RelatedFakeEntity { Id = 42 };
             var firstEntry = stateManager.GetOrCreateEntry(first);
             firstEntry.SetEntityState(state);
 
+            var second = new AnotherFakeEntity { Id = 42 };
+            var secondEntry = stateManager.GetOrCreateEntry(second);
+            secondEntry.SetEntityState(state);
+
             if (sensitiveLogging)
             {
-                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatchSensitive(2, "FakeEntity", 1, "Id:42", state, "{'RelatedFakeEntity'}"),
+                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatchSensitive(
+                        nameof(RelatedFakeEntity), nameof(FakeEntity), nameof(FakeEntity), "Id:42", state),
                     Assert.Throws<InvalidOperationException>(
                         () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
                             .BatchCommands(new[] { firstEntry }).ToArray()).Message);
             }
             else
             {
-                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatch(2, "FakeEntity", 1, state, "{'RelatedFakeEntity'}"),
+                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatch(
+                        nameof(RelatedFakeEntity), nameof(FakeEntity), nameof(FakeEntity), state),
                     Assert.Throws<InvalidOperationException>(
                         () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
-                            .BatchCommands(new[] { firstEntry }).ToArray()).Message);
+                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+            }
+        }
+
+        [InlineData(EntityState.Added, true)]
+        [InlineData(EntityState.Added, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [Theory]
+        public void BatchCommands_throws_on_incomplete_updates_for_shared_table_no_leaf_dependent(EntityState state, bool sensitiveLogging)
+        {
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.GetDependencies().StateManager;
+
+            var first = new FakeEntity { Id = 42 };
+            var firstEntry = stateManager.GetOrCreateEntry(first);
+            firstEntry.SetEntityState(state);
+
+            var second = new DerivedRelatedFakeEntity { Id = 42 };
+            var secondEntry = stateManager.GetOrCreateEntry(second);
+            secondEntry.SetEntityState(state);
+
+            if (sensitiveLogging)
+            {
+                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatchSensitive(
+                        nameof(DerivedRelatedFakeEntity), nameof(FakeEntity), nameof(AnotherFakeEntity), "Id:42", state),
+                    Assert.Throws<InvalidOperationException>(
+                        () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+            }
+            else
+            {
+                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatch(
+                        nameof(DerivedRelatedFakeEntity), nameof(FakeEntity), nameof(AnotherFakeEntity), state),
+                    Assert.Throws<InvalidOperationException>(
+                        () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+            }
+        }
+
+        [InlineData(EntityState.Added, true)]
+        [InlineData(EntityState.Added, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        [Theory]
+        public void BatchCommands_throws_on_incomplete_updates_for_shared_table_no_middle_dependent(EntityState state, bool sensitiveLogging)
+        {
+            var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
+            var stateManager = currentDbContext.GetDependencies().StateManager;
+
+            var first = new FakeEntity { Id = 42 };
+            var firstEntry = stateManager.GetOrCreateEntry(first);
+            firstEntry.SetEntityState(state);
+
+            var second = new AnotherFakeEntity { Id = 42 };
+            var secondEntry = stateManager.GetOrCreateEntry(second);
+            secondEntry.SetEntityState(state);
+
+            if (sensitiveLogging)
+            {
+                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatchSensitive(
+                    nameof(FakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), "Id:42", state),
+                    Assert.Throws<InvalidOperationException>(
+                        () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+            }
+            else
+            {
+                Assert.Equal(RelationalStrings.SharedRowEntryCountMismatch(
+                    nameof(FakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), state),
+                    Assert.Throws<InvalidOperationException>(
+                        () => CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
             }
         }
 
@@ -843,13 +921,22 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
 
             modelBuilder.Entity<RelatedFakeEntity>(b =>
-            {
-                b.Property(c => c.RelatedId).IsConcurrencyToken();
-                b.HasOne<FakeEntity>()
+                {
+                    b.Property(c => c.RelatedId).IsConcurrencyToken();
+                    b.HasOne<FakeEntity>()
                         .WithOne()
                         .HasForeignKey<RelatedFakeEntity>(c => c.Id);
                     b.ToTable(nameof(FakeEntity));
                 });
+
+            modelBuilder.Entity<DerivedRelatedFakeEntity>(b =>
+                {
+                    b.HasOne<AnotherFakeEntity>()
+                        .WithOne()
+                        .HasForeignKey<AnotherFakeEntity>(c => c.Id);
+                });
+
+            modelBuilder.Entity<AnotherFakeEntity>().ToTable(nameof(FakeEntity));
 
             return modelBuilder.Model;
         }
@@ -866,6 +953,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             public int Id { get; set; }
             public int? RelatedId { get; set; }
+        }
+
+        private class DerivedRelatedFakeEntity : RelatedFakeEntity
+        {
+            public string DerivedValue { get; set; }
         }
 
         private class AnotherFakeEntity

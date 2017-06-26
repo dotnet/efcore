@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -118,31 +119,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var property in entityType.GetDeclaredProperties())
             {
                 var columnName = property.Relational().ColumnName;
-                if (properties.TryGetValue(columnName, out var otherProperty)
-                    && !property.IsPrimaryKey())
+                if (!properties.TryGetValue(columnName, out var otherProperty))
+                {
+                    properties[columnName] = property;
+                    continue;
+                }
+
+                if (!property.IsPrimaryKey())
                 {
                     var relationalPropertyBuilder = property.Builder.Relational(ConfigurationSource.Convention);
                     if (relationalPropertyBuilder.CanSetColumnName(null))
                     {
-                        relationalPropertyBuilder.ColumnName = Uniquify(columnName, properties);
+                        columnName = Uniquify(columnName, property.DeclaringEntityType.ShortName(), properties);
+                        relationalPropertyBuilder.ColumnName = columnName;
+                        properties[columnName] = property;
                         continue;
                     }
-
-                    var otherRelationalPropertyBuilder = otherProperty.Builder.Relational(ConfigurationSource.Convention);
-                    if (!otherRelationalPropertyBuilder.CanSetColumnName(null))
-                    {
-                        continue;
-                    }
-                    otherRelationalPropertyBuilder.ColumnName = Uniquify(columnName, properties);
                 }
-                properties[columnName] = property;
+
+                if (!otherProperty.IsPrimaryKey())
+                {
+                    var otherRelationalPropertyBuilder = otherProperty.Builder.Relational(ConfigurationSource.Convention);
+                    if (otherRelationalPropertyBuilder.CanSetColumnName(null))
+                    {
+                        properties[columnName] = property;
+                        columnName = Uniquify(columnName, otherProperty.DeclaringEntityType.ShortName(), properties);
+                        otherRelationalPropertyBuilder.ColumnName = columnName;
+                        properties[columnName] = otherProperty;
+                    }
+                }
             }
         }
 
-        private static string Uniquify<T>(string baseIdentifier, Dictionary<string, T> existingIdentifiers)
+        private static string Uniquify<T>(string baseIdentifier, string prefix, Dictionary<string, T> existingIdentifiers)
         {
-            var finalIdentifier = baseIdentifier;
+            if (!baseIdentifier.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                baseIdentifier = prefix + "_" + baseIdentifier;
+            }
+
             var suffix = 1;
+            var finalIdentifier = baseIdentifier;
             while (existingIdentifiers.ContainsKey(finalIdentifier))
             {
                 finalIdentifier = baseIdentifier + suffix;

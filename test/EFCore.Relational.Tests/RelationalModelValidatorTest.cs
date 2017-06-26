@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.IncompatibleTableKeyNameMismatch(
-                    "Table", nameof(B), nameof(A), "PK_Table", "{'Id'}", "Key", "{'Id'}"),
+                    "Table", nameof(A), nameof(B), "Key", "{'Id'}", "PK_Table", "{'Id'}"),
                 modelBuilder.Model);
         }
 

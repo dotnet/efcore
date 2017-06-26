@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var people = context.Set<OwnedPerson>().ToList();
-                
+
                 Assert.Equal(4, people.Count);
                 Assert.True(people.All(p => p.PersonAddress != null));
                 Assert.True(people.OfType<Branch>().All(b => b.BranchAddress != null));
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(people.OfType<LeafB>().All(b => b.LeafBAddress != null));
             }
         }
-        
+
         [Fact]
         public virtual void Query_for_branch_type_loads_all_owned_navs()
         {

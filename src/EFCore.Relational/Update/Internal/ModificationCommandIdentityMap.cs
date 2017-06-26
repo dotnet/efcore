@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     public class ModificationCommandIdentityMap
     {
         private readonly IStateManager _stateManager;
-        private readonly IReadOnlyDictionary<IEntityType, int> _rootTypesOrder;
+        private readonly IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> _principals;
+        private readonly IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> _dependents;
         private readonly string _name;
         private readonly string _schema;
         private readonly Func<string> _generateParameterName;
@@ -35,19 +36,21 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public ModificationCommandIdentityMap(
             [NotNull] IStateManager stateManager,
-            [NotNull] IReadOnlyDictionary<IEntityType, int> rootTypesOrder,
+            [NotNull] IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> principals,
+            [NotNull] IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> dependents,
             [NotNull] string name,
             [CanBeNull] string schema,
             [NotNull] Func<string> generateParameterName,
             bool sensitiveLoggingEnabled)
         {
             _stateManager = stateManager;
-            _rootTypesOrder = rootTypesOrder;
+            _principals = principals;
+            _dependents = dependents;
             _name = name;
             _schema = schema;
             _generateParameterName = generateParameterName;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
-            _comparer = new EntryComparer(rootTypesOrder);
+            _comparer = new EntryComparer(principals);
         }
 
         /// <summary>
@@ -72,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private InternalEntityEntry GetMainEntry(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType.RootType();
-            if (_rootTypesOrder[entityType] == 0)
+            if (_principals[entityType].Count == 0)
             {
                 return entry;
             }
@@ -80,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             foreach (var foreignKey in entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties))
             {
                 if (foreignKey.PrincipalKey.IsPrimaryKey()
-                    && _rootTypesOrder.ContainsKey(foreignKey.PrincipalEntityType))
+                    && _principals.ContainsKey(foreignKey.PrincipalEntityType))
                 {
                     var principal = _stateManager.GetPrincipal(entry, foreignKey);
                     if (principal != null)
@@ -101,48 +104,89 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         {
             foreach (var command in _sharedCommands.Values)
             {
-                if ((command.EntityState == EntityState.Added
-                     || command.EntityState == EntityState.Deleted)
-                    && command.Entries.Count != _rootTypesOrder.Count)
+                if ((command.EntityState != EntityState.Added
+                     && command.EntityState != EntityState.Deleted)
+                    || (command.Entries.Any(e => _principals[e.EntityType].Count == 0)
+                        && command.Entries.Any(e => _dependents[e.EntityType].Count == 0)))
                 {
-                    var tableName = (string.IsNullOrEmpty(command.Schema) ? "" : command.Schema + ".") + command.TableName;
+                    continue;
+                }
 
-                    var missingEntityTypes = new HashSet<IEntityType>(_rootTypesOrder.Keys);
-                    foreach (var entry in command.Entries)
+                var tableName = (string.IsNullOrEmpty(command.Schema) ? "" : command.Schema + ".") + command.TableName;
+                foreach (var entry in command.Entries)
+                {
+                    foreach (var principalEntityType in _principals[entry.EntityType])
                     {
-                        missingEntityTypes.Remove(entry.EntityType.RootType());
+                        if (!command.Entries.Any(principalEntry => principalEntry != entry
+                                                                   && principalEntityType.IsAssignableFrom(principalEntry.EntityType)))
+                        {
+                            if (sensitiveLoggingEnabled)
+                            {
+                                throw new InvalidOperationException(RelationalStrings.SharedRowEntryCountMismatchSensitive(
+                                    entry.EntityType.DisplayName(),
+                                    tableName,
+                                    principalEntityType.DisplayName(),
+                                    entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                                    command.EntityState));
+                            }
+
+                            throw new InvalidOperationException(RelationalStrings.SharedRowEntryCountMismatch(
+                                entry.EntityType.DisplayName(),
+                                tableName,
+                                principalEntityType.DisplayName(),
+                                command.EntityState));
+                        }
                     }
-
-                    var missingEntityTypesString = "{" + string.Join(", ", missingEntityTypes.Select(p => "'" + p.DisplayName() + "'")) + "}";
-
-                    if (sensitiveLoggingEnabled)
+                    
+                    foreach (var dependentEntityType in _dependents[entry.EntityType])
                     {
-                        throw new InvalidOperationException(RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                            _rootTypesOrder.Count,
-                            tableName,
-                            command.Entries.Count,
-                            command.Entries[0].BuildCurrentValuesString(command.Entries[0].EntityType.FindPrimaryKey().Properties),
-                            command.EntityState,
-                            missingEntityTypesString));
-                    }
+                        if (!command.Entries.Any(dependentEntry => dependentEntry != entry
+                                                                   && dependentEntityType.IsAssignableFrom(dependentEntry.EntityType)))
+                        {
+                            if (sensitiveLoggingEnabled)
+                            {
+                                throw new InvalidOperationException(RelationalStrings.SharedRowEntryCountMismatchSensitive(
+                                    entry.EntityType.DisplayName(),
+                                    tableName,
+                                    dependentEntityType.DisplayName(),
+                                    entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                                    command.EntityState));
+                            }
 
-                    throw new InvalidOperationException(RelationalStrings.SharedRowEntryCountMismatch(
-                        _rootTypesOrder.Count, tableName, command.Entries.Count, command.EntityState, missingEntityTypesString));
+                            throw new InvalidOperationException(RelationalStrings.SharedRowEntryCountMismatch(
+                                entry.EntityType.DisplayName(),
+                                tableName,
+                                dependentEntityType.DisplayName(),
+                                command.EntityState));
+                        }
+                    }
                 }
             }
         }
 
         private class EntryComparer : IComparer<IUpdateEntry>
         {
-            private readonly IReadOnlyDictionary<IEntityType, int> _rootTypesOrder;
+            private readonly IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> _principals;
 
-            public EntryComparer(IReadOnlyDictionary<IEntityType, int> rootTypesOrder)
+            public EntryComparer(IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> principals)
             {
-                _rootTypesOrder = rootTypesOrder;
+                _principals = principals;
             }
 
             public int Compare(IUpdateEntry x, IUpdateEntry y)
-                => _rootTypesOrder[x.EntityType.RootType()] - _rootTypesOrder[y.EntityType.RootType()];
+            {
+                if (_principals[x.EntityType].Count == 0)
+                {
+                    return -1;
+                }
+
+                if (_principals[y.EntityType].Count == 0)
+                {
+                    return 1;
+                }
+
+                return StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
+            }
         }
     }
 }
