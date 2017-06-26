@@ -69,7 +69,15 @@ namespace Microsoft.EntityFrameworkCore.Tools
             }
 
             IDictionary<string, string> metadata;
-            var metadataFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+            string metadataFile;
+            do
+            {
+                metadataFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            } while (!File.Exists(metadataFile)) ;
+
+            File.Create(metadataFile);
+
             try
             {
                 var propertyArg = "/property:EFProjectMetadataFile=" + metadataFile;
