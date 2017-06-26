@@ -19,107 +19,141 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Can_use_of_type_animal()
         {
-            var animals = _context.Set<Animal>().OfType<Animal>().OrderBy(a => a.Species).ToList();
+            using (var context = CreateContext())
+            {
+                var animals = context.Set<Animal>().OfType<Animal>().OrderBy(a => a.Species).ToList();
 
-            Assert.Equal(1, animals.Count);
-            Assert.IsType<Kiwi>(animals[0]);
-            Assert.Equal(1, _context.ChangeTracker.Entries().Count());
+                Assert.Equal(1, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            }
         }
 
         [Fact]
         public virtual void Can_use_is_kiwi()
         {
-            var kiwis = _context.Set<Animal>().Where(a => a is Kiwi).ToList();
+            using (var context = CreateContext())
+            {
+                var kiwis = context.Set<Animal>().Where(a => a is Kiwi).ToList();
 
-            Assert.Equal(1, kiwis.Count);
+                Assert.Equal(1, kiwis.Count);
+            }
         }
 
         [Fact]
         public virtual void Can_use_is_kiwi_with_other_predicate()
         {
-            var animals = _context.Set<Animal>().Where(a => a is Kiwi && a.CountryId == 1).ToList();
+            using (var context = CreateContext())
+            {
+                var animals = context.Set<Animal>().Where(a => a is Kiwi && a.CountryId == 1).ToList();
 
-            Assert.Equal(1, animals.Count);
+                Assert.Equal(1, animals.Count);
+            }
         }
 
         [Fact]
         public virtual void Can_use_is_kiwi_in_projection()
         {
-            var animals = _context.Set<Animal>().Select(a => a is Kiwi).ToList();
+            using (var context = CreateContext())
+            {
+                var animals = context.Set<Animal>().Select(a => a is Kiwi).ToList();
 
-            Assert.Equal(1, animals.Count);
-            Assert.Equal(1, animals.Count(a => a));
-            Assert.Equal(0, animals.Count(a => !a));
+                Assert.Equal(1, animals.Count);
+                Assert.Equal(1, animals.Count(a => a));
+                Assert.Equal(0, animals.Count(a => !a));
+            }
         }
 
         [Fact]
         public virtual void Can_use_of_type_bird()
         {
-            var animals = _context.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species).ToList();
+            using (var context = CreateContext())
+            {
+                var animals = context.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species).ToList();
 
-            Assert.Equal(1, animals.Count);
-            Assert.IsType<Kiwi>(animals[0]);
-            Assert.Equal(1, _context.ChangeTracker.Entries().Count());
+                Assert.Equal(1, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            }
         }
 
         [Fact]
         public virtual void Can_use_of_type_bird_predicate()
         {
-            var animals
-                = _context.Set<Animal>()
-                    .Where(a => a.CountryId == 1)
-                    .OfType<Bird>()
-                    .OrderBy(a => a.Species)
-                    .ToList();
+            using (var context = CreateContext())
+            {
+                var animals
+                    = context.Set<Animal>()
+                        .Where(a => a.CountryId == 1)
+                        .OfType<Bird>()
+                        .OrderBy(a => a.Species)
+                        .ToList();
 
-            Assert.Equal(1, animals.Count);
-            Assert.IsType<Kiwi>(animals[0]);
-            Assert.Equal(1, _context.ChangeTracker.Entries().Count());
+                Assert.Equal(1, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            }
         }
 
         [Fact]
         public virtual void Can_use_of_type_bird_with_projection()
         {
-            var animals
-                = _context.Set<Animal>()
-                    .OfType<Bird>()
-                    .Select(b => new { b.EagleId })
-                    .ToList();
+            using (var context = CreateContext())
+            {
+                var animals
+                    = context.Set<Animal>()
+                        .OfType<Bird>()
+                        .Select(b => new { b.EagleId })
+                        .ToList();
 
-            Assert.Equal(1, animals.Count);
-            Assert.Equal(0, _context.ChangeTracker.Entries().Count());
+                Assert.Equal(1, animals.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
         }
 
         [Fact]
         public virtual void Can_use_of_type_bird_first()
         {
-            var bird = _context.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species).First();
+            using (var context = CreateContext())
+            {
+                var bird = context.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species).First();
 
-            Assert.NotNull(bird);
-            Assert.IsType<Kiwi>(bird);
-            Assert.Equal(1, _context.ChangeTracker.Entries().Count());
+                Assert.NotNull(bird);
+                Assert.IsType<Kiwi>(bird);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            }
         }
 
         [Fact]
         public virtual void Can_use_of_type_kiwi()
         {
-            var animals = _context.Set<Animal>().OfType<Kiwi>().ToList();
+            using (var context = CreateContext())
+            {
+                var animals = context.Set<Animal>().OfType<Kiwi>().ToList();
 
-            Assert.Equal(1, animals.Count);
-            Assert.IsType<Kiwi>(animals[0]);
-            Assert.Equal(1, _context.ChangeTracker.Entries().Count());
+                Assert.Equal(1, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            }
         }
 
-        protected TFixture Fixture { get; }
-
-        private readonly InheritanceContext _context;
+        protected InheritanceContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected FiltersInheritanceTestBase(TFixture fixture)
         {
             Fixture = fixture;
-            _context = fixture.CreateContext();
+
+            TestStore = Fixture.CreateTestStore();
         }
 
-        public void Dispose() => _context.Dispose();
+        protected TFixture Fixture { get; }
+
+        protected TTestStore TestStore { get; }
+
+        protected virtual void ClearLog()
+        {
+        }
+
+        public void Dispose() => TestStore.Dispose();
     }
 }

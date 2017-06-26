@@ -1,16 +1,21 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
+
 // ReSharper disable InconsistentNaming
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable StringEndsWithIsCultureSpecific
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceTestBase<TTestStore, TFixture> : IClassFixture<TFixture>
+    public abstract class InheritanceTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore
         where TFixture : InheritanceFixtureBase<TTestStore>, new()
     {
@@ -396,49 +401,53 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Can_insert_update_delete()
         {
-            using (var context = CreateContext())
-            {
-                var kiwi = new Kiwi
-                {
-                    Species = "Apteryx owenii",
-                    Name = "Little spotted kiwi",
-                    IsFlightless = true,
-                    FoundOn = Island.North
-                };
+            DbContextHelpers.ExecuteWithStrategyInTransaction(
+                CreateContext,
+                UseTransaction,
+                context =>
+                    {
+                        var kiwi = new Kiwi
+                        {
+                            Species = "Apteryx owenii",
+                            Name = "Little spotted kiwi",
+                            IsFlightless = true,
+                            FoundOn = Island.North
+                        };
 
-                var nz = context.Set<Country>().Single(c => c.Id == 1);
+                        var nz = context.Set<Country>().Single(c => c.Id == 1);
 
-                nz.Animals.Add(kiwi);
+                        nz.Animals.Add(kiwi);
 
-                context.SaveChanges();
-            }
+                        context.SaveChanges();
+                    },
+                context =>
+                    {
+                        var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
 
-            using (var context = CreateContext())
-            {
-                var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
+                        kiwi.EagleId = "Aquila chrysaetos canadensis";
 
-                kiwi.EagleId = "Aquila chrysaetos canadensis";
+                        context.SaveChanges();
+                    },
+                context =>
+                    {
+                        var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
 
-                context.SaveChanges();
-            }
+                        Assert.Equal("Aquila chrysaetos canadensis", kiwi.EagleId);
 
-            using (var context = CreateContext())
-            {
-                var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
+                        context.Set<Bird>().Remove(kiwi);
 
-                Assert.Equal("Aquila chrysaetos canadensis", kiwi.EagleId);
+                        context.SaveChanges();
+                    },
+                context =>
+                    {
+                        var count = context.Set<Kiwi>().Count(k => k.Species.EndsWith("owenii"));
 
-                context.Set<Bird>().Remove(kiwi);
+                        Assert.Equal(0, count);
+                    });
+        }
 
-                context.SaveChanges();
-            }
-
-            using (var context = CreateContext())
-            {
-                var count = context.Set<Kiwi>().Count(k => k.Species.EndsWith("owenii"));
-
-                Assert.Equal(0, count);
-            }
+        protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        {
         }
 
         [Fact]
@@ -501,13 +510,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected InheritanceContext CreateContext() => Fixture.CreateContext();
-
-        protected TFixture Fixture { get; }
+        protected InheritanceContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected InheritanceTestBase(TFixture fixture)
         {
             Fixture = fixture;
+
+            TestStore = Fixture.CreateTestStore();
         }
+
+        protected TFixture Fixture { get; }
+
+        protected TTestStore TestStore { get; }
+
+        protected virtual void ClearLog()
+        {
+        }
+
+        public void Dispose() => TestStore.Dispose();
     }
 }

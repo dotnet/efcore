@@ -1,41 +1,44 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class InheritanceInMemoryFixture : InheritanceFixtureBase<InMemoryTestStore>
     {
-        private const string DatabaseName = "InheritanceInMemoryTest";
+        protected virtual string DatabaseName => "InheritanceInMemoryTest";
+
+        private readonly DbContextOptions _options;
+
+        public InheritanceInMemoryFixture()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
+                .BuildServiceProvider();
+
+            _options = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase(DatabaseName)
+                .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                .UseInternalServiceProvider(serviceProvider)
+                .Options;
+        }
 
         public override InMemoryTestStore CreateTestStore()
-            => InMemoryTestStore.CreateScratch(
+            => InMemoryTestStore.GetOrCreateShared(
+                DatabaseName,
                 () =>
                     {
-                        using (var context = CreateContext())
+                        using (var context = new InheritanceContext(_options))
                         {
-                            SeedData(context);
-                        }
-                    },
-                () =>
-                    {
-                        using (var context = CreateContext())
-                        {
-                            context.GetService<IInMemoryStoreCache>().GetStore(DatabaseName).Clear();
+                            InheritanceModelInitializer.SeedData(context);
                         }
                     });
 
-        public override DbContextOptions BuildOptions()
-            => new DbContextOptionsBuilder()
-                .UseInMemoryDatabase(DatabaseName)
-                .UseInternalServiceProvider(
-                    new ServiceCollection()
-                        .AddEntityFrameworkInMemoryDatabase()
-                        .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                        .BuildServiceProvider())
-                .Options;
+        public override InheritanceContext CreateContext(InMemoryTestStore testStore)
+            => new InheritanceContext(_options);
     }
 }

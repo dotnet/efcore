@@ -9,6 +9,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class InheritanceInMemoryTest : InheritanceTestBase<InMemoryTestStore, InheritanceInMemoryFixture>
     {
+        public InheritanceInMemoryTest(InheritanceInMemoryFixture fixture)
+            : base(fixture)
+        {
+        }
+
         public override void Discriminator_used_when_projection_over_derived_type2()
         {
             Assert.Equal(
@@ -23,11 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CoreStrings.PropertyNotFound("Discriminator", "Animal"),
                 Assert.Throws<InvalidOperationException>(() =>
                         base.Discriminator_with_cast_in_shadow_property()).Message);
-        }
-
-        public InheritanceInMemoryTest(InheritanceInMemoryFixture fixture)
-            : base(fixture)
-        {
         }
     }
 }

@@ -14,8 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private readonly DbContextOptions _options;
 
-        private readonly string _connectionString = SqliteTestStore.CreateConnectionString(DatabaseName);
-
         public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
 
         public GearsOfWarQuerySqliteFixture()
@@ -27,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()
-                .UseSqlite(_connectionString)
+                .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
                 .ConfigureWarnings(w => w.Log(CoreEventId.IncludeIgnoredWarning))
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
@@ -35,14 +33,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override SqliteTestStore CreateTestStore()
         {
-            return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
-                {
-                    using (var context = new GearsOfWarContext(_options))
+            return SqliteTestStore.GetOrCreateShared(
+                DatabaseName, () =>
                     {
-                        context.Database.EnsureClean();
-                        GearsOfWarModelInitializer.Seed(context);
-                    }
-                });
+                        using (var context = new GearsOfWarContext(_options))
+                        {
+                            context.Database.EnsureClean();
+                            GearsOfWarModelInitializer.Seed(context);
+                        }
+                    });
         }
 
         public override GearsOfWarContext CreateContext(SqliteTestStore testStore)

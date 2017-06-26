@@ -5,8 +5,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Inheritance
 {
     public class InheritanceContext : DbContext
     {
-        public static readonly string StoreName = "Inheritance";
-
         public InheritanceContext(DbContextOptions options)
             : base(options)
         {
