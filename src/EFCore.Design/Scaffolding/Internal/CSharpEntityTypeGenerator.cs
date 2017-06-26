@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             foreach (var ns in entityType.GetProperties()
-                .Select(p => p.ClrType.Namespace)
+                .SelectMany(p => p.ClrType.GetNamespaces())
                 .Where(ns => ns != "System" && ns != "System.Collections.Generic")
                 .Distinct())
             {

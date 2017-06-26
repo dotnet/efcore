@@ -68,6 +68,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static FieldInfo GetFieldInfo([NotNull] this Type type, [NotNull] string fieldName)
             => type.GetRuntimeFields().FirstOrDefault(f => f.Name == fieldName && !f.IsStatic);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IEnumerable<string> GetNamespaces([NotNull] this Type type)
+        {
+            yield return type.Namespace;
+
+            if (type.GetTypeInfo().IsGenericType)
+            {
+                foreach (var typeArgument in type.GetTypeInfo().GenericTypeArguments)
+                {
+                    foreach (var ns in typeArgument.GetNamespaces())
+                    {
+                        yield return ns;
+                    }
+                }
+            }
+        }
+
         private static void AppendGenericArguments(Type[] args, int startIndex, int numberOfArgsToAppend, StringBuilder sb, bool fullName)
         {
             var totalArgs = args.Length;
