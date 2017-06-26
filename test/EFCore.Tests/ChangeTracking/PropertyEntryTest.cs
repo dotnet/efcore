@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 entry.CurrentValues.SetValues(disconnectedEntity);
 
-                Assert.Equal("A", trackedEntity.Name);
+                Assert.Null(trackedEntity.Name);
                 Assert.Equal("NewLongName", trackedEntity.LongName);
 
                 Assert.False(entry.Property(e => e.Id).IsModified);
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var internalEntry = entry.GetInfrastructure();
 
                 Assert.False(internalEntry.IsConceptualNull(entry.Property(e => e.Id).Metadata));
-                Assert.True(internalEntry.IsConceptualNull(entry.Property(e => e.Name).Metadata));
+                Assert.False(internalEntry.IsConceptualNull(entry.Property(e => e.Name).Metadata));
                 Assert.False(internalEntry.IsConceptualNull(entry.Property(e => e.LongName).Metadata));
 
                 foreach (var property in entry.Properties)
@@ -223,14 +223,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 new PropertyEntry(entry, "RequiredPrimate").CurrentValue = null;
 
                 Assert.Null(entity.Primate);
-                Assert.True(entry.IsConceptualNull(new PropertyEntry(entry, "RequiredPrimate").Metadata));
-                Assert.Equal("Tarsier", entity.RequiredPrimate);
+                Assert.Null(entity.RequiredPrimate);
 
                 context.ChangeTracker.DetectChanges();
 
                 Assert.Null(entity.Primate);
-                Assert.True(entry.IsConceptualNull(new PropertyEntry(entry, "RequiredPrimate").Metadata));
-                Assert.Equal("Tarsier", entity.RequiredPrimate);
+                Assert.Null(entity.RequiredPrimate);
             }
         }
 

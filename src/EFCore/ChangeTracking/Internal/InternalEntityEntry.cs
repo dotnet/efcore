@@ -694,7 +694,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var writeValue = true;
 
                     if (asProperty != null
-                        && (!asProperty.IsNullable
+                        && (!asProperty.ClrType.IsNullableType()
                             || asProperty.GetContainingForeignKeys().Any(
                                 p => p.DeleteBehavior == DeleteBehavior.Cascade
                                      || p.DeleteBehavior == DeleteBehavior.Restrict)))
