@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         Service dependencies parameter class for <see cref="RelationalDatabaseCreator" />
     ///     </para>
     ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         This type is typically used by schema providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
     ///     <para>
