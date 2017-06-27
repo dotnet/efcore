@@ -533,5 +533,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public class StringIdDerived : StringIdBase
         {
         }
+
+        protected class Friendship
+        {
+            public int Id { get; set; }
+
+            public int ActionUserId { get; set; }
+            public ApplicationUser ActionUser { get; set; }
+
+            public int ApplicationUserId { get; set; }
+            public ApplicationUser ApplicationUser { get; set; }
+        }
+
+        protected class ApplicationUser
+        {
+            public int Id { get; set; }
+            public IList<Friendship> Friendships { get; set; }
+        }
     }
 }
