@@ -343,6 +343,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogPossibleUnintendedUseOfEquals")));
 
         /// <summary>
+        ///     Possible unintended use of a potentially throwing aggregate method (Min, Max, Average) in a subquery. Client-eval will be used and operator will throw if no data exist. Changing the subquery result type to a nullable type will allow full translation.
+        /// </summary>
+        public static readonly EventDefinition LogQueryPossibleExceptionWithAggregateOperator
+            = new EventDefinition(
+                RelationalEventId.QueryPossibleExceptionWithAggregateOperator,
+                LogLevel.Warning,
+                LoggerMessage.Define(
+                    LogLevel.Warning,
+                    RelationalEventId.QueryPossibleExceptionWithAggregateOperator,
+                    _resourceManager.GetString("LogQueryPossibleExceptionWithAggregateOperator")));
+
+        /// <summary>
         ///     The Include operation is not supported when calling a stored procedure.
         /// </summary>
         public static string StoredProcedureIncludeNotSupported
@@ -769,6 +781,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("UnsupportedPropertyType", nameof(entity), nameof(property), nameof(clrType)),
                 entity, property, clrType);
+
+        /// <summary>
+        ///     Sequence contains no elements.
+        /// </summary>
+        public static string NoElements
+            => GetString("NoElements");
 
         /// <summary>
         ///     An error occurred using the connection to database '{database}' on server '{server}'.

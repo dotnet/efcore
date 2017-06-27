@@ -247,6 +247,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Average_on_float_column_in_subquery_with_cast()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderID < 10300)
+                    .Select(o => new { o.OrderID, Sum = o.OrderDetails.Average(od => (float?)od.Discount) }),
+                e => e.OrderID);
+        }
+
+        [ConditionalFact]
         public virtual void Min_with_no_arg()
         {
             AssertSingleResult<Order>(os => os.Select(o => o.OrderID).Min());
@@ -256,6 +265,63 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Min_with_arg()
         {
             AssertSingleResult<Order>(os => os.Min(o => o.OrderID));
+        }
+
+        [ConditionalFact]
+        public virtual void Min_no_data()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidOperationException>(() => context.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Min_no_data_subquery()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidOperationException>(() => 
+                    context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID)).ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Max_no_data()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidOperationException>(() => context.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Max_no_data_subquery()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidOperationException>(() => 
+                    context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID)).ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Average_no_data()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidOperationException>(() => context.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Average_no_data_subquery()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidOperationException>(() => 
+                    context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID)).ToList());
+            }
         }
 
         [ConditionalFact]

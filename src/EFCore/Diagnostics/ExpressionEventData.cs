@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     The left <see cref="Expression" />.
+        ///     The <see cref="Expression" />.
         /// </summary>
         public virtual Expression Expression { get; }
     }

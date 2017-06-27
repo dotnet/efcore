@@ -59,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             // Query events
             QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
             QueryPossibleUnintendedUseOfEqualsWarning,
+            QueryPossibleExceptionWithAggregateOperator,
 
             // Model validation events
             ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
@@ -405,6 +406,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId QueryPossibleUnintendedUseOfEqualsWarning = MakeQueryId(Id.QueryPossibleUnintendedUseOfEqualsWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         A query is using a possibly throwing aggregate operation in a sub-query.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId QueryPossibleExceptionWithAggregateOperator = MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperator);
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);

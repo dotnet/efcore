@@ -1045,6 +1045,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static void QueryPossibleExceptionWithAggregateOperator(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
+        {
+            var definition = RelationalStrings.LogQueryPossibleExceptionWithAggregateOperator;
+
+            definition.Log(diagnostics);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new EventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage()));
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static void ModelValidationKeyDefaultValueWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] IProperty property)

@@ -240,6 +240,10 @@
     <value>Possible unintended use of method Equals(object) for arguments of different types in expression '{expression}'. This comparison will always return 'false'.</value>
     <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning object</comment>
   </data>
+  <data name="LogQueryPossibleExceptionWithAggregateOperator" xml:space="preserve">
+    <value>Possible unintended use of a potentially throwing aggregate method (Min, Max, Average) in a subquery. Client evaluation will be used and operator will throw if no data exists. Changing the subquery result type to a nullable type will allow full translation.</value>
+    <comment>Warning RelationalEventId.QueryPossibleExceptionWithAggregateOperator</comment>
+  </data>
   <data name="StoredProcedureIncludeNotSupported" xml:space="preserve">
     <value>The Include operation is not supported when calling a stored procedure.</value>
   </data>
@@ -395,6 +399,9 @@
   </data>
   <data name="UnsupportedPropertyType" xml:space="preserve">
     <value>No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.</value>
+  </data>
+  <data name="NoElements" xml:space="preserve">
+    <value>Sequence contains no elements.</value>
   </data>
   <data name="LogRelationalLoggerConnectionErrorAsDebug" xml:space="preserve">
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>

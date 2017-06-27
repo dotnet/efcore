@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -121,14 +122,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(GetResult));
 
         [UsedImplicitly]
-        private static TResult GetResult<TResult>(IEnumerable<ValueBuffer> valueBuffers)
+        private static TResult GetResult<TResult>(IEnumerable<ValueBuffer> valueBuffers, bool throwOnNullResult)
         {
             using (var enumerator = valueBuffers.GetEnumerator())
             {
                 if (enumerator.MoveNext())
                 {
                     return enumerator.Current[0] == null
-                        ? default(TResult)
+                        ? !throwOnNullResult 
+                            ? default(TResult) 
+                            : throw new InvalidOperationException(RelationalStrings.NoElements)
                         : (TResult)enumerator.Current[0];
                 }
             }
