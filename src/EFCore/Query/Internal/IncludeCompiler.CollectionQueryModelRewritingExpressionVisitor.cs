@@ -512,12 +512,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     .FindIndex(
                                         e =>
                                             {
-                                                var propertyExpression = (MethodCallExpression)((NullConditionalExpression)e.RemoveConvert()).AccessOperation;
-                                                var properyQsre = (QuerySourceReferenceExpression)propertyExpression.Arguments[0];
-                                                var propertyName = (string)((ConstantExpression)propertyExpression.Arguments[1]).Value;
+                                                var expressionWithoutConvert = e.RemoveConvert();
+                                                var projectionExpression = (expressionWithoutConvert as NullConditionalExpression)?.AccessOperation
+                                                    ?? expressionWithoutConvert;
 
-                                                return properyQsre.ReferencedQuerySource == memberQsre.ReferencedQuerySource
-                                                       && propertyName == memberExpression.Member.Name;
+                                                if (projectionExpression is MethodCallExpression methodCall
+                                                    && methodCall.Method.IsEFPropertyMethod())
+                                                {
+                                                    var properyQsre = (QuerySourceReferenceExpression)methodCall.Arguments[0];
+                                                    var propertyName = (string)((ConstantExpression)methodCall.Arguments[1]).Value;
+
+                                                    return properyQsre.ReferencedQuerySource == memberQsre.ReferencedQuerySource
+                                                            && propertyName == memberExpression.Member.Name;
+                                                }
+
+                                                if (projectionExpression is MemberExpression projectionMemberExpression)
+                                                { 
+                                                    var projectionMemberQsre = (QuerySourceReferenceExpression)projectionMemberExpression.Expression;
+
+                                                    return projectionMemberQsre.ReferencedQuerySource == memberQsre.ReferencedQuerySource
+                                                        && projectionMemberExpression.Member.Name == memberExpression.Member.Name;
+                                                }
+
+                                                return false;
                                             });
                         }
                         else

@@ -3523,6 +3523,65 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select l1.Name + " " + (l2 != null ? l2.Name : "NULL"));
         }
 
+        [ConditionalFact]
+        public virtual void Include_collection_with_multiple_orderbys_member()
+        {
+            AssertIncludeQuery<Level2>(
+                l2s => l2s
+                    .Include(l2 => l2.OneToMany_Optional)
+                    .OrderBy(l2 => l2.Name)
+                    .ThenBy(l2 => l2.Level1_Required_Id),
+                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional, "OneToMany_Optional") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_with_multiple_orderbys_property()
+        {
+            AssertIncludeQuery<Level2>(
+                l2s => l2s
+                    .Include(l2 => l2.OneToMany_Optional)
+                    .OrderBy(l2 => EF.Property<int>(l2, "Level1_Required_Id"))
+                    .ThenBy(l2 => l2.Name),
+                l2s => l2s
+                    .OrderBy(l2 => l2.Level1_Required_Id)
+                    .ThenBy(l2 => l2.Name),
+                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional, "OneToMany_Optional") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_with_multiple_orderbys_methodcall()
+        {
+            AssertIncludeQuery<Level2>(
+                l2s => l2s
+                    .Include(l2 => l2.OneToMany_Optional)
+                    .OrderBy(l2 =>  Math.Abs(l2.Level1_Required_Id))
+                    .ThenBy(l2 => l2.Name),
+                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional, "OneToMany_Optional") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_with_multiple_orderbys_complex()
+        {
+            AssertIncludeQuery<Level2>(
+                l2s => l2s
+                    .Include(l2 => l2.OneToMany_Optional)
+                    .OrderBy(l2 => Math.Abs(l2.Level1_Required_Id) + 7)
+                    .ThenBy(l2 => l2.Name),
+                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional, "OneToMany_Optional") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_with_multiple_orderbys_complex_repeated()
+        {
+            AssertIncludeQuery<Level2>(
+                l2s => l2s
+                    .Include(l2 => l2.OneToMany_Optional)
+                    .OrderBy(l2 => -l2.Level1_Required_Id)
+                    .ThenBy(l2 => -l2.Level1_Required_Id).
+                    ThenBy(l2 => l2.Name),
+                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional, "OneToMany_Optional") });
+        }
+
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
         {
             if (caller == null)
