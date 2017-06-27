@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             }
 
-            return _queryRoot.AsNoTracking()
+            return _queryRoot.AsNoTracking().IgnoreQueryFilters()
                 .Where(BuildObjectLambda(properties, new ValueBuffer(keyValues)))
                 .Select(BuildProjection(entityType));
         }

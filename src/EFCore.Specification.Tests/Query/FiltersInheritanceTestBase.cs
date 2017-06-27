@@ -137,6 +137,30 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Fact]
+        public virtual void Can_use_derived_set()
+        {
+            using (var context = CreateContext())
+            {
+                var eagles = context.Set<Eagle>().ToList();
+
+                Assert.Equal(0, eagles.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Can_use_IgnoreQueryFilters_and_GetDatabaseValues()
+        {
+            using (var context = CreateContext())
+            {
+                var eagle = context.Set<Eagle>().IgnoreQueryFilters().Single();
+
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.NotNull(context.Entry(eagle).GetDatabaseValues());
+            }
+        }
+
         protected InheritanceContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected FiltersInheritanceTestBase(TFixture fixture)
