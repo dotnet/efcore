@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 // ReSharper disable once CheckForReferenceEqualityInstead.2
                 if (Equals(keyValue.Key.ClrType, type)
-                    && keyValue.Value.TryGetValue(entity, out entry))
+                    && keyValue.Value.TryGetValue(entity, out var foundEntry))
                 {
                     if (found)
                     {
@@ -286,6 +286,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             entity.GetType().ShortDisplayName(),
                             "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
                     }
+                    entry = foundEntry;
                     found = true;
                 }
             }

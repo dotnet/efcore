@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var targetEntry = targetEntityType.HasDefiningNavigation()
                     ? stateManager.GetOrCreateEntry(newValue, targetEntityType)
                     : stateManager.GetOrCreateEntry(newValue);
-                _attacher.AttachGraph(targetEntry, EntityState.Added);
+                _attacher.AttachGraph(targetEntry, EntityState.Added, forceStateWhenUnknownKey: false);
             }
         }
 
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 else
                 {
                     stateManager.RecordReferencedUntrackedEntity(newValue, navigation, entry);
-                    _attacher.AttachGraph(newTargetEntry, EntityState.Added);
+                    _attacher.AttachGraph(newTargetEntry, EntityState.Added, forceStateWhenUnknownKey: false);
                 }
 
                 entry.AddToCollectionSnapshot(navigation, newValue);

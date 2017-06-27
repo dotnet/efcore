@@ -593,11 +593,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (entry.EntityState == EntityState.Detached)
             {
-                DbContextDependencies.EntityGraphAttacher.AttachGraph(entry, entityState);
+                DbContextDependencies.EntityGraphAttacher.AttachGraph(entry, entityState, forceStateWhenUnknownKey: true);
             }
             else
             {
-                entry.SetEntityState(entityState, acceptChanges: true);
+                entry.SetEntityState(
+                    entityState, 
+                    acceptChanges: true,
+                    forceStateWhenUnknownKey: true);
             }
         }
 
@@ -608,11 +611,19 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (entry.EntityState == EntityState.Detached)
             {
-                await DbContextDependencies.EntityGraphAttacher.AttachGraphAsync(entry, entityState, cancellationToken);
+                await DbContextDependencies.EntityGraphAttacher.AttachGraphAsync(
+                    entry, 
+                    entityState, 
+                    forceStateWhenUnknownKey: true,
+                    cancellationToken: cancellationToken);
             }
             else
             {
-                await entry.SetEntityStateAsync(entityState, acceptChanges: true, cancellationToken: cancellationToken);
+                await entry.SetEntityStateAsync(
+                    entityState, 
+                    acceptChanges: true,
+                    forceStateWhenUnknownKey: true, 
+                    cancellationToken: cancellationToken);
             }
         }
 

@@ -64,19 +64,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetEntityState(EntityState entityState, bool acceptChanges = false)
+        public virtual void SetEntityState(EntityState entityState, bool acceptChanges = false, bool forceStateWhenUnknownKey = false)
         {
             var oldState = _stateData.EntityState;
+            var adding = PrepareForAdd(entityState);
 
-            if (PrepareForAdd(entityState))
+            entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
+
+            if (adding)
             {
-                StateManager.ValueGeneration.Propagate(this);
                 StateManager.ValueGeneration.Generate(this);
-            }
-            else if (EntityType.IsOwned()
-                     && oldState == EntityState.Detached)
-            {
-                StateManager.ValueGeneration.Propagate(this);
             }
 
             SetEntityState(oldState, entityState, acceptChanges);
@@ -89,22 +86,43 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual async Task SetEntityStateAsync(
             EntityState entityState,
             bool acceptChanges,
+            bool forceStateWhenUnknownKey,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var oldState = _stateData.EntityState;
+            var adding = PrepareForAdd(entityState);
 
-            if (PrepareForAdd(entityState))
+            entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
+
+            if (adding)
             {
-                StateManager.ValueGeneration.Propagate(this);
                 await StateManager.ValueGeneration.GenerateAsync(this, cancellationToken);
-            }
-            else if (EntityType.IsOwned()
-                     && oldState == EntityState.Detached)
-            {
-                StateManager.ValueGeneration.Propagate(this);
             }
 
             SetEntityState(oldState, entityState, acceptChanges);
+        }
+
+        private EntityState PropagateToUnknownKey(EntityState oldState, EntityState entityState, bool adding, bool forceStateWhenUnknownKey)
+        {
+            var keyUnknown = IsKeyUnknown;
+
+            if (adding
+                || (oldState == EntityState.Detached
+                    && keyUnknown))
+            {
+                var principalEntry = StateManager.ValueGeneration.Propagate(this);
+
+                if (forceStateWhenUnknownKey
+                    && keyUnknown
+                    && principalEntry != null
+                    && principalEntry.EntityState != EntityState.Detached
+                    && principalEntry.EntityState != EntityState.Deleted)
+                {
+                    entityState = principalEntry.EntityState;
+                }
+            }
+
+            return entityState;
         }
 
         private bool PrepareForAdd(EntityState newState)
@@ -988,6 +1006,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             p => HasDefaultValue(p)
                  && (p.ValueGenerated == ValueGenerated.OnAdd
                      || p.IsForeignKey()));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool IsKeyUnknown => EntityType.FindPrimaryKey().Properties.Any(
+            p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Unknown));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

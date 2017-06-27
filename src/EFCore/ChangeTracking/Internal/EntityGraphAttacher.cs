@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public EntityGraphAttacher([NotNull] IEntityEntryGraphIterator graphIterator)
+        public EntityGraphAttacher(
+            [NotNull] IEntityEntryGraphIterator graphIterator)
         {
             _graphIterator = graphIterator;
         }
@@ -29,11 +30,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState)
+        public virtual void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState, bool forceStateWhenUnknownKey)
             => _graphIterator.TraverseGraph(
                 new EntityEntryGraphNode(rootEntry, null, null)
                 {
-                    NodeState = entityState
+                    NodeState = ( entityState, forceStateWhenUnknownKey )
                 },
                 PaintAction);
 
@@ -44,16 +45,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual Task AttachGraphAsync(
             InternalEntityEntry rootEntry,
             EntityState entityState,
+            bool forceStateWhenUnknownKey,
             CancellationToken cancellationToken = default(CancellationToken))
             => _graphIterator.TraverseGraphAsync(
                 new EntityEntryGraphNode(rootEntry, null, null)
                 {
-                    NodeState = entityState
+                    NodeState = (entityState, forceStateWhenUnknownKey)
                 },
                 PaintActionAsync,
                 cancellationToken);
 
-        private static bool PaintAction(EntityEntryGraphNode node)
+        private bool PaintAction(EntityEntryGraphNode node)
         {
             var internalEntityEntry = node.GetInfrastructure();
             if (internalEntityEntry.EntityState != EntityState.Detached)
@@ -61,10 +63,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
+            var tuple = ((EntityState State, bool Force))node.NodeState;
+
             internalEntityEntry.SetEntityState(
-                internalEntityEntry.IsKeySet || internalEntityEntry.EntityType.IsOwned()
-                    ? (EntityState)node.NodeState : EntityState.Added,
-                acceptChanges: true);
+                internalEntityEntry.IsKeySet
+                    ? tuple.State
+                    : EntityState.Added,
+                acceptChanges: true,
+                forceStateWhenUnknownKey: tuple.Force);
 
             return true;
         }
@@ -77,10 +83,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
+            var tuple = ((EntityState State, bool Force))node.NodeState;
+
             await internalEntityEntry.SetEntityStateAsync(
                 internalEntityEntry.IsKeySet || internalEntityEntry.EntityType.IsOwned()
-                    ? (EntityState)node.NodeState : EntityState.Added,
+                    ? tuple.State : EntityState.Added,
                 acceptChanges: true,
+                forceStateWhenUnknownKey: tuple.Force,
                 cancellationToken: cancellationToken);
 
             return true;

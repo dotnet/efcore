@@ -1752,12 +1752,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             public Tuple<InternalEntityEntry, EntityState> Attached { get; set; }
 
-            public void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState) 
+            public void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState, bool forceStateWhenUnknownKey) 
                 => Attached = Tuple.Create(rootEntry, entityState);
 
             public Task AttachGraphAsync(
                 InternalEntityEntry rootEntry,
                 EntityState entityState,
+                bool forceStateWhenUnknownKey,
                 CancellationToken cancellationToken = new CancellationToken())
             {
                 throw new NotImplementedException();

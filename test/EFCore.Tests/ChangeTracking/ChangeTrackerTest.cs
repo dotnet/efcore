@@ -79,7 +79,221 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private static string EntryString(EntityEntry entry)
             => entry == null
                 ? "<None>"
-                : entry.Metadata.DisplayName() + ":" + entry.Property("Id").CurrentValue;
+                : entry.Metadata.DisplayName()
+                  + ":" + entry.Property(entry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue;
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Can_attach_nullable_PK_parent_with_child_collection(bool useAttach, bool setKeys)
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var category = new NullbileCategory
+                {
+                    Products = new List<NullbileProduct>
+                    {
+                        new NullbileProduct(),
+                        new NullbileProduct(),
+                        new NullbileProduct()
+                    }
+                };
+
+                if (setKeys)
+                {
+                    context.Entry(category).Property("Id").CurrentValue = 1;
+                    context.Entry(category.Products[0]).Property("Id").CurrentValue = 1;
+                    context.Entry(category.Products[1]).Property("Id").CurrentValue = 2;
+                    context.Entry(category.Products[2]).Property("Id").CurrentValue = 3;
+                }
+
+                if (useAttach)
+                {
+                    context.Attach(category);
+                }
+                else
+                {
+                    var traversal = new List<string>();
+
+                    context.ChangeTracker.TrackGraph(
+                        category, e =>
+                            {
+                                e.Entry.State = e.Entry.IsKeySet ? EntityState.Unchanged : EntityState.Added;
+                                traversal.Add(NodeString(e));
+                            });
+
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "<None> -----> NullbileCategory:1",
+                            "NullbileCategory:1 ---Products--> NullbileProduct:1",
+                            "NullbileCategory:1 ---Products--> NullbileProduct:2",
+                            "NullbileCategory:1 ---Products--> NullbileProduct:3"
+                        },
+                        traversal);
+                }
+
+                Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+                var categoryEntry = context.Entry(category);
+                var product0Entry = context.Entry(category.Products[0]);
+                var product1Entry = context.Entry(category.Products[1]);
+                var product2Entry = context.Entry(category.Products[2]);
+
+                var expectedState = setKeys ? EntityState.Unchanged : EntityState.Added;
+                Assert.Equal(expectedState, categoryEntry.State);
+                Assert.Equal(expectedState, product0Entry.State);
+                Assert.Equal(expectedState, product1Entry.State);
+                Assert.Equal(expectedState, product2Entry.State);
+
+                Assert.Same(category, category.Products[0].Category);
+                Assert.Same(category, category.Products[1].Category);
+                Assert.Same(category, category.Products[2].Category);
+
+                var categoryId = categoryEntry.Property("Id").CurrentValue;
+                Assert.NotNull(categoryId);
+
+                Assert.Equal(categoryId, product0Entry.Property("CategoryId").CurrentValue);
+                Assert.Equal(categoryId, product1Entry.Property("CategoryId").CurrentValue);
+                Assert.Equal(categoryId, product2Entry.Property("CategoryId").CurrentValue);
+            }
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Can_attach_nullable_PK_parent_with_one_to_one_children(bool useAttach, bool setKeys)
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var category = new NullbileCategory { Info = new NullbileCategoryInfo() };
+
+                if (setKeys)
+                {
+                    context.Entry(category).Property("Id").CurrentValue = 1;
+                    context.Entry(category.Info).Property("Id").CurrentValue = 1;
+                }
+
+                if (useAttach)
+                {
+                    context.Attach(category);
+                }
+                else
+                {
+                    var traversal = new List<string>();
+
+                    context.ChangeTracker.TrackGraph(
+                        category, e =>
+                            {
+                                e.Entry.State = e.Entry.IsKeySet ? EntityState.Unchanged : EntityState.Added;
+                                traversal.Add(NodeString(e));
+                            });
+
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "<None> -----> NullbileCategory:1",
+                            "NullbileCategory:1 ---Info--> NullbileCategoryInfo:1"
+                        },
+                        traversal);
+                }
+
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+                var expectedState = setKeys ? EntityState.Unchanged : EntityState.Added;
+                Assert.Equal(expectedState, context.Entry(category).State);
+                Assert.Equal(expectedState, context.Entry(category.Info).State);
+
+                Assert.Same(category, category.Info.Category);
+            }
+        }
+
+        [Theory]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, true)]
+        public void Can_attach_parent_with_owned_dependent(bool useAttach, bool setPrincipalKey, bool setDependentKey)
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var sweet = new Sweet { Dreams = new Dreams { AreMade = new AreMadeOfThis(), OfThis = new AreMadeOfThis() } };
+
+                if (setPrincipalKey)
+                {
+                    sweet.Id = 1;
+                }
+
+                if (setDependentKey)
+                {
+                    var dreamsEntry = context.Entry(sweet).Reference(e => e.Dreams).TargetEntry;
+                    dreamsEntry.Property("SweetId").CurrentValue = 1;
+                    dreamsEntry.Reference(e => e.AreMade).TargetEntry.Property("DreamsSweetId").CurrentValue = 1;
+                    dreamsEntry.Reference(e => e.OfThis).TargetEntry.Property("DreamsSweetId").CurrentValue = 1;
+                }
+
+                if (useAttach)
+                {
+                    context.Attach(sweet);
+                }
+                else
+                {
+                    var traversal = new List<string>();
+
+                    context.ChangeTracker.TrackGraph(
+                        sweet, e =>
+                            {
+                                if (e.Entry.Metadata.IsOwned())
+                                {
+                                    e.Entry.State = e.SourceEntry.State;
+                                }
+                                else
+                                {
+                                    e.Entry.State = e.Entry.IsKeySet ? EntityState.Unchanged : EntityState.Added;
+                                }
+
+                                traversal.Add(NodeString(e));
+                            });
+
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "<None> -----> Sweet:1",
+                            "Sweet:1 ---Dreams--> Sweet.Dreams#Dreams:1",
+                            "Sweet.Dreams#Dreams:1 ---AreMade--> Sweet.Dreams#Dreams.AreMade#AreMadeOfThis:1",
+                            "Sweet.Dreams#Dreams:1 ---OfThis--> Sweet.Dreams#Dreams.OfThis#AreMadeOfThis:1"
+                        },
+                        traversal);
+                }
+
+                Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+                var dependentEntry = context.Entry(sweet.Dreams);
+                var dependentEntry2a = context.Entry(sweet.Dreams.AreMade);
+                var dependentEntry2b = context.Entry(sweet.Dreams.OfThis);
+
+                var expectedPrincipalState = setPrincipalKey ? EntityState.Unchanged : EntityState.Added;
+                var expectedDependentState = setPrincipalKey || (setDependentKey && useAttach) ? EntityState.Unchanged : EntityState.Added;
+
+                Assert.Equal(expectedPrincipalState, context.Entry(sweet).State);
+                Assert.Equal(expectedDependentState, dependentEntry.State);
+                Assert.Equal(expectedDependentState, dependentEntry2a.State);
+                Assert.Equal(expectedDependentState, dependentEntry2b.State);
+
+                Assert.Equal(1, sweet.Id);
+                Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
+                Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
+                Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
+            }
+        }
 
         [Fact]
         public void Can_attach_parent_with_child_collection()
@@ -1258,6 +1472,38 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public Product Product { get; set; }
         }
 
+        private class NullbileCategory
+        {
+            public List<NullbileProduct> Products { get; set; }
+            public NullbileCategoryInfo Info { get; set; }
+        }
+
+        private class NullbileCategoryInfo
+        {
+            public NullbileCategory Category { get; set; }
+        }
+
+        private class NullbileProduct
+        {
+            public NullbileCategory Category { get; set; }
+        }
+
+        private class Sweet
+        {
+            public int? Id { get; set; }
+            public Dreams Dreams { get; set; }
+        }
+
+        private class Dreams
+        {
+            public AreMadeOfThis AreMade { get; set; }
+            public AreMadeOfThis OfThis { get; set; }
+        }
+
+        private class AreMadeOfThis
+        {
+        }
+
         private class EarlyLearningCenter : DbContext
         {
             private readonly IServiceProvider _serviceProvider;
@@ -1275,7 +1521,42 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder
-                    .Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
+                    .Entity<NullbileProduct>(
+                        b =>
+                            {
+                                b.Property<int?>("Id");
+                                b.Property<int?>("CategoryId");
+                                b.HasKey("Id");
+                            });
+
+                modelBuilder
+                    .Entity<NullbileCategoryInfo>(
+                        b =>
+                            {
+                                b.Property<int?>("Id");
+                                b.Property<int?>("CategoryId");
+                                b.HasKey("Id");
+                            });
+
+                modelBuilder
+                    .Entity<NullbileCategory>(
+                        b =>
+                            {
+                                b.Property<int?>("Id");
+                                b.HasKey("Id");
+                                b.HasMany(e => e.Products).WithOne(e => e.Category).HasForeignKey("CategoryId");
+                                b.HasOne(e => e.Info).WithOne(e => e.Category).HasForeignKey<NullbileCategoryInfo>("CategoryId");
+                            });
+
+                modelBuilder.Entity<Sweet>().OwnsOne(
+                    e => e.Dreams, b =>
+                        {
+                            b.OwnsOne(e => e.AreMade);
+                            b.OwnsOne(e => e.OfThis);
+                        });
+
+                modelBuilder
+                   .Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
                 modelBuilder
                     .Entity<ProductDetailsTag>().HasOne(e => e.TagDetails).WithOne(e => e.Tag)

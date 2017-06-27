@@ -38,12 +38,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Propagate(InternalEntityEntry entry)
+        public virtual InternalEntityEntry Propagate(InternalEntityEntry entry)
         {
+            InternalEntityEntry chosenPrincipal = null;
             foreach (var property in FindPropagatingProperties(entry))
             {
-                _keyPropagator.PropagateValue(entry, property);
+                var principalEntry = _keyPropagator.PropagateValue(entry, property);
+                if (chosenPrincipal == null)
+                {
+                    chosenPrincipal = principalEntry;
+                }
             }
+            return chosenPrincipal;
         }
 
         /// <summary>
