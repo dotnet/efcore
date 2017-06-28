@@ -2759,16 +2759,22 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        private class SomeScopedAppService
+        {
+        }
+
         [Fact]
         public void Can_add_derived_context_with_options()
         {
             var appServiceProivder = new ServiceCollection()
                 .AddDbContext<ConstructorTestContextWithOC3A>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .AddSingleton<SomeAppService>()
+                .AddScoped<SomeScopedAppService>()
                 .BuildServiceProvider();
 
             var singleton = new object[4];
             SomeAppService appSingleton;
+            SomeScopedAppService appScoped;
 
             using (var serviceScope = appServiceProivder
                 .GetRequiredService<IServiceScopeFactory>()
@@ -2784,9 +2790,12 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotNull(context.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>());
 
                 appSingleton = context.GetService<SomeAppService>();
+                appScoped = context.GetService<SomeScopedAppService>();
                 Assert.NotNull(appSingleton);
+                Assert.NotNull(appScoped);
 
                 Assert.Same(appSingleton, serviceScope.ServiceProvider.GetService<SomeAppService>());
+                Assert.Same(appScoped, serviceScope.ServiceProvider.GetService<SomeScopedAppService>());
             }
 
             using (var serviceScope = appServiceProivder
@@ -2798,7 +2807,11 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton[0], context.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
-                Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+                Assert.NotSame(singleton[3], context.GetService<IDbContextOptions>());
+
+                var scoped = context.GetService<SomeScopedAppService>();
+                Assert.NotSame(appScoped, scoped);
+                Assert.Same(scoped, serviceScope.ServiceProvider.GetService<SomeScopedAppService>());
 
                 Assert.Same(appSingleton, context.GetService<SomeAppService>());
                 Assert.Same(appSingleton, serviceScope.ServiceProvider.GetService<SomeAppService>());
@@ -2841,7 +2854,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton, context.GetService<IInMemoryStoreCache>());
                 Assert.Same(loggerFactory, context.GetService<ILoggerFactory>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
-                Assert.Same(options, context.GetService<IDbContextOptions>());
+                Assert.NotSame(options, context.GetService<IDbContextOptions>());
             }
         }
 
@@ -2918,7 +2931,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton[0], context.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
-                Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+                Assert.NotSame(singleton[3], context.GetService<IDbContextOptions>());
             }
         }
 
@@ -2956,17 +2969,21 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton[0], context.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
-                Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+                Assert.NotSame(singleton[3], context.GetService<IDbContextOptions>());
             }
         }
 
-        [Fact]
-        public void Can_add_derived_context_one_service_provider_with_options_and_external_services()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Can_add_derived_context_one_service_provider_with_options_and_external_services(bool singletonOptions)
         {
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
-                    (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
+                    (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p),
+                    ServiceLifetime.Scoped,
+                    singletonOptions ? ServiceLifetime.Singleton : ServiceLifetime.Scoped)
                 .BuildServiceProvider();
 
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
@@ -2998,7 +3015,14 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton, context.GetService<IInMemoryStoreCache>());
                 Assert.Same(loggerFactory, context.GetService<ILoggerFactory>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
-                Assert.Same(options, context.GetService<IDbContextOptions>());
+                if (singletonOptions)
+                {
+                    Assert.Same(options, context.GetService<IDbContextOptions>());
+                }
+                else
+                {
+                    Assert.NotSame(options, context.GetService<IDbContextOptions>());
+                }
             }
         }
 
@@ -3034,7 +3058,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton[0], context.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
-                Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+                Assert.NotSame(singleton[3], context.GetService<IDbContextOptions>());
             }
         }
 
@@ -3074,7 +3098,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton, context.GetService<IInMemoryStoreCache>());
                 Assert.Same(loggerFactory, context.GetService<ILoggerFactory>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
-                Assert.Same(options, context.GetService<IDbContextOptions>());
+                Assert.NotSame(options, context.GetService<IDbContextOptions>());
             }
         }
 
@@ -3116,7 +3140,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton[0], context.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
-                Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+                Assert.NotSame(singleton[3], context.GetService<IDbContextOptions>());
             }
         }
 
@@ -3154,7 +3178,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton[0], context.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
-                Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+                Assert.NotSame(singleton[3], context.GetService<IDbContextOptions>());
             }
         }
 
@@ -3196,7 +3220,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton, context.GetService<IInMemoryStoreCache>());
                 Assert.Same(loggerFactory, context.GetService<ILoggerFactory>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
-                Assert.Same(options, context.GetService<IDbContextOptions>());
+                Assert.NotSame(options, context.GetService<IDbContextOptions>());
             }
         }
 
@@ -3232,7 +3256,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton[0], context.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
-                Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+                Assert.NotSame(singleton[3], context.GetService<IDbContextOptions>());
             }
         }
 
@@ -3275,7 +3299,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton, context.GetService<IInMemoryStoreCache>());
                 Assert.Same(loggerFactory, context.GetService<ILoggerFactory>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
-                Assert.Same(options, context.GetService<IDbContextOptions>());
+                Assert.NotSame(options, context.GetService<IDbContextOptions>());
             }
         }
 
@@ -3312,7 +3336,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton[0], context.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
-                Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+                Assert.NotSame(singleton[3], context.GetService<IDbContextOptions>());
             }
         }
 
@@ -3447,14 +3471,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(true, false)]
-        [InlineData(false, false)]
-        [InlineData(true, true)]
-        public void Can_add_derived_context_as_transient(bool addTransientFirst, bool useDbContext)
+        [InlineData(true, false, ServiceLifetime.Scoped)]
+        [InlineData(false, false, ServiceLifetime.Scoped)]
+        [InlineData(true, true, ServiceLifetime.Transient)]
+        [InlineData(true, true, ServiceLifetime.Scoped)]
+        [InlineData(true, true, ServiceLifetime.Singleton)]
+        public void Can_add_derived_context_as_transient(bool addTransientFirst, bool useDbContext, ServiceLifetime optionsLifetime)
         {
             var appServiceProivder = useDbContext
                 ? new ServiceCollection()
-                    .AddDbContext<ConstructorTestContextWithOC1A>(ServiceLifetime.Transient)
+                    .AddDbContext<ConstructorTestContextWithOC1A>(ServiceLifetime.Transient, optionsLifetime)
                     .BuildServiceProvider()
                 : (addTransientFirst
                     ? new ServiceCollection()
@@ -3467,6 +3493,7 @@ namespace Microsoft.EntityFrameworkCore
                         .BuildServiceProvider());
 
             var singleton = new object[3];
+            DbContextOptions options = null; 
 
             using (var serviceScope = appServiceProivder
                 .GetRequiredService<IServiceScopeFactory>()
@@ -3482,6 +3509,20 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
                 Assert.NotNull(context1.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>());
+
+                if (useDbContext)
+                {
+                    options = serviceScope.ServiceProvider.GetService<DbContextOptions>();
+
+                    if (optionsLifetime != ServiceLifetime.Transient)
+                    {
+                        Assert.Same(options, serviceScope.ServiceProvider.GetService<DbContextOptions>());
+                    }
+                    else
+                    {
+                        Assert.NotSame(options, serviceScope.ServiceProvider.GetService<DbContextOptions>());
+                    }
+                }
 
                 context1.Dispose();
                 Assert.Throws<ObjectDisposedException>(() => context1.Model);
@@ -3500,6 +3541,18 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(singleton[0], context.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
+
+                if (useDbContext)
+                {
+                    if (optionsLifetime == ServiceLifetime.Singleton)
+                    {
+                        Assert.Same(options, serviceScope.ServiceProvider.GetService<DbContextOptions>());
+                    }
+                    else
+                    {
+                        Assert.NotSame(options, serviceScope.ServiceProvider.GetService<DbContextOptions>());
+                    }
+                }
 
                 context.Dispose();
                 Assert.Throws<ObjectDisposedException>(() => context.Model);
