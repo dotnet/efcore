@@ -28,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
-        public virtual bool UseDatabaseNames { get; set; }
 
         protected virtual IOperationReporter Reporter { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
@@ -74,7 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _scaffoldingTypeMapper = scaffoldingTypeMapper;
         }
 
-        public virtual IModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public virtual IModel Create(
+            string connectionString,
+            IEnumerable<string> tables,
+            IEnumerable<string> schemas,
+            bool useDatabaseNames)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tables, nameof(tables));
@@ -82,29 +85,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var databaseModel = _databaseModelFactory.Create(connectionString, tables, schemas);
 
-            return CreateFromDatabaseModel(databaseModel);
+            return CreateFromDatabaseModel(databaseModel, useDatabaseNames);
         }
 
-        protected virtual IModel CreateFromDatabaseModel([NotNull] DatabaseModel databaseModel)
+        protected virtual IModel CreateFromDatabaseModel([NotNull] DatabaseModel databaseModel, bool useDatabaseNames)
         {
             Check.NotNull(databaseModel, nameof(databaseModel));
 
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
             _tableNamer = new CSharpUniqueNamer<DatabaseTable>(
-                UseDatabaseNames
+                useDatabaseNames
                     ? (Func<DatabaseTable, string>)(t => t.Name)
                     : t => CandidateNamingService.GenerateCandidateIdentifier(t.Name),
                 _cSharpUtilities,
-                UseDatabaseNames
+                useDatabaseNames
                     ? (Func<string, string>)null
                     : _pluralizer.Singularize);
             _dbSetNamer = new CSharpUniqueNamer<DatabaseTable>(
-                UseDatabaseNames
+                useDatabaseNames
                     ? (Func<DatabaseTable, string>)(t => t.Name)
                     : t => CandidateNamingService.GenerateCandidateIdentifier(t.Name),
                 _cSharpUtilities,
-                UseDatabaseNames
+                useDatabaseNames
                     ? (Func<string, string>)null
                     : _pluralizer.Pluralize);
             _columnNamers = new Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>>();

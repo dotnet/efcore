@@ -9,7 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public interface IScaffoldingModelFactory
     {
-        IModel Create([NotNull] string connectionString, [NotNull] IEnumerable<string> tables, [NotNull] IEnumerable<string> schemas);
-        bool UseDatabaseNames { get; set; }
+        IModel Create([NotNull] string connectionString, [NotNull] IEnumerable<string> tables, [NotNull] IEnumerable<string> schemas, bool useDatabaseNames);
     }
 }

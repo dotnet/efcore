@@ -79,8 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     DesignStrings.ContextClassNotValidCSharpIdentifier(contextName));
             }
 
-            _factory.UseDatabaseNames = useDatabaseNames;
-            var model = _factory.Create(connectionString, tables, schemas);
+            var model = _factory.Create(connectionString, tables, schemas, useDatabaseNames);
 
             if (model == null)
             {

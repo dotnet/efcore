@@ -890,7 +890,6 @@ namespace Microsoft.EntityFrameworkCore
                 new TestOperationReporter(),
                 new FakePluralizer());
 
-            // Note: factory.UseDatabaseNames == false;
             var model = factory.Create(info);
 
             Assert.Collection(
@@ -909,8 +908,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
             );
 
-            factory.UseDatabaseNames = true;
-            model = factory.Create(info);
+            model = factory.Create(info, true);
 
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -983,7 +981,7 @@ namespace Microsoft.EntityFrameworkCore
 
     public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {
-        public IModel Create(DatabaseModel databaseModel)
+        public IModel Create(DatabaseModel databaseModel, bool useDatabaseNames = false)
         {
             foreach (var sequence in databaseModel.Sequences)
             {
@@ -1020,7 +1018,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            return CreateFromDatabaseModel(databaseModel);
+            return CreateFromDatabaseModel(databaseModel, useDatabaseNames);
         }
 
         public FakeScaffoldingModelFactory(
