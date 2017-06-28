@@ -411,23 +411,53 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var requiresMaterializationExpressionVisitor
-                = _requiresMaterializationExpressionVisitorFactory
-                    .Create(queryModelVisitor);
+            var querySourcesRequiringMaterializationFinder = new QuerySourcesRequiringMaterializationFinder(
+                _requiresMaterializationExpressionVisitorFactory, 
+                queryModelVisitor, 
+                QuerySourcesRequiringMaterialization);
 
-            var querySourcesRequiringMaterialization = requiresMaterializationExpressionVisitor
-                .FindQuerySourcesRequiringMaterialization(queryModel);
+            querySourcesRequiringMaterializationFinder.AddQuerySourcesRequiringMaterialization(queryModel);
+        }
 
-            var groupJoinCompensatingVisitor = new GroupJoinMaterializationCompensatingVisitor();
-            groupJoinCompensatingVisitor.VisitQueryModel(queryModel);
+        private class QuerySourcesRequiringMaterializationFinder
+        {
+            private readonly IRequiresMaterializationExpressionVisitorFactory _requiresMaterializationExpressionVisitorFactory;
+            private readonly EntityQueryModelVisitor _queryModelVisitor;
+            private readonly ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
-            var blockedMemberPushdownCompensatingVisitor = new BlockedMemberPushdownCompensatingVisitor();
-            queryModel.TransformExpressions(blockedMemberPushdownCompensatingVisitor.Visit);
+            public QuerySourcesRequiringMaterializationFinder(
+                IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
+                EntityQueryModelVisitor queryModelVisitor,
+                ISet<IQuerySource> querySourcesRequiringMaterialization)
+            {
+                _requiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
+                _queryModelVisitor = queryModelVisitor;
+                _querySourcesRequiringMaterialization = querySourcesRequiringMaterialization;
+            }
 
-            QuerySourcesRequiringMaterialization.UnionWith(
-                querySourcesRequiringMaterialization
-                    .Concat(groupJoinCompensatingVisitor.QuerySources)
-                    .Concat(blockedMemberPushdownCompensatingVisitor.QuerySources));
+            public void AddQuerySourcesRequiringMaterialization(QueryModel queryModel)
+            {
+                var requiresMaterializationExpressionVisitor
+                    = _requiresMaterializationExpressionVisitorFactory
+                        .Create(_queryModelVisitor);
+
+                var querySourcesRequiringMaterialization = requiresMaterializationExpressionVisitor
+                    .FindQuerySourcesRequiringMaterialization(queryModel);
+
+                var groupJoinCompensatingVisitor = new GroupJoinMaterializationCompensatingVisitor();
+                groupJoinCompensatingVisitor.VisitQueryModel(queryModel);
+
+                var blockedMemberPushdownCompensatingVisitor = new BlockedMemberPushdownCompensatingVisitor();
+                queryModel.TransformExpressions(blockedMemberPushdownCompensatingVisitor.Visit);
+
+                var setResultOperatorsCompensatingVisitor = new SetResultOperatorsCompensatingVisitor(this);
+                setResultOperatorsCompensatingVisitor.VisitQueryModel(queryModel);
+
+                _querySourcesRequiringMaterialization.UnionWith(
+                    querySourcesRequiringMaterialization
+                        .Concat(groupJoinCompensatingVisitor.QuerySources)
+                        .Concat(blockedMemberPushdownCompensatingVisitor.QuerySources));
+            }
         }
 
         private class GroupJoinMaterializationCompensatingVisitor : QueryModelVisitorBase
@@ -490,6 +520,54 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 RequiresMaterializationExpressionVisitor.HandleUnderlyingQuerySources(querySource, MarkForMaterialization);
                 QuerySources.Add(querySource);
+            }
+        }
+
+        private class SetResultOperatorsCompensatingVisitor : QueryModelVisitorBase
+        {
+            private readonly QuerySourcesRequiringMaterializationFinder _querySourcesRequiringMaterializationFinder;
+
+            public SetResultOperatorsCompensatingVisitor(
+                QuerySourcesRequiringMaterializationFinder querySourcesRequiringMaterializationFinder)
+            {
+                _querySourcesRequiringMaterializationFinder = querySourcesRequiringMaterializationFinder;
+            }
+
+            public override void VisitQueryModel(QueryModel queryModel)
+            {
+                queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<SetResultOperatorsCompensatingVisitor>(this).Visit);
+
+                base.VisitQueryModel(queryModel);
+            }
+
+            protected override void VisitResultOperators(ObservableCollection<ResultOperatorBase> resultOperators, QueryModel queryModel)
+            {
+                var resultOperatorSources = RequiresMaterializationExpressionVisitor.GetSetResultOperatorSourceExpressions(resultOperators);
+                if (resultOperatorSources.Any())
+                {
+                    // in case of set1.Concat(set2) we also need to add set1 qsre to materialization
+                    // reusing existing infrastructure for cases where the projection is not trivial
+                    var queryModelCopy = new QueryModel(queryModel.MainFromClause, queryModel.SelectClause);
+                    foreach (var bodyClause in queryModel.BodyClauses)
+                    {
+                        queryModelCopy.BodyClauses.Add(bodyClause);
+                    }
+
+                    _querySourcesRequiringMaterializationFinder.AddQuerySourcesRequiringMaterialization(queryModelCopy);
+
+                    foreach (var resultOperatorSource in RequiresMaterializationExpressionVisitor.GetSetResultOperatorSourceExpressions(resultOperators))
+                    {
+                        if (resultOperatorSource is SubQueryExpression subQuery)
+                        {
+                            _querySourcesRequiringMaterializationFinder.AddQuerySourcesRequiringMaterialization(subQuery.QueryModel);
+                        }
+                        else if (resultOperatorSource is MethodCallExpression methodCall
+                            && methodCall.Method.MethodIsClosedFormOf(CollectionNavigationSubqueryInjector.MaterializeCollectionNavigationMethodInfo))
+                        {
+                            _querySourcesRequiringMaterializationFinder.AddQuerySourcesRequiringMaterialization(((SubQueryExpression)methodCall.Arguments[1]).QueryModel);
+                        }
+                    }
+                }
             }
         }
 

@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -24,7 +25,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class CollectionNavigationSubqueryInjector : RelinqExpressionVisitor
     {
         private readonly EntityQueryModelVisitor _queryModelVisitor;
-        private bool _shouldInject;
+
+        private static readonly List<string> _collectionMaterializingMethodNames = new List<string>
+        {
+            nameof(Enumerable.ToArray),
+            nameof(Enumerable.ToDictionary),
+            nameof(Enumerable.ToList),
+            nameof(Enumerable.ToLookup),
+        };
+
+        private static readonly List<MethodInfo> _collectionMaterializingMethods
+            = typeof(Enumerable).GetRuntimeMethods().Where(m => _collectionMaterializingMethodNames.Contains(m.Name))
+            .Concat(typeof(AsyncEnumerable).GetRuntimeMethods().Where(m => _collectionMaterializingMethodNames.Contains(m.Name))).ToList();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -32,9 +44,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public CollectionNavigationSubqueryInjector([NotNull] EntityQueryModelVisitor queryModelVisitor, bool shouldInject = false)
         {
+            Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
+
             _queryModelVisitor = queryModelVisitor;
-            _shouldInject = shouldInject;
+            ShouldInject = shouldInject;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual bool ShouldInject { get; set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -53,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             Check.NotNull(memberExpression, nameof(memberExpression));
 
             var newMemberExpression = default(Expression);
-            if (_shouldInject)
+            if (ShouldInject)
             {
                 newMemberExpression = _queryModelVisitor.BindNavigationPathPropertyExpression(
                     memberExpression,
@@ -78,6 +98,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
+            if (methodCallExpression.Method.MethodIsClosedFormOf(MaterializeCollectionNavigationMethodInfo)
+                || IncludeCompiler.IsIncludeMethod(methodCallExpression))
+            {
+                return methodCallExpression;
+            }
+
             if (methodCallExpression.Method.MethodIsClosedFormOf(
                 CollectionNavigationIncludeExpressionRewriter.ProjectCollectionNavigationMethodInfo))
             {
@@ -88,13 +114,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     : methodCallExpression;
             }
 
-            if (!methodCallExpression.Method.IsEFPropertyMethod())
+            var shouldInject = ShouldInject;
+            if (!methodCallExpression.Method.IsEFPropertyMethod()
+                && !_collectionMaterializingMethods.Any(m => methodCallExpression.Method.MethodIsClosedFormOf(m)))
             {
-                _shouldInject = true;
+                ShouldInject = true;
             }
 
             var newMethodCallExpression = default(Expression);
-            if (_shouldInject)
+            if (ShouldInject)
             {
                 newMethodCallExpression = _queryModelVisitor.BindNavigationPathPropertyExpression(
                     methodCallExpression,
@@ -108,9 +136,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     });
             }
 
-            return newMethodCallExpression ?? base.VisitMethodCall(methodCallExpression);
+            try
+            {
+                return newMethodCallExpression ?? base.VisitMethodCall(methodCallExpression);
+            }
+            finally
+            {
+                ShouldInject = shouldInject;
+            }
         }
-
         private static Expression InjectSubquery(Expression expression, INavigation collectionNavigation)
         {
             var targetType = collectionNavigation.GetTargetType().ClrType;

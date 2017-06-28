@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (referencedQuerySource != null)
             {
                 var parentQuerySource = parentQueryModel.SelectClause.Selector.TryGetReferencedQuerySource();
-                var resultSetOperators = GetSetResultOperatorSourceExpressions(parentQueryModel);
+                var resultSetOperators = GetSetResultOperatorSourceExpressions(parentQueryModel.ResultOperators);
 
                 if (resultSetOperators.Any(r => r.Equals(expression))
                     && _querySourceReferences[parentQuerySource] > 0)
@@ -451,9 +451,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
-        private static IEnumerable<Expression> GetSetResultOperatorSourceExpressions(QueryModel queryModel)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IEnumerable<Expression> GetSetResultOperatorSourceExpressions([NotNull] IEnumerable<ResultOperatorBase> resultOperators)
         {
-            foreach (var resultOperator in queryModel.ResultOperators)
+            Check.NotNull(resultOperators, nameof(resultOperators));
+
+            foreach (var resultOperator in resultOperators)
             {
                 if (resultOperator is ConcatResultOperator concatOperator)
                 {
