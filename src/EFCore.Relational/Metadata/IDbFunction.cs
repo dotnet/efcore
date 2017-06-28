@@ -9,27 +9,27 @@ using System.Linq.Expressions;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a db function in an <see cref="IModel" />.
+    ///     Represents a relational database function in an <see cref="IModel" />.
     /// </summary>
     public interface IDbFunction
     {
         /// <summary>
-        ///     The schema where the function lives in the underlying database.
-        /// </summary>
-        string Schema { get; }
-
-        /// <summary>
-        ///     The name of the function in the underlying database.
+        ///     The name of the function in the database.
         /// </summary>
         string FunctionName { get; }
 
         /// <summary>
-        ///     The method which maps to the function in the underlying database.
+        ///     The schema of the function in the database.
+        /// </summary>
+        string Schema { get; }
+
+        /// <summary>
+        ///     The CLR method which maps to the function in the database.
         /// </summary>
         MethodInfo MethodInfo { get; }
 
         /// <summary>
-        ///    A method for converting a method call into sql.
+        ///    A translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
         Func<IReadOnlyCollection<Expression>, Expression> Translation { get; }
     }

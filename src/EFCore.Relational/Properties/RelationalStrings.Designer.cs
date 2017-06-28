@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogPossibleUnintendedUseOfEquals")));
 
         /// <summary>
-        ///     Possible unintended use of a potentially throwing aggregate method (Min, Max, Average) in a subquery. Client-eval will be used and operator will throw if no data exist. Changing the subquery result type to a nullable type will allow full translation.
+        ///     Possible unintended use of a potentially throwing aggregate method (Min, Max, Average) in a subquery. Client evaluation will be used and operator will throw if no data exists. Changing the subquery result type to a nullable type will allow full translation.
         /// </summary>
         public static readonly EventDefinition LogQueryPossibleExceptionWithAggregateOperator
             = new EventDefinition(
@@ -799,6 +799,54 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     LogLevel.Debug,
                     RelationalEventId.ConnectionError,
                     _resourceManager.GetString("LogRelationalLoggerConnectionErrorAsDebug")));
+
+        /// <summary>
+        ///     The DbFunction '{function}' has an invalid return type '{type}'. Ensure that the return type can be mapped by the current provider.
+        /// </summary>
+        public static string DbFunctionInvalidReturnType([CanBeNull] object function, [CanBeNull] object type)
+            => string.Format(
+                GetString("DbFunctionInvalidReturnType", nameof(function), nameof(type)),
+                function, type);
+
+        /// <summary>
+        ///     The DbFunction '{function}' has no name set. Name is a required property of a DbFunction.
+        /// </summary>
+        public static string DbFunctionNameEmpty([CanBeNull] object function)
+            => string.Format(
+                GetString("DbFunctionNameEmpty", nameof(function)),
+                function);
+
+        /// <summary>
+        ///     The parameter '{parameter}' for the DbFunction '{function}' has an invalid type '{type}'. Ensure the parameter type can be mapped by the current provider.
+        /// </summary>
+        public static string DbFunctionInvalidParameterType([CanBeNull] object parameter, [CanBeNull] object function, [CanBeNull] object type)
+            => string.Format(
+                GetString("DbFunctionInvalidParameterType", nameof(parameter), nameof(function), nameof(type)),
+                parameter, function, type);
+
+        /// <summary>
+        ///     The DbFunction '{function}' must be a static method. Non-static methods are not supported.
+        /// </summary>
+        public static string DbFunctionMethodMustBeStatic([CanBeNull] object function)
+            => string.Format(
+                GetString("DbFunctionMethodMustBeStatic", nameof(function)),
+                function);
+
+        /// <summary>
+        ///     The DbFunction '{function}' is generic. Generic methods are not supported.
+        /// </summary>
+        public static string DbFunctionGenericMethodNotSupported([CanBeNull] object function)
+            => string.Format(
+                GetString("DbFunctionGenericMethodNotSupported", nameof(function)),
+                function);
+
+        /// <summary>
+        ///     The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. () =&gt; SomeClass.SomeMethod(null, 0)
+        /// </summary>
+        public static string DbFunctionExpressionIsNotMethodCall([CanBeNull] object expression)
+            => string.Format(
+                GetString("DbFunctionExpressionIsNotMethodCall", nameof(expression)),
+                expression);
 
         private static string GetString(string name, params string[] formatterNames)
         {

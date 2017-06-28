@@ -61,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalDbFunctionBuilder HasTranslation([NotNull] Func<IReadOnlyCollection<Expression>, Expression> translation)
         {
             Check.NotNull(translation, nameof(translation));
+            
             _dbFunction.Translation = translation;
 
             return this;

@@ -8,51 +8,57 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Defines a user defined database function
+    ///     Maps a static CLR method to a database function so that the CLR method may be used in LINQ queries.
+    ///     By convention uses the .NET method name as name of the database function and the default schema.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class DbFunctionAttribute : Attribute
     {
         private string _functionName;
+        private string _schema;
 
         /// <summary>
-        /// Defines a user defined database function.  By convention uses the .NET method name as name of the database function and the default schema.
+        ///     Initializes a new instance of the <see cref="DbFunctionAttribute" /> class.
         /// </summary>
         public DbFunctionAttribute()
         {
         }
 
         /// <summary>
-        /// Defines a user defined database function
+        ///     Initializes a new instance of the <see cref="DbFunctionAttribute" /> class.
         /// </summary>
-        /// <param name="functionName">The name of the function in the underlying datastore.</param>
-        /// <param name="schema">The schema where the function lives in the underlying datastore.</param>
+        /// <param name="functionName">The name of the function in the database.</param>
+        /// <param name="schema">The schema of the function in the database.</param>
         public DbFunctionAttribute([NotNull] string functionName, [CanBeNull] string schema = null)
         {
             Check.NotEmpty(functionName, nameof(functionName));
 
-            Schema = schema;
-            FunctionName = functionName;
+            _functionName = functionName;
+            _schema = schema;
         }
 
         /// <summary>
-        ///     The name of the function in the underlying datastore.
+        ///     The name of the function in the database.
         /// </summary>
         public virtual string FunctionName
         {
             get { return _functionName; }
-
             [param: NotNull]
             set
             {
-                Check.NotEmpty(value, nameof(FunctionName));
+                Check.NotEmpty(value, nameof(value));
+
                 _functionName = value;
             }
         }
 
         /// <summary>
-        ///     The schema where the function lives in the underlying datastore.
+        ///     The schema of the function in the database.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string Schema
+        {
+            get { return _schema; }
+            [param: CanBeNull] set { _schema = value; }
+        }
     }
 }

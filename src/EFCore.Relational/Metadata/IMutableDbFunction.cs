@@ -11,17 +11,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IMutableDbFunction : IDbFunction
     {
         /// <summary>
-        ///     The schema where the function lives in the underlying datastore.
-        /// </summary>
-        new string Schema { get; [param: CanBeNull] set; }
-
-        /// <summary>
-        ///     The name of the function in the underlying datastore.
+        ///     The name of the function in the database.
         /// </summary>
         new string FunctionName { get; [param: NotNull] set;}
 
         /// <summary>
-        ///    A method for converting a method call into a sql function
+        ///     The schema of the function in the database.
+        /// </summary>
+        new string Schema { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///    A translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
         new Func<IReadOnlyCollection<Expression>, Expression> Translation { get; [param: CanBeNull] set; }
     }

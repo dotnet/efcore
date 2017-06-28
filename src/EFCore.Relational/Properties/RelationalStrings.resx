@@ -407,4 +407,22 @@
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionError string string</comment>
   </data>
+  <data name="DbFunctionInvalidReturnType" xml:space="preserve">
+    <value>The DbFunction '{function}' has an invalid return type '{type}'. Ensure that the return type can be mapped by the current provider.</value>
+  </data>
+  <data name="DbFunctionNameEmpty" xml:space="preserve">
+    <value>The DbFunction '{function}' has no name set. Name is a required property of a DbFunction.</value>
+  </data>
+  <data name="DbFunctionInvalidParameterType" xml:space="preserve">
+    <value>The parameter '{parameter}' for the DbFunction '{function}' has an invalid type '{type}'. Ensure the parameter type can be mapped by the current provider.</value>
+  </data>
+  <data name="DbFunctionMethodMustBeStatic" xml:space="preserve">
+    <value>The DbFunction '{function}' must be a static method. Non-static methods are not supported.</value>
+  </data>
+  <data name="DbFunctionGenericMethodNotSupported" xml:space="preserve">
+    <value>The DbFunction '{function}' is generic. Generic methods are not supported.</value>
+  </data>
+  <data name="DbFunctionExpressionIsNotMethodCall" xml:space="preserve">
+    <value>The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. () => SomeClass.SomeMethod(null, 0)</value>
+  </data>
 </root>

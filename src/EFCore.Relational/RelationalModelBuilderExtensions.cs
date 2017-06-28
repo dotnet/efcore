@@ -239,11 +239,11 @@ namespace Microsoft.EntityFrameworkCore
             var methodInfo = (expression.Body as MethodCallExpression)?.Method;
 
             if (methodInfo == null)
-                throw new ArgumentException(CoreStrings.DbFunctionExpressionIsNotMethodCall());
+            {
+                throw new ArgumentException(RelationalStrings.DbFunctionExpressionIsNotMethodCall(expression));
+            }
 
-            var dbFunction = modelBuilder.Model.Relational().GetOrAddDbFunction(methodInfo);
-
-            return new DbFunctionBuilder(dbFunction);
+            return modelBuilder.HasDbFunction(methodInfo);
         }
 
         /// <summary>

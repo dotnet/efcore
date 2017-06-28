@@ -2,12 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq.Expressions;
 using System.Reflection;
-using Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Xunit;
+// ReSharper disable UnusedMember.Local
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -16,29 +17,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public class MyBaseContext : DbContext
         {
             [DbFunction]
-            public static void Foo() {}
+            public static void Foo()
+            {
+            }
 
-            public static void Skip2() {}
+            public static void Skip2()
+            {
+            }
 
-            private static void Skip() {}
+            private static void Skip()
+            {
+            }
         }
 
         public class MyDerivedContext : MyBaseContext
         {
             [DbFunction]
-            public static void Bar() {}
+            public static void Bar()
+            {
+            }
 
-            public static void Skip3() {}
+            public static void Skip3()
+            {
+            }
 
-            private static void Skip4() {}
+            private static void Skip4()
+            {
+            }
 
             [DbFunction]
-            public void NonStatic() { }
+            public void NonStatic()
+            {
+            }
         }
 
         public static MethodInfo MethodAmi = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodA), new[] { typeof(string), typeof(int) });
         public static MethodInfo MethodBmi = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodB), new[] { typeof(string), typeof(int) });
-        public static MethodInfo MethodCmi = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodC), new Type[] { });
         public static MethodInfo MethodHmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodH));
 
         public class TestMethods
@@ -51,16 +65,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             [DbFunction(Schema = "bar", FunctionName = "MethodFoo")]
-            public int MethodB(string c, int d)
+            public static int MethodB(string c, int d)
             {
                 throw new NotImplementedException();
             }
 
-            public void MethodC()
+            public static void MethodC()
             {
             }
 
-            public TestMethods MethodD()
+            public static TestMethods MethodD()
             {
                 throw new NotImplementedException();
             }
@@ -77,6 +91,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
+        public virtual void Detects_non_static_function_on_dbcontext()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var methodInfo
+                = typeof(MyDerivedContext)
+                    .GetRuntimeMethod(nameof(MyDerivedContext.NonStatic), new Type[] { });
+            
+            Assert.Equal(
+                RelationalStrings.DbFunctionMethodMustBeStatic("MyDerivedContext.NonStatic"),
+                Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(methodInfo)).Message);
+        }
+
+        [Fact]
+        public void Detects_void_return_throws()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var methodInfo = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodC), new Type[] { });
+
+            Assert.Equal(
+                RelationalStrings.DbFunctionInvalidReturnType(methodInfo.DisplayName(), typeof(void).ShortDisplayName()),
+                Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(methodInfo)).Message);
+        }
+
+        [Fact]
         public void Adding_method_fluent_only_convention_defaults()
         {
             var modelBuilder = GetModelBuilder();
@@ -90,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
-        public void Adding_method_fluent_only_convention_defaults_fluent_methodInfo()
+        public void Adding_method_fluent_only_convention_defaults_fluent_method_info()
         {
             var modelBuilder = GetModelBuilder();
 
@@ -107,9 +147,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            var expectedMessage = CoreStrings.DbFunctionExpressionIsNotMethodCall();
+            Expression<Func<int>> expression = () => 1;
 
-            Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(() => 1)).Message);
+            Assert.Equal(
+                RelationalStrings.DbFunctionExpressionIsNotMethodCall(expression),
+                Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(expression)).Message);
         }
 
         [Fact]
@@ -117,9 +159,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            var expectedMessage = CoreStrings.DbFunctionExpressionIsNotMethodCall();
+            Expression<Func<int>> expression = () => TestMethods.Foo;
 
-            Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(() => TestMethods.Foo)).Message);
+            Assert.Equal(
+                RelationalStrings.DbFunctionExpressionIsNotMethodCall(expression),
+                Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(expression)).Message);
         }
 
         [Fact]
@@ -128,8 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = GetModelBuilder();
 
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi)
-                                    .HasName("foo")
-                                    .HasSchema("bar");
+                .HasName("foo")
+                .HasSchema("bar");
 
             var dbFunc = dbFuncBuilder.Metadata;
 
@@ -143,10 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            modelBuilder.HasDbFunction(MethodAmi, funcBuilder =>
-            {
-                funcBuilder.HasName("foo").HasSchema("bar") ;
-            });
+            modelBuilder.HasDbFunction(MethodAmi, funcBuilder => { funcBuilder.HasName("foo").HasSchema("bar"); });
 
             var dbFunc = modelBuilder.HasDbFunction(MethodAmi).Metadata;
 
@@ -169,13 +210,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
-        public void Adding_method_with_attribute_and_fluent_HasDbFunction_configurationSource()
+        public void Adding_method_with_attribute_and_fluent_api_configuration_source()
         {
             var modelBuilder = GetModelBuilder();
 
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi)
-                                    .HasName("foo")
-                                    .HasSchema("bar");
+                .HasName("foo")
+                .HasSchema("bar");
 
             var dbFunc = dbFuncBuilder.Metadata;
 
@@ -185,17 +226,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
-        public void Adding_method_with_attribute_and_fluent_configurationSource()
+        public void Adding_method_with_attribute_and_fluent_configuration_source()
         {
             var modelBuilder = GetModelBuilder();
 
-            modelBuilder.HasDbFunction(MethodBmi, funcBuilder =>
-            {
-                funcBuilder.HasName("foo").HasSchema("bar");
-            });
+            modelBuilder.HasDbFunction(MethodBmi, funcBuilder => { funcBuilder.HasName("foo").HasSchema("bar"); });
 
-            var dbFunc = modelBuilder.HasDbFunction(MethodBmi).Metadata ;
-            
+            var dbFunc = modelBuilder.HasDbFunction(MethodBmi).Metadata;
+
             Assert.Equal("foo", dbFunc.FunctionName);
             Assert.Equal("bar", dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
@@ -242,9 +280,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            var expectedMessage = CoreStrings.DbFunctionGenericMethodNotSupported(MethodHmi);
-
-            Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodHmi)).Message);
+            Assert.Equal(
+                RelationalStrings.DbFunctionGenericMethodNotSupported(MethodHmi.DisplayName()),
+                Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodHmi)).Message);
         }
 
         [Fact]

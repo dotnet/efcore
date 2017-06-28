@@ -68,32 +68,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             foreach (var dbFunction in model.Relational().DbFunctions)
             {
-                var dbFuncName = $"{dbFunction.MethodInfo.DeclaringType?.Name}.{dbFunction.MethodInfo.Name}";
-
+                var methodInfo = dbFunction.MethodInfo;
+                
                 if (string.IsNullOrEmpty(dbFunction.FunctionName))
-                    throw new InvalidOperationException(CoreStrings.DbFunctionNameEmpty(dbFuncName));
-
-                if (dbFunction.MethodInfo.IsStatic == false
-                    && dbFunction.MethodInfo.DeclaringType.GetTypeInfo().IsSubclassOf(typeof(DbContext)))
                 {
-                    throw new InvalidOperationException(CoreStrings.DbFunctionDbContextMethodMustBeStatic(dbFuncName));
+                    throw new InvalidOperationException(
+                        RelationalStrings.DbFunctionNameEmpty(methodInfo.DisplayName()));
                 }
-
+                
                 if (dbFunction.Translation == null)
                 {
-                    if (dbFunction.MethodInfo.ReturnType == null
-                        || RelationalDependencies.TypeMapper.IsTypeMapped(dbFunction.MethodInfo.ReturnType) == false)
-                        throw new InvalidOperationException(CoreStrings.DbFunctionInvalidReturnType(dbFunction.MethodInfo, dbFunction.MethodInfo.ReturnType));
-
-                    foreach (var parameter in dbFunction.MethodInfo.GetParameters())
+                    if (!RelationalDependencies.TypeMapper.IsTypeMapped(methodInfo.ReturnType))
                     {
-                        if(RelationalDependencies.TypeMapper.IsTypeMapped(parameter.ParameterType) == false)
+                        throw new InvalidOperationException(
+                            RelationalStrings.DbFunctionInvalidReturnType(
+                                methodInfo.DisplayName(),
+                                methodInfo.ReturnType.ShortDisplayName()));
+                    }
+
+                    foreach (var parameter in methodInfo.GetParameters())
+                    {
+                        if (!RelationalDependencies.TypeMapper.IsTypeMapped(parameter.ParameterType))
                         {
                             throw new InvalidOperationException(
-                                CoreStrings.DbFunctionInvalidParameterType(
-                                    dbFunction.MethodInfo,
+                                RelationalStrings.DbFunctionInvalidParameterType(
                                     parameter.Name,
-                                    parameter.ParameterType?.ShortDisplayName()));
+                                    methodInfo.DisplayName(),
+                                    parameter.ParameterType.ShortDisplayName()));
                         }
                     }
                 }

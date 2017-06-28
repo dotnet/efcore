@@ -19,28 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class DbFunction : IMutableDbFunction, IMethodCallTranslator
     {
-        private string _schema;
-        private string _functionName;
-
-        private ConfigurationSource? _schemaConfigurationSource;
-        private ConfigurationSource? _nameConfigurationSource;
-
-        private DbFunction([NotNull] MethodInfo dbFunctionMethodInfo,
-            [NotNull] IMutableModel model,
-            [NotNull] string annotationPrefix)
-        {
-            Check.NotNull(dbFunctionMethodInfo, nameof(dbFunctionMethodInfo));
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(annotationPrefix, nameof(annotationPrefix));
-
-            if (dbFunctionMethodInfo.IsGenericMethod)
-                throw new ArgumentException(CoreStrings.DbFunctionGenericMethodNotSupported(dbFunctionMethodInfo));
-
-            MethodInfo = dbFunctionMethodInfo;
-
-            model[BuildAnnotationName(annotationPrefix, dbFunctionMethodInfo)] = this;
-        }
-
         public static DbFunction GetOrAddDbFunction(
             [NotNull] IMutableModel model,
             [NotNull] MethodInfo methodInfo,
@@ -48,15 +26,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => FindDbFunction(model, annotationPrefix, methodInfo)
                ?? new DbFunction(methodInfo, model, annotationPrefix);
 
-        public static DbFunction FindDbFunction([NotNull] IModel model,
+        public static DbFunction FindDbFunction(
+            [NotNull] IModel model,
             [NotNull] string annotationPrefix,
             [NotNull] MethodInfo methodInfo)
         {
             Check.NotNull(model, nameof(model));
-            Check.NotNull(annotationPrefix, nameof(annotationPrefix));
+            Check.NotEmpty(annotationPrefix, nameof(annotationPrefix));
             Check.NotNull(methodInfo, nameof(methodInfo));
 
             return model[BuildAnnotationName(annotationPrefix, methodInfo)] as DbFunction;
+        }
+
+        private string _schema;
+        private string _functionName;
+
+        private ConfigurationSource? _schemaConfigurationSource;
+        private ConfigurationSource? _nameConfigurationSource;
+
+        private DbFunction(
+            [NotNull] MethodInfo methodInfo,
+            [NotNull] IMutableModel model,
+            [NotNull] string annotationPrefix)
+        {
+            Check.NotNull(methodInfo, nameof(methodInfo));
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(annotationPrefix, nameof(annotationPrefix));
+
+            if (methodInfo.IsGenericMethod)
+            {
+                throw new ArgumentException(RelationalStrings.DbFunctionGenericMethodNotSupported(methodInfo.DisplayName()));
+            }
+
+            if (!methodInfo.IsStatic)
+            {
+                throw new ArgumentException(RelationalStrings.DbFunctionMethodMustBeStatic(methodInfo.DisplayName()));
+            }
+
+            if (methodInfo.ReturnType == null
+                || methodInfo.ReturnType == typeof(void))
+            {
+                throw new ArgumentException(
+                    RelationalStrings.DbFunctionInvalidReturnType(methodInfo.DisplayName(), methodInfo.ReturnType.ShortDisplayName()));
+            }
+
+            MethodInfo = methodInfo;
+
+            model[BuildAnnotationName(annotationPrefix, methodInfo)] = this;
         }
 
         public static IEnumerable<IDbFunction> GetDbFunctions([NotNull] IModel model, [NotNull] string annotationPrefix)
@@ -70,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .Cast<IDbFunction>();
         }
 
-        private static string BuildAnnotationName(string annotationPrefix, MethodInfo methodInfo)
-            => $@"{annotationPrefix}{methodInfo.Name}({string.Join(",", methodInfo.GetParameters().Select(p => p.ParameterType.Name))})";
+        private static string BuildAnnotationName(string annotationPrefix, MethodBase methodBase)
+            => $@"{annotationPrefix}{methodBase.Name}({string.Join(",", methodBase.GetParameters().Select(p => p.ParameterType.Name))})";
 
         /// <summary>
         ///     The schema where the function lives in the underlying datastore.
@@ -79,13 +95,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string Schema
         {
             get => _schema;
-
             [param: CanBeNull] set => SetSchema(value, ConfigurationSource.Explicit);
         }
 
         public virtual void SetSchema([CanBeNull] string schema, ConfigurationSource configurationSource)
         {
             _schema = schema;
+            
             UpdateSchemaConfigurationSource(configurationSource);
         }
 
@@ -100,7 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string FunctionName
         {
             get => _functionName;
-
             [param: NotNull] set => SetFunctionName(value, ConfigurationSource.Explicit);
         }
 
@@ -109,6 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(functionName, nameof(functionName));
 
             _functionName = functionName;
+            
             UpdateNameConfigurationSource(configurationSource);
         }
 

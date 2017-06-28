@@ -1770,52 +1770,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     CoreEventId.DuplicateDependentEntityTypeInstanceWarning,
                     _resourceManager.GetString("LogDuplicateDependentEntityTypeInstance")));
 
-        /// <summary>
-        ///     The DB function '{dbFunction}' has an invalid return type '{returnType}'.
-        /// </summary>
-        public static string DbFunctionInvalidReturnType([CanBeNull] object dbFunction, [CanBeNull] object returnType)
-            => string.Format(
-                GetString("DbFunctionInvalidReturnType", nameof(dbFunction), nameof(returnType)),
-                dbFunction, returnType);
-
-        /// <summary>
-        ///     The DB function '{methodName}' has no name set.
-        /// </summary>
-        public static string DbFunctionNameEmpty([CanBeNull] object methodName)
-            => string.Format(
-                GetString("DbFunctionNameEmpty", nameof(methodName)),
-                methodName);
-
-        /// <summary>
-        ///     The parameter '{dbParameter}' for the DB function '{dbFunction}' has an invalid type '{dbParamType}'.
-        /// </summary>
-        public static string DbFunctionInvalidParameterType([CanBeNull] object dbParameter, [CanBeNull] object dbFunction, [CanBeNull] object dbParamType)
-            => string.Format(
-                GetString("DbFunctionInvalidParameterType", nameof(dbParameter), nameof(dbFunction), nameof(dbParamType)),
-                dbParameter, dbFunction, dbParamType);
-
-        /// <summary>
-        ///     The DB function '{dbFunctionName}' must be a static method.
-        /// </summary>
-        public static string DbFunctionDbContextMethodMustBeStatic([CanBeNull] object dbFunctionName)
-            => string.Format(
-                GetString("DbFunctionDbContextMethodMustBeStatic", nameof(dbFunctionName)),
-                dbFunctionName);
-
-        /// <summary>
-        ///     The DB function '{dbFunction}' is generic. Generic methods are not supported.
-        /// </summary>
-        public static string DbFunctionGenericMethodNotSupported([CanBeNull] object dbFunction)
-            => string.Format(
-                GetString("DbFunctionGenericMethodNotSupported", nameof(dbFunction)),
-                dbFunction);
-
-        /// <summary>
-        ///     The provided expression is not a method call.
-        /// </summary>
-        public static string DbFunctionExpressionIsNotMethodCall()
-            => string.Format(GetString("DbFunctionExpressionIsNotMethodCall"));
-
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

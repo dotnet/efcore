@@ -844,10 +844,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     });
         }
 
+        public static int Function()
+        {
+            return default(int);
+        }
+
         [Fact]
         public void Add_dbfunction_ignore()
         {
-            var mi = typeof(string).GetRuntimeMethod(nameof(string.ToLower), new Type[] { });
+            var mi = typeof(SqlServerModelDifferTest).GetRuntimeMethod(nameof(Function), new Type[] { });
 
             Execute(
                  _ => { },
