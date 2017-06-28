@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.UnicodeAnnotation, nameof(PropertyBuilder.IsUnicode), stringBuilder);
 
             IgnoreAnnotations(
-                annotations, 
+                annotations,
                 CoreAnnotationNames.ValueGeneratorFactoryAnnotation,
                 RelationalAnnotationNames.TypeMapping);
 
@@ -281,7 +281,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             var firstKey = true;
-            foreach (var key in keys.Where(key => key != primaryKey && !key.GetReferencingForeignKeys().Any()))
+            foreach (var key in keys.Where(key => key != primaryKey
+                                                  && (!key.GetReferencingForeignKeys().Any()
+                                                      || key.GetAnnotations().Any())))
             {
                 if (!firstKey)
                 {
@@ -292,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     firstKey = false;
                 }
 
-                GenerateKey(key, stringBuilder, primary: false);
+                GenerateKey(key, stringBuilder);
             }
         }
 
@@ -617,8 +619,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(annotations, nameof(annotations));
             Check.NotNull(annotationPrefixes, nameof(annotationPrefixes));
 
-            foreach(var ignoreAnnotation in annotations.Where(a => annotationPrefixes.Any(pre => a.Name.StartsWith(pre, StringComparison.OrdinalIgnoreCase))).ToList())
-            { 
+            foreach (var ignoreAnnotation in annotations.Where(a => annotationPrefixes.Any(pre => a.Name.StartsWith(pre, StringComparison.OrdinalIgnoreCase))).ToList())
+            {
                 annotations.Remove(ignoreAnnotation);
             }
         }
