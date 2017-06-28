@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -22,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static IServiceCollection AddScaffolding([NotNull] this IServiceCollection serviceCollection)
+        public static IServiceCollection AddScaffolding([NotNull] this IServiceCollection serviceCollection, [NotNull] IOperationReporter reporter)
             => serviceCollection
                 .AddSingleton<AnnotationCodeGeneratorDependencies>()
                 .AddSingleton<IFileService, FileSystemFileService>()
@@ -39,6 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AddSingleton<ILoggingOptions, LoggingOptions>()
                 .AddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name))
                 .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
-                .AddLogging();
+                .AddLogging(b => b.SetMinimumLevel(LogLevel.Debug).AddProvider(new OperationLoggerProvider(reporter)));
     }
 }

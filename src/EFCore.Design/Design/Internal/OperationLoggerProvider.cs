@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
@@ -12,26 +11,26 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class LoggerProvider : ILoggerProvider
+    public class OperationLoggerProvider : ILoggerProvider
     {
-        private readonly Func<string, ILogger> _creator;
+        private readonly IOperationReporter _reporter;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public LoggerProvider([NotNull] Func<string, ILogger> creator)
+        public OperationLoggerProvider([NotNull] IOperationReporter reporter)
         {
-            Check.NotNull(creator, nameof(creator));
+            Check.NotNull(reporter, nameof(reporter));
 
-            _creator = creator;
+            _reporter = reporter;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ILogger CreateLogger(string categoryName) => _creator(categoryName);
+        public virtual ILogger CreateLogger(string categoryName) => new OperationLogger(categoryName, _reporter);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

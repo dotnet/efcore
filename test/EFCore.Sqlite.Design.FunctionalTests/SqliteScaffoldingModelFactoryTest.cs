@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -20,19 +19,18 @@ namespace Microsoft.EntityFrameworkCore
     {
         private readonly RelationalScaffoldingModelFactory _scaffoldingModelFactory;
         private readonly SqliteTestStore _testStore;
-        private readonly TestDesignLoggerFactory _loggerFactory = new TestDesignLoggerFactory();
+        private readonly TestOperationReporter _reporter = new TestOperationReporter();
 
         public SqliteScaffoldingModelFactoryTest()
         {
             _testStore = SqliteTestStore.CreateScratch();
 
-            var serviceCollection = new ServiceCollection().AddScaffolding().AddLogging()
-                .AddSingleton<IOperationReporter, TestOperationReporter>();
+            var serviceCollection = new ServiceCollection().AddScaffolding(_reporter)
+                .AddSingleton<IOperationReporter>(_reporter);
             new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
 
             var serviceProvider = serviceCollection
                 .AddSingleton<IFileService, FileSystemFileService>()
-                .AddSingleton<ILoggerFactory>(_loggerFactory)
                 .BuildServiceProvider();
 
             _scaffoldingModelFactory = serviceProvider
@@ -204,11 +202,9 @@ namespace Microsoft.EntityFrameworkCore
 
             GetModel(sql);
 
-            Assert.Single(
-                _loggerFactory.Logger.Statements,
-                t => t.Contains(
-                    "Warning: " +
-                    SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0")));
+            Assert.Contains(
+                "warn: " + SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0"),
+                _reporter.Messages);
         }
 
         [Fact]
@@ -224,11 +220,9 @@ namespace Microsoft.EntityFrameworkCore
 
             GetModel(sql);
 
-            Assert.Single(
-                _loggerFactory.Logger.Statements,
-                t => t.Contains(
-                    "Warning: " +
-                    SqliteStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "Children", "Id", "Parent")));
+            Assert.Contains(
+                "warn: " + SqliteStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "Children", "Id", "Parent"),
+                _reporter.Messages);
         }
 
         [Fact]

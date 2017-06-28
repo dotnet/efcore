@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var reporter = new TestOperationReporter();
             var loggerFactory = new LoggerFactory();
-            loggerFactory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, reporter)));
+            loggerFactory.AddProvider(new OperationLoggerProvider(reporter));
 
             var logger = loggerFactory.CreateLogger(DbLoggerCategory.Database.Command.Name);
             logger.Log<object>(

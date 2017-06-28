@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -52,9 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Check.NotNull(tables, nameof(tables));
 
             var services = _servicesBuilder.Build(provider);
-
-            var loggerFactory = services.GetService<ILoggerFactory>();
-            loggerFactory.AddProvider(new LoggerProvider(categoryName => new OperationLogger(categoryName, _reporter)));
 
             var generator = services.GetRequiredService<IModelScaffolder>();
 

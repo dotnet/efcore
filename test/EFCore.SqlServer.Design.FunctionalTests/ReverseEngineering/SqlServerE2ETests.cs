@@ -108,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 
+            Assert.Contains(_reporter.Messages, m => m.StartsWith("warn: ") && m.Contains("PK__Filtered__"));
             Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"), _reporter.Messages);
             Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"), _reporter.Messages);
             Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"), _reporter.Messages);
@@ -116,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
             Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"), _reporter.Messages);
             Assert.Contains("warn: " + DesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"), _reporter.Messages);
             Assert.Contains("warn: " + DesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn"), _reporter.Messages);
-            Assert.Equal(8, _reporter.Messages.Count);
+            Assert.Equal(9, _reporter.Messages.Count(m => m.StartsWith("warn: ")));
             AssertEqualFileContents(expectedFileSet, actualFileSet);
             AssertCompile(actualFileSet);
         }
@@ -149,6 +150,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 
+            Assert.Contains(_reporter.Messages, m => m.StartsWith("warn: ") && m.Contains("PK__Filtered__"));
             Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"), _reporter.Messages);
             Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"), _reporter.Messages);
             Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"), _reporter.Messages);
@@ -157,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
             Assert.Contains("warn: " + DesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"), _reporter.Messages);
             Assert.Contains("warn: " + DesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"), _reporter.Messages);
             Assert.Contains("warn: " + DesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn"), _reporter.Messages);
-            Assert.Equal(8, _reporter.Messages.Count);
+            Assert.Equal(9, _reporter.Messages.Count(m => m.StartsWith("warn: ")));
             AssertEqualFileContents(expectedFileSet, actualFileSet);
             AssertCompile(actualFileSet);
         }
@@ -204,7 +206,7 @@ CREATE TABLE NonNullBoolWithDefault
                 };
 
                 Assert.Contains("warn: " + DesignStrings.NonNullableBoooleanColumnHasDefaultConstraint("dbo.NonNullBoolWithDefault.BoolWithDefaultValueSql"), _reporter.Messages);
-                Assert.Equal(1, _reporter.Messages.Count);
+                Assert.Equal(1, _reporter.Messages.Count(m => m.StartsWith("warn: ")));
 
                 AssertEqualFileContents(expectedFileSet, actualFileSet);
                 AssertCompile(actualFileSet);
@@ -274,7 +276,7 @@ CREATE SEQUENCE NumericSequence
 
                 Assert.Contains("warn: " + DesignStrings.BadSequenceType("DecimalSequence", "decimal"), _reporter.Messages);
                 Assert.Contains("warn: " + DesignStrings.BadSequenceType("NumericSequence", "numeric"), _reporter.Messages);
-                Assert.Equal(2, _reporter.Messages.Count);
+                Assert.Equal(2, _reporter.Messages.Count(m => m.StartsWith("warn: ")));
 
                 AssertEqualFileContents(expectedFileSet, actualFileSet);
                 AssertCompile(actualFileSet);

@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .AddSingleton<CSharpMigrationsGeneratorDependencies>()
                 .AddSingleton<IMigrationsCodeGenerator, CSharpMigrationsGenerator>()
                 .AddSingleton(_reporter)
-                .AddScaffolding();
+                .AddScaffolding(_reporter);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

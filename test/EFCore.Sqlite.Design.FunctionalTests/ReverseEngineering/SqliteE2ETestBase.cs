@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                Assert.Empty(_reporter.Messages);
+                Assert.Empty(_reporter.Messages.Where(m => m.StartsWith("warn: ")));
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "OneToOne"))
                 {
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                Assert.Empty(_reporter.Messages);
+                Assert.Empty(_reporter.Messages.Where(m => m.StartsWith("warn: ")));
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "OneToMany"))
                 {
@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                Assert.Empty(_reporter.Messages);
+                Assert.Empty(_reporter.Messages.Where(m => m.StartsWith("warn: ")));
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "ManyToMany"))
                 {
@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                Assert.Empty(_reporter.Messages);
+                Assert.Empty(_reporter.Messages.Where(m => m.StartsWith("warn: ")));
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "SelfRef"))
                 {
@@ -237,10 +237,8 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     overwriteFiles: false);
 
                 var errorMessage = DesignStrings.UnableToGenerateEntityType("Alicia");
-                Assert.Collection(
-                    _reporter.Messages,
-                    x => Assert.Equal("warn: " + DesignStrings.MissingPrimaryKey("Alicia"), x),
-                    x => Assert.Equal("warn: " + errorMessage, x));
+                Assert.Contains("warn: " + DesignStrings.MissingPrimaryKey("Alicia"), _reporter.Messages);
+                Assert.Contains("warn: " + errorMessage, _reporter.Messages);
                 Assert.Contains(errorMessage, InMemoryFiles.RetrieveFileContents(TestProjectFullPath, Path.GetFileName(results.ContextFile)));
             }
         }
@@ -268,11 +266,9 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                Assert.Collection(
-                    _reporter.Messages,
-                    x => Assert.Equal("warn: " + DesignStrings.MissingPrimaryKey("Principal"), x),
-                    x => Assert.Equal("warn: " + DesignStrings.UnableToGenerateEntityType("Principal"), x),
-                    x => Assert.Equal("warn: " + DesignStrings.ForeignKeyScaffoldErrorPrincipalTableScaffoldingError("Dependent(PrincipalId)", "Principal"), x));
+                Assert.Contains("warn: " + DesignStrings.MissingPrimaryKey("Principal"), _reporter.Messages);
+                Assert.Contains("warn: " + DesignStrings.UnableToGenerateEntityType("Principal"), _reporter.Messages);
+                Assert.Contains("warn: " + DesignStrings.ForeignKeyScaffoldErrorPrincipalTableScaffoldingError("Dependent(PrincipalId)", "Principal"), _reporter.Messages);
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "NoPrincipalPk"))
                 {
@@ -332,7 +328,7 @@ CREATE TABLE IF NOT EXISTS String (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                Assert.Empty(_reporter.Messages);
+                Assert.Empty(_reporter.Messages.Where(m => m.StartsWith("warn: ")));
 
                 var files = new FileSet(InMemoryFiles, TestProjectFullPath)
                 {
@@ -370,7 +366,7 @@ CREATE TABLE IF NOT EXISTS Comment (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                Assert.Empty(_reporter.Messages);
+                Assert.Empty(_reporter.Messages.Where(m => m.StartsWith("warn: ")));
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "FkToAltKey"))
                 {

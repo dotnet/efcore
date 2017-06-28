@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -25,10 +24,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             _testStore = SqliteTestStore.CreateScratch();
 
-            var serviceCollection = new ServiceCollection().AddScaffolding()
-                .AddLogging()
-                .AddSingleton<ILoggerFactory>(new TestDesignLoggerFactory())
-                .AddSingleton<IOperationReporter, TestOperationReporter>();
+            var reporter = new TestOperationReporter();
+            var serviceCollection = new ServiceCollection().AddScaffolding(reporter)
+                .AddSingleton<IOperationReporter>(reporter);
             new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();

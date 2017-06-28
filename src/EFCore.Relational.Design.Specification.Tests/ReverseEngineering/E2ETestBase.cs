@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
 
             var serviceBuilder = new ServiceCollection()
                 .AddSingleton<IOperationReporter>(_reporter)
-                .AddScaffolding()
+                .AddScaffolding(_reporter)
                 .AddLogging();
 
             ConfigureDesignTimeServices(serviceBuilder);
