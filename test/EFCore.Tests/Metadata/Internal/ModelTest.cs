@@ -16,9 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Use_of_custom_IModel_throws()
         {
+            var moq = Mock.Of<IModel>();
+
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IModel_throws), nameof(IModel), "IModelProxy"),
-                Assert.Throws<NotSupportedException>(() => Mock.Of<IModel>().AsModel()).Message);
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IModel_throws), nameof(IModel), moq.GetType().ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(() => moq.AsModel()).Message);
         }
 
         [Fact]

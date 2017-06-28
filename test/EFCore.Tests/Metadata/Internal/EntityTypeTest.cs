@@ -73,9 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Use_of_custom_IEntityType_throws()
         {
+            var moq = Mock.Of<IEntityType>();
+
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IEntityType_throws), nameof(IEntityType), "IEntityTypeProxy"),
-                Assert.Throws<NotSupportedException>(() => Mock.Of<IEntityType>().AsEntityType()).Message);
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IEntityType_throws), nameof(IEntityType), moq.GetType().ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(() => moq.AsEntityType()).Message);
         }
 
         [Fact]

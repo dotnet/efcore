@@ -15,9 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Use_of_custom_IKey_throws()
         {
+            var moq = Mock.Of<IKey>();
+            
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IKey_throws), nameof(IKey), "IKeyProxy"),
-                Assert.Throws<NotSupportedException>(() => Mock.Of<IKey>().AsKey()).Message);
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IKey_throws), nameof(IKey), moq.GetType().ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(() => moq.AsKey()).Message);
         }
 
         [Fact]
