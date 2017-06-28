@@ -566,6 +566,26 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [Fact]
+        public void Throws_when_using_query_with_IListSource()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                Assert.Equal(CoreStrings.DataBindingWithIListSource,
+                    Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Distinct()).GetList()).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_using_Local_with_IListSource()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                Assert.Equal(CoreStrings.DataBindingWithIListSource,
+                    Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Local).GetList()).Message);
+            }
+        }
+
         private class Category
         {
             public int Id { get; set; }

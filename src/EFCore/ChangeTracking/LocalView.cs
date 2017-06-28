@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity in the local view.</typeparam>
-    public class LocalView<TEntity> : ICollection<TEntity>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
+    public class LocalView<TEntity> : ICollection<TEntity>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging, IListSource
         where TEntity : class
     {
         private ObservableBackedBindingList<TEntity> _bindingList;
@@ -443,5 +444,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns> The binding list. </returns>
         public virtual BindingList<TEntity> ToBindingList()
             => _bindingList ?? (_bindingList = new ObservableBackedBindingList<TEntity>(ToObservableCollection()));
+
+        /// <summary>
+        ///     <para>
+        ///         This method is called by data binding frameworks when attempting to data bind
+        ///         directly to a <see cref="LocalView{TEntity}" />.
+        ///     </para>
+        ///     <para>
+        ///         This implementation always throws an exception as <see cref="LocalView{TEntity}" /> 
+        ///         does not maintain an ordered list with indexes. Instead call <see cref="ToObservableCollection" /> 
+        ///         for WPF binding, or <see cref="ToBindingList" /> for WinForms.
+        ///     </para>
+        /// </summary>
+        /// <exception cref="NotSupportedException"> Always thrown. </exception>
+        /// <returns> Never returns, always throws an exception. </returns>
+        IList IListSource.GetList() => throw new NotSupportedException(CoreStrings.DataBindingWithIListSource);
+
+        /// <summary>
+        ///     Gets a value indicating whether the collection is a collection of System.Collections.IList objects.
+        ///     Always returns false.
+        /// </summary>
+        bool IListSource.ContainsListCollection => false;
     }
 }
