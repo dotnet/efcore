@@ -14,9 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Use_of_custom_INavigation_throws()
         {
+            var moq = Mock.Of<INavigation>();
+
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_INavigation_throws), nameof(INavigation), "INavigationProxy"),
-                Assert.Throws<NotSupportedException>(() => Mock.Of<INavigation>().AsNavigation()).Message);
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_INavigation_throws), nameof(INavigation), moq.GetType().ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(() => moq.AsNavigation()).Message);
         }
 
         [Fact]

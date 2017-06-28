@@ -14,17 +14,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Use_of_custom_IProperty_throws()
         {
+            var moq = Mock.Of<IProperty>();
+
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IProperty_throws), nameof(IProperty), "IPropertyProxy"),
-                Assert.Throws<NotSupportedException>(() => Mock.Of<IProperty>().AsProperty()).Message);
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IProperty_throws), nameof(IProperty), moq.GetType().ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(() => moq.AsProperty()).Message);
         }
 
         [Fact]
         public void Use_of_custom_IPropertyBase_throws()
         {
+            var moq = Mock.Of<IPropertyBase>();
+
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IPropertyBase), "IPropertyBaseProxy"),
-                Assert.Throws<NotSupportedException>(() => Mock.Of<IPropertyBase>().AsPropertyBase()).Message);
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IPropertyBase), moq.GetType().ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(() => moq.AsPropertyBase()).Message);
         }
 
         [Fact]
