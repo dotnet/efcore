@@ -1059,6 +1059,35 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_when_groupby_subquery(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var grouping
+                    = useString
+                        ? (from c in context.Set<Customer>()
+                               .Include("Orders.OrderDetails.Product")
+                           where c.CustomerID == "ALFKI"
+                           group c by c.City)
+                            .SingleOrDefault()
+                        : (from c in context.Set<Customer>()
+                               .Include(c => c.Orders)
+                               .ThenInclude(o => o.OrderDetails)
+                               .ThenInclude(od => od.Product)
+                           where c.CustomerID == "ALFKI"
+                           group c by c.City)
+                            .SingleOrDefault();
+
+                Assert.NotNull(grouping);
+                Assert.Equal(6, grouping.SelectMany(c => c.Orders).Count());
+                Assert.True(grouping.SelectMany(c => c.Orders).SelectMany(o => o.OrderDetails).All(od => od.Product != null));
+                Assert.Equal(30, context.ChangeTracker.Entries().Count());
+            }
+        }
+
         [Theory]
         [InlineData(false)]
         [InlineData(true)]

@@ -190,7 +190,10 @@ namespace Microsoft.EntityFrameworkCore
                             LogBuilder.AppendLine(format);
                         }
 
-                        TestOutputHelper?.WriteLine(format + Environment.NewLine);
+                        if (eventId.Id != RelationalEventId.CommandExecuted.Id)
+                        {
+                            TestOutputHelper?.WriteLine(format + Environment.NewLine);
+                        }
                     }
                 }
             }
