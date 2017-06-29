@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         public virtual string UnknownLiteral(object value)
         {
-            if (value == null)
+            if (value == null || value == DBNull.Value)
             {
                 return "null";
             }

@@ -120,6 +120,23 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(77, blogs[0].Id);
                     Assert.Equal(78, blogs[1].Id);
                 }
+
+                using (var context = new BlogContextDefaultValueNoMigrations(testStore.Name))
+                {
+                    context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new BlogContextDefaultValueNoMigrations(testStore.Name))
+                {
+                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+
+                    Assert.Equal(77, blogs[0].Id);
+                    Assert.Equal(78, blogs[1].Id);
+                    Assert.Equal(79, blogs[2].Id);
+                    Assert.Equal(80, blogs[3].Id);
+                }
             }
         }
 
@@ -140,6 +157,22 @@ namespace Microsoft.EntityFrameworkCore
                     .Entity<Blog>()
                     .Property(e => e.Id)
                     .HasDefaultValueSql("next value for MySequence");
+            }
+        }
+
+        public class BlogContextDefaultValueNoMigrations : ContextBase
+        {
+            public BlogContextDefaultValueNoMigrations(string databaseName)
+                : base(databaseName)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .Entity<Blog>()
+                    .Property(e => e.Id)
+                    .HasDefaultValue();
             }
         }
 
@@ -347,6 +380,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.NotEqual(new DateTime(), blogs[0].CreatedOn);
                     Assert.NotEqual(new DateTime(), blogs[1].CreatedOn);
+                    Assert.Null(blogs[0].OtherId);
+                    Assert.Null(blogs[1].OtherId);
                 }
 
                 using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
@@ -381,12 +416,18 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Blog>()
-                    .Property(e => e.CreatedOn)
-                    .ValueGeneratedOnAdd()
-                    .HasDefaultValueSql("getdate()");
+                modelBuilder.Entity<Blog>(
+                        b =>
+                            {
+                                b.Property(e => e.CreatedOn)
+                                    .HasDefaultValueSql("getdate()");
+
+                                b.Property(e => e.OtherId)
+                                    .HasDefaultValue(null);
+                            });
             }
         }
+
 
         [Fact]
         public void Insert_with_non_key_default_value_readonly()
@@ -1024,7 +1065,7 @@ END");
             public int Id { get; set; }
             public string Name { get; set; }
             public DateTime CreatedOn { get; set; }
-            public int OtherId { get; set; }
+            public int? OtherId { get; set; }
         }
 
         public class NullableKeyBlog

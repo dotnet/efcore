@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         protected virtual bool SetDefaultValue([CanBeNull] object value)
         {
-            if (value != null)
+            if (value != null && value != DBNull.Value)
             {
                 var valueType = value.GetType();
                 if (Property.ClrType.UnwrapNullableType() != valueType)

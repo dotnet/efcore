@@ -1270,6 +1270,16 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalPropertyBuilderExtensions",
+      "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder HasDefaultValue(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder, System.Object value)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalPropertyBuilderExtensions",
+      "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> HasDefaultValue<T0>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> propertyBuilder, System.Object value)",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public static class Microsoft.EntityFrameworkCore.RelationalModelBuilderExtensions",
       "MemberId": "public static Microsoft.EntityFrameworkCore.Metadata.RelationalSequenceBuilder HasSequence(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, System.Type clrType, System.String name, System.String schema = null)",
       "Kind": "Removal"

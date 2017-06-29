@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -140,25 +141,41 @@ namespace Microsoft.EntityFrameworkCore
             => (PropertyBuilder<TProperty>)HasComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
 
         /// <summary>
-        ///     Configures the default value for the column that the property maps to when targeting a relational database.
+        ///     <para>
+        ///         Configures the default value for the column that the property maps
+        ///         to when targeting a relational database.
+        ///     </para>
+        ///     <para>
+        ///         When called with no argument, this method tells EF that a column has a default
+        ///         value constraint of some sort without needing to specify exactly what it is.
+        ///         This can be useful when mapping EF to an existing database.
+        ///     </para>
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="value"> The default value of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder HasDefaultValue(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] object value)
+            [CanBeNull] object value = null)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
             var internalPropertyBuilder = propertyBuilder.GetInfrastructure<InternalPropertyBuilder>();
-            internalPropertyBuilder.Relational(ConfigurationSource.Explicit).HasDefaultValue(value);
+            internalPropertyBuilder.Relational(ConfigurationSource.Explicit).HasDefaultValue(value ?? DBNull.Value);
 
             return propertyBuilder;
         }
 
         /// <summary>
-        ///     Configures the default value for the column that the property maps to when targeting a relational database.
+        ///     <para>
+        ///         Configures the default value for the column that the property maps
+        ///         to when targeting a relational database.
+        ///     </para>
+        ///     <para>
+        ///         When called with no argument, this method tells EF that a column has a default
+        ///         value constraint of some sort without needing to specify exactly what it is.
+        ///         This can be useful when mapping EF to an existing database.
+        ///     </para>
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
@@ -166,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasDefaultValue<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] object value)
+            [CanBeNull] object value = null)
             => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value);
     }
 }

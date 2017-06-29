@@ -719,10 +719,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                            && property.IsConcurrencyToken
                                            && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
             columnOperation.IsNullable = isNullable;
-            columnOperation.DefaultValue = annotations.DefaultValue
+
+            var defaultValue = annotations.DefaultValue;
+            columnOperation.DefaultValue = (defaultValue == DBNull.Value ? null : defaultValue)
                                            ?? (inline || isNullable
                                                ? null
                                                : GetDefaultValue(columnOperation.ClrType));
+
             columnOperation.DefaultValueSql = annotations.DefaultValueSql;
             columnOperation.ComputedColumnSql = annotations.ComputedColumnSql;
             columnOperation.AddAnnotations(migrationsAnnotations);
