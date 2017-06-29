@@ -2495,6 +2495,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public async virtual Task GroupBy_with_aggregate_function_by_navigation_property()
+        {
+            using (var context = CreateContext())
+            {
+                await AssertQuery<Order>(os => os.GroupBy(c => c.EmployeeID)
+                    .Select(g => new { max = g.Max(i => i.Customer.Region) }));
+            }
+        }
+
+        [ConditionalFact]
         public virtual async Task GroupBy_with_anonymous_element()
         {
             await AssertQuery<Order>(os =>
