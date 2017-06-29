@@ -18,9 +18,4 @@
     <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(InternalAspNetCoreSdkVersion)" PrivateAssets="All" />
   </ItemGroup>
 
-  <!-- TODO: Remove when dotnet/sdk#1220 is fixed -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-    <PackageReference Include="NETStandard.Library.NETFramework" Version="$(NETFrameworkPackageVersion)" PrivateAssets="All" />
-  </ItemGroup>
-
 </Project>
