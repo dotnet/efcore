@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static int IndexOf([NotNull] this IKey key, IProperty property)
+        public static int IndexOf([NotNull] this IKey key, [NotNull] IProperty property)
         {
             var index = 0;
             for (; index < key.Properties.Count && key.Properties[index] != property; index++)
