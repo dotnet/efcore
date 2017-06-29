@@ -32,6 +32,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Query_for_leaf_type_loads_all_owned_navs();
         }
 
+        [Fact(Skip = "#8907")]
+        public override void Query_when_group_by()
+        {
+            base.Query_when_group_by();
+        }
+
+        [Fact(Skip = "#8907")]
+        public override void Query_when_subquery()
+        {
+            base.Query_when_subquery();
+        }
+
         protected override DbContext CreateContext() => _fixture.CreateContext();
     }
 }

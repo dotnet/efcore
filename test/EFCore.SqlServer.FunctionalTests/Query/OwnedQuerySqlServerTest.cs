@@ -38,6 +38,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql("");
         }
 
+        [Fact(Skip = "#8907")]
+        public override void Query_when_group_by()
+        {
+            base.Query_when_group_by();
+        }
+
+        [Fact(Skip = "#8907")]
+        public override void Query_when_subquery()
+        {
+            base.Query_when_subquery();
+        }
+
         protected override DbContext CreateContext() => _fixture.CreateContext();
 
         private void AssertSql(params string[] expected)

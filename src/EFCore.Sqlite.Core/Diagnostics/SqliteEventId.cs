@@ -28,9 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             SequenceConfiguredWarning,
 
             // Scaffolding events
-            ColumnFound = CoreEventId.ProviderBaseId + 100,
-            ForeignKeyColumnFound,
-            SchemasNotSupportedWarning
+            ColumnFound = CoreEventId.ProviderDesignBaseId,
+            ForeignKeyFound,
+            ForeignKeyPrincipalColumnMissingWarning,
+            ForeignKeyReferencesMissingTableWarning,
+            IndexFound,
+            MissingTableWarning,
+            PrimaryKeyFound,
+            SchemasNotSupportedWarning,
+            TableFound,
+            UniqueConstraintFound
         }
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
@@ -72,15 +79,57 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId ColumnFound = MakeScaffoldingId(Id.ColumnFound);
 
         /// <summary>
-        ///     A column of a foreign key was found.
-        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
-        /// </summary>
-        public static readonly EventId ForeignKeyColumnFound = MakeScaffoldingId(Id.ForeignKeyColumnFound);
-
-        /// <summary>
         ///     SQLite does not support schemas.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
         public static readonly EventId SchemasNotSupportedWarning = MakeScaffoldingId(Id.SchemasNotSupportedWarning);
+
+        /// <summary>
+        ///     A foreign key references a missing table.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId ForeignKeyReferencesMissingTableWarning = MakeScaffoldingId(Id.ForeignKeyReferencesMissingTableWarning);
+
+        /// <summary>
+        ///     A table was found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId TableFound = MakeScaffoldingId(Id.TableFound);
+
+        /// <summary>
+        ///     The database is missing a table.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId MissingTableWarning = MakeScaffoldingId(Id.MissingTableWarning);
+
+        /// <summary>
+        ///     A column referenced by a foreign key constraint was not found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId ForeignKeyPrincipalColumnMissingWarning = MakeScaffoldingId(Id.ForeignKeyPrincipalColumnMissingWarning);
+
+        /// <summary>
+        ///     An index was found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId IndexFound = MakeScaffoldingId(Id.IndexFound);
+
+        /// <summary>
+        ///     A foreign key was found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId ForeignKeyFound = MakeScaffoldingId(Id.ForeignKeyFound);
+
+        /// <summary>
+        ///     A primary key was found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId PrimaryKeyFound = MakeScaffoldingId(Id.PrimaryKeyFound);
+
+        /// <summary>
+        ///     A unique constraint was found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId UniqueConstraintFound = MakeScaffoldingId(Id.UniqueConstraintFound);
     }
 }

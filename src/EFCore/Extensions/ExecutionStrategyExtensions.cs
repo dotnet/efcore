@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult"> The return type of <paramref name="operation" />. </typeparam>
         /// <returns> The result from the operation. </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static TResult Execute<TState, TResult>(
             [NotNull] this IExecutionStrategy strategy,
@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static Task<TResult> ExecuteAsync<TState, TResult>(
             [NotNull] this IExecutionStrategy strategy,
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     transaction was being committed.
         /// </param>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static void ExecuteInTransaction(
             [NotNull] this IExecutionStrategy strategy,
@@ -406,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static Task ExecuteInTransactionAsync(
             [NotNull] this IExecutionStrategy strategy,
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static Task ExecuteInTransactionAsync(
             [NotNull] this IExecutionStrategy strategy,
@@ -460,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult"> The return type of <paramref name="operation" />. </typeparam>
         /// <returns> The result from the operation. </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static TResult ExecuteInTransaction<TResult>(
             [NotNull] this IExecutionStrategy strategy,
@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TResult>(
             [NotNull] this IExecutionStrategy strategy,
@@ -515,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <typeparam name="TState"> The type of the state. </typeparam>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static void ExecuteInTransaction<TState>(
             [NotNull] this IExecutionStrategy strategy,
@@ -552,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static Task ExecuteInTransactionAsync<TState>(
             [NotNull] this IExecutionStrategy strategy,
@@ -583,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult"> The return type of <paramref name="operation" />. </typeparam>
         /// <returns> The result from the operation. </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static TResult ExecuteInTransaction<TState, TResult>(
             [NotNull] this IExecutionStrategy strategy,
@@ -620,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TState, TResult>(
             [NotNull] this IExecutionStrategy strategy,
@@ -652,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult"> The return type of <paramref name="operation" />. </typeparam>
         /// <returns> The result from the operation. </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static TResult ExecuteInTransaction<TState, TResult>(
             [NotNull] IExecutionStrategy strategy,
@@ -702,7 +702,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TState, TResult>(
             [NotNull] IExecutionStrategy strategy,

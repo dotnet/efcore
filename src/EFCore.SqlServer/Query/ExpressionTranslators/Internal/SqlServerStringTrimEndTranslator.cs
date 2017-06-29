@@ -14,7 +14,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqlServerStringTrimEndTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _methodInfo
+        // Method defined in netcoreapp2.0 only
+        private static readonly MethodInfo _methodInfoWithoutArgs
+            = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), new Type[] { });
+
+        // Method defined in netstandard2.0
+        private static readonly MethodInfo _methodInfoWithCharArrayArg
             = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), new[] { typeof(char[]) });
 
         /// <summary>
@@ -23,11 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            if (_methodInfo.Equals(methodCallExpression.Method)
+            if (_methodInfoWithoutArgs?.Equals(methodCallExpression.Method) == true
+                || _methodInfoWithCharArrayArg.Equals(methodCallExpression.Method)
                 // SqlServer RTRIM does not take arguments
                 && ((methodCallExpression.Arguments[0] as ConstantExpression)?.Value as Array)?.Length == 0)
             {
                 var sqlArguments = new[] { methodCallExpression.Object };
+
                 return new SqlFunctionExpression("RTRIM", methodCallExpression.Type, sqlArguments);
             }
 

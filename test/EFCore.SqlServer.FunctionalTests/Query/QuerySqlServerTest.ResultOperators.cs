@@ -1,6 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Internal;
+using Xunit;
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class QuerySqlServerTest
@@ -230,6 +233,26 @@ WHERE [od].[ProductID] = 1");
         public override void Average_on_float_column_in_subquery()
         {
             base.Average_on_float_column_in_subquery();
+
+            AssertContainsSql(
+                @"SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300",
+                //
+                @"@_outer_OrderID='10248'
+
+SELECT CAST(AVG(CAST([od0].[Discount] AS real)) AS real)
+FROM [Order Details] AS [od0]
+WHERE @_outer_OrderID = [od0].[OrderID]");
+
+            Assert.Contains(
+                RelationalStrings.LogQueryPossibleExceptionWithAggregateOperator.GenerateMessage(),
+                Fixture.TestSqlLoggerFactory.Log);
+        }
+
+        public override void Average_on_float_column_in_subquery_with_cast()
+        {
+            base.Average_on_float_column_in_subquery_with_cast();
 
             AssertSql(
                 @"SELECT [o].[OrderID], (

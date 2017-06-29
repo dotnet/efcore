@@ -203,32 +203,41 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(context2.Database.AutoTransactionsEnabled);
         }
 
-        [ConditionalFact]
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
+        [Fact]
         public void State_manager_is_reset()
         {
-            var serviceProvider = BuildServiceProvider<PooledContext>();
+            var weakRef = Scoper(() =>
+            {
+                var serviceProvider = BuildServiceProvider<PooledContext>();
 
-            var serviceScope = serviceProvider.CreateScope();
+                var serviceScope = serviceProvider.CreateScope();
 
-            var context1 = serviceScope.ServiceProvider.GetService<PooledContext>();
+                var context1 = serviceScope.ServiceProvider.GetService<PooledContext>();
 
-            var weakRef = new WeakReference(context1.Customers.First(c => c.CustomerId == "ALFKI"));
+                var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
 
-            Assert.Equal(1, context1.ChangeTracker.Entries().Count());
+                Assert.Equal(1, context1.ChangeTracker.Entries().Count());
 
-            serviceScope.Dispose();
+                serviceScope.Dispose();
 
-            serviceScope = serviceProvider.CreateScope();
+                serviceScope = serviceProvider.CreateScope();
 
-            var context2 = serviceScope.ServiceProvider.GetService<PooledContext>();
+                var context2 = serviceScope.ServiceProvider.GetService<PooledContext>();
 
-            Assert.Same(context1, context2);
-            Assert.Empty(context2.ChangeTracker.Entries());
+                Assert.Same(context1, context2);
+                Assert.Empty(context2.ChangeTracker.Entries());
+
+                return new WeakReference(entity);
+            });
 
             GC.Collect();
 
             Assert.False(weakRef.IsAlive);
+        }
+
+        private static T Scoper<T>(Func<T> getter)
+        {
+            return getter();
         }
 
         [Fact]

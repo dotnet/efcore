@@ -353,7 +353,7 @@ CREATE TABLE "OneToOneFKToUniqueKeyPrincipal" (
 	"SomePrincipalColumn" nvarchar (20) NOT NULL,
 	"OneToOneFKToUniqueKeyPrincipalUniqueKey1" "int" NOT NULL,
 	"OneToOneFKToUniqueKeyPrincipalUniqueKey2" "int" NOT NULL,
-	CONSTRAINT "PK_OneToOneFKToUniqueKeyPrincipal" PRIMARY KEY CLUSTERED 
+	CONSTRAINT "PK_OneToOneFKToUniqueKeyPrincipal" PRIMARY KEY NONCLUSTERED
 	(
 		"OneToOneFKToUniqueKeyPrincipalID1", "OneToOneFKToUniqueKeyPrincipalID2"
 	),

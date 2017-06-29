@@ -3,9 +3,7 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -19,6 +17,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        }
+
+        public override void Shaper_command_caching_when_parameter_names_different()
+        {
+            base.Shaper_command_caching_when_parameter_names_different();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [e]
+WHERE [e].[CustomerID] = N'ALFKI'",
+                //
+                @"SELECT COUNT(*)
+FROM [Customers] AS [e]
+WHERE [e].[CustomerID] = N'ALFKI'");            
         }
 
         public override void Lifting_when_subquery_nested_order_by_anonymous()
@@ -64,38 +76,44 @@ FROM (
 FROM [Orders] AS [c1_Orders]");
         }
 
-        [ConditionalFact]
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
+        [Fact]
         public virtual void Cache_key_contexts_are_detached()
         {
-            MakeGarbage(CreateContext(), out var wr);
+            var weakRef = Scoper(() =>
+            {
+                var context = CreateContext();
+
+                var wr = new WeakReference(context);
+
+                using (context)
+                {
+                    var orderDetails = context.OrderDetails;
+
+                    Func<NorthwindContext, Customer> query
+                        = param
+                            => (from c in context.Customers
+                                from o in context.Set<Order>()
+                                from od in orderDetails
+                                from e1 in param.Employees
+                                from e2 in param.Set<Order>()
+                                select c).First();
+
+                    query(context);
+
+                    Assert.True(wr.IsAlive);
+
+                    return wr;
+                }
+            });
 
             GC.Collect();
 
-            Assert.False(wr.IsAlive);
+            Assert.False(weakRef.IsAlive);
         }
 
-        private static void MakeGarbage(NorthwindContext context, out WeakReference wr)
+        private static T Scoper<T>(Func<T> getter)
         {
-            wr = new WeakReference(context);
-
-            using (context)
-            {
-                var orderDetails = context.OrderDetails;
-
-                Func<NorthwindContext, Customer> query
-                    = param
-                        => (from c in context.Customers
-                            from o in context.Set<Order>()
-                            from od in orderDetails
-                            from e1 in param.Employees
-                            from e2 in param.Set<Order>()
-                            select c).First();
-
-                query(context);
-
-                Assert.True(wr.IsAlive);
-            }
+            return getter();
         }
 
         public override void Local_array()
@@ -980,7 +998,7 @@ FROM (
 
         public void Skip_when_no_OrderBy()
         {
-            Assert.Throws<Exception>(() => AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
+            Assert.Throws<Exception>(() => CreateContext().Set<Customer>().Skip(5).Take(10).ToList());
         }
 
         public override void Take_Distinct_Count()
@@ -1718,7 +1736,7 @@ ORDER BY DATEPART(month, [o].[OrderDate])");
             AssertSql(
                 @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+ORDER BY [o0].[CustomerID], [o0].[OrderID]");
         }
 
         public override void GroupBy_with_orderby_and_anonymous_projection()
@@ -2222,6 +2240,41 @@ FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = @_outer_CustomerID",
                 //
                 @"@_outer_CustomerID='ANTON' (Size = 4000)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = @_outer_CustomerID");
+        }
+
+        public override void Select_correlated_subquery_filtered()
+        {
+            base.Select_correlated_subquery_filtered();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+ORDER BY [c].[CustomerID]",
+                //
+                @"@_outer_CustomerID='ALFKI' (Size = 4000)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = @_outer_CustomerID",
+                //
+                @"@_outer_CustomerID='ANATR' (Size = 4000)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = @_outer_CustomerID",
+                //
+                @"@_outer_CustomerID='ANTON' (Size = 4000)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = @_outer_CustomerID",
+                //
+                @"@_outer_CustomerID='AROUT' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]

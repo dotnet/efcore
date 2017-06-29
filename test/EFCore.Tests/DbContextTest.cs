@@ -1109,14 +1109,25 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task Can_add_new_entities_to_context_with_key_generation_graph(bool async)
+        [InlineData(false, false, true)]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, true, false)]
+        public async Task Can_add_new_entities_to_context_with_key_generation_graph(bool attachFirst, bool useEntry, bool async)
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var gu1 = new TheGu { ShirtColor = "Red" };
                 var gu2 = new TheGu { ShirtColor = "Still Red" };
+
+                if (attachFirst)
+                {
+                    context.Entry(gu1).State = EntityState.Unchanged;
+                    Assert.Equal(default(Guid), gu1.Id);
+                    Assert.Equal(EntityState.Unchanged, context.Entry(gu1).State);
+                }
 
                 if (async)
                 {
@@ -1125,8 +1136,16 @@ namespace Microsoft.EntityFrameworkCore
                 }
                 else
                 {
-                    Assert.Same(gu1, context.Add(gu1).Entity);
-                    Assert.Same(gu2, context.Add(gu2).Entity);
+                    if (useEntry)
+                    {
+                        context.Entry(gu1).State = EntityState.Added;
+                        context.Entry(gu2).State = EntityState.Added;
+                    }
+                    else
+                    {
+                        Assert.Same(gu1, context.Add(gu1).Entity);
+                        Assert.Same(gu2, context.Add(gu2).Entity);
+                    }
                 }
 
                 Assert.NotEqual(default(Guid), gu1.Id);

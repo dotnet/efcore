@@ -343,6 +343,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogPossibleUnintendedUseOfEquals")));
 
         /// <summary>
+        ///     Possible unintended use of a potentially throwing aggregate method (Min, Max, Average) in a subquery. Client evaluation will be used and operator will throw if no data exists. Changing the subquery result type to a nullable type will allow full translation.
+        /// </summary>
+        public static readonly EventDefinition LogQueryPossibleExceptionWithAggregateOperator
+            = new EventDefinition(
+                RelationalEventId.QueryPossibleExceptionWithAggregateOperator,
+                LogLevel.Warning,
+                LoggerMessage.Define(
+                    LogLevel.Warning,
+                    RelationalEventId.QueryPossibleExceptionWithAggregateOperator,
+                    _resourceManager.GetString("LogQueryPossibleExceptionWithAggregateOperator")));
+
+        /// <summary>
         ///     The Include operation is not supported when calling a stored procedure.
         /// </summary>
         public static string StoredProcedureIncludeNotSupported
@@ -771,265 +783,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entity, property, clrType);
 
         /// <summary>
-        ///     Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
+        ///     Sequence contains no elements.
         /// </summary>
-        public static readonly FallbackEventDefinition LogFoundSequence
-            = new FallbackEventDefinition(
-                RelationalEventId.SequenceFound,
-                LogLevel.Debug,
-                _resourceManager.GetString("LogFoundSequence"));
-
-        /// <summary>
-        ///     Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.
-        /// </summary>
-        public static readonly EventDefinition LogSequencesRequireName
-            = new EventDefinition(
-                RelationalEventId.SequenceNotNamedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define(
-                    LogLevel.Warning,
-                    RelationalEventId.SequenceNotNamedWarning,
-                    _resourceManager.GetString("LogSequencesRequireName")));
-
-        /// <summary>
-        ///     Found table with name: {name}.
-        /// </summary>
-        public static readonly EventDefinition<string> LogFoundTable
-            = new EventDefinition<string>(
-                RelationalEventId.TableFound,
-                LogLevel.Debug,
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    RelationalEventId.TableFound,
-                    _resourceManager.GetString("LogFoundTable")));
-
-        /// <summary>
-        ///     Table {tableName} is not included in the selection set. Skipping.
-        /// </summary>
-        public static readonly EventDefinition<string> LogTableNotInSelectionSet
-            = new EventDefinition<string>(
-                RelationalEventId.TableSkipped,
-                LogLevel.Debug,
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    RelationalEventId.TableSkipped,
-                    _resourceManager.GetString("LogTableNotInSelectionSet")));
-
-        /// <summary>
-        ///     Column {columnName} belongs to table {tableName} which is not included in the selection set. Skipping.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogColumnNotInSelectionSet
-            = new EventDefinition<string, string>(
-                RelationalEventId.ColumnSkipped,
-                LogLevel.Debug,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    RelationalEventId.ColumnSkipped,
-                    _resourceManager.GetString("LogColumnNotInSelectionSet")));
-
-        /// <summary>
-        ///     Found a column on table {tableName} with an empty or null name. Skipping column.
-        /// </summary>
-        public static readonly EventDefinition<string> LogColumnNameEmptyOnTable
-            = new EventDefinition<string>(
-                RelationalEventId.ColumnNotNamedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    RelationalEventId.ColumnNotNamedWarning,
-                    _resourceManager.GetString("LogColumnNameEmptyOnTable")));
-
-        /// <summary>
-        ///     Unable to find a schema in the database matching the selected schema {schema}.
-        /// </summary>
-        public static readonly EventDefinition<string> LogMissingSchema
-            = new EventDefinition<string>(
-                RelationalEventId.MissingSchemaWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    RelationalEventId.MissingSchemaWarning,
-                    _resourceManager.GetString("LogMissingSchema")));
-
-        /// <summary>
-        ///     Unable to find a table in the database matching the selected table {table}.
-        /// </summary>
-        public static readonly EventDefinition<string> LogMissingTable
-            = new EventDefinition<string>(
-                RelationalEventId.MissingTableWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    RelationalEventId.MissingTableWarning,
-                    _resourceManager.GetString("LogMissingTable")));
-
-        /// <summary>
-        ///     Found index column on index {indexName} on table {tableName}, column name: {columnName}, ordinal: {ordinal}.
-        /// </summary>
-        public static readonly EventDefinition<string, string, string, int?> LogFoundIndexColumn
-            = new EventDefinition<string, string, string, int?>(
-                RelationalEventId.IndexColumnFound,
-                LogLevel.Debug,
-                LoggerMessage.Define<string, string, string, int?>(
-                    LogLevel.Debug,
-                    RelationalEventId.IndexColumnFound,
-                    _resourceManager.GetString("LogFoundIndexColumn")));
-
-        /// <summary>
-        ///     Index column {columnName} belongs to index {indexName} on table {tableName} which is not included in the selection set. Skipping.
-        /// </summary>
-        public static readonly EventDefinition<string, string, string> LogIndexColumnNotInSelectionSet
-            = new EventDefinition<string, string, string>(
-                RelationalEventId.IndexColumnSkipped,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Warning,
-                    RelationalEventId.IndexColumnSkipped,
-                    _resourceManager.GetString("LogIndexColumnNotInSelectionSet")));
-
-        /// <summary>
-        ///     Found an index on table {tableName} with an empty or null name. Skipping index.
-        /// </summary>
-        public static readonly EventDefinition<string> LogIndexNameEmpty
-            = new EventDefinition<string>(
-                RelationalEventId.IndexNotNamedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    RelationalEventId.IndexNotNamedWarning,
-                    _resourceManager.GetString("LogIndexNameEmpty")));
-
-        /// <summary>
-        ///     For index {indexName}. Unable to find parent table {tableName}. Skipping index.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogUnableToFindTableForIndex
-            = new EventDefinition<string, string>(
-                RelationalEventId.IndexTableMissingWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    RelationalEventId.IndexTableMissingWarning,
-                    _resourceManager.GetString("LogUnableToFindTableForIndex")));
-
-        /// <summary>
-        ///     Found a column on index {indexName} on table {tableName} with an empty or null name. Not including column in index.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogColumnNameEmptyOnIndex
-            = new EventDefinition<string, string>(
-                RelationalEventId.IndexColumnNotNamedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    RelationalEventId.IndexColumnNotNamedWarning,
-                    _resourceManager.GetString("LogColumnNameEmptyOnIndex")));
-
-        /// <summary>
-        ///     Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogUnableToScaffoldIndexMissingProperty
-            = new EventDefinition<string, string>(
-                RelationalEventId.IndexColumnsNotMappedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    RelationalEventId.IndexColumnsNotMappedWarning,
-                    _resourceManager.GetString("LogUnableToScaffoldIndexMissingProperty")));
-
-        /// <summary>
-        ///     Found a foreign key on table {tableName} with an empty or null name. Skipping foreign key.
-        /// </summary>
-        public static readonly EventDefinition<string> LogForeignKeyNameEmpty
-            = new EventDefinition<string>(
-                RelationalEventId.ForeignKeyNotNamedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    RelationalEventId.ForeignKeyNotNamedWarning,
-                    _resourceManager.GetString("LogForeignKeyNameEmpty")));
-
-        /// <summary>
-        ///     Foreign key column {columnName} belongs to foreign key {fkName} on table {tableName} which is not included in the selection set. Skipping.
-        /// </summary>
-        public static readonly EventDefinition<string, string, string> LogForeignKeyColumnNotInSelectionSet
-            = new EventDefinition<string, string, string>(
-                RelationalEventId.ForeignKeyColumnMissingWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Warning,
-                    RelationalEventId.ForeignKeyColumnMissingWarning,
-                    _resourceManager.GetString("LogForeignKeyColumnNotInSelectionSet")));
-
-        /// <summary>
-        ///     For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.
-        /// </summary>
-        public static readonly EventDefinition<string, string, string> LogPrincipalTableNotInSelectionSet
-            = new EventDefinition<string, string, string>(
-                RelationalEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Warning,
-                    RelationalEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
-                    _resourceManager.GetString("LogPrincipalTableNotInSelectionSet")));
-
-        /// <summary>
-        ///     Found a column on foreign key {tableName}.{fkName} with an empty or null name. Not including column in foreign key
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogColumnNameEmptyOnForeignKey
-            = new EventDefinition<string, string>(
-                RelationalEventId.ForeignKeyColumnNotNamedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    RelationalEventId.ForeignKeyColumnNotNamedWarning,
-                    _resourceManager.GetString("LogColumnNameEmptyOnForeignKey")));
-
-        /// <summary>
-        ///     Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogForeignKeyScaffoldErrorPropertyNotFound
-            = new EventDefinition<string, string>(
-                RelationalEventId.ForeignKeyColumnsNotMappedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    RelationalEventId.ForeignKeyColumnsNotMappedWarning,
-                    _resourceManager.GetString("LogForeignKeyScaffoldErrorPropertyNotFound")));
-
-        /// <summary>
-        ///     Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
-        /// </summary>
-        public static readonly EventDefinition<string, string, bool?> LogFoundIndex
-            = new EventDefinition<string, string, bool?>(
-                RelationalEventId.IndexFound,
-                LogLevel.Debug,
-                LoggerMessage.Define<string, string, bool?>(
-                    LogLevel.Debug,
-                    RelationalEventId.IndexFound,
-                    _resourceManager.GetString("LogFoundIndex")));
-
-        /// <summary>
-        ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.
-        /// </summary>
-        public static readonly EventDefinition<string> LogForeignKeyScaffoldErrorPrincipalTableNotFound
-            = new EventDefinition<string>(
-                RelationalEventId.ForeignKeyReferencesMissingTableWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    RelationalEventId.ForeignKeyReferencesMissingTableWarning,
-                    _resourceManager.GetString("LogForeignKeyScaffoldErrorPrincipalTableNotFound")));
-
-        /// <summary>
-        ///     For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.
-        /// </summary>
-        public static readonly EventDefinition<string, string, string, string> LogPrincipalColumnNotFound
-            = new EventDefinition<string, string, string, string>(
-                RelationalEventId.ForeignKeyPrincipalColumnMissingWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string, string, string>(
-                    LogLevel.Warning,
-                    RelationalEventId.ForeignKeyPrincipalColumnMissingWarning,
-                    _resourceManager.GetString("LogPrincipalColumnNotFound")));
+        public static string NoElements
+            => GetString("NoElements");
 
         /// <summary>
         ///     An error occurred using the connection to database '{database}' on server '{server}'.
@@ -1042,6 +799,54 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     LogLevel.Debug,
                     RelationalEventId.ConnectionError,
                     _resourceManager.GetString("LogRelationalLoggerConnectionErrorAsDebug")));
+
+        /// <summary>
+        ///     The DbFunction '{function}' has an invalid return type '{type}'. Ensure that the return type can be mapped by the current provider.
+        /// </summary>
+        public static string DbFunctionInvalidReturnType([CanBeNull] object function, [CanBeNull] object type)
+            => string.Format(
+                GetString("DbFunctionInvalidReturnType", nameof(function), nameof(type)),
+                function, type);
+
+        /// <summary>
+        ///     The DbFunction '{function}' has no name set. Name is a required property of a DbFunction.
+        /// </summary>
+        public static string DbFunctionNameEmpty([CanBeNull] object function)
+            => string.Format(
+                GetString("DbFunctionNameEmpty", nameof(function)),
+                function);
+
+        /// <summary>
+        ///     The parameter '{parameter}' for the DbFunction '{function}' has an invalid type '{type}'. Ensure the parameter type can be mapped by the current provider.
+        /// </summary>
+        public static string DbFunctionInvalidParameterType([CanBeNull] object parameter, [CanBeNull] object function, [CanBeNull] object type)
+            => string.Format(
+                GetString("DbFunctionInvalidParameterType", nameof(parameter), nameof(function), nameof(type)),
+                parameter, function, type);
+
+        /// <summary>
+        ///     The DbFunction '{function}' must be a static method. Non-static methods are not supported.
+        /// </summary>
+        public static string DbFunctionMethodMustBeStatic([CanBeNull] object function)
+            => string.Format(
+                GetString("DbFunctionMethodMustBeStatic", nameof(function)),
+                function);
+
+        /// <summary>
+        ///     The DbFunction '{function}' is generic. Generic methods are not supported.
+        /// </summary>
+        public static string DbFunctionGenericMethodNotSupported([CanBeNull] object function)
+            => string.Format(
+                GetString("DbFunctionGenericMethodNotSupported", nameof(function)),
+                function);
+
+        /// <summary>
+        ///     The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. () =&gt; SomeClass.SomeMethod(null, 0)
+        /// </summary>
+        public static string DbFunctionExpressionIsNotMethodCall([CanBeNull] object expression)
+            => string.Format(
+                GetString("DbFunctionExpressionIsNotMethodCall", nameof(expression)),
+                expression);
 
         private static string GetString(string name, params string[] formatterNames)
         {

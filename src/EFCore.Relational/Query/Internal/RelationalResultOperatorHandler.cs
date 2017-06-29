@@ -244,9 +244,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     handlerContext.SelectExpression.SetProjectionExpression(averageExpression);
 
+                    var averageExpressionType = averageExpression.Type;
+                    var throwOnNullResult = DetermineAggregateThrowingBehavior(handlerContext, averageExpressionType);
+                    
                     return (Expression)_transformClientExpressionMethodInfo
-                        .MakeGenericMethod(averageExpression.Type)
-                        .Invoke(null, new object [] { handlerContext });
+                        .MakeGenericMethod(averageExpressionType)
+                        .Invoke(null, new object [] { handlerContext, throwOnNullResult });
                 }
             }
 
@@ -627,9 +630,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     handlerContext.SelectExpression.SetProjectionExpression(minExpression);
 
+                    var minExpressionType = minExpression.Type;
+                    var throwOnNullResult = DetermineAggregateThrowingBehavior(handlerContext, minExpressionType);
+                    
                     return (Expression)_transformClientExpressionMethodInfo
-                        .MakeGenericMethod(minExpression.Type)
-                        .Invoke(null, new object [] { handlerContext });
+                        .MakeGenericMethod(minExpressionType)
+                        .Invoke(null, new object [] { handlerContext, throwOnNullResult });
                 }
             }
 
@@ -651,13 +657,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
 
+                    var maxExpressionType = maxExpression.Type;
+                    var throwOnNullResult = DetermineAggregateThrowingBehavior(handlerContext, maxExpressionType);
+
                     return (Expression)_transformClientExpressionMethodInfo
-                        .MakeGenericMethod(maxExpression.Type)
-                        .Invoke(null, new object [] { handlerContext });
+                        .MakeGenericMethod(maxExpressionType)
+                        .Invoke(null, new object [] { handlerContext, throwOnNullResult });
                 }
             }
 
             return handlerContext.EvalOnClient();
+        }
+
+        private static bool DetermineAggregateThrowingBehavior(HandlerContext handlerContext, Type maxExpressionType)
+        {
+            var throwOnNullResult = !maxExpressionType.IsNullableType();
+
+            if (throwOnNullResult
+                && handlerContext.QueryModelVisitor.ParentQueryModelVisitor != null)
+            {
+                handlerContext.QueryModelVisitor.QueryCompilationContext.Logger
+                    .QueryPossibleExceptionWithAggregateOperator();
+            }
+
+            handlerContext.QueryModelVisitor.RequiresClientResultOperator = throwOnNullResult;
+            
+            return throwOnNullResult;
         }
 
         private static Expression HandleSingle(HandlerContext handlerContext)
@@ -716,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     return (Expression)_transformClientExpressionMethodInfo
                         .MakeGenericMethod(sumExpression.Type)
-                        .Invoke(null, new object [] { handlerContext });
+                        .Invoke(null, new object [] { handlerContext, /*throwOnNullResult:*/ false });
                 }
             }
 
@@ -769,7 +794,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(RelationalResultOperatorHandler).GetTypeInfo()
                 .GetDeclaredMethod(nameof(TransformClientExpression));
 
-        private static Expression TransformClientExpression<TResult>(HandlerContext handlerContext)
+        private static Expression TransformClientExpression<TResult>(
+            HandlerContext handlerContext, bool throwOnNullResult = false)
         {
             var querySource
                 = handlerContext.QueryModel.BodyClauses
@@ -780,7 +806,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var visitor
                 = new ResultTransformingExpressionVisitor<TResult>(
                     querySource,
-                    handlerContext.QueryModelVisitor.QueryCompilationContext);
+                    handlerContext.QueryModelVisitor.QueryCompilationContext,
+                    throwOnNullResult);
 
             return visitor.Visit(handlerContext.QueryModelVisitor.Expression);
         }

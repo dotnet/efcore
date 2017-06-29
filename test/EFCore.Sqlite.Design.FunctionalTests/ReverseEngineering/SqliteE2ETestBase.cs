@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                AssertLog(new LoggerMessages());
+                Assert.Empty(_reporter.Messages);
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "OneToOne"))
                 {
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                AssertLog(new LoggerMessages());
+                Assert.Empty(_reporter.Messages);
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "OneToMany"))
                 {
@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                AssertLog(new LoggerMessages());
+                Assert.Empty(_reporter.Messages);
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "ManyToMany"))
                 {
@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                AssertLog(new LoggerMessages());
+                Assert.Empty(_reporter.Messages);
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "SelfRef"))
                 {
@@ -236,16 +236,11 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                var errorMessage = DesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Alicia");
-                var expectedLog = new LoggerMessages
-                {
-                    Warn =
-                    {
-                        DesignStrings.LogMissingPrimaryKey.GenerateMessage("Alicia"),
-                        errorMessage
-                    }
-                };
-                AssertLog(expectedLog);
+                var errorMessage = DesignStrings.UnableToGenerateEntityType("Alicia");
+                Assert.Collection(
+                    _reporter.Messages,
+                    x => Assert.Equal("warn: " + DesignStrings.MissingPrimaryKey("Alicia"), x),
+                    x => Assert.Equal("warn: " + errorMessage, x));
                 Assert.Contains(errorMessage, InMemoryFiles.RetrieveFileContents(TestProjectFullPath, Path.GetFileName(results.ContextFile)));
             }
         }
@@ -273,16 +268,11 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                var expectedLog = new LoggerMessages
-                {
-                    Warn =
-                    {
-                        DesignStrings.LogMissingPrimaryKey.GenerateMessage("Principal"),
-                        DesignStrings.LogUnableToGenerateEntityType.GenerateMessage("Principal"),
-                        DesignStrings.LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError.GenerateMessage("Dependent(PrincipalId)", "Principal")
-                    }
-                };
-                AssertLog(expectedLog);
+                Assert.Collection(
+                    _reporter.Messages,
+                    x => Assert.Equal("warn: " + DesignStrings.MissingPrimaryKey("Principal"), x),
+                    x => Assert.Equal("warn: " + DesignStrings.UnableToGenerateEntityType("Principal"), x),
+                    x => Assert.Equal("warn: " + DesignStrings.ForeignKeyScaffoldErrorPrincipalTableScaffoldingError("Dependent(PrincipalId)", "Principal"), x));
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "NoPrincipalPk"))
                 {
@@ -342,7 +332,7 @@ CREATE TABLE IF NOT EXISTS String (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                AssertLog(new LoggerMessages());
+                Assert.Empty(_reporter.Messages);
 
                 var files = new FileSet(InMemoryFiles, TestProjectFullPath)
                 {
@@ -380,7 +370,7 @@ CREATE TABLE IF NOT EXISTS Comment (
                     useDataAnnotations: UseDataAnnotations,
                     overwriteFiles: false);
 
-                AssertLog(new LoggerMessages());
+                Assert.Empty(_reporter.Messages);
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "FkToAltKey"))
                 {

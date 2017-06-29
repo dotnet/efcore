@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -139,7 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [UsedImplicitly]
         private static async Task<TResult> GetResult<TResult>(
-            IAsyncEnumerable<ValueBuffer> valueBuffers,
+            IAsyncEnumerable<ValueBuffer> valueBuffers, 
+            bool throwOnNullResult,
             CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -149,7 +151,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (await enumerator.MoveNext(cancellationToken))
                 {
                     return enumerator.Current[0] == null
-                        ? default(TResult)
+                        ? !throwOnNullResult 
+                            ? default(TResult) 
+                            : throw new InvalidOperationException(RelationalStrings.NoElements)
                         : (TResult)enumerator.Current[0];
                 }
             }

@@ -128,7 +128,8 @@ namespace E2ETest.Namespace.SubDir
 
             modelBuilder.Entity<OneToOneFktoUniqueKeyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyPrincipalId1, e.OneToOneFktoUniqueKeyPrincipalId2 });
+                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyPrincipalId1, e.OneToOneFktoUniqueKeyPrincipalId2 })
+                    .ForSqlServerIsClustered(false);
 
                 entity.HasIndex(e => new { e.OneToOneFktoUniqueKeyPrincipalUniqueKey1, e.OneToOneFktoUniqueKeyPrincipalUniqueKey2 })
                     .HasName("UK_OneToOneFKToUniqueKeyPrincipal")

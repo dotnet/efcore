@@ -977,18 +977,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var testMethod = typeof(TestDbFunctions).GetTypeInfo().GetDeclaredMethod(nameof(TestDbFunctions.MethodA));
             modelBuilder.HasDbFunction(testMethod);
 
-            var dbFunc = modelBuilder.Model.Relational().FindDbFunction(testMethod);
+            var dbFunc = modelBuilder.Model.Relational().FindDbFunction(testMethod) as DbFunction;
 
             Assert.NotNull(dbFunc);
-            Assert.Equal("MethodA", dbFunc.Name);
+            Assert.Equal("MethodA", dbFunc.FunctionName);
             Assert.Null(dbFunc.Schema);
-            Assert.Equal(2, dbFunc.Parameters.Count);
-            Assert.Equal("a", dbFunc.Parameters[0].Name);
-            Assert.Equal(typeof(string), dbFunc.Parameters[0].ParameterType);
-            Assert.Equal(0, dbFunc.Parameters[0].Index);
-            Assert.Equal("b", dbFunc.Parameters[1].Name);
-            Assert.Equal(typeof(int), dbFunc.Parameters[1].ParameterType);
-            Assert.Equal(1, dbFunc.Parameters[1].Index);
         }
 
         [Fact]

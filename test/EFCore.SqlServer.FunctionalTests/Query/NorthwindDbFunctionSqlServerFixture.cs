@@ -38,8 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.HasDbFunction(typeof(NorthwindDbFunctionContext).GetRuntimeMethod(nameof(NorthwindDbFunctionContext.MyCustomLength), new[] { typeof(string) }))
-                .TranslateWith((args, dbFunc) => new SqlFunctionExpression("len", dbFunc.ReturnType, args));
+            var methodInfo = typeof(NorthwindDbFunctionContext).GetRuntimeMethod(nameof(NorthwindDbFunctionContext.MyCustomLength), new[] { typeof(string) }) ;
+
+            modelBuilder.HasDbFunction(methodInfo)
+                .HasTranslation((args) => new SqlFunctionExpression("len", methodInfo.ReturnType, args));
 
             modelBuilder.HasDbFunction(typeof(DateTimeExtensions).GetRuntimeMethod(nameof(DateTimeExtensions.IsDate), new[] { typeof(string) }));
         }

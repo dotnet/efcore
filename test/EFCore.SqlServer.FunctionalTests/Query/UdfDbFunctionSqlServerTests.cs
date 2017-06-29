@@ -75,36 +75,6 @@ WHERE [e].[EmployeeID] = @__employeeId_0");
         }
 
         [Fact]
-        public void Scalar_Function_Parameters_Reordered_By_Index()
-        {
-            using (var context = CreateContext())
-            {
-                var employeeId = 5;
-                var starCount = 3;
-
-                var emp = (from e in context.Employees
-                           where e.EmployeeID == employeeId
-                           select new
-                           {
-                               e.FirstName,
-                               OrderCount = NorthwindDbFunctionContext.StarValueAlternateParamOrder(NorthwindDbFunctionContext.EmployeeOrderCount(employeeId), starCount)
-                           }).Single();
-
-                Assert.Equal("Steven", emp.FirstName);
-                Assert.Equal("***42", emp.OrderCount);
-
-                AssertSql(
-                 @"@__starCount_2='3'
-@__employeeId_1='5'
-@__employeeId_0='5'
-
-SELECT TOP(2) [e].[FirstName], [dbo].StarValue(@__starCount_2, [dbo].EmployeeOrderCount(@__employeeId_1)) AS [OrderCount]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = @__employeeId_0");
-            }
-        }
-
-        [Fact]
         public void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter()
         {
             using (var context = CreateContext())

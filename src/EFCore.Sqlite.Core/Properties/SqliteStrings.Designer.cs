@@ -77,20 +77,110 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, not nullable: {isNotNullable}, default value: {defaultValue}.
         /// </summary>
-        public static readonly FallbackEventDefinition LogFoundColumn
-            = new FallbackEventDefinition(
+        public static readonly EventDefinition<string, string, string, bool, string> LogFoundColumn
+            = new EventDefinition<string, string, string, bool, string>(
                 SqliteEventId.ColumnFound,
                 LogLevel.Debug,
-                _resourceManager.GetString("LogFoundColumn"));
+                LoggerMessage.Define<string, string, string, bool, string>(
+                    LogLevel.Debug,
+                    SqliteEventId.ColumnFound,
+                    _resourceManager.GetString("LogFoundColumn")));
 
         /// <summary>
-        ///     Found foreign key column on table: {tableName}, id: {id}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, delete action: {deleteAction}.
+        ///     Found foreign key on table: {tableName}, id: {id}, principal table: {principalTableName}, delete action: {deleteAction}.
         /// </summary>
-        public static readonly FallbackEventDefinition LogFoundForeignKeyColumn
-            = new FallbackEventDefinition(
-                SqliteEventId.ForeignKeyColumnFound,
+        public static readonly EventDefinition<string, long, string, string> LogFoundForeignKey
+            = new EventDefinition<string, long, string, string>(
+                SqliteEventId.ForeignKeyFound,
                 LogLevel.Debug,
-                _resourceManager.GetString("LogFoundForeignKeyColumn"));
+                LoggerMessage.Define<string, long, string, string>(
+                    LogLevel.Debug,
+                    SqliteEventId.ForeignKeyFound,
+                    _resourceManager.GetString("LogFoundForeignKey")));
+
+        /// <summary>
+        ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.
+        /// </summary>
+        public static readonly EventDefinition<string> LogForeignKeyScaffoldErrorPrincipalTableNotFound
+            = new EventDefinition<string>(
+                SqliteEventId.ForeignKeyReferencesMissingTableWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    SqliteEventId.ForeignKeyReferencesMissingTableWarning,
+                    _resourceManager.GetString("LogForeignKeyScaffoldErrorPrincipalTableNotFound")));
+
+        /// <summary>
+        ///     Found table with name: {name}.
+        /// </summary>
+        public static readonly EventDefinition<string> LogFoundTable
+            = new EventDefinition<string>(
+                SqliteEventId.TableFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    SqliteEventId.TableFound,
+                    _resourceManager.GetString("LogFoundTable")));
+
+        /// <summary>
+        ///     Unable to find a table in the database matching the selected table {table}.
+        /// </summary>
+        public static readonly EventDefinition<string> LogMissingTable
+            = new EventDefinition<string>(
+                SqliteEventId.MissingTableWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    SqliteEventId.MissingTableWarning,
+                    _resourceManager.GetString("LogMissingTable")));
+
+        /// <summary>
+        ///     For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, string> LogPrincipalColumnNotFound
+            = new EventDefinition<string, string, string, string>(
+                SqliteEventId.ForeignKeyPrincipalColumnMissingWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string, string, string>(
+                    LogLevel.Warning,
+                    SqliteEventId.ForeignKeyPrincipalColumnMissingWarning,
+                    _resourceManager.GetString("LogPrincipalColumnNotFound")));
+
+        /// <summary>
+        ///     Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
+        /// </summary>
+        public static readonly EventDefinition<string, string, bool?> LogFoundIndex
+            = new EventDefinition<string, string, bool?>(
+                SqliteEventId.IndexFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, bool?>(
+                    LogLevel.Debug,
+                    SqliteEventId.IndexFound,
+                    _resourceManager.GetString("LogFoundIndex")));
+
+        /// <summary>
+        ///     Found primary key with name: {primaryKeyName}, table: {tableName}.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogFoundPrimaryKey
+            = new EventDefinition<string, string>(
+                SqliteEventId.PrimaryKeyFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    SqliteEventId.PrimaryKeyFound,
+                    _resourceManager.GetString("LogFoundPrimaryKey")));
+
+        /// <summary>
+        ///     Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogFoundUniqueConstraint
+            = new EventDefinition<string, string>(
+                SqliteEventId.UniqueConstraintFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    SqliteEventId.UniqueConstraintFound,
+                    _resourceManager.GetString("LogFoundUniqueConstraint")));
 
         private static string GetString(string name, params string[] formatterNames)
         {

@@ -85,6 +85,32 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
+        [Fact]
+        public virtual void No_fixup_to_Deleted_entities()
+        {
+            using (var context = CreateContext())
+            {
+                var root = LoadOptionalGraph(context);
+                var existing = root.OptionalChildren.OrderBy(e => e.Id).First();
+
+                existing.Parent = null;
+                existing.ParentId = null;
+                ((ICollection<Optional1>)root.OptionalChildren).Remove(existing);
+
+                context.Entry(existing).State = EntityState.Deleted;
+
+                var queried = context.Optional1s.ToList();
+
+                Assert.Null(existing.Parent);
+                Assert.Null(existing.ParentId);
+                Assert.Equal(1, root.OptionalChildren.Count());
+                Assert.DoesNotContain(existing, root.OptionalChildren);
+
+                Assert.Equal(2, queried.Count);
+                Assert.Contains(existing, queried);
+            }
+        }
+
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]

@@ -407,7 +407,8 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneFktoUniqueKeyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyPrincipalId1, e.OneToOneFktoUniqueKeyPrincipalId2 });
+                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyPrincipalId1, e.OneToOneFktoUniqueKeyPrincipalId2 })
+                    .ForSqlServerIsClustered(false);
 
                 entity.ToTable("OneToOneFKToUniqueKeyPrincipal");
 

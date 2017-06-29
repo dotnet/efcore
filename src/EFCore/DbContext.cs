@@ -319,6 +319,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The number of state entries written to the database.
         /// </returns>
+        /// <exception cref="DbUpdateException">
+        ///     An error is encountered while saving to the database.
+        /// </exception>
+        /// <exception cref="DbUpdateConcurrencyException">
+        ///     A concurrency violation is encountered while saving to the database. 
+        ///     A concurrency violation occurs when an unexpected number of rows are affected during save. 
+        ///     This is usually because the data in the database has been modified since it was loaded into memory.
+        /// </exception>
         [DebuggerStepThrough]
         public virtual int SaveChanges() => SaveChanges(acceptAllChangesOnSuccess: true);
 
@@ -337,6 +345,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The number of state entries written to the database.
         /// </returns>
+        /// <exception cref="DbUpdateException">
+        ///     An error is encountered while saving to the database.
+        /// </exception>
+        /// <exception cref="DbUpdateConcurrencyException">
+        ///     A concurrency violation is encountered while saving to the database. 
+        ///     A concurrency violation occurs when an unexpected number of rows are affected during save. 
+        ///     This is usually because the data in the database has been modified since it was loaded into memory.
+        /// </exception>
         [DebuggerStepThrough]
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
@@ -383,6 +399,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of state entries written to the database.
         /// </returns>
+        /// <exception cref="DbUpdateException">
+        ///     An error is encountered while saving to the database.
+        /// </exception>
+        /// <exception cref="DbUpdateConcurrencyException">
+        ///     A concurrency violation is encountered while saving to the database. 
+        ///     A concurrency violation occurs when an unexpected number of rows are affected during save. 
+        ///     This is usually because the data in the database has been modified since it was loaded into memory.
+        /// </exception>
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
             => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
 
@@ -409,6 +433,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of state entries written to the database.
         /// </returns>
+        /// <exception cref="DbUpdateException">
+        ///     An error is encountered while saving to the database.
+        /// </exception>
+        /// <exception cref="DbUpdateConcurrencyException">
+        ///     A concurrency violation is encountered while saving to the database. 
+        ///     A concurrency violation occurs when an unexpected number of rows are affected during save. 
+        ///     This is usually because the data in the database has been modified since it was loaded into memory.
+        /// </exception>
         public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default(CancellationToken))
         {

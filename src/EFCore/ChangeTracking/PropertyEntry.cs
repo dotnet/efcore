@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public override bool IsModified
         {
-            get { return InternalEntry.IsModified(Metadata); }
-            set { InternalEntry.SetPropertyModified(Metadata, changeState: true, isModified: value); }
+            get => InternalEntry.IsModified(Metadata);
+            set => InternalEntry.SetPropertyModified(Metadata, changeState: true, isModified: value);
         }
 
         /// <summary>
@@ -55,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual bool IsTemporary
         {
-            get { return InternalEntry.HasTemporaryValue(Metadata); }
-            set { InternalEntry.MarkAsTemporary(Metadata, value); }
+            get => InternalEntry.HasTemporaryValue(Metadata);
+            set => InternalEntry.MarkAsTemporary(Metadata, value);
         }
 
         /// <summary>
@@ -73,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual object OriginalValue
         {
-            get { return InternalEntry.GetOriginalValue(Metadata); }
-            [param: CanBeNull] set { InternalEntry.SetOriginalValue(Metadata, value); }
+            get => InternalEntry.GetOriginalValue(Metadata);
+            [param: CanBeNull] set => InternalEntry.SetOriginalValue(Metadata, value);
         }
     }
 }

@@ -147,44 +147,41 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 while (reader.Read())
                 {
                     var name = reader.GetString(0);
+                    if (!tableSelectionSet.Allows(name))
+                    {
+                        continue;
+                    }
 
                     _logger.TableFound(name);
 
-                    if (tableSelectionSet.Allows(name))
+                    var table = new DatabaseTable { Name = name };
+
+                    foreach (var column in GetColumns(connection, name))
                     {
-                        var table = new DatabaseTable { Name = name };
-
-                        foreach (var column in GetColumns(connection, name))
-                        {
-                            column.Table = table;
-                            table.Columns.Add(column);
-                        }
-
-                        var primaryKey = GetPrimaryKey(connection, name, table.Columns);
-                        if (primaryKey != null)
-                        {
-                            primaryKey.Table = table;
-                            table.PrimaryKey = primaryKey;
-                        }
-
-                        foreach (var uniqueConstraints in GetUniqueConstraints(connection, name, table.Columns))
-                        {
-                            uniqueConstraints.Table = table;
-                            table.UniqueConstraints.Add(uniqueConstraints);
-                        }
-
-                        foreach (var index in GetIndexes(connection, name, table.Columns))
-                        {
-                            index.Table = table;
-                            table.Indexes.Add(index);
-                        }
-
-                        yield return table;
+                        column.Table = table;
+                        table.Columns.Add(column);
                     }
-                    else
+
+                    var primaryKey = GetPrimaryKey(connection, name, table.Columns);
+                    if (primaryKey != null)
                     {
-                        _logger.TableSkipped(name);
+                        primaryKey.Table = table;
+                        table.PrimaryKey = primaryKey;
                     }
+
+                    foreach (var uniqueConstraints in GetUniqueConstraints(connection, name, table.Columns))
+                    {
+                        uniqueConstraints.Table = table;
+                        table.UniqueConstraints.Add(uniqueConstraints);
+                    }
+
+                    foreach (var index in GetIndexes(connection, name, table.Columns))
+                    {
+                        index.Table = table;
+                        table.Indexes.Add(index);
+                    }
+
+                    yield return table;
                 }
             }
 
@@ -259,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 primaryKey.Name = name;
             }
 
-            _logger.IndexFound(name, table, unique: true);
+            _logger.PrimaryKeyFound(name, table);
 
             command.CommandText = new StringBuilder()
                 .AppendLine("SELECT \"name\"")
@@ -278,8 +275,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     var column = columns.FirstOrDefault(c => c.Name == columnName)
                         ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                     Debug.Assert(column != null, "column is null.");
-
-                    _logger.IndexColumnFound(table, name, true, columnName, null);
 
                     primaryKey.Columns.Add(column);
                 }
@@ -352,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         uniqueConstraint.Name = name;
                     }
 
-                    _logger.IndexFound(name, table, unique: true);
+                    _logger.UniqueConstraintFound(name, table);
 
                     var command2 = connection.CreateCommand();
                     command2.CommandText = new StringBuilder()
@@ -374,8 +369,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             var column = columns.FirstOrDefault(c => c.Name == columnName)
                                 ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                             Debug.Assert(column != null, "column is null.");
-
-                            _logger.IndexColumnFound(table, name, true, columnName, null);
 
                             uniqueConstraint.Columns.Add(column);
                         }
@@ -437,8 +430,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 ?? columns.FirstOrDefault(c => c.Name.Equals(name, StringComparison.Ordinal));
                             Debug.Assert(column != null, "column is null.");
 
-                            _logger.IndexColumnFound(table, index.Name, index.IsUnique, name, null);
-
                             index.Columns.Add(column);
                         }
                     }
@@ -468,12 +459,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var id = reader1.GetInt64(0);
                     var principalTableName = reader1.GetString(1);
+                    var onDelete = reader1.GetString(2);
                     var foreignKey = new DatabaseForeignKey
                     {
                         PrincipalTable = tables.FirstOrDefault(t => t.Name == principalTableName)
                             ?? tables.FirstOrDefault(t => t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase)),
-                        OnDelete = ConvertToReferentialAction(reader1.GetString(2))
+                        OnDelete = ConvertToReferentialAction(onDelete)
                     };
+
+                    _logger.ForeignKeyFound(table.Name, id, principalTableName, onDelete);
 
                     if (foreignKey.PrincipalTable == null)
                     {
@@ -520,14 +514,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                     id.ToString(), table.Name, principalColumnName, principalTableName);
                                 break;
                             }
-
-                            _logger.ForeignKeyColumnFound(
-                                table.Name,
-                                id,
-                                principalTableName,
-                                columnName,
-                                principalColumnName,
-                                foreignKey.OnDelete?.ToString());
 
                             foreignKey.Columns.Add(column);
                             foreignKey.PrincipalColumns.Add(principalColumn);

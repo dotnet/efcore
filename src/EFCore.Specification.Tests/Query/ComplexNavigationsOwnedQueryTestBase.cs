@@ -354,6 +354,26 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        public override void Include_collection_with_multiple_orderbys_member()
+        {
+        }
+
+        public override void Include_collection_with_multiple_orderbys_property()
+        {
+        }
+
+        public override void Include_collection_with_multiple_orderbys_methodcall()
+        {
+        }
+
+        public override void Include_collection_with_multiple_orderbys_complex()
+        {
+        }
+
+        public override void Include_collection_with_multiple_orderbys_complex_repeated()
+        {
+        }
+
         protected override IQueryable<Level1> GetExpectedLevelOne()
             => ComplexNavigationsData.SplitLevelOnes.AsQueryable();
 

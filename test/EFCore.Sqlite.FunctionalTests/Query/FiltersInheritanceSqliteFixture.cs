@@ -3,9 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FiltersInheritanceSqlServerFixture : InheritanceSqlServerFixture
+    public class FiltersInheritanceSqliteFixture : InheritanceSqliteFixture
     {
         protected override bool EnableFilters => true;
-        protected override string DatabaseName => "FiltersInheritanceSqlServerTest";
+        protected override string DatabaseName => "FiltersInheritanceSqliteTest";
     }
 }

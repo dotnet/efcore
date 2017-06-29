@@ -8,10 +8,19 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
+
 // ReSharper disable InconsistentNaming
+// ReSharper disable StringStartsWithIsCultureSpecific
+// ReSharper disable StringEndsWithIsCultureSpecific
+// ReSharper disable StringCompareIsCultureSpecific.1
+// ReSharper disable StringCompareToIsCultureSpecific
+// ReSharper disable CompareOfFloatsByEqualityOperator
+// ReSharper disable ConditionIsAlwaysTrueOrFalse
+// ReSharper disable SpecifyACultureInStringConversionExplicitly
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    // ReSharper disable once UnusedTypeParameter
     public abstract partial class QueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
@@ -147,8 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 90);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => -1 == string.Compare(c.CustomerID, "ALFKI")),
-                entryCount: 0);
+                cs => cs.Where(c => -1 == string.Compare(c.CustomerID, "ALFKI")));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") < 1),
@@ -183,8 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 90);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => -1 == string.Compare(c.CustomerID, customer.CustomerID)),
-                entryCount: 0);
+                cs => cs.Where(c => -1 == string.Compare(c.CustomerID, customer.CustomerID)));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => string.Compare(c.CustomerID, customer.CustomerID) < 1),
@@ -207,12 +214,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void String_Compare_simple_client()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") == 42),
-                entryCount: 0);
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") == 42));
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") > 42),
-                entryCount: 0);
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") > 42));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => 42 > string.Compare(c.CustomerID, "ALFKI")),
@@ -223,24 +228,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void String_Compare_nested()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => string.Compare(c.CustomerID, "M" + c.CustomerID) == 0),
-                entryCount: 0);
+                cs => cs.Where(c => string.Compare(c.CustomerID, "M" + c.CustomerID) == 0));
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => 0 != string.Compare(c.CustomerID, c.CustomerID.ToUpper())),
-                entryCount: 0);
+                cs => cs.Where(c => 0 != string.Compare(c.CustomerID, c.CustomerID.ToUpper())));
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) > 0),
-                entryCount: 0);
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) > 0));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => 0 >= string.Compare(c.CustomerID, "M" + c.CustomerID)),
                 entryCount: 51);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => 1 == string.Compare(c.CustomerID, c.CustomerID.ToUpper())),
-                entryCount: 0);
+                cs => cs.Where(c => 1 == string.Compare(c.CustomerID, c.CustomerID.ToUpper())));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) == -1),
@@ -295,8 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 90);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => -1 == c.CustomerID.CompareTo("ALFKI")),
-                entryCount: 0);
+                cs => cs.Where(c => -1 == c.CustomerID.CompareTo("ALFKI")));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") < 1),
@@ -331,8 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 90);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => -1 == c.CustomerID.CompareTo(customer.CustomerID)),
-                entryCount: 0);
+                cs => cs.Where(c => -1 == c.CustomerID.CompareTo(customer.CustomerID)));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.CustomerID.CompareTo(customer.CustomerID) < 1),
@@ -355,12 +354,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void String_Compare_to_simple_client()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") == 42),
-                entryCount: 0);
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") == 42));
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") > 42),
-                entryCount: 0);
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") > 42));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => 42 > c.CustomerID.CompareTo("ALFKI")),
@@ -371,24 +368,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void String_Compare_to_nested()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.CustomerID.CompareTo("M" + c.CustomerID) == 0),
-                entryCount: 0);
+                cs => cs.Where(c => c.CustomerID.CompareTo("M" + c.CustomerID) == 0));
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => 0 != c.CustomerID.CompareTo(c.CustomerID.ToUpper())),
-                entryCount: 0);
+                cs => cs.Where(c => 0 != c.CustomerID.CompareTo(c.CustomerID.ToUpper())));
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) > 0),
-                entryCount: 0);
+                cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) > 0));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => 0 >= c.CustomerID.CompareTo("M" + c.CustomerID)),
                 entryCount: 51);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => 1 == c.CustomerID.CompareTo(c.CustomerID.ToUpper())),
-                entryCount: 0);
+                cs => cs.Where(c => 1 == c.CustomerID.CompareTo(c.CustomerID.ToUpper())));
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) == -1),
@@ -493,14 +486,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Select_math_round_int()
         {
             AssertQuery<Order>(
-                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Round((double)o.OrderID) }));
+                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Round((double)o.OrderID) }),
+                e => e.A);
         }
 
         [ConditionalFact]
         public virtual void Select_math_truncate_int()
         {
             AssertQuery<Order>(
-                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }));
+                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }),
+                e => e.A);
         }
 
         [ConditionalFact]
@@ -901,7 +896,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void TrimStart_in_predicate()
+        public virtual void TrimStart_without_arguments_in_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactTitle.TrimStart() == "Owner"),
@@ -909,7 +904,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void TrimStart_with_arguments_in_predicate()
+        public virtual void TrimStart_with_char_argument_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.TrimStart('O') == "wner"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void TrimStart_with_char_array_argument_in_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactTitle.TrimStart('O', 'w') == "ner"),
@@ -917,7 +920,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void TrimEnd_in_predicate()
+        public virtual void TrimEnd_without_arguments_in_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactTitle.TrimEnd() == "Owner"),
@@ -925,7 +928,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void TrimEnd_with_arguments_in_predicate()
+        public virtual void TrimEnd_with_char_argument_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.TrimEnd('r') == "Owne"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void TrimEnd_with_char_array_argument_in_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactTitle.TrimEnd('e', 'r') == "Own"),
@@ -933,7 +944,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Trim_in_predicate()
+        public virtual void Trim_without_argument_in_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactTitle.Trim() == "Owner"),
@@ -941,7 +952,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Trim_with_arguments_in_predicate()
+        public virtual void Trim_with_char_argument_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.Trim('O') == "wner"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void Trim_with_char_array_argument_in_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactTitle.Trim('O', 'r') == "wne"),

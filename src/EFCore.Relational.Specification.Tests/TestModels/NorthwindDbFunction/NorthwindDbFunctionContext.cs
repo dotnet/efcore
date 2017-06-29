@@ -27,13 +27,13 @@ namespace Microsoft.EntityFrameworkCore
             throw new Exception();
         }
 
-        [DbFunction(Schema = "dbo", Name = "EmployeeOrderCount")]
+        [DbFunction(Schema = "dbo", FunctionName = "EmployeeOrderCount")]
         public static int EmployeeOrderCount(int employeeId)
         {
             throw new NotImplementedException();
         }
 
-        [DbFunction(Schema = "dbo", Name = "EmployeeOrderCount")]
+        [DbFunction(Schema = "dbo", FunctionName = "EmployeeOrderCount")]
         public static int EmployeeOrderCountWithClient(int employeeId)
         {
             switch (employeeId)
@@ -63,12 +63,6 @@ namespace Microsoft.EntityFrameworkCore
 
         [DbFunction(Schema = "dbo")]
         public static string StarValue(int starCount, int value)
-        {
-            throw new NotImplementedException();
-        }
-
-        [DbFunction(Name = "StarValue", Schema = "dbo")]
-        public static string StarValueAlternateParamOrder([DbFunctionParameter(ParameterIndex = 1)]int value, [DbFunctionParameter(ParameterIndex = 0)]int starCount)
         {
             throw new NotImplementedException();
         }

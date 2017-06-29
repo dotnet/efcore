@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -53,23 +54,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         private static IEnumerable<string> GetColumnNamespaces(ColumnOperation columnOperation)
         {
-            yield return columnOperation.ClrType.Namespace;
+            foreach (var ns in columnOperation.ClrType.GetNamespaces())
+            {
+                yield return ns;
+            }
 
             var alterColumnOperation = columnOperation as AlterColumnOperation;
             if (alterColumnOperation?.OldColumn != null)
             {
-                yield return alterColumnOperation.OldColumn.ClrType.Namespace;
+                foreach (var ns in alterColumnOperation.OldColumn.ClrType.GetNamespaces())
+                {
+                    yield return ns;
+                }
             }
         }
 
-        private IEnumerable<IAnnotatable> GetAnnotatables(IEnumerable<MigrationOperation> operations)
+        private static IEnumerable<IAnnotatable> GetAnnotatables(IEnumerable<MigrationOperation> operations)
         {
             foreach (var operation in operations)
             {
                 yield return operation;
 
-                var createTableOperation = operation as CreateTableOperation;
-                if (createTableOperation != null)
+                if (operation is CreateTableOperation createTableOperation)
                 {
                     foreach (var column in createTableOperation.Columns)
                     {
@@ -92,10 +98,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IModel model)
-            => model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties().Select(p => p.ClrType.Namespace))
+            => model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties().SelectMany(p => p.ClrType.GetNamespaces()))
                 .Concat(GetAnnotationNamespaces(GetAnnotatables(model)));
 
-        private IEnumerable<IAnnotatable> GetAnnotatables(IModel model)
+        private static IEnumerable<IAnnotatable> GetAnnotatables(IModel model)
         {
             yield return model;
 
@@ -125,13 +131,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
-        private IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
-            => from i in items
-               from a in i.GetAnnotations()
-               where a.Value != null
-                     && a.Name != RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName
-                     && a.Name != RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName
-                     && a.Name != InversePropertyAttributeConvention.InverseNavigationsAnnotationName
-               select a.Value.GetType().Namespace;
+        private static IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
+        {
+            var ignoredAnnotations = new List<string>
+            {
+                RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName,
+                RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName,
+                InversePropertyAttributeConvention.InverseNavigationsAnnotationName
+            };
+
+            return items.SelectMany(i => i.GetAnnotations())
+                .Where(
+                    a => a.Value != null
+                         && !ignoredAnnotations.Contains(a.Name)).SelectMany(a => a.Value.GetType().GetNamespaces());
+        }
     }
 }

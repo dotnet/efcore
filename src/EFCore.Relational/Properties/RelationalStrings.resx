@@ -240,6 +240,10 @@
     <value>Possible unintended use of method Equals(object) for arguments of different types in expression '{expression}'. This comparison will always return 'false'.</value>
     <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning object</comment>
   </data>
+  <data name="LogQueryPossibleExceptionWithAggregateOperator" xml:space="preserve">
+    <value>Possible unintended use of a potentially throwing aggregate method (Min, Max, Average) in a subquery. Client evaluation will be used and operator will throw if no data exists. Changing the subquery result type to a nullable type will allow full translation.</value>
+    <comment>Warning RelationalEventId.QueryPossibleExceptionWithAggregateOperator</comment>
+  </data>
   <data name="StoredProcedureIncludeNotSupported" xml:space="preserve">
     <value>The Include operation is not supported when calling a stored procedure.</value>
   </data>
@@ -396,96 +400,29 @@
   <data name="UnsupportedPropertyType" xml:space="preserve">
     <value>No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.</value>
   </data>
-  <data name="LogFoundSequence" xml:space="preserve">
-    <value>Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.</value>
-    <comment>Debug RelationalEventId.SequenceFound string string bool? int? long? long? long?</comment>
-  </data>
-  <data name="LogSequencesRequireName" xml:space="preserve">
-    <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
-    <comment>Warning RelationalEventId.SequenceNotNamedWarning</comment>
-  </data>
-  <data name="LogFoundTable" xml:space="preserve">
-    <value>Found table with name: {name}.</value>
-    <comment>Debug RelationalEventId.TableFound string</comment>
-  </data>
-  <data name="LogTableNotInSelectionSet" xml:space="preserve">
-    <value>Table {tableName} is not included in the selection set. Skipping.</value>
-    <comment>Debug RelationalEventId.TableSkipped string</comment>
-  </data>
-  <data name="LogColumnNotInSelectionSet" xml:space="preserve">
-    <value>Column {columnName} belongs to table {tableName} which is not included in the selection set. Skipping.</value>
-    <comment>Debug RelationalEventId.ColumnSkipped string string</comment>
-  </data>
-  <data name="LogColumnNameEmptyOnTable" xml:space="preserve">
-    <value>Found a column on table {tableName} with an empty or null name. Skipping column.</value>
-    <comment>Warning RelationalEventId.ColumnNotNamedWarning string</comment>
-  </data>
-  <data name="LogMissingSchema" xml:space="preserve">
-    <value>Unable to find a schema in the database matching the selected schema {schema}.</value>
-    <comment>Warning RelationalEventId.MissingSchemaWarning string</comment>
-  </data>
-  <data name="LogMissingTable" xml:space="preserve">
-    <value>Unable to find a table in the database matching the selected table {table}.</value>
-    <comment>Warning RelationalEventId.MissingTableWarning string</comment>
-  </data>
-  <data name="LogFoundIndexColumn" xml:space="preserve">
-    <value>Found index column on index {indexName} on table {tableName}, column name: {columnName}, ordinal: {ordinal}.</value>
-    <comment>Debug RelationalEventId.IndexColumnFound string string string int?</comment>
-  </data>
-  <data name="LogIndexColumnNotInSelectionSet" xml:space="preserve">
-    <value>Index column {columnName} belongs to index {indexName} on table {tableName} which is not included in the selection set. Skipping.</value>
-    <comment>Warning RelationalEventId.IndexColumnSkipped string string string</comment>
-  </data>
-  <data name="LogIndexNameEmpty" xml:space="preserve">
-    <value>Found an index on table {tableName} with an empty or null name. Skipping index.</value>
-    <comment>Warning RelationalEventId.IndexNotNamedWarning string</comment>
-  </data>
-  <data name="LogUnableToFindTableForIndex" xml:space="preserve">
-    <value>For index {indexName}. Unable to find parent table {tableName}. Skipping index.</value>
-    <comment>Warning RelationalEventId.IndexTableMissingWarning string string</comment>
-  </data>
-  <data name="LogColumnNameEmptyOnIndex" xml:space="preserve">
-    <value>Found a column on index {indexName} on table {tableName} with an empty or null name. Not including column in index.</value>
-    <comment>Warning RelationalEventId.IndexColumnNotNamedWarning string string</comment>
-  </data>
-  <data name="LogUnableToScaffoldIndexMissingProperty" xml:space="preserve">
-    <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
-    <comment>Warning RelationalEventId.IndexColumnsNotMappedWarning string string</comment>
-  </data>
-  <data name="LogForeignKeyNameEmpty" xml:space="preserve">
-    <value>Found a foreign key on table {tableName} with an empty or null name. Skipping foreign key.</value>
-    <comment>Warning RelationalEventId.ForeignKeyNotNamedWarning string</comment>
-  </data>
-  <data name="LogForeignKeyColumnNotInSelectionSet" xml:space="preserve">
-    <value>Foreign key column {columnName} belongs to foreign key {fkName} on table {tableName} which is not included in the selection set. Skipping.</value>
-    <comment>Warning RelationalEventId.ForeignKeyColumnMissingWarning string string string</comment>
-  </data>
-  <data name="LogPrincipalTableNotInSelectionSet" xml:space="preserve">
-    <value>For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.</value>
-    <comment>Warning RelationalEventId.ForeignKeyReferencesMissingPrincipalTableWarning string string string</comment>
-  </data>
-  <data name="LogColumnNameEmptyOnForeignKey" xml:space="preserve">
-    <value>Found a column on foreign key {tableName}.{fkName} with an empty or null name. Not including column in foreign key</value>
-    <comment>Warning RelationalEventId.ForeignKeyColumnNotNamedWarning string string</comment>
-  </data>
-  <data name="LogForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.</value>
-    <comment>Warning RelationalEventId.ForeignKeyColumnsNotMappedWarning string string</comment>
-  </data>
-  <data name="LogFoundIndex" xml:space="preserve">
-    <value>Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.</value>
-    <comment>Debug RelationalEventId.IndexFound string string bool?</comment>
-  </data>
-  <data name="LogForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.</value>
-    <comment>Warning RelationalEventId.ForeignKeyReferencesMissingTableWarning string</comment>
-  </data>
-  <data name="LogPrincipalColumnNotFound" xml:space="preserve">
-    <value>For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.</value>
-    <comment>Warning RelationalEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
+  <data name="NoElements" xml:space="preserve">
+    <value>Sequence contains no elements.</value>
   </data>
   <data name="LogRelationalLoggerConnectionErrorAsDebug" xml:space="preserve">
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionError string string</comment>
+  </data>
+  <data name="DbFunctionInvalidReturnType" xml:space="preserve">
+    <value>The DbFunction '{function}' has an invalid return type '{type}'. Ensure that the return type can be mapped by the current provider.</value>
+  </data>
+  <data name="DbFunctionNameEmpty" xml:space="preserve">
+    <value>The DbFunction '{function}' has no name set. Name is a required property of a DbFunction.</value>
+  </data>
+  <data name="DbFunctionInvalidParameterType" xml:space="preserve">
+    <value>The parameter '{parameter}' for the DbFunction '{function}' has an invalid type '{type}'. Ensure the parameter type can be mapped by the current provider.</value>
+  </data>
+  <data name="DbFunctionMethodMustBeStatic" xml:space="preserve">
+    <value>The DbFunction '{function}' must be a static method. Non-static methods are not supported.</value>
+  </data>
+  <data name="DbFunctionGenericMethodNotSupported" xml:space="preserve">
+    <value>The DbFunction '{function}' is generic. Generic methods are not supported.</value>
+  </data>
+  <data name="DbFunctionExpressionIsNotMethodCall" xml:space="preserve">
+    <value>The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. () => SomeClass.SomeMethod(null, 0)</value>
   </data>
 </root>

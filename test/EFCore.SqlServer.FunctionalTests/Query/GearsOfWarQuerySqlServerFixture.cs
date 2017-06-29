@@ -15,8 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private readonly DbContextOptions _options;
 
-        private readonly string _connectionString = SqlServerTestStore.CreateConnectionString(DatabaseName);
-
         public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
 
         public GearsOfWarQuerySqlServerFixture()
@@ -40,7 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     using (var context = new GearsOfWarContext(
                         new DbContextOptionsBuilder(_options)
-                            .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
+                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName),
+                                b => b.ApplyConfiguration())
                             .Options))
                     {
                         context.Database.EnsureCreated();

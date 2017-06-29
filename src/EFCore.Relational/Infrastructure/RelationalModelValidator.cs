@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -69,40 +68,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             foreach (var dbFunction in model.Relational().DbFunctions)
             {
-                var dbFuncName = $"{dbFunction.MethodInfo.DeclaringType?.Name}.{dbFunction.MethodInfo.Name}";
-
-                if (string.IsNullOrEmpty(dbFunction.Name))
-                    throw new InvalidOperationException(CoreStrings.DbFunctionNameEmpty(dbFuncName));
-
-                var paramIndexes = dbFunction.Parameters.Select(fp => fp.Index).ToArray();
-                if (paramIndexes.Distinct().Count() != dbFunction.Parameters.Count)
-                    throw new InvalidOperationException(CoreStrings.DbFunctionParametersDuplicateIndex(dbFuncName));
-
-                if (Enumerable.Range(0, paramIndexes.Length).Except(paramIndexes).Any())
-                    throw new InvalidOperationException(CoreStrings.DbFunctionNonContinuousIndex(dbFuncName));
-
-                if (dbFunction.MethodInfo.IsStatic == false
-                    && dbFunction.MethodInfo.DeclaringType.GetTypeInfo().IsSubclassOf(typeof(DbContext)))
+                var methodInfo = dbFunction.MethodInfo;
+                
+                if (string.IsNullOrEmpty(dbFunction.FunctionName))
                 {
-                    throw new InvalidOperationException(CoreStrings.DbFunctionDbContextMethodMustBeStatic(dbFuncName));
+                    throw new InvalidOperationException(
+                        RelationalStrings.DbFunctionNameEmpty(methodInfo.DisplayName()));
                 }
-
-                if (dbFunction.TranslateCallback == null)
+                
+                if (dbFunction.Translation == null)
                 {
-                    if (dbFunction.ReturnType == null
-                        || RelationalDependencies.TypeMapper.IsTypeMapped(dbFunction.ReturnType) == false)
-                        throw new InvalidOperationException(CoreStrings.DbFunctionInvalidReturnType(dbFunction.MethodInfo, dbFunction.ReturnType));
-
-                    foreach (var parameter in dbFunction.Parameters)
+                    if (!RelationalDependencies.TypeMapper.IsTypeMapped(methodInfo.ReturnType))
                     {
-                        if (parameter.ParameterType == null
-                            || RelationalDependencies.TypeMapper.IsTypeMapped(parameter.ParameterType) == false)
+                        throw new InvalidOperationException(
+                            RelationalStrings.DbFunctionInvalidReturnType(
+                                methodInfo.DisplayName(),
+                                methodInfo.ReturnType.ShortDisplayName()));
+                    }
+
+                    foreach (var parameter in methodInfo.GetParameters())
+                    {
+                        if (!RelationalDependencies.TypeMapper.IsTypeMapped(parameter.ParameterType))
                         {
                             throw new InvalidOperationException(
-                                CoreStrings.DbFunctionInvalidParameterType(
-                                    dbFunction.MethodInfo,
+                                RelationalStrings.DbFunctionInvalidParameterType(
                                     parameter.Name,
-                                    parameter.ParameterType?.ShortDisplayName()));
+                                    methodInfo.DisplayName(),
+                                    parameter.ParameterType.ShortDisplayName()));
                         }
                     }
                 }

@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
+// ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -91,7 +93,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             Assert.Equal("dbo", pkIndex.Table.Schema);
             Assert.Equal("Place1", pkIndex.Table.Name);
             Assert.StartsWith("PK__Place1", pkIndex.Name);
-            //Assert.False(pkIndex.SqlServer().IsClustered);
+            Assert.False((bool?)pkIndex[SqlServerAnnotationNames.Clustered]);
             Assert.Equal(new List<string> { "Id" }, pkIndex.Columns.Select(ic => ic.Name).ToList());
         }
 
@@ -142,14 +144,14 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                 nonClustered =>
                 {
                     Assert.Equal("IX_Location", nonClustered.Name);
-                    //Assert.False(nonClustered.GetAnnotations().SingleOrDefault(a => a.Name == SqlServerAnnotationNames.Clustered)?.Value);
+                    Assert.Null(nonClustered[SqlServerAnnotationNames.Clustered]);
                     Assert.Equal("Location", nonClustered.Columns.Select(ic => ic.Name).Single());
                 },
                 clusteredIndex =>
                 {
                     Assert.Equal("IX_Location_Name", clusteredIndex.Name);
                     Assert.False(clusteredIndex.IsUnique);
-                    //Assert.True(clusteredIndex.SqlServer().IsClustered);
+                    Assert.True((bool?)clusteredIndex[SqlServerAnnotationNames.Clustered]);
                     Assert.Equal(new List<string> { "Location", "Name" }, clusteredIndex.Columns.Select(ic => ic.Name).ToList());
                 });
         }

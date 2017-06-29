@@ -3146,6 +3146,96 @@ LEFT JOIN [Level2] AS [l1.OneToMany_Optional] ON [l1].[Id] = [l1.OneToMany_Optio
 ORDER BY [l1].[Id]");
         }
 
+        public override void Include_collection_with_multiple_orderbys_member()
+        {
+            base.Include_collection_with_multiple_orderbys_member();
+
+            AssertSql(
+                @"SELECT [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
+FROM [Level2] AS [l2]
+ORDER BY [l2].[Name], [l2].[Level1_Required_Id], [l2].[Id]",
+                //
+                @"SELECT [l2.OneToMany_Optional].[Id], [l2.OneToMany_Optional].[Level2_Optional_Id], [l2.OneToMany_Optional].[Level2_Required_Id], [l2.OneToMany_Optional].[Name], [l2.OneToMany_Optional].[OneToMany_Optional_InverseId], [l2.OneToMany_Optional].[OneToMany_Optional_Self_InverseId], [l2.OneToMany_Optional].[OneToMany_Required_InverseId], [l2.OneToMany_Optional].[OneToMany_Required_Self_InverseId], [l2.OneToMany_Optional].[OneToOne_Optional_PK_InverseId], [l2.OneToMany_Optional].[OneToOne_Optional_SelfId]
+FROM [Level3] AS [l2.OneToMany_Optional]
+INNER JOIN (
+    SELECT [l20].[Id], [l20].[Name], [l20].[Level1_Required_Id]
+    FROM [Level2] AS [l20]
+) AS [t] ON [l2.OneToMany_Optional].[OneToMany_Optional_InverseId] = [t].[Id]
+ORDER BY [t].[Name], [t].[Level1_Required_Id], [t].[Id]");
+        }
+
+        public override void Include_collection_with_multiple_orderbys_property()
+        {
+            base.Include_collection_with_multiple_orderbys_property();
+
+            AssertSql(
+                @"SELECT [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
+FROM [Level2] AS [l2]
+ORDER BY [l2].[Level1_Required_Id], [l2].[Name], [l2].[Id]",
+                //
+                @"SELECT [l2.OneToMany_Optional].[Id], [l2.OneToMany_Optional].[Level2_Optional_Id], [l2.OneToMany_Optional].[Level2_Required_Id], [l2.OneToMany_Optional].[Name], [l2.OneToMany_Optional].[OneToMany_Optional_InverseId], [l2.OneToMany_Optional].[OneToMany_Optional_Self_InverseId], [l2.OneToMany_Optional].[OneToMany_Required_InverseId], [l2.OneToMany_Optional].[OneToMany_Required_Self_InverseId], [l2.OneToMany_Optional].[OneToOne_Optional_PK_InverseId], [l2.OneToMany_Optional].[OneToOne_Optional_SelfId]
+FROM [Level3] AS [l2.OneToMany_Optional]
+INNER JOIN (
+    SELECT [l20].[Id], [l20].[Level1_Required_Id], [l20].[Name]
+    FROM [Level2] AS [l20]
+) AS [t] ON [l2.OneToMany_Optional].[OneToMany_Optional_InverseId] = [t].[Id]
+ORDER BY [t].[Level1_Required_Id], [t].[Name], [t].[Id]");
+        }
+
+        public override void Include_collection_with_multiple_orderbys_methodcall()
+        {
+            base.Include_collection_with_multiple_orderbys_methodcall();
+
+            AssertSql(
+                @"SELECT [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
+FROM [Level2] AS [l2]
+ORDER BY ABS([l2].[Level1_Required_Id]), [l2].[Name], [l2].[Id]",
+                //
+                @"SELECT [l2.OneToMany_Optional].[Id], [l2.OneToMany_Optional].[Level2_Optional_Id], [l2.OneToMany_Optional].[Level2_Required_Id], [l2.OneToMany_Optional].[Name], [l2.OneToMany_Optional].[OneToMany_Optional_InverseId], [l2.OneToMany_Optional].[OneToMany_Optional_Self_InverseId], [l2.OneToMany_Optional].[OneToMany_Required_InverseId], [l2.OneToMany_Optional].[OneToMany_Required_Self_InverseId], [l2.OneToMany_Optional].[OneToOne_Optional_PK_InverseId], [l2.OneToMany_Optional].[OneToOne_Optional_SelfId]
+FROM [Level3] AS [l2.OneToMany_Optional]
+INNER JOIN (
+    SELECT [l20].[Id], ABS([l20].[Level1_Required_Id]) AS [c], [l20].[Name], [l20].[Level1_Required_Id]
+    FROM [Level2] AS [l20]
+) AS [t] ON [l2.OneToMany_Optional].[OneToMany_Optional_InverseId] = [t].[Id]
+ORDER BY [t].[c], [t].[Name], [t].[Id]");
+        }
+
+        public override void Include_collection_with_multiple_orderbys_complex()
+        {
+            base.Include_collection_with_multiple_orderbys_complex();
+
+            AssertSql(
+                @"SELECT [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
+FROM [Level2] AS [l2]
+ORDER BY ABS([l2].[Level1_Required_Id]) + 7, [l2].[Name], [l2].[Id]",
+                //
+                @"SELECT [l2.OneToMany_Optional].[Id], [l2.OneToMany_Optional].[Level2_Optional_Id], [l2.OneToMany_Optional].[Level2_Required_Id], [l2.OneToMany_Optional].[Name], [l2.OneToMany_Optional].[OneToMany_Optional_InverseId], [l2.OneToMany_Optional].[OneToMany_Optional_Self_InverseId], [l2.OneToMany_Optional].[OneToMany_Required_InverseId], [l2.OneToMany_Optional].[OneToMany_Required_Self_InverseId], [l2.OneToMany_Optional].[OneToOne_Optional_PK_InverseId], [l2.OneToMany_Optional].[OneToOne_Optional_SelfId]
+FROM [Level3] AS [l2.OneToMany_Optional]
+INNER JOIN (
+    SELECT [l20].[Id], ABS([l20].[Level1_Required_Id]) + 7 AS [c], [l20].[Name], [l20].[Level1_Required_Id]
+    FROM [Level2] AS [l20]
+) AS [t] ON [l2.OneToMany_Optional].[OneToMany_Optional_InverseId] = [t].[Id]
+ORDER BY [t].[c], [t].[Name], [t].[Id]");
+        }
+
+        public override void Include_collection_with_multiple_orderbys_complex_repeated()
+        {
+            base.Include_collection_with_multiple_orderbys_complex_repeated();
+
+            AssertSql(
+                @"SELECT [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
+FROM [Level2] AS [l2]
+ORDER BY -[l2].[Level1_Required_Id], [l2].[Name], [l2].[Id]",
+                //
+                @"SELECT [l2.OneToMany_Optional].[Id], [l2.OneToMany_Optional].[Level2_Optional_Id], [l2.OneToMany_Optional].[Level2_Required_Id], [l2.OneToMany_Optional].[Name], [l2.OneToMany_Optional].[OneToMany_Optional_InverseId], [l2.OneToMany_Optional].[OneToMany_Optional_Self_InverseId], [l2.OneToMany_Optional].[OneToMany_Required_InverseId], [l2.OneToMany_Optional].[OneToMany_Required_Self_InverseId], [l2.OneToMany_Optional].[OneToOne_Optional_PK_InverseId], [l2.OneToMany_Optional].[OneToOne_Optional_SelfId]
+FROM [Level3] AS [l2.OneToMany_Optional]
+INNER JOIN (
+    SELECT [l20].[Id], -[l20].[Level1_Required_Id] AS [c], [l20].[Name], [l20].[Level1_Required_Id]
+    FROM [Level2] AS [l20]
+) AS [t] ON [l2.OneToMany_Optional].[OneToMany_Optional_InverseId] = [t].[Id]
+ORDER BY [t].[c], [t].[Name], [t].[Id]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

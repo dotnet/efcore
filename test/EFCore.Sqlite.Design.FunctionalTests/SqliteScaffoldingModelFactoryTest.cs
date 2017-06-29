@@ -26,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             _testStore = SqliteTestStore.CreateScratch();
 
-            var serviceCollection = new ServiceCollection().AddScaffolding().AddLogging();
+            var serviceCollection = new ServiceCollection().AddScaffolding().AddLogging()
+                .AddSingleton<IOperationReporter, TestOperationReporter>();
             new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
 
             var serviceProvider = serviceCollection
@@ -207,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
                 _loggerFactory.Logger.Statements,
                 t => t.Contains(
                     "Warning: " +
-                    RelationalStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0")));
+                    SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0")));
         }
 
         [Fact]
@@ -227,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore
                 _loggerFactory.Logger.Statements,
                 t => t.Contains(
                     "Warning: " +
-                    RelationalStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "Children", "Id", "Parent")));
+                    SqliteStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "Children", "Id", "Parent")));
         }
 
         [Fact]

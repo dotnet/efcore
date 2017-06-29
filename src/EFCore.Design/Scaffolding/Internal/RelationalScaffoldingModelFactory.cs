@@ -7,7 +7,7 @@ using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
-        protected virtual IDiagnosticsLogger<DbLoggerCategory.Scaffolding> Logger { get; }
+        protected virtual IOperationReporter Reporter { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
         protected virtual ICandidateNamingService CandidateNamingService { get; }
 
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
 
         public RelationalScaffoldingModelFactory(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
+            [NotNull] IOperationReporter reporter,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] ICandidateNamingService candidateNamingService,
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] ICSharpUtilities cSharpUtilities,
             [NotNull] IScaffoldingTypeMapper scaffoldingTypeMapper)
         {
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(candidateNamingService, nameof(candidateNamingService));
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
             Check.NotNull(scaffoldingTypeMapper, nameof(scaffoldingTypeMapper));
 
-            Logger = logger;
+            Reporter = reporter;
             TypeMapper = typeMapper;
             CandidateNamingService = candidateNamingService;
             _databaseModelFactory = databaseModelFactory;
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (string.IsNullOrEmpty(sequence.Name))
             {
-                Logger.SequenceNotNamedWarning();
+                Reporter.WriteWarning(DesignStrings.SequencesRequireName);
                 return null;
             }
 
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (sequenceType != null
                 && !Sequence.SupportedTypes.Contains(sequenceType))
             {
-                Logger.SequenceTypeNotSupportedWarning(sequence.Name, sequence.StoreType);
+                Reporter.WriteWarning(DesignStrings.BadSequenceType(sequence.Name, sequence.StoreType));
                 return null;
             }
 
@@ -253,8 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (keyBuilder == null)
             {
-                var errorMessage = DesignStrings.LogUnableToGenerateEntityType.GenerateMessage(table.DisplayName());
-                Logger.UnableToGenerateEntityTypeWarning(table.DisplayName());
+                var errorMessage = DesignStrings.UnableToGenerateEntityType(table.DisplayName());
+                Reporter.WriteWarning(errorMessage);
 
                 var model = modelBuilder.Model;
                 model.RemoveEntityType(entityTypeName);
@@ -293,7 +293,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (typeScaffoldingInfo == null)
             {
                 _unmappedColumns.Add(column);
-                Logger.ColumnTypeNotMappedWarning(column.DisplayName(), column.StoreType);
+                Reporter.WriteWarning(
+                    DesignStrings.CannotFindTypeMappingForColumn(column.DisplayName(), column.StoreType));
                 return null;
             }
 
@@ -301,8 +302,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var forceNullable = typeof(bool) == clrType && column.DefaultValueSql != null;
             if (forceNullable)
             {
-                Logger.NonNullableBoooleanColumnHasDefaultConstraintWarning(
-                    column.DisplayName());
+                Reporter.WriteWarning(
+                    DesignStrings.NonNullableBoooleanColumnHasDefaultConstraint(column.DisplayName()));
             }
             if (column.IsNullable || forceNullable)
             {
@@ -371,29 +372,33 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(table, nameof(table));
 
-            if (table.PrimaryKey == null)
+            var primaryKey = table.PrimaryKey;
+            if (primaryKey == null)
             {
-                Logger.MissingPrimaryKeyWarning(table.DisplayName());
+                Reporter.WriteWarning(DesignStrings.MissingPrimaryKey(table.DisplayName()));
                 return null;
             }
 
-            var unmappedColumns = table.PrimaryKey.Columns
+            var unmappedColumns = primaryKey.Columns
                 .Where(c => _unmappedColumns.Contains(c))
                 .Select(c => c.Name)
                 .ToList();
             if (unmappedColumns.Any())
             {
-                Logger.PrimaryKeyColumnsNotMappedWarning(table.DisplayName(), unmappedColumns);
+                Reporter.WriteWarning(
+                    DesignStrings.PrimaryKeyErrorPropertyNotFound(
+                        table.DisplayName(),
+                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumns)));
                 return null;
             }
 
-            var keyBuilder = builder.HasKey(table.PrimaryKey.Columns.Select(GetPropertyName).ToArray());
+            var keyBuilder = builder.HasKey(primaryKey.Columns.Select(GetPropertyName).ToArray());
 
-            if (table.PrimaryKey.Columns.Count == 1
-                && table.PrimaryKey.Columns[0].ValueGenerated == null
-                && table.PrimaryKey.Columns[0].DefaultValueSql == null)
+            if (primaryKey.Columns.Count == 1
+                && primaryKey.Columns[0].ValueGenerated == null
+                && primaryKey.Columns[0].DefaultValueSql == null)
             {
-                var property = builder.Metadata.FindProperty(GetPropertyName(table.PrimaryKey.Columns[0]))?.AsProperty();
+                var property = builder.Metadata.FindProperty(GetPropertyName(primaryKey.Columns[0]))?.AsProperty();
                 if (property != null)
                 {
                     var conventionalValueGenerated = new RelationalValueGeneratorConvention().GetValueGenerated(property);
@@ -403,6 +408,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     }
                 }
             }
+
+            keyBuilder.Metadata.AddAnnotations(primaryKey.GetAnnotations());
 
             return keyBuilder;
         }
@@ -431,7 +438,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .ToList();
             if (unmappedColumns.Any())
             {
-                Logger.IndexColumnsNotMappedWarning(uniqueConstraint.Name, unmappedColumns);
+                Reporter.WriteWarning(
+                    DesignStrings.UnableToScaffoldIndexMissingProperty(
+                        uniqueConstraint.Name,
+                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumns)));
                 return null;
             }
 
@@ -474,7 +484,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .ToList();
             if (unmappedColumns.Any())
             {
-                Logger.IndexColumnsNotMappedWarning(index.Name, unmappedColumns);
+                Reporter.WriteWarning(
+                    DesignStrings.UnableToScaffoldIndexMissingProperty(
+                        index.Name,
+                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumns)));
                 return null;
             }
 
@@ -525,7 +538,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (foreignKey.PrincipalTable == null)
             {
-                Logger.ForeignKeyReferencesMissingTableWarning(foreignKey.DisplayName());
+                Reporter.WriteWarning(
+                    DesignStrings.ForeignKeyScaffoldErrorPrincipalTableNotFound(foreignKey.DisplayName()));
                 return null;
             }
 
@@ -547,7 +561,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .ToList();
             if (unmappedDependentColumns.Any())
             {
-                Logger.ForeignKeyColumnsNotMappedWarning(foreignKey.DisplayName(), unmappedDependentColumns);
+                Reporter.WriteWarning(
+                    DesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(
+                        foreignKey.DisplayName(),
+                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedDependentColumns)));
                 return null;
             }
 
@@ -560,7 +577,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var principalEntityType = modelBuilder.Model.FindEntityType(GetEntityTypeName(foreignKey.PrincipalTable));
             if (principalEntityType == null)
             {
-                Logger.ForeignKeyReferencesNotMappedTableWarning(foreignKey.DisplayName(), foreignKey.PrincipalTable.DisplayName());
+                Reporter.WriteWarning(
+                    DesignStrings.ForeignKeyScaffoldErrorPrincipalTableScaffoldingError(
+                        foreignKey.DisplayName(),
+                        foreignKey.PrincipalTable.DisplayName()));
                 return null;
             }
 
@@ -570,7 +590,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .ToList();
             if (unmappedPrincipalColumns.Any())
             {
-                Logger.ForeignKeyColumnsNotMappedWarning(foreignKey.DisplayName(), unmappedPrincipalColumns);
+                Reporter.WriteWarning(
+                    DesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(
+                        foreignKey.DisplayName(),
+                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedPrincipalColumns)));
                 return null;
             }
 
@@ -594,10 +617,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         principalPropertiesMap.Where(tuple => tuple.property.IsNullable);
                     if (nullablePrincipalProperties.Any())
                     {
-                        Logger.ForeignKeyPrincipalEndContainsNullableColumnsWarning(
-                            foreignKey.DisplayName(),
-                            index.Relational().Name,
-                            nullablePrincipalProperties.Select(tuple => tuple.column.DisplayName()).ToList());
+                        Reporter.WriteWarning(
+                            DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
+                                foreignKey.DisplayName(),
+                                index.Relational().Name,
+                                nullablePrincipalProperties.Select(tuple => tuple.column.DisplayName()).ToList()
+                                    .Aggregate((a, b) => a + "," + b)));
 
                         nullablePrincipalProperties
                             .ToList()
@@ -609,8 +634,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var principalColumns = foreignKey.PrincipalColumns.Select(c => c.Name).ToList();
 
-                    Logger.ForeignKeyReferencesMissingPrincipalKeyWarning(
-                        foreignKey.DisplayName(), principalEntityType.DisplayName(), principalColumns);
+                    Reporter.WriteWarning(
+                        DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
+                            foreignKey.DisplayName(),
+                            string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, principalColumns),
+                            principalEntityType.DisplayName()));
 
                     return null;
                 }

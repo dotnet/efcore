@@ -89,12 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name);
 
         /// <summary>
-        ///     Cancelled.
-        /// </summary>
-        public static string Cancelled
-            => GetString("Cancelled");
-
-        /// <summary>
         ///     A manual migration deletion was detected.
         /// </summary>
         public static string ManuallyDeleted
@@ -187,14 +181,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string DestructiveOperation
             => GetString("DestructiveOperation");
-
-        /// <summary>
-        ///     Reusing directory of file '{file}'.
-        /// </summary>
-        public static string ReusingDirectory([CanBeNull] object file)
-            => string.Format(
-                GetString("ReusingDirectory", nameof(file)),
-                file);
 
         /// <summary>
         ///     Writing migration to '{file}'.
@@ -305,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name);
 
         /// <summary>
-        ///     No parameterless constructor was found on '{contextType}'. Either add a parameterless constructor to '{contextType}' or add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' in the same assembly as '{contextType}'.
+        ///     Unable to create an object of type '{contextType}'. Add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' to the project, or see https://go.microsoft.com/fwlink/?linkid=851728 for additional patterns supported at design time.
         /// </summary>
         public static string NoParameterlessConstructor([CanBeNull] object contextType)
             => string.Format(
@@ -319,14 +305,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("NotExistDatabase", nameof(name)),
                 name);
-
-        /// <summary>
-        ///     Could not serialize {obj} [{name}]
-        /// </summary>
-        public static string CouldNotSerialize([CanBeNull] object obj, [CanBeNull] object name)
-            => string.Format(
-                GetString("CouldNotSerialize", nameof(obj), nameof(name)),
-                obj, name);
 
         /// <summary>
         ///     Using environment '{environment}'.
@@ -479,110 +457,104 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogCannotFindTypeMappingForColumn
-            = new EventDefinition<string, string>(
-                DesignEventId.ColumnTypeNotMappedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    DesignEventId.ColumnTypeNotMappedWarning,
-                    _resourceManager.GetString("LogCannotFindTypeMappingForColumn")));
+        public static string CannotFindTypeMappingForColumn([CanBeNull] object columnName, [CanBeNull] object dateType)
+            => string.Format(
+                GetString("CannotFindTypeMappingForColumn", nameof(columnName), nameof(dateType)),
+                columnName, dateType);
 
         /// <summary>
         ///     Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.
         /// </summary>
-        public static readonly EventDefinition<string, string, string> LogForeignKeyScaffoldErrorPrincipalKeyNotFound
-            = new EventDefinition<string, string, string>(
-                DesignEventId.ForeignKeyReferencesMissingPrincipalKeyWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Warning,
-                    DesignEventId.ForeignKeyReferencesMissingPrincipalKeyWarning,
-                    _resourceManager.GetString("LogForeignKeyScaffoldErrorPrincipalKeyNotFound")));
+        public static string ForeignKeyScaffoldErrorPrincipalKeyNotFound([CanBeNull] object foreignKeyName, [CanBeNull] object columnsList, [CanBeNull] object principalEntityType)
+            => string.Format(
+                GetString("ForeignKeyScaffoldErrorPrincipalKeyNotFound", nameof(foreignKeyName), nameof(columnsList), nameof(principalEntityType)),
+                foreignKeyName, columnsList, principalEntityType);
 
         /// <summary>
         ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principaltableName}' could not be scaffolded.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError
-            = new EventDefinition<string, string>(
-                DesignEventId.ForeignKeyReferencesNotMappedTableWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    DesignEventId.ForeignKeyReferencesNotMappedTableWarning,
-                    _resourceManager.GetString("LogForeignKeyScaffoldErrorPrincipalTableScaffoldingError")));
+        public static string ForeignKeyScaffoldErrorPrincipalTableScaffoldingError([CanBeNull] object foreignKeyName, [CanBeNull] object principaltableName)
+            => string.Format(
+                GetString("ForeignKeyScaffoldErrorPrincipalTableScaffoldingError", nameof(foreignKeyName), nameof(principaltableName)),
+                foreignKeyName, principaltableName);
 
         /// <summary>
         ///     Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogPrimaryKeyErrorPropertyNotFound
-            = new EventDefinition<string, string>(
-                DesignEventId.PrimaryKeyColumnsNotMappedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    DesignEventId.PrimaryKeyColumnsNotMappedWarning,
-                    _resourceManager.GetString("LogPrimaryKeyErrorPropertyNotFound")));
+        public static string PrimaryKeyErrorPropertyNotFound([CanBeNull] object tableName, [CanBeNull] object columnNames)
+            => string.Format(
+                GetString("PrimaryKeyErrorPropertyNotFound", nameof(tableName), nameof(columnNames)),
+                tableName, columnNames);
 
         /// <summary>
         ///     Unable to identify the primary key for table '{tableName}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogMissingPrimaryKey
-            = new EventDefinition<string>(
-                DesignEventId.MissingPrimaryKeyWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    DesignEventId.MissingPrimaryKeyWarning,
-                    _resourceManager.GetString("LogMissingPrimaryKey")));
+        public static string MissingPrimaryKey([CanBeNull] object tableName)
+            => string.Format(
+                GetString("MissingPrimaryKey", nameof(tableName)),
+                tableName);
 
         /// <summary>
         ///     Unable to generate entity type for table '{tableName}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogUnableToGenerateEntityType
-            = new EventDefinition<string>(
-                DesignEventId.UnableToGenerateEntityTypeWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    DesignEventId.UnableToGenerateEntityTypeWarning,
-                    _resourceManager.GetString("LogUnableToGenerateEntityType")));
+        public static string UnableToGenerateEntityType([CanBeNull] object tableName)
+            => string.Format(
+                GetString("UnableToGenerateEntityType", nameof(tableName)),
+                tableName);
 
         /// <summary>
         ///     For sequence '{sequenceName}'. Unable to scaffold because it uses an unsupported type: '{typeName}'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogBadSequenceType
-            = new EventDefinition<string, string>(
-                DesignEventId.SequenceTypeNotSupportedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    DesignEventId.SequenceTypeNotSupportedWarning,
-                    _resourceManager.GetString("LogBadSequenceType")));
+        public static string BadSequenceType([CanBeNull] object sequenceName, [CanBeNull] object typeName)
+            => string.Format(
+                GetString("BadSequenceType", nameof(sequenceName), nameof(typeName)),
+                sequenceName, typeName);
 
         /// <summary>
         ///     The principal end of the foreign key '{foreignKeyName}' is supported by the unique index '{indexName}' and contains the following nullable columns '{columnNames}'. Entity Framework requires the properties representing those columns to be non-nullable.
         /// </summary>
-        public static readonly EventDefinition<string, string, string> LogForeignKeyPrincipalEndContainsNullableColumns
-            = new EventDefinition<string, string, string>(
-                DesignEventId.ForeignKeyPrincipalEndContainsNullableColumnsWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Warning,
-                    DesignEventId.ForeignKeyPrincipalEndContainsNullableColumnsWarning,
-                    _resourceManager.GetString("LogForeignKeyPrincipalEndContainsNullableColumns")));
+        public static string ForeignKeyPrincipalEndContainsNullableColumns([CanBeNull] object foreignKeyName, [CanBeNull] object indexName, [CanBeNull] object columnNames)
+            => string.Format(
+                GetString("ForeignKeyPrincipalEndContainsNullableColumns", nameof(foreignKeyName), nameof(indexName), nameof(columnNames)),
+                foreignKeyName, indexName, columnNames);
 
         /// <summary>
         ///     The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to false and invoking the default constraint. See https://go.microsoft.com/fwlink/?linkid=851278 for details.
         /// </summary>
-        public static readonly EventDefinition<string> LogNonNullableBoooleanColumnHasDefaultConstraint
-            = new EventDefinition<string>(
-                DesignEventId.NonNullableBoooleanColumnHasDefaultConstraintWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    DesignEventId.NonNullableBoooleanColumnHasDefaultConstraintWarning,
-                    _resourceManager.GetString("LogNonNullableBoooleanColumnHasDefaultConstraint")));
+        public static string NonNullableBoooleanColumnHasDefaultConstraint([CanBeNull] object columnName)
+            => string.Format(
+                GetString("NonNullableBoooleanColumnHasDefaultConstraint", nameof(columnName)),
+                columnName);
+
+        /// <summary>
+        ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.
+        /// </summary>
+        public static string ForeignKeyScaffoldErrorPrincipalTableNotFound([CanBeNull] object foreignKeyName)
+            => string.Format(
+                GetString("ForeignKeyScaffoldErrorPrincipalTableNotFound", nameof(foreignKeyName)),
+                foreignKeyName);
+
+        /// <summary>
+        ///     Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.
+        /// </summary>
+        public static string ForeignKeyScaffoldErrorPropertyNotFound([CanBeNull] object foreignKeyName, [CanBeNull] object columnNames)
+            => string.Format(
+                GetString("ForeignKeyScaffoldErrorPropertyNotFound", nameof(foreignKeyName), nameof(columnNames)),
+                foreignKeyName, columnNames);
+
+        /// <summary>
+        ///     Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.
+        /// </summary>
+        public static string UnableToScaffoldIndexMissingProperty([CanBeNull] object indexName, [CanBeNull] object columnNames)
+            => string.Format(
+                GetString("UnableToScaffoldIndexMissingProperty", nameof(indexName), nameof(columnNames)),
+                indexName, columnNames);
+
+        /// <summary>
+        ///     Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.
+        /// </summary>
+        public static string SequencesRequireName
+            => GetString("SequencesRequireName");
 
         private static string GetString(string name, params string[] formatterNames)
         {

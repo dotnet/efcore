@@ -1357,7 +1357,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 typeName);
 
         /// <summary>
-        ///     The child/dependent side could not be determined for the one-to-one relationship that was detected between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the child/dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
+        ///     The child/dependent side could not be determined for the one-to-one relationship that was detected between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the child/dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship configure them without specifying the inverse. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
         /// </summary>
         public static string AmbiguousOneToOneRelationship([CanBeNull] object dependentToPrincipalNavigationSpecification, [CanBeNull] object principalToDependentNavigationSpecification)
             => string.Format(
@@ -1769,70 +1769,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     LogLevel.Warning,
                     CoreEventId.DuplicateDependentEntityTypeInstanceWarning,
                     _resourceManager.GetString("LogDuplicateDependentEntityTypeInstance")));
-
-        /// <summary>
-        ///     The DB function '{dbFunction}' has an invalid return type '{returnType}'.
-        /// </summary>
-        public static string DbFunctionInvalidReturnType([CanBeNull] object dbFunction, [CanBeNull] object returnType)
-            => string.Format(
-                GetString("DbFunctionInvalidReturnType", nameof(dbFunction), nameof(returnType)),
-                dbFunction, returnType);
-
-        /// <summary>
-        ///     The DB function '{methodName}' has no name set.
-        /// </summary>
-        public static string DbFunctionNameEmpty([CanBeNull] object methodName)
-            => string.Format(
-                GetString("DbFunctionNameEmpty", nameof(methodName)),
-                methodName);
-
-        /// <summary>
-        ///     The DB function '{dbFunctionName}' has parameters with duplicate indexes.
-        /// </summary>
-        public static string DbFunctionParametersDuplicateIndex([CanBeNull] object dbFunctionName)
-            => string.Format(
-                GetString("DbFunctionParametersDuplicateIndex", nameof(dbFunctionName)),
-                dbFunctionName);
-
-        /// <summary>
-        ///     The DB function '{dbFunctionName}' has a non continuous parameter index.
-        /// </summary>
-        public static string DbFunctionNonContinuousIndex([CanBeNull] object dbFunctionName)
-            => string.Format(
-                GetString("DbFunctionNonContinuousIndex", nameof(dbFunctionName)),
-                dbFunctionName);
-
-        /// <summary>
-        ///     The parameter '{dbParameter}' for the DB function '{dbFunction}' has an invalid type '{dbParamType}'.
-        /// </summary>
-        public static string DbFunctionInvalidParameterType([CanBeNull] object dbParameter, [CanBeNull] object dbFunction, [CanBeNull] object dbParamType)
-            => string.Format(
-                GetString("DbFunctionInvalidParameterType", nameof(dbParameter), nameof(dbFunction), nameof(dbParamType)),
-                dbParameter, dbFunction, dbParamType);
-
-        /// <summary>
-        ///     The DB function '{dbFunctionName}' has no parameter '{dbParameterName}'. Check the method signature for the correct parameter name.
-        /// </summary>
-        public static string DbFunctionParameterNotFound([CanBeNull] object dbFunctionName, [CanBeNull] object dbParameterName)
-            => string.Format(
-                GetString("DbFunctionParameterNotFound", nameof(dbFunctionName), nameof(dbParameterName)),
-                dbFunctionName, dbParameterName);
-
-        /// <summary>
-        ///     The DB function '{dbFunctionName}' must be a static method.
-        /// </summary>
-        public static string DbFunctionDbContextMethodMustBeStatic([CanBeNull] object dbFunctionName)
-            => string.Format(
-                GetString("DbFunctionDbContextMethodMustBeStatic", nameof(dbFunctionName)),
-                dbFunctionName);
-
-        /// <summary>
-        ///     The DB function '{dbFunction}' is generic. Generic methods are not supported.
-        /// </summary>
-        public static string DbFunctionGenericMethodNotSupported([CanBeNull] object dbFunction)
-            => string.Format(
-                GetString("DbFunctionGenericMethodNotSupported", nameof(dbFunction)),
-                dbFunction);
 
         private static string GetString(string name, params string[] formatterNames)
         {

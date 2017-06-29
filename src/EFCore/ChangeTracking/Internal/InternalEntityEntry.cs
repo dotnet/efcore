@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     StateManager.Notify.StateChanged(this, currentState, fromQuery: false);
                 }
             }
-            else if (currentState != EntityState.Detached
+            else if (currentState == EntityState.Modified
                      && changeState
                      && !isModified
                      && !_stateData.AnyPropertiesFlagged(PropertyFlag.TemporaryOrModified))
@@ -694,7 +694,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var writeValue = true;
 
                     if (asProperty != null
-                        && (!asProperty.IsNullable
+                        && (!asProperty.ClrType.IsNullableType()
                             || asProperty.GetContainingForeignKeys().Any(
                                 p => p.DeleteBehavior == DeleteBehavior.Cascade
                                      || p.DeleteBehavior == DeleteBehavior.Restrict)))
@@ -705,7 +705,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 && EntityState != EntityState.Detached)
                             {
                                 _stateData.FlagProperty(propertyIndex.Value, PropertyFlag.Null, isFlagged: true);
-                                SetPropertyModified(asProperty, changeState: true, isModified: true, isConceptualNull: true);
+
+                                if (setModified)
+                                {
+                                    SetPropertyModified(asProperty, changeState: true, isModified: true, isConceptualNull: true);
+                                }
                             }
                             writeValue = false;
                         }
@@ -852,7 +856,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 }
                             }
                         }
-                        else
+                        else if (EntityState != EntityState.Modified
+                                 || IsModified(property))
                         {
                             fks.Add(foreignKey);
                         }
@@ -876,7 +881,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             else
             {
                 var property = EntityType.GetProperties().FirstOrDefault(
-                    p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null));
+                    p => (EntityState != EntityState.Modified
+                          || IsModified(p))
+                         && _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null));
 
                 if (property != null)
                 {

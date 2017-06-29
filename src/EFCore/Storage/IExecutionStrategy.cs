@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <typeparam name="TResult"> The return type of <paramref name="operation" />. </typeparam>
         /// <returns> The result from the operation. </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         TResult Execute<TState, TResult>(
             [CanBeNull] TState state,
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
         /// <exception cref="RetryLimitExceededException">
-        ///     Thrown if the operation has not succeeded after the configured number of retries.
+        ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         Task<TResult> ExecuteAsync<TState, TResult>(
             [CanBeNull] TState state,

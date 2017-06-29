@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,7 +15,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqliteStringTrimStartTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _methodInfo
+        // Method defined in netcoreapp2.0 only
+        private static readonly MethodInfo _methodInfoWithoutArgs
+            = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), new Type[] { });
+
+        // Method defined in netcoreapp2.0 only
+        private static readonly MethodInfo _methodInfoWithCharArg
+            = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char) });
+
+        // Method defined in netstandard2.0
+        private static readonly MethodInfo _methodInfoWithCharArrayArg
             = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char[]) });
 
         /// <summary>
@@ -23,14 +33,34 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            if (_methodInfo.Equals(methodCallExpression.Method))
+            var methodInfo = methodCallExpression.Method;
+
+            if (_methodInfoWithoutArgs?.Equals(methodInfo) == true
+                || _methodInfoWithCharArg?.Equals(methodInfo) == true
+                || _methodInfoWithCharArrayArg.Equals(methodInfo))
             {
                 var sqlArguments = new List<Expression> { methodCallExpression.Object };
-                var charactersToTrim = (methodCallExpression.Arguments[0] as ConstantExpression)?.Value as char[];
-                if (charactersToTrim?.Length > 0)
+
+                if (methodCallExpression.Arguments.Count == 1)
                 {
-                    sqlArguments.Add(Expression.Constant(new string(charactersToTrim), typeof(string)));
+                    var constantValue = (methodCallExpression.Arguments[0] as ConstantExpression)?.Value;
+                    var charactersToTrim = new List<char>();
+
+                    if (constantValue is char singleChar)
+                    {
+                        charactersToTrim.Add(singleChar);
+                    }
+                    else if (constantValue is char[] charArray)
+                    {
+                        charactersToTrim.AddRange(charArray);
+                    }
+
+                    if (charactersToTrim.Count > 0)
+                    {
+                        sqlArguments.Add(Expression.Constant(new string(charactersToTrim.ToArray()), typeof(string)));
+                    }
                 }
+
                 return new SqlFunctionExpression("ltrim", methodCallExpression.Type, sqlArguments);
             }
 

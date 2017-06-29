@@ -5,44 +5,32 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a db function in an <see cref="IModel" />.
+    ///     Represents a relational database function in an <see cref="IModel" />.
     /// </summary>
     public interface IDbFunction
     {
         /// <summary>
-        ///     The schema where the function lives in the underlying datastore.
+        ///     The name of the function in the database.
+        /// </summary>
+        string FunctionName { get; }
+
+        /// <summary>
+        ///     The schema of the function in the database.
         /// </summary>
         string Schema { get; }
 
         /// <summary>
-        ///     The name of the function in the underlying datastore.
-        /// </summary>
-        string Name { get; }
-
-        /// <summary>
-        ///     The list of parameters which are passed to the underlying datastores function.
-        /// </summary>
-        IReadOnlyList<DbFunctionParameter> Parameters { get; }
-
-        /// <summary>
-        ///     The .Net method which maps to the function in the underlying datastore
+        ///     The CLR method which maps to the function in the database.
         /// </summary>
         MethodInfo MethodInfo { get; }
 
         /// <summary>
-        ///     The return type of the mapped .Net method
+        ///    A translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
-        Type ReturnType { get; }
-
-        /// <summary>
-        ///    A translate callback for converting a method call into a sql function
-        /// </summary>
-        Func<IReadOnlyCollection<Expression>, IDbFunction, SqlFunctionExpression> TranslateCallback { get; }
+        Func<IReadOnlyCollection<Expression>, Expression> Translation { get; }
     }
 }

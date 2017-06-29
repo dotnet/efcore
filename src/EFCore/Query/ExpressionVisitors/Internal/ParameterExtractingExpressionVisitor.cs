@@ -102,6 +102,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (_partialEvaluationInfo.IsEvaluatableExpression(methodCallExpression))
             {
+                if (_queryableTypeInfo.IsAssignableFrom(methodCallExpression.Type))
+                {
+                    var queryable = (IQueryable)Evaluate(methodCallExpression, out _);
+
+                    return ExtractParameters(queryable.Expression);
+                }
+
                 return TryExtractParameter(methodCallExpression);
             }
 

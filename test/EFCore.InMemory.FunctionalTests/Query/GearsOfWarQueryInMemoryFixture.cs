@@ -22,12 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .AddSingleton<ILoggerFactory>(new TestLoggerFactory())
                 .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder()
+            _options = new DbContextOptionsBuilder()
                 .UseInMemoryDatabase(DatabaseName)
                 .ConfigureWarnings(w => w.Log(CoreEventId.IncludeIgnoredWarning))
-                .UseInternalServiceProvider(serviceProvider);
-
-            _options = optionsBuilder.Options;
+                .UseInternalServiceProvider(serviceProvider)
+                .Options;
         }
 
         public override InMemoryTestStore CreateTestStore()
