@@ -3,6 +3,7 @@
 
 using System;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit.Sdk;
@@ -55,6 +56,10 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                     isMet &= defaultConnection.DataSource.Contains("(localdb)")
                              || defaultConnection.UserInstance;
                 }
+                if (Conditions.HasFlag(SqlServerCondition.IsNotTeamCity))
+                {
+                    isMet &= !TestEnvironment.IsTeamCity;
+                }
                 return isMet;
             }
         }
@@ -77,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         IsNotSqlAzure = 1 << 3,
         SupportsMemoryOptimized = 1 << 4,
         SupportsAttach = 1 << 5,
-        SupportsHiddenColumns = 1 << 6
+        SupportsHiddenColumns = 1 << 6,
+        IsNotTeamCity = 1 << 7
     }
 }
