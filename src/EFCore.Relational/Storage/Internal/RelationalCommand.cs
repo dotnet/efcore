@@ -118,8 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => (RelationalDataReader)Execute(
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteReader,
-                parameterValues,
-                closeConnection: false);
+                parameterValues);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -133,7 +132,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteReader,
                 parameterValues,
-                closeConnection: false,
                 cancellationToken: cancellationToken).Cast<object, RelationalDataReader>();
 
         /// <summary>
@@ -143,8 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         protected virtual object Execute(
             [NotNull] IRelationalConnection connection,
             DbCommandMethod executeMethod,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            bool closeConnection = true)
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues)
         {
             Check.NotNull(connection, nameof(connection));
 
@@ -166,46 +163,33 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 startTime: startTime);
 
             object result;
+            var readerOpen = false;
             try
             {
                 switch (executeMethod)
                 {
                     case DbCommandMethod.ExecuteNonQuery:
                     {
-                        using (dbCommand)
-                        {
-                            result = dbCommand.ExecuteNonQuery();
-                        }
+                        result = dbCommand.ExecuteNonQuery();
 
                         break;
                     }
                     case DbCommandMethod.ExecuteScalar:
                     {
-                        using (dbCommand)
-                        {
-                            result = dbCommand.ExecuteScalar();
-                        }
+                        result = dbCommand.ExecuteScalar();
 
                         break;
                     }
                     case DbCommandMethod.ExecuteReader:
                     {
-                        try
-                        {
-                            result
-                                = new RelationalDataReader(
-                                    connection,
-                                    dbCommand,
-                                    dbCommand.ExecuteReader(),
-                                    commandId,
-                                    Logger);
-                        }
-                        catch
-                        {
-                            dbCommand.Dispose();
-
-                            throw;
-                        }
+                        result
+                            = new RelationalDataReader(
+                                connection,
+                                dbCommand,
+                                dbCommand.ExecuteReader(),
+                                commandId,
+                                Logger);
+                        readerOpen = true;
 
                         break;
                     }
@@ -224,11 +208,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     false,
                     startTime,
                     stopwatch.Elapsed);
-
-                if (closeConnection)
-                {
-                    connection.Close();
-                }
             }
             catch (Exception exception)
             {
@@ -242,12 +221,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     startTime,
                     stopwatch.Elapsed);
 
-                connection.Close();
-
                 throw;
             }
             finally
             {
+                if (!readerOpen)
+                {
+                    dbCommand.Dispose();
+                    connection.Close();
+                }
+
                 dbCommand.Parameters.Clear();
             }
 
@@ -262,7 +245,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] IRelationalConnection connection,
             DbCommandMethod executeMethod,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            bool closeConnection = true,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, nameof(connection));
@@ -285,45 +267,32 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 startTime: startTime);
 
             object result;
+            var readerOpen = false;
             try
             {
                 switch (executeMethod)
                 {
                     case DbCommandMethod.ExecuteNonQuery:
                     {
-                        using (dbCommand)
-                        {
-                            result = await dbCommand.ExecuteNonQueryAsync(cancellationToken);
-                        }
+                        result = await dbCommand.ExecuteNonQueryAsync(cancellationToken);
 
                         break;
                     }
                     case DbCommandMethod.ExecuteScalar:
                     {
-                        using (dbCommand)
-                        {
-                            result = await dbCommand.ExecuteScalarAsync(cancellationToken);
-                        }
+                        result = await dbCommand.ExecuteScalarAsync(cancellationToken);
 
                         break;
                     }
                     case DbCommandMethod.ExecuteReader:
                     {
-                        try
-                        {
-                            result = new RelationalDataReader(
-                                connection,
-                                dbCommand,
-                                await dbCommand.ExecuteReaderAsync(cancellationToken),
-                                commandId,
-                                Logger);
-                        }
-                        catch
-                        {
-                            dbCommand.Dispose();
-
-                            throw;
-                        }
+                        result = new RelationalDataReader(
+                            connection,
+                            dbCommand,
+                            await dbCommand.ExecuteReaderAsync(cancellationToken),
+                            commandId,
+                            Logger);
+                        readerOpen = true;
 
                         break;
                     }
@@ -342,11 +311,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     true,
                     startTime,
                     stopwatch.Elapsed);
-
-                if (closeConnection)
-                {
-                    connection.Close();
-                }
             }
             catch (Exception exception)
             {
@@ -360,12 +324,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     startTime,
                     stopwatch.Elapsed);
 
-                connection.Close();
-
                 throw;
             }
             finally
             {
+                if (!readerOpen)
+                {
+                    dbCommand.Dispose();
+                    connection.Close();
+                }
+
                 dbCommand.Parameters.Clear();
             }
 
