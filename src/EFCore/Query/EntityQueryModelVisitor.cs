@@ -1314,9 +1314,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Visit(expression);
 
             if (!inProjection
-                && expression.Type != typeof(string)
+                && ((expression.Type != typeof(string)
                 && expression.Type != typeof(byte[])
                 && _expression?.Type.TryGetElementType(typeof(IAsyncEnumerable<>)) != null)
+                || (_expression == null && expression.Type.IsGenericType && expression.Type.GetGenericTypeDefinition() == typeof(IGrouping<,>))))
             {
                 var elementType = expression.Type.TryGetElementType(typeof(IEnumerable<>));
 
