@@ -110,6 +110,8 @@ namespace Microsoft.EntityFrameworkCore
             public virtual void Validate(IDbContextOptions options)
             {
             }
+
+            public virtual string LogFragment => "";
         }
 
         private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
@@ -121,6 +123,8 @@ namespace Microsoft.EntityFrameworkCore
             public virtual void Validate(IDbContextOptions options)
             {
             }
+
+            public virtual string LogFragment => "";
         }
 
         [Fact]

@@ -2111,7 +2111,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Can_set_known_singleton_services_using_instance_sugar()
         {
-            var modelSource = Mock.Of<IModelSource>();
+            var modelSource = (IModelSource)new FakeModelSource();
 
             var services = new ServiceCollection()
                 .AddSingleton(modelSource);
@@ -2279,7 +2279,7 @@ namespace Microsoft.EntityFrameworkCore
         private class FakeModelSource : IModelSource
         {
             public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator = null)
-                => null;
+                => new Model();
         }
 
         [Fact]

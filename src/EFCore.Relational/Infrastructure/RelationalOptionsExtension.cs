@@ -4,8 +4,10 @@
 using System;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private string _migrationsHistoryTableName;
         private string _migrationsHistoryTableSchema;
         private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
+        private string _logFragment;
 
         protected RelationalOptionsExtension()
         {
@@ -191,6 +194,58 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         public virtual void Validate(IDbContextOptions options)
         {
+        }
+
+        /// <summary>
+        ///     Creates a message fragment for logging typically containing information about 
+        ///     any useful non-default options that have been configured.
+        /// </summary>
+        public virtual string LogFragment
+        {
+            get
+            {
+                if (_logFragment == null)
+                {
+                    var builder = new StringBuilder();
+
+                    if (_commandTimeout != null)
+                    {
+                        builder.Append("CommandTimeout=").Append(_commandTimeout).Append(' ');
+                    }
+
+                    if (_maxBatchSize != null)
+                    {
+                        builder.Append("MaxBatchSize=").Append(_maxBatchSize).Append(' ');
+                    }
+
+                    if (_useRelationalNulls)
+                    {
+                        builder.Append("UseRelationalNulls ");
+                    }
+
+                    if (_migrationsAssembly != null)
+                    {
+                        builder.Append("MigrationsAssembly=").Append(_migrationsAssembly).Append(' ');
+                    }
+
+                    if (_migrationsHistoryTableName != null
+                        || _migrationsHistoryTableSchema != null)
+                    {
+                        builder.Append("MigrationsHistoryTable=");
+
+                        if (_migrationsHistoryTableSchema != null)
+                        {
+                            builder.Append(_migrationsHistoryTableSchema).Append('.');
+                        }
+
+                        builder.Append(_migrationsHistoryTableName ?? HistoryRepository.DefaultTableName).Append(' ');
+                    }
+
+                    _logFragment = builder.ToString();
+                }
+
+                return _logFragment;
+            }
         }
     }
 }

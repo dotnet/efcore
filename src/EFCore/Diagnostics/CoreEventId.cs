@@ -62,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             // Infrastucture events
             SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
             ServiceProviderCreated,
-            ManyServiceProvidersCreatedWarning
+            ManyServiceProvidersCreatedWarning,
+            ContextInitialized
         }
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
@@ -263,5 +264,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ManyServiceProvidersCreatedWarning = MakeInfraId(Id.ManyServiceProvidersCreatedWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         A <see cref="DbContext"/> was initialized.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ContextInitializedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ContextInitialized = MakeInfraId(Id.ContextInitialized);
     }
 }

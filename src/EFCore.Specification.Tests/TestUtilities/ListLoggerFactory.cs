@@ -4,37 +4,31 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class ListLoggerFactory : ILoggerFactory
     {
         private readonly Func<string, bool> _shouldCreateLogger;
-        private readonly List<Tuple<LogLevel, string>> _log;
+        private readonly List<Tuple<LogLevel, EventId, string>> _log;
 
-        public ListLoggerFactory(List<Tuple<LogLevel, string>> log)
+        public ListLoggerFactory(List<Tuple<LogLevel, EventId, string>> log)
             : this(log, null)
 
         {
         }
 
-        public ListLoggerFactory(List<Tuple<LogLevel, string>> log, Func<string, bool> shouldCreateLogger)
+        public ListLoggerFactory(List<Tuple<LogLevel, EventId, string>> log, Func<string, bool> shouldCreateLogger)
         {
             _log = log;
             _shouldCreateLogger = shouldCreateLogger;
         }
 
         public ILogger CreateLogger(string name)
-        {
-            if ((_shouldCreateLogger != null)
-                && !_shouldCreateLogger(name))
-            {
-                return Mock.Of<ILogger>();
-            }
-
-            return new ListLogger(_log);
-        }
+            => _shouldCreateLogger != null && !_shouldCreateLogger(name)
+                ? (ILogger)NullLogger.Instance
+                : new ListLogger(_log);
 
         public void AddProvider(ILoggerProvider provider)
         {

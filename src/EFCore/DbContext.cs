@@ -58,7 +58,6 @@ namespace Microsoft.EntityFrameworkCore
         private IDbContextDependencies _dbContextDependencies;
         private DatabaseFacade _database;
         private ChangeTracker _changeTracker;
-        private IDiagnosticsLogger<DbLoggerCategory.Update> _updateLogger;
 
         private IServiceScope _serviceScope;
         private IDbContextPool _dbContextPool;
@@ -174,6 +173,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        IDiagnosticsLogger<DbLoggerCategory.Update> IDbContextDependencies.UpdateLogger => DbContextDependencies.UpdateLogger;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        IDiagnosticsLogger<DbLoggerCategory.Infrastructure> IDbContextDependencies.InfrastructureLogger => DbContextDependencies.InfrastructureLogger;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         object IDbSetCache.GetOrAddSet(IDbSetSource source, Type type)
         {
             CheckDisposed();
@@ -212,7 +223,52 @@ namespace Microsoft.EntityFrameworkCore
             {
                 CheckDisposed();
 
-                return (_contextServices ?? (_contextServices = InitializeServices())).InternalServiceProvider;
+                if (_contextServices != null)
+                {
+                    return _contextServices.InternalServiceProvider;
+                }
+
+                if (_initializing)
+                {
+                    throw new InvalidOperationException(CoreStrings.RecursiveOnConfiguring);
+                }
+
+                try
+                {
+                    _initializing = true;
+
+                    var optionsBuilder = new DbContextOptionsBuilder(_options);
+
+                    OnConfiguring(optionsBuilder);
+
+                    if (_options.IsFrozen
+                        && !ReferenceEquals(_options, optionsBuilder.Options))
+                    {
+                        throw new InvalidOperationException(CoreStrings.PoolingOptionsModified);
+                    }
+
+                    var options = optionsBuilder.Options;
+
+                    _serviceScope = ServiceProviderCache.Instance.GetOrAdd(options, providerRequired: true)
+                        .GetRequiredService<IServiceScopeFactory>()
+                        .CreateScope();
+
+                    var scopedServiceProvider = _serviceScope.ServiceProvider;
+
+                    var contextServices = scopedServiceProvider.GetService<IDbContextServices>();
+
+                    contextServices.Initialize(scopedServiceProvider, options, this);
+
+                    _contextServices = contextServices;
+
+                    DbContextDependencies.InfrastructureLogger.ContextInitialized(this, options);
+                }
+                finally
+                {
+                    _initializing = false;
+                }
+
+                return _contextServices.InternalServiceProvider;
             }
         }
 
@@ -224,49 +280,6 @@ namespace Microsoft.EntityFrameworkCore
             if (_disposed)
             {
                 throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
-            }
-        }
-
-        private IDbContextServices InitializeServices()
-        {
-            if (_initializing)
-            {
-                throw new InvalidOperationException(CoreStrings.RecursiveOnConfiguring);
-            }
-
-            try
-            {
-                _initializing = true;
-
-                var optionsBuilder = new DbContextOptionsBuilder(_options);
-
-                OnConfiguring(optionsBuilder);
-
-                if (_options.IsFrozen
-                    && !ReferenceEquals(_options, optionsBuilder.Options))
-                {
-                    throw new InvalidOperationException(CoreStrings.PoolingOptionsModified);
-                }
-
-                var options = optionsBuilder.Options;
-
-                _serviceScope = ServiceProviderCache.Instance.GetOrAdd(options, providerRequired: true)
-                    .GetRequiredService<IServiceScopeFactory>()
-                    .CreateScope();
-
-                var scopedServiceProvider = _serviceScope.ServiceProvider;
-
-                var contextServices = scopedServiceProvider.GetService<IDbContextServices>();
-
-                contextServices.Initialize(scopedServiceProvider, options, this);
-
-                _updateLogger = scopedServiceProvider.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Update>>();
-
-                return contextServices;
-            }
-            finally
-            {
-                _initializing = false;
             }
         }
 
@@ -366,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (Exception exception)
             {
-                _updateLogger.SaveChangesFailed(this, exception);
+                DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
 
                 throw;
             }
@@ -454,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (Exception exception)
             {
-                _updateLogger.SaveChangesFailed(this, exception);
+                DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
 
                 throw;
             }

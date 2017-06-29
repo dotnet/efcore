@@ -26,11 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var property = new Property("A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
             var queryModel = new QueryModel(new MainFromClause("A", typeof(object), Expression.Constant("A")), new SelectClause(Expression.Constant("A")));
             var includeResultOperator = new IncludeResultOperator(new [] { "Foo" }, Expression.Constant("A"));
+            var options = new DbContextOptionsBuilder().UseInMemoryDatabase("D").Options;
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
                 { typeof(Type), () => typeof(object) },
-                { typeof(DbContext), () => new DbContext(new DbContextOptionsBuilder().UseInMemoryDatabase("D").Options) },
+                { typeof(DbContext), () => new DbContext(options) },
+                { typeof(DbContextOptions), () => options },
                 { typeof(QueryModel), () => queryModel },
                 { typeof(string), () => "Fake" },
                 { typeof(IExpressionPrinter), () => new ExpressionPrinter() },

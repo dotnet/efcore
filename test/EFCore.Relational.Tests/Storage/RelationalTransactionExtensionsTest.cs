@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var connection = new FakeRelationalConnection(
                 CreateOptions((FakeRelationalOptionsExtension)new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
 
-            var loggerFactory = new ListLoggerFactory(new List<Tuple<LogLevel, string>>());
+            var loggerFactory = new ListLoggerFactory(new List<Tuple<LogLevel, EventId, string>>());
 
             var transaction = new RelationalTransaction(
                 connection,

@@ -10,12 +10,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class ListLogger : ILogger
     {
-        public ListLogger(List<Tuple<LogLevel, string>> logMessages)
+        public ListLogger(List<Tuple<LogLevel, EventId, string>> logMessages)
         {
             LogMessages = logMessages;
         }
 
-        public List<Tuple<LogLevel, string>> LogMessages { get; }
+        public List<Tuple<LogLevel, EventId, string>> LogMessages { get; }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
@@ -35,15 +35,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
             }
 
-            LogMessages.Add(new Tuple<LogLevel, string>(logLevel, message.ToString()));
+            LogMessages.Add(new Tuple<LogLevel, EventId, string>(logLevel, eventId, message.ToString()));
         }
 
         public bool IsEnabled(LogLevel logLevel) => true;
 
-        public IDisposable BeginScope(object state)
-        {
-            throw new NotImplementedException();
-        }
+        public IDisposable BeginScope(object state) => throw new NotImplementedException();
 
         public IDisposable BeginScope<TState>(TState state) => null;
     }

@@ -266,6 +266,10 @@
     <value>More than twenty 'IServiceProvider' instances have been created for internal use by Entity Framework. Consider reviewing calls on 'DbContextOptionsBuilder' that may require new service providers to be built.</value>
     <comment>Warning CoreEventId.ManyServiceProvidersCreatedWarning</comment>
   </data>
+  <data name="LogContextInitialized" xml:space="preserve">
+    <value>Entity Framework Core {version} initialized '{contextType}' using provider '{provider}' with options: {options}</value>
+    <comment>Information CoreEventId.ContextInitialized string string string string</comment>
+  </data>
   <data name="NotAnEFService" xml:space="preserve">
     <value>The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by EF and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.</value>
   </data>

@@ -874,6 +874,11 @@
     },
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+      "MemberId": "System.String get_LogFragment()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
       "MemberId": "System.Void Validate(Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions options)",
       "Kind": "Addition"
     },

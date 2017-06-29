@@ -411,6 +411,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogManyServiceProvidersCreated")));
 
         /// <summary>
+        ///     Entity Framework Core {version} initialized '{contextType}' using provider '{provider}' with options: {options}
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, string> LogContextInitialized
+            = new EventDefinition<string, string, string, string>(
+                CoreEventId.ContextInitialized,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string, string, string>(
+                    LogLevel.Information,
+                    CoreEventId.ContextInitialized,
+                    _resourceManager.GetString("LogContextInitialized")));
+
+        /// <summary>
         ///     The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by EF and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.
         /// </summary>
         public static string NotAnEFService([CanBeNull] object service)

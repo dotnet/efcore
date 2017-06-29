@@ -42,5 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="options"> The options being validated. </param>
         void Validate([NotNull] IDbContextOptions options);
+
+        /// <summary>
+        ///     Creates a message fragment for logging typically containing information about 
+        ///     any useful non-default options that have been configured.
+        /// </summary>
+        string LogFragment { get; }
     }
 }

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -36,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private IDictionary<Type, Type> _replacedServices;
         private int? _maxPoolSize;
         private long? _serviceProviderHash;
+        private string _logFragment;
 
         private WarningsConfiguration _warningsConfiguration 
             = new WarningsConfiguration().TryWithExplicit(CoreEventId.IncludeIgnoredWarning, WarningBehavior.Throw);
@@ -374,6 +376,40 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             nameof(DbContextOptionsBuilder.UseInternalServiceProvider),
                             nameof(IMemoryCache)));
                 }
+            }
+        }
+
+        /// <summary>
+        ///     Creates a message fragment for logging typically containing information about 
+        ///     any useful non-default options that have been configured.
+        /// </summary>
+        public virtual string LogFragment
+        {
+            get
+            {
+                if (_logFragment == null)
+                {
+                    var builder = new StringBuilder();
+
+                    if (_queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+                    {
+                        builder.Append(_queryTrackingBehavior).Append(' ');
+                    }
+
+                    if (_sensitiveDataLoggingEnabled)
+                    {
+                        builder.Append("SensitiveDataLoggingEnabled ");
+                    }
+
+                    if (_maxPoolSize != null)
+                    {
+                        builder.Append("MaxPoolSize=").Append(_maxPoolSize).Append(' ');
+                    }
+
+                    _logFragment = builder.ToString();
+                }
+
+                return _logFragment;
             }
         }
     }

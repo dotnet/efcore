@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.StartsWith(
+                Assert.Contains(
                     @"    Compiling query model: 
 'from Customer <generated>_0 in DbSet<Customer>
 select [<generated>_0]'
@@ -79,7 +79,7 @@ select [<generated>_0]'
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.StartsWith(
+                Assert.Contains(
                     @"    Compiling query model: 
 '(from Customer c in DbSet<Customer>
 select [c]).Include(""Orders"")'

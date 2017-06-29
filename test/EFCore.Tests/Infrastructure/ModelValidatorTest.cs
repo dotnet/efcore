@@ -112,14 +112,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         protected ModelValidatorTest()
         {
-            Log = new List<Tuple<LogLevel, string>>();
+            Log = new List<Tuple<LogLevel, EventId, string>>();
             Logger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                 new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
                 new LoggingOptions(),
                 new DiagnosticListener("Fake"));
         }
 
-        protected List<Tuple<LogLevel, string>> Log { get; }
+        protected List<Tuple<LogLevel, EventId, string>> Log { get; }
 
         protected IDiagnosticsLogger<DbLoggerCategory.Model.Validation> Logger { get; }
 
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Assert.Equal(1, Log.Count);
             Assert.Equal(LogLevel.Warning, Log[0].Item1);
-            Assert.Equal(expectedMessage, Log[0].Item2);
+            Assert.Equal(expectedMessage, Log[0].Item3);
         }
 
         protected virtual void VerifyError(string expectedMessage, IModel model)

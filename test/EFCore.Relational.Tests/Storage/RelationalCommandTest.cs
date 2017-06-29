@@ -896,7 +896,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var options = CreateOptions();
 
-            var log = new List<Tuple<LogLevel, string>>();
+            var log = new List<Tuple<LogLevel, EventId, string>>();
 
             var fakeConnection = new FakeRelationalConnection(options);
 
@@ -935,7 +935,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Assert.EndsWith(
                     @"[Parameters=[FirstParameter='?'], CommandType='0', CommandTimeout='30']
 Logged Command",
-                    item.Item2.Replace(Environment.NewLine, FileLineEnding));
+                    item.Item3.Replace(Environment.NewLine, FileLineEnding));
             }
         }
 
@@ -950,7 +950,7 @@ Logged Command",
 
             var options = CreateOptions(optionsExtension);
 
-            var log = new List<Tuple<LogLevel, string>>();
+            var log = new List<Tuple<LogLevel, EventId, string>>();
 
             var fakeConnection = new FakeRelationalConnection(options);
 
@@ -981,7 +981,7 @@ Logged Command",
 
             Assert.Equal(3, log.Count);
             Assert.Equal(LogLevel.Warning, log[0].Item1);
-            Assert.Equal(CoreStrings.LogSensitiveDataLoggingEnabled.GenerateMessage(), log[0].Item2);
+            Assert.Equal(CoreStrings.LogSensitiveDataLoggingEnabled.GenerateMessage(), log[0].Item3);
 
             Assert.Equal(LogLevel.Debug, log[1].Item1);
             Assert.Equal(LogLevel.Information, log[2].Item1);
@@ -991,7 +991,7 @@ Logged Command",
                 Assert.EndsWith(
                     @"[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
 Logged Command",
-                    item.Item2.Replace(Environment.NewLine, FileLineEnding));
+                    item.Item3.Replace(Environment.NewLine, FileLineEnding));
             }
         }
 
@@ -1010,7 +1010,7 @@ Logged Command",
 
             var relationalCommand = CreateRelationalCommand(
                 new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
-                    new ListLoggerFactory(new List<Tuple<LogLevel, string>>()),
+                    new ListLoggerFactory(new List<Tuple<LogLevel, EventId, string>>()),
                     new FakeLoggingOptions(false),
                     new ListDiagnosticSource(diagnostic)),
                 parameters: new[]
@@ -1078,7 +1078,7 @@ Logged Command",
 
             var relationalCommand = CreateRelationalCommand(
                 new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
-                    new ListLoggerFactory(new List<Tuple<LogLevel, string>>()),
+                    new ListLoggerFactory(new List<Tuple<LogLevel, EventId, string>>()),
                     new FakeLoggingOptions(false),
                     new ListDiagnosticSource(diagnostic)),
                 parameters: new[]

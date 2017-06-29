@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -505,6 +506,65 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         (d, p) => ((EventDefinition)d).GenerateMessage(),
                         serviceProviders));
             }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ContextInitialized(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            [NotNull] DbContext context,
+            [NotNull] DbContextOptions contextOptions)
+        {
+            var definition = CoreStrings.LogContextInitialized;
+
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics, 
+                    ProductInfo.GetVersion(), 
+                    context.GetType().ShortDisplayName(), 
+                    context.Database.ProviderName,
+                    BuildOptionsFragment(contextOptions));
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new ContextInitializedEventData(
+                        definition,
+                        ContextInitialized,
+                        context,
+                        contextOptions));
+            }
+        }
+
+        private static string BuildOptionsFragment(DbContextOptions contextOptions)
+        {
+            var builder = new StringBuilder();
+            foreach (var extension in contextOptions.Extensions)
+            {
+                builder.Append(extension.LogFragment);
+
+            }
+            var fragment = builder.ToString();
+
+            return string.IsNullOrWhiteSpace(fragment) ? "None" : fragment;
+        }
+
+        private static string ContextInitialized(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string, string>)definition;
+            var p = (ContextInitializedEventData)payload;
+            return d.GenerateMessage(
+                ProductInfo.GetVersion(),
+                p.Context.GetType().ShortDisplayName(),
+                p.Context.Database.ProviderName,
+                BuildOptionsFragment(p.ContextOptions));
+
         }
     }
 }
