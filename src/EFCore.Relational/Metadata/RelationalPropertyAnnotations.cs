@@ -48,36 +48,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         private string GetDefaultColumnName()
         {
+            var entityType = Property.DeclaringEntityType;
             var pk = Property.GetContainingPrimaryKey();
             if (pk != null)
             {
-                var entityType = Property.DeclaringEntityType;
-                var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
-                if (ownership != null)
+                foreach (var fk in entityType.FindForeignKeys(pk.Properties))
                 {
-                    var ownerType = ownership.PrincipalEntityType;
-                    var entityTypeAnnotations = GetAnnotations(entityType);
-                    var ownerTypeAnnotations = GetAnnotations(ownerType);
-                    if (entityTypeAnnotations.TableName == ownerTypeAnnotations.TableName
-                        && entityTypeAnnotations.Schema == ownerTypeAnnotations.Schema)
+                    if (!fk.PrincipalKey.IsPrimaryKey())
                     {
-                        var index = -1;
-                        for (var i = 0; i < pk.Properties.Count; i++)
-                        {
-                            if (pk.Properties[i] == Property)
-                            {
-                                index = i;
-                                break;
-                            }
-                        }
+                        continue;
+                    }
 
-                        return GetAnnotations(ownerType.FindPrimaryKey().Properties[index]).ColumnName;
+                    var principalEntityType = fk.PrincipalEntityType;
+                    var entityTypeAnnotations = GetAnnotations(entityType);
+                    var principalTypeAnnotations = GetAnnotations(principalEntityType);
+                    if (entityTypeAnnotations.TableName == principalTypeAnnotations.TableName
+                        && entityTypeAnnotations.Schema == principalTypeAnnotations.Schema)
+                    {
+                        return GetAnnotations(principalEntityType.FindPrimaryKey().Properties[pk.IndexOf(Property)]).ColumnName;
                     }
                 }
             }
             else
             {
-                var entityType = Property.DeclaringEntityType;
                 StringBuilder builder = null;
                 do
                 {

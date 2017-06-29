@@ -647,20 +647,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 firstEntityType, secondEntityType, keyValue, firstConflictingValues, secondConflictingValues, columns);
 
         /// <summary>
-        ///     There are '{mappedEntityTypeCount}' entity types sharing the table '{tableName}', but only '{entryCount}' entries with the same key values have been marked as '{state}'. The missing entities should be assignable to {missingEntityTypes}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+        ///     The entity of '{entityType}' is sharing the table '{tableName}' with '{missingEntityType}', but there is no entity of this type with the same key value that has been marked as '{state}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
-        public static string SharedRowEntryCountMismatch([CanBeNull] object mappedEntityTypeCount, [CanBeNull] object tableName, [CanBeNull] object entryCount, [CanBeNull] object state, [CanBeNull] object missingEntityTypes)
+        public static string SharedRowEntryCountMismatch([CanBeNull] object entityType, [CanBeNull] object tableName, [CanBeNull] object missingEntityType, [CanBeNull] object state)
             => string.Format(
-                GetString("SharedRowEntryCountMismatch", nameof(mappedEntityTypeCount), nameof(tableName), nameof(entryCount), nameof(state), nameof(missingEntityTypes)),
-                mappedEntityTypeCount, tableName, entryCount, state, missingEntityTypes);
+                GetString("SharedRowEntryCountMismatch", nameof(entityType), nameof(tableName), nameof(missingEntityType), nameof(state)),
+                entityType, tableName, missingEntityType, state);
 
         /// <summary>
-        ///     There are '{mappedEntityTypeCount}' entity types sharing the table '{tableName}', but only '{entryCount}' entries with the same key values '{keyValue}' have been marked as '{state}'. The missing entities should be assignable to {missingEntityTypes}.
+        ///     The entity of '{entityType}' is sharing the table '{tableName}' with '{missingEntityType}', but there is no entity of this type with the same key value '{keyValue}' that has been marked as '{state}'.
         /// </summary>
-        public static string SharedRowEntryCountMismatchSensitive([CanBeNull] object mappedEntityTypeCount, [CanBeNull] object tableName, [CanBeNull] object entryCount, [CanBeNull] object keyValue, [CanBeNull] object state, [CanBeNull] object missingEntityTypes)
+        public static string SharedRowEntryCountMismatchSensitive([CanBeNull] object entityType, [CanBeNull] object tableName, [CanBeNull] object missingEntityType, [CanBeNull] object keyValue, [CanBeNull] object state)
             => string.Format(
-                GetString("SharedRowEntryCountMismatchSensitive", nameof(mappedEntityTypeCount), nameof(tableName), nameof(entryCount), nameof(keyValue), nameof(state), nameof(missingEntityTypes)),
-                mappedEntityTypeCount, tableName, entryCount, keyValue, state, missingEntityTypes);
+                GetString("SharedRowEntryCountMismatchSensitive", nameof(entityType), nameof(tableName), nameof(missingEntityType), nameof(keyValue), nameof(state)),
+                entityType, tableName, missingEntityType, keyValue, state);
 
         /// <summary>
         ///     Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.

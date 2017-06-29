@@ -4376,6 +4376,79 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     });
         }
 
+        [Fact]
+        public void Create_shared_table_with_two_entity_types()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity("Order", eb =>
+                            {
+                                eb.Property<int>("Id");
+                                eb.HasKey("Id");
+                                eb.ToTable("Orders");
+                            });
+                        modelBuilder.Entity("OrderDetails", eb =>
+                            {
+                                eb.Property<int>("Id");
+                                eb.Property<DateTime>("Time");
+                                eb.HasKey("Id");
+                                eb.HasOne("Order").WithOne().HasForeignKey("OrderDetails", "Id");
+                                eb.ToTable("Orders");
+                            });
+                    },
+                operations =>
+                    {
+                        Assert.Equal(1, operations.Count);
+
+                        var createTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
+                        Assert.Equal(2, createTableOperation.Columns.Count);
+                        var timeColumn = createTableOperation.Columns[1];
+                        Assert.Equal("Time", timeColumn.Name);
+                        Assert.False(timeColumn.IsNullable);
+                    });
+        }
+
+        [Fact]
+        public void Create_shared_table_with_inheritance_and_three_entity_types()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity("OrderBase", eb =>
+                            {
+                                eb.Property<int>("Id");
+                                eb.HasKey("Id");
+                                eb.ToTable("Orders");
+                            });
+                        modelBuilder.Entity("Order", eb =>
+                            {
+                                eb.HasBaseType("OrderBase");
+                                eb.ToTable("Orders");
+                            });
+                        modelBuilder.Entity("OrderDetails", eb =>
+                            {
+                                eb.Property<int>("Id");
+                                eb.Property<DateTime>("Time");
+                                eb.HasKey("Id");
+                                eb.HasOne("Order").WithOne().HasForeignKey("OrderDetails", "Id");
+                                eb.ToTable("Orders");
+                            });
+                    },
+                operations =>
+                    {
+                        Assert.Equal(1, operations.Count);
+
+                        var createTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
+                        Assert.Equal(3, createTableOperation.Columns.Count);
+                        var timeColumn = createTableOperation.Columns[2];
+                        Assert.Equal("Time", timeColumn.Name);
+                        Assert.True(timeColumn.IsNullable);
+                    });
+        }
+
         [Fact] // See #2802
         public void Diff_IProperty_compares_values_not_references()
         {

@@ -199,42 +199,57 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
 
             var firstValidatedType = mappedTypes[0];
-            var validatedTypes = new List<IEntityType> { firstValidatedType };
-            var unvalidatedTypes = new Queue<IEntityType>(mappedTypes.Skip(1));
-            while (unvalidatedTypes.Count > 0)
+            var typesToValidate = new Queue<IEntityType>();
+            typesToValidate.Enqueue(firstValidatedType);
+            var unvalidatedTypes = new HashSet<IEntityType>(mappedTypes.Skip(1));
+            while (typesToValidate.Count > 0)
             {
-                var entityType = unvalidatedTypes.Dequeue();
-                var key = entityType.FindPrimaryKey();
-                var otherKey = firstValidatedType.FindPrimaryKey();
-                if (key.Relational().Name != otherKey.Relational().Name)
+                var entityType = typesToValidate.Dequeue();
+                var typesToValidateLeft = typesToValidate.Count;
+                var nextTypeSet = unvalidatedTypes.Where(unvalidatedType =>
+                    entityType.RootType() == unvalidatedType.RootType()
+                    || IsIdentifyingPrincipal(entityType, unvalidatedType)
+                    || IsIdentifyingPrincipal(unvalidatedType, entityType));
+                foreach (var nextEntityType in nextTypeSet)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.IncompatibleTableKeyNameMismatch(
-                            tableName,
-                            entityType.DisplayName(),
-                            firstValidatedType.DisplayName(),
-                            key.Relational().Name,
-                            Property.Format(key.Properties),
-                            otherKey.Relational().Name,
-                            Property.Format(otherKey.Properties)));
-                }
+                    var key = entityType.FindPrimaryKey();
+                    var otherKey = nextEntityType.FindPrimaryKey();
+                    if (key.Relational().Name != otherKey.Relational().Name)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.IncompatibleTableKeyNameMismatch(
+                                tableName,
+                                entityType.DisplayName(),
+                                nextEntityType.DisplayName(),
+                                key.Relational().Name,
+                                Property.Format(key.Properties),
+                                otherKey.Relational().Name,
+                                Property.Format(otherKey.Properties)));
+                    }
 
-                var relationshipFound = validatedTypes.Any(validatedType =>
-                    entityType.RootType() == validatedType.RootType()
-                    || IsIdentifyingPrincipal(entityType, validatedType)
-                    || IsIdentifyingPrincipal(validatedType, entityType));
-                if (!relationshipFound)
+                    typesToValidate.Enqueue(nextEntityType);
+                }
+                
+                foreach (var typeToValidate in typesToValidate.Skip(typesToValidateLeft))
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.IncompatibleTableNoRelationship(
-                            tableName,
-                            entityType.DisplayName(),
-                            firstValidatedType.DisplayName(),
-                            Property.Format(key.Properties),
-                            Property.Format(otherKey.Properties)));
+                    unvalidatedTypes.Remove(typeToValidate);
                 }
+            }
 
-                validatedTypes.Add(entityType);
+            if (unvalidatedTypes.Count == 0)
+            {
+                return;
+            }
+            
+            foreach (var invalidEntityType in unvalidatedTypes)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.IncompatibleTableNoRelationship(
+                        tableName,
+                        invalidEntityType.DisplayName(),
+                        firstValidatedType.DisplayName(),
+                        Property.Format(invalidEntityType.FindPrimaryKey().Properties),
+                        Property.Format(firstValidatedType.FindPrimaryKey().Properties)));
             }
         }
 

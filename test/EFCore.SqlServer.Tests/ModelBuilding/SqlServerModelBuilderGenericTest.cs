@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("ParentId", property1.SqlServer().ColumnName);
                 var property2 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass2)).FindProperty("ParentId");
                 Assert.True(property2.IsForeignKey());
-                Assert.Equal("ParentId1", property2.SqlServer().ColumnName);
+                Assert.Equal("DisjointChildSubclass2_ParentId", property2.SqlServer().ColumnName);
             }
 
             public class Parent
