@@ -325,11 +325,13 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(context3.Database.CurrentTransaction);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#9024")]
         public async Task Concurrency_test()
         {
             // This test is for measuring different pooling approaches.
 
+            Assert.Equal(0, PooledContext.InstanceCount);
+            
             WriteResults();
 
             var serviceProvider = BuildServiceProvider<PooledContext>();
