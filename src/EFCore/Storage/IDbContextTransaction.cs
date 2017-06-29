@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -26,10 +28,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Commits all changes made to the database in the current transaction.
         /// </summary>
         void Commit();
+        
+        /// <summary>
+        ///     Commits all changes made to the database in the current transaction asynchronously.
+        /// </summary>
+        Task CommitAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         ///     Discards all changes made to the database in the current transaction.
         /// </summary>
         void Rollback();
+        
+        /// <summary>
+        ///     Discards all changes made to the database in the current transaction asynchronously.
+        /// </summary>
+        Task RollbackAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

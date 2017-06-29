@@ -55,6 +55,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     transaction?.Commit();
                 }
+                catch
+                {
+                    try
+                    {
+                        transaction?.Rollback();
+                    }
+                    catch
+                    {
+                        // if the connection was lost, rollback command will fail.  prefer to throw original exception in that case
+                    }
+                    throw;
+                }
                 finally
                 {
                     transaction?.Dispose();
@@ -97,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         if (transaction != null
                             && command.TransactionSuppressed)
                         {
-                            transaction.Commit();
+                            await transaction.CommitAsync(cancellationToken);
                             transaction.Dispose();
                             transaction = null;
                         }
@@ -105,7 +117,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         await command.ExecuteNonQueryAsync(connection, cancellationToken: cancellationToken);
                     }
 
-                    transaction?.Commit();
+                    if (transaction != null)
+                    {
+                        await transaction.CommitAsync(cancellationToken);
+                    }
+                }
+                catch
+                {
+                    try
+                    {
+                        if (transaction != null)
+                        {
+                            await transaction.RollbackAsync(cancellationToken);
+                        }
+                    }
+                    catch
+                    {
+                        // if the connection was lost, rollback command will fail.  prefer to throw original exception in that case
+                    }
+                    throw;
                 }
                 finally
                 {
