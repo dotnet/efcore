@@ -2,15 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Moq;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -96,35 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         private static IHistoryRepository CreateHistoryRepository()
-        {
-            var sqlGenerator = new SqliteSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
-            var typeMapper = new SqliteTypeMapper(new RelationalTypeMapperDependencies());
-
-            return new SqliteHistoryRepository(
-                new HistoryRepositoryDependencies(
-                    Mock.Of<IRelationalDatabaseCreator>(),
-                    Mock.Of<IRawSqlCommandBuilder>(),
-                    Mock.Of<IRelationalConnection>(),
-                    new DbContextOptions<DbContext>(
-                        new Dictionary<Type, IDbContextOptionsExtension>
-                        {
-                            { typeof(SqliteOptionsExtension), new SqliteOptionsExtension() }
-                        }),
-                    new MigrationsModelDiffer(
-                        new SqliteTypeMapper(new RelationalTypeMapperDependencies()),
-                        new SqliteMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
-                    new SqliteMigrationsSqlGenerator(
-                        new MigrationsSqlGeneratorDependencies(
-                            new RelationalCommandBuilderFactory(
-                                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                                typeMapper),
-                            new SqliteSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
-                            typeMapper)),
-                    sqlGenerator));
-        }
-
-        private class Context : DbContext
-        {
-        }
+            => SqliteTestHelpers.Instance.CreateContextServices()
+                .GetRequiredService<IHistoryRepository>();
     }
 }
