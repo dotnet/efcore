@@ -588,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             return _typeMapping != null
                    && (value == null
-                       || _typeMapping.ClrType.IsAssignableFrom(value.GetType()))
+                       || _typeMapping.ClrType.IsInstanceOfType(value))
                 ? _typeMapping
                 : Dependencies.RelationalTypeMapper.GetMappingForValue(value);
         }

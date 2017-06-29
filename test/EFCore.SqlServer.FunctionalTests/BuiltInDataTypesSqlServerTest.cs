@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
+using Xunit.Abstractions;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable PossibleInvalidOperationException
@@ -20,10 +21,11 @@ namespace Microsoft.EntityFrameworkCore
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
     public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerFixture>
     {
-        public BuiltInDataTypesSqlServerTest(BuiltInDataTypesSqlServerFixture fixture)
+        public BuiltInDataTypesSqlServerTest(BuiltInDataTypesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         [Fact]
@@ -309,6 +311,12 @@ WHERE [e].[Time] = @__timeSpan_0",
                 decimal? param40 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.Numeric == param40));
             }
+        }
+
+        [Fact]
+        public virtual void Can_query_using_any_nullable_data_type_as_literal()
+        {
+            Can_query_using_any_nullable_data_type_as_literal_helper(strictEquality: true);
         }
 
         [Fact]

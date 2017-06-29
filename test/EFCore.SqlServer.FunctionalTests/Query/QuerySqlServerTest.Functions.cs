@@ -549,7 +549,7 @@ WHERE FLOOR([od].[UnitPrice]) > 10.0");
             AssertSql(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE POWER([od].[Discount], 2E0) > 0.0500000007450581E0");
+WHERE POWER([od].[Discount], 2E0) > 0.05000000074505806E0");
         }
 
         public override void Where_math_round()
@@ -619,7 +619,7 @@ WHERE ([od].[OrderID] = 11077) AND (EXP([od].[Discount]) > 1E0)");
             AssertSql(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE (([od].[OrderID] = 11077) AND ([od].[Discount] > 0E0)) AND (LOG10([od].[Discount]) < 0E0)");
+WHERE (([od].[OrderID] = 11077) AND ([od].[Discount] > CAST(0 AS real))) AND (LOG10([od].[Discount]) < 0E0)");
         }
 
         public override void Where_math_log()
@@ -629,7 +629,7 @@ WHERE (([od].[OrderID] = 11077) AND ([od].[Discount] > 0E0)) AND (LOG10([od].[Di
             AssertSql(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE (([od].[OrderID] = 11077) AND ([od].[Discount] > 0E0)) AND (LOG([od].[Discount]) < 0E0)");
+WHERE (([od].[OrderID] = 11077) AND ([od].[Discount] > CAST(0 AS real))) AND (LOG([od].[Discount]) < 0E0)");
         }
 
         public override void Where_math_log_new_base()
@@ -639,7 +639,7 @@ WHERE (([od].[OrderID] = 11077) AND ([od].[Discount] > 0E0)) AND (LOG([od].[Disc
             AssertSql(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE (([od].[OrderID] = 11077) AND ([od].[Discount] > 0E0)) AND (LOG([od].[Discount], 7E0) < 0E0)");
+WHERE (([od].[OrderID] = 11077) AND ([od].[Discount] > CAST(0 AS real))) AND (LOG([od].[Discount], 7E0) < 0E0)");
         }
 
         public override void Where_math_sqrt()

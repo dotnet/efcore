@@ -70,11 +70,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly SqlServerDateTimeTypeMapping _datetime2 = new SqlServerDateTimeTypeMapping("datetime2", dbType: DbType.DateTime2);
 
-        private readonly DoubleTypeMapping _double = new DoubleTypeMapping("float"); // Note: "float" is correct SQL Server type to map to CLR-type double
+        private readonly DoubleTypeMapping _double = new SqlServerDoubleTypeMapping("float"); // Note: "float" is correct SQL Server type to map to CLR-type double
 
         private readonly SqlServerDateTimeOffsetTypeMapping _datetimeoffset = new SqlServerDateTimeOffsetTypeMapping("datetimeoffset");
 
-        private readonly FloatTypeMapping _real = new FloatTypeMapping("real"); // Note: "real" is correct SQL Server type to map to CLR-type float
+        private readonly FloatTypeMapping _real = new SqlServerFloatTypeMapping("real"); // Note: "real" is correct SQL Server type to map to CLR-type float
 
         private readonly GuidTypeMapping _uniqueidentifier = new GuidTypeMapping("uniqueidentifier", DbType.Guid);
 

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
+// ReSharper disable CompareOfFloatsByEqualityOperator
+// ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -365,6 +367,130 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected virtual void Can_query_using_any_nullable_data_type_as_literal_helper(bool strictEquality)
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<BuiltInNullableDataTypes>().Add(
+                    new BuiltInNullableDataTypes
+                    {
+                        Id = 12,
+                        PartitionId = 1,
+                        TestNullableInt16 = -1234,
+                        TestNullableInt32 = -123456789,
+                        TestNullableInt64 = -1234567890123456789L,
+                        TestNullableDouble = -1.23456789,
+                        TestNullableDecimal = -1234567890.01M,
+                        TestNullableDateTime = Fixture.DefaultDateTime,
+                        TestNullableDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
+                        TestNullableTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                        TestNullableSingle = -1.234F,
+                        TestNullableBoolean = true,
+                        TestNullableByte = 255,
+                        TestNullableUnsignedInt16 = 1234,
+                        TestNullableUnsignedInt32 = 1234565789U,
+                        TestNullableUnsignedInt64 = 12345678901234567890UL,
+                        TestNullableCharacter = 'a',
+                        TestNullableSignedByte = -128,
+                        Enum64 = Enum64.SomeValue,
+                        Enum32 = Enum32.SomeValue,
+                        Enum16 = Enum16.SomeValue,
+                        Enum8 = Enum8.SomeValue
+                    });
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12);
+                var entityType = context.Model.FindEntityType(typeof(BuiltInNullableDataTypes));
+
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableInt16 == -1234));
+
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableInt32 == -123456789));
+
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableInt64 == -1234567890123456789L));
+
+                Assert.Same(
+                    entity,
+                    strictEquality
+                        ? context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableDouble == -1.23456789)
+                        : context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && -e.TestNullableDouble + -1.23456789 < 1E-5));
+
+                Assert.Same(
+                    entity,
+                    context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableDouble != 1E18));
+
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableDecimal == -1234567890.01M));
+
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableDateTime == Fixture.DefaultDateTime));
+
+                if (entityType.FindProperty("TestNullableDateTimeOffset") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableDateTimeOffset == new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0))));
+                }
+
+                if (entityType.FindProperty("TestNullableTimeSpan") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableTimeSpan == new TimeSpan(0, 10, 9, 8, 7)));
+                }
+
+                Assert.Same(
+                    entity,
+                    strictEquality
+                        ? context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableSingle == -1.234F)
+                        : context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && -e.TestNullableSingle + -1.234F < 1E-5));
+
+                Assert.Same(
+                    entity,
+                    context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableSingle != 1E-8));
+
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableBoolean == true));
+
+                if (entityType.FindProperty("TestNullableByte") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableByte == 255));
+                }
+
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.Enum64 == Enum64.SomeValue));
+
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.Enum32 == Enum32.SomeValue));
+
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.Enum16 == Enum16.SomeValue));
+
+                if (entityType.FindProperty("Enum8") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.Enum8 == Enum8.SomeValue));
+                }
+
+                if (entityType.FindProperty("TestUnsignedInt16") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableUnsignedInt16 == 1234));
+                }
+
+                if (entityType.FindProperty("TestUnsignedInt32") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableUnsignedInt32 == 1234565789U));
+                }
+
+                if (entityType.FindProperty("TestUnsignedInt64") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableUnsignedInt64 == 1234567890123456789UL));
+                }
+
+                if (entityType.FindProperty("TestCharacter") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableCharacter == 'a'));
+                }
+
+                if (entityType.FindProperty("TestSignedByte") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableSignedByte == -128));
+                }
+            }
+        }
+
         [Fact]
         public virtual void Can_query_with_null_parameters_using_any_nullable_data_type()
         {
@@ -679,6 +805,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        // ReSharper disable once UnusedParameter.Local
         private static void AssertEqualIfMapped<T>(IEntityType entityType, T expected, Expression<Func<T>> actual)
         {
             if (entityType.FindProperty(((MemberExpression)actual.Body).Member.Name) != null)

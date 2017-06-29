@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data;
+using System.Globalization;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -39,8 +40,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new DoubleTypeMapping(storeType, DbType);
 
         /// <summary>
-        ///     Gets the string format to be used to generate SQL literals of this type.
+        ///     Generates the SQL representation of a literal value.
         /// </summary>
-        protected override string SqlLiteralFormatString => "{0}E0";
+        /// <param name="value">The literal value.</param>
+        /// <returns>
+        ///     The generated string.
+        /// </returns>
+        protected override string GenerateNonNullSqlLiteral(object value)
+        {
+            return ((double)value).ToString("G17", CultureInfo.InvariantCulture);
+        }
     }
 }

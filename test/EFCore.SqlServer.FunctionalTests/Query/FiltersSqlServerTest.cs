@@ -211,7 +211,7 @@ INNER JOIN (
     FROM [Order Details] AS [o]
     WHERE [o].[Quantity] > @___quantity_1
 ) AS [t] ON [c.Orders].[OrderID] = [t].[OrderID]
-WHERE (([c].[CompanyName] LIKE @__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyName], LEN(@__TenantPrefix_0)) = @__TenantPrefix_0)) OR (@__TenantPrefix_0 = N'')) AND ([t].[Discount] < 10E0)");
+WHERE (([c].[CompanyName] LIKE @__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyName], LEN(@__TenantPrefix_0)) = @__TenantPrefix_0)) OR (@__TenantPrefix_0 = N'')) AND ([t].[Discount] < CAST(10 AS real))");
         }
 
         [ConditionalFact]

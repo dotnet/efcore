@@ -8,20 +8,52 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqliteFixture>
     {
-        public BuiltInDataTypesSqliteTest(BuiltInDataTypesSqliteFixture fixture)
+        public BuiltInDataTypesSqliteTest(BuiltInDataTypesSqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            fixture.TestSqlLoggerFactory.Clear();
+            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         [Fact]
         public virtual void Can_perform_query_with_ansi_strings()
         {
             Can_perform_query_with_ansi_strings_test(supportsAnsi: false);
+        }
+
+        [Fact]
+        public virtual void Can_query_using_any_nullable_data_type_as_literal()
+        {
+            Can_query_using_any_nullable_data_type_as_literal_helper(strictEquality: false);
+        }
+
+        [Fact(Skip = "See issue #8205")]
+        public virtual void Can_insert_and_query_decimal()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<BuiltInNullableDataTypes>().Add(
+                    new BuiltInNullableDataTypes
+                    {
+                        Id = 13,
+                        TestNullableDecimal = 3m
+                    });
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 13);
+
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 13 && e.TestNullableDecimal == 3m));
+            }
         }
 
         [Fact]

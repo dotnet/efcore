@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -11,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore
         private readonly DbContextOptions _options;
         private readonly SqliteTestStore _testStore;
 
+        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
+
         public BuiltInDataTypesSqliteFixture()
         {
             _testStore = SqliteTestStore.CreateScratch();
@@ -18,10 +21,12 @@ namespace Microsoft.EntityFrameworkCore
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()
                 .UseSqlite(_testStore.Connection)
+                .EnableSensitiveDataLogging()
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
