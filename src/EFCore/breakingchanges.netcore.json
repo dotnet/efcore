@@ -448,6 +448,11 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryCompilationContext",
+      "MemberId": "public virtual System.Void set_QueryAnnotations(System.Collections.Generic.IReadOnlyCollection<Microsoft.EntityFrameworkCore.Query.ResultOperators.IQueryAnnotation> value)",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
       "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder builder, Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType declaringEntityType, Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType relatedEntityType)",
       "Kind": "Removal"
@@ -510,6 +515,21 @@
     {
       "TypeId": "public static class Microsoft.EntityFrameworkCore.ModelExtensions",
       "MemberId": "public static System.Nullable<Microsoft.EntityFrameworkCore.Metadata.PropertyAccessMode> GetPropertyAccessMode(this Microsoft.EntityFrameworkCore.Metadata.IModel model)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions",
+      "MemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddDbContext<T0>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, Microsoft.Extensions.DependencyInjection.ServiceLifetime contextLifetime) where T0 : Microsoft.EntityFrameworkCore.DbContext",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions",
+      "MemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddDbContext<T0>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder> optionsAction = null, Microsoft.Extensions.DependencyInjection.ServiceLifetime contextLifetime = 1) where T0 : Microsoft.EntityFrameworkCore.DbContext",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions",
+      "MemberId": "public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddDbContext<T0>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Action<System.IServiceProvider, Microsoft.EntityFrameworkCore.DbContextOptionsBuilder> optionsAction, Microsoft.Extensions.DependencyInjection.ServiceLifetime contextLifetime = 1) where T0 : Microsoft.EntityFrameworkCore.DbContext",
       "Kind": "Removal"
     },
     {
@@ -901,10 +921,5 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
       "MemberId": "T1 Execute<T0, T1>(T0 state, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, T1> operation, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>> verifySucceeded)",
       "Kind": "Addition"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.QueryCompilationContext",
-      "MemberId": "public virtual System.Void set_QueryAnnotations(System.Collections.Generic.IReadOnlyCollection<Microsoft.EntityFrameworkCore.Query.ResultOperators.IQueryAnnotation> value)",
-      "Kind": "Removal"
     }
   ]
