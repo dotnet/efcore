@@ -2493,15 +2493,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os.GroupBy(o => o.CustomerID, o => o.OrderID)
                     .Select(g => new { Sum = g.Sum(), MaxAsync = g.Max() }));
         }
-
+       
         [ConditionalFact]
         public async virtual Task GroupBy_with_aggregate_function_by_navigation_property()
         {
-            using (var context = CreateContext())
-            {
-                await AssertQuery<Order>(os => os.GroupBy(c => c.EmployeeID)
+            await AssertQuery<Order>(os => os.GroupBy(c => c.EmployeeID)
                     .Select(g => new { max = g.Max(i => i.Customer.Region) }));
-            }
         }
 
         [ConditionalFact]
