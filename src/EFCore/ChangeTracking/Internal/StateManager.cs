@@ -377,7 +377,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<InternalEntityEntry> Entries => _entityReferenceMap.Values
-            .Concat(_dietReferenceMap.Values.SelectMany(e => e.Values));
+            .Concat(_dietReferenceMap.Values.SelectMany(e => e.Values))
+            .Where(e => e.EntityState != EntityState.Detached);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

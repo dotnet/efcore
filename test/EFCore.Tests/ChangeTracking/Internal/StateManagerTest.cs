@@ -563,10 +563,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
             var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
-            stateManager.StartTracking(stateManager.GetOrCreateEntry(new Category { Id = 77, PrincipalId = 777 }));
-            stateManager.StartTracking(stateManager.GetOrCreateEntry(new Category { Id = 78, PrincipalId = 778 }));
-            stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = productId1 }));
-            stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = productId2 }));
+            stateManager.StartTracking(
+                    stateManager.GetOrCreateEntry(new Category { Id = 77, PrincipalId = 777 }))
+                .SetEntityState(EntityState.Unchanged);
+
+            stateManager.StartTracking(
+                    stateManager.GetOrCreateEntry(new Category { Id = 78, PrincipalId = 778 }))
+                .SetEntityState(EntityState.Unchanged);
+
+            stateManager.StartTracking(
+                    stateManager.GetOrCreateEntry(new Product { Id = productId1 }))
+                .SetEntityState(EntityState.Unchanged);
+
+            stateManager.StartTracking(
+                    stateManager.GetOrCreateEntry(new Product { Id = productId2 }))
+                .SetEntityState(EntityState.Unchanged);
 
             Assert.Equal(4, stateManager.Entries.Count());
 

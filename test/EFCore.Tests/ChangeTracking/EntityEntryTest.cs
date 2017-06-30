@@ -129,6 +129,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [Fact]
+        public void Detached_entities_are_not_returned_from_the_change_tracker()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = new Chunky { Id = 808 };
+                context.Attach(entity);
+
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+
+                context.Entry(entity).State = EntityState.Detached;
+
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+
+                context.Entry(entity);
+
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
         public void Can_obtain_entity_instance()
         {
             using (var context = new FreezerContext())
