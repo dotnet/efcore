@@ -247,7 +247,7 @@ namespace Microsoft.Data.Sqlite
                 }
                 else if (type == typeof(decimal))
                 {
-                    var value = ((decimal)_value).ToString(CultureInfo.InvariantCulture);
+                    var value = ((decimal)_value).ToString("0.0###########################", CultureInfo.InvariantCulture);
                     _bindAction = (s, i) => BindText(s, i, value);
                 }
                 else if (type == typeof(double))

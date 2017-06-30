@@ -221,6 +221,10 @@ namespace Microsoft.Data.Sqlite
             => Bind_works(3.14m, "3.14");
 
         [Fact]
+        public void Bind_works_when_decimal_with_integral_value()
+            => Bind_works(3m, "3.0");
+
+        [Fact]
         public void Bind_works_when_Enum()
             => Bind_works(MyEnum.One, 1L);
 
