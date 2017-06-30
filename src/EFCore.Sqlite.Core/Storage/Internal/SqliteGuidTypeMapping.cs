@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     Initializes a new instance of the <see cref="SqliteGuidTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public SqliteGuidTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = null)
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
+        public override RelationalTypeMapping Clone(string storeType, int? size)
             => new SqliteGuidTypeMapping(storeType, DbType);
 
         /// <summary>
@@ -40,6 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     The generated string.
         /// </returns>
         protected override string GenerateNonNullSqlLiteral(object value)
-            => ByteArrayTypeMapping.GenerateByteArraySqlLiteral(((Guid)value).ToByteArray());
+            => new ByteArrayTypeMapping(StoreType).GenerateSqlLiteral(((Guid)value).ToByteArray());
    }
 }

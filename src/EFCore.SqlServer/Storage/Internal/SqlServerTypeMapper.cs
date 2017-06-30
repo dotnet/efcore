@@ -18,13 +18,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     public class SqlServerTypeMapper : RelationalTypeMapper
     {
         private readonly SqlServerStringTypeMapping _unboundedUnicodeString
-            = new SqlServerStringTypeMapping("nvarchar(max)", dbType: null, unicode: true, size: null);
+            = new SqlServerStringTypeMapping("nvarchar(max)", dbType: null, unicode: true);
 
         private readonly SqlServerStringTypeMapping _keyUnicodeString
             = new SqlServerStringTypeMapping("nvarchar(450)", dbType: null, unicode: true, size: 450);
 
         private readonly SqlServerStringTypeMapping _unboundedAnsiString
-            = new SqlServerStringTypeMapping("varchar(max)", dbType: DbType.AnsiString, unicode: false, size: null);
+            = new SqlServerStringTypeMapping("varchar(max)", dbType: DbType.AnsiString);
 
         private readonly SqlServerStringTypeMapping _keyAnsiString
             = new SqlServerStringTypeMapping("varchar(900)", dbType: DbType.AnsiString, unicode: false, size: 900);
@@ -49,16 +49,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly BoolTypeMapping _bool = new BoolTypeMapping("bit");
 
         private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
-            = new SqlServerStringTypeMapping("nchar", dbType: DbType.StringFixedLength, unicode: true, size: null);
+            = new SqlServerStringTypeMapping("nchar", dbType: DbType.String, unicode: true);
 
         private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
-            = new SqlServerStringTypeMapping("nvarchar", dbType: null, unicode: true, size: null);
+            = new SqlServerStringTypeMapping("nvarchar", dbType: null, unicode: true);
 
         private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
-            = new SqlServerStringTypeMapping("char", dbType: DbType.AnsiStringFixedLength, unicode: false, size: null);
+            = new SqlServerStringTypeMapping("char", dbType: DbType.AnsiString);
 
         private readonly SqlServerStringTypeMapping _variableLengthAnsiString
-            = new SqlServerStringTypeMapping("varchar", dbType: DbType.AnsiString, unicode: false, size: null);
+            = new SqlServerStringTypeMapping("varchar", dbType: DbType.AnsiString);
 
         private readonly SqlServerByteArrayTypeMapping _variableLengthBinary = new SqlServerByteArrayTypeMapping("varbinary");
 
@@ -224,15 +224,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override IStringRelationalTypeMapper StringMapper { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override RelationalTypeMapping GetParameterTypeMapping(RelationalTypeMapping typeMapping)
-            => typeof(string) == typeMapping.ClrType
-                ? StringMapper.FindMapping(typeMapping.IsUnicode, keyOrIndex: false, maxLength: null)
-                : base.GetParameterTypeMapping(typeMapping);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

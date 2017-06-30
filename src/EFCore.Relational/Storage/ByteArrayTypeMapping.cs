@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class ByteArrayTypeMapping : RelationalTypeMapping<byte[]>
+    public class ByteArrayTypeMapping : RelationalTypeMapping
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="ByteArrayTypeMapping" /> class.
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = null,
             int? size = null)
-            : base(storeType, dbType, unicode: false, size: size)
+            : base(storeType, typeof(byte[]), dbType, size: size)
         {
         }
 
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
+        public override RelationalTypeMapping Clone(string storeType, int? size)
             => new ByteArrayTypeMapping(
                 storeType,
                 DbType,
@@ -55,24 +55,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         protected override string GenerateNonNullSqlLiteral(object value)
         {
-            return GenerateByteArraySqlLiteral((byte[])value);
-        }
-
-        /// <summary>
-        ///     Generates the SQL representation of a byte[] literal value.
-        /// </summary>
-        /// <param name="value">The literal value.</param>
-        /// <returns>
-        ///     The generated string.
-        /// </returns>
-        public static string GenerateByteArraySqlLiteral([NotNull]byte[] value)
-        {
             Check.NotNull(value, nameof(value));
 
             var stringBuilder = new StringBuilder();
             stringBuilder.Append("X'");
 
-            foreach (var @byte in value)
+            foreach (var @byte in (byte[])value)
             {
                 stringBuilder.Append(@byte.ToString("X2", CultureInfo.InvariantCulture));
             }

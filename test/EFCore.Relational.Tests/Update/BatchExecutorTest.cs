@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
-            mockRelationalConnection.Verify(rc => rc.OpenAsync(/*errorsExpected:*/ false, cancellationToken));
+            mockRelationalConnection.Verify(rc => rc.OpenAsync(cancellationToken, /*errorsExpected:*/ false));
             mockRelationalConnection.Verify(rc => rc.Close());
             mockRelationalConnection.Verify(rc => rc.BeginTransaction(), Times.Never);
             transactionMock.Verify(t => t.Commit(), Times.Never);

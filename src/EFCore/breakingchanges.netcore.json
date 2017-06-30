@@ -428,6 +428,11 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.ModelCustomizer : Microsoft.EntityFrameworkCore.Infrastructure.IModelCustomizer",
+      "MemberId": "public System.Void Customize(Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.DbContext dbContext)",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntryGraphNode : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry>",
       "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry internalEntityEntry, Microsoft.EntityFrameworkCore.Metadata.INavigation inboundNavigation)",
       "Kind": "Removal"
@@ -758,6 +763,11 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IModelCustomizer",
+      "MemberId": "System.Void Customize(Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.DbContext dbContext)",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IForeignKey : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
       "MemberId": "Microsoft.EntityFrameworkCore.DeleteBehavior get_DeleteBehavior()",
       "Kind": "Addition"
@@ -925,6 +935,11 @@
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy",
       "MemberId": "T1 Execute<T0, T1>(T0 state, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, T1> operation, System.Func<Microsoft.EntityFrameworkCore.DbContext, T0, Microsoft.EntityFrameworkCore.Storage.ExecutionResult<T1>> verifySucceeded)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IModelCustomizer",
+      "MemberId": "System.Void Customize(Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.DbContext context)",
       "Kind": "Addition"
     }
   ]

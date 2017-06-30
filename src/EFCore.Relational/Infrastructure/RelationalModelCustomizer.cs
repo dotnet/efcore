@@ -22,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
         }
 
-        public override void Customize(ModelBuilder modelBuilder, DbContext dbContext)
+        public override void Customize(ModelBuilder modelBuilder, DbContext context)
         {
-            FindDbFunctions(modelBuilder, dbContext);
+            FindDbFunctions(modelBuilder, context);
 
-            base.Customize(modelBuilder, dbContext);
+            base.Customize(modelBuilder, context);
         }
 
         /// <summary>

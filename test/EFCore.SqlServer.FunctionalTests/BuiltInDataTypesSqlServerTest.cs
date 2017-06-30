@@ -653,17 +653,17 @@ WHERE [e].[Time] = @__timeSpan_0",
                 @"@p0='77'
 @p1='0x0A0B0C' (Size = 3)
 @p2='0x0C0D0E' (Size = 3)
-@p3='Wor' (Size = 8000) (DbType = AnsiString)
-@p4='Thr' (Size = 8000) (DbType = AnsiString)
-@p5='Lon' (Size = 8000) (DbType = AnsiString)
-@p6='Let' (Size = 8000) (DbType = AnsiString)
-@p7='The' (Size = 4000)
-@p8='Squ' (Size = 4000)
-@p9='Col' (Size = 4000)
-@p10='Won' (Size = 4000)
-@p11='Int' (Size = 4000)
+@p3='Wor' (Size = 3) (DbType = AnsiString)
+@p4='Thr' (Size = 3) (DbType = AnsiString)
+@p5='Lon' (Size = 3) (DbType = AnsiString)
+@p6='Let' (Size = 3) (DbType = AnsiString)
+@p7='The' (Size = 3)
+@p8='Squ' (Size = 3)
+@p9='Col' (Size = 3)
+@p10='Won' (Size = 3)
+@p11='Int' (Size = 3)
 @p12='0x0B0C0D' (Size = 3)
-@p13='Tha' (Size = 8000) (DbType = AnsiString)",
+@p13='Tha' (Size = 3) (DbType = AnsiString)",
                 parameters);
 
             using (var context = CreateContext())
@@ -724,17 +724,17 @@ WHERE [e].[Time] = @__timeSpan_0",
                 @"@p0='78'
 @p1='' (Size = 3) (DbType = Binary)
 @p2='' (Size = 3) (DbType = Binary)
-@p3='' (Size = 8000)
-@p4='' (Size = 8000)
-@p5='' (Size = 8000)
-@p6='' (Size = 8000)
-@p7='' (Size = 4000) (DbType = String)
-@p8='' (Size = 4000) (DbType = String)
-@p9='' (Size = 4000) (DbType = String)
-@p10='' (Size = 4000) (DbType = String)
-@p11='' (Size = 4000) (DbType = String)
+@p3='' (Size = 3)
+@p4='' (Size = 3)
+@p5='' (Size = 3)
+@p6='' (Size = 3)
+@p7='' (Size = 3) (DbType = String)
+@p8='' (Size = 3) (DbType = String)
+@p9='' (Size = 3) (DbType = String)
+@p10='' (Size = 3) (DbType = String)
+@p11='' (Size = 3) (DbType = String)
 @p12='' (Size = 3) (DbType = Binary)
-@p13='' (Size = 8000)",
+@p13='' (Size = 3)",
                 parameters);
 
             using (var context = CreateContext())
@@ -1192,18 +1192,18 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(
                 @"@p0='0x0A0B0C' (Size = 3)
 @p1='0x0C0D0E' (Size = 3)
-@p2='Wor' (Size = 8000) (DbType = AnsiString)
-@p3='Thr' (Size = 8000) (DbType = AnsiString)
-@p4='Lon' (Size = 8000) (DbType = AnsiString)
-@p5='Let' (Size = 8000) (DbType = AnsiString)
+@p2='Wor' (Size = 3) (DbType = AnsiString)
+@p3='Thr' (Size = 3) (DbType = AnsiString)
+@p4='Lon' (Size = 3) (DbType = AnsiString)
+@p5='Let' (Size = 3) (DbType = AnsiString)
 @p6='77'
-@p7='The' (Size = 4000)
-@p8='Squ' (Size = 4000)
-@p9='Col' (Size = 4000)
-@p10='Won' (Size = 4000)
-@p11='Int' (Size = 4000)
+@p7='The' (Size = 3)
+@p8='Squ' (Size = 3)
+@p9='Col' (Size = 3)
+@p10='Won' (Size = 3)
+@p11='Int' (Size = 3)
 @p12='0x0B0C0D' (Size = 3)
-@p13='Tha' (Size = 8000) (DbType = AnsiString)",
+@p13='Tha' (Size = 3) (DbType = AnsiString)",
                 parameters);
 
             using (var context = CreateContext())
@@ -1263,18 +1263,18 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(
                 @"@p0='' (Size = 3) (DbType = Binary)
 @p1='' (Size = 3) (DbType = Binary)
-@p2='' (Size = 8000)
-@p3='' (Size = 8000)
-@p4='' (Size = 8000)
-@p5='' (Size = 8000)
+@p2='' (Size = 3)
+@p3='' (Size = 3)
+@p4='' (Size = 3)
+@p5='' (Size = 3)
 @p6='78'
-@p7='' (Size = 4000) (DbType = String)
-@p8='' (Size = 4000) (DbType = String)
-@p9='' (Size = 4000) (DbType = String)
-@p10='' (Size = 4000) (DbType = String)
-@p11='' (Size = 4000) (DbType = String)
+@p7='' (Size = 3) (DbType = String)
+@p8='' (Size = 3) (DbType = String)
+@p9='' (Size = 3) (DbType = String)
+@p10='' (Size = 3) (DbType = String)
+@p11='' (Size = 3) (DbType = String)
 @p12='' (Size = 3) (DbType = Binary)
-@p13='' (Size = 8000)",
+@p13='' (Size = 3)",
                 parameters);
 
             using (var context = CreateContext())

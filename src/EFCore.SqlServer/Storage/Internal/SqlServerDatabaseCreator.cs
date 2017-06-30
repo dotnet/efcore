@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     {
                         try
                         {
-                            await _connection.OpenAsync(errorsExpected: true, cancellationToken: ct);
+                            await _connection.OpenAsync(ct, errorsExpected: true);
 
                             _connection.Close();
                             return true;

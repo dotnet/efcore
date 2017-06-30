@@ -62,11 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return _realConnection.Open(errorsExpected);
         }
 
-        public virtual Task<bool> OpenAsync(bool errorsExpected = false, CancellationToken cancellationToken = new CancellationToken())
+        public virtual Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false)
         {
             PreOpen();
 
-            return _realConnection.OpenAsync(errorsExpected, cancellationToken);
+            return _realConnection.OpenAsync(cancellationToken, errorsExpected);
         }
 
         private void PreOpen()

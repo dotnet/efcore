@@ -57,7 +57,7 @@ WHERE ([c].[CompanyName] LIKE @__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyNam
 
             AssertSql(
                 @"@__TenantPrefix_0='B' (Size = 4000)
-@__get_Item_0='ALFKI' (Size = 4000)
+@__get_Item_0='ALFKI' (Size = 5)
 
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -240,14 +240,14 @@ WHERE ([c].[CompanyName] LIKE @__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyNam
 
             AssertSql(
                 @"@__TenantPrefix_0='B' (Size = 4000)
-@__customerID='BERGS' (Size = 4000)
+@__customerID='BERGS' (Size = 5)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE (([c].[CompanyName] LIKE @__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyName], LEN(@__TenantPrefix_0)) = @__TenantPrefix_0)) OR (@__TenantPrefix_0 = N'')) AND ([c].[CustomerID] = @__customerID)",
                 //
                 @"@__TenantPrefix_0='B' (Size = 4000)
-@__customerID='BLAUS' (Size = 4000)
+@__customerID='BLAUS' (Size = 5)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]

@@ -473,11 +473,11 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        void IDbContextPoolable.SetPool(IDbContextPool dbContextPool)
+        void IDbContextPoolable.SetPool(IDbContextPool contextPool)
         {
-            Check.NotNull(dbContextPool, nameof(dbContextPool));
+            Check.NotNull(contextPool, nameof(contextPool));
 
-            _dbContextPool = dbContextPool;
+            _dbContextPool = contextPool;
         }
 
         DbContextPoolConfigurationSnapshot IDbContextPoolable.SnapshotConfiguration()

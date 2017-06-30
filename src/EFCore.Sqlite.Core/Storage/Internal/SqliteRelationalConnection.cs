@@ -72,9 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override async Task<bool> OpenAsync(bool errorsExpected = false, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false)
         {
-            if (await base.OpenAsync(errorsExpected, cancellationToken))
+            if (await base.OpenAsync(cancellationToken, errorsExpected))
             {
                 EnableForeignKeys();
                 return true;

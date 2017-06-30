@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous operation, with a value of true if the connection
         ///     was actually opened.
         /// </returns>
-        public virtual async Task<bool> OpenAsync(bool errorsExpected = false, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false)
         {
             CheckForAmbientTransactions();
 

@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore
 
             context.Database.OpenConnectionAsync(cancellationToken);
 
-            connectionMock.Verify(m => m.OpenAsync(/*errorsExpected:*/ false, cancellationToken), Times.Once);
+            connectionMock.Verify(m => m.OpenAsync(cancellationToken, /*errorsExpected:*/ false), Times.Once);
         }
 
         [Fact]

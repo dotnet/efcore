@@ -15,14 +15,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class InternalDbFunctionBuilder
     {
-        private readonly DbFunction _dbFunction;
+        private readonly DbFunction _function;
 
-        public InternalDbFunctionBuilder([NotNull] DbFunction dbFunction)
+        public InternalDbFunctionBuilder([NotNull] DbFunction function)
         {
-            _dbFunction = dbFunction;
+            _function = function;
         }
 
-        public virtual IMutableDbFunction Metadata => _dbFunction;
+        public virtual IMutableDbFunction Metadata => _function;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -30,10 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalDbFunctionBuilder HasSchema([CanBeNull] string schema, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(_dbFunction.GetSchemaConfigurationSource())
-                || _dbFunction.Schema == schema)
+            if (configurationSource.Overrides(_function.GetSchemaConfigurationSource())
+                || _function.Schema == schema)
             { 
-                _dbFunction.SetSchema(schema, configurationSource);
+                _function.SetSchema(schema, configurationSource);
             }
 
             return this;
@@ -45,10 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalDbFunctionBuilder HasName([NotNull] string name, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(_dbFunction.GetNameConfigurationSource())
-                || _dbFunction.FunctionName == name)
+            if (configurationSource.Overrides(_function.GetNameConfigurationSource())
+                || _function.FunctionName == name)
             {
-                _dbFunction.SetFunctionName(name, configurationSource);
+                _function.SetFunctionName(name, configurationSource);
             }
 
             return this;
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(translation, nameof(translation));
             
-            _dbFunction.Translation = translation;
+            _function.Translation = translation;
 
             return this;
         }

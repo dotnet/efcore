@@ -42,14 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="modelBuilder">
         ///     The builder being used to construct the model.
         /// </param>
-        /// <param name="dbContext">
+        /// <param name="context">
         ///     The context instance that the model is being created for.
         /// </param>
-        public virtual void Customize(ModelBuilder modelBuilder, DbContext dbContext)
+        public virtual void Customize(ModelBuilder modelBuilder, DbContext context)
         {
-            FindSets(modelBuilder, dbContext);
+            FindSets(modelBuilder, context);
 
-            dbContext.OnModelCreating(modelBuilder);
+            context.OnModelCreating(modelBuilder);
         }
 
         /// <summary>

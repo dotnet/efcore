@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class CharTypeMapping : RelationalTypeMapping<char>
+    public class CharTypeMapping : RelationalTypeMapping
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="CharTypeMapping" /> class.
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public CharTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = null)
-            : base(storeType, dbType, unicode: false, size: null)
+            : base(storeType, typeof(char), dbType)
         {
         }
 
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
+        public override RelationalTypeMapping Clone(string storeType, int? size)
             => new CharTypeMapping(storeType, DbType);
 
         /// <summary>

@@ -22,26 +22,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
-        public SqlServerStringTypeMapping(
-            [NotNull] string storeType,
-            [CanBeNull] DbType? dbType,
-            bool unicode = false)
-            : this(storeType, dbType, unicode, size: null)
-        {
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SqlServerStringTypeMapping" /> class.
-        /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
-        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public SqlServerStringTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType,
-            bool unicode,
-            int? size)
+            bool unicode = false,
+            int? size = null)
             : base(storeType, dbType, unicode, size)
         {
             _maxSpecificSize = CalculateSize(unicode, size);
@@ -56,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
+        public override RelationalTypeMapping Clone(string storeType, int? size)
             => new SqlServerStringTypeMapping(
                 storeType,
                 DbType,

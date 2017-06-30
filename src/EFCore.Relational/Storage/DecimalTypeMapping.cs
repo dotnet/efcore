@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class DecimalTypeMapping : RelationalTypeMapping<decimal>
+    public class DecimalTypeMapping : RelationalTypeMapping
     {
         private const string DecimalFormatConst = "{0:0.0###########################}";
 
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public DecimalTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = null)
-            : base(storeType, dbType, unicode: false, size: null)
+            : base(storeType, typeof(decimal), dbType)
         {
         }
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
+        public override RelationalTypeMapping Clone(string storeType, int? size)
             => new DecimalTypeMapping(storeType, DbType);
 
         /// <summary>

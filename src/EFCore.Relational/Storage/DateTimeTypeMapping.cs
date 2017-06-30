@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class DateTimeTypeMapping : RelationalTypeMapping<DateTime>
+    public class DateTimeTypeMapping : RelationalTypeMapping
     {
         private const string DateTimeFormatConst = @"{0:yyyy-MM-dd HH\:mm\:ss.fffffff}";
 
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public DateTimeTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = null)
-            : base(storeType, dbType, unicode: false, size: null)
+            : base(storeType, typeof(DateTime), dbType)
         {
         }
 
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
+        public override RelationalTypeMapping Clone(string storeType, int? size)
             => new DateTimeTypeMapping(storeType, DbType);
 
         /// <summary>

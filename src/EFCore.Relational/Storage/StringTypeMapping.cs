@@ -16,22 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class StringTypeMapping : RelationalTypeMapping<string>
+    public class StringTypeMapping : RelationalTypeMapping
     {
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="StringTypeMapping" /> class.
-        /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
-        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
-        public StringTypeMapping(
-            [NotNull] string storeType,
-            [CanBeNull] DbType? dbType = null,
-            bool unicode = false)
-            : this(storeType, dbType, unicode, size: null)
-        {
-        }
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="StringTypeMapping" /> class.
         /// </summary>
@@ -41,10 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public StringTypeMapping(
             [NotNull] string storeType,
-            [CanBeNull] DbType? dbType,
-            bool unicode,
-            int? size)
-            : base(storeType, dbType, unicode, size)
+            [CanBeNull] DbType? dbType = null,
+            bool unicode = false,
+            int? size = null)
+            : base(storeType, typeof(string), dbType, unicode, size)
         {
         }
 
@@ -54,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
+        public override RelationalTypeMapping Clone(string storeType, int? size)
             => new StringTypeMapping(
                 storeType,
                 DbType,

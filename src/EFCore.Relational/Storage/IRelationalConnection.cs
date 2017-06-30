@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous operation, with a value of true if the connection
         ///     was actually opened.
         /// </returns>
-        Task<bool> OpenAsync(bool errorsExpected = false, CancellationToken cancellationToken = default(CancellationToken));
+        Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false);
 
         /// <summary>
         ///     Closes the connection to the database.

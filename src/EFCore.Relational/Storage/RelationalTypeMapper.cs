@@ -136,18 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Gets the mapping to be used for a command parameter
-        /// </summary>
-        /// <param name="typeMapping"> Original mapping. </param>
-        /// <returns> The type mapping to be used. </returns>
-        public virtual RelationalTypeMapping GetParameterTypeMapping(RelationalTypeMapping typeMapping)
-        {
-            Check.NotNull(typeMapping, nameof(typeMapping));
-
-            return typeMapping;
-        }
-
-        /// <summary>
         ///     Creates the mapping for the given database type.
         /// </summary>
         /// <param name="storeType">The type to create the mapping for.</param>
@@ -179,12 +167,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         && int.TryParse(storeType.Substring(openParen + 1, closeParen - openParen - 1), out var size)
                         && mapping.Size != size)
                     {
-                        return mapping.CreateCopy(storeType, size);
+                        return mapping.Clone(storeType, size);
                     }
                 }
             }
 
-            return mapping?.CreateCopy(storeType, mapping.Size);
+            return mapping?.Clone(storeType, mapping.Size);
         }
 
         /// <summary>

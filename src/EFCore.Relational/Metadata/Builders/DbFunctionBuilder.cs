@@ -27,11 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public DbFunctionBuilder([NotNull] DbFunction dbFunction)
+        public DbFunctionBuilder([NotNull] DbFunction function)
         {
-            Check.NotNull(dbFunction, nameof(dbFunction));
+            Check.NotNull(function, nameof(function));
 
-            _builder = new InternalDbFunctionBuilder(dbFunction);
+            _builder = new InternalDbFunctionBuilder(function);
         }
 
         public virtual IMutableDbFunction Metadata => _builder.Metadata;
@@ -60,14 +60,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Sets a callback that will be invoked to perform custom translation of this function. The callback takes a collection
-        ///     of expressions corresponding to the parameters passed to the function call. The callback should return a SQL fragment
+        ///     of expressions corresponding to the parameters passed to the function call. The callback should return an
         ///     expression representing the desired translation.
         /// </summary>
-        public virtual DbFunctionBuilder HasTranslation([NotNull] Func<IReadOnlyCollection<Expression>, Expression> translateCallback)
+        public virtual DbFunctionBuilder HasTranslation([NotNull] Func<IReadOnlyCollection<Expression>, Expression> translation)
         {
-            Check.NotNull(translateCallback, nameof(translateCallback));
+            Check.NotNull(translation, nameof(translation));
 
-            _builder.HasTranslation(translateCallback);
+            _builder.HasTranslation(translation);
 
             return this;
         }

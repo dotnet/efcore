@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     if (_dataReader == null)
                     {
-                        await _relationalQueryContext.Connection.OpenAsync(cancellationToken: cancellationToken);
+                        await _relationalQueryContext.Connection.OpenAsync(cancellationToken);
 
                         var relationalCommand
                             = _shaperCommandContext

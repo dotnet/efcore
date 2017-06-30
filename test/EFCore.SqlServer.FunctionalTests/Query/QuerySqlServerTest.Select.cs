@@ -192,42 +192,42 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = N'London'
 ORDER BY [c].[CustomerID]",
                 //
-                @"@_outer_CustomerID='AROUT' (Size = 4000)
+                @"@_outer_CustomerID='AROUT' (Size = 5)
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = @_outer_CustomerID) AND (DATEPART(year, [o].[OrderDate]) = 1997)
 ORDER BY [o].[OrderID]",
                 //
-                @"@_outer_CustomerID='BSBEV' (Size = 4000)
+                @"@_outer_CustomerID='BSBEV' (Size = 5)
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = @_outer_CustomerID) AND (DATEPART(year, [o].[OrderDate]) = 1997)
 ORDER BY [o].[OrderID]",
                 //
-                @"@_outer_CustomerID='CONSH' (Size = 4000)
+                @"@_outer_CustomerID='CONSH' (Size = 5)
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = @_outer_CustomerID) AND (DATEPART(year, [o].[OrderDate]) = 1997)
 ORDER BY [o].[OrderID]",
                 //
-                @"@_outer_CustomerID='EASTC' (Size = 4000)
+                @"@_outer_CustomerID='EASTC' (Size = 5)
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = @_outer_CustomerID) AND (DATEPART(year, [o].[OrderDate]) = 1997)
 ORDER BY [o].[OrderID]",
                 //
-                @"@_outer_CustomerID='NORTS' (Size = 4000)
+                @"@_outer_CustomerID='NORTS' (Size = 5)
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = @_outer_CustomerID) AND (DATEPART(year, [o].[OrderDate]) = 1997)
 ORDER BY [o].[OrderID]",
                 //
-                @"@_outer_CustomerID='SEVES' (Size = 4000)
+                @"@_outer_CustomerID='SEVES' (Size = 5)
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
@@ -244,25 +244,25 @@ ORDER BY [o].[OrderID]");
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')",
                 //
-                @"@_outer_CustomerID='ALFKI' (Size = 4000)
+                @"@_outer_CustomerID='ALFKI' (Size = 5)
 
 SELECT TOP(3) [o].[OrderDate] AS [Date]
 FROM [Orders] AS [o]
 WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])",
                 //
-                @"@_outer_CustomerID='ANATR' (Size = 4000)
+                @"@_outer_CustomerID='ANATR' (Size = 5)
 
 SELECT TOP(3) [o].[OrderDate] AS [Date]
 FROM [Orders] AS [o]
 WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])",
                 //
-                @"@_outer_CustomerID='ANTON' (Size = 4000)
+                @"@_outer_CustomerID='ANTON' (Size = 5)
 
 SELECT TOP(3) [o].[OrderDate] AS [Date]
 FROM [Orders] AS [o]
 WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])",
                 //
-                @"@_outer_CustomerID='AROUT' (Size = 4000)
+                @"@_outer_CustomerID='AROUT' (Size = 5)
 
 SELECT TOP(3) [o].[OrderDate] AS [Date]
 FROM [Orders] AS [o]
@@ -372,28 +372,28 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')",
                 //
-                @"@_outer_CustomerID1='ALFKI' (Size = 4000)
+                @"@_outer_CustomerID1='ALFKI' (Size = 5)
 
 SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
 FROM [Orders] AS [o2]
 WHERE @_outer_CustomerID1 = [o2].[CustomerID]
 ORDER BY [o2].[OrderID]",
                 //
-                @"@_outer_CustomerID1='ANATR' (Size = 4000)
+                @"@_outer_CustomerID1='ANATR' (Size = 5)
 
 SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
 FROM [Orders] AS [o2]
 WHERE @_outer_CustomerID1 = [o2].[CustomerID]
 ORDER BY [o2].[OrderID]",
                 //
-                @"@_outer_CustomerID1='ANTON' (Size = 4000)
+                @"@_outer_CustomerID1='ANTON' (Size = 5)
 
 SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
 FROM [Orders] AS [o2]
 WHERE @_outer_CustomerID1 = [o2].[CustomerID]
 ORDER BY [o2].[OrderID]",
                 //
-                @"@_outer_CustomerID1='AROUT' (Size = 4000)
+                @"@_outer_CustomerID1='AROUT' (Size = 5)
 
 SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
 FROM [Orders] AS [o2]

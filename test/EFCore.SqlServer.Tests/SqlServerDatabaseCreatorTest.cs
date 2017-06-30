@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
                 return true;
             }
 
-            public override async Task<bool> OpenAsync(bool errorsExpected = false, CancellationToken cancellationToken = new CancellationToken())
+            public override async Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false)
             {
                 if (++OpenCount < FailureCount)
                 {

@@ -19,12 +19,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class RelationalTypeMapping
+    public abstract class RelationalTypeMapping
     {
         /// <summary>
         ///     Gets the mapping to be used when the only piece of information is that there is a null value.
         /// </summary>
-        public static readonly RelationalTypeMapping NullMapping = new RelationalTypeMapping("NULL");
+        public static readonly RelationalTypeMapping NullMapping = new NullTypeMapping("NULL");
+
+        private class NullTypeMapping : RelationalTypeMapping
+        {
+            public NullTypeMapping(string storeType)
+                : base(storeType)
+            {
+            }
+
+            public override RelationalTypeMapping Clone(string storeType, int? size) 
+                => new NullTypeMapping(storeType);
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
@@ -34,12 +45,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        public RelationalTypeMapping(
+        protected RelationalTypeMapping(
             [NotNull] string storeType,
             [NotNull] Type clrType,
-            [CanBeNull] DbType? dbType,
-            bool unicode,
-            int? size)
+            [CanBeNull] DbType? dbType = null,
+            bool unicode = false,
+            int? size = null)
             : this(storeType)
         {
             Check.NotNull(clrType, nameof(clrType));
@@ -63,13 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public virtual RelationalTypeMapping CreateCopy([NotNull] string storeType, int? size)
-            => new RelationalTypeMapping(
-                storeType,
-                ClrType,
-                DbType,
-                IsUnicode,
-                size);
+        public abstract RelationalTypeMapping Clone([NotNull] string storeType, int? size);
 
         /// <summary>
         ///     Gets the name of the database type.

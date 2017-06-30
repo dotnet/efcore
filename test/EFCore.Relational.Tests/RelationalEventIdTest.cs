@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
             public void CommitTransaction() => throw new NotImplementedException();
             public void Dispose() => throw new NotImplementedException();
             public bool Open(bool errorsExpected = false) => throw new NotImplementedException();
-            public Task<bool> OpenAsync(bool errorsExpected = false, CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
+            public Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false) => throw new NotImplementedException();
             public void ResetState() => throw new NotImplementedException();
             public void RollbackTransaction() => throw new NotImplementedException();
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();

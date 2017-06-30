@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             var dbCommand = CreateCommand(connection, parameterValues);
 
-            await connection.OpenAsync(cancellationToken: cancellationToken);
+            await connection.OpenAsync(cancellationToken);
 
             var commandId = Guid.NewGuid();
 

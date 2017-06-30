@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 new TypeMappedRelationalParameter(
                     invariantName,
                     name,
-                    GetParameterTypeMapping(typeMapping),
+                    typeMapping,
                     nullable));
         }
 
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 new TypeMappedRelationalParameter(
                     invariantName,
                     name,
-                    GetParameterTypeMapping(TypeMapper.GetMapping(property)),
+                    TypeMapper.GetMapping(property),
                     property.IsNullable));
         }
 
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 new TypeMappedPropertyRelationalParameter(
                     invariantName,
                     name,
-                    GetParameterTypeMapping(TypeMapper.GetMapping(property)),
+                    TypeMapper.GetMapping(property),
                     property));
         }
 
@@ -146,12 +146,5 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             _parameters.Add(new RawRelationalParameter(invariantName, dbParameter));
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual RelationalTypeMapping GetParameterTypeMapping([CanBeNull] RelationalTypeMapping typeMapping)
-            => typeMapping == null ? null : TypeMapper.GetParameterTypeMapping(typeMapping);
     }
 }

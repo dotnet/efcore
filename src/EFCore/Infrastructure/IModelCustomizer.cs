@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         Builds the model for a given context.
         ///     </para>
         ///     <para>
-        ///         If any instance data from <paramref name="dbContext" /> is
+        ///         If any instance data from <paramref name="context" /> is
         ///         used when building the model, then the implementation of <see cref="IModelCacheKeyFactory.Create(DbContext)" />
         ///         also needs to be updated to ensure the model is cached correctly.
         ///     </para>
@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="modelBuilder">
         ///     The builder being used to construct the model.
         /// </param>
-        /// <param name="dbContext">
+        /// <param name="context">
         ///     The context instance that the model is being created for.
         /// </param>
-        void Customize([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext dbContext);
+        void Customize([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context);
     }
 }
