@@ -349,7 +349,6 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         ClrType = typeof(string)
                     },
-                    [SqlServerAnnotationNames.MemoryOptimized] = true
                 });
 
             Assert.Equal(
@@ -785,14 +784,13 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable()
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People").Property<string>("Name"),
+                modelBuilder => modelBuilder.Entity("People").ForSqlServerIsMemoryOptimized().Property<string>("Name"),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
                     Table = "People",
                     Columns = new[] { "Name" },
                     IsUnique = true,
-                    [SqlServerAnnotationNames.MemoryOptimized] = true
                 });
 
             Assert.Equal(
@@ -804,7 +802,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable_with_filter()
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People").Property<string>("Name"),
+                modelBuilder => modelBuilder.Entity("People").ForSqlServerIsMemoryOptimized().Property<string>("Name"),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
@@ -812,7 +810,6 @@ namespace Microsoft.EntityFrameworkCore
                     Columns = new[] { "Name" },
                     IsUnique = true,
                     Filter = "[Name] IS NOT NULL AND <> ''",
-                    [SqlServerAnnotationNames.MemoryOptimized] = true
                 });
 
             Assert.Equal(
@@ -824,14 +821,13 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void CreateIndexOperation_memoryOptimized_unique_nonclustered_not_nullable()
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People").Property<string>("Name").IsRequired(),
+                modelBuilder => modelBuilder.Entity("People").ForSqlServerIsMemoryOptimized().Property<string>("Name").IsRequired(),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
                     Table = "People",
                     Columns = new[] { "Name" },
                     IsUnique = true,
-                    [SqlServerAnnotationNames.MemoryOptimized] = true,
                     [SqlServerAnnotationNames.Clustered] = false
                 });
 
@@ -901,11 +897,11 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void DropIndexOperation_memoryOptimized()
         {
             Generate(
+                modelBuilder => modelBuilder.Entity("People").ForSqlServerIsMemoryOptimized(),
                 new DropIndexOperation
                 {
                     Name = "IX_People_Name",
                     Table = "People",
-                    [SqlServerAnnotationNames.MemoryOptimized] = true
                 });
 
             Assert.Equal(

@@ -594,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                            && s.IsUnicode() == t.IsUnicode()
                            && sAnnotations.ColumnType == tAnnotations.ColumnType
                            && sAnnotations.ComputedColumnSql == tAnnotations.ComputedColumnSql
-                           && sAnnotations.DefaultValue == tAnnotations.DefaultValue
+                           && Equals(sAnnotations.DefaultValue, tAnnotations.DefaultValue)
                            && sAnnotations.DefaultValueSql == tAnnotations.DefaultValueSql;
                 });
 

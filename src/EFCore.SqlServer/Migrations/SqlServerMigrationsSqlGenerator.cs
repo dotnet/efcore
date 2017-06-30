@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 builder
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
-                    .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
+                    .EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
             }
         }
 
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
+                .EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
         }
 
         protected override void Generate(
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
+                .EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
         }
 
         protected override void Generate(
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Generate(addColumnOperation, model, builder, terminate: false);
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
                 CreateIndexes(indexesToRebuild, builder);
-                builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation));
+                builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
 
                 return;
             }
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 CreateIndexes(indexesToRebuild, builder);
             }
 
-            builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation));
+            builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
         }
 
         protected override void Generate(
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(operation.Name);
 
             Rename(qualifiedName.ToString(), operation.NewName, "INDEX", builder);
-            builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation));
+            builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
         }
 
         protected override void Generate(RenameSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
+                .EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Name));
         }
 
         protected override void Generate(
@@ -412,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         })
                 .ToList();
 
-            var memoryOptimized = IsMemoryOptimized(operation);
+            var memoryOptimized = IsMemoryOptimized(operation, model, operation.Schema, operation.Table);
             if (memoryOptimized)
             {
                 builder.Append("ALTER TABLE ")
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
+                .EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
         }
 
         protected override void Generate(EnsureSchemaOperation operation, IModel model, MigrationCommandListBuilder builder)
@@ -675,7 +675,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
+                .EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
         }
 
         protected override void Generate(
@@ -693,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var memoryOptimized = IsMemoryOptimized(operation);
+            var memoryOptimized = IsMemoryOptimized(operation, model, operation.Schema, operation.Table);
             if (memoryOptimized)
             {
                 builder
@@ -741,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 builder
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
-                    .EndCommand(suppressTransaction: IsMemoryOptimized(operation));
+                    .EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
             }
         }
 
@@ -769,7 +769,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             builder.EndCommand();
         }
 
-        protected override void Generate([NotNull] SqlOperation operation, [CanBeNull] IModel model, [NotNull] MigrationCommandListBuilder builder)
+        protected override void Generate(SqlOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -1171,6 +1171,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
         }
+
+        private bool IsMemoryOptimized(Annotatable annotatable, IModel model, string schema, string tableName)
+            => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
+                ?? FindEntityTypes(model, schema, tableName)?.Any(t => t.SqlServer().IsMemoryOptimized) == true;
 
         private static bool IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;

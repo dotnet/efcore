@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -122,11 +121,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         }),
                 operations =>
                     {
-                        var alterDatabaseOperation = operations.OfType<AlterDatabaseOperation>().Single();
+                        Assert.Equal(2, operations.Count);
+
+                        var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(operations[0]);
                         Assert.True(IsMemoryOptimized(alterDatabaseOperation));
                         Assert.Null(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
 
-                        var alterTableOperation = operations.OfType<AlterTableOperation>().Single();
+                        var alterTableOperation = Assert.IsType<AlterTableOperation>(operations[1]);
                         Assert.Equal("Person", alterTableOperation.Name);
                         Assert.True(IsMemoryOptimized(alterTableOperation));
                         Assert.Null(IsMemoryOptimized(alterTableOperation.OldTable));
@@ -154,11 +155,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         }),
                 operations =>
                     {
-                        var alterDatabaseOperation = operations.OfType<AlterDatabaseOperation>().Single();
+                        Assert.Equal(2, operations.Count);
+
+                        var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(operations[0]);
                         Assert.Null(IsMemoryOptimized(alterDatabaseOperation));
                         Assert.True(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
 
-                        var alterTableOperation = operations.OfType<AlterTableOperation>().Single();
+                        var alterTableOperation = Assert.IsType<AlterTableOperation>(operations[1]);
                         Assert.Equal("Person", alterTableOperation.Name);
                         Assert.Null(IsMemoryOptimized(alterTableOperation));
                         Assert.True(IsMemoryOptimized(alterTableOperation.OldTable));
@@ -768,7 +771,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("Value");
-                            x.ForSqlServerIsMemoryOptimized();
                             x.HasIndex("Value").HasName("IX_HorseVal").ForSqlServerIsClustered(true);
                         }),
                 target => target.Entity(
@@ -779,7 +781,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("Value");
-                            x.ForSqlServerIsMemoryOptimized();
                         }),
                 operations =>
                     {
@@ -789,7 +790,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         Assert.Equal("dbo", operation.Schema);
                         Assert.Equal("Horse", operation.Table);
                         Assert.Equal("IX_HorseVal", operation.Name);
-                        Assert.True(IsMemoryOptimized(operation));
                         Assert.Null(operation[SqlServerAnnotationNames.Clustered]);
                     });
         }

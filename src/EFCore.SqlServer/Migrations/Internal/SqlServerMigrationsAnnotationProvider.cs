@@ -50,11 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     SqlServerAnnotationNames.Clustered,
                     isClustered.Value);
             }
-
-            foreach (var annotation in ForRemove(key))
-            {
-                yield return annotation;
-            }
         }
 
         /// <summary>
@@ -70,18 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     SqlServerAnnotationNames.Clustered,
                     isClustered.Value);
             }
-
-            foreach (var annotation in ForRemove(index))
-            {
-                yield return annotation;
-            }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override IEnumerable<IAnnotation> For(IForeignKey foreignKey) => ForRemove(foreignKey);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -94,11 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 yield return new Annotation(
                     SqlServerAnnotationNames.ValueGenerationStrategy,
                     SqlServerValueGenerationStrategy.IdentityColumn);
-            }
-
-            foreach (var annotation in ForRemove(property))
-            {
-                yield return annotation;
             }
         }
 
@@ -123,62 +102,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public override IEnumerable<IAnnotation> ForRemove(IEntityType entityType)
         {
             if (IsMemoryOptimized(entityType))
-            {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.MemoryOptimized,
-                    true);
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override IEnumerable<IAnnotation> ForRemove(IKey key)
-        {
-            if (IsMemoryOptimized(key.DeclaringEntityType))
-            {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.MemoryOptimized,
-                    true);
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override IEnumerable<IAnnotation> ForRemove(IIndex index)
-        {
-            if (IsMemoryOptimized(index.DeclaringEntityType))
-            {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.MemoryOptimized,
-                    true);
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override IEnumerable<IAnnotation> ForRemove(IForeignKey foreignKey)
-        {
-            if (IsMemoryOptimized(foreignKey.DeclaringEntityType))
-            {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.MemoryOptimized,
-                    true);
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override IEnumerable<IAnnotation> ForRemove(IProperty property)
-        {
-            if (IsMemoryOptimized(property.DeclaringEntityType))
             {
                 yield return new Annotation(
                     SqlServerAnnotationNames.MemoryOptimized,
