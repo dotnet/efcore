@@ -524,31 +524,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         SetNavigation(entry, foreignKey.DependentToPrincipal, principalEntry.Entity);
 
                         // Add this entity to principal's collection, or set inverse for 1:1
-                        var principalToDependent = foreignKey.PrincipalToDependent;
-                        if (principalToDependent != null)
-                        {
-                            if (!principalToDependent.IsCollection())
-                            {
-                                var oldDependent = principalEntry[principalToDependent];
-                                if (oldDependent != null
-                                    && !ReferenceEquals(entry.Entity, oldDependent))
-                                {
-                                    var oldDependentEntry = stateManager.TryGetEntry(oldDependent);
-                                    if (oldDependentEntry != null
-                                        && oldDependentEntry.EntityState != EntityState.Detached)
-                                    {
-                                        ConditionallyNullForeignKeyProperties(oldDependentEntry, null, foreignKey);
-                                        SetNavigation(principalEntry, principalToDependent, null);
-                                    }
-                                }
-                            }
-
-                            SetReferenceOrAddToCollection(
-                                principalEntry,
-                                principalToDependent,
-                                principalToDependent.IsCollection() ? principalToDependent.GetCollectionAccessor() : null,
-                                entry.Entity);
-                        }
+                        ToDependentFixup(entry, principalEntry, foreignKey);
                     }
                 }
             }
@@ -727,13 +703,45 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             SetForeignKeyProperties(dependentEntry, principalEntry, foreignKey, setModified);
 
-            var inverse = foreignKey.PrincipalToDependent;
-            if (inverse != null)
+            ToDependentFixup(dependentEntry, principalEntry, foreignKey);
+        }
+
+        private void ToDependentFixup(
+            InternalEntityEntry dependentEntry,
+            InternalEntityEntry principalEntry,
+            IForeignKey foreignKey)
+        {
+            var principalToDependent = foreignKey.PrincipalToDependent;
+            if (foreignKey.IsUnique)
+            {
+                var oldDependent = principalToDependent == null ? null : principalEntry[principalToDependent];
+                var oldDependentEntry = oldDependent != null
+                                        && !ReferenceEquals(dependentEntry.Entity, oldDependent)
+                    ? dependentEntry.StateManager.TryGetEntry(oldDependent)
+                    : dependentEntry.StateManager.GetDependentsUsingRelationshipSnapshot(principalEntry, foreignKey)
+                        .FirstOrDefault();
+
+                if (oldDependentEntry != null
+                    && !ReferenceEquals(dependentEntry.Entity, oldDependentEntry.Entity)
+                    && oldDependentEntry.EntityState != EntityState.Detached)
+                {
+                    ConditionallyNullForeignKeyProperties(oldDependentEntry, principalEntry, foreignKey);
+
+                    var dependentToPrincipal = foreignKey.DependentToPrincipal;
+                    if (dependentToPrincipal != null
+                        && ReferenceEquals(oldDependentEntry[dependentToPrincipal], principalEntry.Entity))
+                    {
+                        SetNavigation(oldDependentEntry, dependentToPrincipal, null);
+                    }
+                }
+            }
+
+            if (principalToDependent != null)
             {
                 SetReferenceOrAddToCollection(
                     principalEntry,
-                    inverse,
-                    inverse.IsCollection() ? inverse.GetCollectionAccessor() : null,
+                    principalToDependent,
+                    principalToDependent.IsCollection() ? principalToDependent.GetCollectionAccessor() : null,
                     dependentEntry.Entity);
             }
         }
@@ -772,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var principalProperties = foreignKey.PrincipalKey.Properties;
             var dependentProperties = foreignKey.Properties;
-            var hasNonKeyProperties = false;
+            var hasOnlyKeyProperties = true;
 
             if (principalEntry != null
                 && principalEntry.EntityState != EntityState.Detached)
@@ -788,14 +796,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     if (!dependentProperties[i].IsKey())
                     {
-                        hasNonKeyProperties = true;
+                        hasOnlyKeyProperties = false;
                     }
                 }
             }
 
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
-                if (!hasNonKeyProperties
+                if (hasOnlyKeyProperties
                     || !dependentProperties[i].IsKey())
                 {
                     dependentEntry[dependentProperties[i]] = null;
@@ -805,7 +813,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             if (foreignKey.IsRequired
-                && !hasNonKeyProperties
+                && hasOnlyKeyProperties
                 && dependentEntry.EntityState != EntityState.Detached)
             {
                 switch (dependentEntry.EntityState)

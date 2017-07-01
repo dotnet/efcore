@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class FixupTest
@@ -3206,6 +3208,345 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             Assert.Equal(principal.Id, dependent.ParentId);
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
+                        });
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Added, EntityState.Unchanged)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Unchanged)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_FK_set_both_navs_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: true, setToPrincipal: true, setToDependent: true);
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Added, EntityState.Unchanged)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Unchanged)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_FK_not_set_both_navs_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: false, setToPrincipal: true, setToDependent: true);
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Added, EntityState.Unchanged)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Unchanged)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_FK_set_no_navs_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: true, setToPrincipal: false, setToDependent: false);
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Added, EntityState.Unchanged)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Unchanged)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_FK_set_principal_nav_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: true, setToPrincipal: false, setToDependent: true);
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Added, EntityState.Unchanged)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Unchanged)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_FK_set_dependent_nav_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: true, setToPrincipal: true, setToDependent: false);
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_FK_not_set_principal_nav_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: false, setToPrincipal: false, setToDependent: true,
+                detectChanges: true);
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_FK_not_set_dependent_nav_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: false, setToPrincipal: true, setToDependent: false);
+        }
+
+        private void Replace_dependent_one_to_one(
+            EntityState oldEntityState, EntityState newEntityState, bool setFk, bool setToPrincipal, bool setToDependent,
+            bool detectChanges = false)
+        {
+            using (var context = new FixupContext())
+            {
+                var principal = new Parent(77);
+                var oldDependent = new Child(78, principal.Id);
+                oldDependent.SetParent(principal);
+                principal.SetChild(oldDependent);
+
+                context.Entry(principal).State = oldEntityState;
+                context.Entry(oldDependent).State = oldEntityState;
+
+                var newDependent = new Child(88, setFk ? principal.Id : 0);
+                if (setToPrincipal)
+                {
+                    newDependent.SetParent(principal);
+                }
+                if (setToDependent)
+                {
+                    principal.SetChild(newDependent);
+                }
+
+                context.Entry(newDependent).State = newEntityState;
+
+                if (detectChanges)
+                {
+                    context.ChangeTracker.DetectChanges();
+                }
+
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, newDependent.ParentId);
+                            Assert.Same(principal, newDependent.Parent);
+                            Assert.Same(newDependent, principal.Child);
+                            Assert.Null(oldDependent.Parent);
+                            var oldDependentEntry = (PropertyEntry)context.Entry(oldDependent).Property(c => c.ParentId);
+                            Assert.True(oldDependentEntry.GetInfrastructure().IsConceptualNull(oldDependentEntry.Metadata));
+                            Assert.Equal(newEntityState, context.Entry(newDependent).State);
+                            Assert.Equal(oldEntityState, context.Entry(principal).State);
+                            Assert.Equal(oldEntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
+                                context.Entry(oldDependent).State);
+                        });
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Added, EntityState.Unchanged)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Unchanged)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_prin_uni_FK_set_no_navs_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one_prin_uni(oldEntityState, newEntityState, setFk: true, setToDependent: false);
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Added, EntityState.Unchanged)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Unchanged)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_prin_uni_FK_set_principal_nav_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one_prin_uni(oldEntityState, newEntityState, setFk: true, setToDependent: true);
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_prin_uni_FK_not_set_principal_nav_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one_prin_uni(oldEntityState, newEntityState, setFk: false, setToDependent: true, detectChanges: true);
+        }
+
+        private void Replace_dependent_one_to_one_prin_uni(
+            EntityState oldEntityState, EntityState newEntityState, bool setFk, bool setToDependent, bool detectChanges = false)
+        {
+            using (var context = new FixupContext())
+            {
+                var principal = new ParentPN { Id = 77 };
+                var oldDependent = new ChildPN { Id = 78, ParentId = principal.Id };
+                principal.Child = oldDependent;
+
+                context.Entry(principal).State = oldEntityState;
+                context.Entry(oldDependent).State = oldEntityState;
+
+                var newDependent = new ChildPN { Id = 88, ParentId = setFk ? principal.Id : 0 };
+                if (setToDependent)
+                {
+                    principal.Child = newDependent;
+                }
+
+                context.Entry(newDependent).State = newEntityState;
+
+                if (detectChanges)
+                {
+                    context.ChangeTracker.DetectChanges();
+                }
+
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, newDependent.ParentId);
+                            Assert.Same(newDependent, principal.Child);
+                            var oldDependentEntry = (PropertyEntry)context.Entry(oldDependent).Property(c => c.ParentId);
+                            Assert.True(oldDependentEntry.GetInfrastructure().IsConceptualNull(oldDependentEntry.Metadata));
+                            Assert.Equal(newEntityState, context.Entry(newDependent).State);
+                            Assert.Equal(oldEntityState, context.Entry(principal).State);
+                            Assert.Equal(oldEntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
+                                context.Entry(oldDependent).State);
+                        });
+            }
+        }
+        
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Added, EntityState.Unchanged)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Unchanged)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_dep_uni_FK_set_no_navs_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one_dep_uni(oldEntityState, newEntityState, setFk: true, setToPrincipal: false);
+        }
+        
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Added, EntityState.Unchanged)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Unchanged)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_dep_uni_FK_set_dependent_nav_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one_dep_uni(oldEntityState, newEntityState, setFk: true, setToPrincipal: true);
+        }
+        
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_dep_uni_FK_not_set_dependent_nav_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            Replace_dependent_one_to_one_dep_uni(oldEntityState, newEntityState, setFk: false, setToPrincipal: true);
+        }
+
+        private void Replace_dependent_one_to_one_dep_uni(
+            EntityState oldEntityState, EntityState newEntityState, bool setFk, bool setToPrincipal)
+        {
+            using (var context = new FixupContext())
+            {
+                var principal = new ParentDN { Id = 77 };
+                var oldDependent = new ChildDN { Id = 78, ParentId = principal.Id, Parent = principal };
+
+                context.Entry(principal).State = oldEntityState;
+                context.Entry(oldDependent).State = oldEntityState;
+
+                var newDependent = new ChildDN { Id = 88, ParentId = setFk ? principal.Id : 0 };
+                if (setToPrincipal)
+                {
+                    newDependent.Parent = principal;
+                }
+
+                context.Entry(newDependent).State = newEntityState;
+
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, newDependent.ParentId);
+                            Assert.Same(principal, newDependent.Parent);
+                            Assert.Null(oldDependent.Parent);
+                            var oldDependentEntry = (PropertyEntry)context.Entry(oldDependent).Property(c => c.ParentId);
+                            Assert.True(oldDependentEntry.GetInfrastructure().IsConceptualNull(oldDependentEntry.Metadata));
+                            Assert.Equal(newEntityState, context.Entry(newDependent).State);
+                            Assert.Equal(oldEntityState, context.Entry(principal).State);
+                            Assert.Equal(oldEntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
+                                context.Entry(oldDependent).State);
+                        });
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added, EntityState.Added)]
+        [InlineData(EntityState.Added, EntityState.Modified)]
+        [InlineData(EntityState.Added, EntityState.Unchanged)]
+        [InlineData(EntityState.Modified, EntityState.Added)]
+        [InlineData(EntityState.Modified, EntityState.Modified)]
+        [InlineData(EntityState.Modified, EntityState.Unchanged)]
+        [InlineData(EntityState.Unchanged, EntityState.Added)]
+        [InlineData(EntityState.Unchanged, EntityState.Modified)]
+        public void Replace_dependent_one_to_one_no_navs_FK_set_no_navs_set(EntityState oldEntityState, EntityState newEntityState)
+        {
+            using (var context = new FixupContext())
+            {
+                var principal = new ParentNN { Id = 77 };
+                var oldDependent = new ChildNN { Id = 78, ParentId = principal.Id };
+
+                context.Entry(principal).State = oldEntityState;
+                context.Entry(oldDependent).State = oldEntityState;
+
+                var newDependent = new ChildNN { Id = 88, ParentId = principal.Id };
+
+                context.Entry(newDependent).State = newEntityState;
+
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, newDependent.ParentId);
+                            var oldDependentEntry = (PropertyEntry)context.Entry(oldDependent).Property(c => c.ParentId);
+                            Assert.True(oldDependentEntry.GetInfrastructure().IsConceptualNull(oldDependentEntry.Metadata));
+                            Assert.Equal(newEntityState, context.Entry(newDependent).State);
+                            Assert.Equal(oldEntityState, context.Entry(principal).State);
+                            Assert.Equal(oldEntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
+                                context.Entry(oldDependent).State);
                         });
             }
         }
