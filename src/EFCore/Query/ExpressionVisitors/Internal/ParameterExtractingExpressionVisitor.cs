@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (parameterValue is Expression parameterExpression)
             {
-                return parameterExpression;
+                return ExtractParameters(parameterExpression);
             }
 
             if (!_parameterize)
