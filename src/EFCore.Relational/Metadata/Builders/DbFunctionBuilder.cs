@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private readonly InternalDbFunctionBuilder _builder;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public DbFunctionBuilder([NotNull] DbFunction function)
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the schema of the database function.
         /// </summary>
-        public virtual DbFunctionBuilder HasSchema([CanBeNull]string schema)
+        public virtual DbFunctionBuilder HasSchema([CanBeNull] string schema)
         {
             _builder.HasSchema(schema, ConfigurationSource.Explicit);
 
@@ -59,9 +59,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Sets a callback that will be invoked to perform custom translation of this function. The callback takes a collection
-        ///     of expressions corresponding to the parameters passed to the function call. The callback should return an
-        ///     expression representing the desired translation.
+        ///     <para>
+        ///         Sets a callback that will be invoked to perform custom translation of this
+        ///         function. The callback takes a collection of expressions corresponding to
+        ///         the parameters passed to the function call. The callback should return an
+        ///         expression representing the desired translation.
+        ///     </para>
+        ///     <para>
+        ///         See https://go.microsoft.com/fwlink/?linkid=852477 for more information.
+        ///     </para>
         /// </summary>
         public virtual DbFunctionBuilder HasTranslation([NotNull] Func<IReadOnlyCollection<Expression>, Expression> translation)
         {
