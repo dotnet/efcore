@@ -1253,36 +1253,49 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public virtual void Optional_navigation_projected_into_DTO()
         {
-            AssertQuery<Level1>(
-                  l1s =>
-                      l1s.Select(e => new MyOuterDto
-                      {
-                          Id = e.Id,
-                          Name = e.Name,
-                          Inner = e.OneToOne_Optional_FK != null ? new MyInnerDto
-                          {
-                              Id = (int?)e.OneToOne_Optional_FK.Id,
-                              Name = e.OneToOne_Optional_FK.Name
-                          } : null
-                      }),
-                  e => e.Id + " " + e.Name + " " + e.Inner,
-                  (e, a) =>
-                      {
-                          Assert.Equal(e.Id, a.Id);
-                          Assert.Equal(e.Name, a.Name);
-                          if (e.Inner == null)
-                          {
-                              Assert.Null(a.Inner);
-                          }
-                          else
-                          {
-                              Assert.Equal(e.Inner.Id, a.Inner.Id);
-                              Assert.Equal(e.Inner.Name, a.Inner.Name);
-                          }
-                      });
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Level1>().Select(e => new MyOuterDto
+                {
+                    Id = e.Id,
+                    Name = e.Name,
+                    Inner = e.OneToOne_Optional_FK != null ? new MyInnerDto
+                    {
+                        Id = (int?)e.OneToOne_Optional_FK.Id,
+                        Name = e.OneToOne_Optional_FK.Name
+                    } : null
+                }).ToList().OrderBy(e => e.Id + " " + e.Name + " " + e.Inner).ToList();
+
+                var expected = ExpectedSet<Level1>().Select(e => new MyOuterDto
+                {
+                    Id = e.Id,
+                    Name = e.Name,
+                    Inner = e.OneToOne_Optional_FK != null ? new MyInnerDto
+                    {
+                        Id = (int?)e.OneToOne_Optional_FK.Id,
+                        Name = e.OneToOne_Optional_FK.Name
+                    } : null
+                }).ToList().OrderBy(e => e.Id + " " + e.Name + " " + e.Inner).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Id, actual[i].Id);
+                    Assert.Equal(expected[i].Name, actual[i].Name);
+
+                    if (expected[i].Inner == null)
+                    {
+                        Assert.Null(actual[i].Inner);
+                    }
+                    else
+                    {
+                        Assert.Equal(expected[i].Inner.Id, actual[i].Inner.Id);
+                        Assert.Equal(expected[i].Inner.Name, actual[i].Inner.Name);
+                    }
+                }
+            }
         }
 
         public class MyOuterDto

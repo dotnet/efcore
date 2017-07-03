@@ -52,33 +52,58 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public virtual void Select_GroupBy()
         {
-            AssertQuery<Order>(
-                os => os.Select(o => new ProjectedType
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Order>().Select(o => new ProjectedType
                 {
                     Order = o.OrderID,
                     Customer = o.CustomerID
-                }).GroupBy(p => p.Customer),
-                elementSorter: GroupingSorter<string, ProjectedType>(),
-                elementAsserter: GroupingAsserter<string, ProjectedType>(t => t.Order));
+                }).GroupBy(p => p.Customer).ToList().OrderBy(g => g.Key + " " + g.Count()).ToList();
+
+                var expected = NorthwindData.Set<Order>().Select(o => new ProjectedType
+                {
+                    Order = o.OrderID,
+                    Customer = o.CustomerID
+                }).GroupBy(p => p.Customer).ToList().OrderBy(g => g.Key + " " + g.Count()).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Key, actual[i].Key);
+                    Assert.Equal(expected[i].Count(), actual[i].Count());
+                }
+            }
         }
 
         [ConditionalFact]
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public virtual void Select_GroupBy_SelectMany()
         {
-            AssertQuery<Order>(
-                os => os
-                    .Select(o => new ProjectedType
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Order>().Select(o => new ProjectedType
                     {
                         Order = o.OrderID,
                         Customer = o.CustomerID
                     })
                     .GroupBy(o => o.Order)
-                    .SelectMany(g => g),
-                e => e.Order);
+                    .SelectMany(g => g).ToList().OrderBy(e => e.Order).ToList();
+
+                var expected = NorthwindData.Set<Order>().Select(o => new ProjectedType
+                    {
+                        Order = o.OrderID,
+                        Customer = o.CustomerID
+                    })
+                    .GroupBy(o => o.Order)
+                    .SelectMany(g => g).ToList().OrderBy(e => e.Order).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i], actual[i]);
+                }
+            }
         }
 
         private class ProjectedType

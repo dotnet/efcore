@@ -926,38 +926,75 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public virtual void Select_DTO_distinct_translated_to_server()
         {
-            AssertQuery<Order>(
-                os => os
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Order>()
                     .Where(o => o.OrderID < 10300)
                     .Select(o => new OrderCountDTO())
-                    .Distinct());
+                    .Distinct().ToList().OrderBy(e => e.Id).ToList();
+
+                var expected = NorthwindData.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .Select(o => new OrderCountDTO())
+                    .Distinct().ToList().OrderBy(e => e.Id).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Id, actual[i].Id);
+                    Assert.Equal(expected[i].Count, actual[i].Count);
+                }
+            }
         }
 
         [ConditionalFact]
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public virtual void Select_DTO_constructor_distinct_translated_to_server()
         {
-            AssertQuery<Order>(
-                os => os
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Order>()
+                        .Where(o => o.OrderID < 10300)
+                        .Select(o => new OrderCountDTO(o.CustomerID))
+                        .Distinct().ToList().OrderBy(e => e.Id).ToList();
+
+                var expected = NorthwindData.Set<Order>()
                     .Where(o => o.OrderID < 10300)
                     .Select(o => new OrderCountDTO(o.CustomerID))
-                    .Distinct(),
-                e => e.Id);
+                    .Distinct().ToList().OrderBy(e => e.Id).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Id, actual[i].Id);
+                    Assert.Equal(expected[i].Count, actual[i].Count);
+                }
+            }
         }
 
         [ConditionalFact]
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public virtual void Select_DTO_with_member_init_distinct_translated_to_server()
         {
-            AssertQuery<Order>(
-                os => os
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Order>()
+                        .Where(o => o.OrderID < 10300)
+                        .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                        .Distinct().ToList().OrderBy(e => e.Count).ToList();
+
+                var expected = NorthwindData.Set<Order>()
                     .Where(o => o.OrderID < 10300)
                     .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
-                    .Distinct(),
-                e => e.Count);
+                    .Distinct().ToList().OrderBy(e => e.Count).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Id, actual[i].Id);
+                    Assert.Equal(expected[i].Count, actual[i].Count);
+                }
+            }
         }
 
         [ConditionalFact]
@@ -974,18 +1011,30 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public virtual void Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server()
         {
-            AssertQuery<Customer, Order>(
-                (cs, os) => 
-                    from c in cs.Where(c => c.CustomerID.StartsWith("A"))
-                    from o in os.Where(o => o.OrderID < 10300)
-                                .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
-                                .Distinct()
-                    select new { c, o },
-                e => e.c.CustomerID + " " + e.o.Count,
-                entryCount: 4);
+            using (var context = CreateContext())
+            {
+                var actual = (from c in context.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                              from o in context.Set<Order>().Where(o => o.OrderID < 10300)
+                                 .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                                 .Distinct()
+                              select new { c, o }).ToList().OrderBy(e => e.c.CustomerID + " " + e.o.Count).ToList();
+
+                var expected = (from c in NorthwindData.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                              from o in NorthwindData.Set<Order>().Where(o => o.OrderID < 10300)
+                                  .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                                  .Distinct()
+                              select new { c, o }).ToList().OrderBy(e => e.c.CustomerID + " " + e.o.Count).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].c.CustomerID, actual[i].c.CustomerID);
+                    Assert.Equal(expected[i].o.Id, actual[i].o.Id);
+                    Assert.Equal(expected[i].o.Count, actual[i].o.Count);
+                }
+            }
         }
 
         private class OrderCountDTO

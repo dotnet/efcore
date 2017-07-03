@@ -439,13 +439,26 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public virtual void Select_nested_collection_count_using_DTO()
         {
-            AssertQuery<Customer>(
-                cs => cs.Where(c => c.CustomerID.StartsWith("A"))
-                        .Select(c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count }),
-                e => e.Id);
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
+                    .ToList().OrderBy(e => e.Id).ToList();
+
+                var expected = NorthwindData.Set<Customer>()
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
+                    .ToList().OrderBy(e => e.Id).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i], actual[i]);
+                }
+            }
         }
 
         [ConditionalFact]
