@@ -427,7 +427,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             join dynamic efItem in efItems on l2oItem.CustomerID equals efItem.CustomerID
                             select new { l2oItem, efItem })
                         {
-                            Assert.Equal(pair.l2oItem.Orders, pair.efItem.Orders);
+                            Assert.Equal(
+                                ((ICollection<Order>)pair.l2oItem.Orders).OrderBy(e => e.OrderID),
+                                ((ICollection<Order>)pair.efItem.Orders).OrderBy(e => e.OrderID));
                         }
                     },
                 entryCount: 34);
