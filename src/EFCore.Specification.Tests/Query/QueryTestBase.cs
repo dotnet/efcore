@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure
@@ -4244,6 +4246,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
+
+            using (var context = CreateContext())
+            {
+                using (var context2 = CreateContext())
+                {
+                    Assert.Equal(GetExpressionHashCode(context, efQuery(context.Set<TItem1>()).Expression),
+                        GetExpressionHashCode(context2, efQuery(context2.Set<TItem1>()).Expression));
+                }
+            }
         }
 
         private void AssertQuery<TItem1, TItem2>(
@@ -4284,6 +4295,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     assertOrder);
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+
+            using (var context = CreateContext())
+            {
+                using (var context2 = CreateContext())
+                {
+                    Assert.Equal(GetExpressionHashCode(context, efQuery(context.Set<TItem1>(), context.Set<TItem2>()).Expression),
+                        GetExpressionHashCode(context2, efQuery(context2.Set<TItem1>(), context2.Set<TItem2>()).Expression));
+                }
             }
         }
 
@@ -4327,6 +4347,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     assertOrder);
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+
+            using (var context = CreateContext())
+            {
+                using (var context2 = CreateContext())
+                {
+                    Assert.Equal(GetExpressionHashCode(context, efQuery(context.Set<TItem1>(), context.Set<TItem2>(), context.Set<TItem3>()).Expression),
+                        GetExpressionHashCode(context2, efQuery(context2.Set<TItem1>(), context2.Set<TItem2>(), context2.Set<TItem3>()).Expression));
+                }
             }
         }
 
@@ -4376,6 +4405,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal,
                     assertOrder);
             }
+
+            using (var context = CreateContext())
+            {
+                using (var context2 = CreateContext())
+                {
+                    Assert.Equal(GetExpressionHashCode(context, efQuery(context.Set<TItem1>()).Expression),
+                        GetExpressionHashCode(context2, efQuery(context2.Set<TItem1>()).Expression));
+                }
+            }
         }
 
         private void AssertQuery<TItem1, TItem2>(
@@ -4403,6 +4441,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     e => e,
                     Assert.Equal,
                     assertOrder);
+            }
+
+            using (var context = CreateContext())
+            {
+                using (var context2 = CreateContext())
+                {
+                    Assert.Equal(GetExpressionHashCode(context, efQuery(context.Set<TItem1>(), context.Set<TItem2>()).Expression),
+                        GetExpressionHashCode(context2, efQuery(context2.Set<TItem1>(), context2.Set<TItem2>()).Expression));
+                }
             }
         }
 
@@ -4435,9 +4482,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal,
                     assertOrder);
             }
+
+            using (var context = CreateContext())
+            {
+                using (var context2 = CreateContext())
+                {
+                    Assert.Equal(GetExpressionHashCode(context, efQuery(context.Set<TItem1>()).Expression),
+                        GetExpressionHashCode(context2, efQuery(context2.Set<TItem1>()).Expression));
+                }
+            }
         }
 
         #endregion
+
+        private int GetExpressionHashCode(DbContext context, Expression expression)
+        {
+            using (var queryContext = context.GetService<IQueryContextFactory>().Create())
+            {
+                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Query>>();
+                var evaluatableExpressionFilter = new EvaluatableExpressionFilter();
+
+                var parameterExtractingExpressionVisitor = new ParameterExtractingExpressionVisitor(evaluatableExpressionFilter, queryContext, logger, true, generateContextAccessors: true);
+                var result = parameterExtractingExpressionVisitor.ExtractParameters(expression);
+
+                var expressionEqualityComparer = new ExpressionEqualityComparer();
+                return expressionEqualityComparer.GetHashCode(result);
+            }
+        }
 
         protected virtual void ClearLog()
         {
