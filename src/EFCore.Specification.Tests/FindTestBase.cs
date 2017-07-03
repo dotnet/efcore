@@ -47,6 +47,35 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void Find_nullable_int_key_tracked()
+        {
+            using (var context = CreateContext())
+            {
+                var entity = context.Attach(new NullableIntKey { Id = 88 }).Entity;
+
+                Assert.Same(entity, Find<NullableIntKey>(context, 88));
+            }
+        }
+
+        [Fact]
+        public virtual void Find_nullable_int_key_from_store()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Smokey", Find<NullableIntKey>(context, 77).Foo);
+            }
+        }
+
+        [Fact]
+        public virtual void Returns_null_for_nullable_int_key_not_in_store()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Null(Find<NullableIntKey>(context, 99));
+            }
+        }
+
+        [Fact]
         public virtual void Find_string_key_tracked()
         {
             using (var context = CreateContext())
@@ -258,6 +287,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void Throws_for_null_nullable_key()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal("keyValues",
+                    Assert.Throws<ArgumentNullException>(() => Find<NullableIntKey>(context, new object[] { null })).ParamName);
+            }
+        }
+
+        [Fact]
         public virtual void Throws_for_null_in_composite_key()
         {
             using (var context = CreateContext())
@@ -343,6 +382,35 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 Assert.Null(await FindAsync<IntKey>(context, 99));
+            }
+        }
+
+        [Fact]
+        public virtual async Task Find_nullable_int_key_tracked_async()
+        {
+            using (var context = CreateContext())
+            {
+                var entity = context.Attach(new NullableIntKey { Id = 88 }).Entity;
+
+                Assert.Same(entity, await FindAsync<NullableIntKey>(context, 88));
+            }
+        }
+
+        [Fact]
+        public virtual async Task Find_nullable_int_key_from_store_async()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Smokey", (await FindAsync<NullableIntKey>(context, 77)).Foo);
+            }
+        }
+
+        [Fact]
+        public virtual async Task Returns_null_for_nullable_int_key_not_in_store_async()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Null(await FindAsync<NullableIntKey>(context, 99));
             }
         }
 
@@ -638,6 +706,14 @@ namespace Microsoft.EntityFrameworkCore
             public string Foo { get; set; }
         }
 
+        protected class NullableIntKey
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int? Id { get; set; }
+
+            public string Foo { get; set; }
+        }
+
         protected class StringKey
         {
             public string Id { get; set; }
@@ -665,6 +741,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public DbSet<IntKey> IntKeys { get; set; }
+            public DbSet<NullableIntKey> NullableIntKeys { get; set; }
             public DbSet<StringKey> StringKeys { get; set; }
             public DbSet<CompositeKey> CompositeKeys { get; set; }
             public DbSet<BaseType> BaseTypes { get; set; }
@@ -703,6 +780,7 @@ namespace Microsoft.EntityFrameworkCore
                 var findContext = (FindContext)context;
                 findContext.AddRange(
                     new IntKey { Id = 77, Foo = "Smokey" },
+                    new NullableIntKey { Id = 77, Foo = "Smokey" },
                     new StringKey { Id = "Cat", Foo = "Alice" },
                     new CompositeKey { Id1 = 77, Id2 = "Dog", Foo = "Olive" },
                     new BaseType { Id = 77, Foo = "Baxter" },

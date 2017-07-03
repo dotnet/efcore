@@ -95,6 +95,40 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
         }
 
         [Fact]
+        public override void Find_nullable_int_key_tracked()
+        {
+            base.Find_int_key_tracked();
+
+            Assert.Equal("", Sql);
+        }
+
+        [Fact]
+        public override void Find_nullable_int_key_from_store()
+        {
+            base.Find_int_key_from_store();
+
+            Assert.Equal(
+                @"@__get_Item_0='77'
+
+SELECT TOP(1) [e].[Id], [e].[Foo]
+FROM [IntKey] AS [e]
+WHERE [e].[Id] = @__get_Item_0", Sql);
+        }
+
+        [Fact]
+        public override void Returns_null_for_nullable_int_key_not_in_store()
+        {
+            base.Returns_null_for_int_key_not_in_store();
+
+            Assert.Equal(
+                @"@__get_Item_0='99'
+
+SELECT TOP(1) [e].[Id], [e].[Foo]
+FROM [IntKey] AS [e]
+WHERE [e].[Id] = @__get_Item_0", Sql);
+        }
+
+        [Fact]
         public override void Find_string_key_tracked()
         {
             base.Find_string_key_tracked();

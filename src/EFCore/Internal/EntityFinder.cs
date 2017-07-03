@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 var valueType = keyValues[i].GetType();
                 var propertyType = keyProperties[i].ClrType;
-                if (valueType != propertyType)
+                if (valueType != propertyType.UnwrapNullableType())
                 {
                     throw new ArgumentException(
                         CoreStrings.FindValueTypeMismatch(
