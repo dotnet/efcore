@@ -76,6 +76,18 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                 startedTransaction?.Commit();
             }
+            catch
+            {
+                try
+                {
+                    startedTransaction?.Rollback();
+                }
+                catch
+                {
+                    // if the connection was lost, rollback command will fail.  prefer to throw original exception in that case
+                }
+                throw;
+            }
             finally
             {
                 if (startedTransaction != null)
@@ -129,7 +141,25 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     rowsAffected += commandbatch.ModificationCommands.Count;
                 }
 
-                startedTransaction?.Commit();
+                if (startedTransaction != null)
+                {
+                    await startedTransaction.CommitAsync(cancellationToken);
+                }
+            }
+            catch
+            {
+                try
+                {
+                    if (startedTransaction != null)
+                    {
+                        await startedTransaction.RollbackAsync(cancellationToken);
+                    }
+                }
+                catch
+                {
+                    // if the connection was lost, rollback command will fail.  prefer to throw original exception in that case
+                }
+                throw;
             }
             finally
             {

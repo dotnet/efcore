@@ -177,12 +177,37 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             await OpenAsync(cancellationToken: cancellationToken);
 
-            return BeginTransactionWithNoPreconditions(isolationLevel);
+            return await BeginTransactionWithNoPreconditionsAsync(isolationLevel);
         }
 
         private IDbContextTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
         {
             var dbTransaction = DbConnection.BeginTransaction(isolationLevel);
+
+            CurrentTransaction
+                = new RelationalTransaction(
+                    this,
+                    dbTransaction,
+                    Dependencies.TransactionLogger,
+                    transactionOwned: true);
+            
+            Dependencies.TransactionLogger.TransactionStarted(
+                this, 
+                dbTransaction, 
+                CurrentTransaction.TransactionId,
+                DateTimeOffset.UtcNow);
+
+            return CurrentTransaction;
+        }
+
+        protected virtual Task<DbTransaction> DbBeginTransactionAsync(IsolationLevel isolationLevel)
+        {
+            return Task.FromResult(DbConnection.BeginTransaction(isolationLevel));
+        }
+        
+        private async Task<IDbContextTransaction> BeginTransactionWithNoPreconditionsAsync(IsolationLevel isolationLevel)
+        {
+            var dbTransaction = await DbBeginTransactionAsync(isolationLevel);
 
             CurrentTransaction
                 = new RelationalTransaction(

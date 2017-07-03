@@ -4,6 +4,8 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -99,6 +101,47 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ClearTransaction();
         }
 
+        protected virtual Task DbCommitAsync(DbTransaction dbTransaction)
+        {
+            dbTransaction.Commit();
+            return Task.CompletedTask;
+        }
+        
+        /// <summary>
+        ///     Commits all changes made to the database in the current transaction.
+        /// </summary>
+        public virtual async Task CommitAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                await DbCommitAsync(_dbTransaction);
+
+                _logger.TransactionCommitted(
+                    _relationalConnection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    stopwatch.Elapsed);
+            }
+            catch (Exception e)
+            {
+                _logger.TransactionError(
+                    _relationalConnection,
+                    _dbTransaction,
+                    TransactionId,
+                    "Commit",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed);
+                throw;
+            }
+
+            ClearTransaction();
+        }
+
         /// <summary>
         ///     Discards all changes made to the database in the current transaction.
         /// </summary>
@@ -110,6 +153,47 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 _dbTransaction.Rollback();
+
+                _logger.TransactionRolledBack(
+                    _relationalConnection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    stopwatch.Elapsed);
+            }
+            catch (Exception e)
+            {
+                _logger.TransactionError(
+                    _relationalConnection,
+                    _dbTransaction,
+                    TransactionId,
+                    "Rollback",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed);
+                throw;
+            }
+
+            ClearTransaction();
+        }
+        
+        protected virtual Task DbRollbackAsync(DbTransaction dbTransaction)
+        {
+            dbTransaction.Rollback();
+            return Task.CompletedTask;
+        }
+        
+        /// <summary>
+        ///     Discards all changes made to the database in the current transaction.
+        /// </summary>
+        public virtual async Task RollbackAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                await DbRollbackAsync(_dbTransaction);
 
                 _logger.TransactionRolledBack(
                     _relationalConnection,
