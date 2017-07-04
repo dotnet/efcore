@@ -162,7 +162,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         ((IDbContextOptionsBuilderInfrastructure)ob).AddOrUpdateExtension(extension);
                     },
-                ServiceLifetime.Singleton,
                 ServiceLifetime.Singleton);
 
             serviceCollection.TryAddSingleton<DbContextPool<TContext>>();
@@ -271,7 +270,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 CheckContextConstructors<TContext>();
             }
 
-            AddCoreServices<TContext>(serviceCollection, optionsAction, contextLifetime, optionsLifetime);
+            AddCoreServices<TContext>(serviceCollection, optionsAction, optionsLifetime);
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContext), typeof(TContext), contextLifetime));
 
@@ -281,7 +280,6 @@ namespace Microsoft.Extensions.DependencyInjection
         private static void AddCoreServices<TContext>(
             IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder> optionsAction, 
-            ServiceLifetime contextLifetime,
             ServiceLifetime optionsLifetime)
             where TContext : DbContext
         {
