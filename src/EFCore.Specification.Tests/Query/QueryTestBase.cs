@@ -4106,14 +4106,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertSingleResult
 
-        private void AssertSingleResult<TItem1>(
+        protected void AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, object> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             => AssertSingleResult(query, query, asserter, entryCount);
 
-        private void AssertSingleResult<TItem1>(
+        protected void AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, object> efQuery,
             Func<IQueryable<TItem1>, object> l2oQuery,
             Action<object, object> asserter = null,
@@ -4138,7 +4138,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private void AssertSingleResult<TItem1, TItem2>(
+        protected void AssertSingleResult<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, object> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
@@ -4146,7 +4146,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem2 : class
             => AssertSingleResult(query, query, asserter, entryCount);
 
-        private void AssertSingleResult<TItem1, TItem2>(
+        protected void AssertSingleResult<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, object> efQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, object> l2oQuery,
             Action<object, object> asserter = null,
@@ -4172,7 +4172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private void AssertSingleResult<TItem1, TItem2, TItem3>(
+        protected void AssertSingleResult<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, object> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
@@ -4181,7 +4181,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem3 : class
             => AssertSingleResult(query, query, asserter, entryCount);
 
-        private void AssertSingleResult<TItem1, TItem2, TItem3>(
+        protected void AssertSingleResult<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, object> efQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, object> l2oQuery,
             Action<object, object> asserter = null,
@@ -4256,7 +4256,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             };
         }
 
-        private void AssertQuery<TItem1>(
+        protected void AssertQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> query,
             Func<dynamic, object> elementSorter = null,
             Action<dynamic, dynamic> elementAsserter = null,
@@ -4295,7 +4295,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private void AssertQuery<TItem1, TItem2>(
+        protected void AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             Func<dynamic, object> elementSorter = null,
             Action<dynamic, dynamic> elementAsserter = null,
@@ -4305,7 +4305,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem2 : class
             => AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount);
 
-        private void AssertQuery<TItem1, TItem2>(
+        protected void AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> efQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> l2oQuery,
             Func<dynamic, object> elementSorter = null,
@@ -4336,7 +4336,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private void AssertQuery<TItem1, TItem2, TItem3>(
+        protected void AssertQuery<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> query,
             Func<dynamic, object> elementSorter = null,
             Action<dynamic, dynamic> elementAsserter = null,
@@ -4347,7 +4347,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem3 : class
             => AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount);
 
-        private void AssertQuery<TItem1, TItem2, TItem3>(
+        protected void AssertQuery<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> efQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> l2oQuery,
             Func<dynamic, object> elementSorter = null,
@@ -4383,31 +4383,31 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertQueryScalar
 
-        private void AssertQuery<TItem1>(
+        protected void AssertQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<int>> query,
             bool assertOrder = false)
             where TItem1 : class
             => AssertQueryScalar(query, query, assertOrder);
 
-        private void AssertQuery<TItem1>(
+        protected void AssertQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<long>> query,
             bool assertOrder = false)
             where TItem1 : class
             => AssertQueryScalar(query, query, assertOrder);
 
-        private void AssertQuery<TItem1>(
+        protected void AssertQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<short>> query,
             bool assertOrder = false)
             where TItem1 : class
             => AssertQueryScalar(query, query, assertOrder);
 
-        private void AssertQuery<TItem1>(
+        protected void AssertQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<bool>> query,
             bool assertOrder = false)
             where TItem1 : class
             => AssertQueryScalar(query, query, assertOrder);
 
-        private void AssertQueryScalar<TItem1, TResult>(
+        protected void AssertQueryScalar<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult>> efQuery,
             Func<IQueryable<TItem1>, IQueryable<TResult>> l2oQuery,
             bool assertOrder = false)
@@ -4427,14 +4427,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private void AssertQuery<TItem1, TItem2>(
+        protected void AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> query,
             bool assertOrder = false)
             where TItem1 : class
             where TItem2 : class
             => AssertQueryScalar22(query, query, assertOrder);
 
-        private void AssertQueryScalar22<TItem1, TItem2, TResult>(
+        protected void AssertQueryScalar22<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> efQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> l2oQuery,
             bool assertOrder = false)
@@ -4459,14 +4459,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertQueryNullableScalar
 
-        private void AssertQueryNullableScalar<TItem1, TResult>(
+        protected void AssertQueryNullableScalar<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult?>> query,
             bool assertOrder = false)
             where TItem1 : class
             where TResult : struct
             => AssertQueryNullableScalar(query, query, assertOrder);
 
-        private void AssertQueryNullableScalar<TItem1, TResult>(
+        protected void AssertQueryNullableScalar<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult?>> efQuery,
             Func<IQueryable<TItem1>, IQueryable<TResult?>> l2oQuery,
             bool assertOrder = false)
