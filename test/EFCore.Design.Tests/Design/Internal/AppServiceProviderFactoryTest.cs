@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -55,6 +56,30 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         private class ProgramWithoutBuildWebHost
         {
+        }
+
+        [Fact]
+        public void Create_works_when_BuildWebHost_throws()
+        {
+            var reporter = new TestOperationReporter();
+            var factory = new TestAppServiceProviderFactory(
+                MockAssembly.Create(typeof(ProgramWithThrowingBuildWebHost)),
+                typeof(ProgramWithThrowingBuildWebHost),
+                reporter);
+
+            var services = factory.Create(Array.Empty<string>());
+
+            Assert.NotNull(services);
+            Assert.Contains(
+                "warn: " +
+                    DesignStrings.InvokeBuildWebHostFailed(nameof(ProgramWithThrowingBuildWebHost), "This is a test."),
+                reporter.Messages);
+        }
+
+        private class ProgramWithThrowingBuildWebHost
+        {
+            public static TestWebHost BuildWebHost(string[] args)
+                => throw new Exception("This is a test.");
         }
     }
 }

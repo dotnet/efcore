@@ -333,4 +333,7 @@ Change your target project to the migrations project by using the Package Manage
   <data name="SequencesRequireName" xml:space="preserve">
     <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
   </data>
+  <data name="InvokeBuildWebHostFailed" xml:space="preserve">
+    <value>An error occurred while calling method 'BuildWebHost' on class '{startupClass}'. Continuing without the application service provider. Error: {error}</value>
+  </data>
 </root>

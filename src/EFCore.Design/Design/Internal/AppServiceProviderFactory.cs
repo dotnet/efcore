@@ -59,12 +59,27 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _reporter.WriteVerbose(DesignStrings.UsingEnvironment(environment));
             _reporter.WriteVerbose(DesignStrings.UsingBuildWebHost(programType.ShortDisplayName()));
 
-            var webHost = buildWebHostMethod.Invoke(null, new object[] { args });
-            var webHostType = webHost.GetType();
-            var servicesProperty = webHostType.GetTypeInfo().GetDeclaredProperty("Services");
-            var services = (IServiceProvider)servicesProperty.GetValue(webHost);
+            try
+            {
+                var webHost = buildWebHostMethod.Invoke(null, new object[] { args });
+                var webHostType = webHost.GetType();
+                var servicesProperty = webHostType.GetTypeInfo().GetDeclaredProperty("Services");
+                var services = (IServiceProvider)servicesProperty.GetValue(webHost);
 
-            return services.CreateScope().ServiceProvider;
+                return services.CreateScope().ServiceProvider;
+            }
+            catch (Exception ex)
+            {
+                if (ex is TargetInvocationException)
+                {
+                    ex = ex.InnerException;
+                }
+
+                _reporter.WriteVerbose(ex.ToString());
+                _reporter.WriteWarning(DesignStrings.InvokeBuildWebHostFailed(programType.ShortDisplayName(), ex.Message));
+
+                return null;
+            }
         }
 
         protected virtual Type FindProgramClass()

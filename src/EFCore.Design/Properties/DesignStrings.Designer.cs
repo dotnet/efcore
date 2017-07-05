@@ -556,6 +556,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string SequencesRequireName
             => GetString("SequencesRequireName");
 
+        /// <summary>
+        ///     An error occurred while calling method 'BuildWebHost' on class '{startupClass}'. Continuing without the application service provider. Error: {error}
+        /// </summary>
+        public static string InvokeBuildWebHostFailed([CanBeNull] object startupClass, [CanBeNull] object error)
+            => string.Format(
+                GetString("InvokeBuildWebHostFailed", nameof(startupClass), nameof(error)),
+                startupClass, error);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
